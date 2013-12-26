@@ -3,24 +3,24 @@
 use App;
 
 /**
- * Alias Base
+ * Facade Base
  *
- * Alias Target classes should use the Singleton trait.
+ * Facade Target classes should use the Singleton trait.
  */
-class AliasBase
+class FacadeBase
 {
     /**
      * Static call helper
      */
     public static function __callStatic($name, $args)
     {
-        $aliasMap = AliasLoader::instance()->getAliases();
-        $aliasClass = get_called_class();
+        $facadeMap = FacadeLoader::instance()->getFacadees();
+        $facadeClass = get_called_class();
 
-        if (!isset($aliasMap[$aliasClass]))
-            throw new \Exception('Alias class not registered: '. $aliasClass);
+        if (!isset($facadeMap[$facadeClass]))
+            throw new \Exception('Facade class not registered: '. $facadeClass);
 
-        $targetClass = $aliasMap[$aliasClass];
+        $targetClass = $facadeMap[$facadeClass];
         $targetObj = new $targetClass;
 
         if (method_exists($targetObj, $name))
