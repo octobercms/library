@@ -1,6 +1,6 @@
 <?php namespace October\Rain\Support\Facades;
 
-use Illuminate\Support\Facades\Facade;
+use October\Rain\Support\Facade;
 
 /**
  * Network Http Facade
