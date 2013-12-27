@@ -6,8 +6,12 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Alexey Bobkov, Samuel Georges",
-            "email": "admin@responsiv.com"
+            "name": "Alexey Bobkov",
+            "email": "aleksey.bobkov@gmail.com"
+        },
+        {
+            "name": "Samuel Georges",
+            "email": "daftspunky@gmail.com"
         }
     ],
     "require": {
