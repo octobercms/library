@@ -1,11 +1,11 @@
-<?php namespace October\Rain\Support;
+<?php namespace October\Rain\Filesystem;
 
-use Illuminate\Filesystem\Filesystem;
+use Illuminate\Filesystem\Filesystem as FilesystemBase;
 
 /**
  * File helper
  */
-class File extends Filesystem
+class Filesystem extends FilesystemBase
 {
     /**
      * Determine if a file exists with case insensitivity 
