@@ -1,0 +1,26 @@
+{
+    "name": "october/combiner",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alexey Bobkov",
+        },
+        {
+            "name": "Samuel Georges",
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "october/support": "1.*",
+        "illuminate/support": "4.0.x",
+        "illuminate/filesystem": "4.0.x",
+        "linkorb/jsmin-php": "dev-master"
+    },
+    "autoload": {
+        "psr-0": {
+            "October\\Rain\\Combiner": ""
+        }
+    },
+    "target-dir": "October/Rain/Combiner",
+    "minimum-stability": "dev"
+}
