@@ -28,7 +28,7 @@ class FacadeLoader
         }
     }
 
-    public function getFacadees()
+    public function getFacades()
     {
         return $this->facades;
     }

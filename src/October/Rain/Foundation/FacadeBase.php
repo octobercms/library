@@ -14,7 +14,7 @@ class FacadeBase
      */
     public static function __callStatic($name, $args)
     {
-        $facadeMap = FacadeLoader::instance()->getFacadees();
+        $facadeMap = FacadeLoader::instance()->getFacades();
         $facadeClass = get_called_class();
 
         if (!isset($facadeMap[$facadeClass]))
