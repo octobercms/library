@@ -1,0 +1,23 @@
+{
+    "name": "october/routing",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alexey Bobkov",
+        },
+        {
+            "name": "Samuel Georges",
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "october/support": "1.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "October\\Rain\\Routing": ""
+        }
+    },
+    "target-dir": "October/Rain/Routing",
+    "minimum-stability": "dev"
+}
