@@ -1,6 +1,7 @@
 {
     "name": "october/rain",
     "description": "October Rain Library",
+    "homepage": "http://octobercms.com",
     "keywords": ["october", "cms", "rain"],
     "license": "MIT",
     "authors": [
