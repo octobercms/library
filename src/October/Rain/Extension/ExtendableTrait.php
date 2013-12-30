@@ -57,7 +57,7 @@ trait ExtendableTrait
         }
     }
 
-    public function addDynamicMethod($extension, $dynamicName, $actualName) 
+    public function addDynamicMethod($extension, $dynamicName, $actualName)
     {
         $this->extensionData['dynamicMethods'][$dynamicName] = array($extension, $actualName);
     }
@@ -79,7 +79,7 @@ trait ExtendableTrait
     public function methodExists($name)
     {
         return (method_exists($this, $name)
-            || isset($this->extensionData['methods'][$name]) 
+            || isset($this->extensionData['methods'][$name])
             || isset($this->extensionData['dynamicMethods'][$name]));
     }
 
@@ -93,7 +93,7 @@ trait ExtendableTrait
             return $this->{$name};
 
         foreach ($this->extensionData['extensions'] as $extensionObject) {
-            if (property_exists($extensionObject, $name))
+            if (property_exists($extensionObject, $name) && $this->extendableIsAccessible($extensionObject, $name))
                 return $extensionObject->{$name};
         }
 
@@ -136,7 +136,7 @@ trait ExtendableTrait
             $extension = $this->extensionData['methods'][$name];
             $extensionObject = $this->extensionData['extensions'][$extension];
 
-            if (method_exists($extension, $name))
+            if (method_exists($extension, $name) && is_callable([$extension, $name]))
                 return call_user_func_array(array($extensionObject, $name), $params);
         }
 
@@ -144,7 +144,7 @@ trait ExtendableTrait
             $extensionObject = $this->extensionData['dynamicMethods'][$name][0];
             $actualName = $this->extensionData['dynamicMethods'][$name][1];
 
-            if (method_exists($extensionObject, $actualName))
+            if (method_exists($extensionObject, $actualName) && is_callable([$extensionObject, $actualName]))
                 return call_user_func_array(array($extensionObject, $actualName), $params);
         }
 
@@ -157,5 +157,12 @@ trait ExtendableTrait
         }
 
         throw new \Exception(sprintf('Class %s does not have a method definition for %s', get_class($this), $name));
+    }
+
+    private function extendableIsAccessible($class, $propertyName)
+    {
+        $reflector = new \ReflectionClass($class);
+        $property = $reflector->getProperty($propertyName);
+        return $property->isPublic();
     }
 }
