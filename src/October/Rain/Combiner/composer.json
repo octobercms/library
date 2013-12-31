@@ -1,19 +1,23 @@
 {
     "name": "october/combiner",
+    "description": "Assetic combiner filters used in October CMS",
+    "homepage": "http://octobercms.com",
+    "keywords": ["october cms", "october", "assetic", "combiner"],
     "license": "MIT",
     "authors": [
         {
             "name": "Alexey Bobkov",
+            "email": "aleksey.bobkov@gmail.com"
         },
         {
             "name": "Samuel Georges",
+            "email": "daftspunky@gmail.com"
         }
     ],
     "require": {
         "php": ">=5.3.0",
         "october/support": "1.*",
-        "illuminate/support": "4.0.x",
-        "illuminate/filesystem": "4.0.x",
+        "october/filesystem": "1.*",
         "linkorb/jsmin-php": "dev-master"
     },
     "autoload": {

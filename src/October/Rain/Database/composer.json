@@ -1,8 +1,8 @@
 {
-    "name": "october/router",
-    "description": "Basic URL Router",
+    "name": "october/database",
+    "description": "ActiveRecord based on Eloquent with Deferred Binding",
     "homepage": "http://octobercms.com",
-    "keywords": ["october cms", "october", "url", "uri", "router", "simple"],
+    "keywords": ["october cms", "october", "eloquent", "laravel", "orm", "activerecord", "deferred binding"],
     "license": "MIT",
     "authors": [
         {
@@ -20,9 +20,9 @@
     },
     "autoload": {
         "psr-0": {
-            "October\\Rain\\Router": ""
+            "October\\Rain\\Database": ""
         }
     },
-    "target-dir": "October/Rain/Router",
+    "target-dir": "October/Rain/Database",
     "minimum-stability": "dev"
 }

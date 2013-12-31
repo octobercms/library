@@ -1,8 +1,8 @@
 {
-    "name": "october/router",
-    "description": "Basic URL Router",
+    "name": "october/foundation",
+    "description": "Foundation components for October",
     "homepage": "http://octobercms.com",
-    "keywords": ["october cms", "october", "url", "uri", "router", "simple"],
+    "keywords": ["october cms", "october", "facadeloader", "foundation", "core"],
     "license": "MIT",
     "authors": [
         {
@@ -20,9 +20,9 @@
     },
     "autoload": {
         "psr-0": {
-            "October\\Rain\\Router": ""
+            "October\\Rain\\Foundation": ""
         }
     },
-    "target-dir": "October/Rain/Router",
+    "target-dir": "October/Rain/Foundation",
     "minimum-stability": "dev"
 }

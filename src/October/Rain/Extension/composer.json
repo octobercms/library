@@ -1,8 +1,8 @@
 {
-    "name": "october/router",
-    "description": "Basic URL Router",
+    "name": "october/extension",
+    "description": "Extension based classes, like private Traits",
     "homepage": "http://octobercms.com",
-    "keywords": ["october cms", "october", "url", "uri", "router", "simple"],
+    "keywords": ["october cms", "october", "traits", "extensions", "behaviors"],
     "license": "MIT",
     "authors": [
         {
@@ -15,14 +15,13 @@
         }
     ],
     "require": {
-        "php": ">=5.3.0",
-        "october/support": "1.*"
+        "php": ">=5.4.0"
     },
     "autoload": {
         "psr-0": {
-            "October\\Rain\\Router": ""
+            "October\\Rain\\Extension": ""
         }
     },
-    "target-dir": "October/Rain/Router",
+    "target-dir": "October/Rain/Extension",
     "minimum-stability": "dev"
 }

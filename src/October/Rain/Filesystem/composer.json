@@ -1,8 +1,8 @@
 {
-    "name": "october/router",
-    "description": "Basic URL Router",
+    "name": "october/filesystem",
+    "description": "Custom Filesystem service",
     "homepage": "http://octobercms.com",
-    "keywords": ["october cms", "october", "url", "uri", "router", "simple"],
+    "keywords": ["october cms", "october", "filesystem", "files"],
     "license": "MIT",
     "authors": [
         {
@@ -16,13 +16,14 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "october/support": "1.*"
+        "october/support": "1.*",
+        "illuminate/filesystem": "4.1.*"
     },
     "autoload": {
         "psr-0": {
-            "October\\Rain\\Router": ""
+            "October\\Rain\\Filesystem": ""
         }
     },
-    "target-dir": "October/Rain/Router",
+    "target-dir": "October/Rain/Filesystem",
     "minimum-stability": "dev"
 }

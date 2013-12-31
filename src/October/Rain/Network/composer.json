@@ -1,8 +1,8 @@
 {
-    "name": "october/router",
-    "description": "Basic URL Router",
+    "name": "october/network",
+    "description": "Network services",
     "homepage": "http://octobercms.com",
-    "keywords": ["october cms", "october", "url", "uri", "router", "simple"],
+    "keywords": ["october cms", "october", "net", "http", "curl"],
     "license": "MIT",
     "authors": [
         {
@@ -20,9 +20,9 @@
     },
     "autoload": {
         "psr-0": {
-            "October\\Rain\\Router": ""
+            "October\\Rain\\Network": ""
         }
     },
-    "target-dir": "October/Rain/Router",
+    "target-dir": "October/Rain/Network",
     "minimum-stability": "dev"
 }
