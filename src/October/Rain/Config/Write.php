@@ -4,7 +4,7 @@
  * Configuration writer
  *
  * This class lets you rewrite array values inside a basic configuration file
- * that structurally returns an array (a Laravel config file) whilst maintaining
+ * that returns a single array definition (a Laravel config file) whilst maintaining
  * the integrity of the file, leaving comments and advanced settings intact.
  *
  * The following value types are supported for writing:
