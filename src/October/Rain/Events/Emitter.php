@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Event;
+<?php namespace October\Rain\Events;
 
 /**
  * Emitter class

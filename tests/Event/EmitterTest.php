@@ -1,6 +1,6 @@
 <?php
 
-use October\Rain\Event\Emitter;
+use October\Rain\Events\Emitter;
 
 class EmitterTest extends TestCase
 {

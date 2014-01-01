@@ -18,7 +18,7 @@ use October\Rain\Exceptions\ModelException;
  */
 class Model extends EloquentModel
 {
-    use \October\Rain\Event\EmitterTrait;
+    use \October\Rain\Events\EmitterTrait;
     use \October\Rain\Extension\ExtendableTrait;
 
     public $implement;
