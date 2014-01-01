@@ -90,10 +90,6 @@ class WriteTest extends TestCase
 
         $this->assertArrayHasKey('aNumber', $result);
         $this->assertEquals(69, $result['aNumber']);
-
-        print_r($result);
-        echo $contents;
-
     }
 
 }
