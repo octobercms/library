@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Attach\Exceptions;
+<?php namespace October\Rain\Database\Attach;
 
 use Exception;
 

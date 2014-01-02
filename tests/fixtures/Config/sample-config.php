@@ -76,7 +76,7 @@ return array(
         ),
 
         'mysql' => array(
-            'driver'    => 'mysql',
+            'driver'    => array('rabble' => 'mysql'),
             'host'      => 'localhost',
             'database'  => 'database',
             'username'  => 'root',

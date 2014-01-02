@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Foundation;
+<?php namespace October\Rain\Support;
 
 use App;
 

@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Exceptions;
+<?php namespace October\Rain\Support;
 
 use Illuminate\Validation\Validator;
 

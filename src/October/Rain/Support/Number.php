@@ -3,7 +3,7 @@
 /**
  * Numeric helper
  */
-class Number 
+class Number
 {
     /**
      * Generate a random number based on time 

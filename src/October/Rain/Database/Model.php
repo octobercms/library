@@ -11,14 +11,14 @@ use October\Rain\Database\Relations\HasMany;
 use October\Rain\Database\Relations\HasOne;
 use October\Rain\Database\Relations\MorphMany;
 use October\Rain\Database\Relations\MorphOne;
-use October\Rain\Exceptions\ModelException;
+use October\Rain\Database\ModelException;
 
 /**
  * Proxy class for Eloquent. Injects Extendability.
  */
 class Model extends EloquentModel
 {
-    use \October\Rain\Events\EmitterTrait;
+    use \October\Rain\Support\Traits\Emitter;
     use \October\Rain\Extension\ExtendableTrait;
 
     public $implement;
@@ -39,7 +39,7 @@ class Model extends EloquentModel
     public $validationErrors;
 
     /**
-     * @var bool Makes the validation procedure throw an {@link October\Rain\Exceptions\ModelException} instead of returning
+     * @var bool Makes the validation procedure throw an {@link October\Rain\Database\ModelException} instead of returning
      * false when validation fails.
      */
     public $throwOnValidation = true;

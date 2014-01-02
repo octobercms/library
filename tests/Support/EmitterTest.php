@@ -1,13 +1,34 @@
 <?php
 
-use October\Rain\Events\Emitter;
-
 class EmitterTest extends TestCase
 {
+    /**
+     * The object under test.
+     *
+     * @var object
+     */
+    private $traitObject;
+
+    /**
+     * Sets up the fixture.
+     *
+     * This method is called before a test is executed.
+     *
+     * @return void
+     */
+    public function setUp()
+    {
+        $traitName = 'October\Rain\Support\Traits\Emitter';
+        $this->traitObject = $this->getObjectForTrait($traitName);
+    }
+
+    //
+    // Tests
+    //
 
     public function testBind()
     {
-        $emitter = new Emitter;
+        $emitter = $this->traitObject;
         $result = false;
 
         $emitter->trigger('event.test');
@@ -23,7 +44,7 @@ class EmitterTest extends TestCase
     
     public function testBindOnce()
     {
-        $emitter = new Emitter;
+        $emitter = $this->traitObject;
         $result = 1;
 
         $callback = function() use (&$result) { $result++; };
@@ -38,7 +59,7 @@ class EmitterTest extends TestCase
 
     public function testUnbind()
     {
-        $emitter = new Emitter;
+        $emitter = $this->traitObject;
         $result = false;
 
         $callback = function() use (&$result) { $result = true; };
@@ -52,7 +73,7 @@ class EmitterTest extends TestCase
 
     public function testTrigger()
     {
-        $emitter = new Emitter;
+        $emitter = $this->traitObject;
         $count = 0;
 
         $callback = function() use (&$count) { $count++; };
@@ -67,7 +88,7 @@ class EmitterTest extends TestCase
 
     public function testTriggerResult()
     {
-        $emitter = new Emitter;
+        $emitter = $this->traitObject;
         $result = $emitter->trigger('event.test');
         $this->assertNull($result);
 

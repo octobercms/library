@@ -1,19 +1,38 @@
 <?php
 
-use October\Rain\Config\Write;
+use October\Rain\Config\Rewrite;
 
-class WriteTest extends TestCase
+class RewriteTest extends TestCase
 {
 
-    public function testWriteTo()
+    public function testToFile()
     {
-        $writer = new Write;
+        $writer = new Rewrite;
+
+        $filePath = __DIR__ . '../../fixtures/Config/sample-config.php';
+        $tmpFile = __DIR__ . '../../fixtures/Config/temp-config.php';
+        copy($filePath, $tmpFile);
+
+        $contents = $writer->toFile($tmpFile, ['connections.sqlite.driver'=>'sqlbite']);
+
+        $result = include $tmpFile;
+        $this->assertArrayHasKey('connections', $result);
+        $this->assertArrayHasKey('sqlite', $result['connections']);
+        $this->assertArrayHasKey('driver', $result['connections']['sqlite']);
+        $this->assertEquals('sqlbite', $result['connections']['sqlite']['driver']);
+
+        unlink($tmpFile);
+    }
+
+    public function testToContent()
+    {
+        $writer = new Rewrite;
 
         /*
          * Rewrite a single level string
          */
         $contents = file_get_contents(__DIR__ . '../../fixtures/Config/sample-config.php');
-        $contents = $writer->to($contents, ['url' => 'http://octobercms.com']);
+        $contents = $writer->toContent($contents, ['url' => 'http://octobercms.com']);
         $result = eval('?>'.$contents);
 
         $this->assertTrue(is_array($result));
@@ -23,7 +42,7 @@ class WriteTest extends TestCase
         /*
          * Rewrite a second level string
          */
-        $contents = $writer->to($contents, ['memcached.host' => '69.69.69.69']);
+        $contents = $writer->toContent($contents, ['memcached.host' => '69.69.69.69']);
         $result = eval('?>'.$contents);
 
         $this->assertArrayHasKey('memcached', $result);
@@ -33,7 +52,7 @@ class WriteTest extends TestCase
         /*
          * Rewrite a third level string
          */
-        $contents = $writer->to($contents, ['connections.mysql.host' => '127.0.0.1']);
+        $contents = $writer->toContent($contents, ['connections.mysql.host' => '127.0.0.1']);
         $result = eval('?>'.$contents);
 
         $this->assertArrayHasKey('connections', $result);
@@ -44,8 +63,8 @@ class WriteTest extends TestCase
         /*
          * Test alternative quoting
          */
-        $contents = $writer->to($contents, ['timezone' => 'The Fifth Dimension']);
-        $contents = $writer->to($contents, ['timezoneAgain' => 'The "Sixth" Dimension']);
+        $contents = $writer->toContent($contents, ['timezone' => 'The Fifth Dimension']);
+        $contents = $writer->toContent($contents, ['timezoneAgain' => 'The "Sixth" Dimension']);
         $result = eval('?>'.$contents);
 
         $this->assertArrayHasKey('timezone', $result);
@@ -56,12 +75,12 @@ class WriteTest extends TestCase
         /*
          * Rewrite a boolean
          */
-        $contents = $writer->to($contents, ['debug' => false]);
-        $contents = $writer->to($contents, ['debugAgain' => true]);
-        $contents = $writer->to($contents, ['bullyIan' => true]);
-        $contents = $writer->to($contents, ['booLeeIan' => false]);
-        $contents = $writer->to($contents, ['memcached.weight' => false]);
-        $contents = $writer->to($contents, ['connections.pgsql.password' => true]);
+        $contents = $writer->toContent($contents, ['debug' => false]);
+        $contents = $writer->toContent($contents, ['debugAgain' => true]);
+        $contents = $writer->toContent($contents, ['bullyIan' => true]);
+        $contents = $writer->toContent($contents, ['booLeeIan' => false]);
+        $contents = $writer->toContent($contents, ['memcached.weight' => false]);
+        $contents = $writer->toContent($contents, ['connections.pgsql.password' => true]);
         $result = eval('?>'.$contents);
 
         $this->assertArrayHasKey('debug', $result);
@@ -85,7 +104,7 @@ class WriteTest extends TestCase
         /*
          * Rewrite an integer
          */
-        $contents = $writer->to($contents, ['aNumber' => 69]);
+        $contents = $writer->toContent($contents, ['aNumber' => 69]);
         $result = eval('?>'.$contents);
 
         $this->assertArrayHasKey('aNumber', $result);

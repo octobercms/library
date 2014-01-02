@@ -1,9 +1,9 @@
-<?php namespace October\Rain\Events;
+<?php namespace October\Rain\Support\Traits;
 
 /**
  * Adds event related features to a class.
  */
-trait EmitterTrait
+trait Emitter
 {
     /**
      * @var array Collection of registered events to be fired once only.

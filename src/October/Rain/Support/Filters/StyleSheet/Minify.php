@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Combiner\Filter;
+<?php namespace October\Rain\Support\Filters;
 
 use Assetic\Asset\AssetInterface;
 use Assetic\Filter\FilterInterface;

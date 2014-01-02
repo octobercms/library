@@ -1,8 +1,8 @@
-<?php namespace October\Rain\Foundation;
+<?php namespace October\Rain\Support;
 
 class FacadeLoader
 {
-    use \October\Rain\Support\Singleton;
+    use \October\Rain\Support\Traits\Singleton;
 
     /**
      * The array of class facades.
@@ -24,7 +24,7 @@ class FacadeLoader
             $facade::registerSingletonInstance();
 
         if (!class_exists($class)) {
-            eval(sprintf('class %s extends %s {}', $class, '\October\Rain\Foundation\FacadeBase'));
+            eval(sprintf('class %s extends %s {}', $class, '\October\Rain\Support\FacadeBase'));
         }
     }
 

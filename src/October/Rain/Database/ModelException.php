@@ -1,6 +1,6 @@
-<?php namespace October\Rain\Exceptions;
+<?php namespace October\Rain\Database;
 
-use October\Rain\Exceptions\ValidationException;
+use October\Rain\Support\ValidationException;
 
 /**
  * Used when validation fails. Contains the invalid model for easy analysis.
@@ -8,7 +8,7 @@ use October\Rain\Exceptions\ValidationException;
  * @package october\exceptions
  * @author Alexey Bobkov, Samuel Georges
  */
-class ModelException extends ValidationException 
+class ModelException extends ValidationException
 {
 
     /**

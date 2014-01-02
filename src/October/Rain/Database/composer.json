@@ -2,7 +2,7 @@
     "name": "october/database",
     "description": "ActiveRecord based on Eloquent with Deferred Binding",
     "homepage": "http://octobercms.com",
-    "keywords": ["october cms", "october", "eloquent", "laravel", "orm", "activerecord", "deferred binding"],
+    "keywords": ["october cms", "october", "eloquent", "laravel", "orm", "activerecord", "active record", "deferred binding", "file", "attachments", "model"],
     "license": "MIT",
     "authors": [
         {

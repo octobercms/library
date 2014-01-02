@@ -4,14 +4,10 @@ use Hash;
 use Cookie;
 use Session;
 use Request;
-use October\Rain\Auth\Hash\BcryptHasher;
-use October\Rain\Auth\Hash\NativeHasher;
-use October\Rain\Auth\Hash\Sha256Hasher;
-use October\Rain\Auth\Hash\WhirlpoolHasher;
 
 class Manager
 {
-    use \October\Rain\Support\Singleton;
+    use \October\Rain\Support\Traits\Singleton;
 
     protected $user;
 
@@ -68,7 +64,6 @@ class Manager
      */
     public function getUser()
     {
-        // We will lazily attempt to load our user
         if (is_null($this->user))
             $this->check();
 

@@ -1,8 +1,8 @@
 {
-    "name": "october/event",
-    "description": "Event emitter, similar to jQuery",
+    "name": "october/config",
+    "description": "Configuration extension",
     "homepage": "http://octobercms.com",
-    "keywords": ["october cms", "october", "event", "emitter", "bind", "trigger", "hook"],
+    "keywords": ["october cms", "october", "laravel", "config", "write"],
     "license": "MIT",
     "authors": [
         {
@@ -15,13 +15,15 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0"
+        "php": ">=5.4.0",
+        "illuminate/config": "4.1.x",
+        "october/support": "1.*"
     },
     "autoload": {
         "psr-0": {
-            "October\\Rain\\Event": ""
+            "October\\Rain\\Config": ""
         }
     },
-    "target-dir": "October/Rain/Event",
+    "target-dir": "October/Rain/Config",
     "minimum-stability": "dev"
 }
