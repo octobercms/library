@@ -502,7 +502,7 @@ class Model extends EloquentModel
             if ($value instanceof EloquentModel)
                 $relationObj->associate($value);
             else
-                $this->setAttribute($relationObj->foreignKey, $value);
+                $this->setAttribute($relationObj->getForeignKey(), $value);
         }
     }
 
