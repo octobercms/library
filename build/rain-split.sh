@@ -11,6 +11,5 @@
 ./git-subsplit.sh publish --no-tags src/October/Rain/Filesystem:git@github.com:octoberrain/filesystem.git
 ./git-subsplit.sh publish --no-tags src/October/Rain/Extension:git@github.com:octoberrain/extension.git
 ./git-subsplit.sh publish --no-tags src/October/Rain/Database:git@github.com:octoberrain/database.git
-./git-subsplit.sh publish --no-tags src/October/Rain/Config:git@github.com:octoberrain/config.git
 ./git-subsplit.sh publish --no-tags src/October/Rain/Auth:git@github.com:octoberrain/auth.git
 rm -rf .subsplit/
