@@ -3,7 +3,6 @@
 #
 
 ./git-subsplit.sh init git@github.com:octobercms/library.git
-./git-subsplit.sh publish --no-tags src/October/Rain/View:git@github.com:octoberrain/view.git
 ./git-subsplit.sh publish --no-tags src/October/Rain/Translation:git@github.com:octoberrain/translation.git
 ./git-subsplit.sh publish --no-tags src/October/Rain/Support:git@github.com:octoberrain/support.git
 ./git-subsplit.sh publish --no-tags src/October/Rain/Router:git@github.com:octoberrain/router.git
