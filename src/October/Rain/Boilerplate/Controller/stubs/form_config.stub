@@ -3,7 +3,7 @@
 # ===================================
 
 # Record name
-name: {{name}}
+name: {{singular_name}}
 
 # Model Form Field configuration
 form: /plugins/{{lower_author}}/{{lower_plugin}}/models/{{lower_model}}/form_fields.yaml
