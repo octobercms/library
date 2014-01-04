@@ -930,7 +930,7 @@ class Model extends EloquentModel
     protected function purgeArray($attributes)
     {
         $cleanAttributes = array_diff_key($attributes, array_flip($this->purgeable));
-        $this->originalPurgeableValues = array_diff($attributes, $cleanAttributes);
+        $this->originalPurgeableValues = array_diff_key($attributes, $cleanAttributes);
         return $cleanAttributes;
     }
 }
