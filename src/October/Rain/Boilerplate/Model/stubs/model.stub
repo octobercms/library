@@ -1,0 +1,10 @@
+<?php namespace {{vendor}}\{{name}}\Models;
+
+use Model;
+
+class {{name}} extends Model
+{
+
+    public $table = '{{lower_vendor}}_{{lower_plugin}}_{{lower_plural_name}}';
+
+}

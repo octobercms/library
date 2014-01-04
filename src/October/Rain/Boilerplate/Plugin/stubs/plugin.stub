@@ -1,0 +1,23 @@
+<?php namespace {{vendor}}\{{name}};
+
+use System\Classes\PluginBase;
+
+class Plugin extends PluginBase
+{
+
+    /**
+     * Returns information about this plugin.
+     *
+     * @return array
+     */
+    public function pluginDetails()
+    {
+        return [
+            'name' => '{{name}}',
+            'description' => 'No description provided.',
+            'author' => '{{vendor}}',
+            'icon' => 'icon-leaf'
+        ];
+    }
+
+}
