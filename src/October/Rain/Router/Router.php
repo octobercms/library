@@ -94,7 +94,7 @@ class Router
 
         $routeRule = $this->routeMap[$name];
         $pattern = $routeRule->pattern();
-        $patternSegments = Helper::segmetizeUrl($pattern);
+        $patternSegments = Helper::segmentizeUrl($pattern);
         $patternSegmentNum = count($patternSegments);
 
         // Build a URL
@@ -178,8 +178,8 @@ class Router
         $parameters = array();
         $pattern = $routeRule->pattern();
 
-        $urlSegments = Helper::segmetizeUrl($url);
-        $patternSegments = Helper::segmetizeUrl($pattern);
+        $urlSegments = Helper::segmentizeUrl($url);
+        $patternSegments = Helper::segmentizeUrl($pattern);
         $patternSegmentNum = count($patternSegments);
 
         /*
