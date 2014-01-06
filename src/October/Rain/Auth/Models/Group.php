@@ -87,7 +87,7 @@ class Group extends Model
                     $checkPermission = substr($permission, 0, -1);
 
                     // We will make sure that the merged permission does not
-                    // exactly match our permission, but starts wtih it.
+                    // exactly match our permission, but starts with it.
                     if ($checkPermission != $groupPermission && starts_with($groupPermission, $checkPermission) && $value == 1) {
                         $matched = true;
                         break;
@@ -105,7 +105,7 @@ class Group extends Model
                     $checkPermission = substr($permission, 1);
 
                     // We will make sure that the merged permission does not
-                    // exactly match our permission, but ends wtih it.
+                    // exactly match our permission, but ends with it.
                     if ($checkPermission != $groupPermission && ends_with($groupPermission, $checkPermission) && $value == 1) {
                         $matched = true;
                         break;
@@ -124,7 +124,7 @@ class Group extends Model
                         $checkGroupPermission = substr($groupPermission, 0, -1);
 
                         // We will make sure that the merged permission does not
-                        // exactly match our permission, but starts wtih it.
+                        // exactly match our permission, but starts with it.
                         if ($checkGroupPermission != $permission && starts_with($permission, $checkGroupPermission) && $value == 1) {
                             $matched = true;
                             break;
