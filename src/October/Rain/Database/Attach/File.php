@@ -54,7 +54,6 @@ class File extends Model
         'png' => 'image/png',
         'jpg' => 'image/jpeg',
         'jpeg' => 'image/jpeg',
-        'jpg' => 'image/jpeg',
         'pdf' => 'application/pdf'
     ];
 
