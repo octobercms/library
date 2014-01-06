@@ -72,7 +72,7 @@ class Manager
 
     /**
      * Finds a user by the login value.
-     * @param string $login
+     * @param string $id
      */
     public function findUserById($id)
     {

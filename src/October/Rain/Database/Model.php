@@ -138,6 +138,7 @@ class Model extends EloquentModel
     /**
      * Save a new model and return the instance.
      * @param array $attributes
+     * @param string $sessionKey
      * @return \Illuminate\Database\Eloquent\Model|static
      */
     public static function create(array $attributes, $sessionKey = null)
@@ -356,7 +357,7 @@ class Model extends EloquentModel
      */
     public function morphTo($relationName = null, $type = null, $id = null) 
     {
-        if (is_null($name))
+        if (is_null($relationName))
             $relationName = snake_case($this->getRelationCaller());
 
         list($type, $id) = $this->getMorphs($relationName, $type, $id);

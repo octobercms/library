@@ -84,7 +84,7 @@ class Router
      * Builds a URL together by matching route name and supplied parameters
      *
      * @param string $name Name of the route previously defined.
-     * @param array $params Parameter name => value items to fill in for given route.
+     * @param array $parameters Parameter name => value items to fill in for given route.
      * @return string Full matched URL as string with given values put in place of named parameters
      */
     public function url($name, $parameters = [])

@@ -46,6 +46,8 @@ class Http
 
     /**
      * Execute the HTTP request.
+     * @param string $url
+     * @param array $options
      * @return string response body
      */
     protected function send($url, $options = [])
@@ -121,6 +123,7 @@ class Http
 
     /**
      * Add a single option to the request.
+     * @param string $option
      * @param string $value
      */
     public function withOption($option, $value)
@@ -131,7 +134,7 @@ class Http
 
     /**
      * Sets the request timeout.
-     * @param string $value
+     * @param string $timeout
      */
     public function withTimeout($timeout)
     {
