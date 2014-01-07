@@ -4,6 +4,9 @@ use Symfony\Component\Yaml\Parser;
 
 /**
  * Yaml helper class
+ *
+ * @package october\support
+ * @author Alexey Bobkov, Samuel Georges
  */
 class Yaml
 {

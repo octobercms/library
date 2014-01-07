@@ -1,5 +1,13 @@
 <?php namespace October\Rain\Network;
 
+/**
+ * HTTP Network Access
+ *
+ * Used as a cURL wrapper for the HTTP protocol.
+ *
+ * @package october\network
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class Http
 {
     const METHOD_GET = 'GET';
@@ -85,9 +93,8 @@ class Http
         $this->lastResponseHeaders = $this->headerToArray($headerText);
         $this->lastResponseBody = substr($response, $headerSize);
 
-        // Close
         curl_close($curl);
-        return $this->lastResponseBody;
+        return $this;
     }
 
     /**
@@ -326,5 +333,14 @@ class Http
             }
         }
         return $headers;
+    }
+
+    /**
+     * Handy if this object is called directly.
+     * @return string The last response.
+     */
+    public function __toString()
+    {
+        return $this->lastResponseBody;
     }
 }

@@ -1,9 +1,16 @@
 <?php namespace October\Rain\Router;
 
+/**
+ * Methods that may be useful for processing routing activity
+ *
+ * @package october\router
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class Helper
 {
     /**
      * Adds leading slash and removes trailing slash from the URL.
+     *
      * @param string $url URL to normalize.
      * @return string Returns normalized URL.
      */
@@ -14,15 +21,16 @@ class Helper
 
         if (substr($url, -1) == '/')
             $url = substr($url, 0, -1);
-            
+
         if (!strlen($url))
             $url = '/';
-            
+
         return $url;
     }
     
     /**
      * Splits an URL by segments separated by the slash symbol.
+     *
      * @param string $url URL to segmentize.
      * @return array Returns the URL segments.
      */
@@ -30,7 +38,7 @@ class Helper
     {
         $url = self::normalizeUrl($url);
         $segments = explode('/', $url);
-        
+
         $result = array();
         foreach ($segments as $segment) {
             if (strlen($segment))
@@ -42,6 +50,7 @@ class Helper
 
     /**
      * Rebuilds a URL from an array of segments.
+     *
      * @param array $urlArray Array the URL segments.
      * @return string Returns rebuilt URL.
      */
@@ -58,6 +67,7 @@ class Helper
 
     /**
      * Replaces :column_name with it's object value. Example: /some/link/:id/:name -> /some/link/1/Joe
+     *
      * @param stdObject $object Object containing the data
      * @param array $columns Expected key names to parse
      * @param string $string URL template
@@ -72,6 +82,7 @@ class Helper
 
             $string = str_replace(':'.$column, $object->{$column}, $string);
         }
+
         return $string;
     }
 }

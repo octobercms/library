@@ -5,7 +5,7 @@ use Illuminate\Validation\Validator;
 /**
  * Validation exception class.
  *
- * @package october\exceptions
+ * @package october\support
  * @author Alexey Bobkov, Samuel Georges
  */
 class ValidationException extends \Exception

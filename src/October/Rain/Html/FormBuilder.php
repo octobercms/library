@@ -4,6 +4,14 @@ use Illuminate\Html\FormBuilder as FormBuilderBase;
 use Illuminate\Html\HtmlBuilder;
 use Illuminate\Routing\UrlGenerator;
 
+/**
+ * Form builder
+ *
+ * Extension of illuminate/html, injects a session key to each form opening.
+ *
+ * @package october\html
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class FormBuilder extends FormBuilderBase
 {
 

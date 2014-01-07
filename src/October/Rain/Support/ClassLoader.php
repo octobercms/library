@@ -1,5 +1,11 @@
 <?php namespace October\Rain\Support;
 
+/**
+ * Class loader
+ *
+ * A simple autoloader used by October, it expects the folder names
+ * to be lower case and the file name to be capitalized as per the class name.
+ */
 class ClassLoader
 {
     /**
@@ -96,7 +102,7 @@ class ClassLoader
             $directories = (array) $directories;
 
             static::$directories = array_filter(static::$directories, function($directory) use ($directories) {
-                return (!in_array($directory, $directories));
+                return !in_array($directory, $directories);
             });
         }
     }

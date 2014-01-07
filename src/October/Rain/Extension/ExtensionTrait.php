@@ -2,7 +2,11 @@
 
 /**
  * Extension trait
+ *
  * Allows for "Private traits"
+ *
+ * @package october\extension
+ * @author Alexey Bobkov, Samuel Georges
  */
 
 trait ExtensionTrait

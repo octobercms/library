@@ -8,6 +8,9 @@
  *   public $implement = ['Path.To.Some.Namespace.Class'];
  *
  * See the ExtensionBase class for creating extension classes.
+ *
+ * @package october\extension
+ * @author Alexey Bobkov, Samuel Georges
  */
 
 class Extendable

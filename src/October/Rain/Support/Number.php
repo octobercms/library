@@ -2,6 +2,9 @@
 
 /**
  * Numeric helper
+ *
+ * @package october\support
+ * @author Alexey Bobkov, Samuel Georges
  */
 class Number
 {

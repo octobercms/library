@@ -2,6 +2,12 @@
 
 use Db;
 
+/**
+ * Deferred Binding Model
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class DeferredBinding extends Model
 {
     public $table = 'deferred_bindings';
@@ -19,13 +25,17 @@ class DeferredBinding extends Model
         if ($this->exists)
             return;
 
-        // Skip repeating bindings
+        /*
+         * Skip repeating bindings
+         */
         if ($this->bind) {
             $model = $this->findBindingRecord(1);
             if ($model)
                 return false;
-        } 
-        // Remove add-delete pairs
+        }
+        /*
+         *Remove add-delete pairs
+         */
         else {
             $model = $this->findBindingRecord(1);
             if ($model) {
@@ -90,7 +100,9 @@ class DeferredBinding extends Model
      */
     protected function deleteSlaveRecord()
     {
-        // Try to delete unbound hasOne/hasMany records from the details table
+        /*
+         * Try to delete unbound hasOne/hasMany records from the details table
+         */
         try
         {
             if (!$this->bind)

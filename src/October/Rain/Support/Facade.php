@@ -2,6 +2,13 @@
 
 use Illuminate\Support\Facades\Facade as FacadeParent;
 
+/**
+ * Facade base class
+ * Extension of illuminiate/support, automatically registered Singletons in IoC
+ *
+ * @package october\support
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class Facade extends FacadeParent
 {
 

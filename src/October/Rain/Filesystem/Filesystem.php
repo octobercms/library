@@ -4,6 +4,9 @@ use Illuminate\Filesystem\Filesystem as FilesystemBase;
 
 /**
  * File helper
+ *
+ * @package october\filesystem
+ * @author Alexey Bobkov, Samuel Georges
  */
 class Filesystem extends FilesystemBase
 {
@@ -31,12 +34,17 @@ class Filesystem extends FilesystemBase
         return false;
     }
 
-    public function isDirectoryEmpty($dir)
+    /**
+     * Determine if the given path contains no files.
+     * @param  string  $directory
+     * @return bool
+     */
+    public function isDirectoryEmpty($directory)
     {
-        if (!is_readable($dir))
+        if (!is_readable($directory))
             return null;
 
-        $handle = opendir($dir);
+        $handle = opendir($directory);
         while (false !== ($entry = readdir($handle))) {
             if ($entry != "." && $entry != "..") {
                 closedir($handle);
@@ -48,6 +56,11 @@ class Filesystem extends FilesystemBase
         return true;
     }
 
+    /**
+     * Converts a file size in bytes to human readable format.
+     * @param int $bytes
+     * @return string
+     */
     public function sizeToString($bytes)
     {
         if ($bytes >= 1073741824)

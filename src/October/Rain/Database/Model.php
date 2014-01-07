@@ -14,7 +14,12 @@ use October\Rain\Database\Relations\MorphOne;
 use October\Rain\Database\ModelException;
 
 /**
- * Proxy class for Eloquent. Injects Extendability.
+ * Active Record base class.
+ *
+ * Extends Eloquent with added extendability and deferred bindings.
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 class Model extends EloquentModel
 {

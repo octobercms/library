@@ -1,5 +1,14 @@
 <?php namespace October\Rain\Support;
 
+/**
+ * Hot Facades
+ *
+ * Allows "hot-swappable" facades, since `class_alias` cannot be changed dynamically. 
+ * Facades loaded here can be changed on the fly.
+ *
+ * @package october\support
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class FacadeLoader
 {
     use \October\Rain\Support\Traits\Singleton;
@@ -28,6 +37,9 @@ class FacadeLoader
         }
     }
 
+    /**
+     * Returns an array of registered and active facades.
+     */
     public function getFacades()
     {
         return $this->facades;

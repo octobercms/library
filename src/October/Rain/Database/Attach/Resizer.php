@@ -9,17 +9,19 @@ use Symfony\Component\HttpFoundation\File\File as FileObj;
  *      Resizer::open(mixed $file)
  *          ->resize(int $width , int $height , string 'exact, portrait, landscape, auto or crop')
  *          ->save(string 'path/to/file.jpg' , int $quality);
- *      
+ *
  *      // Resize and save an image.
  *      Resizer::open(Input::file('field_name'))
  *          ->resize(800 , 600 , 'crop')
  *          ->save('path/to/file.jpg' , 100);
- *      
+ *
  *      // Recompress an image.
  *      Resizer::open('path/to/image.jpg')
  *          ->save('path/to/new_image.jpg' , 60);
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
-
 class Resizer
 {
     /**
@@ -90,10 +92,10 @@ class Resizer
      * @param string $mode Either exact, portrait, landscape, auto or crop.
      * @return Self
      */
-    public function resize($newWidth , $newHeight , $mode = 'auto')
+    public function resize($newWidth, $newHeight, $mode = 'auto')
     {
         // Get optimal width and height - based on supplied mode.
-        $optionsArray = $this->getDimensions($newWidth , $newHeight , $mode);
+        $optionsArray = $this->getDimensions($newWidth, $newHeight, $mode);
 
         $optimalWidth = $optionsArray['optimalWidth'];
         $optimalHeight = $optionsArray['optimalHeight'];
@@ -110,7 +112,7 @@ class Resizer
         imagecopyresampled($this->imageResized, $this->image, 0, 0, 0, 0, $optimalWidth, $optimalHeight, $this->width, $this->height);
 
         if ($mode == 'crop')
-            $this->crop($optimalWidth , $optimalHeight , $newWidth , $newHeight);
+            $this->crop($optimalWidth, $optimalHeight, $newWidth, $newHeight);
 
         return $this;
     }
@@ -132,12 +134,14 @@ class Resizer
         switch($this->extension) {
             case 'jpg':
             case 'jpeg':
+                // Check JPG support is enabled
                 if (imagetypes() & IMG_JPG) {
                     imagejpeg($this->imageResized, $savePath, $image_quality);
                 }
                 break;
 
             case 'gif':
+                // Check GIF support is enabled
                 if (imagetypes() & IMG_GIF) {
                     imagegif($this->imageResized, $savePath);
                 }
@@ -150,6 +154,7 @@ class Resizer
                 // Invert quality setting as 0 is best, not 9
                 $invertScaleQuality = 9 - $scaleQuality;
 
+                // Check PNG support is enabled
                 if (imagetypes() & IMG_PNG) {
                     imagepng($this->imageResized, $savePath, $invertScaleQuality);
                 }
@@ -174,10 +179,10 @@ class Resizer
         $mime = $file->getMimeType();
         $filePath = $file->getPathname();
         switch ($mime) {
-            case 'image/jpeg':  $img = @imagecreatefromjpeg($filePath);     break;
-            case 'image/gif':   $img = @imagecreatefromgif($filePath);      break;
-            case 'image/png':   $img = @imagecreatefrompng($filePath);      break;
-            default:            $img = false;                               break;
+            case 'image/jpeg': $img = @imagecreatefromjpeg($filePath); break;
+            case 'image/gif':  $img = @imagecreatefromgif($filePath);  break;
+            case 'image/png':  $img = @imagecreatefrompng($filePath);  break;
+            default:           $img = false;                           break;
         }
 
         return $img;
@@ -185,12 +190,12 @@ class Resizer
 
     /**
      * Return the image dimensions based on the option that was chosen.
-     * @param  int    $newWidth  The width of the image
-     * @param  int    $newHeight The height of the image
-     * @param  string $option     Either exact, portrait, landscape, auto or crop.
+     * @param int $newWidth The width of the image
+     * @param int $newHeight The height of the image
+     * @param string $option Either exact, portrait, landscape, auto or crop.
      * @return array
      */
-    private function getDimensions($newWidth , $newHeight , $option)
+    private function getDimensions($newWidth, $newHeight, $option)
     {
         switch ($option) {
             case 'exact':
@@ -206,12 +211,12 @@ class Resizer
                 $optimalHeight  = $this->getSizeByFixedWidth($newWidth);
                 break;
             case 'auto':
-                $optionsArray   = $this->getSizeByAuto($newWidth , $newHeight);
+                $optionsArray   = $this->getSizeByAuto($newWidth, $newHeight);
                 $optimalWidth   = $optionsArray['optimalWidth'];
                 $optimalHeight  = $optionsArray['optimalHeight'];
                 break;
             case 'crop':
-                $optionsArray   = $this->getOptimalCrop($newWidth , $newHeight);
+                $optionsArray   = $this->getOptimalCrop($newWidth, $newHeight);
                 $optimalWidth   = $optionsArray['optimalWidth'];
                 $optimalHeight  = $optionsArray['optimalHeight'];
                 break;
@@ -255,7 +260,7 @@ class Resizer
      * @param int $newHeight The height of the image
      * @return array
      */
-    private function getSizeByAuto($newWidth , $newHeight)
+    private function getSizeByAuto($newWidth, $newHeight)
     {
         // Image to be resized is wider (landscape)
         if ($this->height < $this->width) {
@@ -297,7 +302,7 @@ class Resizer
      * @param int $newHeight The height of the image
      * @return array
      */
-    private function getOptimalCrop($newWidth , $newHeight)
+    private function getOptimalCrop($newWidth, $newHeight)
     {
         $heightRatio = $this->height / $newHeight;
         $widthRatio  = $this->width /  $newWidth;
@@ -325,7 +330,7 @@ class Resizer
      * @param int $newHeight The new height
      * @return true
      */
-    private function crop($optimalWidth , $optimalHeight , $newWidth , $newHeight)
+    private function crop($optimalWidth, $optimalHeight, $newWidth, $newHeight)
     {
         // Find center - this will be used for the crop
         $cropStartX = ($optimalWidth  / 2) - ($newWidth  / 2);

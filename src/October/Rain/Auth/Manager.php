@@ -4,7 +4,12 @@ use Hash;
 use Cookie;
 use Session;
 use Request;
+use InvalidArgumentException;
+use Exception;
 
+/**
+ * Authentication manager
+ */
 class Manager
 {
     use \October\Rain\Support\Traits\Singleton;
@@ -12,44 +17,55 @@ class Manager
     protected $user;
 
     protected $userModel = 'October\Rain\Auth\Models\User';
-    
-    protected $groupModel = 'October\Rain\Auth\Models\Group';
-    
-    protected $throttleModel = 'October\Rain\Auth\Models\Throttle';
-    
-    protected $useThrottle = true;
 
-    protected $ipAddress = '0.0.0.0';
+    protected $groupModel = 'October\Rain\Auth\Models\Group';
+
+    protected $throttleModel = 'October\Rain\Auth\Models\Throttle';
+
+    protected $useThrottle = true;
 
     protected $sessionKey = 'october_auth';
 
+    public $ipAddress = '0.0.0.0';
+
     protected function init()
     {
-        $this->setIpAddress(Request::getClientIp());
-    }
-
-    /**
-     * Sets the IP address
-     * @param string $ipAddress
-     * @return void
-     */
-    public function setIpAddress($ipAddress)
-    {
-        $this->ipAddress = $ipAddress;
-    }
-
-    /**
-     * Gets the IP address
-     * @return string
-     */
-    public function getIpAddress()
-    {
-        return $this->ipAddress;
+        $this->ipAddress = Request::getClientIp();
     }
 
     //
     // User
     //
+
+    /*
+     * Creates a new instance of the user model
+     */
+    public function createUserModel()
+    {
+        $class = '\\'.ltrim($this->userModel, '\\');
+        $user = new $class();
+        return $user;
+    }
+
+    /**
+     * Registers a user by giving the required credentials
+     * and an optional flag for whether to activate the user.
+     *
+     * @param array $credentials
+     * @param bool $activate
+     * @return User
+     */
+    public function register(array $credentials, $activate = false)
+    {
+        $user = $this->createUserModel();
+        $user->fill($credentials);
+        $user->save();
+
+        if ($activate)
+            $user->attemptActivation($user->getActivationCode());
+
+        return $this->user = $user;
+    }
 
     /**
      * Sets the user
@@ -101,16 +117,17 @@ class Manager
         $loginName = $model->getLoginName();
 
         if (!array_key_exists($loginName, $credentials))
-            throw new \InvalidArgumentException("Login attribute [$loginName] was not provided.");
+            throw new InvalidArgumentException(sprintf('Login attribute "%s" was not provided.', $loginName));
 
         $query = $model->newQuery();
         $hashableAttributes = $model->getHashableAttributes();
         $hashedCredentials = array();
 
-        // Build query from given credentials
+        /*
+         * Build query from given credentials
+         */
         foreach ($credentials as $credential => $value) {
-            // Remove hashed attributes to check later as we need to check these
-            // values after we retrieved them because of salts
+            // All excepted the hashed attributes
             if (in_array($credential, $hashableAttributes))
                 $hashedCredentials = array_merge($hashedCredentials, array($credential => $value));
             else
@@ -118,52 +135,25 @@ class Manager
         }
 
         if (!$user = $query->first())
-            throw new \Exception("A user was not found with the given credentials.");
+            throw new Exception("A user was not found with the given credentials.");
 
-        // Now check the hashed credentials match ours
+        /*
+         * Check the hashed credentials match
+         */
         foreach ($hashedCredentials as $credential => $value) {
 
             if (!Hash::check($value, $user->{$credential})) {
-                $message = "A user was found to match all plain text credentials however hashed credential [$credential] did not match.";
+                $message = sprintf('A user was found to match all plain text credentials however hashed credential "%s" did not match.', $credential);
 
-                // Wrong password
+                // Incorrect password
                 if ($credential == 'password')
-                    throw new \Exception($message);
+                    throw new Exception($message);
 
                 // User not found
-                throw new \Exception($message);
+                throw new Exception($message);
             }
         }
 
-        return $user;
-    }
-
-    /**
-     * Registers a user by giving the required credentials
-     * and an optional flag for whether to activate the user.
-     * @param array $credentials
-     * @param bool $activate
-     * @return User
-     */
-    public function register(array $credentials, $activate = false)
-    {
-        $user = $this->createUserModel();
-        $user->fill($credentials);
-        $user->save();
-
-        if ($activate)
-            $user->attemptActivation($user->getActivationCode());
-
-        return $this->user = $user;
-    }
-
-    /*
-     * Creates a new instance of the user model
-     */
-    public function createUserModel()
-    {
-        $class = '\\'.ltrim($this->userModel, '\\');
-        $user = new $class();
         return $user;
     }
 
@@ -182,20 +172,20 @@ class Manager
     }
 
     /**
-     * Find a throttle record by a user's login and visitor's ip address
+     * Find a throttle record by login and ip address
      */
     public function findThrottleByLogin($loginName, $ipAddress)
     {
         $user = $this->findUserByLogin($loginName);
         if (!$user)
-            throw new \Exception("A user could not be found with a login value of [$loginName].");
+            throw new Exception("A user was not found with the given credentials.");
 
         $userId = $user->getId();
         return $this->findThrottleByUserId($userId, $ipAddress);
     }
 
     /**
-     * Find a throttle record by a user's id and visitor's ip address
+     * Find a throttle record by user id and ip address
      */
     public function findThrottleByUserId($userId, $ipAddress = null)
     {
@@ -226,47 +216,53 @@ class Manager
     //
 
     /**
-     * Attempts to authenticate the given user
-     * according to the passed credentials.
+     * Attempts to authenticate the given user according to the passed credentials.
+     *
+     * @param array $credentials The user login details
+     * @param bool $remember Store a non-expire cookie for the user
      */
     public function authenticate(array $credentials, $remember = true)
     {
-        // We'll default to the login name field, but fallback to a hard-coded
-        // 'login' key in the array that was passed.
+        /*
+         * Default to the login name field or fallback to a hard-coded 'login' value
+         */
         $loginName = $this->createUserModel()->getLoginName();
         $loginCredentialKey = (isset($credentials[$loginName])) ? $loginName : 'login';
 
         if (empty($credentials[$loginCredentialKey]))
-            throw new \Exception("The [$loginCredentialKey] attribute is required.");
+            throw new Exception(sprintf('The "%s" attribute is required.', $loginCredentialKey));
 
         if (empty($credentials['password']))
-            throw new \Exception('The password attribute is required.');
+            throw new Exception('The password attribute is required.');
 
-        // If the user did the fallback 'login' key for the login code which
-        // did not match the actual login name, we'll adjust the array so the
-        // actual login name is provided.
+        /*
+         * If the fallback 'login' was provided and did not match the necessary
+         * login name, swap it over
+         */
         if ($loginCredentialKey !== $loginName) {
             $credentials[$loginName] = $credentials[$loginCredentialKey];
             unset($credentials[$loginCredentialKey]);
         }
 
-        // If throttling is enabled, we'll firstly check the throttle.
-        // This will tell us if the user is banned before we even attempt
-        // to authenticate them
+        /*
+         * If throttling is enabled, check they are not locked out first and foremost.
+         */
         if ($this->useThrottle) {
             $throttle = $this->findThrottleByLogin($credentials[$loginName], $this->ipAddress);
             $throttle->check();
         }
 
+        /*
+         * Look up the user by authentication credentials.
+         */
         try {
             $user = $this->findUserByCredentials($credentials);
         }
-        catch (\Exception $e)
-        {
+        catch (Exception $ex) {
             if ($this->useThrottle)
                 $throttle->addLoginAttempt();
 
-            throw $e;
+            throw $ex;
         }
 
         if ($this->useThrottle)
@@ -287,41 +283,49 @@ class Manager
     {
         if (is_null($this->user)) {
 
-            // Check session first, follow by cookie
+            /*
+             * Check session first, follow by cookie
+             */
             if (!($userArray = Session::get($this->sessionKey)) && !($userArray = Cookie::get($this->sessionKey)))
                 return false;
 
-            // Now check our user is an array with two elements,
-            // the username followed by the persist code
+            /*
+             * Check supplied session/cookie is an array (username, persist code)
+             */
             if (!is_array($userArray) || count($userArray) !== 2)
                 return false;
 
             list($id, $persistCode) = $userArray;
 
-            // Let's find our user
+            /*
+             * Look up user
+             */
             $user = $this->createUserModel()->find($id);
             if (!$user)
                 return false;
 
-            // Great! Let's check the session's persist code
-            // against the user. If it fails, somebody has tampered
-            // with the cookie / session data and we're not allowing
-            // a login
+            /*
+             * Confirm the persistence code is valid, otherwise reject
+             */
             if (!$user->checkPersistCode($persistCode))
                 return false;
 
-            // Now we'll set the user property
+            /*
+             * Pass
+             */
             $this->user = $user;
         }
 
-        // Let's check our cached user is indeed activated
+        /*
+         * Check cached user is activated
+         */
         if (!($user = $this->getUser()) || !$user->isActivated())
             return false;
 
-        // If throttling is enabled we check it's status
+        /*
+         * Throttle check
+         */
         if ($this->useThrottle) {
-
-            // Check the throttle status
             $throttle = $this->findThrottleByUserId($user->getId());
 
             if ($throttle->isBanned() || $throttle->isSuspended()) {
@@ -341,29 +345,28 @@ class Manager
     {
         if (!$user->isActivated()) {
             $login = $user->getLogin();
-            throw new \Exception("Cannot login user [$login] as they are not activated.");
+            throw new Exception("Cannot login user [$login] as they are not activated.");
         }
 
         $this->user = $user;
 
-        // Create an array of data to persist to the session and / or cookie
+        /*
+         * Create session/cookie data to persist the session
+         */
         $toPersist = array($user->getId(), $user->getPersistCode());
-
-        // Set sessions
         Session::put($this->sessionKey, $toPersist);
 
         if ($remember)
             Cookie::queue(Cookie::forever($this->sessionKey, $toPersist));
 
-        // The user model can attach any handlers
-        // to the "recordLogin" event.
-        $user->recordLogin();
+        /*
+         * Fire the 'afterLogin' event
+         */
+        $user->afterLogin();
     }
 
     /**
      * Logs the current user out.
-     *
-     * @return void
      */
     public function logout()
     {
@@ -372,5 +375,4 @@ class Manager
         Session::forget($this->sessionKey);
         Cookie::queue(Cookie::forget($this->sessionKey));
     }
-
 }

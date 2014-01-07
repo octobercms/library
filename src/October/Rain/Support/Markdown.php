@@ -4,6 +4,9 @@ use Parsedown;
 
 /**
  * Markdown content parser
+ *
+ * @package october\support
+ * @author Alexey Bobkov, Samuel Georges
  */
 class Markdown
 {

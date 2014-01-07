@@ -1,5 +1,13 @@
 <?php namespace October\Rain\Router;
 
+/**
+ * URL Router
+ *
+ * Used in October CMS for managing page routes.
+ *
+ * @package october\router
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class Router
 {
 

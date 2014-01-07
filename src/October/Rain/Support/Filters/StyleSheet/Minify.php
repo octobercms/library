@@ -7,15 +7,13 @@ use Assetic\Filter\FilterInterface;
  * Minify CSS Filter
  * Class used to compress stylesheet css files.
  *
- * @package october/combiner
+ * @package october/support
  * @author Alexey Bobkov, Samuel Georges
  */
 class StyleSheet_Minify implements FilterInterface
 {
 
-    public function filterLoad(AssetInterface $asset)
-    {
-    }
+    public function filterLoad(AssetInterface $asset) {}
 
     public function filterDump(AssetInterface $asset)
     {

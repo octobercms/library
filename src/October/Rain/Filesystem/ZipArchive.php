@@ -12,6 +12,9 @@ use ZipArchive as ZipArchiveBase;
  * $zip->addDirContents('mydir');
  * 
  * $zip->close();
+ *
+ * @package october\filesystem
+ * @author Alexey Bobkov, Samuel Georges
  */
 class ZipArchive extends ZipArchiveBase
 {

@@ -4,39 +4,17 @@ use File;
 use Assetic\Asset\AssetInterface;
 use Assetic\Filter\FilterInterface;
 
-/** NOTES
-
-JSpp::parse($script_content, $path_to_script);
-
--- Include directives:
------------------------------------------------------------------
-
-@use library/jquery.js;
-
-@include library/jquery.js;
-
-@require library/jquery.js;
-
--- Variable directives:
------------------------------------------------------------------
-
-@define #FOO "Bar";    
-console.log(#FOO);
-
--- Functional directives:
------------------------------------------------------------------
-
-@include library/jquery.js; // jquery will not minified
-@minify yes;
-@include library/otherlib.js; // otherlib will not be minified
-
-*/
-
 /**
  * Importer JS Filter
  * Class used to import referenced javascript files.
  *
- * @package october/combiner
+ * =include library/jquery.js;
+ * =require library/jquery.js;
+ * 
+ * =define #FOO "Bar";
+ * console.log(#FOO);
+ *
+ * @package october/support
  * @author Alexey Bobkov, Samuel Georges
  */
 class JavaScript_Importer implements FilterInterface
@@ -52,9 +30,7 @@ class JavaScript_Importer implements FilterInterface
      */
     private $includedFiles = [];
 
-    public function filterLoad(AssetInterface $asset)
-    {
-    }
+    public function filterLoad(AssetInterface $asset) {}
 
     public function filterDump(AssetInterface $asset)
     {
@@ -98,10 +74,13 @@ class JavaScript_Importer implements FilterInterface
 
             }
         }
-        
+
         return $content;
     }
-    
+
+    /**
+     * Directive to process script includes
+     */
     private function directiveInclude($data, $context = "", $required = false)
     {
         $require = explode(',', $data);
@@ -141,12 +120,18 @@ class JavaScript_Importer implements FilterInterface
         return $result . $context;
     }
 
-    private function directiveRequire($data, $context = "") 
+    /**
+     * Directive to process mandatory script includes
+     */
+    private function directiveRequire($data, $context = "")
     {
         return $this->directiveInclude($data, $context, true);
     }
 
-    private function directiveDefine($data, $context = "") 
+    /**
+     * Directive to define and replace variables
+     */
+    private function directiveDefine($data, $context = "")
     {
         if (preg_match('@([^\\s]*)\\s+(.*)@', $data, $matches))
             return str_replace($matches[1], $matches[2], $context);

@@ -2,6 +2,12 @@
 
 use InvalidArgumentException;
 
+/**
+ * Router Rule Object
+ *
+ * @package october\router
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class Rule
 {
 
@@ -27,6 +33,7 @@ class Rule
 
     /**
      * Creates a new router rule instance.
+     *
      * @param string $name
      * @param string $pattern
      */
@@ -76,11 +83,11 @@ class Rule
     public function condition($callback = null)
     {
         if ($callback !== null) {
-            
+
             if (!is_callable($callback)) {
                 throw new InvalidArgumentException(sprintf("Condition provided is not a valid callback. Given (%s)", gettype($callback)));
             }
-            
+
             $this->conditionCallback = $callback;
             return $this;
         }
@@ -98,13 +105,12 @@ class Rule
      */
     public function afterMatch($callback = null)
     {
-        // Setter
         if ($callback !== null) {
-            
+
             if (!is_callable($callback)) {
                 throw new InvalidArgumentException(sprintf("The after match callback provided is not valid. Given (%s)", gettype($callback)));
             }
-            
+
             $this->afterMatchCallback = $callback;
             return $this;
         }

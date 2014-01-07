@@ -7,6 +7,9 @@ use Symfony\Component\HttpFoundation\File\File as FileObj;
 
 /**
  * File attachment model
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 class File extends Model
 {
@@ -190,11 +193,17 @@ class File extends Model
         return $this->getPublicDirectory() . $this->getPartitionDirectory() . $this->disk_name;
     }
 
+    /**
+     * Returns the local path to the file.
+     */
     public function getDiskPath()
     {
         return $this->getStorageDirectory() . $this->getPartitionDirectory() . $this->disk_name;
     }
 
+    /**
+     * Determines if the file is flagged "public" or not.
+     */
     public function isPublic()
     {
         if (array_key_exists('public', $this->attributes))
@@ -206,6 +215,10 @@ class File extends Model
         return true;
     }
 
+    /**
+     * After model is deleted
+     * - clean up it's thumbnails
+     */
     public function afterDelete()
     {
         $this->deleteFile($this->disk_name);
@@ -292,6 +305,9 @@ class File extends Model
         return FileHelper::copy($sourcePath, $destinationPath . $destinationFileName);
     }
 
+    /**
+     * Get file contents from storage device.
+     */
     protected function getFile($fileName = null)
     {
         if (!$fileName)
@@ -300,6 +316,9 @@ class File extends Model
         return FileHelper::get($this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName);
     }
 
+    /**
+     * Delete file contents from storage device.
+     */
     protected function deleteFile($fileName = null)
     {
         if (!$fileName)
@@ -312,6 +331,9 @@ class File extends Model
         $this->deleteEmptyDirectory($directory);
     }
 
+    /**
+     * Check file exists on storage device.
+     */
     protected function hasFile($fileName = null)
     {
         $filePath = $this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName;
@@ -391,6 +413,7 @@ class File extends Model
      */
     public function getPublicDirectory()
     {
+        /* @todo Hardcoded, duh */
         if ($this->isPublic())
             return 'http://localhost/uploads/public/';
         else

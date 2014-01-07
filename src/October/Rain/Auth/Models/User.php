@@ -533,7 +533,7 @@ class User extends Model
      *
      * @return void
      */
-    public function recordLogin()
+    public function afterLogin()
     {
         $this->last_login = new DateTime;
         $this->forceSave();

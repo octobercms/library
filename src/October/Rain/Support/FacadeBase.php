@@ -5,7 +5,11 @@ use App;
 /**
  * Facade Base
  *
+ * Used by FacadeLoader to swap out the referenced class at runtime.
  * Facade Target classes should use the Singleton trait.
+ *
+ * @package october\support
+ * @author Alexey Bobkov, Samuel Georges
  */
 class FacadeBase
 {
