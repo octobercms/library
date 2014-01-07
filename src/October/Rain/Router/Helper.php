@@ -26,7 +26,7 @@ class Helper
      * @param string $url URL to segmentize.
      * @return array Returns the URL segments.
      */
-    public static function segmetizeUrl($url)
+    public static function segmentizeUrl($url)
     {
         $url = self::normalizeUrl($url);
         $segments = explode('/', $url);

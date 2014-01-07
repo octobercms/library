@@ -39,8 +39,8 @@ class Filesystem extends FilesystemBase
         $handle = opendir($dir);
         while (false !== ($entry = readdir($handle))) {
             if ($entry != "." && $entry != "..") {
-                return false;
                 closedir($handle);
+                return false;
             }
         }
 

@@ -32,7 +32,7 @@ class ZipArchive extends ZipArchiveBase
      * addDirContents will not add the root-directory as
      * a directory itself into the zipfile, but only
      * the contents.
-     * @param $dirName The directory to add.
+     * @param string $dirName The directory to add.
      * @return boolean
      */
     public function addDirContents($dirName)
@@ -43,9 +43,9 @@ class ZipArchive extends ZipArchiveBase
     /**
      * Recursively adds the passed directory and all files
      * and folders beneath it.
-     * @param $dirName The directory to add.
-     * @param $baseDir The base directory where $dirName resides.
-     * @param $addDir Include the basedir as directory itself to the zipfile
+     * @param string $dirName The directory to add.
+     * @param string $baseDir The base directory where $dirName resides.
+     * @param boolean $addDir Include the basedir as directory itself to the zipfile
      * @return boolean
      */
     private function recursiveAddDir($dirName, $baseDir = null, $addDir = true)

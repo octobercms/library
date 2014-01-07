@@ -138,6 +138,7 @@ class Model extends EloquentModel
     /**
      * Save a new model and return the instance.
      * @param array $attributes
+     * @param string $sessionKey
      * @return \Illuminate\Database\Eloquent\Model|static
      */
     public static function create(array $attributes, $sessionKey = null)
@@ -324,7 +325,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Validate relation supplied arguements.
+     * Validate relation supplied arguments.
      */
     private function validateRelationArgs($relationName, $optional, $required = [])
     {
@@ -351,12 +352,12 @@ class Model extends EloquentModel
 
     /**
      * Define an polymorphic, inverse one-to-one or many relationship.
-     * Overriden from {@link Eloquent\Model} to allow the usage of the intermediary methods to handle the relation.
+     * Overridden from {@link Eloquent\Model} to allow the usage of the intermediary methods to handle the relation.
      * @return \October\Rain\Database\Relations\BelongsTo
      */
     public function morphTo($relationName = null, $type = null, $id = null) 
     {
-        if (is_null($name))
+        if (is_null($relationName))
             $relationName = snake_case($this->getRelationCaller());
 
         list($type, $id) = $this->getMorphs($relationName, $type, $id);
@@ -398,7 +399,7 @@ class Model extends EloquentModel
 
     /**
      * Define an inverse one-to-one or many relationship.
-     * Overriden from {@link Eloquent\Model} to allow the usage of the intermediary methods to handle the {@link
+     * Overridden from {@link Eloquent\Model} to allow the usage of the intermediary methods to handle the {@link
      * $relationsData} array.
      * @return \October\Rain\Database\Relations\BelongsTo
      */
@@ -533,7 +534,7 @@ class Model extends EloquentModel
     //
 
     /**
-     * Instatiates the validator used by the validation process, depending if the class is being used inside or
+     * Instantiates the validator used by the validation process, depending if the class is being used inside or
      * outside of Laravel.
      * @return \Illuminate\Validation\Validator
      */
@@ -662,7 +663,7 @@ class Model extends EloquentModel
 
         if ($force || $valid) {
 
-            // Remove any purge atributes from the data set
+            // Remove any purge attributes from the data set
             $this->attributes = $this->purgeArray($this->getAttributes());
 
             // Save the record
@@ -864,7 +865,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Returns a collection of fields that will be hased.
+     * Returns a collection of fields that will be hashed.
      */
     public function getHashableAttributes()
     {

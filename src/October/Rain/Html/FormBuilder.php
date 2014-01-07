@@ -16,8 +16,8 @@ class FormBuilder extends FormBuilderBase
     /**
      * Create a new form builder instance.
      *
-     * @param  \Illuminate\Routing\UrlGenerator  $url
      * @param  \Illuminate\Html\HtmlBuilder  $html
+     * @param  \Illuminate\Routing\UrlGenerator  $url
      * @param  string  $csrfToken
      * @param  string  $sessionKey
      * @return void

@@ -84,7 +84,7 @@ class Router
      * Builds a URL together by matching route name and supplied parameters
      *
      * @param string $name Name of the route previously defined.
-     * @param array $params Parameter name => value items to fill in for given route.
+     * @param array $parameters Parameter name => value items to fill in for given route.
      * @return string Full matched URL as string with given values put in place of named parameters
      */
     public function url($name, $parameters = [])
@@ -94,7 +94,7 @@ class Router
 
         $routeRule = $this->routeMap[$name];
         $pattern = $routeRule->pattern();
-        $patternSegments = Helper::segmetizeUrl($pattern);
+        $patternSegments = Helper::segmentizeUrl($pattern);
         $patternSegmentNum = count($patternSegments);
 
         // Build a URL
@@ -178,8 +178,8 @@ class Router
         $parameters = array();
         $pattern = $routeRule->pattern();
 
-        $urlSegments = Helper::segmetizeUrl($url);
-        $patternSegments = Helper::segmetizeUrl($pattern);
+        $urlSegments = Helper::segmentizeUrl($url);
+        $patternSegments = Helper::segmentizeUrl($pattern);
         $patternSegmentNum = count($patternSegments);
 
         /*

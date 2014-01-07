@@ -280,7 +280,7 @@ class User extends Model
     }
 
     /**
-     * Attemps to reset a user's password by matching the reset code generated with the user's.
+     * Attempts to reset a user's password by matching the reset code generated with the user's.
      * @param string $resetCode
      * @param string $newPassword
      * @return bool
@@ -451,7 +451,7 @@ class User extends Model
                     $checkPermission = substr($permission, 0, -1);
 
                     // We will make sure that the merged permission does not
-                    // exactly match our permission, but starts wtih it.
+                    // exactly match our permission, but starts with it.
                     if ($checkPermission != $mergedPermission && starts_with($mergedPermission, $checkPermission) && $value == 1) {
                         $matched = true;
                         break;
@@ -485,7 +485,7 @@ class User extends Model
                         $checkMergedPermission = substr($mergedPermission, 0, -1);
 
                         // We will make sure that the merged permission does not
-                        // exactly match our permission, but starts wtih it.
+                        // exactly match our permission, but starts with it.
                         if ($checkMergedPermission != $permission && starts_with($permission, $checkMergedPermission) && $value == 1) {
                             $matched = true;
                             break;

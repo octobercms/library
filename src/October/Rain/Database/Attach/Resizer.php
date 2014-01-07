@@ -165,7 +165,7 @@ class Resizer
     }
 
     /**
-     * Open a file, detect its mime-type and create an image resrource from it.
+     * Open a file, detect its mime-type and create an image resource from it.
      * @param array $file Attributes of file from the $_FILES array
      * @return mixed
      */

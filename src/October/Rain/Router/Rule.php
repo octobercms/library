@@ -27,7 +27,8 @@ class Rule
 
     /**
      * Creates a new router rule instance.
-     * @param string $route
+     * @param string $name
+     * @param string $pattern
      */
     public function __construct($name, $pattern)
     {
