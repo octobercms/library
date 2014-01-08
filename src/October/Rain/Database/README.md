@@ -22,4 +22,4 @@ Models can define validation rules Laravel's built-in Validator class.
 
 Deferred bindings allow you to postpone model relationships until the master record commits the changes. This is particularly useful if you need to prepare some models (such as file uploads) and associate them to another model that doesn't exist yet.
 
-(See Deferred binding documentation)[https://github.com/octobercms/docs/blob/master/database-deferred-binding.md]
+[See Deferred binding documentation](https://github.com/octobercms/docs/blob/master/database-deferred-binding.md)
