@@ -4,8 +4,7 @@ use October\Rain\Router\Router;
 
 class RouteTest extends TestCase
 {
-
-    protected static function getMethod($name) 
+    protected static function getMethod($name)
     {
         $class = new ReflectionClass('\October\Rain\Router\Router');
         $method = $class->getMethod($name);
@@ -17,7 +16,7 @@ class RouteTest extends TestCase
     {
         $method = self::getMethod('segmentIsOptional');
         $router = new Router();
-        
+
         $value = $method->invokeArgs($router, array(':my_param_name'));
         $this->assertFalse($value);
 
@@ -33,12 +32,12 @@ class RouteTest extends TestCase
         $value = $method->invokeArgs($router, array(':my_param_name?default value|^[a-z]+[0-9]?$'));
         $this->assertTrue($value);
     }
-    
+
     public function testSegmentRegexp()
     {
         $method = self::getMethod('getSegmentRegExp');
         $router = new Router();
-        
+
         $value = $method->invokeArgs($router, array(':my_param_name'));
         $this->assertFalse($value);
 
@@ -54,12 +53,12 @@ class RouteTest extends TestCase
         $value = $method->invokeArgs($router, array(':my_param_name?default value|^[a-z]+[0-9]?$'));
         $this->assertEquals('/^[a-z]+[0-9]?$/', $value);
     }
-    
+
     public function testDefaultValue()
     {
         $method = self::getMethod('getSegmentDefaultValue');
         $router = new Router();
-        
+
         $value = $method->invokeArgs($router, array(':my_param_name'));
         $this->assertFalse($value);
 
@@ -80,7 +79,7 @@ class RouteTest extends TestCase
     {
         $method = self::getMethod('getParameterName');
         $router = new Router();
-        
+
         $value = $method->invokeArgs($router, array(':my_param_name'));
         $this->assertEquals('my_param_name', $value);
 
@@ -115,68 +114,68 @@ class RouteTest extends TestCase
         $this->assertEquals(1, count($params));
         $this->assertArrayHasKey('post_id', $params);
         $this->assertEquals(10, $params['post_id']);
-        
+
         $rule = $router->reset()->route('testRuleId', 'blog/post/:post_id?');
         $result = $router->resolveUrl($rule, 'blog/post/', $params);
         $this->assertTrue($result);
         $this->assertEquals(1, count($params));
         $this->assertArrayHasKey('post_id', $params);
-        
+
         $this->assertEquals(false, $params['post_id']);
-        
+
         $rule = $router->reset()->route('testRuleId', '/blog/post/:post_id?');
         $result = $router->resolveUrl($rule, 'blog/post/my-post', $params);
         $this->assertTrue($result);
         $this->assertEquals(1, count($params));
         $this->assertArrayHasKey('post_id', $params);
         $this->assertEquals('my-post', $params['post_id']);
-        
+
         $rule = $router->reset()->route('testRuleId', '/blog/post/:post_id?|^[a-z\-]+$');
         $result = $router->resolveUrl($rule, 'blog/post/my-post', $params);
         $this->assertTrue($result);
         $this->assertEquals(1, count($params));
         $this->assertArrayHasKey('post_id', $params);
         $this->assertEquals('my-post', $params['post_id']);
-        
+
         $rule = $router->reset()->route('testRuleId', '/blog/post/:post_id|^[0-9]+$');
         $result = $router->resolveUrl($rule, 'blog/post/10', $params);
         $this->assertTrue($result);
         $this->assertEquals(1, count($params));
         $this->assertArrayHasKey('post_id', $params);
         $this->assertEquals(10, $params['post_id']);
-        
+
         $rule = $router->reset()->route('testRuleId', '/blog/post/:post_id?|^[a-z\-]+$');
         $result = $router->resolveUrl($rule, 'blog/post/10', $params);
         $this->assertFalse($result);
-        
+
         $rule = $router->reset()->route('testRuleId', '/authors/:author_id|^[a-z\-]+$/details');
         $result = $router->resolveUrl($rule, 'authors/my-author/details', $params);
         $this->assertTrue($result);
         $this->assertEquals(1, count($params));
         $this->assertArrayHasKey('author_id', $params);
         $this->assertEquals('my-author', $params['author_id']);
-        
+
         $rule = $router->reset()->route('testRuleId', '/authors/:author_id|^[a-z\-]+$/details');
         $result = $router->resolveUrl($rule, 'authors/details', $params);
         $this->assertFalse($result);
-        
+
         $rule = $router->reset()->route('testRuleId', '/authors/:author_id?/details');
         $result = $router->resolveUrl($rule, 'authors/details', $params);
         $this->assertFalse($result);
-        
+
         $rule = $router->reset()->route('testRuleId', '/authors/:author_id?/details');
         $result = $router->resolveUrl($rule, 'authors/test/details', $params);
         $this->assertTrue($result);
-        
+
         $rule = $router->reset()->route('testRuleId', '/authors/:author_id?/:details?');
         $result = $router->resolveUrl($rule, 'authors/test/details', $params);
         $this->assertTrue($result);
-        
+
         $rule = $router->reset()->route('testRuleId', '/authors/:author_id?/:details?');
         $result = $router->resolveUrl($rule, 'authors/test', $params);
         $this->assertTrue($result);
         $this->assertEquals(2, count($params));
-        
+
         $rule = $router->reset()->route('testRuleId', '/authors/:author_id|^[a-z\-]+$/details/:record_type?|^[0-9]+$');
         $result = $router->resolveUrl($rule, 'authors/my-author/details', $params);
         $this->assertTrue($result);
@@ -185,7 +184,7 @@ class RouteTest extends TestCase
         $this->assertEquals('my-author', $params['author_id']);
         $this->assertArrayHasKey('record_type', $params);
         $this->assertEquals(false, $params['record_type']);
-        
+
         $rule = $router->reset()->route('testRuleId', '/authors/:author_id|^[a-z\-]+$/details/:record_type?|^[0-9]+$');
         $result = $router->resolveUrl($rule, 'authors/my-author/details/441', $params);
         $this->assertTrue($result);
@@ -194,7 +193,7 @@ class RouteTest extends TestCase
         $this->assertEquals('my-author', $params['author_id']);
         $this->assertArrayHasKey('record_type', $params);
         $this->assertEquals('441', $params['record_type']);
-        
+
         $rule = $router->reset()->route('testRuleId', '/blog/post/:post_id|^[0-9]?$');
         $result = $router->resolveUrl($rule, 'blog/post', $params);
         $this->assertFalse($result);
@@ -212,7 +211,7 @@ class RouteTest extends TestCase
         $this->assertEquals(1, count($params));
         $this->assertArrayHasKey('post_id', $params);
         $this->assertEquals('my-post', $params['post_id']);
-        
+
         $rule = $router->reset()->route('testRuleId', '/authors/:author_id?my-author-id|^[a-z\-]+$/:record_type?15|^[0-9]+$');
         $result = $router->resolveUrl($rule, 'authors', $params);
         $this->assertTrue($result);
@@ -227,7 +226,7 @@ class RouteTest extends TestCase
     {
         $params = array();
         $router = new Router();
-        
+
         // Set up some dummy rules
         $router->route('authorDetails', '/authors/:author_id?/:details?');
         $router->route('blogPost', 'blog/post');

@@ -4,7 +4,6 @@ use Illuminate\Support\ServiceProvider;
 
 class FilesystemServiceProvider extends ServiceProvider
 {
-
     /**
      * Register the service provider.
      * @return void
