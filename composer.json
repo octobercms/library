@@ -35,7 +35,7 @@
         "files": [
             "src/October/Rain/Support/helpers.php"
         ],
-        "psr-0": {
+        "psr-4": {
             "October\\Rain": "src/"
         }
     },
