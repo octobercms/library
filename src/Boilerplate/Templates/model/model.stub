@@ -1,10 +1,10 @@
-<?php namespace {{vendor}}\{{studly_name}}\Models;
+<?php namespace {{studly_author}}\{{studly_plugin}}\Models;
 
 use Model;
 
 class {{studly_name}} extends Model
 {
 
-    public $table = '{{lower_vendor}}_{{lower_plugin}}_{{lower_plural_name}}';
+    public $table = '{{lower_author}}_{{lower_plugin}}_{{lower_plural_name}}';
 
 }

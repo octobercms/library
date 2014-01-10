@@ -1,6 +1,6 @@
 <div class="control-breadcrumb">
     <ul>
-        <li><a href="<?= Backend::url('{{lower_vendor}}/{{lower_plugin}}/{{lower_name}}') ?>">{{name}}</a></li>
+        <li><a href="<?= Backend::url('{{lower_author}}/{{lower_plugin}}/{{lower_name}}') ?>">{{name}}</a></li>
         <li><?= e($this->pageTitle) ?></li>
     </ul>
 </div>
@@ -40,7 +40,7 @@
             </button>
 
             <span class="btn-text">
-                or <a href="<?= Backend::url('{{lower_vendor}}/{{lower_plugin}}/{{lower_name}}') ?>">Cancel</a>
+                or <a href="<?= Backend::url('{{lower_author}}/{{lower_plugin}}/{{lower_name}}') ?>">Cancel</a>
             </span>
         </div>
     </div>

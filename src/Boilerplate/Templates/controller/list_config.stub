@@ -3,16 +3,16 @@
 # ===================================
 
 # Model List Column configuration
-list: /plugins/{{lower_vendor}}/{{lower_plugin}}/models/{{lower_model}}/list_columns.yaml
+list: /plugins/{{lower_author}}/{{lower_plugin}}/models/{{lower_model}}/list_columns.yaml
 
 # Model Class name
-model-class: Plugins\{{vendor}}\{{plugin}}\Models\{{model}}
+model-class: Plugins\{{studly_author}}\{{studly_plugin}}\Models\{{studly_model}}
 
 # List Title
 title: Manage {{plural_name}}
 
 # Link URL for each record
-record-url: {{lower_vendor}}/{{lower_plugin}}/{{lower_name}}/update/:id
+record-url: {{lower_author}}/{{lower_plugin}}/{{lower_name}}/update/:id
 
 # Message to display if the list is empty
 no-records-message: backend::lang.list.no_records

@@ -9,22 +9,22 @@ name: {{singular_name}}
 form: /plugins/{{lower_author}}/{{lower_plugin}}/models/{{lower_model}}/form_fields.yaml
 
 # Model Class name
-model-class: {{vendor}}\{{plugin}}\Models\{{model}}
+model-class: {{studly_author}}\{{studly_plugin}}\Models\{{studly_model}}
 
 # Default redirect location
-default-redirect: {{lower_vendor}}/{{lower_plugin}}/{{lower_name}}
+default-redirect: {{lower_author}}/{{lower_plugin}}/{{lower_name}}
 
 # Create page
 create:
     title: Create {{name}}
-    redirect: {{lower_vendor}}/{{lower_plugin}}/{{lower_name}}/update/:id
-    redirect-close: {{lower_vendor}}/{{lower_plugin}}/{{lower_name}}
+    redirect: {{lower_author}}/{{lower_plugin}}/{{lower_name}}/update/:id
+    redirect-close: {{lower_author}}/{{lower_plugin}}/{{lower_name}}
 
 # Update page
 update:
     title: Edit {{name}}
-    redirect: {{lower_vendor}}/{{lower_plugin}}/{{lower_name}}
-    redirect-close: {{lower_vendor}}/{{lower_plugin}}/{{lower_name}}
+    redirect: {{lower_author}}/{{lower_plugin}}/{{lower_name}}
+    redirect-close: {{lower_author}}/{{lower_plugin}}/{{lower_name}}
 
 # Preview page
 preview:
