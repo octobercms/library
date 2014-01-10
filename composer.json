@@ -36,7 +36,7 @@
             "src/October/Rain/Support/helpers.php"
         ],
         "psr-4": {
-            "October\\Rain": "src/"
+            "October\\Rain\\": "src/"
         }
     },
     "minimum-stability": "dev"
