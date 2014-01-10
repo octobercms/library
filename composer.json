@@ -33,7 +33,7 @@
             "tests/TestCase.php"
         ],
         "files": [
-            "src/October/Rain/Support/helpers.php"
+            "src/Support/helpers.php"
         ],
         "psr-4": {
             "October\\Rain\\": "src/"
