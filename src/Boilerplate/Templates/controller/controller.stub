@@ -1,8 +1,11 @@
 <?php namespace {{studly_author}}\{{studly_plugin}}\Controllers;
 
 use BackendMenu;
-use Modules\Backend\Classes\BackendController;
+use Backend\Classes\BackendController;
 
+/**
+ * {{name}} Back-end Controller
+ */
 class {{studly_name}} extends BackendController
 {
     public $implement = [

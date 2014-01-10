@@ -2,6 +2,9 @@
 
 use System\Classes\PluginBase;
 
+/**
+ * {{name}} Plugin Information File
+ */
 class Plugin extends PluginBase
 {
 
