@@ -1,8 +1,8 @@
 ## Rain Extensions
 
-Adds the ability for classes to have *private traits*, also known as Behaviors. These are similar to native Traits except they can have private/protected methods and properties along with the own constructor.
+Adds the ability for classes to have *private traits*, also known as Behaviors. These are similar to native Traits except they can have private/protected methods and properties along with their own constructor.
 
-The originating object is passed always as the first parameter to the constructor.
+The originating object is always passed as the first parameter to the Behavior's constructor.
 
 ### Usage example
 
@@ -35,7 +35,7 @@ class NinjaTurtle extends \October\Rain\Extension\ExtensionBase
 
 **Using the extension**
 
-This `PizzaShop` class will implement the `NinjaTurtle` behavior and then call it's `doSomethingCool` method.
+This `PizzaShop` class will implement the `NinjaTurtle` behavior and then call its `doSomethingCool` method.
 
 ```php
 <?php namespace MyNamespace;

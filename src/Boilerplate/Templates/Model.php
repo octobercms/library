@@ -11,5 +11,6 @@ class Model extends TemplateBase
         'model/model.stub'        => 'models/{{studly_name}}.php',
         'model/form_fields.stub'  => 'models/{{lower_name}}/form_fields.yaml',
         'model/list_columns.stub' => 'models/{{lower_name}}/list_columns.yaml',
+        'model/create_table.stub' => 'updates/create_{{lower_plural_name}}_table.php',
     ];
 }
