@@ -10,7 +10,7 @@ use Assetic\Filter\FilterInterface;
  * @package october/support
  * @author Alexey Bobkov, Samuel Georges
  */
-class StyleSheet_Minify implements FilterInterface
+class StylesheetMinify implements FilterInterface
 {
 
     public function filterLoad(AssetInterface $asset) {}

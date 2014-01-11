@@ -17,7 +17,7 @@ use Assetic\Filter\FilterInterface;
  * @package october/support
  * @author Alexey Bobkov, Samuel Georges
  */
-class JavaScript_Importer implements FilterInterface
+class JavascriptImporter implements FilterInterface
 {
 
     /**
