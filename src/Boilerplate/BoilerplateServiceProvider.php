@@ -4,6 +4,7 @@ use Illuminate\Support\ServiceProvider;
 use October\Rain\Boilerplate\Console\CreatePlugin;
 use October\Rain\Boilerplate\Console\CreateModel;
 use October\Rain\Boilerplate\Console\CreateController;
+use October\Rain\Boilerplate\Console\CreateComponent;
 
 class BoilerplateServiceProvider extends ServiceProvider
 {
@@ -25,9 +26,14 @@ class BoilerplateServiceProvider extends ServiceProvider
             return new CreateController;
         });
 
+        $this->app->bindShared('command.create.component', function() {
+            return new CreateComponent;
+        });
+
         $this->commands('command.create.plugin');
         $this->commands('command.create.model');
         $this->commands('command.create.controller');
+        $this->commands('command.create.component');
     }
 
     /**
@@ -36,6 +42,11 @@ class BoilerplateServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return array('command.create.plugin', 'command.create.model', 'command.create.controller');
+        return [
+            'command.create.plugin',
+            'command.create.model',
+            'command.create.controller',
+            'command.create.component',
+        ];
     }
 }
