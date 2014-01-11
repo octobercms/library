@@ -4,6 +4,8 @@ use Hash;
 use DateTime;
 use October\Rain\Database\Model;
 use October\Rain\Auth\Hash\HasherBase;
+use RuntimeException;
+use InvalidArgumentException;
 
 /**
  * User model
@@ -131,24 +133,6 @@ class User extends Model
     }
 
     /**
-     * @return bool Check if the user is activated.
-     */
-    public function isActivated()
-    {
-        return (bool) $this->activated;
-    }
-
-    /**
-     * Get mutator for giving the activated property.
-     * @param mixed $activated
-     * @return bool
-     */
-    public function getActivatedAttribute($activated)
-    {
-        return (bool) $activated;
-    }
-
-    /**
      * Validate the permissions when set.
      * @param array $permissions
      * @return void
@@ -158,7 +142,7 @@ class User extends Model
         $permissions = json_decode($permissions, true);
         foreach ($permissions as $permission => &$value) {
             if (!in_array($value = (int)$value, $this->allowedPermissionsValues))
-                throw new \InvalidArgumentException("Invalid value [$value] for permission [$permission] given.");
+                throw new InvalidArgumentException(sprintf('Invalid value "%s" for permission "%s" given.', $value, $permission));
 
             if ($value === 0)
                 unset($permissions[$permission]);
@@ -216,6 +200,24 @@ class User extends Model
     }
 
     /**
+     * @return bool Check if the user is activated.
+     */
+    public function isActivated()
+    {
+        return (bool)$this->activated;
+    }
+
+    /**
+     * Get mutator for giving the activated property.
+     * @param mixed $activated
+     * @return bool
+     */
+    public function getActivatedAttribute($activated)
+    {
+        return (bool)$activated;
+    }
+
+    /**
      * Get an activation code for the given user.
      * @return string
      */
@@ -236,7 +238,7 @@ class User extends Model
     public function attemptActivation($activationCode)
     {
         if ($this->activated)
-            throw new \Exception('Cannot attempt activation on an already activated user.');
+            throw new \Exception('User is already active!');
 
         if ($activationCode == $this->activation_code) {
             $this->activation_code = null;
@@ -540,23 +542,19 @@ class User extends Model
     }
 
     /**
-     * Generate a random string. If your server has
+     * Generate a random string
      * @return string
      */
     public function getRandomString($length = 42)
     {
-        // We'll check if the user has OpenSSL installed with PHP. If they do
-        // we'll use a better method of getting a random string. Otherwise, we'll
-        // fallback to a reasonably reliable method.
+        /*
+         * Use OpenSSL (if available)
+         */
         if (function_exists('openssl_random_pseudo_bytes')) {
-            // We generate twice as many bytes here because we want to ensure we have
-            // enough after we base64 encode it to get the length we need because we
-            // take out the "/", "+", and "=" characters.
             $bytes = openssl_random_pseudo_bytes($length * 2);
 
-            // We want to stop execution if the key fails because, well, that is bad.
             if ($bytes === false)
-                throw new \RuntimeException('Unable to generate random string.');
+                throw new RuntimeException('Unable to generate a random string');
 
             return substr(str_replace(array('/', '+', '='), '', base64_encode($bytes)), 0, $length);
         }
