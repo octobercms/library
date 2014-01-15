@@ -135,7 +135,7 @@ class Manager
         }
 
         if (!$user = $query->first())
-            throw new Exception("A user was not found with the given credentials.");
+            throw new Exception('A user was not found with the given credentials.');
 
         /*
          * Check the hashed credentials match

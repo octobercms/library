@@ -110,48 +110,6 @@ class User extends Model
     }
 
     /**
-     * @return string Returns the user's full name.
-     */
-    public function getFullNameAttribute()
-    {
-        return trim($this->first_name . ' ' . $this->last_name);
-    }
-
-    /**
-     * Mutator to protect the password from being reset to null.
-     */
-    public function setPasswordAttribute($value)
-    {
-        if ($this->exists && empty($value))
-            unset($this->attributes['password']);
-        else {
-            $this->attributes['password'] = $value;
-
-            // Password has changed, log out all users
-            $this->attributes['persist_code'] = null;
-        }
-    }
-
-    /**
-     * Validate the permissions when set.
-     * @param array $permissions
-     * @return void
-     */
-    public function setPermissionsAttribute($permissions)
-    {
-        $permissions = json_decode($permissions, true);
-        foreach ($permissions as $permission => &$value) {
-            if (!in_array($value = (int)$value, $this->allowedPermissionsValues))
-                throw new InvalidArgumentException(sprintf('Invalid value "%s" for permission "%s" given.', $value, $permission));
-
-            if ($value === 0)
-                unset($permissions[$permission]);
-        }
-
-        $this->attributes['permissions'] = (!empty($permissions)) ? json_encode($permissions) : '';
-    }
-
-    /**
      * Checks if the user is a super user - has access to everything regardless of permissions.
      * @return bool
      */
@@ -160,8 +118,18 @@ class User extends Model
         return $this->hasPermission('superuser');
     }
 
+    //
+    // Events
+    //
+
+    public function afterLogin()
+    {
+        $this->last_login = new DateTime;
+        $this->forceSave();
+    }
+
     /**
-     * Delete the user
+     * Delete the user (should use afterDelete event)
      * @return bool
      */
     public function delete()
@@ -169,6 +137,10 @@ class User extends Model
         $this->groups()->detach();
         return parent::delete();
     }
+
+    //
+    // Persistence (used by Cookies and Sessions)
+    //
 
     /**
      * Gets a code for when the user is persisted to a cookie or session which identifies the user.
@@ -198,6 +170,10 @@ class User extends Model
 
         return $persistCode == $this->persist_code;
     }
+
+    //
+    // Activation
+    //
 
     /**
      * @return bool Check if the user is activated.
@@ -249,6 +225,10 @@ class User extends Model
 
         return false;
     }
+
+    //
+    // Password
+    //
 
     /**
      * Checks the password passed matches the user's password.
@@ -309,6 +289,25 @@ class User extends Model
             $this->forceSave();
         }
     }
+
+    /**
+     * Protects the password from being reset to null.
+     */
+    public function setPasswordAttribute($value)
+    {
+        if ($this->exists && empty($value))
+            unset($this->attributes['password']);
+        else {
+            $this->attributes['password'] = $value;
+
+            // Password has changed, log out all users
+            $this->attributes['persist_code'] = null;
+        }
+    }
+
+    //
+    // Permissions & Groups
+    //
 
     /**
      * Returns an array of groups which the given user belongs to.
@@ -531,15 +530,27 @@ class User extends Model
     }
 
     /**
-     * Records a login for the user.
-     *
+     * Validate any set permissions.
+     * @param array $permissions
      * @return void
      */
-    public function afterLogin()
+    public function setPermissionsAttribute($permissions)
     {
-        $this->last_login = new DateTime;
-        $this->forceSave();
+        $permissions = json_decode($permissions, true);
+        foreach ($permissions as $permission => &$value) {
+            if (!in_array($value = (int)$value, $this->allowedPermissionsValues))
+                throw new InvalidArgumentException(sprintf('Invalid value "%s" for permission "%s" given.', $value, $permission));
+
+            if ($value === 0)
+                unset($permissions[$permission]);
+        }
+
+        $this->attributes['permissions'] = (!empty($permissions)) ? json_encode($permissions) : '';
     }
+
+    //
+    // Helpers
+    //
 
     /**
      * Generate a random string

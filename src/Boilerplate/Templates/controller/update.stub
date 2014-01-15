@@ -11,7 +11,7 @@
 
     <div class="form-buttons layout-item fix">
         <div class="loading-indicator-container">
-            <button 
+            <button
                 type="submit"
                 data-request="onSave"
                 data-request-data="redirect:false"
@@ -21,7 +21,7 @@
                 class="btn btn-primary">
                 <u>S</u>ave
             </button>
-            <button 
+            <button
                 type="button"
                 data-request="onSave"
                 data-request-data="close:true"
@@ -31,7 +31,7 @@
                 class="btn btn-default">
                 Save and Close
             </button>
-            <button 
+            <button
                 type="button"
                 class="oc-icon-trash btn-icon danger pull-right"
                 data-request="onDelete"
