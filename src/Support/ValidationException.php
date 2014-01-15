@@ -1,5 +1,7 @@
 <?php namespace October\Rain\Support;
 
+use Exception;
+use Illuminate\Support\MessageBag;
 use Illuminate\Validation\Validator;
 
 /**
@@ -8,7 +10,7 @@ use Illuminate\Validation\Validator;
  * @package october\support
  * @author Alexey Bobkov, Samuel Georges
  */
-class ValidationException extends \Exception
+class ValidationException extends Exception
 {
 
     /**
@@ -24,10 +26,18 @@ class ValidationException extends \Exception
     /**
      * Constructor.
      */
-    public function __construct(Validator $validator)
+    public function __construct($validation)
     {
         parent::__construct();
-        $this->errors = $validator->messages();
+
+        if (is_null($validation))
+            return;
+
+        if ($validation instanceof Validator)
+            $this->errors = $validation->messages();
+        else
+            $this->errors = $this->makeErrors($validation);
+
         $this->evalErrors();
     }
 
@@ -41,6 +51,22 @@ class ValidationException extends \Exception
         }
 
         $this->message = $this->errors->first();
+    }
+
+    /**
+     * Creates a new MessageBag object from supplied array.
+     */
+    public function makeErrors($fields)
+    {
+        if (!is_array($fields))
+            $fields = [];
+
+        $errors = new MessageBag;
+
+        foreach ($fields as $field => $message)
+            $errors->add($field, $message);
+
+        return $errors;
     }
 
     /**
