@@ -102,6 +102,18 @@ class Router
 
         $routeRule = $this->routeMap[$name];
         $pattern = $routeRule->pattern();
+        return $this->urlFromPattern($pattern, $parameters);
+    }
+
+    /**
+     * Builds a URL together by matching route pattern and supplied parameters
+     *
+     * @param string $pattern Route pattern string, eg: /path/to/something/:parameter
+     * @param array $parameters Parameter name => value items to fill in for given route.
+     * @return string Full matched URL as string with given values put in place of named parameters
+     */
+    public function urlFromPattern($pattern, $parameters = [])
+    {
         $patternSegments = Helper::segmentizeUrl($pattern);
         $patternSegmentNum = count($patternSegments);
 
@@ -193,22 +205,22 @@ class Router
         /*
          * If the number of URL segments is more than the number of pattern segments - return false
          */
-         
+
         if (count($urlSegments) > count($patternSegments))
             return false;
-         
+
         /*
          * Compare pattern and URL segments
          */
 
         foreach ($patternSegments as $index=>$patternSegment) {
             $patternSegmentLower = mb_strtolower($patternSegment);
-            
+
             if (strpos($patternSegment, ':') !== 0) {
                 /* 
                  * Static segment.
                  */
-                
+
                 if (!array_key_exists($index, $urlSegments) || $patternSegmentLower != mb_strtolower($urlSegments[$index]))
                     return false;
             }
@@ -239,7 +251,7 @@ class Router
                         }
                     }
                 }
-                
+
                 /*
                  * If the segment is optional and there is no corresponding value in the URL, assign the default value (if provided)
                  * and skip to the next segment.
@@ -255,14 +267,14 @@ class Router
                 /*
                  * If the segment is not optional and there is no corresponding value in the URL, return false
                  */
-                
+
                 if (!$optional && !$urlSegmentExists)
                     return false;
-                
+
                 /*
                  * Validate the value with the regular expression
                  */
-                
+
                 $regexp = $this->getSegmentRegExp($patternSegment);
 
                 if ($regexp) {
@@ -271,11 +283,11 @@ class Router
                             return false;
                     } catch (\Exception $ex) {}
                 }
-                
+
                 /*
                  * Set the parameter value
                  */
-                
+
                 $parameters[$paramName] = $urlSegments[$index];
             }
         }
