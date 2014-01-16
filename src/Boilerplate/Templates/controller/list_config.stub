@@ -6,7 +6,7 @@
 list: /plugins/{{lower_author}}/{{lower_plugin}}/models/{{lower_model}}/list_columns.yaml
 
 # Model Class name
-model-class: Plugins\{{studly_author}}\{{studly_plugin}}\Models\{{studly_model}}
+model-class: {{studly_author}}\{{studly_plugin}}\Models\{{studly_model}}
 
 # List Title
 title: Manage {{plural_name}}
