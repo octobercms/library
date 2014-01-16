@@ -12,7 +12,7 @@ class Router
 {
 
     /**
-     * @var string Value to use when a required parameter is not specified.
+     * @var string Value to use when a required parameter is not specified
      */
     public static $defaultValue = 'default';
 
@@ -22,17 +22,17 @@ class Router
     protected $routeMap = array();
 
     /**
-     * @var \October\Rain\Router\Rule A refered to the matched router rule.
+     * @var \October\Rain\Router\Rule A refered to the matched router rule
      */
     protected $matchedRouteRule;
 
     /**
-     * @var array A list of parameters names and values extracted from the URL pattern and URL string.
+     * @var array A list of parameters names and values extracted from the URL pattern and URL string
      */
     private $parameters = array();
 
     /**
-     * Registers a new route rule.
+     * Registers a new route rule
      */
     public function route($name, $route)
     {
@@ -54,7 +54,9 @@ class Router
         $parameters = array();
 
         foreach ($this->routeMap as $name => $routeRule) {
-            if ($this->resolveUrl($routeRule, $url, $parameters)) {
+            if ($routeRule->resolveUrl($url, $parameters)) {
+
+                $this->matchedRouteRule = $routeRule;
 
                 // If this route has a condition, run it
                 $callback = $routeRule->condition();
@@ -72,7 +74,7 @@ class Router
                 break;
             }
         }
-        
+
         // Success
         if ($this->matchedRouteRule) {
 
@@ -120,28 +122,28 @@ class Router
         // Build a URL
         $url = [];
         foreach ($patternSegments as $index => $patternSegment) {
-            
+
             /* 
-             * Static segment.
+             * Static segment
              */
             if (strpos($patternSegment, ':') !== 0) {
                 $url[] = $patternSegment;
                 continue;
             }
             /*
-             * Dynamic segment.
+             * Dynamic segment
              */
             else {
                 /*
-                 * Get the parameter name.
+                 * Get the parameter name
                  */
-                $paramName = $this->getParameterName($patternSegment);
+                $paramName = Helper::getParameterName($patternSegment);
 
                 /*
-                 * Determine whether it is optional.
+                 * Determine whether it is optional
                  */
-                
-                $optional = $this->segmentIsOptional($patternSegment);
+
+                $optional = Helper::segmentIsOptional($patternSegment);
 
                 /*
                  * Check if parameter has been supplied
@@ -149,19 +151,19 @@ class Router
                 $parameterExists = array_key_exists($paramName, $parameters);
 
                 /*
-                 * Use supplied parameter value.
+                 * Use supplied parameter value
                  */
                 if ($parameterExists) {
                     $url[] = $parameters[$paramName];
                 }
                 /*
-                 * Look for default value or set as false.
+                 * Look for default value or set as false
                  */
                 elseif ($optional) {
-                    $url[] = $this->getSegmentDefaultValue($patternSegment);
+                    $url[] = Helper::getSegmentDefaultValue($patternSegment);
                 }
                 /*
-                 * Non optional field, use the default value.
+                 * Non optional field, use the default value
                  */
                 else {
                     $url[] = static::$defaultValue;
@@ -186,116 +188,7 @@ class Router
         return Helper::rebuildUrl($url);
     }
 
-    /**
-     * Checks whether a given URL matches a given pattern.
-     * @param \October\Rain\Router\Rule $routeRule Router rule object.
-     * @param string $url The URL to check.
-     * @param array $parameters A reference to a PHP array variable to return the parameter list fetched from URL.
-     * @return boolean Returns true if the URL matches the pattern. Otherwise returns false.
-     */
-    public function resolveUrl(Rule $routeRule, $url, &$parameters)
-    {
-        $parameters = array();
-        $pattern = $routeRule->pattern();
 
-        $urlSegments = Helper::segmentizeUrl($url);
-        $patternSegments = Helper::segmentizeUrl($pattern);
-        $patternSegmentNum = count($patternSegments);
-
-        /*
-         * If the number of URL segments is more than the number of pattern segments - return false
-         */
-
-        if (count($urlSegments) > count($patternSegments))
-            return false;
-
-        /*
-         * Compare pattern and URL segments
-         */
-
-        foreach ($patternSegments as $index=>$patternSegment) {
-            $patternSegmentLower = mb_strtolower($patternSegment);
-
-            if (strpos($patternSegment, ':') !== 0) {
-                /* 
-                 * Static segment.
-                 */
-
-                if (!array_key_exists($index, $urlSegments) || $patternSegmentLower != mb_strtolower($urlSegments[$index]))
-                    return false;
-            }
-            else {
-                
-                /*
-                 * Dynamic segment. Initialize the parameter.
-                 */
-                
-                $paramName = $this->getParameterName($patternSegment);
-                $parameters[$paramName] = false;
-                
-                /*
-                 * Determine whether it is optional.
-                 */
-                
-                $optional = $this->segmentIsOptional($patternSegment);
-
-                /*
-                 * Check if the optional segment has no required segments following it.
-                 */
-
-                if ($optional && $index < $patternSegmentNum-1) {
-                    for ($i = $index+1; $i < $patternSegmentNum; $i++) {
-                        if (!$this->segmentIsOptional($patternSegments[$i])) {
-                            $optional = false;
-                            break;
-                        }
-                    }
-                }
-
-                /*
-                 * If the segment is optional and there is no corresponding value in the URL, assign the default value (if provided)
-                 * and skip to the next segment.
-                 */
-
-                $urlSegmentExists = array_key_exists($index, $urlSegments);
-
-                if ($optional && !$urlSegmentExists) {
-                    $parameters[$paramName] = $this->getSegmentDefaultValue($patternSegment);
-                    continue;
-                }
-
-                /*
-                 * If the segment is not optional and there is no corresponding value in the URL, return false
-                 */
-
-                if (!$optional && !$urlSegmentExists)
-                    return false;
-
-                /*
-                 * Validate the value with the regular expression
-                 */
-
-                $regexp = $this->getSegmentRegExp($patternSegment);
-
-                if ($regexp) {
-                    try {
-                        if (!preg_match($regexp, $urlSegments[$index]))
-                            return false;
-                    } catch (\Exception $ex) {}
-                }
-
-                /*
-                 * Set the parameter value
-                 */
-
-                $parameters[$paramName] = $urlSegments[$index];
-            }
-        }
-        
-        $this->matchedRouteRule = $routeRule;
-        return true;
-    }
-    
     /**
      * Returns the active list of router rule objects
      * @return array An associative array with keys matching the route rule names and 
@@ -328,97 +221,6 @@ class Router
             return false;
 
         return $this->matchedRouteRule->name();
-    }    
-    
-    /**
-     * Checks whether an URL pattern segment is optional.
-     * @param string $segment The segment definition.
-     * @return boolean Returns boolean true if the segment is optional. Returns false otherwise.
-     */
-    protected function segmentIsOptional(&$segment)
-    {
-        $name = mb_substr($segment, 1);
-        
-        $optMarkerPos = mb_strpos($name, '?');
-        if ($optMarkerPos === false)
-            return false;
-        
-        $regexMarkerPos = mb_strpos($name, '|');
-        if ($regexMarkerPos === false)
-            return true;
-        
-        if ($optMarkerPos !== false && $regexMarkerPos !== false)
-            return $optMarkerPos < $regexMarkerPos;
-
-        return false;
-    }
-    
-    /**
-     * Extracts the parameter name from a URL pattern segment definition.
-     * @param string $segment The segment definition.
-     * @return string Returns the segment name.
-     */
-    protected function getParameterName(&$segment)
-    {
-        $name = mb_substr($segment, 1);
-        
-        $optMarkerPos = mb_strpos($name, '?');
-        $regexMarkerPos = mb_strpos($name, '|');
-        
-        if ($optMarkerPos !== false && $regexMarkerPos !== false) {
-            if ($optMarkerPos < $regexMarkerPos)
-                return mb_substr($name, 0, $optMarkerPos);
-            else
-                return mb_substr($name, 0, $regexMarkerPos);
-        }
-
-        if ($optMarkerPos !== false)
-            return mb_substr($name, 0, $optMarkerPos);
-
-        if ($regexMarkerPos !== false)
-            return mb_substr($name, 0, $regexMarkerPos);
-
-        return $name;
-    }
-    
-    /**
-     * Extracts the regular expression from a URL pattern segment definition.
-     * @param string $segment The segment definition.
-     * @return string Returns the regular expression string or false if the expression is not defined.
-     */
-    protected function getSegmentRegExp(&$segment)
-    {
-        if (($pos = mb_strpos($segment, '|')) !== false) {
-            $regexp = mb_substr($segment, $pos+1);
-            if (!mb_strlen($regexp))
-                return false;
-                
-            return '/'.$regexp.'/';
-        }
-
-        return false;
-    }
-    
-    /**
-     * Extracts the default parameter value from a URL pattern segment definition.
-     * @param string $segment The segment definition.
-     * @return string Returns the default value if it is provided. Returns false otherwise.
-     */
-    protected function getSegmentDefaultValue(&$segment)
-    {
-        $optMarkerPos = mb_strpos($segment, '?');
-        if ($optMarkerPos === false)
-            return false;
-
-        $regexMarkerPos = mb_strpos($segment, '|');
-        $value = false;
-        
-        if ($regexMarkerPos !== false)
-            $value = mb_substr($segment, $optMarkerPos+1, $regexMarkerPos-$optMarkerPos-1);
-        else
-            $value = mb_substr($segment, $optMarkerPos+1);
-
-        return strlen($value) ? $value : false;
     }
 
     /**
@@ -429,6 +231,34 @@ class Router
     {
         $this->routeMap = array();
         return $this;
+    }
+
+    /**
+     * Sorts all the routing rules by static segments, then dynamic
+     * @return void
+     */
+    public function sortRules()
+    {
+        uasort($this->routeMap, function($a, $b) {
+            $lengthA = $a->staticSegmentCount;
+            $lengthB = $b->staticSegmentCount;
+
+            if ($lengthA > $lengthB)
+                return -1;
+            else if ($lengthA < $lengthB)
+                return 1;
+            else {
+                $lengthA = $a->dynamicSegmentCount;
+                $lengthB = $b->dynamicSegmentCount;
+
+                if ($lengthA > $lengthB)
+                    return 1;
+                else if ($lengthA < $lengthB)
+                    return -1;
+                else
+                    return 0;
+            }
+        });
     }
 
 }

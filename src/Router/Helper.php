@@ -85,4 +85,96 @@ class Helper
 
         return $string;
     }
+
+    /**
+     * Checks whether an URL pattern segment is optional.
+     * @param string $segment The segment definition.
+     * @return boolean Returns boolean true if the segment is optional. Returns false otherwise.
+     */
+    public static function segmentIsOptional($segment)
+    {
+        $name = mb_substr($segment, 1);
+
+        $optMarkerPos = mb_strpos($name, '?');
+        if ($optMarkerPos === false)
+            return false;
+
+        $regexMarkerPos = mb_strpos($name, '|');
+        if ($regexMarkerPos === false)
+            return true;
+
+        if ($optMarkerPos !== false && $regexMarkerPos !== false)
+            return $optMarkerPos < $regexMarkerPos;
+
+        return false;
+    }
+
+    /**
+     * Extracts the parameter name from a URL pattern segment definition.
+     * @param string $segment The segment definition.
+     * @return string Returns the segment name.
+     */
+    public static function getParameterName($segment)
+    {
+        $name = mb_substr($segment, 1);
+
+        $optMarkerPos = mb_strpos($name, '?');
+        $regexMarkerPos = mb_strpos($name, '|');
+
+        if ($optMarkerPos !== false && $regexMarkerPos !== false) {
+            if ($optMarkerPos < $regexMarkerPos)
+                return mb_substr($name, 0, $optMarkerPos);
+            else
+                return mb_substr($name, 0, $regexMarkerPos);
+        }
+
+        if ($optMarkerPos !== false)
+            return mb_substr($name, 0, $optMarkerPos);
+
+        if ($regexMarkerPos !== false)
+            return mb_substr($name, 0, $regexMarkerPos);
+
+        return $name;
+    }
+
+    /**
+     * Extracts the regular expression from a URL pattern segment definition.
+     * @param string $segment The segment definition.
+     * @return string Returns the regular expression string or false if the expression is not defined.
+     */
+    public static function getSegmentRegExp($segment)
+    {
+        if (($pos = mb_strpos($segment, '|')) !== false) {
+            $regexp = mb_substr($segment, $pos+1);
+            if (!mb_strlen($regexp))
+                return false;
+
+            return '/'.$regexp.'/';
+        }
+
+        return false;
+    }
+
+    /**
+     * Extracts the default parameter value from a URL pattern segment definition.
+     * @param string $segment The segment definition.
+     * @return string Returns the default value if it is provided. Returns false otherwise.
+     */
+    public static function getSegmentDefaultValue($segment)
+    {
+        $optMarkerPos = mb_strpos($segment, '?');
+        if ($optMarkerPos === false)
+            return false;
+
+        $regexMarkerPos = mb_strpos($segment, '|');
+        $value = false;
+
+        if ($regexMarkerPos !== false)
+            $value = mb_substr($segment, $optMarkerPos+1, $regexMarkerPos-$optMarkerPos-1);
+        else
+            $value = mb_substr($segment, $optMarkerPos+1);
+
+        return strlen($value) ? $value : false;
+    }
+
 }
