@@ -36,7 +36,7 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
              * Add routes, if available
              */
             $routesFile = base_path() . '/modules/' . $module . '/routes.php';
-            if (File::exists($routesFile))
+            if (File::isFile($routesFile))
                 require $routesFile;
         }
     }

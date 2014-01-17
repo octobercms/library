@@ -63,7 +63,7 @@ class Updater
      */
     public function resolve($file)
     {
-        if (!File::exists($file))
+        if (!File::isFile($file))
             return;
 
         require_once $file;

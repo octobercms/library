@@ -93,7 +93,7 @@ class JavascriptImporter implements FilterInterface
                 $script = $script . '.js';
 
             $scriptPath = realpath($this->scriptPath . '/' . $script);
-            if (!File::exists($scriptPath)) {
+            if (!File::isFile($scriptPath)) {
                 if ($required)
                     throw new \Exception('Required script does not exist: ' . $script);
                 else

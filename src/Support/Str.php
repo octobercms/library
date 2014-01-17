@@ -110,7 +110,7 @@ class Str extends StrHelper
     /**
      * Obtains an object class name without namespaces
      */
-    public static function getRealClass($name) 
+    public static function getRealClass($name)
     {
         $name = static::normalizeClassName($name);
 
