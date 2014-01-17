@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Filesystem;
 
+use ReflectionClass;
 use Illuminate\Filesystem\Filesystem as FilesystemBase;
 
 /**
@@ -79,6 +80,34 @@ class Filesystem extends FilesystemBase
             return $bytes . ' byte';
 
         return '0 bytes';
+    }
+
+    /**
+     * Returns a public file path from an absolute one
+     * eg: /home/mysite/public_html/welcome -> /welcome
+     * @param string $path Absolute path
+     * @return string
+     */
+    public static function localToPublic($path)
+    {
+        $result = null;
+        $publicPath = public_path();
+
+        if (strpos($path, $publicPath) === 0)
+            $result = str_replace("\\", "/", substr($path, strlen($publicPath)));
+
+        return $result;
+    }
+
+    /**
+     * Finds the path to a class
+     * @param mixed $className Class name or object
+     * @return string The file path
+     */
+    public static function fromClass($className)
+    {
+        $reflector = new ReflectionClass($className);
+        return $reflector->getFileName();
     }
 
 }
