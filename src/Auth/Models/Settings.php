@@ -105,7 +105,7 @@ class Settings extends Model
         $record->value = $value;
         $record->save();
 
-        $cacheKey = $this->getCacheKey($item, $user);
+        $cacheKey = $this->getCacheKey($key, $user);
         static::$cache[$cacheKey] = $value;
         return true;
     }
