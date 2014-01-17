@@ -579,7 +579,7 @@ class Model extends EloquentModel
                     $this->validationErrors = new MessageBag;
             } else {
                 $this->validationErrors = $validator->messages();
-                if (Input::hasSessionStore())
+                if (Input::hasSession())
                     Input::flash();
             }
         }
