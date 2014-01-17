@@ -5,16 +5,16 @@ use October\Rain\Database\Model;
 use October\Rain\Auth\Manager;
 
 /**
- * User Settings model
+ * User Preferences model
  */
-class Settings extends Model
+class Preferences extends Model
 {
     use \October\Rain\Support\Traits\KeyParser;
 
     /**
      * @var string The database table used by the model.
      */
-    protected $table = 'settings';
+    protected $table = 'preferences';
 
     public $timestamps = false;
 
@@ -26,7 +26,7 @@ class Settings extends Model
     protected $jsonable = ['value'];
 
     /**
-     * @var October\Rain\Auth\Models\User A user who owns the settings
+     * @var October\Rain\Auth\Models\User A user who owns the preferences
      */
     public $userContext;
 
@@ -133,7 +133,7 @@ class Settings extends Model
     }
 
     /**
-     * Builds a cache key for the settings record.
+     * Builds a cache key for the preferences record.
      */
     protected function getCacheKey($item, $user)
     {
