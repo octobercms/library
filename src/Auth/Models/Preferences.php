@@ -95,7 +95,7 @@ class Preferences extends Model
         $record = static::findRecord($key, $user)->first();
         if (!$record) {
             list($namespace, $group, $item) = $this->parseKey($key);
-            $record = new self;
+            $record = new static;
             $record->namespace = $namespace;
             $record->group = $group;
             $record->item = $item;

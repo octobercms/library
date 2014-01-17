@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class DbGroups extends Migration 
+class DbGroups extends Migration
 {
 
     public function up()

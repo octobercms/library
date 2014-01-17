@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class DbThrottle extends Migration 
+class DbThrottle extends Migration
 {
 
     public function up()

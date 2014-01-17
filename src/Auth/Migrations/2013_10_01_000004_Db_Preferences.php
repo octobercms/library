@@ -3,11 +3,11 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class DbSettings extends Migration 
+class DbPreferences extends Migration
 {
     public function up()
     {
-        Schema::create('settings', function($table)
+        Schema::create('preferences', function($table)
         {
             $table->engine = 'InnoDB';
             $table->increments('id');
@@ -22,6 +22,6 @@ class DbSettings extends Migration
 
     public function down()
     {
-        Schema::drop('settings');
+        Schema::drop('preferences');
     }
 }
