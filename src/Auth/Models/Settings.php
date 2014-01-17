@@ -1,0 +1,142 @@
+<?php namespace October\Rain\Auth\Models;
+
+use Exception;
+use October\Rain\Database\Model;
+use October\Rain\Auth\Manager;
+
+/**
+ * User Settings model
+ */
+class Settings extends Model
+{
+    use \October\Rain\Support\Traits\KeyParser;
+
+    /**
+     * @var string The database table used by the model.
+     */
+    protected $table = 'settings';
+
+    public $timestamps = false;
+
+    protected static $cache = [];
+
+    /**
+     * @var array List of attribute names which are json encoded and decoded from the database.
+     */
+    protected $jsonable = ['value'];
+
+    /**
+     * @var October\Rain\Auth\Models\User A user who owns the settings
+     */
+    public $userContext;
+
+    /**
+     * Checks for a supplied user or uses the default logged in. You should override this method.
+     * @param mixed $user An optional back-end user object.
+     * @return User object
+     */
+    public function resolveUser($user)
+    {
+        $user = Manager::getUser();
+        if (!$user)
+            throw new Exception('User is not logged in');
+
+        return $user;
+    }
+
+    /**
+     * Creates this object and sets the user context
+     */
+    public static function forUser($user = null)
+    {
+        $self = new static;
+        $self->userContext = ($user) ?: $self->resolveUser($user);
+        return $self;
+    }
+
+    /**
+     * Returns a setting value by the module (or plugin) name and setting name.
+     * @param string $key Specifies the setting key value, for example 'backend:items.perpage'
+     * @param mixed $default The default value to return if the setting doesn't exist in the DB.
+     * @param mixed $user An optional back-end user object. 
+     * If the user is not provided the currently authenticated user will be used. If there is no
+     * an authenticated user, the exception will be thrown.
+     * @return mixed Returns the setting value loaded from the database or the default value.
+     */
+    public function get($key, $default = null)
+    {
+        if (!($user = $this->userContext))
+            return $default;
+
+        $cacheKey = $this->getCacheKey($key, $user);
+
+        if (array_key_exists($cacheKey, static::$cache))
+            return static::$cache[$cacheKey];
+
+        $record = static::findRecord($key, $user)->first();
+        if (!$record || !is_array($record->value))
+            return static::$cache[$cacheKey] = $default;
+
+        return static::$cache[$cacheKey] = $record->value;
+    }
+
+    /**
+     * Stores a setting value to the database.
+     * @param string $key Specifies the setting key value, for example 'backend:items.perpage'
+     * @param mixed $value The setting value to store, serializable.
+     * If the user is not provided the currently authenticated user will be used. If there is no
+     * an authenticated user, the exception will be thrown.
+     */
+    public function set($key, $value)
+    {
+        if (!($user = $this->userContext))
+            return false;
+
+        $record = static::findRecord($key, $user)->first();
+        if (!$record) {
+            list($namespace, $group, $item) = $this->parseKey($key);
+            $record = new self;
+            $record->namespace = $namespace;
+            $record->group = $group;
+            $record->item = $item;
+            $record->user_id = $user->id;
+        }
+
+        $record->value = $value;
+        $record->save();
+
+        $cacheKey = $this->getCacheKey($item, $user);
+        static::$cache[$cacheKey] = $value;
+        return true;
+    }
+
+    /**
+     * Scope to find a setting record for the specified module (or plugin) name, setting name and user.
+     * @param string $key Specifies the setting key value, for example 'backend:items.perpage'
+     * @param mixed $default The default value to return if the setting doesn't exist in the DB.
+     * @param mixed $user An optional user object.
+     * @return mixed Returns the found record or null.
+     */
+    public function scopeFindRecord($query, $key, $user = null)
+    {
+        list($namespace, $group, $item) = $this->parseKey($key);
+
+        $query = $query
+                    ->where('namespace', $namespace)
+                    ->where('group', $group)
+                    ->where('item', $item);
+
+        if ($user)
+            $query = $query->where('user_id', $user->id);
+
+        return $query;
+    }
+
+    /**
+     * Builds a cache key for the settings record.
+     */
+    protected function getCacheKey($item, $user)
+    {
+        return $user->id . '-' . $item;
+    }
+}
