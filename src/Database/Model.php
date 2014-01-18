@@ -831,6 +831,10 @@ class Model extends EloquentModel
      */
     public function getAttribute($key)
     {
+        // Before Event
+        if (($attr = $this->trigger('model.beforeGetAttribute', $key)) !== null)
+            return is_array($attr) ? reset($attr) : $attr;
+
         $attr = parent::getAttribute($key);
 
         if ($attr === null) {
@@ -846,6 +850,10 @@ class Model extends EloquentModel
             if ($value = json_decode($attr, true))
                 $attr = $value;
         }
+
+        // After Event
+        if (($_attr = $this->trigger('model.afterGetAttribute', $key, $attr)) !== null)
+            return is_array($_attr) ? reset($_attr) : $_attr;
 
         return $attr;
     }
