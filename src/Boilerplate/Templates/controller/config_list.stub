@@ -3,7 +3,7 @@
 # ===================================
 
 # Model List Column configuration
-list: /plugins/{{lower_author}}/{{lower_plugin}}/models/{{lower_model}}/list_columns.yaml
+list: @/plugins/{{lower_author}}/{{lower_plugin}}/models/{{lower_model}}/columns.yaml
 
 # Model Class name
 model-class: {{studly_author}}\{{studly_plugin}}\Models\{{studly_model}}

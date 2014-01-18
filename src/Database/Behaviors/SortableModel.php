@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Behaviors;
 
+use Exception;
 use October\Rain\Database\ModelBehavior;
 
 /**
@@ -57,7 +58,7 @@ class SortableModel extends ModelBehavior
             $itemOrders = $itemIds;
 
         if (count($itemIds) != count($itemOrders))
-            throw new \Exception('Invalid setSortableOrder call - count of itemIds do not match count of itemOrders');
+            throw new Exception('Invalid setSortableOrder call - count of itemIds do not match count of itemOrders');
 
         foreach ($itemIds as $index => $id) {
             $order = $itemOrders[$index];
