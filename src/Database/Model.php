@@ -26,7 +26,15 @@ class Model extends EloquentModel
     use \October\Rain\Support\Traits\Emitter;
     use \October\Rain\Extension\ExtendableTrait;
 
+    /**
+     * @var array Behaviors implemented by this model.
+     */
     public $implement;
+
+    /**
+     * @var array Make the model's attributes public so behaviors can modify them.
+     */
+    public $attributes = array();
 
     /**
      * @var array The rules to be applied to the data.
@@ -844,7 +852,6 @@ class Model extends EloquentModel
 
     /**
      * Determine if a get mutator exists for an attribute.
-     *
      * @param  string  $key
      * @return bool
      */
@@ -885,19 +892,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Set an attribute to the $attributes array.
-     *
-     * @param  string  $key
-     * @return mixed
-     */
-    protected function setAttributeToArray($key, $value)
-    {
-        return $this->attributes[$key] = $value;
-    }
-
-    /**
      * Determine if a set mutator exists for an attribute.
-     *
      * @param  string  $key
      * @return bool
      */
