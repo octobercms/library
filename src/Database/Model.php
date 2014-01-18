@@ -188,8 +188,8 @@ class Model extends EloquentModel
                 $method = $hook.ucfirst($radical).'e'; // beforeSave / afterSave
                 $eventMethod = $radical . $event; // saving / saved
 
-                self::$eventMethod(function($model) use ($self, $method, $eventMethod) {
-                    $model->trigger('model.'.$eventMethod);
+                self::$eventMethod(function($model) use ($self, $method) {
+                    $model->trigger('model.'.$method);
 
                     if (method_exists($self, $method))
                         return $model->$method();
@@ -508,7 +508,7 @@ class Model extends EloquentModel
             if (!is_array($value)) $value = [$value];
 
             // Do not sync until the model is saved
-            $this->bindOnce('model.saved', function() use ($relationObj, $value){
+            $this->bindOnce('model.afterSave', function() use ($relationObj, $value){
                 $relationObj->sync($value);
             });
         }
@@ -872,7 +872,9 @@ class Model extends EloquentModel
      */
     public function setAttribute($key, $value)
     {
-        $model->trigger('model.beforeSetAttribute');
+        // Before Event
+        if ($this->trigger('model.beforeSetAttribute', $key, $value) === false)
+            return;
 
         // Hash required fields when necessary
         if (in_array($key, $this->hashable) && !empty($value)) {
@@ -890,7 +892,12 @@ class Model extends EloquentModel
             return $this->setRelationValue($key, $value);
         }
 
-        return parent::setAttribute($key, $value);
+        $result = parent::setAttribute($key, $value);
+
+        // After Event
+        $this->trigger('model.afterSetAttribute', $key, $value);
+
+        return $result;
     }
 
     /**
