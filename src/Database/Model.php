@@ -813,7 +813,48 @@ class Model extends EloquentModel
     }
 
     //
-    // Internals
+    // Getters
+    //
+
+    /**
+     * Get an attribute from the model.
+     * Overrided from {@link Eloquent} to implement recognition of the relation.
+     * @return mixed
+     */
+    public function getAttribute($key)
+    {
+        $attr = parent::getAttribute($key);
+
+        if ($attr === null) {
+            $camelKey = camel_case($key);
+            if ($this->hasRelation($camelKey)) {
+                $this->relations[$key] = $this->$camelKey()->getResults();
+                return $this->relations[$key];
+            }
+        }
+
+        // Handle jsonable
+        if (in_array($key, $this->jsonable) && !empty($attr)) {
+            if ($value = json_decode($attr, true))
+                $attr = $value;
+        }
+
+        return $attr;
+    }
+
+    /**
+     * Determine if a get mutator exists for an attribute.
+     *
+     * @param  string  $key
+     * @return bool
+     */
+    public function hasGetMutator($key)
+    {
+        return $this->methodExists('get'.studly_case($key).'Attribute');
+    }
+
+    //
+    // Setters
     //
 
     /**
@@ -844,30 +885,30 @@ class Model extends EloquentModel
     }
 
     /**
-     * Get an attribute from the model.
-     * Overrided from {@link Eloquent} to implement recognition of the relation.
+     * Set an attribute to the $attributes array.
+     *
+     * @param  string  $key
      * @return mixed
      */
-    public function getAttribute($key)
+    protected function setAttributeToArray($key, $value)
     {
-        $attr = parent::getAttribute($key);
-
-        if ($attr === null) {
-            $camelKey = camel_case($key);
-            if ($this->hasRelation($camelKey)) {
-                $this->relations[$key] = $this->$camelKey()->getResults();
-                return $this->relations[$key];
-            }
-        }
-
-        // Handle jsonable
-        if (in_array($key, $this->jsonable) && !empty($attr)) {
-            if ($value = json_decode($attr, true))
-                $attr = $value;
-        }
-
-        return $attr;
+        return $this->attributes[$key] = $value;
     }
+
+    /**
+     * Determine if a set mutator exists for an attribute.
+     *
+     * @param  string  $key
+     * @return bool
+     */
+    public function hasSetMutator($key)
+    {
+        return $this->methodExists('set'.studly_case($key).'Attribute');
+    }
+
+    //
+    // Hashable
+    //
 
     /**
      * Returns a collection of fields that will be hashed.
@@ -894,6 +935,10 @@ class Model extends EloquentModel
             ? $this->originalHashableValues[$attribute]
             : null;
     }
+
+    //
+    // Purgable
+    //
 
     /**
      * Returns a collection of fields that will be hased.
