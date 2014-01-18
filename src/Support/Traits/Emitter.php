@@ -62,6 +62,11 @@ trait Emitter
 
     /**
      * Emits a registered event.
+     *
+     * If all results are NULL, then NULL is returned.
+     * If one or more results is FALSE and remaining are NULL/TRUE, then FALSE is returned.
+     * If one or more results is TRUE and remaining are NULL, then TRUE is returned.
+     * Otherwise an array of results is returned for each event.
      * @param string $event Event name
      * @return array Collection of event results
      */
@@ -92,6 +97,32 @@ trait Emitter
             }
         }
 
-        return $result ?: null;
+        /*
+         * Tally up results
+         */
+        $nullCount = $falseCount = $trueCount = $returnCount = 0;
+        foreach ($result as $_result) {
+            if (is_null($_result))
+                $nullCount++;
+            elseif (is_bool($_result) && $_result === false)
+                $falseCount++;
+            elseif (is_bool($_result) && $_result === true)
+                $trueCount++;
+            else
+                $returnCount++;
+        }
+
+        /*
+         * If a non-null, non-boolean result is found, return the whole collection
+         * Otherwise return false, then true, then null respectively.
+         */
+        if ($returnCount > 0)
+            return $result;
+        elseif ($falseCount > 0)
+            return false;
+        elseif ($trueCount > 0)
+            return true;
+        else
+            return null;
     }
 }

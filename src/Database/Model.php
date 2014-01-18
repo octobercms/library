@@ -34,7 +34,7 @@ class Model extends EloquentModel
     /**
      * @var array Make the model's attributes public so behaviors can modify them.
      */
-    public $attributes = array();
+    public $attributes = [];
 
     /**
      * @var array The rules to be applied to the data.
@@ -118,7 +118,7 @@ class Model extends EloquentModel
     public $morphMany = [];
 
     /**
-     * @var array Array of relations used to verify arguments used in the {@link $relationsData}
+     * @var array Excepted relationship types, used to cycle and verify relationships.
      */
     protected static $relationTypes = ['hasOne', 'hasMany', 'belongsTo', 'belongsToMany', 'morphTo', 'morphOne', 'morphMany'];
 
@@ -872,6 +872,8 @@ class Model extends EloquentModel
      */
     public function setAttribute($key, $value)
     {
+        $model->trigger('model.beforeSetAttribute');
+
         // Hash required fields when necessary
         if (in_array($key, $this->hashable) && !empty($value)) {
             $this->originalHashableValues[$key] = $value;
