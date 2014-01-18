@@ -192,7 +192,7 @@ class Model extends EloquentModel
                 self::$eventMethod(function($model) use ($self, $method) {
                     $model->trigger('model.' . $method);
 
-                    if ($self->methodExists($method))
+                    if ($model->methodExists($method))
                         return $model->$method();
                 });
             }
