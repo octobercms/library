@@ -179,23 +179,62 @@ class Model extends EloquentModel
     private static function bindNicerEvents()
     {
         $self = get_called_class();
-        $radicals = ['creat', 'sav', 'validat', 'updat', 'delet'];
+        $radicals = ['creat', 'sav', 'validat', 'updat', 'delet', 'restor', 'fetch'];
         $hooks = ['before' => 'ing', 'after' => 'ed'];
 
         foreach ($radicals as $radical) {
             foreach ($hooks as $hook => $event) {
 
-                $method = $hook.ucfirst($radical).'e'; // beforeSave / afterSave
                 $eventMethod = $radical . $event; // saving / saved
+                $method = $hook . ucfirst($radical); // beforeSave / afterSave
+                if ($radical != 'fetch') $method .= 'e';
 
                 self::$eventMethod(function($model) use ($self, $method) {
-                    $model->trigger('model.'.$method);
+                    $model->trigger('model.' . $method);
 
                     if (method_exists($self, $method))
                         return $model->$method();
                 });
             }
         }
+    }
+
+    /**
+     * Create a new model instance that is existing.
+     * @param  array  $attributes
+     * @return \Illuminate\Database\Eloquent\Model|static
+     */
+    public function newFromBuilder($attributes = array())
+    {
+        $instance = $this->newInstance(array(), true);
+        if ($instance->fireModelEvent('fetching') === false)
+            return $instance;
+
+        $instance->setRawAttributes((array) $attributes, true);
+
+        $instance->fireModelEvent('fetched', false);
+
+        return $instance;
+    }
+
+    /**
+     * Create a new native event for handling beforeFetch().
+     * @param Closure|string $callback
+     * @return void
+     */
+    public static function fetching($callback)
+    {
+        static::registerModelEvent('fetching', $callback);
+    }
+
+    /**
+     * Create a new native event for handling afterFetch().
+     * @param Closure|string $callback
+     * @return void
+     */
+    public static function fetched($callback)
+    {
+        static::registerModelEvent('fetched', $callback);
     }
 
     /**
