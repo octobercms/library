@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Support\Traits;
 
 /**
- * Adds event related features to a class.
+ * Adds event related features to any class.
  *
  * @package october\support
  * @author Alexey Bobkov, Samuel Georges
@@ -22,7 +22,7 @@ trait Emitter
      * Create a new event binding.
      * @return Self
      */
-    public function bind($event, callable $callback)
+    public function bind($event, $callback)
     {
         $this->emitterEventCollection[$event][] = $callback;
         return $this;
@@ -32,7 +32,7 @@ trait Emitter
      * Create a new event binding to be fired once only.
      * @return Self
      */
-    public function bindOnce($event, callable $callback)
+    public function bindOnce($event, $callback)
     {
         $this->emitterSingleEventCollection[$event][] = $callback;
         return $this;
@@ -45,6 +45,16 @@ trait Emitter
      */
     public function unbind($event = null)
     {
+        /*
+         * Multiple events
+         */
+        if (is_array($event)) {
+            foreach ($event as $_event) {
+                $this->unbind($_event);
+            }
+            return;
+        }
+
         if ($event === null) {
             unset($this->emitterSingleEventCollection);
             unset($this->emitterEventCollection);
@@ -80,7 +90,7 @@ trait Emitter
          */
         if (isset($this->emitterSingleEventCollection[$event])) {
             foreach ($this->emitterSingleEventCollection[$event] as $callback) {
-                if ($_result = call_user_func_array($callback, $params))
+                if (($_result = call_user_func_array($callback, $params)) !== null)
                     $result[] = $_result;
             }
 
@@ -92,7 +102,7 @@ trait Emitter
          */
         if (isset($this->emitterEventCollection[$event])) {
             foreach ($this->emitterEventCollection[$event] as $callback) {
-                if ($_result = call_user_func_array($callback, $params))
+                if (($_result = call_user_func_array($callback, $params)) !== null)
                     $result[] = $_result;
             }
         }
@@ -100,11 +110,9 @@ trait Emitter
         /*
          * Tally up results
          */
-        $nullCount = $falseCount = $trueCount = $returnCount = 0;
+        $falseCount = $trueCount = $returnCount = 0;
         foreach ($result as $_result) {
-            if (is_null($_result))
-                $nullCount++;
-            elseif (is_bool($_result) && $_result === false)
+            if (is_bool($_result) && $_result === false)
                 $falseCount++;
             elseif (is_bool($_result) && $_result === true)
                 $trueCount++;

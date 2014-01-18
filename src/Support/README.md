@@ -7,7 +7,7 @@ The October Rain Support contains common classes relevant to supporting the othe
 A *true singleton* is a class that can ever only have a single instance, no matter what. Use it in your classes like this:
 
 ```php
-class MyClass 
+class MyClass
 {
     use \October\Rain\Support\Traits\Singleton;
 }
@@ -62,4 +62,55 @@ echo get_class($str); // Returns October\Rain\Support\Facades\Str
 
 $facade->facade('Str', 'Some\Other\Facade\Str');
 echo get_class($str); // Returns Some\Other\Facade\Str
+```
+
+### Event emitter
+
+Adds event related features to any class.
+
+**Attach to a class**
+
+```php
+class MyClass
+{
+    use October\Rain\Support\Traits\Emitter;
+}
+```
+
+**Bind to an event**
+
+```php
+$myObject = new MyClass;
+$myObject->bind('cook.bacon', function(){
+    echo 'Bacon is ready';
+})
+```
+
+**Trigger an event**
+
+```php
+// Outputs: Bacon is ready
+$myObject->trigger('cook.bacon');
+```
+
+**Bind to an event only once**
+
+```php
+$myObject = new MyClass;
+$myObject->bindOnce('cook.soup', function(){
+    echo 'Soup is ready. Want more? NO SOUP FOR YOU!';
+})
+```
+
+**Bind an event to other object method**
+
+```php
+$myObject->bind('cook.eggs', [$anotherObject, 'methodToCookEggs']);
+```
+
+**Unbind an event**
+
+```php
+$myObject->unbind('cook.bacon');
+$myObject->unbind(['cook.bacon', 'cook.eggs']);
 ```
