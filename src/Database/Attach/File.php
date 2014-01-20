@@ -173,7 +173,7 @@ class File extends Model
     /**
      * Outputs the raw file contents.
      */
-    public function getContents($disposition = 'inline')
+    public function output($disposition = 'inline')
     {
         header("Content-type: ".$this->getContentType());
         header('Content-Disposition: '.$disposition.'; filename="'.$this->file_name.'"');
@@ -182,7 +182,18 @@ class File extends Model
         header('Cache-Control: pre-check=0, post-check=0, max-age=0');
         header('Accept-Ranges: bytes');
         header('Content-Length: '.$this->file_size);
-        $this->getFile();
+        echo $this->getContents();
+    }
+
+    /**
+     * Get file contents from storage device.
+     */
+    public function getContents($fileName = null)
+    {
+        if (!$fileName)
+            $fileName = $this->disk_name;
+
+        return FileHelper::get($this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName);
     }
 
     /**
@@ -303,17 +314,6 @@ class File extends Model
             FileHelper::makeDirectory($destinationPath, 0777, true);
 
         return FileHelper::copy($sourcePath, $destinationPath . $destinationFileName);
-    }
-
-    /**
-     * Get file contents from storage device.
-     */
-    protected function getFile($fileName = null)
-    {
-        if (!$fileName)
-            $fileName = $this->disk_name;
-
-        return FileHelper::get($this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName);
     }
 
     /**
