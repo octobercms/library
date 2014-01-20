@@ -74,18 +74,6 @@ class File extends Model
     }
 
     /**
-     * Magic for setting the file attribute, eg:
-     * $model->data = Input::file('something');
-     */
-    public function setDataAttribute($value)
-    {
-        if ($value instanceof UploadedFile)
-            $this->fromPost($value);
-        else
-            $this->fromFile($value);
-    }
-
-    /**
      * Creates a file object from a file an uploaded file.
      * @param Symfony\Component\HttpFoundation\File\UploadedFile $uploadedFile
      */
@@ -224,6 +212,25 @@ class File extends Model
             return $this->public;
 
         return true;
+    }
+
+    /**
+     * Before the model is saved
+     * - check if new file data has been supplied, eg: $model->data = Input::file('something');
+     */
+    public function beforeSave()
+    {
+        /*
+         * Process and purge the data attribute
+         */
+        if ($this->isDirty('data')) {
+            if ($this->data instanceof UploadedFile)
+                $this->fromPost($this->data);
+            else
+                $this->fromFile($this->data);
+
+            $this->purgeAttributes('data');
+        }
     }
 
     /**
