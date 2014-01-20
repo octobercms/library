@@ -11,6 +11,9 @@ use October\Rain\Database\Relations\HasMany;
 use October\Rain\Database\Relations\HasOne;
 use October\Rain\Database\Relations\MorphMany;
 use October\Rain\Database\Relations\MorphOne;
+use October\Rain\Database\Relations\AttachMany;
+use October\Rain\Database\Relations\AttachOne;
+use October\Rain\Database\Relations\hasManyThrough;
 use October\Rain\Database\ModelException;
 
 /**
@@ -91,36 +94,83 @@ class Model extends EloquentModel
      * The relation type MORPH_TO does not include a classname, following the method declaration of
      *
      * Example:
-     * <code>
-     * class Order extends Model 
+     * class Order extends Model
      * {
      *     protected $hasMany = [
      *         'items' => 'Item'
      *     ];
-     * 
-     *     protected $hasOne = [
-     *         'owner' => ['User', 'foriegnKey'=>'user_id']
-     *     ];
-     *
-     *     protected $morphMany = [
-     *         'pictures' => ['Picture', 'name'=> 'imageable']
-     *     ];
      * }
-     * </code>
      * @var array
      */
-    public $hasOne = [];
     public $hasMany = [];
+
+    /**
+     * protected $hasOne = [
+     *     'owner' => ['User', 'foriegnKey'=>'user_id']
+     * ];
+     */
+    public $hasOne = [];
+
+    /**
+     * protected $attachOne = [
+     *     'pictures' => ['Picture', 'name'=> 'imageable']
+     * ];
+     */
     public $belongsTo = [];
+
+    /**
+     * protected $belongsToMany = [
+     *     'groups' => ['Group', 'table'=> 'join_groups_users']
+     * ];
+     */
     public $belongsToMany = [];
+
+    /**
+     * protected $morphTo = [
+     *     'pictures' => []
+     * ];
+     */
     public $morphTo = [];
+
+    /**
+     * protected $morphOne = [
+     *     'log' => ['History', 'name' => 'user']
+     * ];
+     */
     public $morphOne = [];
+
+    /**
+     * protected $morphMany = [
+     *     'log' => ['History', 'name' => 'user']
+     * ];
+     */
     public $morphMany = [];
+
+    /**
+     * protected $attachOne = [
+     *     'picture' => ['October\Rain\Database\Attach\File', 'public' => false]
+     * ];
+     */
+    public $attachOne = [];
+
+    /**
+     * protected $attachMany = [
+     *     'pictures' => ['October\Rain\Database\Attach\File', 'name'=> 'imageable']
+     * ];
+     */
+    public $attachMany = [];
+
+    /**
+     * protected $attachMany = [
+     *     'pictures' => ['Picture', 'name'=> 'imageable']
+     * ];
+     */
+    public $hasManyThrough = [];
 
     /**
      * @var array Excepted relationship types, used to cycle and verify relationships.
      */
-    protected static $relationTypes = ['hasOne', 'hasMany', 'belongsTo', 'belongsToMany', 'morphTo', 'morphOne', 'morphMany'];
+    protected static $relationTypes = ['hasOne', 'hasMany', 'belongsTo', 'belongsToMany', 'morphTo', 'morphOne', 'morphMany', 'attachOne', 'attachMany', 'hasManyThrough'];
 
     /**
      * @var string A unique session key used for deferred binding.
@@ -257,6 +307,22 @@ class Model extends EloquentModel
         static::registerModelEvent('validated', $callback);
     }
 
+    /**
+     * Get the observable event names.
+     * @return array
+     */
+    public function getObservableEvents()
+    {
+        return array_merge(
+            array(
+                'creating', 'created', 'updating', 'updated',
+                'deleting', 'deleted', 'saving', 'saved',
+                'restoring', 'restored', 'fetching', 'fetched'
+            ),
+            $this->observables
+        );
+    }
+
     //
     // Magic
     //
@@ -355,9 +421,12 @@ class Model extends EloquentModel
         switch ($relationType) {
             case 'hasOne':
             case 'hasMany':
+                $relation = $this->validateRelationArgs($relationName, ['foreignKey', 'localKey']);
+                return $this->$relationType($relation[0], $relation['foreignKey'], $relation['localKey']);
+
             case 'belongsTo':
-                $relation = $this->validateRelationArgs($relationName, ['foreignKey']);
-                return $this->$relationType($relation[0], $relation['foreignKey']);
+                $relation = $this->validateRelationArgs($relationName, ['foreignKey', 'primaryKey']);
+                return $this->$relationType($relation[0], $relation['foreignKey'], $relation['primaryKey']);
 
             case 'belongsToMany':
                 $relation = $this->validateRelationArgs($relationName, ['table', 'foreignKey', 'primaryKey', 'pivotData']);
@@ -371,8 +440,17 @@ class Model extends EloquentModel
 
             case 'morphOne':
             case 'morphMany':
-                $relation = $this->validateRelationArgs($relationName, ['type', 'id'], ['name']);
-                return $this->$relationType($relation[0], $relation['name'], $relation['type'], $relation['id']);
+                $relation = $this->validateRelationArgs($relationName, ['type', 'id', 'localKey'], ['name']);
+                return $this->$relationType($relation[0], $relation['name'], $relation['type'], $relation['id'], $relation['localKey']);
+
+            case 'attachOne':
+            case 'attachMany':
+                $relation = $this->validateRelationArgs($relationName, ['public', 'localKey']);
+                return $this->$relationType($relation[0], $relation['public'], $relation['localKey']);
+
+            case 'hasManyThrough':
+                $relation = $this->validateRelationArgs($relationName, ['firstKey', 'secondKey'], ['through']);
+                return $this->$relationType($relation[0], $relation['through'], $relation['firstKey'], $relation['secondKey']);
         }
     }
 
@@ -407,7 +485,7 @@ class Model extends EloquentModel
      * Overridden from {@link Eloquent\Model} to allow the usage of the intermediary methods to handle the relation.
      * @return \October\Rain\Database\Relations\BelongsTo
      */
-    public function morphTo($relationName = null, $type = null, $id = null) 
+    public function morphTo($relationName = null, $type = null, $id = null)
     {
         if (is_null($relationName))
             $relationName = snake_case($this->getRelationCaller());
@@ -485,8 +563,15 @@ class Model extends EloquentModel
         return new HasMany($instance->newQuery(), $this, $instance->getTable().'.'.$foreignKey, $localKey, $relationName);
     }
 
-    // @todo
-    // public function hasManyThrough($related, $through, $firstKey = null, $secondKey = null) {}
+    /**
+     * Define a has-many-through relationship.
+     * This code is a duplicate of Eloquent but uses a Rain relation class.
+     * @return \October\Rain\Database\Relations\HasMany
+     */
+    public function hasManyThrough($related, $through, $firstKey = null, $secondKey = null)
+    {
+        return new HasManyThrough($related, $through, $firstKey, $secondKey);
+    }
 
     /**
      * Define a polymorphic one-to-many relationship.
@@ -523,6 +608,38 @@ class Model extends EloquentModel
 
         $query = $instance->newQuery();
         return new BelongsToMany($query, $this, $table, $foreignKey, $otherKey, $relationName);
+    }
+
+    /**
+     * Define an attachment one-to-many relationship.
+     * This code is a duplicate of Eloquent but uses a Rain relation class.
+     * @return \October\Rain\Database\Relations\MorphMany
+     */
+    public function attachMany($related, $isPublic = null, $localKey = null)
+    {
+        $relationName = $this->getRelationCaller();
+        $instance = new $related;
+        list($type, $id) = $this->getMorphs('attachment', null, null);
+        $table = $instance->getTable();
+        $localKey = $localKey ?: $this->getKeyName();
+
+        return new AttachMany($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $isPublic, $localKey, $relationName);
+    }
+
+    /**
+     * Define an attachment one-to-one relationship.
+     * This code is a duplicate of Eloquent but uses a Rain relation class.
+     * @return \October\Rain\Database\Relations\MorphOne
+     */
+    public function attachOne($related, $isPublic = true, $localKey = null)
+    {
+        $relationName = $this->getRelationCaller();
+        $instance = new $related;
+        list($type, $id) = $this->getMorphs('attachment', null, null);
+        $table = $instance->getTable();
+        $localKey = $localKey ?: $this->getKeyName();
+
+        return new AttachOne($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $isPublic, $localKey, $relationName);
     }
 
     /**
@@ -716,7 +833,7 @@ class Model extends EloquentModel
         if ($force || $valid) {
 
             // Remove any purge attributes from the data set
-            $this->attributes = $this->purgeArray($this->getAttributes());
+            $this->purgeAttributes();
 
             // Save the record
             $result = parent::save($options);
@@ -855,6 +972,8 @@ class Model extends EloquentModel
             $type == 'hasOne' ||
             $type == 'morphMany' ||
             $type == 'morphOne' ||
+            $type == 'attachMany' ||
+            $type == 'attachOne' ||
             $type == 'belongsToMany'
         );
     }
@@ -992,6 +1111,30 @@ class Model extends EloquentModel
     //
 
     /**
+     * Removes purged attributes from the dataset, used before saving.
+     * @param $attributes mixed Attribute(s) to purge, if unspecified, $purgable property is used
+     * @return array Current attribute set
+     */
+    public function purgeAttributes($attributesToPurge = null)
+    {
+        if ($attributesToPurge !== null)
+            $purgeable = is_array($attributesToPurge) ? $attributesToPurge : [$attributesToPurge];
+        else
+            $purgeable = $this->getPurgeableAttributes();
+
+        $attributes = $this->getAttributes();
+        $cleanAttributes = array_diff_key($attributes, array_flip($purgeable));
+        $originalAttributes = array_diff_key($attributes, $cleanAttributes);
+
+        if (is_array($this->originalPurgeableValues))
+            $this->originalPurgeableValues = array_merge($this->originalPurgeableValues, $originalAttributes);
+        else
+            $this->originalPurgeableValues = $originalAttributes;
+
+        return $this->attributes = $cleanAttributes;
+    }
+
+    /**
      * Returns a collection of fields that will be hased.
      */
     public function getPurgeableAttributes()
@@ -1022,17 +1165,8 @@ class Model extends EloquentModel
      */
     public function restorePurgedValues()
     {
-        $this->attributes = array_merge($this->attributes, $this->originalPurgeableValues);
+        $this->attributes = array_merge($this->getAttributes(), $this->originalPurgeableValues);
         return $this;
     }
 
-    /**
-     * Removes purged attributes from the dataset, used before saving.
-     */
-    protected function purgeArray($attributes)
-    {
-        $cleanAttributes = array_diff_key($attributes, array_flip($this->purgeable));
-        $this->originalPurgeableValues = array_diff_key($attributes, $cleanAttributes);
-        return $cleanAttributes;
-    }
 }
