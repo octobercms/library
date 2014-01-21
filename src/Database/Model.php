@@ -996,9 +996,8 @@ class Model extends EloquentModel
         $attr = parent::getAttribute($key);
 
         if ($attr === null) {
-            $camelKey = camel_case($key);
-            if ($this->hasRelation($camelKey)) {
-                $this->relations[$key] = $this->$camelKey()->getResults();
+            if ($this->hasRelation($key)) {
+                $this->relations[$key] = $this->$key()->getResults();
                 return $this->relations[$key];
             }
         }
