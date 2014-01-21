@@ -4,8 +4,8 @@ use Hash;
 use Cookie;
 use Session;
 use Request;
-use InvalidArgumentException;
 use Exception;
+use InvalidArgumentException;
 
 /**
  * Authentication manager
@@ -23,6 +23,8 @@ class Manager
     protected $throttleModel = 'October\Rain\Auth\Models\Throttle';
 
     protected $useThrottle = true;
+
+    protected $requireActivation = true;
 
     protected $sessionKey = 'october_auth';
 
@@ -319,7 +321,7 @@ class Manager
         /*
          * Check cached user is activated
          */
-        if (!($user = $this->getUser()) || !$user->isActivated())
+        if (!($user = $this->getUser()) || ($this->requireActivation && !$user->isActivated()))
             return false;
 
         /*
@@ -343,9 +345,9 @@ class Manager
      */
     public function login($user, $remember = true)
     {
-        if (!$user->isActivated()) {
+        if ($this->requireActivation && !$user->isActivated()) {
             $login = $user->getLogin();
-            throw new Exception("Cannot login user [$login] as they are not activated.");
+            throw new Exception(sprintf('Cannot login user "%s" as they are not activated.', $login));
         }
 
         $this->user = $user;

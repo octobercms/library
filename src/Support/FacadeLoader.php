@@ -29,9 +29,6 @@ class FacadeLoader
     {
         $this->facades[$class] = $facade;
 
-        if (method_exists($facade, 'registerSingletonInstance'))
-            $facade::registerSingletonInstance();
-
         if (!class_exists($class)) {
             eval(sprintf('class %s extends %s {}', $class, '\October\Rain\Support\FacadeBase'));
         }

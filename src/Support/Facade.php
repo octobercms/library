@@ -12,13 +12,19 @@ use Illuminate\Support\Facades\Facade as FacadeParent;
 class Facade extends FacadeParent
 {
 
+    /**
+     * @var boolean Is the singleton registered in IoC?
+     */
+    protected static $registeredSingletons = [];
+
     public static function registerSingletonInstance()
     {
         $instanceClass = static::getFacadeAccessor();
-        if (!method_exists($instanceClass, 'instance'))
+        if (isset(static::$registeredSingletons[$instanceClass]) || !method_exists($instanceClass, 'instance'))
             return;
 
         static::$app->instance($instanceClass, $instanceClass::instance());
+        static::$registeredSingletons[$instanceClass] = true;
     }
 
 }

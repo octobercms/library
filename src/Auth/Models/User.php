@@ -30,7 +30,7 @@ class User extends Model
      * @var array Relations
      */
     public $belongsToMany = [
-        'groups' => ['October\Rain\Auth\Group', 'table' => 'users_groups']
+        'groups' => ['October\Rain\Auth\Models\Group', 'table' => 'users_groups']
     ];
 
     /**
@@ -129,13 +129,13 @@ class User extends Model
     }
 
     /**
-     * Delete the user (should use afterDelete event)
+     * Delete the user groups
      * @return bool
      */
-    public function delete()
+    public function afterDelete()
     {
-        $this->groups()->detach();
-        return parent::delete();
+        if ($this->hasRelation('groups'))
+            $this->groups()->detach();
     }
 
     //

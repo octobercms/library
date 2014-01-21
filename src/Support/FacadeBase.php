@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Support;
 
 use App;
+use Exception;
 
 /**
  * Facade Base
@@ -22,10 +23,13 @@ class FacadeBase
         $facadeClass = get_called_class();
 
         if (!isset($facadeMap[$facadeClass]))
-            throw new \Exception('Facade class not registered: '. $facadeClass);
+            throw new Exception('Facade class not registered: '. $facadeClass);
 
         $targetClass = $facadeMap[$facadeClass];
         $targetObj = new $targetClass;
+
+        if (method_exists($targetObj, 'registerSingletonInstance'))
+            $targetObj::registerSingletonInstance();
 
         if (method_exists($targetObj, $name))
             return forward_static_call_array([$targetObj, $name], $args);
