@@ -1,5 +1,7 @@
 <?php namespace October\Rain\Extension;
 
+use Exception;
+
 /**
  * Extension trait
  * Allows for "Private traits"
@@ -10,17 +12,32 @@
 
 trait ExtendableTrait
 {
-    protected $extensionData = array(
-        'extensions' => array(),
-        'methods' => array(),
-        'dynamicMethods' => array()
-    );
+    protected $extensionData = [
+        'extensions' => [],
+        'methods' => [],
+        'dynamicMethods' => []
+    ];
+
+    protected static $extendableCallbacks = [];
 
     /**
      * Constructor.
      */
     public function extendableConstruct()
     {
+        /*
+         * Apply init callbacks
+         */
+        $class = get_class($this);
+        if (isset(self::$extendableCallbacks[$class]) && is_array(self::$extendableCallbacks[$class])) {
+            foreach (self::$extendableCallbacks[$class] as $callback) {
+                $callback($this);
+            }
+        }
+
+        /*
+         * Apply extensions
+         */
         if (!$this->implement)
             return;
 
@@ -29,12 +46,22 @@ trait ExtendableTrait
         elseif (is_array($this->implement))
             $uses = $this->implement;
         else
-            throw new \Exception(sprintf('Class %s contains an invalid $implement value', get_class($this)));
+            throw new Exception(sprintf('Class %s contains an invalid $implement value', get_class($this)));
 
         foreach ($uses as $use) {
             $useClass = str_replace('.', '\\', trim($use));
             $this->extendClassWith($useClass);
         }
+    }
+
+    public static function extendableExtendCallback($callback)
+    {
+        $class = get_called_class();
+        if (!isset(self::$extendableCallbacks[$class]) || !is_array(self::$extendableCallbacks[$class])) {
+            self::$extendableCallbacks[$class] = [];
+        }
+
+        self::$extendableCallbacks[$class][] = $callback;
     }
 
     public function extendClassWith($extensionName)
@@ -43,7 +70,7 @@ trait ExtendableTrait
             return $this;
 
         if (isset($this->extensionData['extensions'][$extensionName]))
-            throw new \Exception(sprintf('Class %s has already been extended with %s', get_class($this), $extensionName));
+            throw new Exception(sprintf('Class %s has already been extended with %s', get_class($this), $extensionName));
 
         $this->extensionData['extensions'][$extensionName] = $extensionObject = new $extensionName($this);
         $this->extensionExtractMethods($extensionName, $extensionObject);
@@ -161,7 +188,7 @@ trait ExtendableTrait
             return call_user_func_array(array($parent, $name), $params);
         }
 
-        throw new \Exception(sprintf('Class %s does not have a method definition for %s', get_class($this), $name));
+        throw new Exception(sprintf('Class %s does not have a method definition for %s', get_class($this), $name));
     }
 
     private function extendableIsAccessible($class, $propertyName)

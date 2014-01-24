@@ -67,3 +67,16 @@ class PizzaShop extends \October\Rain\Extension\ExtendableBase
 In some cases you may not wish to extend the `ExtensionBase` or `ExtendableBase` classes, due to other needs. So you can use the traits instead, although obviously the behavior methods will not be available to the parent class.
 
 See `ExtensionTrait` and `ExtendableTrait`.
+
+### Constructor extension
+
+Any class that uses the `ExtendableBase` or `ExtendableTrait` can have its constructor extended. For example:
+
+```php
+/**
+ * Extend the Pizza Shop to include the Master Splinter behavior too
+ */
+PizzaShop::extend(function($pizza){
+    $pizza->implement[] = 'MyNamespace.Behaviors.MasterSplinter';
+});
+```

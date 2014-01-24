@@ -40,7 +40,7 @@ class SortableModel extends ModelBehavior
         if (isset($this->model->sortableModelField))
             $this->fieldName = $this->model->sortableModelField;
 
-        $model->bind('model.created', function() use ($model) {
+        $model->bind('model.afterCreate', function() use ($model) {
             $this->setSortableOrder($model->id);
         });
     }

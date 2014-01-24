@@ -2,6 +2,7 @@
 
 use Hash;
 use Input;
+use Closure;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Facades\Validator;
@@ -221,6 +222,14 @@ class Model extends EloquentModel
     {
         parent::boot();
         self::bindNicerEvents();
+    }
+
+    /**
+     * Extend this object properties upon construction.
+     */
+    public static function extend(Closure $callback)
+    {
+        self::extendableExtendCallback($callback);
     }
 
     /**

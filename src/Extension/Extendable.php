@@ -41,4 +41,9 @@ class Extendable
     {
         return $this->extendableCall($name, $params);
     }
+
+    public static function extend(Closure $callback)
+    {
+        self::extendableExtendCallback($callback);
+    }
 }

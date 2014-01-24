@@ -1,4 +1,4 @@
-<?php namespace {{studly_author}}\{{studly_plugin}}\\Updates;
+<?php namespace {{studly_author}}\{{studly_plugin}}\Updates;
 
 use Schema;
 use October\Rain\Database\Updates\Migration;
