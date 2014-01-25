@@ -19,6 +19,11 @@ class {{studly_name}} extends Model
     protected $guarded = ['*'];
 
     /**
+     * @var array Fillable fields
+     */
+    protected $fillable = [];
+
+    /**
      * @var array Validation rules
      */
     public $rules = [];
