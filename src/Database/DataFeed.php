@@ -6,17 +6,24 @@ use Closure;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
- * Model Feed class.
+ * Model Data Feed class.
  *
  * Combine various models in to a single feed.
  *
  * @package october\database
  * @author Alexey Bobkov, Samuel Georges
  */
-class Feed
+class DataFeed
 {
 
+    /**
+     * @var string The attribute to use for each model tag name
+     */
     public $tagVar = 'tag_name';
+
+    /**
+     * @var string The attribute to use for each model class name
+     */
     public $modelVar = 'model_name';
 
     /**
@@ -94,8 +101,7 @@ class Feed
          * Now load the data objects in to a final array
          */
         $dataArray = [];
-        foreach ($records as $record)
-        {
+        foreach ($records as $record) {
             $tagName = $record->{$this->tagVar};
             $className = $record->{$this->modelVar};
 
@@ -135,7 +141,7 @@ class Feed
             $class = str_replace('\\', '\\\\', get_class($model));
 
             /*
-             * Flush the select, add ID and tag
+             * Flush the select, add ID, tag and class
              */
             $cleanQuery = $cleanQuery->select('id');
             $cleanQuery = $cleanQuery->addSelect(DB::raw("(SELECT '".$tag."') as ".$this->tagVar));
