@@ -107,7 +107,7 @@ class Model extends EloquentModel
 
     /**
      * protected $hasOne = [
-     *     'owner' => ['User', 'foriegnKey'=>'user_id']
+     *     'owner' => ['User', 'foreignKey'=>'user_id']
      * ];
      */
     public $hasOne = [];
@@ -458,8 +458,8 @@ class Model extends EloquentModel
                 return $this->$relationType($relation[0], $relation['public'], $relation['localKey']);
 
             case 'hasManyThrough':
-                $relation = $this->validateRelationArgs($relationName, ['firstKey', 'secondKey'], ['through']);
-                return $this->$relationType($relation[0], $relation['through'], $relation['firstKey'], $relation['secondKey']);
+                $relation = $this->validateRelationArgs($relationName, ['foreignKey', 'throughKey'], ['through']);
+                return $this->$relationType($relation[0], $relation['through'], $relation['foreignKey'], $relation['throughKey']);
         }
     }
 
