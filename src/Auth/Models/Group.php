@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Auth\Models;
 
+use InvalidArgumentException;
 use October\Rain\Database\Model;
 
 /**
@@ -185,8 +186,8 @@ class Group extends Model
     {
         $permissions = json_decode($permissions, true);
         foreach ($permissions as $permission => $value) {
-            if (!in_array($value = (int) $value, $this->allowedPermissionsValues))
-                throw new \InvalidArgumentException("Invalid value [$value] for permission [$permission] given.");
+            if (!in_array($value = (int)$value, $this->allowedPermissionsValues))
+                throw new InvalidArgumentException(sprintf('Invalid value "%s" for permission "%s" given.', $value, $permission));
 
             if ($value === 0)
                 unset($permissions[$permission]);
