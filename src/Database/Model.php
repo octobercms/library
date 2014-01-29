@@ -548,7 +548,7 @@ class Model extends EloquentModel
             $relationName = $this->getRelationCaller();
 
         if (is_null($foreignKey))
-            $foreignKey = snake_case($relation).'_id';
+            $foreignKey = snake_case($relationName).'_id';
 
         $instance = new $related;
         $query = $instance->newQuery();
@@ -678,8 +678,19 @@ class Model extends EloquentModel
             });
         }
         elseif ($relationType == 'belongsTo') {
-            if ($value instanceof EloquentModel)
+            if ($value instanceof EloquentModel) {
+
+                /*
+                 * Non existant model, use a single serve event to associate it again when ready
+                 */
+                if (!$value->exists) {
+                    $value->bindOnce('model.afterSave', function() use ($relationObj, $value){
+                        $relationObj->associate($value);
+                    });
+                }
+
                 $relationObj->associate($value);
+            }
             else
                 $this->setAttribute($relationObj->getForeignKey(), $value);
         }
