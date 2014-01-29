@@ -94,7 +94,7 @@ trait Emitter
                     $result[] = $_result;
             }
 
-            unset($this->emitterSingleEventCollection);
+            unset($this->emitterSingleEventCollection[$event]);
         }
 
         /*
