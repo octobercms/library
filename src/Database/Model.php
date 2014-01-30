@@ -354,6 +354,22 @@ class Model extends EloquentModel
         return $this->extendableCall($name, $params);
     }
 
+    /**
+     * This a custom piece of logic specifically to satisfy Twig's
+     * desire to return a relation object instead of loading the
+     * related model.
+     *
+     * @param  mixed  $offset
+     * @return bool
+     */
+    public function offsetExists($offset)
+    {
+        if ($result = isset($this->$offset))
+            return $result;
+
+        return $this->hasRelation($offset);
+    }
+
     //
     // Relations
     //
@@ -681,7 +697,7 @@ class Model extends EloquentModel
             if ($value instanceof EloquentModel) {
 
                 /*
-                 * Non existant model, use a single serve event to associate it again when ready
+                 * Non existent model, use a single serve event to associate it again when ready
                  */
                 if (!$value->exists) {
                     $value->bindOnce('model.afterSave', function() use ($relationObj, $value){
