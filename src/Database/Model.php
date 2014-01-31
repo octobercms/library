@@ -16,6 +16,7 @@ use October\Rain\Database\Relations\AttachMany;
 use October\Rain\Database\Relations\AttachOne;
 use October\Rain\Database\Relations\hasManyThrough;
 use October\Rain\Database\ModelException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * Active Record base class.
@@ -446,16 +447,16 @@ class Model extends EloquentModel
         switch ($relationType) {
             case 'hasOne':
             case 'hasMany':
-                $relation = $this->validateRelationArgs($relationName, ['foreignKey', 'localKey']);
-                return $this->$relationType($relation[0], $relation['foreignKey'], $relation['localKey']);
+                $relation = $this->validateRelationArgs($relationName, ['primaryKey', 'localKey']);
+                return $this->$relationType($relation[0], $relation['primaryKey'], $relation['localKey']);
 
             case 'belongsTo':
-                $relation = $this->validateRelationArgs($relationName, ['foreignKey', 'primaryKey']);
-                return $this->$relationType($relation[0], $relation['foreignKey'], $relation['primaryKey']);
+                $relation = $this->validateRelationArgs($relationName, ['foreignKey', 'parentKey']);
+                return $this->$relationType($relation[0], $relation['foreignKey'], $relation['parentKey']);
 
             case 'belongsToMany':
-                $relation = $this->validateRelationArgs($relationName, ['table', 'foreignKey', 'primaryKey', 'pivotData']);
-                $relationObj = $this->$relationType($relation[0], $relation['table'], $relation['foreignKey'], $relation['primaryKey']);
+                $relation = $this->validateRelationArgs($relationName, ['table', 'primaryKey', 'foreignKey', 'pivotData']);
+                $relationObj = $this->$relationType($relation[0], $relation['table'], $relation['primaryKey'], $relation['foreignKey']);
                 if ($relation['pivotData']) $relationObj->withPivot($relation['pivotData']);
                 return $relationObj;
 
@@ -474,8 +475,8 @@ class Model extends EloquentModel
                 return $this->$relationType($relation[0], $relation['public'], $relation['localKey']);
 
             case 'hasManyThrough':
-                $relation = $this->validateRelationArgs($relationName, ['foreignKey', 'throughKey'], ['through']);
-                return $this->$relationType($relation[0], $relation['through'], $relation['foreignKey'], $relation['throughKey']);
+                $relation = $this->validateRelationArgs($relationName, ['primaryKey', 'throughKey'], ['through']);
+                return $this->$relationType($relation[0], $relation['through'], $relation['primaryKey'], $relation['throughKey']);
         }
     }
 
@@ -526,14 +527,14 @@ class Model extends EloquentModel
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\HasOne
      */
-    public function hasOne($related, $foreignKey = null, $localKey = null)
+    public function hasOne($related, $primaryKey = null, $localKey = null)
     {
         $relationName = $this->getRelationCaller();
-        $foreignKey = $foreignKey ?: $this->getForeignKey();
+        $primaryKey = $primaryKey ?: $this->getForeignKey();
         $localKey = $localKey ?: $this->getKeyName();
         $instance = new $related;
 
-        return new HasOne($instance->newQuery(), $this, $instance->getTable().'.'.$foreignKey, $localKey, $relationName);
+        return new HasOne($instance->newQuery(), $this, $instance->getTable().'.'.$primaryKey, $localKey, $relationName);
     }
 
     /**
@@ -558,7 +559,7 @@ class Model extends EloquentModel
      * $relationsData} array.
      * @return \October\Rain\Database\Relations\BelongsTo
      */
-    public function belongsTo($related, $foreignKey = null, $otherKey = null, $relationName = null)
+    public function belongsTo($related, $foreignKey = null, $parentKey = null, $relationName = null)
     {
         if (is_null($relationName))
             $relationName = $this->getRelationCaller();
@@ -568,9 +569,9 @@ class Model extends EloquentModel
 
         $instance = new $related;
         $query = $instance->newQuery();
-        $otherKey = $otherKey ?: $instance->getKeyName();
+        $parentKey = $parentKey ?: $instance->getKeyName();
 
-        return new BelongsTo($query, $this, $foreignKey, $otherKey, $relationName);
+        return new BelongsTo($query, $this, $foreignKey, $parentKey, $relationName);
     }
 
     /**
@@ -578,14 +579,14 @@ class Model extends EloquentModel
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\HasMany
      */
-    public function hasMany($related, $foreignKey = null, $localKey = null)
+    public function hasMany($related, $primaryKey = null, $localKey = null)
     {
         $relationName = $this->getRelationCaller();
-        $foreignKey = $foreignKey ?: $this->getForeignKey();
+        $primaryKey = $primaryKey ?: $this->getForeignKey();
         $localKey = $localKey ?: $this->getKeyName();
         $instance = new $related;
 
-        return new HasMany($instance->newQuery(), $this, $instance->getTable().'.'.$foreignKey, $localKey, $relationName);
+        return new HasMany($instance->newQuery(), $this, $instance->getTable().'.'.$primaryKey, $localKey, $relationName);
     }
 
     /**
@@ -593,9 +594,9 @@ class Model extends EloquentModel
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\HasMany
      */
-    public function hasManyThrough($related, $through, $firstKey = null, $secondKey = null)
+    public function hasManyThrough($related, $through, $primaryKey = null, $throughKey = null)
     {
-        return new HasManyThrough($related, $through, $firstKey, $secondKey);
+        return new HasManyThrough($related, $through, $primaryKey, $throughKey);
     }
 
     /**
@@ -619,20 +620,20 @@ class Model extends EloquentModel
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\BelongsToMany
      */
-    public function belongsToMany($related, $table = null, $foreignKey = null, $otherKey = null, $relationName = null)
+    public function belongsToMany($related, $table = null, $primaryKey = null, $foreignKey = null, $relationName = null)
     {
         if (is_null($relationName))
             $relationName = $this->getRelationCaller();
 
-        $foreignKey = $foreignKey ?: $this->getForeignKey();
+        $primaryKey = $primaryKey ?: $this->getForeignKey();
         $instance = new $related;
-        $otherKey = $otherKey ?: $instance->getForeignKey(); // Primary key
+        $foreignKey = $foreignKey ?: $instance->getForeignKey();
 
         if (is_null($table))
             $table = $this->joiningTable($related);
 
         $query = $instance->newQuery();
-        return new BelongsToMany($query, $this, $table, $foreignKey, $otherKey, $relationName);
+        return new BelongsToMany($query, $this, $table, $primaryKey, $foreignKey, $relationName);
     }
 
     /**
@@ -685,30 +686,39 @@ class Model extends EloquentModel
         $relationType = $this->getRelationType($relationName);
         $relationObj = $this->$relationName();
 
-        if ($relationType == 'belongsToMany') {
-            if (!is_array($value)) $value = [$value];
+        switch ($relationType) {
 
-            // Do not sync until the model is saved
-            $this->bindOnce('model.afterSave', function() use ($relationObj, $value){
-                $relationObj->sync($value);
-            });
-        }
-        elseif ($relationType == 'belongsTo') {
-            if ($value instanceof EloquentModel) {
+            case 'belongsToMany':
+                if (!is_array($value)) $value = [$value];
 
-                /*
-                 * Non existent model, use a single serve event to associate it again when ready
-                 */
-                if (!$value->exists) {
-                    $value->bindOnce('model.afterSave', function() use ($relationObj, $value){
-                        $relationObj->associate($value);
-                    });
+                // Do not sync until the model is saved
+                $this->bindOnce('model.afterSave', function() use ($relationObj, $value){
+                    $relationObj->sync($value);
+                });
+                break;
+
+            case 'belongsTo':
+                if ($value instanceof EloquentModel) {
+                    /*
+                     * Non existent model, use a single serve event to associate it again when ready
+                     */
+                    if (!$value->exists) {
+                        $value->bindOnce('model.afterSave', function() use ($relationObj, $value){
+                            $relationObj->associate($value);
+                        });
+                    }
+
+                    $relationObj->associate($value);
                 }
+                else
+                    $this->setAttribute($relationObj->getForeignKey(), $value);
+                break;
 
-                $relationObj->associate($value);
-            }
-            else
-                $this->setAttribute($relationObj->getForeignKey(), $value);
+            case 'attachOne':
+            case 'attachMany':
+                if ($value instanceof UploadedFile)
+                    $relationObj->create(['data' => $value]);
+                break;
         }
     }
 
@@ -1090,10 +1100,12 @@ class Model extends EloquentModel
 
         // Handle direct relation setting
         if ($this->hasRelation($key)) {
-            return $this->setRelationValue($key, $value);
+            $result = $this->setRelationValue($key, $value);
+        }
+        else {
+            $result = parent::setAttribute($key, $value);
         }
 
-        $result = parent::setAttribute($key, $value);
 
         // After Event
         $this->trigger('model.afterSetAttribute', $key, $value);
