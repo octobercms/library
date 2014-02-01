@@ -734,6 +734,12 @@ class Model extends EloquentModel
             case 'attachMany':
                 if ($value instanceof UploadedFile)
                     $relationObj->create(['data' => $value]);
+                elseif (is_array($value)) {
+                    foreach ($value as $_value) {
+                        if ($_value instanceof UploadedFile)
+                            $relationObj->create(['data' => $_value]);
+                    }
+                }
                 break;
         }
     }
