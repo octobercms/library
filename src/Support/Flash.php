@@ -55,13 +55,43 @@ class Flash implements ArrayAccess, IteratorAggregate, Countable
     /**
      * Gets a flash message of a certain type (error, success, etc)
      */
-    public static function get($type, $default = null)
+    public static function get($type = null, $default = null)
     {
+        if ($type === null)
+            return self::first();
+
         $obj = self::instance();
         if (isset($obj[$type]))
             return $obj[$type];
 
         return $default;
+    }
+
+    /**
+     * Determine if messages exist for a given key.
+     *
+     * @param  string  $key
+     * @return bool
+     */
+    public static function has($typr = null)
+    {
+        if ($typr !== null)
+            return self::get($typr) !== null;
+        else
+            return count(self::all() > 0);
+    }
+
+    /**
+     * Get the first message.
+     *
+     * @param  string  $key
+     * @param  string  $format
+     * @return string
+     */
+    public static function first()
+    {
+        $messages = self::all();
+        return (count($messages) > 0) ? reset($messages) : null;
     }
 
     /**
@@ -213,6 +243,37 @@ class Flash implements ArrayAccess, IteratorAggregate, Countable
     public function count()
     {
         return count($obj->messages);
+    }
+
+    /**
+     * Get the instance as an array.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return $this->messages;
+    }
+
+    /**
+     * Convert the object to its JSON representation.
+     *
+     * @param int $options
+     * @return string
+     */
+    public function toJson($options = 0)
+    {
+        return json_encode($this->toArray(), $options);
+    }
+
+    /**
+     * Convert the message bag to its string representation.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->toJson();
     }
 
 }
