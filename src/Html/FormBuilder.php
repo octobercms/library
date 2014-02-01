@@ -15,11 +15,17 @@ use Illuminate\Routing\UrlGenerator;
 class FormBuilder extends FormBuilderBase
 {
 
-	/**
+    /**
      * The reserved form open attributes.
      * @var array
      */
-    protected $reserved = ['method', 'url', 'route', 'action', 'files', 'request'];
+    protected $reserved = ['method', 'url', 'route', 'action', 'files', 'request', 'model'];
+
+    /**
+     * The reserved form open attributes.
+     * @var array
+     */
+    protected $reservedAjax = ['request', 'success', 'error', 'confirm', 'redirect', 'update', 'data'];
 
     /**
      * The session key used by the form builder.
@@ -49,11 +55,15 @@ class FormBuilder extends FormBuilderBase
      */
     public function open(array $options = [])
     {
-        $request = array_get($options, 'request')
+        $request = array_get($options, 'request');
+        $model = array_get($options, 'model');
+
+        if ($model)
+            $this->model = $model;
 
         $append = $this->sessionKey();
         $append .= $this->requestHandler($request);
-    
+
         return parent::open($options) . $append;
     }
 
@@ -65,8 +75,19 @@ class FormBuilder extends FormBuilderBase
      */
     public function ajax($handler, array $options = [])
     {
-        $options['data-request'] = $handler;
-        return $this->open($options);
+        $attributes = array_merge(
+
+            ['data-request' => $handler],
+            array_except($options, $this->reservedAjax)
+
+        );
+
+        $ajaxAttributes = array_diff_key($options, $attributes);
+        foreach ($ajaxAttributes as $property => $value) {
+            $attributes['data-request-' . $property] = $value;
+        }
+
+        return $this->open($attributes);
     }
 
     /**
