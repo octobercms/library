@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Html;
 
-use Illuminate\Html\HtmlBuilder;
 use Illuminate\Support\ServiceProvider;
 
 class HtmlServiceProvider extends ServiceProvider 
