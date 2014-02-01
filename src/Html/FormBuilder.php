@@ -24,10 +24,10 @@ class FormBuilder extends FormBuilderBase
     /**
      * Create a new form builder instance.
      *
-     * @param  \Illuminate\Html\HtmlBuilder  $html
-     * @param  \Illuminate\Routing\UrlGenerator  $url
-     * @param  string  $csrfToken
-     * @param  string  $sessionKey
+     * @param \Illuminate\Html\HtmlBuilder  $html
+     * @param \Illuminate\Routing\UrlGenerator  $url
+     * @param string  $csrfToken
+     * @param string  $sessionKey
      * @return void
      */
     public function __construct(HtmlBuilder $html, UrlGenerator $url, $csrfToken, $sessionKey)
@@ -38,19 +38,39 @@ class FormBuilder extends FormBuilderBase
 
     /**
      * Open up a new HTML form and includes a session key.
-     * @param  array $options
+     * @param array $options
      * @return string
      */
-    public function open(array $options = array())
+    public function open(array $options = [])
     {
         return parent::open($options) . $this->sessionKey();
     }
 
+    /**
+     * Helper for opening a form used for an AJAX call.
+     * @param string $handler Request handler name, eg: onUpdate
+     * @param array $options
+     * @return string
+     */
+    public function ajax($handler, array $options = [])
+    {
+        $options['data-request'] = $handler;
+        return $this->open($options);
+    }
+
+    /**
+     * Returns a hidden HTML input, supplying the session key value.
+     * @return string
+     */
     protected function sessionKey()
     {
         return $this->hidden('_session_key', post('_session_key', $this->sessionKey));
     }
 
+    /**
+     * Returns the active session key, used fr deferred bindings.
+     * @return string
+     */
     public function getSessionKey()
     {
         return $this->sessionKey;
