@@ -15,6 +15,12 @@ use Illuminate\Routing\UrlGenerator;
 class FormBuilder extends FormBuilderBase
 {
 
+	/**
+     * The reserved form open attributes.
+     * @var array
+     */
+    protected $reserved = ['method', 'url', 'route', 'action', 'files', 'request'];
+
     /**
      * The session key used by the form builder.
      * @var string
@@ -43,7 +49,12 @@ class FormBuilder extends FormBuilderBase
      */
     public function open(array $options = [])
     {
-        return parent::open($options) . $this->sessionKey();
+        $request = array_get($options, 'request')
+
+        $append = $this->sessionKey();
+        $append .= $this->requestHandler($request);
+    
+        return parent::open($options) . $append;
     }
 
     /**
@@ -56,6 +67,18 @@ class FormBuilder extends FormBuilderBase
     {
         $options['data-request'] = $handler;
         return $this->open($options);
+    }
+
+    /**
+     * Returns a hidden HTML input, supplying the session key value.
+     * @return string
+     */
+    protected function requestHandler($name = null)
+    {
+        if (!strlen($name))
+            return '';
+
+        return $this->hidden('_handler', $name);
     }
 
     /**
