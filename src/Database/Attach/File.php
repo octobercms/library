@@ -130,13 +130,16 @@ class File extends Model
     }
 
     /**
-     * Returns the file extension
+     * Returns the file extension.
      */
     public function getExtension()
     {
         return FileHelper::extension($this->file_name);
     }
 
+    /**
+     * Returns the file content type.
+     */
     protected function getContentType()
     {
         if ($this->content_type !== null)

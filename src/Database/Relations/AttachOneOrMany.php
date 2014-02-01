@@ -81,7 +81,7 @@ trait AttachOneOrMany
     public function create(array $attributes, $sessionKey = null)
     {
         if (!array_key_exists('public', $attributes))
-            $attributes = ['public' => $this->isPublic()] + $attributes;
+            $attributes = array_merge(['public' => $this->isPublic()], $attributes);
 
         $attributes['field'] = $this->relationName;
 
