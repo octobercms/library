@@ -88,12 +88,12 @@ class Model extends EloquentModel
     private $originalPurgeableValues = [];
 
     /**
-     * Can be used to ease declaration of relationships in models.
-     * Follows closely the behavior of the relation methods used by Eloquent, but packing them into an indexed array
-     * with relation constants make the code less cluttered.
+     * Cleaner declaration of relationships.
+     * Uses a similiar approach to the relation methods used by Eloquent, but as separate properties
+     * that make the class file less cluttered.
      *
-     * It should be declared with camel-cased keys as the relation name, and value being a mixed array.
-     * The relation type MORPH_TO does not include a classname, following the method declaration of
+     * It should be declared with keys as the relation name, and value being a mixed array.
+     * The relation type $morphTo does not include a classname as the first value.
      *
      * Example:
      * class Order extends Model
@@ -349,6 +349,10 @@ class Model extends EloquentModel
 
     public function __call($name, $params = null)
     {
+        /*
+         * Never call handleRelation() anywhere else as it could
+         * break getRelationCaller(), use $this->{$name}() instead
+         */
         if ($this->hasRelation($name))
             return $this->handleRelation($name);
 
@@ -448,15 +452,15 @@ class Model extends EloquentModel
             case 'hasOne':
             case 'hasMany':
                 $relation = $this->validateRelationArgs($relationName, ['primaryKey', 'localKey']);
-                return $this->$relationType($relation[0], $relation['primaryKey'], $relation['localKey']);
+                return $this->$relationType($relation[0], $relation['primaryKey'], $relation['localKey'], $relationName);
 
             case 'belongsTo':
                 $relation = $this->validateRelationArgs($relationName, ['foreignKey', 'parentKey']);
-                return $this->$relationType($relation[0], $relation['foreignKey'], $relation['parentKey']);
+                return $this->$relationType($relation[0], $relation['foreignKey'], $relation['parentKey'], $relationName);
 
             case 'belongsToMany':
                 $relation = $this->validateRelationArgs($relationName, ['table', 'primaryKey', 'foreignKey', 'pivotData']);
-                $relationObj = $this->$relationType($relation[0], $relation['table'], $relation['primaryKey'], $relation['foreignKey']);
+                $relationObj = $this->$relationType($relation[0], $relation['table'], $relation['primaryKey'], $relation['foreignKey'], $relationName);
                 if ($relation['pivotData']) $relationObj->withPivot($relation['pivotData']);
                 return $relationObj;
 
@@ -467,12 +471,12 @@ class Model extends EloquentModel
             case 'morphOne':
             case 'morphMany':
                 $relation = $this->validateRelationArgs($relationName, ['type', 'id', 'localKey'], ['name']);
-                return $this->$relationType($relation[0], $relation['name'], $relation['type'], $relation['id'], $relation['localKey']);
+                return $this->$relationType($relation[0], $relation['name'], $relation['type'], $relation['id'], $relation['localKey'], $relationName);
 
             case 'attachOne':
             case 'attachMany':
                 $relation = $this->validateRelationArgs($relationName, ['public', 'localKey']);
-                return $this->$relationType($relation[0], $relation['public'], $relation['localKey']);
+                return $this->$relationType($relation[0], $relation['public'], $relation['localKey'], $relationName);
 
             case 'hasManyThrough':
                 $relation = $this->validateRelationArgs($relationName, ['primaryKey', 'throughKey'], ['through']);
@@ -511,12 +515,12 @@ class Model extends EloquentModel
      * Overridden from {@link Eloquent\Model} to allow the usage of the intermediary methods to handle the relation.
      * @return \October\Rain\Database\Relations\BelongsTo
      */
-    public function morphTo($relationName = null, $type = null, $id = null)
+    public function morphTo($name = null, $type = null, $id = null)
     {
-        if (is_null($relationName))
-            $relationName = snake_case($this->getRelationCaller());
+        if (is_null($name))
+            $name = snake_case($this->getRelationCaller());
 
-        list($type, $id) = $this->getMorphs($relationName, $type, $id);
+        list($type, $id) = $this->getMorphs($name, $type, $id);
         $class = $this->$type;
 
         return $this->belongsTo($class, $id);
@@ -527,9 +531,11 @@ class Model extends EloquentModel
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\HasOne
      */
-    public function hasOne($related, $primaryKey = null, $localKey = null)
+    public function hasOne($related, $primaryKey = null, $localKey = null, $relationName = null)
     {
-        $relationName = $this->getRelationCaller();
+        if (is_null($relationName))
+            $relationName = $this->getRelationCaller();
+
         $primaryKey = $primaryKey ?: $this->getForeignKey();
         $localKey = $localKey ?: $this->getKeyName();
         $instance = new $related;
@@ -542,9 +548,11 @@ class Model extends EloquentModel
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\MorphOne
      */
-    public function morphOne($related, $name, $type = null, $id = null, $localKey = null)
+    public function morphOne($related, $name, $type = null, $id = null, $localKey = null, $relationName = null)
     {
-        $relationName = $this->getRelationCaller();
+        if (is_null($relationName))
+            $relationName = $this->getRelationCaller();
+
         $instance = new $related;
         list($type, $id) = $this->getMorphs($name, $type, $id);
         $table = $instance->getTable();
@@ -579,9 +587,11 @@ class Model extends EloquentModel
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\HasMany
      */
-    public function hasMany($related, $primaryKey = null, $localKey = null)
+    public function hasMany($related, $primaryKey = null, $localKey = null, $relationName = null)
     {
-        $relationName = $this->getRelationCaller();
+        if (is_null($relationName))
+            $relationName = $this->getRelationCaller();
+
         $primaryKey = $primaryKey ?: $this->getForeignKey();
         $localKey = $localKey ?: $this->getKeyName();
         $instance = new $related;
@@ -604,9 +614,11 @@ class Model extends EloquentModel
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\MorphMany
      */
-    public function morphMany($related, $name, $type = null, $id = null, $localKey = null)
+    public function morphMany($related, $name, $type = null, $id = null, $localKey = null, $relationName = null)
     {
-        $relationName = $this->getRelationCaller();
+        if (is_null($relationName))
+            $relationName = $this->getRelationCaller();
+
         $instance = new $related;
         list($type, $id) = $this->getMorphs($name, $type, $id);
         $table = $instance->getTable();
@@ -641,9 +653,11 @@ class Model extends EloquentModel
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\MorphMany
      */
-    public function attachMany($related, $isPublic = null, $localKey = null)
+    public function attachMany($related, $isPublic = null, $localKey = null, $relationName = null)
     {
-        $relationName = $this->getRelationCaller();
+        if (is_null($relationName))
+            $relationName = $this->getRelationCaller();
+
         $instance = new $related;
         list($type, $id) = $this->getMorphs('attachment', null, null);
         $table = $instance->getTable();
@@ -657,9 +671,11 @@ class Model extends EloquentModel
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\MorphOne
      */
-    public function attachOne($related, $isPublic = true, $localKey = null)
+    public function attachOne($related, $isPublic = true, $localKey = null, $relationName = null)
     {
-        $relationName = $this->getRelationCaller();
+        if (is_null($relationName))
+            $relationName = $this->getRelationCaller();
+
         $instance = new $related;
         list($type, $id) = $this->getMorphs('attachment', null, null);
         $table = $instance->getTable();
@@ -991,7 +1007,7 @@ class Model extends EloquentModel
              * Bind/Unbind the relationship, save the related model with any
              * deferred bindings it might have and delete the binding action
              */
-            $relationObj = $this->handleRelation($relationName);
+            $relationObj = $this->$relationName();
 
             if ($binding->bind)
                 $relationObj->add($slaveModel);
