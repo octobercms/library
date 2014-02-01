@@ -75,6 +75,9 @@ class FormBuilder extends FormBuilderBase
      */
     public function ajax($handler, array $options = [])
     {
+        if (is_array($handler))
+            $handler = implode('::', $handler);
+
         $attributes = array_merge(
 
             ['data-request' => $handler],
