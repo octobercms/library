@@ -277,11 +277,17 @@ class File extends Model
         if (!$this->isImage())
             return $this->getPath();
 
+        $width = (int)$width;
+        $height = (int)$height;
+
         $defaultOptions = [
             'extension' => 'png',
             'quality' => 95,
             'mode' => 'auto',
         ];
+
+        if (!is_array($options))
+            $options = ['mode' => $options];
 
         $options = array_merge($defaultOptions, $options);
 

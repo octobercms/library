@@ -95,7 +95,7 @@ class Resizer
     public function resize($newWidth, $newHeight, $mode = 'auto')
     {
         // Get optimal width and height - based on supplied mode.
-        $optionsArray = $this->getDimensions($newWidth, $newHeight, $mode);
+        $optionsArray = $this->getDimensions((int)$newWidth, (int)$newHeight, $mode);
 
         $optimalWidth = $optionsArray['optimalWidth'];
         $optimalHeight = $optionsArray['optimalHeight'];
@@ -262,30 +262,43 @@ class Resizer
      */
     private function getSizeByAuto($newWidth, $newHeight)
     {
+         // Less than 1 pixel height and width? (revert to original)
+        if ($newWidth <= 1 && $newHeight <= 1) {
+            $newWidth = $this->width;
+            $newHeight = $this->height;
+        }
+
+        else if ($newWidth <= 1)
+            $newWidth = $this->getSizeByFixedHeight($newHeight);
+
+         // Less than 1 pixel height? (portrait)
+        elseif ($newHeight <= 1)
+            $newHeight = $this->getSizeByFixedWidth($newWidth);
+
         // Image to be resized is wider (landscape)
         if ($this->height < $this->width) {
             $optimalWidth = $newWidth;
-            $optimalHeight= $this->getSizeByFixedWidth($newWidth);
+            $optimalHeight = $this->getSizeByFixedWidth($newWidth);
         }
 
         // Image to be resized is taller (portrait)
         elseif ($this->height > $this->width) {
             $optimalWidth = $this->getSizeByFixedHeight($newHeight);
-            $optimalHeight= $newHeight;
+            $optimalHeight = $newHeight;
         }
 
         // Image to be resizerd is a square
         else {
             if ($newHeight < $newWidth) {
                 $optimalWidth = $newWidth;
-                $optimalHeight= $this->getSizeByFixedWidth($newWidth);
+                $optimalHeight = $this->getSizeByFixedWidth($newWidth);
             } elseif ($newHeight > $newWidth) {
                 $optimalWidth = $this->getSizeByFixedHeight($newHeight);
-                $optimalHeight= $newHeight;
+                $optimalHeight = $newHeight;
             } else {
                 // Square being resized to a square
                 $optimalWidth = $newWidth;
-                $optimalHeight= $newHeight;
+                $optimalHeight = $newHeight;
             }
         }
 
