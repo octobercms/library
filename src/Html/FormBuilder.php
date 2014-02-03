@@ -94,6 +94,14 @@ class FormBuilder extends FormBuilderBase
     }
 
     /**
+     * Helper for getting form values.
+     */
+    public function value($name, $value = null)
+    {
+        return $this->getValueAttribute($name, $value);
+    }
+
+    /**
      * Returns a hidden HTML input, supplying the session key value.
      * @return string
      */
