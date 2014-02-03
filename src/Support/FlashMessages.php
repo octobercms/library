@@ -1,9 +1,6 @@
 <?php namespace October\Rain\Support;
 
 use App;
-use Countable;
-use ArrayAccess;
-use IteratorAggregate;
 
 /**
  * Simple flash messages
@@ -11,20 +8,26 @@ use IteratorAggregate;
  * @package october\support
  * @author Alexey Bobkov, Samuel Georges
  */
-class Flash implements ArrayAccess, IteratorAggregate, Countable
+class FlashMessages
 {
     use \October\Rain\Support\Traits\Singleton;
 
     const SESSION_KEY = '_flash';
 
-    const TYPE_INFO = 'info';
-    const TYPE_ERROR = 'error';
-    const TYPE_SUCCESS = 'success';
-    const TYPE_WARNING = 'warning';
-
+    /**
+     * Session instance.
+     */
     protected $session;
 
+    /**
+     * @var array A collection of flash messages.
+     */
     public $messages = [];
+
+    /**
+     * @var array A collection of FlashBag objects.
+     */
+    public $flashBags = [];
 
     /**
      * Initialize this singleton.
@@ -37,6 +40,10 @@ class Flash implements ArrayAccess, IteratorAggregate, Countable
             return;
 
         $this->messages = $this->session->get(self::SESSION_KEY);
+        foreach ($this->messages as $type => $message) {
+            $this->add($message, $type);
+        }
+
         $this->purge();
     }
 
@@ -49,7 +56,7 @@ class Flash implements ArrayAccess, IteratorAggregate, Countable
      */
     public static function all()
     {
-        return self::instance()->messages;
+        return self::instance()->flashBags;
     }
 
     /**
@@ -60,9 +67,9 @@ class Flash implements ArrayAccess, IteratorAggregate, Countable
         if ($type === null)
             return self::first();
 
-        $obj = self::instance();
-        if (isset($obj[$type]))
-            return $obj[$type];
+        $bags = self::all();
+        if (isset($bags[$type]))
+            return $bags[$type];
 
         return $default;
     }
@@ -73,10 +80,10 @@ class Flash implements ArrayAccess, IteratorAggregate, Countable
      * @param  string  $key
      * @return bool
      */
-    public static function has($typr = null)
+    public static function has($type = null)
     {
-        if ($typr !== null)
-            return self::get($typr) !== null;
+        if ($type !== null)
+            return self::get($type) !== null;
         else
             return count(self::all() > 0);
     }
@@ -100,9 +107,9 @@ class Flash implements ArrayAccess, IteratorAggregate, Countable
     public static function error($message = null)
     {
         if ($message === null)
-            return self::get(self::TYPE_ERROR);
+            return self::get(FlashBag::ERROR);
         else
-            return self::message(self::TYPE_ERROR, $message);
+            return self::message($message, FlashBag::ERROR);
     }
 
     /**
@@ -111,9 +118,9 @@ class Flash implements ArrayAccess, IteratorAggregate, Countable
     public static function success($message = null)
     {
         if ($message === null)
-            return self::get(self::TYPE_SUCCESS);
+            return self::get(FlashBag::SUCCESS);
         else
-            return self::message(self::TYPE_SUCCESS, $message);
+            return self::message($message, FlashBag::SUCCESS);
     }
 
     /**
@@ -122,9 +129,9 @@ class Flash implements ArrayAccess, IteratorAggregate, Countable
     public static function warning($message = null)
     {
         if ($message === null)
-            return self::get(self::TYPE_WARNING);
+            return self::get(FlashBag::WARNING);
         else
-            return self::message(self::TYPE_WARNING, $message);
+            return self::message($message, FlashBag::WARNING);
     }
 
     /**
@@ -133,22 +140,18 @@ class Flash implements ArrayAccess, IteratorAggregate, Countable
     public static function info($message = null)
     {
         if ($message === null)
-            return self::get(self::TYPE_INFO);
+            return self::get(FlashBag::INFO);
         else
-            return self::message(self::TYPE_INFO, $message);
+            return self::message($message, FlashBag::INFO);
     }
 
     /**
      * Sets a flash message of a certain type (error, success, etc)
      */
-    public static function message($type, $message = null)
+    public static function message($message, $type = null)
     {
         $obj = self::instance();
-
-        if ($message === null)
-            $obj[] = $type;
-        else
-            $obj[$type] = $message;
+        $obj->add($message, $type);
     }
 
     /**
@@ -164,16 +167,30 @@ class Flash implements ArrayAccess, IteratorAggregate, Countable
     // Advanced internals
     //
 
+    public function add($message, $type)
+    {
+        if (is_null($type))
+            $type = FlashBag::INFO;
+
+        if (!isset($this->flashBags[$type]))
+            $this->flashBags[$type] = new FlashBag([], $type);
+
+        $bag = $this->flashBags[$type];
+        $bag->add(count($bag) + 1, $message);
+    }
+
     /**
      * Stores the flash data to the session.
      * @param string $key Specifies a key to store, optional
      */
     public function store($key = null)
     {
-        if ($key === null)
-            $this->session->put(self::SESSION_KEY, $this->messages);
-        else
-            $this->session->put(self::SESSION_KEY, [ $key => $this->messages[$key] ]);
+        $this->messages = [];
+        foreach ($this->flashBags as $type => $bag) {
+            $this->messages[$type] = $bag->toArray();
+        }
+
+        $this->session->put(self::SESSION_KEY, $this->messages);
     }
 
     /**
@@ -183,9 +200,10 @@ class Flash implements ArrayAccess, IteratorAggregate, Countable
     public function discard($key = null)
     {
         if ($key === null)
-            $this->messages = [];
-        else
-            unset($this->messages[$key]);
+            $this->flashBags = [];
+        else {
+            unset($this->flashBags[$key]);
+        }
 
         $this->store();
     }
@@ -196,53 +214,6 @@ class Flash implements ArrayAccess, IteratorAggregate, Countable
     public function purge()
     {
         $this->session->remove(self::SESSION_KEY);
-    }
-
-    //
-    // Iterator implementation
-    //
-
-    public function offsetExists($offset)
-    {
-        return isset($this->messages[$offset]);
-    }
-
-    public function offsetGet($offset)
-    {
-        if ($this->offsetExists($offset))
-            return $this->messages[$offset];
-        else
-            return false;
-    }
-
-    public function offsetSet($offset, $value)
-    {
-        if ($offset)
-            $this->messages[$offset] = $value;
-        else
-            $this->messages[] = $value;
-
-        $this->store();
-    }
-
-    public function offsetUnset($offset)
-    {
-        unset($this->messages[$offset]);
-        $this->store();
-    }
-
-    public function getIterator()
-    {
-        return new ArrayIterator($this->messages);
-    }
-
-    /**
-    * Returns a number of stored flash items
-    * @return integer
-    */
-    public function count()
-    {
-        return count($obj->messages);
     }
 
     /**
