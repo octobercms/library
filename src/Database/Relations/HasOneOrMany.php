@@ -14,6 +14,7 @@ trait HasOneOrMany
     {
         if ($sessionKey === null) {
             $model->setAttribute($this->getPlainForeignKey(), $this->parent->getKey());
+            $model->save();
         }
         else {
             $this->parent->bindDeferred($this->relationName, $model, $sessionKey);
@@ -27,6 +28,7 @@ trait HasOneOrMany
     {
         if ($sessionKey === null) {
             $model->setAttribute($this->getPlainForeignKey(), null);
+            $model->save();
         }
         else {
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);

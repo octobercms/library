@@ -15,6 +15,7 @@ trait MorphOneOrMany
         if ($sessionKey === null) {
             $model->setAttribute($this->getPlainForeignKey(), $this->parent->getKey());
             $model->setAttribute($this->getPlainMorphType(), $this->morphClass);
+            $model->save();
         }
         else {
             $this->parent->bindDeferred($this->relationName, $model, $sessionKey);
@@ -31,6 +32,7 @@ trait MorphOneOrMany
             // Make this model an orphan ;~(
             $model->setAttribute($this->getPlainForeignKey(), null);
             $model->setAttribute($this->getPlainMorphType(), null);
+            $model->save();
         }
         else {
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);

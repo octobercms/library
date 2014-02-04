@@ -100,6 +100,7 @@ trait AttachOneOrMany
             $model->setAttribute($this->getPlainForeignKey(), $this->parent->getKey());
             $model->setAttribute($this->getPlainMorphType(), $this->morphClass);
             $model->setAttribute('field', $this->relationName);
+            $model->save();
         }
         else {
             $this->parent->bindDeferred($this->relationName, $model, $sessionKey);
@@ -117,6 +118,7 @@ trait AttachOneOrMany
             $model->setAttribute($this->getPlainForeignKey(), null);
             $model->setAttribute($this->getPlainMorphType(), null);
             $model->setAttribute('field', null);
+            $model->save();
         }
         else {
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);
