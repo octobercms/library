@@ -1,7 +1,6 @@
 <?php namespace October\Rain\Html;
 
 use Illuminate\Html\FormBuilder as FormBuilderBase;
-use Illuminate\Html\HtmlBuilder;
 use Illuminate\Routing\UrlGenerator;
 
 /**
