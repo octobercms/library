@@ -51,7 +51,7 @@ class Translator extends IlluminateTranslator
      * @param  string  $locale
      * @return string
      */
-    
+
     public function get($key, array $replace = array(), $locale = null)
     {
         $nativeKey = $key;
