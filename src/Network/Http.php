@@ -35,22 +35,27 @@ class Http
     /**
      * @var string The last response in its original form.
      */
-    protected $lastResponse;
-
-    /**
-     * @var string The last response body.
-     */
-    protected $lastResponseBody;
+    protected $response;
 
     /**
      * @var array The last response headers.
      */
-    protected $lastResponseHeaders;
+    protected $responseHeaders;
 
     /**
      * @var array The results of curl_getinfo on the last request.
      */
-    protected $lastResponseInfo;
+    protected $responseInfo;
+
+    /**
+     * @var string The last response body.
+     */
+    public $responseBody = '';
+
+    /**
+     * @var array The last returned HTTP code.
+     */
+    public $responseCode;
 
     /**
      * Execute the HTTP request.
@@ -68,10 +73,10 @@ class Http
         curl_setopt($curl, CURLOPT_HEADER, true);
         curl_setopt($curl, CURLOPT_URL, $url);
 
-        if (is_array($this->options))
-            $options = array_merge($this->options, $options);
+        if (count($this->options))
+            curl_setopt_array($curl, $this->options);
 
-        if (!empty($options))
+        if (count($options))
             curl_setopt_array($curl, $options);
 
         if ($this->method == self::METHOD_POST)
@@ -86,12 +91,13 @@ class Http
          * Extract the response info, header and body from a cURL response. Saves
          * the data in variables stored on the object.
          */
-        $this->lastResponse = $response;
-        $this->lastResponseInfo = curl_getinfo($curl);
+        $this->response = $response;
+        $this->responseInfo = curl_getinfo($curl);
         $headerSize = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
         $headerText = substr($response, 0, $headerSize);
-        $this->lastResponseHeaders = $this->headerToArray($headerText);
-        $this->lastResponseBody = substr($response, $headerSize);
+        $this->responseHeaders = $this->headerToArray($headerText);
+        $this->responseBody = substr($response, $headerSize);
+        $this->responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         curl_close($curl);
         return $this;
@@ -106,11 +112,11 @@ class Http
     public function getHeaders($header = null)
     {
         if (!$header) {
-            return $this->lastResponseHeaders;
+            return $this->responseHeaders;
         }
 
-        if (array_key_exists($header, $this->lastResponseHeaders)) {
-            return $this->lastResponseHeaders[$header];
+        if (array_key_exists($header, $this->responseHeaders)) {
+            return $this->responseHeaders[$header];
         }
     }
 
@@ -147,6 +153,18 @@ class Http
     {
         $this->options[CURLOPT_CONNECTTIMEOUT] = $timeout;
         $this->options[CURLOPT_TIMEOUT] = $timeout;
+        return $this;
+    }
+
+    /**
+     * Adds authentication to the comms.
+     * @param string $user
+     * @param string $pass
+     */
+    public function withAuth($user, $pass)
+    {
+        $this->options[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
+        $this->options[CURLOPT_USERPWD] = $user . ':' . $pass;
         return $this;
     }
 
@@ -276,7 +294,7 @@ class Http
      */
     public function getResponseInfo()
     {
-        return $this->lastResponseInfo;
+        return $this->responseInfo;
     }
 
     /**
@@ -341,6 +359,6 @@ class Http
      */
     public function __toString()
     {
-        return $this->lastResponseBody;
+        return $this->responseBody;
     }
 }
