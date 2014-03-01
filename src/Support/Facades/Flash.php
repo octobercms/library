@@ -8,5 +8,5 @@ class Flash extends Facade
      * Get the class name this facade is acting on behalf of.
      * @return string
      */
-    protected static function getFacadeAccessor() { return 'October\Rain\Support\FlashMessages'; }
+    protected static function getFacadeAccessor() { return 'flash'; }
 }
