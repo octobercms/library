@@ -130,16 +130,18 @@ class FlashBag extends MessageBag
      * Removes an object with a specified key or erases the flash data.
      * @param string $key Specifies a key to remove, optional
      */
-    public function discard($key = null)
+    public function forget($key = null)
     {
-        if ($this->flashBag === null)
-            return;
+        if ($key === null) {
+            $this->newMessages = $this->messages = [];
+        }
+        else {
+            if (isset($this->messages[$key]))
+                unset($this->messages[$key]);
 
-        if ($key === null)
-            $this->messages = [];
-
-        elseif (isset($this->messages[$key]))
-            unset($this->messages[$key]);
+            if (isset($this->newMessages[$key]))
+                unset($this->newMessages[$key]);
+        }
 
         $this->store();
     }
