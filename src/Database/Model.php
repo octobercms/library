@@ -604,9 +604,17 @@ class Model extends EloquentModel
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\HasMany
      */
-    public function hasManyThrough($related, $through, $primaryKey = null, $throughKey = null)
+    public function hasManyThrough($related, $through, $primaryKey = null, $throughKey = null, $relationName = null)
     {
-        return new HasManyThrough($related, $through, $primaryKey, $throughKey);
+        if (is_null($relationName))
+            $relationName = $this->getRelationCaller();
+
+        $instance = new $related;
+        $throughInstance = new $through;
+        $primaryKey = $primaryKey ?: $this->getForeignKey();
+        $throughKey = $throughKey ?: $throughInstance->getForeignKey();
+
+        return new HasManyThrough($instance->newQuery(), $instance, $throughInstance, $primaryKey, $throughKey);
     }
 
     /**
