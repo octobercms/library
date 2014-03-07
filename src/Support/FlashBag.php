@@ -47,7 +47,7 @@ class FlashBag extends MessageBag
      * Get first message for every key in the bag.
      * @return array
      */
-    public function all()
+    public function all($format = NULL)
     {
         $all = [];
         foreach ($this->messages as $key => $messages) {
