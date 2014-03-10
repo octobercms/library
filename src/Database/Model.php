@@ -318,6 +318,10 @@ class Model extends EloquentModel
         static::registerModelEvent('validated', $callback);
     }
 
+    //
+    // Overrides
+    //
+
     /**
      * Get the observable event names.
      * @return array
@@ -332,6 +336,17 @@ class Model extends EloquentModel
             ),
             $this->observables
         );
+    }
+
+    /**
+     * Create a new Eloquent query builder for the model.
+     *
+     * @param  \Illuminate\Database\Query\Builder $query
+     * @return \October\Rain\Database\Builder|static
+     */
+    public function newEloquentBuilder($query)
+    {
+        return new Builder($query);
     }
 
     //
