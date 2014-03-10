@@ -522,7 +522,7 @@ class Model extends EloquentModel
      */
     private function applyRelationFilters($args, $relation)
     {
-        if ($orderBy = $relation['order']) {
+        if ($orderBy = $args['order']) {
             if (!is_array($orderBy))
                 $orderBy = [$orderBy];
 
