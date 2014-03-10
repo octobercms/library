@@ -17,6 +17,7 @@ use October\Rain\Database\Relations\AttachOne;
 use October\Rain\Database\Relations\hasManyThrough;
 use October\Rain\Database\ModelException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use InvalidArgumentException;
 
 /**
  * Active Record base class.
@@ -443,45 +444,55 @@ class Model extends EloquentModel
         $relation = $this->getRelationDefinition($relationName);
 
         if (!isset($relation[0]) && $relationType != 'morphTo')
-            throw new \InvalidArgumentException("Relation '".$relationName."' on model '".get_called_class().' should have at least a classname.');
+            throw new InvalidArgumentException(sprintf("Relation '%s' on model '%s' should have at least a classname.", $relationName, get_called_class()));
 
         if (isset($relation[0]) && $relationType == 'morphTo')
-            throw new \InvalidArgumentException("Relation '".$relationName."' on model '".get_called_class().' is a morphTo relation and should not contain additional arguments.');
+            throw new InvalidArgumentException(sprintf("Relation '%s' on model '%s' is a morphTo relation and should not contain additional arguments.", $relationName, get_called_class()));
 
         switch ($relationType) {
             case 'hasOne':
             case 'hasMany':
                 $relation = $this->validateRelationArgs($relationName, ['primaryKey', 'localKey']);
-                return $this->applyRelationFilters($relation, $this->$relationType($relation[0], $relation['primaryKey'], $relation['localKey'], $relationName));
+                $relationObj = $this->$relationType($relation[0], $relation['primaryKey'], $relation['localKey'], $relationName);
+                break;
 
             case 'belongsTo':
                 $relation = $this->validateRelationArgs($relationName, ['foreignKey', 'parentKey']);
-                return $this->applyRelationFilters($relation, $this->$relationType($relation[0], $relation['foreignKey'], $relation['parentKey'], $relationName));
+                $relationObj = $this->$relationType($relation[0], $relation['foreignKey'], $relation['parentKey'], $relationName);
+                break;
 
             case 'belongsToMany':
                 $relation = $this->validateRelationArgs($relationName, ['table', 'primaryKey', 'foreignKey', 'pivotData']);
                 $relationObj = $this->$relationType($relation[0], $relation['table'], $relation['primaryKey'], $relation['foreignKey'], $relationName);
-                if ($relation['pivotData']) $relationObj->withPivot($relation['pivotData']);
-                return $this->applyRelationFilters($relation, $relationObj);
+                break;
 
             case 'morphTo':
                 $relation = $this->validateRelationArgs($relationName, ['name', 'type', 'id']);
-                return $this->applyRelationFilters($relation, $this->$relationType($relation['name'], $relation['type'], $relation['id']));
+                $relationObj = $this->$relationType($relation['name'], $relation['type'], $relation['id']);
+                break;
 
             case 'morphOne':
             case 'morphMany':
                 $relation = $this->validateRelationArgs($relationName, ['type', 'id', 'localKey'], ['name']);
-                return $this->applyRelationFilters($relation, $this->$relationType($relation[0], $relation['name'], $relation['type'], $relation['id'], $relation['localKey'], $relationName));
+                $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['type'], $relation['id'], $relation['localKey'], $relationName);
+                break;
 
             case 'attachOne':
             case 'attachMany':
                 $relation = $this->validateRelationArgs($relationName, ['public', 'localKey']);
-                return $this->applyRelationFilters($relation, $this->$relationType($relation[0], $relation['public'], $relation['localKey'], $relationName));
+                $relationObj = $this->$relationType($relation[0], $relation['public'], $relation['localKey'], $relationName);
+                break;
 
             case 'hasManyThrough':
                 $relation = $this->validateRelationArgs($relationName, ['primaryKey', 'throughKey'], ['through']);
-                return $this->applyRelationFilters($relation, $this->$relationType($relation[0], $relation['through'], $relation['primaryKey'], $relation['throughKey']));
+                $relationObj = $this->$relationType($relation[0], $relation['through'], $relation['primaryKey'], $relation['throughKey']);
+                break;
+
+            default:
+                throw new InvalidArgumentException(sprintf("There is no such relation type known as '%s' on model '%s'.", $relationType, get_called_class()));
         }
+
+        return $this->applyRelationFilters($relation, $relationObj);
     }
 
     /**
@@ -493,7 +504,7 @@ class Model extends EloquentModel
         $relation = $this->getRelationDefinition($relationName);
 
         // Query filter arguments
-        $filters = ['order'];
+        $filters = ['order', 'pivotData'];
 
         foreach (array_merge($optional, $filters) as $key) {
             if (!array_key_exists($key, $relation)) {
@@ -509,7 +520,7 @@ class Model extends EloquentModel
         }
 
         if ($missingRequired)
-            throw new \InvalidArgumentException("Relation '".$relationName."' on model '".get_called_class().' should contain the following key(s): '.join(', ', $missingRequired));
+            throw new InvalidArgumentException("Relation '".$relationName."' on model '".get_called_class().' should contain the following key(s): '.join(', ', $missingRequired));
 
         return $relation;
     }
@@ -522,6 +533,16 @@ class Model extends EloquentModel
      */
     private function applyRelationFilters($args, $relation)
     {
+        /*
+         * Pivot data (belongsToMany)
+         */
+        if ($pivotData = $args['pivotData']) {
+            $relation->withPivot($pivotData);
+        }
+
+        /*
+         * Sort order
+         */
         if ($orderBy = $args['order']) {
             if (!is_array($orderBy))
                 $orderBy = [$orderBy];
