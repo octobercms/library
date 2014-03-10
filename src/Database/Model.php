@@ -819,28 +819,6 @@ class Model extends EloquentModel
         }
     }
 
-    /**
-     * Eager loads relationships and joins them to a query
-     */
-    public function joinWith($relations)
-    {
-        if (is_string($relations)) $relations = func_get_args();
-
-        foreach ($relations as $index => $relation) {
-            if (!$this->hasRelation($relation))
-                unset($relations[$index]);
-        }
-
-        $result = $this->with($relations);
-
-        foreach ($relations as $relation) {
-            $relationObj = $this->$relation();
-            $relationObj->joinWithQuery($result);
-        }
-
-        return $result;
-    }
-
     //
     // Validation
     //
