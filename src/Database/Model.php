@@ -452,35 +452,35 @@ class Model extends EloquentModel
             case 'hasOne':
             case 'hasMany':
                 $relation = $this->validateRelationArgs($relationName, ['primaryKey', 'localKey']);
-                return $this->$relationType($relation[0], $relation['primaryKey'], $relation['localKey'], $relationName);
+                return $this->applyRelationFilters($relation, $this->$relationType($relation[0], $relation['primaryKey'], $relation['localKey'], $relationName));
 
             case 'belongsTo':
                 $relation = $this->validateRelationArgs($relationName, ['foreignKey', 'parentKey']);
-                return $this->$relationType($relation[0], $relation['foreignKey'], $relation['parentKey'], $relationName);
+                return $this->applyRelationFilters($relation, $this->$relationType($relation[0], $relation['foreignKey'], $relation['parentKey'], $relationName));
 
             case 'belongsToMany':
                 $relation = $this->validateRelationArgs($relationName, ['table', 'primaryKey', 'foreignKey', 'pivotData']);
                 $relationObj = $this->$relationType($relation[0], $relation['table'], $relation['primaryKey'], $relation['foreignKey'], $relationName);
                 if ($relation['pivotData']) $relationObj->withPivot($relation['pivotData']);
-                return $relationObj;
+                return $this->applyRelationFilters($relation, $relationObj);
 
             case 'morphTo':
                 $relation = $this->validateRelationArgs($relationName, ['name', 'type', 'id']);
-                return $this->$relationType($relation['name'], $relation['type'], $relation['id']);
+                return $this->applyRelationFilters($relation, $this->$relationType($relation['name'], $relation['type'], $relation['id']));
 
             case 'morphOne':
             case 'morphMany':
                 $relation = $this->validateRelationArgs($relationName, ['type', 'id', 'localKey'], ['name']);
-                return $this->$relationType($relation[0], $relation['name'], $relation['type'], $relation['id'], $relation['localKey'], $relationName);
+                return $this->applyRelationFilters($relation, $this->$relationType($relation[0], $relation['name'], $relation['type'], $relation['id'], $relation['localKey'], $relationName));
 
             case 'attachOne':
             case 'attachMany':
                 $relation = $this->validateRelationArgs($relationName, ['public', 'localKey']);
-                return $this->$relationType($relation[0], $relation['public'], $relation['localKey'], $relationName);
+                return $this->applyRelationFilters($relation, $this->$relationType($relation[0], $relation['public'], $relation['localKey'], $relationName));
 
             case 'hasManyThrough':
                 $relation = $this->validateRelationArgs($relationName, ['primaryKey', 'throughKey'], ['through']);
-                return $this->$relationType($relation[0], $relation['through'], $relation['primaryKey'], $relation['throughKey']);
+                return $this->applyRelationFilters($relation, $this->$relationType($relation[0], $relation['through'], $relation['primaryKey'], $relation['throughKey']));
         }
     }
 
@@ -489,9 +489,13 @@ class Model extends EloquentModel
      */
     private function validateRelationArgs($relationName, $optional, $required = [])
     {
+
         $relation = $this->getRelationDefinition($relationName);
 
-        foreach ($optional as $key) {
+        // Query filter arguments
+        $filters = ['order'];
+
+        foreach (array_merge($optional, $filters) as $key) {
             if (!array_key_exists($key, $relation)) {
                 $relation[$key] = null;
             }
@@ -506,6 +510,33 @@ class Model extends EloquentModel
 
         if ($missingRequired)
             throw new \InvalidArgumentException("Relation '".$relationName."' on model '".get_called_class().' should contain the following key(s): '.join(', ', $missingRequired));
+
+        return $relation;
+    }
+
+    /**
+     * Apply filters to relationship objects as supplied by arguments.
+     * @param $args Captured relationship arguments
+     * @param $relation Relationship object
+     * @return Relationship object
+     */
+    private function applyRelationFilters($args, $relation)
+    {
+        if ($orderBy = $relation['order']) {
+            if (!is_array($orderBy))
+                $orderBy = [$orderBy];
+
+            foreach ($orderBy as $order) {
+                $column = $order;
+                $direction = 'asc';
+
+                $parts = explode(' ', $order);
+                if (count($parts) > 1)
+                    list($column, $direction) = $parts;
+
+                $relation->orderBy($column, $direction);
+            }
+        }
 
         return $relation;
     }
