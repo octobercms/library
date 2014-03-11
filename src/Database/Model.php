@@ -16,6 +16,7 @@ use October\Rain\Database\Relations\AttachMany;
 use October\Rain\Database\Relations\AttachOne;
 use October\Rain\Database\Relations\hasManyThrough;
 use October\Rain\Database\ModelException;
+use October\Rain\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use InvalidArgumentException;
 
@@ -77,6 +78,11 @@ class Model extends EloquentModel
      * @var array List of attribute names which are json encoded and decoded from the database.
      */
     protected $jsonable = [];
+
+    /**
+     * @var array List of attributes to automatically generate unique URL names (slugs) for.
+     */
+    protected $sluggable = [];
 
     /**
      * @var array List of original attribute values before they were hashed.
@@ -956,6 +962,10 @@ class Model extends EloquentModel
             // Remove any purge attributes from the data set
             $this->purgeAttributes();
 
+            // Set sluggable attributes on new records
+            if (!$this->exists)
+                $this->slugAttributes();
+
             // Save the record
             $result = parent::save($options);
 
@@ -1110,6 +1120,9 @@ class Model extends EloquentModel
      */
     public function getAttribute($key)
     {
+        if (strpos($key, '.'))
+            return $this->getAttributeDotted($key);
+
         // Before Event
         if (($attr = $this->trigger('model.beforeGetAttribute', $key)) !== null)
             return is_array($attr) ? reset($attr) : $attr;
@@ -1134,6 +1147,24 @@ class Model extends EloquentModel
             return is_array($_attr) ? reset($_attr) : $_attr;
 
         return $attr;
+    }
+
+    /**
+     * Get an attribute relation value using dotted notation.
+     * Eg: author.name
+     * @return mixed
+     */
+    public function getAttributeDotted($key)
+    {
+        $keyParts = explode('.', $key);
+        $value = $this;
+        foreach ($keyParts as $part) {
+            if (!isset($value[$part]))
+                return null;
+
+            $value = $value[$part];
+        }
+        return $value;
     }
 
     /**
@@ -1180,7 +1211,6 @@ class Model extends EloquentModel
         else {
             $result = parent::setAttribute($key, $value);
         }
-
 
         // After Event
         $this->trigger('model.afterSetAttribute', $key, $value);
@@ -1291,4 +1321,67 @@ class Model extends EloquentModel
         return $this;
     }
 
+    //
+    // Sluggable
+    //
+
+    /**
+     * Adds sluggable attributes to the dataset, used before saving.
+     * @return void
+     */
+    public function slugAttributes()
+    {
+        foreach ($this->sluggable as $slugAttribute => $sourceAttributes)
+            $this->setSluggableValue($slugAttribute, $sourceAttributes);
+    }
+
+    /**
+     * Sets a single sluggable attribute value.
+     * @param string $slugAttribute Attribute to populate with the slug.
+     * @param mixed $sourceAttributes Attribute(s) to generate the slug from.
+     * Supports dotted notation for relations.
+     * @param int $maxLength Maximum length for the slug not including the counter.
+     * @return string The generated value.
+     */
+    public function setSluggableValue($slugAttribute, $sourceAttributes, $maxLength = 240)
+    {
+        if (isset($this->{$slugAttribute}))
+            return;
+
+        if (!is_array($sourceAttributes))
+            $sourceAttributes = [$sourceAttributes];
+
+        $slugArr = [];
+        foreach ($sourceAttributes as $attribute) {
+            $slugArr[] = $this->getAttribute($attribute);
+        }
+
+        $slug = implode(' ', $slugArr);
+        $slug = substr($slug, 0, $maxLength);
+        $slug = Str::slug($slug);
+
+        return $this->{$slugAttribute} = $this->getUniqueAttributeValue($slugAttribute, $slug);
+    }
+
+    /**
+     * Ensures a unique attribute value, if the value is already used a counter suffix is added.
+     * @param string $name The database column name.
+     * @param value $value The desired column value.
+     * @return string A safe value that is unique.
+     */
+    public function getUniqueAttributeValue($name, $value)
+    {
+        $counter = 1;
+        $separator = '-';
+
+        // Remove any exisiting suffixes
+        $_value = preg_replace('/'.preg_quote($separator).'[0-9]+$/', '', trim($value));
+
+        while ($this->newQuery()->where($name, $_value)->count() > 0) {
+            $counter++;
+            $_value = $value . $separator . $counter;
+        }
+
+        return $_value;
+    }
 }
