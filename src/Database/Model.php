@@ -811,7 +811,6 @@ class Model extends EloquentModel
                     $this->setAttribute($relationObj->getForeignKey(), $value);
                 break;
 
-            case 'attachOne':
             case 'attachMany':
                 if ($value instanceof UploadedFile)
                     $relationObj->create(['data' => $value]);
@@ -821,6 +820,14 @@ class Model extends EloquentModel
                             $relationObj->create(['data' => $_value]);
                     }
                 }
+                break;
+
+            case 'attachOne':
+                if (is_array($value))
+                    $value = reset($value);
+
+                if ($value instanceof UploadedFile)
+                    $relationObj->create(['data' => $value]);
                 break;
         }
     }
