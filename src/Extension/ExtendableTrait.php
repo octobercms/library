@@ -28,10 +28,12 @@ trait ExtendableTrait
         /*
          * Apply init callbacks
          */
-        $class = get_class($this);
-        if (isset(self::$extendableCallbacks[$class]) && is_array(self::$extendableCallbacks[$class])) {
-            foreach (self::$extendableCallbacks[$class] as $callback) {
-                $callback($this);
+        $classes = array_merge([get_class($this)], class_parents($this));
+        foreach ($classes as $class) {
+            if (isset(self::$extendableCallbacks[$class]) && is_array(self::$extendableCallbacks[$class])) {
+                foreach (self::$extendableCallbacks[$class] as $callback) {
+                    $callback($this);
+                }
             }
         }
 

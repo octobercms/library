@@ -1,47 +1,56 @@
-<div class="control-breadcrumb">
+<?php Block::put('breadcrumb') ?>
     <ul>
         <li><a href="<?= Backend::url('{{lower_author}}/{{lower_plugin}}/{{lower_name}}') ?>">{{name}}</a></li>
         <li><?= e($this->pageTitle) ?></li>
     </ul>
-</div>
+<?php Block::endPut() ?>
 
-<?= Form::open(['class'=>'layout-item stretch layout-column']) ?>
+<?php if (!isset($fatalError)): ?>
 
-    <?= $this->formRender() ?>
+    <?= Form::open(['class'=>'layout-item stretch layout-column']) ?>
 
-    <div class="form-buttons layout-item fix">
-        <div class="loading-indicator-container">
-            <button
-                type="submit"
-                data-request="onSave"
-                data-request-data="redirect:false"
-                data-hotkey="ctrl+s"
-                data-hotkey-mac="cmd+s"
-                data-load-indicator="Saving {{singular_name}}..."
-                class="btn btn-primary">
-                <u>S</u>ave
-            </button>
-            <button
-                type="button"
-                data-request="onSave"
-                data-request-data="close:true"
-                data-hotkey="ctrl+enter"
-                data-hotkey-mac="cmd+enter"
-                data-load-indicator="Saving {{singular_name}}..."
-                class="btn btn-default">
-                Save and Close
-            </button>
-            <button
-                type="button"
-                class="oc-icon-trash btn-icon danger pull-right"
-                data-request="onDelete"
-                data-load-indicator="Deleting {{singular_name}}..."
-                data-request-confirm="Do you really want to delete this {{lower_singular_name}}?">
-            </button>
+        <?= $this->formRender() ?>
 
-            <span class="btn-text">
-                or <a href="<?= Backend::url('{{lower_author}}/{{lower_plugin}}/{{lower_name}}') ?>">Cancel</a>
-            </span>
+        <div class="form-buttons layout-item fix">
+            <div class="loading-indicator-container">
+                <button
+                    type="submit"
+                    data-request="onSave"
+                    data-request-data="redirect:false"
+                    data-hotkey="ctrl+s"
+                    data-hotkey-mac="cmd+s"
+                    data-load-indicator="Saving {{singular_name}}..."
+                    class="btn btn-primary">
+                    <u>S</u>ave
+                </button>
+                <button
+                    type="button"
+                    data-request="onSave"
+                    data-request-data="close:true"
+                    data-hotkey="ctrl+enter"
+                    data-hotkey-mac="cmd+enter"
+                    data-load-indicator="Saving {{singular_name}}..."
+                    class="btn btn-default">
+                    Save and Close
+                </button>
+                <button
+                    type="button"
+                    class="oc-icon-trash btn-icon danger pull-right"
+                    data-request="onDelete"
+                    data-load-indicator="Deleting {{singular_name}}..."
+                    data-request-confirm="Do you really want to delete this {{lower_singular_name}}?">
+                </button>
+                <span class="btn-text">
+                    or <a href="<?= Backend::url('{{lower_author}}/{{lower_plugin}}/{{lower_name}}') ?>">Cancel</a>
+                </span>
+            </div>
         </div>
+
+    <?= Form::close() ?>
+
+<?php else: ?>
+    <div class="alert alert-danger">
+        <p><?= $fatalError ?></p>
     </div>
-<?= Form::close() ?>
+    <p><a href="<?= Backend::url('{{lower_author}}/{{lower_plugin}}/{{lower_name}}') ?>" class="btn btn-default">Return to {{lower_name}} list</a></p>
+<?php endif ?>

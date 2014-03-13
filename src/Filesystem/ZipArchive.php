@@ -56,7 +56,8 @@ class ZipArchive extends ZipArchiveBase
         $result = false;
         if (is_dir($dirName)) {
 
-            $workingDir = getcwd();
+            $workingDir = @getcwd() ?: null;
+
             chdir($dirName);
             $basename = $baseDir . basename($dirName);
 
@@ -75,7 +76,9 @@ class ZipArchive extends ZipArchiveBase
                     $result = $this->addFile($file, $basename . $file);
             }
 
-            chdir($workingDir);
+            if ($workingDir)
+                @chdir($workingDir);
+
             $result = true;
         }
 

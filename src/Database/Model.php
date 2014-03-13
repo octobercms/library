@@ -16,7 +16,9 @@ use October\Rain\Database\Relations\AttachMany;
 use October\Rain\Database\Relations\AttachOne;
 use October\Rain\Database\Relations\hasManyThrough;
 use October\Rain\Database\ModelException;
+use October\Rain\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use InvalidArgumentException;
 
 /**
  * Active Record base class.
@@ -76,6 +78,11 @@ class Model extends EloquentModel
      * @var array List of attribute names which are json encoded and decoded from the database.
      */
     protected $jsonable = [];
+
+    /**
+     * @var array List of attributes to automatically generate unique URL names (slugs) for.
+     */
+    protected $sluggable = [];
 
     /**
      * @var array List of original attribute values before they were hashed.
@@ -317,6 +324,10 @@ class Model extends EloquentModel
         static::registerModelEvent('validated', $callback);
     }
 
+    //
+    // Overrides
+    //
+
     /**
      * Get the observable event names.
      * @return array
@@ -331,6 +342,17 @@ class Model extends EloquentModel
             ),
             $this->observables
         );
+    }
+
+    /**
+     * Create a new Eloquent query builder for the model.
+     *
+     * @param  \Illuminate\Database\Query\Builder $query
+     * @return \October\Rain\Database\Builder|static
+     */
+    public function newEloquentBuilder($query)
+    {
+        return new Builder($query);
     }
 
     //
@@ -443,45 +465,55 @@ class Model extends EloquentModel
         $relation = $this->getRelationDefinition($relationName);
 
         if (!isset($relation[0]) && $relationType != 'morphTo')
-            throw new \InvalidArgumentException("Relation '".$relationName."' on model '".get_called_class().' should have at least a classname.');
+            throw new InvalidArgumentException(sprintf("Relation '%s' on model '%s' should have at least a classname.", $relationName, get_called_class()));
 
         if (isset($relation[0]) && $relationType == 'morphTo')
-            throw new \InvalidArgumentException("Relation '".$relationName."' on model '".get_called_class().' is a morphTo relation and should not contain additional arguments.');
+            throw new InvalidArgumentException(sprintf("Relation '%s' on model '%s' is a morphTo relation and should not contain additional arguments.", $relationName, get_called_class()));
 
         switch ($relationType) {
             case 'hasOne':
             case 'hasMany':
                 $relation = $this->validateRelationArgs($relationName, ['primaryKey', 'localKey']);
-                return $this->$relationType($relation[0], $relation['primaryKey'], $relation['localKey'], $relationName);
+                $relationObj = $this->$relationType($relation[0], $relation['primaryKey'], $relation['localKey'], $relationName);
+                break;
 
             case 'belongsTo':
                 $relation = $this->validateRelationArgs($relationName, ['foreignKey', 'parentKey']);
-                return $this->$relationType($relation[0], $relation['foreignKey'], $relation['parentKey'], $relationName);
+                $relationObj = $this->$relationType($relation[0], $relation['foreignKey'], $relation['parentKey'], $relationName);
+                break;
 
             case 'belongsToMany':
                 $relation = $this->validateRelationArgs($relationName, ['table', 'primaryKey', 'foreignKey', 'pivotData']);
                 $relationObj = $this->$relationType($relation[0], $relation['table'], $relation['primaryKey'], $relation['foreignKey'], $relationName);
-                if ($relation['pivotData']) $relationObj->withPivot($relation['pivotData']);
-                return $relationObj;
+                break;
 
             case 'morphTo':
                 $relation = $this->validateRelationArgs($relationName, ['name', 'type', 'id']);
-                return $this->$relationType($relation['name'], $relation['type'], $relation['id']);
+                $relationObj = $this->$relationType($relation['name'], $relation['type'], $relation['id']);
+                break;
 
             case 'morphOne':
             case 'morphMany':
                 $relation = $this->validateRelationArgs($relationName, ['type', 'id', 'localKey'], ['name']);
-                return $this->$relationType($relation[0], $relation['name'], $relation['type'], $relation['id'], $relation['localKey'], $relationName);
+                $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['type'], $relation['id'], $relation['localKey'], $relationName);
+                break;
 
             case 'attachOne':
             case 'attachMany':
                 $relation = $this->validateRelationArgs($relationName, ['public', 'localKey']);
-                return $this->$relationType($relation[0], $relation['public'], $relation['localKey'], $relationName);
+                $relationObj = $this->$relationType($relation[0], $relation['public'], $relation['localKey'], $relationName);
+                break;
 
             case 'hasManyThrough':
                 $relation = $this->validateRelationArgs($relationName, ['primaryKey', 'throughKey'], ['through']);
-                return $this->$relationType($relation[0], $relation['through'], $relation['primaryKey'], $relation['throughKey']);
+                $relationObj = $this->$relationType($relation[0], $relation['through'], $relation['primaryKey'], $relation['throughKey']);
+                break;
+
+            default:
+                throw new InvalidArgumentException(sprintf("There is no such relation type known as '%s' on model '%s'.", $relationType, get_called_class()));
         }
+
+        return $this->applyRelationFilters($relation, $relationObj);
     }
 
     /**
@@ -489,9 +521,13 @@ class Model extends EloquentModel
      */
     private function validateRelationArgs($relationName, $optional, $required = [])
     {
+
         $relation = $this->getRelationDefinition($relationName);
 
-        foreach ($optional as $key) {
+        // Query filter arguments
+        $filters = ['order', 'pivotData'];
+
+        foreach (array_merge($optional, $filters) as $key) {
             if (!array_key_exists($key, $relation)) {
                 $relation[$key] = null;
             }
@@ -505,7 +541,44 @@ class Model extends EloquentModel
         }
 
         if ($missingRequired)
-            throw new \InvalidArgumentException("Relation '".$relationName."' on model '".get_called_class().' should contain the following key(s): '.join(', ', $missingRequired));
+            throw new InvalidArgumentException("Relation '".$relationName."' on model '".get_called_class().' should contain the following key(s): '.join(', ', $missingRequired));
+
+        return $relation;
+    }
+
+    /**
+     * Apply filters to relationship objects as supplied by arguments.
+     * @param $args Captured relationship arguments
+     * @param $relation Relationship object
+     * @return Relationship object
+     */
+    private function applyRelationFilters($args, $relation)
+    {
+        /*
+         * Pivot data (belongsToMany)
+         */
+        if ($pivotData = $args['pivotData']) {
+            $relation->withPivot($pivotData);
+        }
+
+        /*
+         * Sort order
+         */
+        if ($orderBy = $args['order']) {
+            if (!is_array($orderBy))
+                $orderBy = [$orderBy];
+
+            foreach ($orderBy as $order) {
+                $column = $order;
+                $direction = 'asc';
+
+                $parts = explode(' ', $order);
+                if (count($parts) > 1)
+                    list($column, $direction) = $parts;
+
+                $relation->orderBy($column, $direction);
+            }
+        }
 
         return $relation;
     }
@@ -604,9 +677,17 @@ class Model extends EloquentModel
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\HasMany
      */
-    public function hasManyThrough($related, $through, $primaryKey = null, $throughKey = null)
+    public function hasManyThrough($related, $through, $primaryKey = null, $throughKey = null, $relationName = null)
     {
-        return new HasManyThrough($related, $through, $primaryKey, $throughKey);
+        if (is_null($relationName))
+            $relationName = $this->getRelationCaller();
+
+        $instance = new $related;
+        $throughInstance = new $through;
+        $primaryKey = $primaryKey ?: $this->getForeignKey();
+        $throughKey = $throughKey ?: $throughInstance->getForeignKey();
+
+        return new HasManyThrough($instance->newQuery(), $instance, $throughInstance, $primaryKey, $throughKey);
     }
 
     /**
@@ -730,7 +811,6 @@ class Model extends EloquentModel
                     $this->setAttribute($relationObj->getForeignKey(), $value);
                 break;
 
-            case 'attachOne':
             case 'attachMany':
                 if ($value instanceof UploadedFile)
                     $relationObj->create(['data' => $value]);
@@ -741,29 +821,15 @@ class Model extends EloquentModel
                     }
                 }
                 break;
+
+            case 'attachOne':
+                if (is_array($value))
+                    $value = reset($value);
+
+                if ($value instanceof UploadedFile)
+                    $relationObj->create(['data' => $value]);
+                break;
         }
-    }
-
-    /**
-     * Eager loads relationships and joins them to a query
-     */
-    public function joinWith($relations)
-    {
-        if (is_string($relations)) $relations = func_get_args();
-
-        foreach ($relations as $index => $relation) {
-            if (!$this->hasRelation($relation))
-                unset($relations[$index]);
-        }
-
-        $result = $this->with($relations);
-
-        foreach ($relations as $relation) {
-            $relationObj = $this->$relation();
-            $relationObj->joinWithQuery($result);
-        }
-
-        return $result;
     }
 
     //
@@ -902,6 +968,10 @@ class Model extends EloquentModel
 
             // Remove any purge attributes from the data set
             $this->purgeAttributes();
+
+            // Set sluggable attributes on new records
+            if (!$this->exists)
+                $this->slugAttributes();
 
             // Save the record
             $result = parent::save($options);
@@ -1057,6 +1127,9 @@ class Model extends EloquentModel
      */
     public function getAttribute($key)
     {
+        if (strpos($key, '.'))
+            return $this->getAttributeDotted($key);
+
         // Before Event
         if (($attr = $this->trigger('model.beforeGetAttribute', $key)) !== null)
             return is_array($attr) ? reset($attr) : $attr;
@@ -1081,6 +1154,24 @@ class Model extends EloquentModel
             return is_array($_attr) ? reset($_attr) : $_attr;
 
         return $attr;
+    }
+
+    /**
+     * Get an attribute relation value using dotted notation.
+     * Eg: author.name
+     * @return mixed
+     */
+    public function getAttributeDotted($key)
+    {
+        $keyParts = explode('.', $key);
+        $value = $this;
+        foreach ($keyParts as $part) {
+            if (!isset($value[$part]))
+                return null;
+
+            $value = $value[$part];
+        }
+        return $value;
     }
 
     /**
@@ -1240,4 +1331,67 @@ class Model extends EloquentModel
         return $this;
     }
 
+    //
+    // Sluggable
+    //
+
+    /**
+     * Adds sluggable attributes to the dataset, used before saving.
+     * @return void
+     */
+    public function slugAttributes()
+    {
+        foreach ($this->sluggable as $slugAttribute => $sourceAttributes)
+            $this->setSluggableValue($slugAttribute, $sourceAttributes);
+    }
+
+    /**
+     * Sets a single sluggable attribute value.
+     * @param string $slugAttribute Attribute to populate with the slug.
+     * @param mixed $sourceAttributes Attribute(s) to generate the slug from.
+     * Supports dotted notation for relations.
+     * @param int $maxLength Maximum length for the slug not including the counter.
+     * @return string The generated value.
+     */
+    public function setSluggableValue($slugAttribute, $sourceAttributes, $maxLength = 240)
+    {
+        if (isset($this->{$slugAttribute}))
+            return;
+
+        if (!is_array($sourceAttributes))
+            $sourceAttributes = [$sourceAttributes];
+
+        $slugArr = [];
+        foreach ($sourceAttributes as $attribute) {
+            $slugArr[] = $this->getAttribute($attribute);
+        }
+
+        $slug = implode(' ', $slugArr);
+        $slug = substr($slug, 0, $maxLength);
+        $slug = Str::slug($slug);
+
+        return $this->{$slugAttribute} = $this->getUniqueAttributeValue($slugAttribute, $slug);
+    }
+
+    /**
+     * Ensures a unique attribute value, if the value is already used a counter suffix is added.
+     * @param string $name The database column name.
+     * @param value $value The desired column value.
+     * @return string A safe value that is unique.
+     */
+    public function getUniqueAttributeValue($name, $value)
+    {
+        $counter = 1;
+        $separator = '-';
+
+        // Remove any exisiting suffixes
+        $_value = preg_replace('/'.preg_quote($separator).'[0-9]+$/', '', trim($value));
+
+        while ($this->newQuery()->where($name, $_value)->count() > 0) {
+            $counter++;
+            $_value = $value . $separator . $counter;
+        }
+
+        return $_value;
+    }
 }

@@ -67,6 +67,10 @@ trait AttachOneOrMany
      */
     public function save(Model $model, $sessionKey = null)
     {
+        // Delete siblings for single attachments
+        if ($sessionKey === null && $this instanceof AttachOne)
+            $this->delete();
+
         if (!array_key_exists('public', $model->attributes))
             $model->setAttribute('public', $this->isPublic());
 
@@ -80,6 +84,10 @@ trait AttachOneOrMany
      */
     public function create(array $attributes, $sessionKey = null)
     {
+        // Delete siblings for single attachments
+        if ($sessionKey === null && $this instanceof AttachOne)
+            $this->delete();
+
         if (!array_key_exists('public', $attributes))
             $attributes = array_merge(['public' => $this->isPublic()], $attributes);
 
@@ -97,6 +105,11 @@ trait AttachOneOrMany
             $model->public = $this->isPublic();
 
         if ($sessionKey === null) {
+
+            // Delete siblings for single attachments
+            if ($this instanceof AttachOne)
+                $this->delete();
+
             $model->setAttribute($this->getPlainForeignKey(), $this->parent->getKey());
             $model->setAttribute($this->getPlainMorphType(), $this->morphClass);
             $model->setAttribute('field', $this->relationName);
@@ -137,5 +150,4 @@ trait AttachOneOrMany
 
         return $this;
     }
-
 }
