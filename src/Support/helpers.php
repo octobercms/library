@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 if (!function_exists('post'))
 {
@@ -24,29 +24,7 @@ if (!function_exists('post'))
          * Array field name, eg: field[key][key2][key3]
          */
         $keyParts = October\Rain\Support\Str::evalHtmlArray($name);
-
-        /*
-         * First part will be the field name, pop it off
-         */
-        $fieldName = array_shift($keyParts);
-        if (!Input::has($fieldName))
-            return $default;
-
-        $result = Input::get($fieldName);
-
-        /*
-         * Loop the remaining key parts and build a result
-         */
-        foreach ($keyParts as $key) {
-            if (!array_key_exists($key, $result))
-                return $default;
-
-            $result = $result[$key];
-        }
-
-        if (is_string($result))
-            $result = October\Rain\Support\Str::evalBoolean(trim($result));
-
-        return $result;
+        $dottedName = implode('.', $keyParts);
+        return Input::get($dottedName, $default);
     }
 }
