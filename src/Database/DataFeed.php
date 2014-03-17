@@ -17,17 +17,32 @@ class DataFeed
 {
 
     /**
-     * @var string The attribute to use for each model tag name
+     * @var string The attribute to use for each model tag name.
      */
     public $tagVar = 'tag_name';
 
     /**
-     * @var string The attribute to use for each model class name
+     * @var string The attribute to use for each model class name.
      */
     public $modelVar = 'model_name';
 
     /**
-     * @var array Model collection pre-query
+     * @var string An alias to use for each entries timestamp attribute.
+     */
+    public $sortVar = 'order_by_column_name';
+
+    /**
+     * @var string Default sorting attribute.
+     */
+    public $sortField = 'id';
+
+    /**
+     * @var string Default sorting direction.
+     */
+    public $sortDirection = 'desc';
+
+    /**
+     * @var array Model collection pre-query.
      */
     protected $collection = [];
 
@@ -44,7 +59,7 @@ class DataFeed
     /**
      * Add a new Builder to the feed collection
      */
-    public function add($tag, $item)
+    public function add($tag, $item, $orderBy = null)
     {
         if ($item instanceof Closure) {
             $item = call_user_func($item);
@@ -53,7 +68,7 @@ class DataFeed
         if (!$item)
             return;
 
-        $this->collection[] = compact('item', 'tag');
+        $this->collection[] = compact('item', 'tag', 'orderBy');
 
         // Reset the query cache
         $this->queryCache = null;
@@ -77,6 +92,17 @@ class DataFeed
     public function get()
     {
         $query = $this->processCollection();
+
+        /*
+         * Apply sorting to the entire query
+         * @todo Safe?
+         */
+        $orderBySql = 'ORDER BY ' . $this->sortVar . ' ' . $this->sortDirection;
+        $records = DB::select(DB::raw($query->toSql() . ' ' . $orderBySql), $query->getBindings());
+
+        // $query->limitUnion(3);
+        // $query->orderUnionBy($this->sortVar, $this->sortDirection);
+
         $records = $query->get();
 
         /*
@@ -125,6 +151,18 @@ class DataFeed
     }
 
     /**
+     * Sets the default sorting field and direction.
+     */
+    public function orderBy($field, $direction = null)
+    {
+        $this->sortField = $field;
+        if ($direction)
+            $this->sortDirection = $direction;
+
+        return $this;
+    }
+
+    /**
      * Creates a generic union query of each added collection
      */
     private function processCollection()
@@ -140,12 +178,16 @@ class DataFeed
             $model = $this->getModel($item);
             $class = str_replace('\\', '\\\\', get_class($model));
 
+            $sorting = $model->getTable() . '.';
+            $sorting .= $orderBy ?: $this->sortField;
+
             /*
              * Flush the select, add ID, tag and class
              */
             $cleanQuery = $cleanQuery->select('id');
             $cleanQuery = $cleanQuery->addSelect(DB::raw("(SELECT '".$tag."') as ".$this->tagVar));
             $cleanQuery = $cleanQuery->addSelect(DB::raw("(SELECT '".$class."') as ".$this->modelVar));
+            $cleanQuery = $cleanQuery->addSelect(DB::raw("(SELECT ".$sorting.") as ".$this->sortVar));
 
             /*
              * Union this query with the previous one
