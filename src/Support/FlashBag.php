@@ -44,17 +44,44 @@ class FlashBag extends MessageBag
     }
 
     /**
+     * Checks to see if any message is available.
+     * @return bool
+     */
+    public function check()
+    {
+        return $this->any();
+    }
+
+    /**
      * Get first message for every key in the bag.
+     * @param $format
      * @return array
      */
-    public function all($format = NULL)
+    public function all($format = null)
     {
         $all = [];
         foreach ($this->messages as $key => $messages) {
             $all[$key] = reset($messages);
         }
 
+        $this->purge();
+
         return $all;
+    }
+
+    /**
+     * Gets all the flash messages of a given type.
+     * @param $key
+     * @param $format
+     * @return array
+     */
+    public function get($key, $format = null)
+    {
+        $message = parent::get($key, $format);
+
+        $this->purge();
+
+        return $message;
     }
 
     /**
@@ -132,6 +159,7 @@ class FlashBag extends MessageBag
     {
         if ($key === null) {
             $this->newMessages = $this->messages = [];
+            $this->purge();
         }
         else {
             if (isset($this->messages[$key]))
@@ -139,9 +167,9 @@ class FlashBag extends MessageBag
 
             if (isset($this->newMessages[$key]))
                 unset($this->newMessages[$key]);
-        }
 
-        $this->store();
+            $this->store();
+        }
     }
 
     /*

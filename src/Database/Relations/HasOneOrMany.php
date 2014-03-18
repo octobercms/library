@@ -10,7 +10,7 @@ trait HasOneOrMany
     /**
      * Adds a model to this relationship type.
      */
-    public function add(Model $model, $sessionKey = null) 
+    public function add(Model $model, $sessionKey = null)
     {
         if ($sessionKey === null) {
             $model->setAttribute($this->getPlainForeignKey(), $this->parent->getKey());
@@ -24,7 +24,7 @@ trait HasOneOrMany
     /**
      * Removes a model from this relationship type.
      */
-    public function remove(Model $model, $sessionKey = null) 
+    public function remove(Model $model, $sessionKey = null)
     {
         if ($sessionKey === null) {
             $model->setAttribute($this->getPlainForeignKey(), null);
