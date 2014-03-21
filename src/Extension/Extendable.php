@@ -1,5 +1,7 @@
 <?php namespace October\Rain\Extension;
 
+use Closure;
+
 /**
  * Extension class
  *
@@ -37,12 +39,12 @@ class Extendable
         return $this->extendableSet($name, $value);
     }
 
-    public function __call($name, $params = null)
+    public function __call($name, $params)
     {
         return $this->extendableCall($name, $params);
     }
 
-    public static function extend(\Closure $callback)
+    public static function extend(Closure $callback)
     {
         self::extendableExtendCallback($callback);
     }
