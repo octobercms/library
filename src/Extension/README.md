@@ -55,7 +55,10 @@ class PizzaShop extends \October\Rain\Extension\ExtendableBase
      */
     public function __construct()
     {
-        // Returns "Cowabunga!!!"
+        // Initializes the behaviors
+        parent::__construct();
+
+        // Prints "Cowabunga!!!"
         echo $this->doSomethingCool();
     }
 }
