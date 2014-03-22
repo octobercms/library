@@ -1,9 +1,9 @@
 <?php
 
-use October\Rain\Boilerplate\Base;
-use October\Rain\Boilerplate\Templates\Model;
+use October\Rain\Support\Scaffold\Base;
+use October\Rain\Support\Scaffold\Templates\Model;
 
-class BaseTest extends TestCase
+class ScaffoldBaseTest extends TestCase
 {
     //
     // Helpers

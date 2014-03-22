@@ -1,22 +1,23 @@
-<?php namespace October\Rain\Boilerplate\Console;
+<?php namespace October\Rain\Support\Scaffold\Console;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use October\Rain\Boilerplate\Templates\Plugin;
+use October\Rain\Support\Str;
+use October\Rain\Support\Scaffold\Templates\Component;
 
-class CreatePlugin extends Command
+class CreateComponent extends Command
 {
 
     /**
      * The console command name.
      */
-    protected $name = 'create:plugin';
+    protected $name = 'create:component';
 
     /**
      * The console command description.
      */
-    protected $description = 'Creates a new plugin.';
+    protected $description = 'Creates a new plugin component.';
 
     /**
      * Create a new command instance.
@@ -35,19 +36,23 @@ class CreatePlugin extends Command
          * Extract the author and name from the plugin code
          */
         $pluginCode = $this->argument('pluginCode');
+
         $parts = explode('.', $pluginCode);
         $pluginName = array_pop($parts);
         $authorName = array_pop($parts);
 
-        $destinationPath = base_path() . '/plugins';
+        $destinationPath = base_path() . '/plugins/' . strtolower($authorName) . '/' . strtolower($pluginName);
+        $componentName = $this->argument('componentName');
+
         $vars = [
-            'name'   => $pluginName,
+            'name' => $componentName,
             'author' => $authorName,
+            'plugin' => $pluginName
         ];
 
-        Plugin::make($destinationPath, $vars, $this->option('force'));
+        Component::make($destinationPath, $vars, $this->option('force'));
 
-        $this->info(sprintf('Successfully generated Plugin named "%s"', $pluginCode));
+        $this->info(sprintf('Successfully generated Component for "%s"', $componentName));
     }
 
     /**
@@ -57,6 +62,7 @@ class CreatePlugin extends Command
     {
         return [
             ['pluginCode', InputArgument::REQUIRED, 'The name of the plugin to create. Eg: RainLab.Blog'],
+            ['componentName', InputArgument::REQUIRED, 'The name of the component. Eg: Posts'],
         ];
     }
 
@@ -66,7 +72,7 @@ class CreatePlugin extends Command
     protected function getOptions()
     {
         return [
-            ['force', null, InputOption::VALUE_NONE, 'Overwrite existing files with generated ones.'],
+            ['force', null, InputOption::VALUE_NONE, 'Overwrite existing files with generated ones.']
         ];
     }
 

@@ -1,10 +1,10 @@
-<?php namespace October\Rain\Boilerplate\Console;
+<?php namespace October\Rain\Support\Scaffold\Console;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use October\Rain\Support\Str;
-use October\Rain\Boilerplate\Templates\Controller;
+use October\Rain\Support\Scaffold\Templates\Controller;
 
 class CreateController extends Command
 {

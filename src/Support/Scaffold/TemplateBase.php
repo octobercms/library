@@ -1,15 +1,15 @@
-<?php namespace October\Rain\Boilerplate;
+<?php namespace October\Rain\Support\Scaffold;
 
 use Exception;
 use October\Rain\Support\Str;
 use October\Rain\Filesystem\Filesystem;
 
 /**
- * Base class for boilerplate templates.
+ * Base class for scaffolding templates.
  *
  * The template simply provides a file mapping property.
  *
- * @package october\boilerplate
+ * @package october\support
  * @author Alexey Bobkov, Samuel Georges
  */
 abstract class TemplateBase

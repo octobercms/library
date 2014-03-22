@@ -1,12 +1,12 @@
-<?php namespace October\Rain\Boilerplate;
+<?php namespace October\Rain\Support\Scaffold;
 
 use Illuminate\Support\ServiceProvider;
-use October\Rain\Boilerplate\Console\CreatePlugin;
-use October\Rain\Boilerplate\Console\CreateModel;
-use October\Rain\Boilerplate\Console\CreateController;
-use October\Rain\Boilerplate\Console\CreateComponent;
+use October\Rain\Support\Scaffold\Console\CreatePlugin;
+use October\Rain\Support\Scaffold\Console\CreateModel;
+use October\Rain\Support\Scaffold\Console\CreateController;
+use October\Rain\Support\Scaffold\Console\CreateComponent;
 
-class BoilerplateServiceProvider extends ServiceProvider
+class ScaffoldServiceProvider extends ServiceProvider
 {
     /**
      * Register the service provider.
