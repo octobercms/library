@@ -16,10 +16,10 @@ class Plugin extends PluginBase
     public function pluginDetails()
     {
         return [
-            'name' => '{{name}}',
+            'name'        => '{{name}}',
             'description' => 'No description provided yet...',
-            'author' => '{{author}}',
-            'icon' => 'icon-leaf'
+            'author'      => '{{author}}',
+            'icon'        => 'icon-leaf'
         ];
     }
 

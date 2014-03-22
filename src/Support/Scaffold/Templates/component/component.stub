@@ -8,7 +8,7 @@ class {{studly_name}} extends ComponentBase
     public function componentDetails()
     {
         return [
-            'name' => '{{name}} Component',
+            'name'        => '{{name}} Component',
             'description' => 'No description provided yet...'
         ];
     }
