@@ -87,9 +87,6 @@ class Zip extends ZipArchive
         $zip = new self;
         $zip->open($destination, ZipArchive::OVERWRITE);
 
-        // Empty the zip, even if no files are found
-        $zip->addEmptyDir('/');
-
         if (is_string($source))
             $zip->add($source);
 
