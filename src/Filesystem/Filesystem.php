@@ -12,10 +12,10 @@ use Illuminate\Filesystem\Filesystem as FilesystemBase;
 class Filesystem extends FilesystemBase
 {
     /**
-     * Determine if a file exists with case insensitivity 
+     * Determine if a file exists with case insensitivity
      * supported for the file only.
-     * @param  string  $path
-     * @return mixed Sensitive path or false
+     * @param  string $path
+     * @return mixed  Sensitive path or false
      */
     public function existsInsensitive($path)
     {
@@ -59,7 +59,7 @@ class Filesystem extends FilesystemBase
 
     /**
      * Converts a file size in bytes to human readable format.
-     * @param int $bytes
+     * @param  int $bytes
      * @return string
      */
     public function sizeToString($bytes)
@@ -85,7 +85,7 @@ class Filesystem extends FilesystemBase
     /**
      * Returns a public file path from an absolute one
      * eg: /home/mysite/public_html/welcome -> /welcome
-     * @param string $path Absolute path
+     * @param  string $path Absolute path
      * @return string
      */
     public static function localToPublic($path)
@@ -101,7 +101,7 @@ class Filesystem extends FilesystemBase
 
     /**
      * Finds the path to a class
-     * @param mixed $className Class name or object
+     * @param  mixed  $className Class name or object
      * @return string The file path
      */
     public static function fromClass($className)

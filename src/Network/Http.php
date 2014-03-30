@@ -359,6 +359,6 @@ class Http
      */
     public function __toString()
     {
-        return $this->responseBody;
+        return (string)$this->responseBody;
     }
 }
