@@ -134,6 +134,8 @@ class Zip extends ZipArchive
         foreach ($folders as $folder) {
             if (!is_dir($folder)) continue;
 
+            $localpath = $this->folderPrefix . $this->removePathPrefix($basedir.'/', $folder.'/');
+            $this->addEmptyDir($localpath);
             $this->add($folder.'/'.$baseglob, array_merge($options, ['basedir' => $basedir]));
         }
 
@@ -201,15 +203,15 @@ class Zip extends ZipArchive
 
     /**
      * Removes a prefix from a path.
-     * @param  string $remove /var/sites/
-     * @param  string $keep /var/sites/moo/cow/
+     * @param  string $prefix /var/sites/
+     * @param  string $path /var/sites/moo/cow/
      * @return string moo/cow/
      */
-    private function removePathPrefix($remove, $keep)
+    private function removePathPrefix($prefix, $path)
     {
-        return (strpos($keep, $remove) === 0)
-            ? substr($keep, strlen($remove))
-            : $keep;
+        return (strpos($path, $prefix) === 0)
+            ? substr($path, strlen($prefix))
+            : $path;
     }
 
 }
