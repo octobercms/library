@@ -12,30 +12,6 @@ use Illuminate\Filesystem\Filesystem as FilesystemBase;
 class Filesystem extends FilesystemBase
 {
     /**
-     * Determine if a file exists with case insensitivity
-     * supported for the file only.
-     * @param  string $path
-     * @return mixed  Sensitive path or false
-     */
-    public function existsInsensitive($path)
-    {
-        if (self::exists($path))
-            return $path;
-
-        $directoryName = dirname($path);
-        $pathLower = strtolower($path);
-
-        $files = self::glob($directoryName . '/*', GLOB_NOSORT);
-        foreach ($files as $file) {
-            if (strtolower($file) == $pathLower) {
-                return $file;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Determine if the given path contains no files.
      * @param  string  $directory
      * @return bool
@@ -47,7 +23,7 @@ class Filesystem extends FilesystemBase
 
         $handle = opendir($directory);
         while (false !== ($entry = readdir($handle))) {
-            if ($entry != "." && $entry != "..") {
+            if ($entry != '.' && $entry != '..') {
                 closedir($handle);
                 return false;
             }
@@ -109,5 +85,30 @@ class Filesystem extends FilesystemBase
         $reflector = new ReflectionClass($className);
         return $reflector->getFileName();
     }
+
+    /**
+     * Determine if a file exists with case insensitivity
+     * supported for the file only.
+     * @param  string $path
+     * @return mixed  Sensitive path or false
+     */
+    public function existsInsensitive($path)
+    {
+        if (self::exists($path))
+            return $path;
+
+        $directoryName = dirname($path);
+        $pathLower = strtolower($path);
+
+        $files = self::glob($directoryName . '/*', GLOB_NOSORT);
+        foreach ($files as $file) {
+            if (strtolower($file) == $pathLower) {
+                return $file;
+            }
+        }
+
+        return false;
+    }
+
 
 }
