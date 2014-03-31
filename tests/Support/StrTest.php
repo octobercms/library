@@ -9,7 +9,7 @@ class StrTest extends TestCase
     {
         $result = Str::evalBoolean('yes');
         $this->assertTrue($result);
-        
+
         $result = Str::evalBoolean('y');
         $this->assertTrue($result);
 

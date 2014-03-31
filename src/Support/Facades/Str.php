@@ -5,8 +5,12 @@ use October\Rain\Support\Facade;
 class Str extends Facade
 {
     /**
-     * Get the class name this facade is acting on behalf of.
+     * Get the registered name of the component.
+     * 
+     * Resolves to:
+     * - October\Rain\Support\Str
+     * 
      * @return string
      */
-    protected static function getFacadeAccessor() { return 'October\Rain\Support\Str'; }
+    protected static function getFacadeAccessor() { return 'string'; }
 }
