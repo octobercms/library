@@ -12,12 +12,13 @@ class ModelBehavior extends ExtensionBase
 {
 
     /**
-     * @var Model Reference to the extended model.
+     * @var October\Rain\Database\Model Reference to the extended model.
      */
     protected $model;
 
     /**
-     * Constructor.
+     * Constructor
+     * @param October\Rain\Database\Model $model The extended model.
      */
     public function __construct($model)
     {

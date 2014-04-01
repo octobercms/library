@@ -5,15 +5,15 @@
     </ul>
 <?php Block::endPut() ?>
 
-<?php if (!isset($fatalError)): ?>
+<?php if (!$this->fatalError): ?>
 
     <div class="layout-item stretch layout-column">
         <?= $this->formRenderPreview() ?>
     </div>
 
 <?php else: ?>
-    <div class="alert alert-danger">
-        <p><?= $fatalError ?></p>
-    </div>
+
+    <p class="flash-message static error"><?= e($this->fatalError) ?></p>
     <p><a href="<?= Backend::url('{{lower_author}}/{{lower_plugin}}/{{lower_name}}') ?>" class="btn btn-default">Return to {{lower_name}} list</a></p>
+
 <?php endif ?>
