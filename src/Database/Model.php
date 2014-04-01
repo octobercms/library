@@ -812,13 +812,22 @@ class Model extends EloquentModel
                 break;
 
             case 'attachMany':
-                if ($value instanceof UploadedFile)
-                    $relationObj->create(['data' => $value]);
+                if ($value instanceof UploadedFile) {
+                    $this->bindOnce('model.afterSave', function() use ($relationObj, $value){
+                        $relationObj->create(['data' => $value]);
+                    });
+                }
                 elseif (is_array($value)) {
+                    $files = [];
                     foreach ($value as $_value) {
                         if ($_value instanceof UploadedFile)
-                            $relationObj->create(['data' => $_value]);
+                            $files[] = $_value;
                     }
+                    $this->bindOnce('model.afterSave', function() use ($relationObj, $files){
+                        foreach ($files as $file) {
+                            $relationObj->create(['data' => $file]);
+                        }
+                    });
                 }
                 break;
 
@@ -826,8 +835,11 @@ class Model extends EloquentModel
                 if (is_array($value))
                     $value = reset($value);
 
-                if ($value instanceof UploadedFile)
-                    $relationObj->create(['data' => $value]);
+                if ($value instanceof UploadedFile) {
+                    $this->bindOnce('model.afterSave', function() use ($relationObj, $value){
+                        $relationObj->create(['data' => $value]);
+                    });
+                }
                 break;
         }
     }
