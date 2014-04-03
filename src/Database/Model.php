@@ -862,7 +862,7 @@ class Model extends EloquentModel
      * Validate the model instance
      * @return bool
      */
-    public function validate(array $rules = array(), array $customMessages = array())
+    public function validate($rules = null, $customMessages = null)
     {
         if ($this->fireModelEvent('validating') === false) {
             if ($this->throwOnValidation)
@@ -874,13 +874,13 @@ class Model extends EloquentModel
         /*
          * Perform validation
          */
-        $rules = (empty($rules)) ? $this->rules : $rules;
+        $rules = (is_null($rules)) ? $this->rules : $rules;
         $rules = $this->processValidationRules($rules);
         $success = true;
 
         if (!empty($rules)) {
             $data = array_merge($this->getAttributes(), $this->getOriginalHashValues());
-            $customMessages = (empty($customMessages)) ? $this->customMessages : $customMessages;
+            $customMessages = is_null($customMessages) ? $this->customMessages : $customMessages;
             $validator = self::makeValidator($data, $rules, $customMessages);
             $success = $validator->passes();
 
@@ -968,34 +968,36 @@ class Model extends EloquentModel
      */
     protected function saveInternal($data = [], $options = [])
     {
-        $force = array_get($options, 'force', false);
-
         if ($data !== null)
             $this->fill($data);
 
-        if (!$force)
+        // If forcing the save event, the beforeValidate/afterValidate
+        // events should still fire for consistency. So validate an
+        // empty set of rules and messages.
+        $force = array_get($options, 'force', false);
+        if ($force)
+            $valid = $this->validate([], []);
+        else
             $valid = $this->validate();
 
-        if ($force || $valid) {
-
-            // Remove any purge attributes from the data set
-            $this->purgeAttributes();
-
-            // Set sluggable attributes on new records
-            if (!$this->exists)
-                $this->slugAttributes();
-
-            // Save the record
-            $result = parent::save($options);
-
-            // Apply any deferred bindings
-            if ($this->sessionKey !== null)
-                $this->commitDeferred($this->sessionKey);
-
-            return $result;
-        }
-        else
+        if (!$valid)
             return false;
+
+        // Remove any purge attributes from the data set
+        $this->purgeAttributes();
+
+        // Set sluggable attributes on new records
+        if (!$this->exists)
+            $this->slugAttributes();
+
+        // Save the record
+        $result = parent::save($options);
+
+        // Apply any deferred bindings
+        if ($this->sessionKey !== null)
+            $this->commitDeferred($this->sessionKey);
+
+        return $result;
     }
 
     /**
@@ -1155,15 +1157,29 @@ class Model extends EloquentModel
             }
         }
 
+        // After Event
+        if (($_attr = $this->trigger('model.afterGetAttribute', $key, $attr)) !== null)
+            return is_array($_attr) ? reset($_attr) : $_attr;
+
+        return $attr;
+    }
+
+
+    /**
+     * Get a plain attribute (not a relationship).
+     *
+     * @param  string  $key
+     * @return mixed
+     */
+    protected function getAttributeValue($key)
+    {
+        $attr = parent::getAttributeValue($key);
+
         // Handle jsonable
         if (in_array($key, $this->jsonable) && !empty($attr)) {
             if ($value = json_decode($attr, true))
                 $attr = $value;
         }
-
-        // After Event
-        if (($_attr = $this->trigger('model.afterGetAttribute', $key, $attr)) !== null)
-            return is_array($_attr) ? reset($_attr) : $_attr;
 
         return $attr;
     }
