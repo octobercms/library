@@ -110,5 +110,13 @@ class Filesystem extends FilesystemBase
         return false;
     }
 
-
+    /**
+     * Normalizes the directory separator, often used by Win systems.
+     * @param  string $path Path name
+     * @return string       Normalized path
+     */
+    public function normalizePath($path)
+    {
+        return str_replace('\\', '/', $path);
+    }
 }
