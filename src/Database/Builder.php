@@ -35,4 +35,19 @@ class Builder extends BuilderModel
         return $this;
     }
 
+    /**
+     * Dynamically handle calls into the query instance.
+     * @param  string  $method
+     * @param  array   $parameters
+     * @return mixed
+     */
+    public function __call($method, $parameters)
+    {
+        if ($this->model->methodExists($scope = 'scope'.ucfirst($method))) {
+            return $this->callScope($scope, $parameters);
+        }
+
+        return parent::__call($method, $parameters);
+    }
+
 }

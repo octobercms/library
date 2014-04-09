@@ -19,7 +19,7 @@ use October\Rain\Database\ModelBehavior;
  *
  * You can change the sort field used by declaring:
  *
- *   public $sortableModelField = 'my_sort_order';
+ *   public $sortableModelColumn = 'my_sort_order';
  *
  */
 class SortableModel extends ModelBehavior
@@ -28,7 +28,7 @@ class SortableModel extends ModelBehavior
     /**
      * @var string The database column that identifies the sort order.
      */
-    protected $fieldName = 'sort_order';
+    protected $columnName = 'sort_order';
 
     /*
      * Constructor
@@ -37,8 +37,8 @@ class SortableModel extends ModelBehavior
     {
         parent::__construct($model);
 
-        if (isset($this->model->sortableModelField))
-            $this->fieldName = $this->model->sortableModelField;
+        if (isset($this->model->sortableModelColumn))
+            $this->columnName = $this->model->sortableModelColumn;
 
         $model->bind('model.afterCreate', function() use ($model) {
             $this->setSortableOrder($model->id);
@@ -62,7 +62,7 @@ class SortableModel extends ModelBehavior
 
         foreach ($itemIds as $index => $id) {
             $order = $itemOrders[$index];
-            $this->model->newQuery()->where('id', $id)->update([$this->fieldName => $order]);
+            $this->model->newQuery()->where('id', $id)->update([$this->columnName => $order]);
         }
     }
 

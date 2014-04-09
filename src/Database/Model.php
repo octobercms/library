@@ -121,8 +121,8 @@ class Model extends EloquentModel
     public $hasOne = [];
 
     /**
-     * protected $attachOne = [
-     *     'pictures' => ['Picture', 'name'=> 'imageable']
+     * protected $belongsTo = [
+     *     'parent' => ['Category', 'foreignKey' => 'parent_id']
      * ];
      */
     public $belongsTo = [];
@@ -218,6 +218,23 @@ class Model extends EloquentModel
         $model = new static($attributes);
         $model->save(null, $sessionKey);
         return $model;
+    }
+
+    /**
+     * Reloads the model from the database.
+     * @return \Illuminate\Database\Eloquent\Model|static
+     */
+    public function reload()
+    {
+        if (!$this->exists) {
+            $this->syncOriginal();
+        }
+        else {
+            $fresh = static::find($this->getKey());
+            $this->setRawAttributes($fresh->getAttributes(), true);
+        }
+
+        return $this;
     }
 
     /**
