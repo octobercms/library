@@ -26,16 +26,22 @@ use Illuminate\Database\Eloquent\Collection;
  *
  * Access methods:
  * 
- *   $model->parent()->get(); // The parent node.
- *   $model->children()->get(); // Set of all direct child nodes.
- *   $model->descendants()->get(); // Returns all children down the tree.
- *   $model->ancestors()->get(); // Returns all parents up the tree.
- *   $model->siblings()->get(); // Return all siblings (parent's children).
- *   $model->leaves()->get(); // Returns all final nodes without children.
- *
- *   $model->descendants()->getNested(); // Returns direct child nodes, with ->children eager loaded.
+ *   $model->getRoot(); // Returns the highest parent of a node.
+ *   $model->getRootChildren(); // Returns a list of all root nodes
+ *   $model->getParent(); // The direct parent node.
+ *   $model->getParents(); // Returns all parents up the tree.
+ *   $model->getParentsAndSelf(); // Returns all parents up the tree and self.
+ *   $model->getChildren(); // Returns direct child nodes, with ->children eager loaded.
+ *   $model->children; // Set of all direct child nodes, without eager loading.
+ *   $model->getAllChildren(); // Returns all children down the tree.
+ *   $model->getAllChildrenAndSelf(); // Returns all children and self.
+ *   $model->getSiblings(); // Return all siblings (parent's children).
+ *   $model->getSiblingsAndSelf(); // Return all siblings and self.
+ *   $model->getLeaves(); // Returns all final nodes without children.
+ *   $model->getLevel(); // Returns the level (indentation) of a current node
  *
  */
+
 class NestedSetModel extends ModelBehavior
 {
 
@@ -218,7 +224,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function makeRoot()
     {
-        return $this->moveToRightOf($this->getRoot());
+        return $this->moveAfter($this->getRoot());
     }
 
     /**
@@ -236,7 +242,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function moveLeft()
     {
-        return $this->moveToLeftOf($this->getLeftSibling());
+        return $this->moveBefore($this->getLeftSibling());
     }
 
     /**
@@ -245,52 +251,25 @@ class NestedSetModel extends ModelBehavior
      */
     public function moveRight()
     {
-        return $this->moveToRightOf($this->getRightSibling());
+        return $this->moveAfter($this->getRightSibling());
     }
 
     /**
-     * Move to the model to the left of specified node.
+     * Move to the model to before (left) specified node.
      * @return \Model
      */
-    public function moveToLeftOf($node)
+    public function moveBefore($node)
     {
         return $this->moveTo($node, 'left');
     }
 
     /**
-     * Move to the model to the right of specified node.
+     * Move to the model to after (right) a specified node.
      * @return \Model
      */
-    public function moveToRightOf($node)
+    public function moveAfter($node)
     {
         return $this->moveTo($node, 'right');
-    }
-
-    /**
-     * Alias for moveToRightOf
-     * @return \Model
-     */
-    public function makeNextSiblingOf($node)
-    {
-        return $this->moveToRightOf($node);
-    }
-
-    /**
-     * Alias for moveToRightOf
-     * @return \Model
-     */
-    public function makeSiblingOf($node)
-    {
-        return $this->moveToRightOf($node);
-    }
-
-    /**
-     * Alias for moveToLeftOf
-     * @return \Model
-     */
-    public function makePreviousSiblingOf($node)
-    {
-        return $this->moveToLeftOf($node);
     }
 
     //
@@ -389,7 +368,7 @@ class NestedSetModel extends ModelBehavior
      * Set of all children & nested children.
      * @return \Illuminate\Database\Query\Builder
      */
-    public function descendants($includeSelf = false)
+    public function allChildren($includeSelf = false)
     {
         $query = $this->newNestedSetQuery()
             ->where($this->getLeftColumnName(), '>=', $this->getLeft())
@@ -404,7 +383,7 @@ class NestedSetModel extends ModelBehavior
      * Returns a prepared query with all parents up the tree.
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function ancestors($includeSelf = false)
+    public function parents($includeSelf = false)
     {
         $query = $this->newNestedSetQuery()
             ->where($this->getLeftColumnName(), '<=', $this->getLeft())
@@ -441,7 +420,7 @@ class NestedSetModel extends ModelBehavior
         $leftCol = $grammar->wrap($this->getQualifiedLeftColumnName());
 
         return $this
-            ->descendants()
+            ->allChildren()
             ->whereRaw($rightCol . ' - ' . $leftCol . ' = 1')
         ;
     }
@@ -457,7 +436,7 @@ class NestedSetModel extends ModelBehavior
     public function getRoot()
     {
         if ($this->model->exists) {
-            return $this->ancestorsAndSelf()
+            return $this->parents(true)
                 ->whereNull($this->getParentColumnName())
                 ->first()
             ;
@@ -475,6 +454,96 @@ class NestedSetModel extends ModelBehavior
     }
 
     /**
+     * Returns a list of all root nodes
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public function getRootChildren()
+    {
+        $this->model->whereNull($this->getParentColumnName())->get();
+    }
+
+    /**
+     * The direct parent node.
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public function getParent()
+    {
+        return $this->model->parent()->get();
+    }
+
+    /**
+     * Returns all parents up the tree.
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public function getParents()
+    {
+        return $this->model->parents()->get();
+    }
+
+    /**
+     * Returns all parents up the tree and self.
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public function getParentsAndSelf()
+    {
+        return $this->model->parents(true)->get();
+    }
+
+    /**
+     * Returns direct child nodes, with ->children eager loaded.
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public function getChildren()
+    {
+        return $this->model->children()->getNested();
+    }
+
+    /**
+     * Returns all children down the tree.
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public function getAllChildren()
+    {
+        return $this->model->allChildren()->get();
+    }
+
+    /**
+     * Returns all children and self.
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public function getAllChildrenAndSelf()
+    {
+        return $this->model->allChildren(true)->get();
+    }
+
+    /**
+     * Return all siblings (parent's children).
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public function getSiblings()
+    {
+        return $this->model->siblings()->get();
+    }
+
+    /**
+     * Return all siblings and self.
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public function getSiblingsAndSelf()
+    {
+        return $this->model->siblings(true)->get();
+    }
+
+    /**
+     * Returns all final nodes without children.
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public function getLeaves()
+    {
+        return $this->model->leaves()->get();
+    }
+
+    /**
      * Returns the level of this node in the tree.
      * Root level is 0.
      * @return int
@@ -484,7 +553,7 @@ class NestedSetModel extends ModelBehavior
         if ($this->getParentId() === null)
             return 0;
 
-        return $this->ancestors()->count();
+        return $this->parents()->count();
     }
 
     //
@@ -729,7 +798,7 @@ class NestedSetModel extends ModelBehavior
         $target->reload();
         $this->model->setDepth();
 
-        foreach ($this->model->descendants()->get() as $descendant) {
+        foreach ($this->model->allChildren()->get() as $descendant) {
             $descendant->save();
         }
 
