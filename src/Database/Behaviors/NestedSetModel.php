@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\Collection;
  *
  * Access methods:
  * 
+ *   $model->getAll(); // Returns everything in correct order
  *   $model->getRoot(); // Returns the highest parent of a node.
  *   $model->getRootChildren(); // Returns a list of all root nodes
  *   $model->getParent(); // The direct parent node.
@@ -428,6 +429,15 @@ class NestedSetModel extends ModelBehavior
     //
     // Getters
     //
+
+    /**
+     * Returns all nodes and children.
+     * @return \Model
+     */
+    public function getAll($columns = ['*'])
+    {
+        return $this->newNestedSetQuery()->get($columns);
+    }
 
     /**
      * Returns the root node starting from the current node.
