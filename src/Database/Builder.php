@@ -36,6 +36,32 @@ class Builder extends BuilderModel
     }
 
     /**
+     * Perform a search query
+     * @param  string $query  Search query
+     * @param  array $columns Table columns to search
+     * @return self
+     */
+    public function searchWhere($query, $columns = [])
+    {
+        if (!is_array($columns))
+            $columns = [$columns];
+
+        $words = explode(' ', $query);
+        foreach ($columns as $field) {
+            $this->orWhere(function($query) use ($field, $words) {
+                foreach ($words as $word) {
+                    if (!strlen($word)) continue;
+                    $fieldSql = $this->query->raw(sprintf("lower(%s)", $field));
+                    $wordSql = '%'.trim(mb_strtolower($word)).'%';
+                    $query->where($fieldSql, 'LIKE', $wordSql);
+                }
+            });
+        }
+
+        return $this;
+    }
+
+    /**
      * Dynamically handle calls into the query instance.
      * @param  string  $method
      * @param  array   $parameters
