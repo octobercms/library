@@ -28,7 +28,7 @@ use Illuminate\Database\Eloquent\Collection;
  * 
  *   $model->getAll(); // Returns everything in correct order
  *   $model->getRoot(); // Returns the highest parent of a node.
- *   $model->getRootChildren(); // Returns a list of all root nodes
+ *   $model->getRootChildren(); // Returns a list of all root nodes, with ->children eager loaded.
  *   $model->getParent(); // The direct parent node.
  *   $model->getParents(); // Returns all parents up the tree.
  *   $model->getParentsAndSelf(); // Returns all parents up the tree and self.
@@ -39,7 +39,7 @@ use Illuminate\Database\Eloquent\Collection;
  *   $model->getSiblings(); // Return all siblings (parent's children).
  *   $model->getSiblingsAndSelf(); // Return all siblings and self.
  *   $model->getLeaves(); // Returns all final nodes without children.
- *   $model->getLevel(); // Returns the level (indentation) of a current node
+ *   $model->getDepth(); // Returns the depth of a current node
  *
  */
 
@@ -432,7 +432,7 @@ class NestedSetModel extends ModelBehavior
 
     /**
      * Returns all nodes and children.
-     * @return \Model
+     * @return Illuminate\Database\Eloquent\Collection
      */
     public function getAll($columns = ['*'])
     {
@@ -469,7 +469,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getRootChildren()
     {
-        $this->model->whereNull($this->getParentColumnName())->get();
+        return $this->newNestedSetQuery()->getNested();
     }
 
     /**
@@ -736,7 +736,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function scopeGetNested($query)
     {
-        $results = $query->get()->all();
+        $results = $query->get();
         $collection = $this->makeHierarchy($results);
 
         return new Collection($collection);
@@ -750,6 +750,9 @@ class NestedSetModel extends ModelBehavior
      */
     public function makeHierarchy(&$results)
     {
+        if ($results instanceof Collection)
+            $results = $results->all();
+
         $collection = [];
         if (is_array($results)) {
             while(list($index, $result) = each($results)) {
