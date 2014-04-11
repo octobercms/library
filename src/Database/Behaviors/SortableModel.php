@@ -9,11 +9,11 @@ use October\Rain\Database\ModelBehavior;
  * Usage:
  *
  * Model table must have sort_order table column.
- * In the model class definition: 
+ * In the model class definition:
  *
  *   public $implement = ['October.Rain.Database.Behaviors.SortableModel'];
  *
- * To set orders: 
+ * To set orders:
  *
  *   $obj->setSortableOrder($recordIds, $recordOrders);
  *

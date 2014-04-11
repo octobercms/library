@@ -39,7 +39,7 @@
  *
  *       // Disable redirects
  *       $http->noRedirect();
- * *
+ *
  *       // Check host SSL certificate
  *       $http->verifySSL();
  *
