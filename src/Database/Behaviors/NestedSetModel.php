@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\Collection;
  * 
  *   $model->getAll(); // Returns everything in correct order
  *   $model->getRoot(); // Returns the highest parent of a node.
+ *   $model->getAllRoot(); // Returns all root nodes, without eager loading
  *   $model->getRootChildren(); // Returns a list of all root nodes, with ->children eager loaded.
  *   $model->getParent(); // The direct parent node.
  *   $model->getParents(); // Returns all parents up the tree.
@@ -464,7 +465,19 @@ class NestedSetModel extends ModelBehavior
     }
 
     /**
-     * Returns a list of all root nodes
+     * Returns a list of all root nodes, without eager loading
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public function getAllRoot()
+    {
+        return $this->newNestedSetQuery()
+            ->whereNull($this->getParentColumnName())
+            ->get();
+    }
+
+
+    /**
+     * Returns a list of all root nodes, with children eager loaded.
      * @return Illuminate\Database\Eloquent\Collection
      */
     public function getRootChildren()
