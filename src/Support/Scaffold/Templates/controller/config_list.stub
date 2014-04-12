@@ -6,22 +6,22 @@
 list: @/plugins/{{lower_author}}/{{lower_plugin}}/models/{{lower_model}}/columns.yaml
 
 # Model Class name
-model-class: {{studly_author}}\{{studly_plugin}}\Models\{{studly_model}}
+modelClass: {{studly_author}}\{{studly_plugin}}\Models\{{studly_model}}
 
 # List Title
 title: Manage {{plural_name}}
 
 # Link URL for each record
-record-url: {{lower_author}}/{{lower_plugin}}/{{lower_name}}/update/:id
+recordUrl: {{lower_author}}/{{lower_plugin}}/{{lower_name}}/update/:id
 
 # Message to display if the list is empty
-no-records-message: backend::lang.list.no_records
+noRecordsMessage: backend::lang.list.no_records
 
 # Records to display per page
-records-per-page: 20
+recordsPerPage: 20
 
 # Display checkboxes next to each record
-show-checkboxes: false
+showCheckboxes: false
 
 # Toolbar widget configuration
 toolbar:
