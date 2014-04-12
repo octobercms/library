@@ -472,7 +472,8 @@ class NestedSetModel extends ModelBehavior
     {
         return $this->newNestedSetQuery()
             ->whereNull($this->getParentColumnName())
-            ->get();
+            ->get()
+        ;
     }
 
 
