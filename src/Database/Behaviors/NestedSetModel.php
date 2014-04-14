@@ -448,7 +448,10 @@ class NestedSetModel extends ModelBehavior
     {
         if ($this->model->exists) {
             return $this->parents(true)
-                ->whereNull($this->getParentColumnName())
+                ->where(function($query){
+                    $query->whereNull($this->getParentColumnName());
+                    $query->orWhere($this->getParentColumnName(), 0);
+                })
                 ->first()
             ;
         }
@@ -471,7 +474,10 @@ class NestedSetModel extends ModelBehavior
     public function getAllRoot()
     {
         return $this->newNestedSetQuery()
-            ->whereNull($this->getParentColumnName())
+            ->where(function($query){
+                $query->whereNull($this->getParentColumnName());
+                $query->orWhere($this->getParentColumnName(), 0);
+            })
             ->get()
         ;
     }
