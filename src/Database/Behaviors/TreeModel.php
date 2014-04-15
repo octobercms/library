@@ -97,6 +97,15 @@ class TreeModel extends ModelBehavior
     }
 
     /**
+     * Returns number of all children below it.
+     * @return int
+     */
+    public function getChildCount()
+    {
+        return count($this->getAllChildren());
+    }
+
+    /**
      * Returns a list of root records.
      * @param  string $orderBy Specifies a database column name to sort the items by.
      * @return Illuminate\Database\Eloquent\Collection
@@ -142,7 +151,7 @@ class TreeModel extends ModelBehavior
      * @param  string  $orderBy
      * @return string
      */
-    public function getPath($separator = " > ", $includeSelf = true, $orderBy = 'name')
+    public function getPath($separator = ' > ', $includeSelf = true, $orderBy = 'name')
     {
         $parents = $this->getParents($includeSelf, $orderBy);
         $parents = array_reverse($parents);
@@ -166,7 +175,7 @@ class TreeModel extends ModelBehavior
 
         $cacheKey = $this->getCacheKey($orderBy);
 
-        $parentKey = $this->parentColumn;
+        $parentKey = $this->getParentColumnName();
         if (!$this->model->$parentKey)
             return null;
 
@@ -206,6 +215,41 @@ class TreeModel extends ModelBehavior
         return $collection;
     }
 
+    //
+    // Column getters
+    //
+
+    /**
+     * Get parent column name.
+     * @return string
+     */
+    public function getParentColumnName()
+    {
+        return $this->parentColumn;
+    }
+
+    /**
+     * Get fully qualified parent column name.
+     * @return string
+     */
+    public function getQualifiedParentColumnName()
+    {
+        return $this->model->getTable(). '.' .$this->getParentColumnName();
+    }
+
+    /**
+     * Get value of the model parent_id column.
+     * @return int
+     */
+    public function getParentId()
+    {
+        return $this->model->getAttribute($this->getParentColumnName());
+    }
+
+    //
+    // Cache
+    //
+
     /**
      * Caches all the records needed for viewing parent/child relationships.
      * @param  string $orderBy Specifies a database column name to sort the items by.
@@ -216,18 +260,18 @@ class TreeModel extends ModelBehavior
         $className = $this->modelClass;
         $cacheKey = $this->getCacheKey($orderBy);
 
-        $model = clone $this->model;
+        $query = $this->model->newQuery();
 
-        $model->orderBy($orderBy);
+        $query = $query->orderBy($orderBy);
 
-        if ($model->treeModelSqlFilter)
-            $model->whereRaw($model->treeModelSqlFilter);
+        if ($this->model->treeModelSqlFilter)
+            $query = $query->whereRaw($this->model->treeModelSqlFilter);
 
-        $records = $model->get();
+        $records = $query->get();
         $objectCache = [];
         $parentCache = [];
 
-        $parentKey = $this->parentColumn;
+        $parentKey = $this->getParentColumnName();
         foreach ($records as $record) {
             $parentId = $record->$parentKey !== null ? $record->$parentKey : -1;
 

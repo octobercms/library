@@ -24,23 +24,30 @@ use Illuminate\Database\Eloquent\Collection;
  *   public $nestedSetModelRightColumn = 'my_right_column';
  *   public $nestedSetModelDepthColumn = 'my_depth_column';
  *
- * Access methods:
- * 
- *   $model->getAll(); // Returns everything in correct order
+ * General access methods:
+ *
  *   $model->getRoot(); // Returns the highest parent of a node.
- *   $model->getAllRoot(); // Returns all root nodes, without eager loading
- *   $model->getRootChildren(); // Returns a list of all root nodes, with ->children eager loaded.
  *   $model->getParent(); // The direct parent node.
  *   $model->getParents(); // Returns all parents up the tree.
  *   $model->getParentsAndSelf(); // Returns all parents up the tree and self.
- *   $model->getChildren(); // Returns direct child nodes, with ->children eager loaded.
- *   $model->children; // Set of all direct child nodes, without eager loading.
- *   $model->getAllChildren(); // Returns all children down the tree.
- *   $model->getAllChildrenAndSelf(); // Returns all children and self.
+ *   $model->getChildren(); // Set of all direct child nodes.
  *   $model->getSiblings(); // Return all siblings (parent's children).
  *   $model->getSiblingsAndSelf(); // Return all siblings and self.
  *   $model->getLeaves(); // Returns all final nodes without children.
- *   $model->getDepth(); // Returns the depth of a current node
+ *   $model->getDepth(); // Returns the depth of a current node.
+ *   $model->getChildCount(); // Returns number of all children.
+ *
+ * Flat result access methods:
+ *
+ *   $model->getAll(); // Returns everything in correct order.
+ *   $model->getAllRoot(); // Returns all root nodes.
+ *   $model->getAllChildren(); // Returns all children down the tree.
+ *   $model->getAllChildrenAndSelf(); // Returns all children and self.
+ * 
+ * Eager loaded access methods:
+ *
+ *   $model->getEagerRoot(); // Returns a list of all root nodes, with ->children eager loaded.
+ *   $model->getEagerChildren(); // Returns direct child nodes, with ->children eager loaded.
  *
  */
 
@@ -482,12 +489,11 @@ class NestedSetModel extends ModelBehavior
         ;
     }
 
-
     /**
      * Returns a list of all root nodes, with children eager loaded.
      * @return Illuminate\Database\Eloquent\Collection
      */
-    public function getRootChildren()
+    public function getEagerRoot()
     {
         return $this->newNestedSetQuery()->getNested();
     }
@@ -520,12 +526,21 @@ class NestedSetModel extends ModelBehavior
     }
 
     /**
-     * Returns direct child nodes, with ->children eager loaded.
+     * Returns direct child nodes.
      * @return Illuminate\Database\Eloquent\Collection
      */
     public function getChildren()
     {
-        return $this->model->children()->getNested();
+        return $this->model->children;
+    }
+
+    /**
+     * Returns direct child nodes, with ->children eager loaded.
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public function getEagerChildren()
+    {
+        return $this->model->allChildren()->getNested();
     }
 
     /**
@@ -584,6 +599,15 @@ class NestedSetModel extends ModelBehavior
             return 0;
 
         return $this->parents()->count();
+    }
+
+    /**
+     * Returns number of all children below it.
+     * @return int
+     */
+    public function getChildCount()
+    {
+        return ($this->getRight() - $this->getLeft() - 1) / 2;
     }
 
     //
