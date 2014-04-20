@@ -25,12 +25,22 @@ class Builder extends BuilderModel
                 unset($relations[$index]);
         }
 
+        $selectTables = [];
         $this->with($relations);
 
         foreach ($relations as $relation) {
             $relationObj = $this->model->$relation();
             $relationObj->joinWithQuery($this);
         }
+
+        /*
+         * Adds the final selection of primary model table and removes duplicates
+         */
+        $selectTables[] = $this->model->getTable().'.*';
+        if (count($this->query->columns))
+            $this->query->columns = array_diff($this->query->columns, $selectTables);
+
+        $this->addSelect($selectTables);
 
         return $this;
     }
