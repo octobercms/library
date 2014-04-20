@@ -82,7 +82,12 @@ class Model extends EloquentModel
     /**
      * @var array List of attributes to automatically generate unique URL names (slugs) for.
      */
-    protected $sluggable = [];
+    protected $slugs = [];
+
+    /**
+     * @var array List of datetime attributes to convert to an instance of Carbon/DateTime objects.
+     */
+    protected $dates = [];
 
     /**
      * @var array List of original attribute values before they were hashed.
@@ -1003,7 +1008,7 @@ class Model extends EloquentModel
         // Remove any purge attributes from the data set
         $this->purgeAttributes();
 
-        // Set sluggable attributes on new records
+        // Set slugged attributes on new records
         if (!$this->exists)
             $this->slugAttributes();
 
@@ -1377,28 +1382,28 @@ class Model extends EloquentModel
     }
 
     //
-    // Sluggable
+    // Slugs
     //
 
     /**
-     * Adds sluggable attributes to the dataset, used before saving.
+     * Adds slug attributes to the dataset, used before saving.
      * @return void
      */
     public function slugAttributes()
     {
-        foreach ($this->sluggable as $slugAttribute => $sourceAttributes)
-            $this->setSluggableValue($slugAttribute, $sourceAttributes);
+        foreach ($this->slugs as $slugAttribute => $sourceAttributes)
+            $this->setSluggedValue($slugAttribute, $sourceAttributes);
     }
 
     /**
-     * Sets a single sluggable attribute value.
+     * Sets a single slug attribute value.
      * @param string $slugAttribute Attribute to populate with the slug.
      * @param mixed $sourceAttributes Attribute(s) to generate the slug from.
      * Supports dotted notation for relations.
      * @param int $maxLength Maximum length for the slug not including the counter.
      * @return string The generated value.
      */
-    public function setSluggableValue($slugAttribute, $sourceAttributes, $maxLength = 240)
+    public function setSluggedValue($slugAttribute, $sourceAttributes, $maxLength = 240)
     {
         if (isset($this->{$slugAttribute}))
             return;
