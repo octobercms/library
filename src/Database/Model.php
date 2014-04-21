@@ -933,7 +933,7 @@ class Model extends EloquentModel
             /*
              * Trim empty rules
              */
-            if (trim($ruleParts) == '') {
+            if (is_string($ruleParts) && trim($ruleParts) == '') {
                 unset($rules[$field]);
                 continue;
             }
