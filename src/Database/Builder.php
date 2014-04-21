@@ -14,9 +14,9 @@ class Builder extends BuilderModel
 {
 
     /**
-     * Eager loads relationships and joins them to a query
+     * Joins relationships to a query and optionally eager loads them
      */
-    public function joinWith($relations)
+    public function joinWith($relations, $eagerLoad = true)
     {
         if (is_string($relations)) $relations = func_get_args();
 
@@ -26,7 +26,9 @@ class Builder extends BuilderModel
         }
 
         $selectTables = [];
-        $this->with($relations);
+
+        if ($eagerLoad)
+            $this->with($relations);
 
         foreach ($relations as $relation) {
             $relationObj = $this->model->$relation();
