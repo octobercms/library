@@ -18,8 +18,8 @@ use October\Rain\Database\Relations\hasManyThrough;
 use October\Rain\Database\ModelException;
 use October\Rain\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Exception;
 use InvalidArgumentException;
-
 /**
  * Active Record base class.
  *
@@ -993,9 +993,11 @@ class Model extends EloquentModel
         if ($data !== null)
             $this->fill($data);
 
-        // If forcing the save event, the beforeValidate/afterValidate
-        // events should still fire for consistency. So validate an
-        // empty set of rules and messages.
+        /*
+         * If forcing the save event, the beforeValidate/afterValidate
+         * events should still fire for consistency. So validate an
+         * empty set of rules and messages.
+         */
         $force = array_get($options, 'force', false);
         if ($force)
             $valid = $this->validate([], []);
@@ -1011,6 +1013,14 @@ class Model extends EloquentModel
         // Set slugged attributes on new records
         if (!$this->exists)
             $this->slugAttributes();
+
+        /*
+         * Validate attributes before trying to save
+         */
+        foreach ($this->attributes as $attribute => $value) {
+            if (is_array($value))
+                throw new Exception(sprintf('Unexpected type of array, should attribute "%s" be jsonable?', $attribute));
+        }
 
         // Save the record
         $result = parent::save($options);
@@ -1185,7 +1195,6 @@ class Model extends EloquentModel
 
         return $attr;
     }
-
 
     /**
      * Get a plain attribute (not a relationship).
