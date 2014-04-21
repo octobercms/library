@@ -54,14 +54,17 @@ class FormBuilder extends FormBuilderBase
      */
     public function open(array $options = [])
     {
+        $method = strtoupper(array_get($options, 'method', 'post'));
         $request = array_get($options, 'request');
         $model = array_get($options, 'model');
 
         if ($model)
             $this->model = $model;
 
-        $append = $this->sessionKey();
-        $append .= $this->requestHandler($request);
+        $append = $this->requestHandler($request);
+
+        if ($method != 'GET')
+            $append .= $this->sessionKey();
 
         return parent::open($options) . $append;
     }
