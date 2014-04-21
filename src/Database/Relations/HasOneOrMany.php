@@ -42,7 +42,12 @@ trait HasOneOrMany
     {
         $query = $query ?: $this->query;
 
-        // @todo Join everything that has my foreign key in the other table
+        /*
+         * Join the 'other' relation table
+         */
+        $otherTable = $this->related->getTable();
+        $otherKey = $this->parent->getTable().'.'.$this->related->getKeyName();
+        $query->leftJoin($otherTable, $this->foreignKey, '=', $otherKey);
 
         return $this;
     }
