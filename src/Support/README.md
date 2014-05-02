@@ -51,23 +51,6 @@ Removes HTML from a string.
 echo Str::stripHtml('<b>Fatal Error!</b> Oh noes!');
 ```
 
-### FacadeLoader
-
-Allows "hot-swappable" facades, since `class_alias` cannot be changed dynamically. Facades loaded here can be changed on the fly.
-
-```php
-$facade = FacadeLoader::instance();
-$facade->facade('Str', 'October\Rain\Support\Facades\Str');
-$facade->facade('File', 'October\Rain\Support\Facades\File');
-[...]
-
-$str = new Str;
-echo get_class($str); // Returns October\Rain\Support\Facades\Str
-
-$facade->facade('Str', 'Some\Other\Facade\Str');
-echo get_class($str); // Returns Some\Other\Facade\Str
-```
-
 ### Event emitter
 
 Adds event related features to any class.

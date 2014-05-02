@@ -8,78 +8,72 @@ The originating object is always passed as the first parameter to the Behavior's
 
 **Behavior / Extension class**
 
-```php
-<?php namespace MyNamespace\Behaviors;
+    <?php namespace MyNamespace\Behaviors;
 
-class NinjaTurtle extends \October\Rain\Extension\ExtensionBase
-{
-    /**
-     * @var Reference to the extended object.
-     */
-    protected $parentObj;
-
-    /**
-     * Constructor
-     */
-    public function __construct($object)
+    class NinjaTurtle extends \October\Rain\Extension\ExtensionBase
     {
-        $this->parentObj = $object;
-    }
+        /**
+         * @var Reference to the extended object.
+         */
+        protected $parentObj;
 
-    public function doSomethingCool()
-    {
-        return "Cowabunga!!!";
+        /**
+         * Constructor
+         */
+        public function __construct($object)
+        {
+            $this->parentObj = $object;
+        }
+
+        public function doSomethingCool()
+        {
+            return "Cowabunga!!!";
+        }
     }
-}
-```
 
 **Using the extension**
 
 This `PizzaShop` class will implement the `NinjaTurtle` behavior and then call its `doSomethingCool` method.
 
-```php
-<?php namespace MyNamespace;
+    <?php namespace MyNamespace;
 
-class PizzaShop extends \October\Rain\Extension\ExtendableBase
-{
-
-    /**
-     * Implement the NinjaTurtle behavior
-     */
-    public $implement = [
-        'MyNamespace.Behaviors.NinjaTurtle'
-    ];
-
-    /**
-     * Main constructor does not conflict with Behavior constructor
-     */
-    public function __construct()
+    class PizzaShop extends \October\Rain\Extension\ExtendableBase
     {
-        // Initializes the behaviors
-        parent::__construct();
 
-        // Prints "Cowabunga!!!"
-        echo $this->doSomethingCool();
+        /**
+         * Implement the NinjaTurtle behavior
+         */
+        public $implement = [
+            'MyNamespace.Behaviors.NinjaTurtle'
+        ];
+
+        /**
+         * Main constructor does not conflict with Behavior constructor
+         */
+        public function __construct()
+        {
+            // Initializes the behaviors
+            parent::__construct();
+
+            // Prints "Cowabunga!!!"
+            echo $this->doSomethingCool();
+        }
     }
-}
-
-```
-
-**Make a class extensible without extending**
-
-In some cases you may not wish to extend the `ExtensionBase` or `ExtendableBase` classes, due to other needs. So you can use the traits instead, although obviously the behavior methods will not be available to the parent class.
-
-See `ExtensionTrait` and `ExtendableTrait`.
 
 ### Constructor extension
 
 Any class that uses the `ExtendableBase` or `ExtendableTrait` can have its constructor extended. For example:
 
-```php
-/**
- * Extend the Pizza Shop to include the Master Splinter behavior too
- */
-PizzaShop::extend(function($pizza){
-    $pizza->implement[] = 'MyNamespace.Behaviors.MasterSplinter';
-});
-```
+    /**
+     * Extend the Pizza Shop to include the Master Splinter behavior too
+     */
+    PizzaShop::extend(function($pizza){
+        $pizza->implement[] = 'MyNamespace.Behaviors.MasterSplinter';
+    });
+
+
+### Using Traits instead of base classes
+
+In some cases you may not wish to extend the `ExtensionBase` or `ExtendableBase` classes, due to other needs. So you can use the traits instead, although obviously the behavior methods will not be available to the parent class.
+
+See `ExtensionTrait` and `ExtendableTrait`.
