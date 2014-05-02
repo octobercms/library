@@ -59,16 +59,18 @@ class Builder extends BuilderModel
             $columns = [$columns];
 
         $words = explode(' ', $term);
-        foreach ($columns as $field) {
-            $this->orWhere(function($query) use ($field, $words) {
-                foreach ($words as $word) {
-                    if (!strlen($word)) continue;
-                    $fieldSql = $this->query->raw(sprintf("lower(%s)", $field));
-                    $wordSql = '%'.trim(mb_strtolower($word)).'%';
-                    $query->where($fieldSql, 'LIKE', $wordSql);
-                }
-            });
-        }
+        $this->where(function($query) use ($columns, $words) {
+            foreach ($columns as $field) {
+                $query->orWhere(function($query) use ($field, $words) {
+                    foreach ($words as $word) {
+                        if (!strlen($word)) continue;
+                        $fieldSql = $this->query->raw(sprintf("lower(%s)", $field));
+                        $wordSql = '%'.trim(mb_strtolower($word)).'%';
+                        $query->where($fieldSql, 'LIKE', $wordSql);
+                    }
+                });
+            }
+        });
 
         return $this;
     }
