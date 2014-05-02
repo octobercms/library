@@ -14,6 +14,24 @@ class Builder extends BuilderModel
 {
 
     /**
+     * Add a basic where clause to the query, @ symbols in columns replaced with
+     * the model table name.
+     * @param  string  $column
+     * @param  string  $operator
+     * @param  mixed   $value
+     * @param  string  $boolean
+     * @return \Illuminate\Database\Eloquent\Builder|static
+     */
+    public function where($column, $operator = null, $value = null, $boolean = 'and')
+    {
+        if (is_string($column) && strpos($column, '@') !== false) {
+            $column = str_replace('@', $this->model->getTable().'.', $column);
+        }
+
+        return parent::where($column, $operator, $value, $boolean);
+    }
+
+    /**
      * Joins relationships to a query and optionally eager loads them
      */
     public function joinWith($relations, $eagerLoad = true)
