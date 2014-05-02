@@ -48,17 +48,17 @@ class Builder extends BuilderModel
     }
 
     /**
-     * Perform a search query
-     * @param  string $query  Search query
+     * Perform a search on this query for term found in columns
+     * @param  string $term  Search query
      * @param  array $columns Table columns to search
      * @return self
      */
-    public function searchWhere($query, $columns = [])
+    public function searchWhere($term, $columns = [])
     {
         if (!is_array($columns))
             $columns = [$columns];
 
-        $words = explode(' ', $query);
+        $words = explode(' ', $term);
         foreach ($columns as $field) {
             $this->orWhere(function($query) use ($field, $words) {
                 foreach ($words as $word) {
