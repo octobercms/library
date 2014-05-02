@@ -33,7 +33,7 @@ Used as a cURL wrapper for the HTTP protocol.
     echo $result->code;                    // Outputs: 200
     echo $result->headers['Content-Type']; // Outputs: text/html; charset=UTF-8
 
-** Advanced usage **
+**Advanced usage**
 
     Http::post('http://octobercms.com', function($http){
 
