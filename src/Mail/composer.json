@@ -1,0 +1,30 @@
+{
+    "name": "october/mail",
+    "description": "Custom Mail service",
+    "homepage": "http://octobercms.com",
+    "keywords": ["october cms", "october", "mail"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alexey Bobkov",
+            "email": "aleksey.bobkov@gmail.com"
+        },
+        {
+            "name": "Samuel Georges",
+            "email": "daftspunky@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "october/support": "1.*",
+        "october/filesystem": "1.*",
+        "illuminate/mail": "4.1.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "October\\Rain\\Mail": ""
+        }
+    },
+    "target-dir": "October/Rain/Mail",
+    "minimum-stability": "dev"
+}

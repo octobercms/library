@@ -28,7 +28,7 @@ class Mailer extends MailerBase
             $message->setBody($result['html'], 'text/html');
 
             if ($result['text'])
-                $plain = $result['text'];
+                $message->addPart($result['text'], 'text/plain');
 
             if ($subject = array_get($result['settings'], 'subject'))
                 $message->subject($subject);
