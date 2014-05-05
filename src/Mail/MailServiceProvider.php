@@ -18,6 +18,8 @@ class MailServiceProvider extends MailServiceProviderBase
      */
     public function register()
     {
+        $this->app['events']->fire('mailer.register');
+
         $this->app->bindShared('mailer', function($app) {
 
             $this->registerSwiftMailer();
