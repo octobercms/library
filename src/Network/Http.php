@@ -218,6 +218,11 @@ class Http
      */
     public function send()
     {
+        if (!function_exists('curl_init')) {
+            echo 'cURL PHP extension required.'.PHP_EOL;
+            exit(1);
+        }
+
         /*
          * Create and execute the cURL Resource
          */

@@ -20,6 +20,7 @@ use October\Rain\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Exception;
 use InvalidArgumentException;
+
 /**
  * Active Record base class.
  *
