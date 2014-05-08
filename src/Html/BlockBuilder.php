@@ -12,20 +12,43 @@ class BlockBuilder
     private $blocks = [];
 
     /**
+     * Helper for startBlock
+     * @param string $name Specifies the block name.
+     * @return void
+     */
+    public function put($name)
+    {
+        $this->startBlock($name);
+    }
+
+    /**
      * Begins the layout block.
      * @param string $name Specifies the block name.
      */
-    public function put($name)
+    public function startBlock($name)
     {
         array_push($this->blockStack, $name);
         ob_start();
     }
-    
+
+    /**
+     * Helper for endBlock and also clears the output buffer.
+     * @param boolean $append Indicates that the new content should be appended to the existing block content.
+     * @return void
+     */
+    public function endPut($append = false)
+    {
+        $this->endBlock($append);
+
+        if (!count($this->blockStack) && (ob_get_length() > 0))
+            ob_end_clean();
+    }
+
     /**
      * Closes the layout block.
      * @param boolean $append Indicates that the new content should be appended to the existing block content.
      */
-    public function endPut($append = false)
+    public function endBlock($append = false)
     {
         if (!count($this->blockStack))
             throw new \Exception('Invalid block nesting');
@@ -35,12 +58,9 @@ class BlockBuilder
 
         if (!isset($this->blocks[$name]))
             $this->blocks[$name] = $contents;
-        else 
+        else
             if ($append)
                 $this->blocks[$name] .= $contents;
-
-        // if (!count($this->blockStack) && (ob_get_length() > 0))
-        //     ob_end_clean();
     }
 
     /**
