@@ -15,3 +15,13 @@
 ./git-subsplit.sh publish --no-tags src/Config:git@github.com:octoberrain/config.git
 ./git-subsplit.sh publish --no-tags src/Auth:git@github.com:octoberrain/auth.git
 rm -rf .subsplit/
+
+#
+# This script will split up the Core modules to its own github repo
+#
+
+./git-subsplit.sh init git@github.com:octobercms/october.git
+./git-subsplit.sh publish --no-tags modules/backend:git@github.com:octoberrain/backend.git
+./git-subsplit.sh publish --no-tags modules/cms:git@github.com:octoberrain/cms.git
+./git-subsplit.sh publish --no-tags modules/system:git@github.com:octoberrain/system.git
+rm -rf .subsplit/
