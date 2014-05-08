@@ -2,7 +2,7 @@
 
 use Illuminate\Support\ServiceProvider;
 
-class HtmlServiceProvider extends ServiceProvider 
+class HtmlServiceProvider extends ServiceProvider
 {
 
     /**
@@ -19,6 +19,8 @@ class HtmlServiceProvider extends ServiceProvider
         $this->registerHtmlBuilder();
 
         $this->registerFormBuilder();
+
+        $this->registerBlockBuilder();
     }
 
     /**
@@ -45,12 +47,23 @@ class HtmlServiceProvider extends ServiceProvider
     }
 
     /**
+     * Register the Block builder instance.
+     * @return void
+     */
+    protected function registerBlockBuilder()
+    {
+        $this->app->bindShared('block', function($app) {
+            return new BlockBuilder;
+        });
+    }
+
+    /**
      * Get the services provided by the provider.
      * @return array
      */
     public function provides()
     {
-        return array('html', 'form');
+        return array('html', 'form', 'block');
     }
 
 }
