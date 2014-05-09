@@ -60,6 +60,11 @@ class Resizer
      */
     function __construct($file)
     {
+        if (!extension_loaded('gd')) {
+            echo 'GD PHP library required.'.PHP_EOL;
+            exit(1);
+        }
+
         if (is_string($file))
             $file = new FileObj($file);
 
