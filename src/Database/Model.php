@@ -506,7 +506,7 @@ class Model extends EloquentModel
                 break;
 
             case 'belongsToMany':
-                $relation = $this->validateRelationArgs($relationName, ['table', 'primaryKey', 'foreignKey', 'pivotData']);
+                $relation = $this->validateRelationArgs($relationName, ['table', 'primaryKey', 'foreignKey', 'pivot', 'timestamps']);
                 $relationObj = $this->$relationType($relation[0], $relation['table'], $relation['primaryKey'], $relation['foreignKey'], $relationName);
                 break;
 
@@ -548,7 +548,7 @@ class Model extends EloquentModel
         $relation = $this->getRelationDefinition($relationName);
 
         // Query filter arguments
-        $filters = ['order', 'pivotData'];
+        $filters = ['order', 'pivot', 'timestamps'];
 
         foreach (array_merge($optional, $filters) as $key) {
             if (!array_key_exists($key, $relation)) {
@@ -580,8 +580,15 @@ class Model extends EloquentModel
         /*
          * Pivot data (belongsToMany)
          */
-        if ($pivotData = $args['pivotData']) {
+        if ($pivotData = $args['pivot']) {
             $relation->withPivot($pivotData);
+        }
+
+        /*
+         * Pivot timestamps (belongsToMany)
+         */
+        if ($args['timestamps']) {
+            $relation->withTimestamps();
         }
 
         /*
