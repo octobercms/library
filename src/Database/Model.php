@@ -818,8 +818,8 @@ class Model extends EloquentModel
             case 'belongsToMany':
                 // Nulling the relationship
                 if (!$value) {
-                    if (!$this->exists) break;
-                    $relationObj->detach();
+                    if ($this->exists) $relationObj->detach();
+                    break;
                 }
 
                 if (!is_array($value)) $value = [$value];
