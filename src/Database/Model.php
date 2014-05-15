@@ -816,6 +816,12 @@ class Model extends EloquentModel
         switch ($relationType) {
 
             case 'belongsToMany':
+                // Nulling the relationship
+                if (!$value) {
+                    if (!$this->exists) break;
+                    $relationObj->detach();
+                }
+
                 if (!is_array($value)) $value = [$value];
 
                 // Do not sync until the model is saved
