@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database\Relations;
 
 use Illuminate\Support\Facades\Db;
-use October\Rain\Database\Model;
+use Illuminate\Database\Eloquent\Model;
 
 trait MorphOneOrMany
 {
