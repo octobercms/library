@@ -280,7 +280,7 @@ class Model extends EloquentModel
                 if ($radical != 'fetch') $method .= 'e';
 
                 self::$eventMethod(function($model) use ($self, $method) {
-                    $model->trigger('model.' . $method);
+                    $model->fireEvent('model.' . $method);
 
                     if ($model->methodExists($method))
                         return $model->$method();
@@ -825,9 +825,9 @@ class Model extends EloquentModel
                 if (!is_array($value)) $value = [$value];
 
                 // Do not sync until the model is saved
-                $this->bindOnce('model.afterSave', function() use ($relationObj, $value){
+                $this->bindEvent('model.afterSave', function() use ($relationObj, $value){
                     $relationObj->sync($value);
-                });
+                }, true);
                 break;
 
             case 'belongsTo':
@@ -836,9 +836,9 @@ class Model extends EloquentModel
                      * Non existent model, use a single serve event to associate it again when ready
                      */
                     if (!$value->exists) {
-                        $value->bindOnce('model.afterSave', function() use ($relationObj, $value){
+                        $value->bindEvent('model.afterSave', function() use ($relationObj, $value){
                             $relationObj->associate($value);
-                        });
+                        }, true);
                     }
 
                     $relationObj->associate($value);
@@ -849,9 +849,9 @@ class Model extends EloquentModel
 
             case 'attachMany':
                 if ($value instanceof UploadedFile) {
-                    $this->bindOnce('model.afterSave', function() use ($relationObj, $value){
+                    $this->bindEvent('model.afterSave', function() use ($relationObj, $value){
                         $relationObj->create(['data' => $value]);
-                    });
+                    }, true);
                 }
                 elseif (is_array($value)) {
                     $files = [];
@@ -859,11 +859,11 @@ class Model extends EloquentModel
                         if ($_value instanceof UploadedFile)
                             $files[] = $_value;
                     }
-                    $this->bindOnce('model.afterSave', function() use ($relationObj, $files){
+                    $this->bindEvent('model.afterSave', function() use ($relationObj, $files){
                         foreach ($files as $file) {
                             $relationObj->create(['data' => $file]);
                         }
-                    });
+                    }, true);
                 }
                 break;
 
@@ -872,9 +872,9 @@ class Model extends EloquentModel
                     $value = reset($value);
 
                 if ($value instanceof UploadedFile) {
-                    $this->bindOnce('model.afterSave', function() use ($relationObj, $value){
+                    $this->bindEvent('model.afterSave', function() use ($relationObj, $value){
                         $relationObj->create(['data' => $value]);
-                    });
+                    }, true);
                 }
                 break;
         }
@@ -1191,8 +1191,8 @@ class Model extends EloquentModel
             return $this->getAttributeDotted($key);
 
         // Before Event
-        if (($attr = $this->trigger('model.beforeGetAttribute', $key)) !== null)
-            return is_array($attr) ? reset($attr) : $attr;
+        if ($attr = $this->fireEvent('model.beforeGetAttribute', [$key], true))
+            return $attr;
 
         $attr = parent::getAttribute($key);
 
@@ -1204,8 +1204,8 @@ class Model extends EloquentModel
         }
 
         // After Event
-        if (($_attr = $this->trigger('model.afterGetAttribute', $key, $attr)) !== null)
-            return is_array($_attr) ? reset($_attr) : $_attr;
+        if ($_attr = $this->fireEvent('model.afterGetAttribute', [$key, $attr], true))
+            return $_attr;
 
         return $attr;
     }
@@ -1270,7 +1270,7 @@ class Model extends EloquentModel
     public function setAttribute($key, $value)
     {
         // Before Event
-        if ($this->trigger('model.beforeSetAttribute', $key, $value) === false)
+        if ($this->fireEvent('model.beforeSetAttribute', [$key, $value], true) === false)
             return;
 
         // Hash required fields when necessary
@@ -1296,7 +1296,7 @@ class Model extends EloquentModel
         }
 
         // After Event
-        $this->trigger('model.afterSetAttribute', $key, $value);
+        $this->fireEvent('model.afterSetAttribute', [$key, $value]);
 
         return $result;
     }

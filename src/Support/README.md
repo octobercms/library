@@ -68,7 +68,7 @@ class MyClass
 
 ```php
 $myObject = new MyClass;
-$myObject->bind('cook.bacon', function(){
+$myObject->bindEvent('cook.bacon', function(){
     echo 'Bacon is ready';
 })
 ```
@@ -77,27 +77,27 @@ $myObject->bind('cook.bacon', function(){
 
 ```php
 // Outputs: Bacon is ready
-$myObject->trigger('cook.bacon');
+$myObject->fireEvent('cook.bacon');
 ```
 
 **Bind to an event only once**
 
 ```php
 $myObject = new MyClass;
-$myObject->bindOnce('cook.soup', function(){
+$myObject->bindEvent('cook.soup', function(){
     echo 'Soup is ready. Want more? NO SOUP FOR YOU!';
-})
+}, true);
 ```
 
 **Bind an event to other object method**
 
 ```php
-$myObject->bind('cook.eggs', [$anotherObject, 'methodToCookEggs']);
+$myObject->bindEvent('cook.eggs', [$anotherObject, 'methodToCookEggs']);
 ```
 
 **Unbind an event**
 
 ```php
-$myObject->unbind('cook.bacon');
-$myObject->unbind(['cook.bacon', 'cook.eggs']);
+$myObject->unbindEvent('cook.bacon');
+$myObject->unbindEvent(['cook.bacon', 'cook.eggs']);
 ```

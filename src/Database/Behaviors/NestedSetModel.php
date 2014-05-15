@@ -118,20 +118,20 @@ class NestedSetModel extends ModelBehavior
         /*
          * Bind events
          */
-        $model->bind('model.beforeCreate', function() {
+        $model->bindEvent('model.beforeCreate', function() {
             $this->setDefaultLeftAndRight();
         });
 
-        $model->bind('model.beforeSave', function() {
+        $model->bindEvent('model.beforeSave', function() {
             $this->storeNewParent();
         });
 
-        $model->bind('model.afterSave', function() {
+        $model->bindEvent('model.afterSave', function() {
             $this->moveToNewParent();
             $this->setDepth();
         });
 
-        $model->bind('model.beforeDelete', function() {
+        $model->bindEvent('model.beforeDelete', function() {
             $this->deleteDescendants();
         });
     }
