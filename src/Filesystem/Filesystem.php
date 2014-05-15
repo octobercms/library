@@ -100,7 +100,9 @@ class Filesystem extends FilesystemBase
         $directoryName = dirname($path);
         $pathLower = strtolower($path);
 
-        $files = self::glob($directoryName . '/*', GLOB_NOSORT);
+        if (!$files = self::glob($directoryName . '/*', GLOB_NOSORT))
+            return false;
+
         foreach ($files as $file) {
             if (strtolower($file) == $pathLower) {
                 return $file;
