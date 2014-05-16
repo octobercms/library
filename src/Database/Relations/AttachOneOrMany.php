@@ -6,10 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 trait AttachOneOrMany
 {
-    use DeferOneOrMany {
-        DeferOneOrMany::save as saveDefer;
-        DeferOneOrMany::create as createDefer;
-    }
+    use DeferOneOrMany;
 
     /**
      * Determines if the file should be flagged "public" or not.
@@ -76,7 +73,15 @@ trait AttachOneOrMany
 
         $model->setAttribute('field', $this->relationName);
 
-        return $this->saveDefer($model, $sessionKey);
+        if ($sessionKey === null) {
+            return parent::save($model);
+        }
+        else {
+            $this->add($model, $sessionKey);
+
+            // Save the related model and any deferred bindings it might have
+            return $model->save(null, $sessionKey) ? $model : false;
+        }
     }
 
     /**
@@ -93,7 +98,12 @@ trait AttachOneOrMany
 
         $attributes['field'] = $this->relationName;
 
-        return $this->createDefer($attributes, $sessionKey);
+        $model = parent::create($attributes);
+
+        if ($sessionKey !== null)
+            $this->add($model, $sessionKey);
+
+        return $model;
     }
 
     /**

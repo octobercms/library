@@ -22,19 +22,13 @@ trait Emitter
      * Create a new event binding.
      * @return Self
      */
-    public function bind($event, $callback)
+    public function bindEvent($event, $callback, $onceOnly = false)
     {
-        $this->emitterEventCollection[$event][] = $callback;
-        return $this;
-    }
+        if ($onceOnly)
+            $this->emitterSingleEventCollection[$event][] = $callback;
+        else
+            $this->emitterEventCollection[$event][] = $callback;
 
-    /**
-     * Create a new event binding to be fired once only.
-     * @return Self
-     */
-    public function bindOnce($event, $callback)
-    {
-        $this->emitterSingleEventCollection[$event][] = $callback;
         return $this;
     }
 
@@ -43,14 +37,14 @@ trait Emitter
      * @param string $event Event to destroy
      * @return Self
      */
-    public function unbind($event = null)
+    public function unbindEvent($event = null)
     {
         /*
          * Multiple events
          */
         if (is_array($event)) {
             foreach ($event as $_event) {
-                $this->unbind($_event);
+                $this->unbindEvent($_event);
             }
             return;
         }
@@ -71,18 +65,15 @@ trait Emitter
     }
 
     /**
-     * Emits a registered event.
-     *
-     * If all results are NULL, then NULL is returned.
-     * If one or more results is FALSE and remaining are NULL/TRUE, then FALSE is returned.
-     * If one or more results is TRUE and remaining are NULL, then TRUE is returned.
-     * Otherwise an array of results is returned for each event.
+     * Fire an event and call the listeners.
      * @param string $event Event name
-     * @return array Collection of event results
+     * @param array $params Event parameters
+     * @param boolean $halt Halt after first non-null result
+     * @return array Collection of event results / Or single result (if halted)
      */
-    public function trigger($event)
+    public function fireEvent($event, $params = [], $halt = false)
     {
-        $params = array_slice(func_get_args(), 1);
+        if (!is_array($params)) $params = [$params];
         $result = [];
 
         /*
@@ -90,8 +81,10 @@ trait Emitter
          */
         if (isset($this->emitterSingleEventCollection[$event])) {
             foreach ($this->emitterSingleEventCollection[$event] as $callback) {
-                if (($_result = call_user_func_array($callback, $params)) !== null)
-                    $result[] = $_result;
+                $response = call_user_func_array($callback, $params);
+                if (is_null($response)) continue;
+                if ($halt) return $response;
+                $result[] = $response;
             }
 
             unset($this->emitterSingleEventCollection[$event]);
@@ -102,35 +95,13 @@ trait Emitter
          */
         if (isset($this->emitterEventCollection[$event])) {
             foreach ($this->emitterEventCollection[$event] as $callback) {
-                if (($_result = call_user_func_array($callback, $params)) !== null)
-                    $result[] = $_result;
+                $response = call_user_func_array($callback, $params);
+                if (is_null($response)) continue;
+                if ($halt) return $response;
+                $result[] = $response;
             }
         }
 
-        /*
-         * Tally up results
-         */
-        $falseCount = $trueCount = $returnCount = 0;
-        foreach ($result as $_result) {
-            if (is_bool($_result) && $_result === false)
-                $falseCount++;
-            elseif (is_bool($_result) && $_result === true)
-                $trueCount++;
-            else
-                $returnCount++;
-        }
-
-        /*
-         * If a non-null, non-boolean result is found, return the whole collection
-         * Otherwise return false, then true, then null respectively.
-         */
-        if ($returnCount > 0)
-            return $result;
-        elseif ($falseCount > 0)
-            return false;
-        elseif ($trueCount > 0)
-            return true;
-        else
-            return null;
+        return $halt ? null : $result;
     }
 }
