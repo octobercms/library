@@ -102,7 +102,7 @@ class Model extends EloquentModel
 
     /**
      * Cleaner declaration of relationships.
-     * Uses a similiar approach to the relation methods used by Eloquent, but as separate properties
+     * Uses a similar approach to the relation methods used by Eloquent, but as separate properties
      * that make the class file less cluttered.
      *
      * It should be declared with keys as the relation name, and value being a mixed array.
@@ -1374,7 +1374,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Returns a collection of fields that will be hased.
+     * Returns a collection of fields that will be hashed.
      */
     public function getPurgeableAttributes()
     {
@@ -1461,7 +1461,7 @@ class Model extends EloquentModel
         $counter = 1;
         $separator = '-';
 
-        // Remove any exisiting suffixes
+        // Remove any existing suffixes
         $_value = preg_replace('/'.preg_quote($separator).'[0-9]+$/', '', trim($value));
 
         while ($this->newQuery()->where($name, $_value)->count() > 0) {
