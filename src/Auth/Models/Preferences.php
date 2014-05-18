@@ -58,9 +58,6 @@ class Preferences extends Model
      * Returns a setting value by the module (or plugin) name and setting name.
      * @param string $key Specifies the setting key value, for example 'backend:items.perpage'
      * @param mixed $default The default value to return if the setting doesn't exist in the DB.
-     * @param mixed $user An optional back-end user object.
-     * If the user is not provided the currently authenticated user will be used. If there is no
-     * an authenticated user, the exception will be thrown.
      * @return mixed Returns the setting value loaded from the database or the default value.
      */
     public function get($key, $default = null)

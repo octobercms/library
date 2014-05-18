@@ -22,9 +22,10 @@ class Translator extends IlluminateTranslator
      * @param  \Illuminate\Filesystem\Filesystem  $files
      * @return void
      */
-    public function __construct(LoaderInterface $loader, $locale, Filesystem $files)
+    public function __construct(LoaderInterface $loader, $locale, $fallbackLocale, Filesystem $files)
     {
         parent::__construct($loader, $locale);
+        parent::setFallback($fallbackLocale);
 
         $appLoader = new FileLoader($files, app_path().'/lang');
         $this->appTranslator = new IlluminateTranslator($appLoader, $locale);
