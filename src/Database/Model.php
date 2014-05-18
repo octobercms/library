@@ -4,6 +4,7 @@ use Hash;
 use Input;
 use Closure;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Facades\Validator;
 use October\Rain\Database\Relations\BelongsTo;
@@ -1064,6 +1065,23 @@ class Model extends EloquentModel
     {
         $this->sessionKey = $sessionKey;
         return $this->saveInternal($data, ['force' => true]);
+    }
+
+    /**
+     * Save the model and all of its relationships.
+     * @return bool
+     */
+    public function push($sessionKey = null)
+    {
+        if (!$this->save(null, $sessionKey)) return false;
+
+        foreach ($this->relations as $models) {
+            foreach (Collection::make($models) as $model) {
+                if (!$model->push()) return false;
+            }
+        }
+
+        return true;
     }
 
     //
