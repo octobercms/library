@@ -292,7 +292,7 @@ class Resizer
             $optimalHeight = $newHeight;
         }
 
-        // Image to be resizerd is a square
+        // Image to be resized is a square
         else {
             if ($newHeight < $newWidth) {
                 $optimalWidth = $newWidth;
