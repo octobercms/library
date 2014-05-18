@@ -21,7 +21,7 @@ class TranslationServiceProvider extends ServiceProvider
         $this->registerLoader();
 
         $this->app->bindShared('translator', function($app){
-            return new Translator($app['translation.loader'], $app['config']['app.locale'], $app['files']);
+            return new Translator($app['translation.loader'], $app['config']['app.locale'], $app['config']['app.fallback_locale'], $app['files']);
         });
     }
 
