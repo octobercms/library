@@ -1,7 +1,8 @@
 <?php namespace October\Rain\Filesystem;
 
-use ReflectionClass;
 use Illuminate\Filesystem\Filesystem as FilesystemBase;
+use ReflectionClass;
+use FilesystemIterator;
 
 /**
  * File helper
@@ -11,6 +12,17 @@ use Illuminate\Filesystem\Filesystem as FilesystemBase;
  */
 class Filesystem extends FilesystemBase
 {
+
+    /**
+     * @var string Default file permission mask as a string ("777").
+     */
+    public $filePermissions = null;
+
+    /**
+     * @var string Default folder permission mask as a string ("777").
+     */
+    public $folderPermissions = null;
+
     /**
      * Determine if the given path contains no files.
      * @param  string  $directory
@@ -31,6 +43,34 @@ class Filesystem extends FilesystemBase
 
         closedir($handle);
         return true;
+    }
+
+    /**
+     * Modify file/folder permissions recursively
+     * @param  string $path
+     * @param  octal $fileMask
+     * @param  octal $directoryMask
+     * @return void
+     */
+    public function chmodRecursive($path, $fileMask, $directoryMask = null)
+    {
+        if (!$this->isDirectory($path))
+            return @chmod($path, $fileMask);
+
+        if (!$directoryMask)
+            $directoryMask = $fileMask;
+
+        $items = new FilesystemIterator($path, FilesystemIterator::SKIP_DOTS);
+        foreach ($items as $item) {
+            if ($item->isDir()) {
+                $_path = $item->getPathname();
+                @chmod($_path, $directoryMask);
+                $this->chmodRecursive($_path, $fileMask, $directoryMask);
+            }
+            else {
+                @chmod($item->getPathname(), $fileMask);
+            }
+        }
     }
 
     /**
@@ -121,4 +161,56 @@ class Filesystem extends FilesystemBase
     {
         return str_replace('\\', '/', $path);
     }
+
+    /**
+     * Write the contents of a file.
+     * @param  string  $path
+     * @param  string  $contents
+     * @return int
+     */
+    public function put($path, $contents)
+    {
+        $result = parent::put($path, $contents);
+        if ($mask = $this->getFilePermissions()) @chmod($path, $mask);
+        return $result;
+    }
+
+    /**
+     * Create a directory.
+     * @param  string  $path
+     * @param  int     $mode
+     * @param  bool    $recursive
+     * @param  bool    $force
+     * @return bool
+     */
+    public function makeDirectory($path, $mode = 0777, $recursive = false, $force = false)
+    {
+        if ($mask = $this->getFolderPermissions())
+            $mode = $mask;
+
+        return parent::makeDirectory($path, $mode, $recursive, $force);
+    }
+
+    /**
+     * Returns the default file permission mask to use.
+     * @return string Permission mask as octal (0777) or null
+     */
+    public function getFilePermissions()
+    {
+        return $this->filePermissions
+            ? octdec($this->filePermissions)
+            : null;
+    }
+
+    /**
+     * Returns the default folder permission mask to use.
+     * @return string Permission mask as octal (0777) or null
+     */
+    public function getFolderPermissions()
+    {
+        return $this->folderPermissions
+            ? octdec($this->folderPermissions)
+            : null;
+    }
+
 }
