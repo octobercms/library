@@ -1,6 +1,6 @@
 <?php namespace October\Rain\Support;
 
-use \Michelf\MarkdownExtra as MD;
+use ParsedownExtra;
 
 /**
  * Markdown content parser
@@ -12,6 +12,6 @@ class Markdown
 {
     public static function parse($text)
     {
-        return MD::defaultTransform($text);
+        return ParsedownExtra::instance()->text($text);
     }
 }
