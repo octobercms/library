@@ -12,6 +12,8 @@ class Markdown
 {
     public static function parse($text)
     {
-        return ParsedownExtra::instance()->text($text);
+        $instance = new ParsedownExtra;
+
+        return $instance->text($text);
     }
 }
