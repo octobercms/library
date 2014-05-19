@@ -23,7 +23,6 @@
         "kriswallsmith/assetic": "1.*",
         "leafo/lessphp": "dev-master",
         "linkorb/jsmin-php": "dev-master",
-        "erusev/parsedown": "~1.0",
         "erusev/parsedown-extra": "dev-master"
     },
     "require-dev": {
