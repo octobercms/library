@@ -189,7 +189,7 @@ class NestedSetModel extends ModelBehavior
         if ($this->getRight() === null || $this->getLeft() === null)
             return;
 
-        $this->getConnection()->transaction(function() {
+        $this->model->getConnection()->transaction(function() {
             $this->model->reload();
 
             $leftCol = $this->getLeftColumnName();
