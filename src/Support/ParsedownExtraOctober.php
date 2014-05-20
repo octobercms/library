@@ -23,10 +23,10 @@ class ParsedownExtraOctober extends ParsedownExtra
     protected function makeImgResponsive($Span)
     {
         if (empty($Span)){
-           return;
+           return $Span;
         }
         if ($Span['element']['name'] !== 'img' || $Span['element']['attributes']['src'] === 'image') {
-            return;
+            return $Span;
         }
         if (empty($Span['element']['attributes']['class'])){
             $Span['element']['attributes']['class'] = '';
