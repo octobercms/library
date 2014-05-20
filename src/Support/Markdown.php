@@ -1,7 +1,5 @@
 <?php namespace October\Rain\Support;
 
-use ParsedownExtra;
-
 /**
  * Markdown content parser
  *
@@ -17,7 +15,7 @@ class Markdown
      */
     public static function parse($text)
     {
-        $instance = new ParsedownExtra;
+        $instance = new ParsedownExtraOctober;
         return $instance->text($text);
     }
 }
