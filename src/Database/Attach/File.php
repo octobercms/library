@@ -116,7 +116,7 @@ class File extends Model
             return $this->disk_name;
 
         $ext = $this->getExtension();
-        $name = uniqid(null, true);
+        $name = str_replace('.', '', uniqid(null, true));
 
         return $this->disk_name = $ext !== null ? $name.'.'.$ext : $name;
     }
