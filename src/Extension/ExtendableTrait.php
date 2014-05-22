@@ -140,7 +140,7 @@ trait ExtendableTrait
         }
     }
 
-    public function extendableSet($name, $value) 
+    public function extendableSet($name, $value)
     {
         if (property_exists($this, $name))
             return $this->{$name} = $value;
@@ -161,7 +161,7 @@ trait ExtendableTrait
         }
     }
 
-    public function extendableCall($name, $params = null) 
+    public function extendableCall($name, $params = null)
     {
         if (method_exists($this, $name))
             return call_user_func_array(array($this, $name), $params);
