@@ -1307,12 +1307,8 @@ class Model extends EloquentModel
             $result = $this->setRelationValue($key, $value);
         }
         else {
-            if (!is_object($value) && !is_array($value) && !is_null($value) && !is_bool($value)) {
+            if (!is_object($value) && !is_array($value) && !is_null($value) && !is_bool($value))
                 $value = trim($value);
-
-                if (!strlen($value))
-                    $value = null;
-            }
 
             $result = parent::setAttribute($key, $value);
         }
