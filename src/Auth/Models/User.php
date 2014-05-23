@@ -434,7 +434,7 @@ class User extends Model
         $mergedPermissions = $this->getMergedPermissions();
 
         if (!is_array($permissions))
-            $permissions = (array)$permissions;
+            $permissions = [$permissions];
 
         foreach ($permissions as $permission) {
             // We will set a flag now for whether this permission was
@@ -567,7 +567,7 @@ class User extends Model
             if ($bytes === false)
                 throw new RuntimeException('Unable to generate a random string');
 
-            return substr(str_replace(array('/', '+', '='), '', base64_encode($bytes)), 0, $length);
+            return substr(str_replace(['/', '+', '='], '', base64_encode($bytes)), 0, $length);
         }
 
         $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -581,7 +581,7 @@ class User extends Model
      */
     public function getDates()
     {
-        return array_merge(parent::getDates(), array('activated_at', 'last_login'));
+        return array_merge(parent::getDates(), ['activated_at', 'last_login']);
     }
 
     /**

@@ -123,7 +123,7 @@ class Manager
 
         $query = $model->newQuery();
         $hashableAttributes = $model->getHashableAttributes();
-        $hashedCredentials = array();
+        $hashedCredentials = [];
 
         /*
          * Build query from given credentials
@@ -131,7 +131,7 @@ class Manager
         foreach ($credentials as $credential => $value) {
             // All excepted the hashed attributes
             if (in_array($credential, $hashableAttributes))
-                $hashedCredentials = array_merge($hashedCredentials, array($credential => $value));
+                $hashedCredentials = array_merge($hashedCredentials, [$credential => $value]);
             else
                 $query = $query->where($credential, '=', $value);
         }
@@ -355,7 +355,7 @@ class Manager
         /*
          * Create session/cookie data to persist the session
          */
-        $toPersist = array($user->getId(), $user->getPersistCode());
+        $toPersist = [$user->getId(), $user->getPersistCode()];
         Session::put($this->sessionKey, $toPersist);
 
         if ($remember)
