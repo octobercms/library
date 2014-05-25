@@ -74,6 +74,70 @@ class Str extends StrHelper
     }
 
     /**
+     * Limits HTML with specific length with a proper tag handling.
+     * @param string $html HTML string to limit
+     * @param int $maxLength String length to truncate at
+     * @param  string  $end
+     * @return string
+     */
+    public static function limitHtml($html, $maxLength, $end = '...')
+    {
+        $printedLength = 0;
+        $position = 0;
+        $tags = array();
+
+        $re = '{</?([a-z]+)[^>]*>|&#?[a-zA-Z0-9]+;|[\x80-\xFF][\x80-\xBF]*}';
+
+        $result = '';
+
+        while ($printedLength < $maxLength && preg_match($re, $html, $match, PREG_OFFSET_CAPTURE, $position)) {
+            list($tag, $tagPosition) = $match[0];
+
+            $str = mb_substr($html, $position, $tagPosition - $position);
+            if ($printedLength + StrHelper::length($str) > $maxLength) {
+                $result .= mb_substr($str, 0, $maxLength - $printedLength) . $end;
+                $printedLength = $maxLength;
+                break;
+            }
+
+            $result .= $str;
+            $printedLength += StrHelper::length($str);
+            if ($printedLength >= $maxLength) {
+                $result .= $end;
+                break;
+            }
+
+            if ($tag[0] == '&' || ord($tag) >= 0x80) {
+                $result .= $tag;
+                $printedLength++;
+            }
+            else {
+                $tagName = $match[1][0];
+                if ($tag[1] == '/') {
+                    $openingTag = array_pop($tags);
+                    $result .= $tag;
+                }
+                else if ($tag[StrHelper::length($tag) - 2] == '/')
+                    $result .= $tag;
+                else {
+                    $result .= $tag;
+                    $tags[] = $tagName;
+                }
+            }
+
+            $position = $tagPosition + StrHelper::length($tag);
+        }
+
+        if ($printedLength < $maxLength && $position < StrHelper::length($html))
+            $result .= substr($html, $position, $maxLength - $printedLength);
+
+        while (!empty($tags))
+            $result .= sprintf('</%s>', array_pop($tags));
+
+        return $result;
+    }
+
+    /**
      * Converts line breaks to a standard \r\n pattern.
      */
     public static function normalizeEol($string)
