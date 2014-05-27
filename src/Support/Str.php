@@ -138,6 +138,44 @@ class Str extends StrHelper
     }
 
     /**
+     * Cleans HTML to prevent XSS attacks.
+     * @param  [type] $html [description]
+     * @return [type]         [description]
+     */
+    public static function cleanHtml($html)
+    {
+        // Fix &entity\n;
+        $html = str_replace(array('&amp;','&lt;','&gt;'), array('&amp;amp;','&amp;lt;','&amp;gt;'), $html);
+        $html = preg_replace('#(&\#*\w+)[\x00-\x20]+;#u', "$1;", $html);
+        $html = preg_replace('#(&\#x*)([0-9A-F]+);*#iu', "$1$2;", $html);
+        $html = html_entity_decode($html, ENT_COMPAT, 'UTF-8');
+
+        // Remove any attribute starting with "on" or xmlns
+        $html = preg_replace('#(<[^>]+[\x00-\x20\"\'\/])(on|xmlns)[^>]*>#iUu', "$1>", $html);
+
+        // Remove javascript: and vbscript: protocols
+        $html = preg_replace('#([a-z]*)[\x00-\x20\/]*=[\x00-\x20\/]*([\`\'\"]*)[\x00-\x20\/]*j[\x00-\x20]*a[\x00-\x20]*v[\x00-\x20]*a[\x00-\x20]*s[\x00-\x20]*c[\x00-\x20]*r[\x00-\x20]*i[\x00-\x20]*p[\x00-\x20]*t[\x00-\x20]*:#iUu', '$1=$2nojavascript...', $html);
+        $html = preg_replace('#([a-z]*)[\x00-\x20\/]*=[\x00-\x20\/]*([\`\'\"]*)[\x00-\x20\/]*v[\x00-\x20]*b[\x00-\x20]*s[\x00-\x20]*c[\x00-\x20]*r[\x00-\x20]*i[\x00-\x20]*p[\x00-\x20]*t[\x00-\x20]*:#iUu', '$1=$2novbscript...', $html);
+        $html = preg_replace('#([a-z]*)[\x00-\x20\/]*=[\x00-\x20\/]*([\`\'\"]*)[\x00-\x20\/]*-moz-binding[\x00-\x20]*:#Uu', '$1=$2nomozbinding...', $html);
+        $html = preg_replace('#([a-z]*)[\x00-\x20\/]*=[\x00-\x20\/]*([\`\'\"]*)[\x00-\x20\/]*data[\x00-\x20]*:#Uu', '$1=$2nodata...', $html);
+
+        // Only works in IE: <span style="width: expression(alert('Ping!'));"></span>
+        $html = preg_replace('#(<[^>]+[\x00-\x20\"\'\/])style[^>]*>#iUu', "$1>", $html);
+
+        // Remove namespaced elements (we do not need them)
+        $html = preg_replace('#</*\w+:\w[^>]*>#i', "", $html);
+
+        // Remove really unwanted tags
+        do {
+            $oldHtml = $html;
+            $html = preg_replace('#</*(applet|meta|xml|blink|link|style|script|embed|object|iframe|frame|frameset|ilayer|layer|bgsound|title|base)[^>]*>#i', "", $html);
+        }
+        while ($oldHtml !== $html);
+
+        return $html;
+    }
+
+    /**
      * Converts line breaks to a standard \r\n pattern.
      */
     public static function normalizeEol($string)
