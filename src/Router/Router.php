@@ -148,13 +148,17 @@ class Router
                 /*
                  * Check if parameter has been supplied
                  */
-                $parameterExists = array_key_exists($paramName, $parameters);
+                $foundValue = false;
+                if (array_key_exists($paramName, $parameters))
+                    $foundValue = $parameters[$paramName];
+                elseif (array_key_exists(':'.$paramName, $parameters))
+                    $foundValue = $parameters[':'.$paramName];
 
                 /*
                  * Use supplied parameter value
                  */
-                if ($parameterExists) {
-                    $url[] = $parameters[$paramName];
+                if ($foundValue) {
+                    $url[] = $foundValue;
                 }
                 /*
                  * Look for default value or set as false
