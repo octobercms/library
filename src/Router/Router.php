@@ -119,11 +119,21 @@ class Router
         $patternSegments = Helper::segmentizeUrl($pattern);
         $patternSegmentNum = count($patternSegments);
 
+        /*
+         * Normalize the parameters, colons (:) in key names are removed.
+         */
+        foreach ($parameters as $param => $value) {
+            if (strpos($param, ':') !== 0) continue;
+            $normalizedParam = substr($param, 1);
+            $parameters[$normalizedParam] = $value;
+            unset($parameters[$param]);
+        }
+
         // Build a URL
         $url = [];
         foreach ($patternSegments as $index => $patternSegment) {
 
-            /* 
+            /*
              * Static segment
              */
             if (strpos($patternSegment, ':') !== 0) {
@@ -148,17 +158,13 @@ class Router
                 /*
                  * Check if parameter has been supplied
                  */
-                $foundValue = false;
-                if (array_key_exists($paramName, $parameters))
-                    $foundValue = $parameters[$paramName];
-                elseif (array_key_exists(':'.$paramName, $parameters))
-                    $foundValue = $parameters[':'.$paramName];
+                $parameterExists = array_key_exists($paramName, $parameters);
 
                 /*
                  * Use supplied parameter value
                  */
-                if ($foundValue) {
-                    $url[] = $foundValue;
+                if ($parameterExists) {
+                    $url[] = $parameters[$paramName];
                 }
                 /*
                  * Look for default value or set as false
