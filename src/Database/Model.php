@@ -236,8 +236,7 @@ class Model extends EloquentModel
         if (!$this->exists) {
             $this->syncOriginal();
         }
-        else {
-            $fresh = static::find($this->getKey());
+        elseif ($fresh = static::find($this->getKey())) {
             $this->setRawAttributes($fresh->getAttributes(), true);
         }
 

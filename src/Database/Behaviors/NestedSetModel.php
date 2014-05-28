@@ -161,7 +161,7 @@ class NestedSetModel extends ModelBehavior
         $parentColumn = $this->getParentColumnName();
         $isDirty = $this->model->isDirty($parentColumn);
 
-        // Parent is unchanged
+        // Parent is not set or unchanged
         if (!$isDirty) {
             $this->moveToNewParentId = false;
         }
@@ -169,7 +169,7 @@ class NestedSetModel extends ModelBehavior
         elseif (!$this->model->exists && !$this->getParentId()) {
             $this->moveToNewParentId = false;
         }
-        // Parent has been changed
+        // Parent has been set
         else {
             $this->moveToNewParentId = $this->getParentId();
         }
@@ -190,7 +190,6 @@ class NestedSetModel extends ModelBehavior
             $this->makeChildOf($parentId);
         }
     }
-
 
     /**
      * Get a new query builder for the node's model.
