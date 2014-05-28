@@ -159,11 +159,20 @@ class NestedSetModel extends ModelBehavior
     public function storeNewParent()
     {
         $parentColumn = $this->getParentColumnName();
+        $isDirty = $this->model->isDirty($parentColumn);
 
-        if ($this->model->isDirty($parentColumn))
-            $this->moveToNewParentId = $this->getParentId();
-        else
+        // Parent is unchanged
+        if (!$isDirty) {
             $this->moveToNewParentId = false;
+        }
+        // Created as a root node
+        elseif (!$this->model->exists && !$this->getParentId()) {
+            $this->moveToNewParentId = false;
+        }
+        // Parent has been changed
+        else {
+            $this->moveToNewParentId = $this->getParentId();
+        }
     }
 
     /**
