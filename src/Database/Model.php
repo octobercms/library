@@ -1446,20 +1446,22 @@ class Model extends EloquentModel
      */
     public function setSluggedValue($slugAttribute, $sourceAttributes, $maxLength = 240)
     {
-        if (isset($this->{$slugAttribute}))
-            return;
+        if (!isset($this->{$slugAttribute})) {
+            if (!is_array($sourceAttributes))
+                $sourceAttributes = [$sourceAttributes];
 
-        if (!is_array($sourceAttributes))
-            $sourceAttributes = [$sourceAttributes];
+            $slugArr = [];
+            foreach ($sourceAttributes as $attribute) {
+                $slugArr[] = $this->getAttribute($attribute);
+            }
 
-        $slugArr = [];
-        foreach ($sourceAttributes as $attribute) {
-            $slugArr[] = $this->getAttribute($attribute);
+            $slug = implode(' ', $slugArr);
+            $slug = substr($slug, 0, $maxLength);
+            $slug = Str::slug($slug);
         }
-
-        $slug = implode(' ', $slugArr);
-        $slug = substr($slug, 0, $maxLength);
-        $slug = Str::slug($slug);
+        else {
+            $slug = $this->{$slugAttribute};
+        }
 
         return $this->{$slugAttribute} = $this->getUniqueAttributeValue($slugAttribute, $slug);
     }
