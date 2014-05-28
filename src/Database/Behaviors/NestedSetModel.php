@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Collection;
  * General access methods:
  *
  *   $model->getRoot(); // Returns the highest parent of a node.
+ *   $model->getRootList(); // Returns an indented array of key and value columns from root.
  *   $model->getParent(); // The direct parent node.
  *   $model->getParents(); // Returns all parents up the tree.
  *   $model->getParentsAndSelf(); // Returns all parents up the tree and self.
@@ -37,6 +38,21 @@ use Illuminate\Database\Eloquent\Collection;
  *   $model->getDepth(); // Returns the depth of a current node.
  *   $model->getChildCount(); // Returns number of all children.
  *
+ * Query builder methods:
+ *
+ *   $query->withoutNode(); // Filters a specific node from the results.
+ *   $query->withoutSelf(); // Filters current node from the results.
+ *   $query->withoutRoot(); // Filters root from the results.
+ *   $query->children(); // Filters as direct children down the tree.
+ *   $query->allChildren(); // Filters as all children down the tree.
+ *   $query->parent(); // Filters as direct parent up the tree.
+ *   $query->parents(); // Filters as all parents up the tree.
+ *   $query->siblings(); // Filters as all siblings (parent's children).
+ *   $query->leaves(); // Filters as all final nodes without children.
+ *   $query->getNested(); // Returns an eager loaded collection of results.
+ *   $query->listsNested(); // Returns an indented array of key and value columns.
+ *   $query->orderByNested(); // Applies the default nesting sort order.
+ * 
  * Flat result access methods:
  *
  *   $model->getAll(); // Returns everything in correct order.
@@ -142,10 +158,9 @@ class NestedSetModel extends ModelBehavior
      */
     public function storeNewParent()
     {
-        $dirty = $this->model->getDirty();
         $parentColumn = $this->getParentColumnName();
 
-        if (isset($dirty[$parentColumn]))
+        if ($this->model->isDirty($parentColumn))
             $this->moveToNewParentId = $this->getParentId();
         else
             $this->moveToNewParentId = false;
@@ -175,8 +190,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function newNestedSetQuery($excludeDeleted = true)
     {
-        return $this->model->newQuery($excludeDeleted)
-            ->orderBy($this->getLeftColumnName());
+        return $this->model->newQuery($excludeDeleted)->orderByNested();
     }
 
     /**
@@ -221,6 +235,36 @@ class NestedSetModel extends ModelBehavior
                 ->decrement($rightCol, $diff)
             ;
         });
+    }
+
+    /**
+     * Converts a set of items in a Collection to a hierarchy
+     * with child nodes being added to the children relation
+     * @param  array $results Array of items in a collection
+     * @return array
+     */
+    public function makeHierarchy(&$results)
+    {
+        if ($results instanceof Collection)
+            $results = $results->all();
+
+        $collection = [];
+        if (is_array($results)) {
+            while(list($index, $result) = each($results)) {
+                $key = $result->getKey();
+                $collection[$key] = $result;
+
+                if (!$result->isLeaf())
+                    $collection[$key]->setRelation('children', new Collection($this->makeHierarchy($results)));
+
+                $nextId = key($results);
+
+                if ($nextId && $results[$nextId]->getParentId() != $result->getParentId())
+                    return $collection;
+            }
+        }
+
+        return $collection;
     }
 
     //
@@ -369,17 +413,13 @@ class NestedSetModel extends ModelBehavior
         return $this->scopeWithoutNode($query, $this->getRoot());
     }
 
-    //
-    // Filters
-    //
-
     /**
      * Set of all children & nested children.
      * @return \Illuminate\Database\Query\Builder
      */
-    public function allChildren($includeSelf = false)
+    public function scopeAllChildren($query, $includeSelf = false)
     {
-        $query = $this->newNestedSetQuery()
+        $query
             ->where($this->getLeftColumnName(), '>=', $this->getLeft())
             ->where($this->getLeftColumnName(), '<', $this->getRight())
         ;
@@ -392,9 +432,9 @@ class NestedSetModel extends ModelBehavior
      * Returns a prepared query with all parents up the tree.
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function parents($includeSelf = false)
+    public function scopeParents($query, $includeSelf = false)
     {
-        $query = $this->newNestedSetQuery()
+        $query
             ->where($this->getLeftColumnName(), '<=', $this->getLeft())
             ->where($this->getRightColumnName(), '>=', $this->getRight())
         ;
@@ -407,11 +447,9 @@ class NestedSetModel extends ModelBehavior
      * Filter targeting all children of the parent, except self.
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function siblings($includeSelf = false)
+    public function scopeSiblings($query, $includeSelf = false)
     {
-        $query = $this->newNestedSetQuery()
-            ->where($this->getParentColumnName(), $this->getParentId())
-        ;
+        $query->where($this->getParentColumnName(), $this->getParentId());
 
         if ($includeSelf) return $query;
         else return $query->withoutSelf();
@@ -421,17 +459,69 @@ class NestedSetModel extends ModelBehavior
      * Returns all final nodes without children.
      * @return \Illuminate\Database\Query\Builder
      */
-    public function leaves()
+    public function scopeLeaves($query)
     {
         $grammar = $this->model->getConnection()->getQueryGrammar();
 
         $rightCol = $grammar->wrap($this->getQualifiedRightColumnName());
         $leftCol = $grammar->wrap($this->getQualifiedLeftColumnName());
 
-        return $this
+        return $query
             ->allChildren()
             ->whereRaw($rightCol . ' - ' . $leftCol . ' = 1')
         ;
+    }
+
+    /**
+     * Non chaining scope, returns an eager loaded hierarchy tree. Children are
+     * eager loaded inside the $model->children relation.
+     * @return Collection A collection
+     */
+    public function scopeGetNested($query)
+    {
+        $results = $query->get();
+        $collection = $this->makeHierarchy($results);
+
+        return new Collection($collection);
+    }
+
+    /**
+     * Gets an array with values of a given column. Values are indented according to their depth.
+     * @param  string $column Array values
+     * @param  string $key    Array keys
+     * @param  string $indent Character to indent depth
+     * @return array
+     */
+    public function scopeListsNested($query, $column, $key = null, $indent = '&nbsp;&nbsp;&nbsp;')
+    {
+        $columns = [$this->getDepthColumnName(), $column];
+        if ($key !== null)
+            $columns[] = $key;
+
+        $results = new Collection($query->getQuery()->get($columns));
+
+        $values = $results->fetch($columns[1])->all();
+
+        $indentation = $results->fetch($columns[0])->all();
+        foreach ($values as $_key => $value) {
+            $values[$_key] = str_repeat($indent, $indentation[$_key]) . $value;
+        }
+
+        if ($key !== null && count($results) > 0) {
+            $keys = $results->fetch($key)->all();
+
+            return array_combine($keys, $values);
+        }
+
+        return $values;
+    }
+
+    /**
+     * Applies the default nested ordering, by the left column.
+     */
+    public function scopeOrderByNested($query)
+    {
+        return $query->orderBy($this->getLeftColumnName());
     }
 
     //
@@ -454,7 +544,7 @@ class NestedSetModel extends ModelBehavior
     public function getRoot()
     {
         if ($this->model->exists) {
-            return $this->parents(true)
+            return $this->newNestedSetQuery()->parents(true)
                 ->where(function($query){
                     $query->whereNull($this->getParentColumnName());
                     $query->orWhere($this->getParentColumnName(), 0);
@@ -499,6 +589,15 @@ class NestedSetModel extends ModelBehavior
     }
 
     /**
+     * Returns an array column/key pair of all root nodes, with children eager loaded.
+     * @return array
+     */
+    public function getRootList($column, $key = null, $indent = '&nbsp;&nbsp;&nbsp;')
+    {
+        return $this->newNestedSetQuery()->listsNested($column, $key, $indent);
+    }
+
+    /**
      * The direct parent node.
      * @return Illuminate\Database\Eloquent\Collection
      */
@@ -513,7 +612,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getParents()
     {
-        return $this->model->parents()->get();
+        return $this->newNestedSetQuery()->parents()->get();
     }
 
     /**
@@ -522,7 +621,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getParentsAndSelf()
     {
-        return $this->model->parents(true)->get();
+        return $this->newNestedSetQuery()->parents(true)->get();
     }
 
     /**
@@ -540,7 +639,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getEagerChildren()
     {
-        return $this->model->allChildren()->getNested();
+        return $this->newNestedSetQuery()->allChildren()->getNested();
     }
 
     /**
@@ -549,7 +648,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getAllChildren()
     {
-        return $this->model->allChildren()->get();
+        return $this->newNestedSetQuery()->allChildren()->get();
     }
 
     /**
@@ -558,7 +657,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getAllChildrenAndSelf()
     {
-        return $this->model->allChildren(true)->get();
+        return $this->newNestedSetQuery()->allChildren(true)->get();
     }
 
     /**
@@ -567,7 +666,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getSiblings()
     {
-        return $this->model->siblings()->get();
+        return $this->newNestedSetQuery()->siblings()->get();
     }
 
     /**
@@ -576,7 +675,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getSiblingsAndSelf()
     {
-        return $this->model->siblings(true)->get();
+        return $this->newNestedSetQuery()->siblings(true)->get();
     }
 
     /**
@@ -585,7 +684,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getLeaves()
     {
-        return $this->model->leaves()->get();
+        return $this->newNestedSetQuery()->leaves()->get();
     }
 
     /**
@@ -598,7 +697,7 @@ class NestedSetModel extends ModelBehavior
         if ($this->getParentId() === null)
             return 0;
 
-        return $this->parents()->count();
+        return $this->newNestedSetQuery()->parents()->count();
     }
 
     /**
@@ -770,53 +869,6 @@ class NestedSetModel extends ModelBehavior
     }
 
     //
-    // Hierarchy
-    //
-
-    /**
-     * Non chaining scope, returns an eager loaded hierarchy tree. Children are
-     * eager loaded inside the $model->children relation.
-     * @return Collection A collection
-     */
-    public function scopeGetNested($query)
-    {
-        $results = $query->get();
-        $collection = $this->makeHierarchy($results);
-
-        return new Collection($collection);
-    }
-
-    /**
-     * Converts a set of items in a Collection to a hierarchy
-     * with child nodes being added to the children relation
-     * @param  array $results Array of items in a collection
-     * @return array
-     */
-    public function makeHierarchy(&$results)
-    {
-        if ($results instanceof Collection)
-            $results = $results->all();
-
-        $collection = [];
-        if (is_array($results)) {
-            while(list($index, $result) = each($results)) {
-                $key = $result->getKey();
-                $collection[$key] = $result;
-
-                if (!$result->isLeaf())
-                    $collection[$key]->setRelation('children', new Collection($this->makeHierarchy($results)));
-
-                $nextId = key($results);
-
-                if ($nextId && $results[$nextId]->getParentId() != $result->getParentId())
-                    return $collection;
-            }
-        }
-
-        return $collection;
-    }
-
-    //
     // Moving
     //
 
@@ -855,7 +907,7 @@ class NestedSetModel extends ModelBehavior
         $target->reload();
         $this->model->setDepth();
 
-        foreach ($this->model->allChildren()->get() as $descendant) {
+        foreach ($this->newNestedSetQuery()->allChildren()->get() as $descendant) {
             $descendant->save();
         }
 
