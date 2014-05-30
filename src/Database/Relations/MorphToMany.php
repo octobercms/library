@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany as MorphToManyBase;
 
 class MorphToMany extends MorphToManyBase
 {
-    use BelongsToManyTrait;
+    use BelongsOrMorphToMany;
 }
 
 

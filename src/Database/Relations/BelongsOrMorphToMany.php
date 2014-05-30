@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Db;
 use Illuminate\Database\Eloquent\Model;
 
-trait BelongsToManyTrait
+trait BelongsOrMorphToMany
 {
     /**
      * Adds a model to this relationship type.
