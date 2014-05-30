@@ -12,6 +12,7 @@ use October\Rain\Database\Relations\BelongsToMany;
 use October\Rain\Database\Relations\HasMany;
 use October\Rain\Database\Relations\HasOne;
 use October\Rain\Database\Relations\MorphMany;
+use October\Rain\Database\Relations\MorphToMany;
 use October\Rain\Database\Relations\MorphOne;
 use October\Rain\Database\Relations\AttachMany;
 use October\Rain\Database\Relations\AttachOne;
@@ -163,6 +164,14 @@ class Model extends EloquentModel
     public $morphMany = [];
 
     /**
+     * protected $morphToMany = [
+     *     'tag' => ['Tag', 'table' => 'tagables', 'name' => 'tagable']
+     * ];
+     */
+    public $morphToMany = [];
+    public $morphedByMany = [];
+
+    /**
      * protected $attachOne = [
      *     'picture' => ['October\Rain\Database\Attach\File', 'public' => false]
      * ];
@@ -186,7 +195,7 @@ class Model extends EloquentModel
     /**
      * @var array Excepted relationship types, used to cycle and verify relationships.
      */
-    protected static $relationTypes = ['hasOne', 'hasMany', 'belongsTo', 'belongsToMany', 'morphTo', 'morphOne', 'morphMany', 'attachOne', 'attachMany', 'hasManyThrough'];
+    protected static $relationTypes = ['hasOne', 'hasMany', 'belongsTo', 'belongsToMany', 'morphTo', 'morphOne', 'morphMany', 'morphToMany', 'morphedByMany', 'attachOne', 'attachMany', 'hasManyThrough'];
 
     /**
      * @var string A unique session key used for deferred binding.
@@ -521,6 +530,16 @@ class Model extends EloquentModel
                 $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['type'], $relation['id'], $relation['localKey'], $relationName);
                 break;
 
+            case 'morphToMany':
+                $relation = $this->validateRelationArgs($relationName, ['table', 'foreignKey', 'otherKey', 'inverse', 'pivot', 'timestamps'], ['name']);
+                $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['table'], $relation['foreignKey'], $relation['otherKey'], $relation['inverse'], $relationName);
+                break;
+
+            case 'morphedByMany':
+                $relation = $this->validateRelationArgs($relationName, ['table', 'foreignKey', 'otherKey', 'pivot', 'timestamps'], ['name']);
+                $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['table'], $relation['foreignKey'], $relation['otherKey'], $relationName);
+                break;
+
             case 'attachOne':
             case 'attachMany':
                 $relation = $this->validateRelationArgs($relationName, ['public', 'localKey']);
@@ -578,14 +597,14 @@ class Model extends EloquentModel
     private function applyRelationFilters($args, $relation)
     {
         /*
-         * Pivot data (belongsToMany)
+         * Pivot data (belongsToMany, morphToMany, morphByMany)
          */
         if ($pivotData = $args['pivot']) {
             $relation->withPivot($pivotData);
         }
 
         /*
-         * Pivot timestamps (belongsToMany)
+         * Pivot timestamps (belongsToMany, morphToMany, morphByMany)
          */
         if ($args['timestamps']) {
             $relation->withTimestamps();
@@ -740,7 +759,7 @@ class Model extends EloquentModel
 
     /**
      * Define a many-to-many relationship.
-     * This code is a duplicate of Eloquent but uses a Rain relation class.
+     * This code is almost a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\BelongsToMany
      */
     public function belongsToMany($related, $table = null, $primaryKey = null, $foreignKey = null, $relationName = null)
@@ -758,6 +777,30 @@ class Model extends EloquentModel
         $query = $instance->newQuery();
         return new BelongsToMany($query, $this, $table, $primaryKey, $foreignKey, $relationName);
     }
+
+    /**
+     * Define a polymorphic many-to-many relationship.
+     * This code is almost a duplicate of Eloquent but uses a Rain relation class.
+     * @return \October\Rain\Database\Relations\MorphToMany
+     */
+    public function morphToMany($related, $name, $table = null, $foreignKey = null, $otherKey = null, $inverse = false, $relationName = null)
+    {
+        if (is_null($relationName))
+            $relationName = $this->getBelongsToManyCaller();
+
+        $foreignKey = $foreignKey ?: $name.'_id';
+        $instance = new $related;
+        $otherKey = $otherKey ?: $instance->getForeignKey();
+        $query = $instance->newQuery();
+
+        $table = $table ?: str_plural($name);
+
+        return new MorphToMany(
+            $query, $this, $name, $table, $foreignKey,
+            $otherKey, $relationName, $inverse
+        );
+    }
+
 
     /**
      * Define an attachment one-to-many relationship.
@@ -816,6 +859,8 @@ class Model extends EloquentModel
         switch ($relationType) {
 
             case 'belongsToMany':
+            case 'morphToMany':
+            case 'morphedByMany':
                 // Nulling the relationship
                 if (!$value) {
                     if ($this->exists) $relationObj->detach();
@@ -1186,6 +1231,8 @@ class Model extends EloquentModel
             $type == 'hasMany' ||
             $type == 'hasOne' ||
             $type == 'morphMany' ||
+            $type == 'morphToMany' ||
+            $type == 'morphedByMany' ||
             $type == 'morphOne' ||
             $type == 'attachMany' ||
             $type == 'attachOne' ||
