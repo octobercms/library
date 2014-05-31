@@ -531,13 +531,13 @@ class Model extends EloquentModel
                 break;
 
             case 'morphToMany':
-                $relation = $this->validateRelationArgs($relationName, ['table', 'foreignKey', 'otherKey', 'inverse', 'pivot', 'timestamps'], ['name']);
-                $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['table'], $relation['foreignKey'], $relation['otherKey'], $relation['inverse'], $relationName);
+                $relation = $this->validateRelationArgs($relationName, ['table', 'primaryKey', 'foreignKey', 'pivot', 'timestamps'], ['name']);
+                $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['table'], $relation['primaryKey'], $relation['foreignKey'], false, $relationName);
                 break;
 
             case 'morphedByMany':
-                $relation = $this->validateRelationArgs($relationName, ['table', 'foreignKey', 'otherKey', 'pivot', 'timestamps'], ['name']);
-                $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['table'], $relation['foreignKey'], $relation['otherKey'], $relationName);
+                $relation = $this->validateRelationArgs($relationName, ['table', 'primaryKey', 'foreignKey', 'pivot', 'timestamps'], ['name']);
+                $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['table'], $relation['primaryKey'], $relation['foreignKey'], $relationName);
                 break;
 
             case 'attachOne':
@@ -783,24 +783,37 @@ class Model extends EloquentModel
      * This code is almost a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\MorphToMany
      */
-    public function morphToMany($related, $name, $table = null, $foreignKey = null, $otherKey = null, $inverse = false, $relationName = null)
+    public function morphToMany($related, $name, $table = null, $primaryKey = null, $foreignKey = null, $inverse = false, $relationName = null)
     {
         if (is_null($relationName))
-            $relationName = $this->getBelongsToManyCaller();
+            $relationName = $this->getRelationCaller();
 
-        $foreignKey = $foreignKey ?: $name.'_id';
+        $primaryKey = $primaryKey ?: $name.'_id';
         $instance = new $related;
-        $otherKey = $otherKey ?: $instance->getForeignKey();
+        $foreignKey = $foreignKey ?: $instance->getForeignKey();
+
+        if (is_null($table))
+            $table = $this->joiningTable($related);
+
         $query = $instance->newQuery();
-
-        $table = $table ?: str_plural($name);
-
-        return new MorphToMany(
-            $query, $this, $name, $table, $foreignKey,
-            $otherKey, $relationName, $inverse
-        );
+        return new MorphToMany($query, $this, $name, $table, $primaryKey, $foreignKey, $relationName, $inverse);
     }
 
+    /**
+     * Define a polymorphic many-to-many inverse relationship.
+     * This code is almost a duplicate of Eloquent but uses a Rain relation class.
+     * @return \October\Rain\Database\Relations\MorphToMany
+     */
+    public function morphedByMany($related, $name, $table = null, $primaryKey = null, $foreignKey = null, $relationName = null)
+    {
+        if (is_null($relationName))
+            $relationName = $this->getRelationCaller();
+
+        $primaryKey = $primaryKey ?: $this->getForeignKey();
+        $foreignKey = $foreignKey ?: $name.'_id';
+
+        return $this->morphToMany($related, $name, $table, $primaryKey, $foreignKey, true, $relationName);
+    }
 
     /**
      * Define an attachment one-to-many relationship.
