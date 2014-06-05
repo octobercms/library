@@ -1281,7 +1281,7 @@ class Model extends EloquentModel
         }
 
         // After Event
-        if ($_attr = $this->fireEvent('model.afterGetAttribute', [$key, $attr], true))
+        if ($_attr = $this->fireEvent('model.getAttribute', [$key, $attr], true))
             return $_attr;
 
         return $attr;
@@ -1373,7 +1373,7 @@ class Model extends EloquentModel
         }
 
         // After Event
-        $this->fireEvent('model.afterSetAttribute', [$key, $value]);
+        $this->fireEvent('model.setAttribute', [$key, $value]);
 
         return $result;
     }
