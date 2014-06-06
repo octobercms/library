@@ -7,7 +7,7 @@
 
 <?php if (!$this->fatalError): ?>
 
-    <div class="layout-item stretch layout-column">
+    <div class="layout-item stretch layout-column form-preview">
         <?= $this->formRenderPreview() ?>
     </div>
 
