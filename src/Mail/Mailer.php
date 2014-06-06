@@ -11,6 +11,8 @@ use Illuminate\Mail\Mailer as MailerBase;
 class Mailer extends MailerBase
 {
 
+    use \October\Rain\Support\Traits\Emitter;
+
     /**
      * Add the content to a given message.
      *
@@ -22,6 +24,9 @@ class Mailer extends MailerBase
      */
     protected function addContent($message, $view, $plain, $data)
     {
+        if ($this->fireEvent('content.beforeAdd', [$message, $view, $plain, $data], true) === false)
+            return;
+
         if (isset($view)) {
             $viewContent = $this->getView($view, $data);
             $result = MailParser::parse($viewContent);
@@ -37,6 +42,8 @@ class Mailer extends MailerBase
         if (isset($plain)) {
             $message->addPart($this->getView($plain, $data), 'text/plain');
         }
+
+        $this->fireEvent('content.add', [$message, $view, $plain, $data]);
     }
 
 }
