@@ -88,12 +88,12 @@ class Throttle extends Model
         // anything either as clearing login attempts
         // makes us unsuspended. We need to manually
         // call unsuspend() in order to unsuspend.
-        if ($this->getLoginAttempts() == 0 or $this->suspended)
+        if ($this->getLoginAttempts() == 0 or $this->is_suspended)
             return;
 
         $this->attempts = 0;
         $this->last_attempt_at = null;
-        $this->suspended = false;
+        $this->is_suspended = false;
         $this->suspended_at = null;
         $this->save();
     }
@@ -104,8 +104,8 @@ class Throttle extends Model
      */
     public function suspend()
     {
-        if (!$this->suspended) {
-            $this->suspended = true;
+        if (!$this->is_suspended) {
+            $this->is_suspended = true;
             $this->suspended_at = $this->freshTimeStamp();
             $this->save();
         }
@@ -117,10 +117,10 @@ class Throttle extends Model
      */
     public function unsuspend()
     {
-        if ($this->suspended) {
+        if ($this->is_suspended) {
             $this->attempts = 0;
             $this->last_attempt_at = null;
-            $this->suspended = false;
+            $this->is_suspended = false;
             $this->suspended_at = null;
             $this->save();
         }
@@ -130,11 +130,11 @@ class Throttle extends Model
      * Check if the user is suspended.
      * @return bool
      */
-    public function isSuspended()
+    public function checkSuspended()
     {
-        if ($this->suspended and $this->suspended_at) {
+        if ($this->is_suspended && $this->suspended_at) {
             $this->removeSuspensionIfAllowed();
-            return (bool) $this->suspended;
+            return (bool)$this->is_suspended;
         }
 
         return false;
@@ -146,8 +146,8 @@ class Throttle extends Model
      */
     public function ban()
     {
-        if (!$this->banned) {
-            $this->banned = true;
+        if (!$this->is_banned) {
+            $this->is_banned = true;
             $this->banned_at = $this->freshTimeStamp();
             $this->save();
         }
@@ -159,20 +159,11 @@ class Throttle extends Model
      */
     public function unban()
     {
-        if ($this->banned) {
-            $this->banned = false;
+        if ($this->is_banned) {
+            $this->is_banned = false;
             $this->banned_at = null;
             $this->save();
         }
-    }
-
-    /**
-     * Check if user is banned
-     * @return bool
-     */
-    public function isBanned()
-    {
-        return $this->banned;
     }
 
     /**
@@ -181,11 +172,11 @@ class Throttle extends Model
      */
     public function check()
     {
-        if ($this->isBanned()) {
+        if ($this->is_banned) {
             throw new \Exception(sprintf('User [%s] has been banned.', $this->getUser()->getLogin()));
         }
 
-        if ($this->isSuspended()) {
+        if ($this->checkSuspended()) {
             throw new \Exception(sprintf('User [%s] has been suspended.', $this->getUser()->getLogin()));
         }
 
@@ -246,9 +237,9 @@ class Throttle extends Model
      * @param  mixed  $suspended
      * @return bool
      */
-    public function getSuspendedAttribute($suspended)
+    public function getIsSuspendedAttribute($suspended)
     {
-        return (bool) $suspended;
+        return (bool)$suspended;
     }
 
     /**
@@ -256,9 +247,9 @@ class Throttle extends Model
      * @param  mixed  $banned
      * @return bool
      */
-    public function getBannedAttribute($banned)
+    public function getIsBannedAttribute($banned)
     {
-        return (bool) $banned;
+        return (bool)$banned;
     }
 
     /**
@@ -278,16 +269,16 @@ class Throttle extends Model
     {
         $result = parent::toArray();
 
-        if (isset($result['suspended']))
-            $result['suspended'] = $this->getSuspended($result['suspended']);
+        if (isset($result['is_suspended']))
+            $result['is_suspended'] = $this->getSuspended($result['is_suspended']);
 
-        if (isset($result['banned']))
-            $result['banned'] = $this->getBanned($result['banned']);
+        if (isset($result['is_banned']))
+            $result['is_banned'] = $this->getBanned($result['is_banned']);
 
-        if (isset($result['last_attempt_at']) and $result['last_attempt_at'] instanceof DateTime)
+        if (isset($result['last_attempt_at']) && $result['last_attempt_at'] instanceof DateTime)
             $result['last_attempt_at'] = $result['last_attempt_at']->format('Y-m-d H:i:s');
 
-        if (isset($result['suspended_at']) and $result['suspended_at'] instanceof DateTime)
+        if (isset($result['suspended_at']) && $result['suspended_at'] instanceof DateTime)
             $result['suspended_at'] = $result['suspended_at']->format('Y-m-d H:i:s');
 
         return $result;

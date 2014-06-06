@@ -176,19 +176,11 @@ class User extends Model
     //
 
     /**
-     * @return bool Check if the user is activated.
-     */
-    public function isActivated()
-    {
-        return (bool)$this->activated;
-    }
-
-    /**
      * Get mutator for giving the activated property.
      * @param mixed $activated
      * @return bool
      */
-    public function getActivatedAttribute($activated)
+    public function getIsActivatedAttribute($activated)
     {
         return (bool)$activated;
     }
@@ -213,12 +205,12 @@ class User extends Model
      */
     public function attemptActivation($activationCode)
     {
-        if ($this->activated)
+        if ($this->is_activated)
             throw new \Exception('User is already active!');
 
         if ($activationCode == $this->activation_code) {
             $this->activation_code = null;
-            $this->activated = true;
+            $this->is_activated = true;
             $this->activated_at = new DateTime;
             return $this->forceSave();
         }
@@ -592,8 +584,8 @@ class User extends Model
     {
         $result = parent::toArray();
 
-        if (isset($result['activated']))
-            $result['activated'] = $this->getActivatedAttribute($result['activated']);
+        if (isset($result['is_activated']))
+            $result['is_activated'] = $this->getIsActivatedAttribute($result['is_activated']);
 
         if (isset($result['permissions']))
             $result['permissions'] = $this->getPermissionsAttribute($result['permissions']);

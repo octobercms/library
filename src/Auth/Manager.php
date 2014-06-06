@@ -321,7 +321,7 @@ class Manager
         /*
          * Check cached user is activated
          */
-        if (!($user = $this->getUser()) || ($this->requireActivation && !$user->isActivated()))
+        if (!($user = $this->getUser()) || ($this->requireActivation && !$user->is_activated))
             return false;
 
         /*
@@ -330,7 +330,7 @@ class Manager
         if ($this->useThrottle) {
             $throttle = $this->findThrottleByUserId($user->getId());
 
-            if ($throttle->isBanned() || $throttle->isSuspended()) {
+            if ($throttle->is_banned || $throttle->checkSuspended()) {
                 $this->logout();
                 return false;
             }
@@ -345,7 +345,7 @@ class Manager
      */
     public function login($user, $remember = true)
     {
-        if ($this->requireActivation && !$user->isActivated()) {
+        if ($this->requireActivation && !$user->is_activated) {
             $login = $user->getLogin();
             throw new Exception(sprintf('Cannot login user "%s" as they are not activated.', $login));
         }

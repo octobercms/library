@@ -68,8 +68,8 @@ trait AttachOneOrMany
         if ($sessionKey === null && $this instanceof AttachOne)
             $this->delete();
 
-        if (!array_key_exists('public', $model->attributes))
-            $model->setAttribute('public', $this->isPublic());
+        if (!array_key_exists('is_public', $model->attributes))
+            $model->setAttribute('is_public', $this->isPublic());
 
         $model->setAttribute('field', $this->relationName);
 
@@ -93,8 +93,8 @@ trait AttachOneOrMany
         if ($sessionKey === null && $this instanceof AttachOne)
             $this->delete();
 
-        if (!array_key_exists('public', $attributes))
-            $attributes = array_merge(['public' => $this->isPublic()], $attributes);
+        if (!array_key_exists('is_public', $attributes))
+            $attributes = array_merge(['is_public' => $this->isPublic()], $attributes);
 
         $attributes['field'] = $this->relationName;
 
@@ -111,8 +111,8 @@ trait AttachOneOrMany
      */
     public function add(Model $model, $sessionKey = null)
     {
-        if (!array_key_exists('public', $model->attributes))
-            $model->public = $this->isPublic();
+        if (!array_key_exists('is_public', $model->attributes))
+            $model->is_public = $this->isPublic();
 
         if ($sessionKey === null) {
 

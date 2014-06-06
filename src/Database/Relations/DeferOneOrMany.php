@@ -29,7 +29,7 @@ trait DeferOneOrMany
                     ->where('master_field', $this->relationName)
                     ->where('master_type', get_class($this->parent))
                     ->where('session_key', $sessionKey)
-                    ->where('bind', true);
+                    ->where('is_bind', true);
             });
         });
 
@@ -40,13 +40,13 @@ trait DeferOneOrMany
                 ->where('master_field', $this->relationName)
                 ->where('master_type', get_class($this->parent))
                 ->where('session_key', $sessionKey)
-                ->where('bind', false)
+                ->where('is_bind', false)
                 ->whereRaw('id > ifnull((select max(id) from deferred_bindings where
                         slave_id = '.$this->related->getQualifiedKeyName().' and
                         master_field = ? and
                         master_type = ? and
                         session_key = ? and
-                        bind = ?
+                        is_bind = ?
                     ), 0)', [
                     $this->relationName,
                     get_class($this->parent),

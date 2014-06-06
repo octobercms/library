@@ -1156,7 +1156,7 @@ class Model extends EloquentModel
         $binding->slave_type = get_class($record);
         $binding->slave_id = $record->getKey();
         $binding->session_key = $sessionKey;
-        $binding->bind = true;
+        $binding->is_bind = true;
         $binding->save();
         return $binding;
     }
@@ -1172,7 +1172,7 @@ class Model extends EloquentModel
         $binding->slave_type = get_class($record);
         $binding->slave_id = $record->getKey();
         $binding->session_key = $sessionKey;
-        $binding->bind = false;
+        $binding->is_bind = false;
         $binding->save();
         return $binding;
     }
@@ -1220,7 +1220,7 @@ class Model extends EloquentModel
              */
             $relationObj = $this->$relationName();
 
-            if ($binding->bind)
+            if ($binding->is_bind)
                 $relationObj->add($slaveModel);
             else
                 $relationObj->remove($slaveModel);

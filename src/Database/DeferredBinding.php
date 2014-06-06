@@ -28,7 +28,7 @@ class DeferredBinding extends Model
         /*
          * Skip repeating bindings
          */
-        if ($this->bind) {
+        if ($this->is_bind) {
             $model = $this->findBindingRecord(1);
             if ($model)
                 return false;
@@ -55,7 +55,7 @@ class DeferredBinding extends Model
             ->where('slave_type', $this->slave_type)
             ->where('slave_id', $this->slave_id)
             ->where('session_key', $this->session_key)
-            ->where('bind', $isBind);
+            ->where('is_bind', $isBind);
 
         return $model->first();
     }
@@ -105,7 +105,7 @@ class DeferredBinding extends Model
          */
         try
         {
-            if (!$this->bind)
+            if (!$this->is_bind)
                 return;
 
             $masterType = $this->master_type;

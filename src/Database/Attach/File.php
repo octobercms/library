@@ -40,7 +40,7 @@ class File extends Model
     /**
      * @var array Hidden fields from array/json access
      */
-    protected $hidden = ['attachment_type', 'attachment_id', 'public'];
+    protected $hidden = ['attachment_type', 'attachment_id', 'is_public'];
 
     /**
      * @var array Add fields to array/json access
@@ -208,11 +208,11 @@ class File extends Model
      */
     public function isPublic()
     {
-        if (array_key_exists('public', $this->attributes))
-            return $this->attributes['public'];
+        if (array_key_exists('is_public', $this->attributes))
+            return $this->attributes['is_public'];
 
-        if (isset($this->public))
-            return $this->public;
+        if (isset($this->is_public))
+            return $this->is_public;
 
         return true;
     }
