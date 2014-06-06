@@ -18,7 +18,7 @@ class MailServiceProvider extends MailServiceProviderBase
      */
     public function register()
     {
-        $this->app['events']->fire('mailer.register');
+        $this->app['events']->fire('mailer.beforeRegister');
 
         $this->app->bindShared('mailer', function($app) {
 
@@ -52,5 +52,7 @@ class MailServiceProvider extends MailServiceProviderBase
 
             return $mailer;
         });
+
+        $this->app['events']->fire('mailer.register');
     }
 }
