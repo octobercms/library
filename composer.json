@@ -17,8 +17,8 @@
     "require": {
         "php": ">=5.4",
         "doctrine/dbal": "~2.3",
-        "illuminate/support": "4.1.x",
-        "illuminate/filesystem": "4.1.x",
+        "illuminate/support": "4.2.*",
+        "illuminate/filesystem": "4.2.*",
         "twig/twig": "1.*",
         "symfony/yaml": "2.3.*",
         "kriswallsmith/assetic": "1.*",

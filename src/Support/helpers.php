@@ -42,6 +42,6 @@ if (!function_exists('traceLog'))
         if (is_array($message) || is_object($message))
             $message = print_r($message, true);
 
-        forward_static_call(['Log', $level], $message);
+        Log::$level($message);
     }
 }
