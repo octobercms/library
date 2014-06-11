@@ -33,7 +33,7 @@ trait Sortable
      */
     public static function bootSortable()
     {
-        $this->bindEvent('model.afterCreate', function() use ($model) {
+        static::created(function($model){
             $model->setSortableOrder($model->id);
         });
     }
