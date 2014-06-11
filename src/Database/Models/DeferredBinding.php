@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Database\Models;
 
 use Db;
+use October\Rain\Database\Model;
 
 /**
  * Deferred Binding Model
