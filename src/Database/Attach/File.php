@@ -13,9 +13,7 @@ use Symfony\Component\HttpFoundation\File\File as FileObj;
  */
 class File extends Model
 {
-    public $implement = [
-        'October.Rain.Database.Behaviors.SortableModel'
-    ];
+    use \October\Rain\Database\Traits\Sortable;
 
     /**
      * @var string The table associated with the model.

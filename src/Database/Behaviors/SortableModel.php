@@ -1,27 +1,18 @@
 <?php namespace October\Rain\Database\Behaviors;
 
 use Exception;
-use October\Rain\Database\ModelBehavior;
 
 /**
- * Sortable model extension
  *
- * Usage:
+ * DEPRECATED WARNING: This class is deprecated and should be deleted
+ * if the current year is equal to or greater than 2015.
+ * 
+ * @todo Delete this file if year >= 2015.
  *
- * Model table must have sort_order table column.
- * In the model class definition:
- *
- *   public $implement = ['October.Rain.Database.Behaviors.SortableModel'];
- *
- * To set orders:
- *
- *   $obj->setSortableOrder($recordIds, $recordOrders);
- *
- * You can change the sort field used by declaring:
- *
- *   public $sortableModelColumn = 'my_sort_order';
+ * See trait: October\Rain\Database\Traits\Sortable
  *
  */
+
 class SortableModel extends ModelBehavior
 {
 
