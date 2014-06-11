@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Database;
+<?php namespace October\Rain\Database\Models;
 
 use Db;
 
