@@ -225,6 +225,21 @@ class Model extends EloquentModel
     }
 
     /**
+     * Boot all of the bootable traits on the model.
+     * @return void
+     */
+    protected static function bootTraits()
+    {
+        foreach (class_uses('October\Rain\Database\Model') as $trait) {
+            if (method_exists(get_called_class(), $method = 'boot'.class_basename($trait))) {
+                forward_static_call([get_called_class(), $method]);
+            }
+        }
+
+        parent::bootTraits();
+    }
+
+    /**
      * Extend this object properties upon construction.
      */
     public static function extend(Closure $callback)
