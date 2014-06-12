@@ -97,7 +97,7 @@ class Resizer
      * @param string $mode Either exact, portrait, landscape, auto or crop.
      * @return Self
      */
-    public function resize($newWidth, $newHeight, $mode = 'auto')
+    public function resize($newWidth, $newHeight, $mode = 'auto', $offset = [])
     {
         // Get optimal width and height - based on supplied mode.
         $optionsArray = $this->getDimensions((int)$newWidth, (int)$newHeight, $mode);
@@ -117,7 +117,7 @@ class Resizer
         imagecopyresampled($this->imageResized, $this->image, 0, 0, 0, 0, $optimalWidth, $optimalHeight, $this->width, $this->height);
 
         if ($mode == 'crop')
-            $this->crop($optimalWidth, $optimalHeight, $newWidth, $newHeight);
+            $this->crop($optimalWidth, $optimalHeight, $newWidth, $newHeight, $offset);
 
         return $this;
     }
@@ -348,11 +348,11 @@ class Resizer
      * @param int $newHeight The new height
      * @return true
      */
-    private function crop($optimalWidth, $optimalHeight, $newWidth, $newHeight)
+    private function crop($optimalWidth, $optimalHeight, $newWidth, $newHeight, $offset)
     {
         // Find center - this will be used for the crop
-        $cropStartX = ($optimalWidth  / 2) - ($newWidth  / 2);
-        $cropStartY = ($optimalHeight / 2) - ($newHeight / 2);
+        $cropStartX = ($optimalWidth  / 2) - ($newWidth  / 2) - $offset[0];
+        $cropStartY = ($optimalHeight / 2) - ($newHeight / 2) - $offset[1];
 
         $crop = $this->imageResized;
 
