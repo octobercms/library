@@ -95,6 +95,7 @@ class Resizer
      * @param int $newWidth The width of the image
      * @param int $newHeight The height of the image
      * @param string $mode Either exact, portrait, landscape, auto or crop.
+     * @param array $offset The offset of the crop = [ left, top ]
      * @return Self
      */
     public function resize($newWidth, $newHeight, $mode = 'auto', $offset = [])
@@ -346,6 +347,7 @@ class Resizer
      * @param int $optimalHeight The height of the image
      * @param int $newWidth The new width
      * @param int $newHeight The new height
+     * @param array $offset The offset of the crop = [ left, top ]
      * @return true
      */
     private function crop($optimalWidth, $optimalHeight, $newWidth, $newHeight, $offset)
