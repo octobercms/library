@@ -282,6 +282,7 @@ class File extends Model
             'extension' => 'png',
             'quality' => 95,
             'mode' => 'auto',
+            'offset' => [0, 0]
         ];
 
         if (!is_array($options))
@@ -291,7 +292,8 @@ class File extends Model
 
         $thumbExt = strtolower($options['extension']);
         $thumbMode = strtolower($options['mode']);
-        $thumbFile = 'thumb_' . $this->id . '_' . $width . 'x' . $height . '_' . $thumbMode . '.' . $thumbExt;
+        $thumbOffset = $options['offset'];
+        $thumbFile = 'thumb_' . $this->id . '_' . $width . 'x' . $height . '_' . $thumbOffset[0] . '_' . $thumbOffset[1] . '_' . $thumbMode . '.' . $thumbExt;
         $thumbPath = $this->getStorageDirectory() . $this->getPartitionDirectory() . $thumbFile;
         $thumbPublic = $this->getPublicDirectory() . $this->getPartitionDirectory() . $thumbFile;
 
@@ -302,7 +304,7 @@ class File extends Model
          * Generate thumbnail
          */
         $resizer = Resizer::open($this->getDiskPath());
-        $resizer->resize($width, $height, $options['mode']);
+        $resizer->resize($width, $height, $options['mode'], $options['offset']);
         $resizer->save($thumbPath, $options['quality']);
 
         return $thumbPublic;
