@@ -35,10 +35,6 @@ trait Validation
      */
     public static function bootValidation()
     {
-        static::extend(function($model){
-            $model->validationErrors = new MessageBag;
-        });
-
         static::validating(function($model) {
             $model->fireEvent('model.beforeValidate');
             if ($model->methodExists('beforeValidate'))
