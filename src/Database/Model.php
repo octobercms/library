@@ -17,9 +17,8 @@ use October\Rain\Database\Relations\AttachOne;
 use October\Rain\Database\Relations\hasManyThrough;
 use October\Rain\Database\ModelException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Illuminate\Support\MessageBag;
-use Exception;
 use InvalidArgumentException;
+use Exception;
 
 /**
  * Active Record base class.
@@ -169,11 +168,8 @@ class Model extends EloquentModel
      */
     public function __construct(array $attributes = array())
     {
-        $this->extendableConstruct();
         parent::__construct($attributes);
-
-        // Used by Validation trait
-        $this->validationErrors = new MessageBag;
+        $this->extendableConstruct();
     }
 
     /**

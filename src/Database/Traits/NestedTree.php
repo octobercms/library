@@ -1,43 +1,74 @@
-<?php namespace October\Rain\Database\Behaviors;
+<?php namespace October\Rain\Database\Traits;
 
 use Exception;
-use October\Rain\Database\ModelBehavior;
 use Illuminate\Database\Eloquent\Collection;
+use October\Rain\Database\TreeCollection;
 
 /**
+ * Nested set model trait
  *
- * DEPRECATED WARNING: This class is deprecated and should be deleted
- * if the current year is equal to or greater than 2015.
+ * Model table must have parent_id, nest_left, nest_right and nest_depth table columns.
+ * In the model class definition:
+ *
+ *   use \October\Rain\Database\Traits\NestedTree;
+ *
+ *   $table->integer('parent_id')->nullable();
+ *   $table->integer('nest_left')->nullable();
+ *   $table->integer('nest_right')->nullable();
+ *   $table->integer('nest_depth')->nullable();
+ *
+ * You can change the column names used by declaring:
+ *
+ *   const PARENT_ID = 'my_parent_column';
+ *   const NEST_LEFT = 'my_left_column';
+ *   const NEST_RIGHT = 'my_right_column';
+ *   const NEST_DEPTH = 'my_depth_column';
+ *
+ * General access methods:
+ *
+ *   $model->getRoot(); // Returns the highest parent of a node.
+ *   $model->getRootList(); // Returns an indented array of key and value columns from root.
+ *   $model->getParent(); // The direct parent node.
+ *   $model->getParents(); // Returns all parents up the tree.
+ *   $model->getParentsAndSelf(); // Returns all parents up the tree and self.
+ *   $model->getChildren(); // Set of all direct child nodes.
+ *   $model->getSiblings(); // Return all siblings (parent's children).
+ *   $model->getSiblingsAndSelf(); // Return all siblings and self.
+ *   $model->getLeaves(); // Returns all final nodes without children.
+ *   $model->getDepth(); // Returns the depth of a current node.
+ *   $model->getChildCount(); // Returns number of all children.
+ *
+ * Query builder methods:
+ *
+ *   $query->withoutNode(); // Filters a specific node from the results.
+ *   $query->withoutSelf(); // Filters current node from the results.
+ *   $query->withoutRoot(); // Filters root from the results.
+ *   $query->children(); // Filters as direct children down the tree.
+ *   $query->allChildren(); // Filters as all children down the tree.
+ *   $query->parent(); // Filters as direct parent up the tree.
+ *   $query->parents(); // Filters as all parents up the tree.
+ *   $query->siblings(); // Filters as all siblings (parent's children).
+ *   $query->leaves(); // Filters as all final nodes without children.
+ *   $query->getNested(); // Returns an eager loaded collection of results.
+ *   $query->listsNested(); // Returns an indented array of key and value columns.
+ *   $query->orderByNested(); // Applies the default nesting sort order.
  * 
- * @todo Delete this file if year >= 2015.
+ * Flat result access methods:
  *
- * See trait: October\Rain\Database\Traits\NestedTree
+ *   $model->getAll(); // Returns everything in correct order.
+ *   $model->getAllRoot(); // Returns all root nodes.
+ *   $model->getAllChildren(); // Returns all children down the tree.
+ *   $model->getAllChildrenAndSelf(); // Returns all children and self.
+ * 
+ * Eager loaded access methods:
+ *
+ *   $model->getEagerRoot(); // Returns a list of all root nodes, with ->children eager loaded.
+ *   $model->getEagerChildren(); // Returns direct child nodes, with ->children eager loaded.
  *
  */
 
-class NestedSetModel extends ModelBehavior
+trait NestedTree
 {
-
-    /**
-     * @var string The database column that identifies the parent.
-     */
-    protected $parentColumn = 'parent_id';
-
-    /**
-     * @var string The database column that identifies the left alignment.
-     */
-    protected $leftColumn = 'nest_left';
-
-    /**
-     * @var string The database column that identifies the right alignment.
-     */
-    protected $rightColumn = 'nest_right';
-
-    /**
-     * @var string The database column that identifies the nesting depth.
-     */
-    protected $depthColumn = 'nest_depth';
-
     /**
      * @var int Indicates if the model should be aligned to new parent.
      */
@@ -46,57 +77,42 @@ class NestedSetModel extends ModelBehavior
     /*
      * Constructor
      */
-    public function __construct($model)
+    public static function bootNestedTree()
     {
-        parent::__construct($model);
+        static::extend(function($model){
+            /*
+             * Define relationships
+             */
+            $model->hasMany['children'] = [
+                get_class($model),
+                'primaryKey' => $model->getParentColumnName(),
+                'order' => $model->getLeftColumnName()
+            ];
 
-        /*
-         * Define relationships
-         */
-        $model->hasMany['children'] = [
-            get_class($model),
-            'primaryKey' => $this->getParentColumnName(),
-            'order' => $this->getLeftColumnName()
-        ];
-
-        $model->belongsTo['parent'] = [
-            get_class($model),
-            'foreignKey' => $this->getParentColumnName()
-        ];
-
-        /*
-         * Model property overrides
-         */
-        if (isset($this->model->nestedSetModelParentColumn))
-            $this->parentColumn = $this->model->nestedSetModelParentColumn;
-
-        if (isset($this->model->nestedSetModelLeftColumn))
-            $this->leftColumn = $this->model->nestedSetModelLeftColumn;
-
-        if (isset($this->model->nestedSetModelRightColumn))
-            $this->rightColumn = $this->model->nestedSetModelRightColumn;
-
-        if (isset($this->model->nestedSetModelDepthColumn))
-            $this->depthColumn = $this->model->nestedSetModelDepthColumn;
+            $model->belongsTo['parent'] = [
+                get_class($model),
+                'foreignKey' => $model->getParentColumnName()
+            ];
+        });
 
         /*
          * Bind events
          */
-        $model->bindEvent('model.beforeCreate', function() {
-            $this->setDefaultLeftAndRight();
+        static::creating(function($model) {
+            $model->setDefaultLeftAndRight();
         });
 
-        $model->bindEvent('model.beforeSave', function() {
-            $this->storeNewParent();
+        static::saving(function($model) {
+            $model->storeNewParent();
         });
 
-        $model->bindEvent('model.afterSave', function() {
-            $this->moveToNewParent();
-            $this->setDepth();
+        static::saved(function($model) {
+            $model->moveToNewParent();
+            $model->setDepth();
         });
 
-        $model->bindEvent('model.beforeDelete', function() {
-            $this->deleteDescendants();
+        static::deleting(function($model) {
+            $model->deleteDescendants();
         });
     }
 
@@ -107,14 +123,14 @@ class NestedSetModel extends ModelBehavior
     public function storeNewParent()
     {
         $parentColumn = $this->getParentColumnName();
-        $isDirty = $this->model->isDirty($parentColumn);
+        $isDirty = $this->isDirty($parentColumn);
 
         // Parent is not set or unchanged
         if (!$isDirty) {
             $this->moveToNewParentId = false;
         }
         // Created as a root node
-        elseif (!$this->model->exists && !$this->getParentId()) {
+        elseif (!$this->exists && !$this->getParentId()) {
             $this->moveToNewParentId = false;
         }
         // Parent has been set
@@ -146,7 +162,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function newNestedSetQuery($excludeDeleted = true)
     {
-        return $this->model->newQuery($excludeDeleted)->orderByNested();
+        return $this->newQuery($excludeDeleted)->orderByNested();
     }
 
     /**
@@ -159,8 +175,8 @@ class NestedSetModel extends ModelBehavior
         if ($this->getRight() === null || $this->getLeft() === null)
             return;
 
-        $this->model->getConnection()->transaction(function() {
-            $this->model->reload();
+        $this->getConnection()->transaction(function() {
+            $this->reload();
 
             $leftCol = $this->getLeftColumnName();
             $rightCol = $this->getRightColumnName();
@@ -279,7 +295,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function isLeaf()
     {
-        return $this->model->exists && ($this->getRight() - $this->getLeft() == 1);
+        return $this->exists && ($this->getRight() - $this->getLeft() == 1);
     }
 
     /**
@@ -327,7 +343,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function scopeWithoutSelf($query)
     {
-        return $this->scopeWithoutNode($query, $this->model);
+        return $this->scopeWithoutNode($query, $this);
     }
 
     /**
@@ -387,7 +403,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function scopeLeaves($query)
     {
-        $grammar = $this->model->getConnection()->getQueryGrammar();
+        $grammar = $this->getConnection()->getQueryGrammar();
 
         $rightCol = $grammar->wrap($this->getQualifiedRightColumnName());
         $leftCol = $grammar->wrap($this->getQualifiedLeftColumnName());
@@ -467,7 +483,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getRoot()
     {
-        if ($this->model->exists) {
+        if ($this->exists) {
             return $this->newNestedSetQuery()->parents(true)
                 ->where(function($query){
                     $query->whereNull($this->getParentColumnName());
@@ -479,11 +495,11 @@ class NestedSetModel extends ModelBehavior
         else {
             $parentId = $this->getParentId();
 
-            if ($parentId !== null && ($currentParent = $this->model->newQuery()->find($parentId))) {
+            if ($parentId !== null && ($currentParent = $this->newQuery()->find($parentId))) {
                 return $currentParent->getRoot();
             }
             else {
-                return $this->model;
+                return $this;
             }
         }
     }
@@ -527,7 +543,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getParent()
     {
-        return $this->model->parent()->get();
+        return $this->parent()->get();
     }
 
     /**
@@ -554,7 +570,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getChildren()
     {
-        return $this->model->children;
+        return $this->children;
     }
 
     /**
@@ -643,20 +659,20 @@ class NestedSetModel extends ModelBehavior
      */
     public function setDepth()
     {
-        $this->model->getConnection()->transaction(function() {
-            $this->model->reload();
+        $this->getConnection()->transaction(function() {
+            $this->reload();
 
             $level = $this->getLevel();
 
             $this->newNestedSetQuery()
-                ->where($this->model->getKeyName(), '=', $this->model->getKey())
+                ->where($this->getKeyName(), '=', $this->getKey())
                 ->update([$this->getDepthColumnName() => $level])
             ;
 
-            $this->model->setAttribute($this->getDepthColumnName(), $level);
+            $this->setAttribute($this->getDepthColumnName(), $level);
         });
 
-        return $this->model;
+        return $this;
     }
 
     /**
@@ -665,7 +681,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function setDefaultLeftAndRight()
     {
-        $highRight = $this->model
+        $highRight = $this
             ->newQuery()
             ->orderBy($this->getRightColumnName(), 'desc')
             ->limit(1)
@@ -676,8 +692,8 @@ class NestedSetModel extends ModelBehavior
             $maxRight = $highRight->getRight();
         }
 
-        $this->model->setAttribute($this->getLeftColumnName(), $maxRight + 1);
-        $this->model->setAttribute($this->getRightColumnName(), $maxRight + 2);
+        $this->setAttribute($this->getLeftColumnName(), $maxRight + 1);
+        $this->setAttribute($this->getRightColumnName(), $maxRight + 2);
     }
 
     //
@@ -690,7 +706,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getParentColumnName()
     {
-        return $this->parentColumn;
+        return defined('static::PARENT_ID') ? static::PARENT_ID : 'parent_id';
     }
 
     /**
@@ -699,7 +715,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getQualifiedParentColumnName()
     {
-        return $this->model->getTable(). '.' .$this->getParentColumnName();
+        return $this->getTable(). '.' .$this->getParentColumnName();
     }
 
     /**
@@ -708,7 +724,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getParentId()
     {
-        return $this->model->getAttribute($this->getParentColumnName());
+        return $this->getAttribute($this->getParentColumnName());
     }
 
     /**
@@ -717,7 +733,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getLeftColumnName()
     {
-        return $this->leftColumn;
+        return defined('static::NEST_LEFT') ? static::NEST_LEFT : 'nest_left';
     }
 
     /**
@@ -726,7 +742,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getQualifiedLeftColumnName()
     {
-        return $this->model->getTable() . '.' . $this->getLeftColumnName();
+        return $this->getTable() . '.' . $this->getLeftColumnName();
     }
 
     /**
@@ -735,7 +751,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getLeft()
     {
-        return $this->model->getAttribute($this->getLeftColumnName());
+        return $this->getAttribute($this->getLeftColumnName());
     }
 
     /**
@@ -744,7 +760,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getRightColumnName()
     {
-        return $this->rightColumn;
+        return defined('static::NEST_RIGHT') ? static::NEST_RIGHT : 'nest_right';
     }
 
     /**
@@ -753,7 +769,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getQualifiedRightColumnName()
     {
-        return $this->model->getTable() . '.' . $this->getRightColumnName();
+        return $this->getTable() . '.' . $this->getRightColumnName();
     }
 
     /**
@@ -762,7 +778,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getRight()
     {
-        return $this->model->getAttribute($this->getRightColumnName());
+        return $this->getAttribute($this->getRightColumnName());
     }
 
     /**
@@ -771,7 +787,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getDepthColumnName()
     {
-        return $this->depthColumn;
+        return defined('static::NEST_DEPTH') ? static::NEST_DEPTH : 'nest_depth';
     }
 
     /**
@@ -780,7 +796,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getQualifiedDepthColumnName()
     {
-        return $this->model->getTable() . '.' . $this->getDepthColumnName();
+        return $this->getTable() . '.' . $this->getDepthColumnName();
     }
 
     /**
@@ -789,7 +805,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function getDepth()
     {
-        return $this->model->getAttribute($this->getDepthColumnName());
+        return $this->getAttribute($this->getDepthColumnName());
     }
 
     //
@@ -810,33 +826,33 @@ class NestedSetModel extends ModelBehavior
         if ($target instanceof \October\Rain\Database\Model)
             $target->reload();
         else
-            $target = $this->model->newNestedSetQuery()->find($target);
+            $target = $this->newNestedSetQuery()->find($target);
 
         /*
          * Validate move
          */
-        if (!$this->validateMove($this->model, $target, $position))
-            return $this->model;
+        if (!$this->validateMove($this, $target, $position))
+            return $this;
 
         /*
          * Perform move
          */
-        $this->model->getConnection()->transaction(function() use ($target, $position) {
-            $this->performMove($this->model, $target, $position);
+        $this->getConnection()->transaction(function() use ($target, $position) {
+            $this->performMove($this, $target, $position);
         });
 
         /*
          * Reapply alignments
          */
         $target->reload();
-        $this->model->setDepth();
+        $this->setDepth();
 
         foreach ($this->newNestedSetQuery()->allChildren()->get() as $descendant) {
             $descendant->save();
         }
 
-        $this->model->reload();
-        return $this->model;
+        $this->reload();
+        return $this;
     }
 
     /**
@@ -981,6 +997,14 @@ class NestedSetModel extends ModelBehavior
 
         sort($boundaries);
         return $boundaries;
+    }
+
+    /**
+     * Return a custom TreeCollection collection
+     */
+    public function newCollection(array $models = [])
+    {
+        return new TreeCollection($models);
     }
 
 }

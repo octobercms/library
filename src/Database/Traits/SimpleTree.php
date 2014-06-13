@@ -1,27 +1,37 @@
-<?php namespace October\Rain\Database\Behaviors;
+<?php namespace October\Rain\Database\Traits;
 
 use Exception;
-use October\Rain\Database\ModelBehavior;
 use Illuminate\Database\Eloquent\Collection;
+use October\Rain\Database\TreeCollection;
 
 /**
- *
- * DEPRECATED WARNING: This class is deprecated and should be deleted
- * if the current year is equal to or greater than 2015.
+ * Simple Tree model trait
  * 
- * @todo Delete this file if year >= 2015.
+ * Simple category implementation, for advanced implementation see:
+ * October\Rain\Database\Traits\NestedTree
  *
- * See trait: October\Rain\Database\Traits\SimpleTree
+ * Usage:
+ *
+ * Model table must have parent_id table column.
+ * In the model class definition:
+ *
+ *   use \October\Rain\Database\Traits\SimpleTree;
+ *
+ * To get children:
+ *
+ *   $model->getChildren();
+ *
+ * To get root elements:
+ *
+ *   $model->getRootChildren();
+ *
+ * You can change the sort field used by declaring:
+ *
+ *   const PARENT_ID = 'my_parent_column';
  *
  */
-
-class TreeModel extends ModelBehavior
+trait SimpleTree
 {
-
-    /**
-     * @var string The database column that identifies the parent.
-     */
-    protected $parentColumn = 'parent_id';
 
     /**
      * @var string The database column that identifies each item by name.
@@ -37,30 +47,15 @@ class TreeModel extends ModelBehavior
     private static $parentCache = [];
     private static $cacheSortColumn = [];
 
-    private $modelClass;
-
-    /*
-     * Constructor
-     */
-    public function __construct($model)
-    {
-        parent::__construct($model);
-
-        $this->modelClass = get_class($model);
-
-        if (isset($this->model->treeModelParentColumn))
-            $this->parentColumn = $this->model->treeModelParentColumn;
-    }
-
     /**
      * Resets the cached values for all.
      * @return void
      */
-    public static function clearCache()
+    public static function clearTreeCache()
     {
-        self::$objectCache = [];
-        self::$parentCache = [];
-        self::$cacheSortColumn = [];
+        static::$objectCache = [];
+        static::$parentCache = [];
+        static::$cacheSortColumn = [];
     }
 
     /**
@@ -70,13 +65,15 @@ class TreeModel extends ModelBehavior
      */
     public function getChildren($orderBy = 'name')
     {
+        $class = get_called_class();
+
         if (!$this->cacheExists($orderBy))
             $this->initCache($orderBy);
 
         $cacheKey = $this->getCacheKey($orderBy);
 
-        if (isset(self::$objectCache[$this->modelClass][$cacheKey][$this->model->id]))
-            return new Collection(self::$objectCache[$this->modelClass][$cacheKey][$this->model->id]);
+        if (isset(static::$objectCache[$class][$cacheKey][$this->id]))
+            return new Collection(static::$objectCache[$class][$cacheKey][$this->id]);
 
         return new Collection();
     }
@@ -97,13 +94,15 @@ class TreeModel extends ModelBehavior
      */
     public function getRootChildren($orderBy = 'name')
     {
+        $class = get_called_class();
+
         if (!$this->cacheExists($orderBy))
             $this->initCache($orderBy);
 
         $cacheKey = $this->getCacheKey($orderBy);
 
-        if (isset(self::$objectCache[$this->modelClass][$cacheKey][-1]))
-            return new Collection(self::$objectCache[$this->modelClass][$cacheKey][-1]);
+        if (isset(static::$objectCache[$class][$cacheKey][-1]))
+            return new Collection(static::$objectCache[$class][$cacheKey][-1]);
 
         return new Collection();
     }
@@ -116,7 +115,7 @@ class TreeModel extends ModelBehavior
     public function getAllChildren($orderBy = 'name')
     {
         $result = [];
-        $children = $this->model->getChildren($orderBy);
+        $children = $this->getChildren($orderBy);
 
         foreach ($children as $child) {
             $result[] = $child;
@@ -143,7 +142,7 @@ class TreeModel extends ModelBehavior
 
         $result = [];
         foreach ($parents as $parent)
-            $result[] = $parent->{$this->model->treeModelNameColumn};
+            $result[] = $parent->{$this->treeModelNameColumn};
 
         return implode($separator, array_reverse($result));
     }
@@ -155,19 +154,21 @@ class TreeModel extends ModelBehavior
      */
     public function getParent($orderBy = 'name')
     {
+        $class = get_called_class();
+
         if (!$this->cacheExists($orderBy))
             $this->initCache($orderBy);
 
         $cacheKey = $this->getCacheKey($orderBy);
 
         $parentKey = $this->getParentColumnName();
-        if (!$this->model->$parentKey)
+        if (!$this->$parentKey)
             return null;
 
-        if (!isset(self::$parentCache[$this->modelClass][$cacheKey][$this->model->$parentKey]))
+        if (!isset(static::$parentCache[$class][$cacheKey][$this->$parentKey]))
             return null;
 
-        return self::$parentCache[$this->modelClass][$cacheKey][$this->model->$parentKey];
+        return static::$parentCache[$class][$cacheKey][$this->$parentKey];
     }
 
     /**
@@ -177,7 +178,7 @@ class TreeModel extends ModelBehavior
      */
     public function getParents($orderBy = 'name')
     {
-        $parent = $this->model->getParent($orderBy);
+        $parent = $this->getParent($orderBy);
         $result = [];
 
         while ($parent != null) {
@@ -196,7 +197,7 @@ class TreeModel extends ModelBehavior
     public function getParentsAndSelf($orderBy = 'name')
     {
         $collection = $this->getParents();
-        array_unshift($collection, $this->model);
+        array_unshift($collection, $this);
         return $collection;
     }
 
@@ -210,7 +211,7 @@ class TreeModel extends ModelBehavior
      */
     public function getParentColumnName()
     {
-        return $this->parentColumn;
+        return defined('static::PARENT_ID') ? static::PARENT_ID : 'parent_id';
     }
 
     /**
@@ -219,7 +220,7 @@ class TreeModel extends ModelBehavior
      */
     public function getQualifiedParentColumnName()
     {
-        return $this->model->getTable(). '.' .$this->getParentColumnName();
+        return $this->getTable(). '.' .$this->getParentColumnName();
     }
 
     /**
@@ -228,7 +229,7 @@ class TreeModel extends ModelBehavior
      */
     public function getParentId()
     {
-        return $this->model->getAttribute($this->getParentColumnName());
+        return $this->getAttribute($this->getParentColumnName());
     }
 
     //
@@ -242,15 +243,15 @@ class TreeModel extends ModelBehavior
      */
     private function initCache($orderBy)
     {
-        $className = $this->modelClass;
+        $class = get_called_class();
         $cacheKey = $this->getCacheKey($orderBy);
 
-        $query = $this->model->newQuery();
+        $query = $this->newQuery();
 
         $query = $query->orderBy($orderBy);
 
-        if ($this->model->treeModelSqlFilter)
-            $query = $query->whereRaw($this->model->treeModelSqlFilter);
+        if ($this->treeModelSqlFilter)
+            $query = $query->whereRaw($this->treeModelSqlFilter);
 
         $records = $query->get();
         $objectCache = [];
@@ -267,9 +268,9 @@ class TreeModel extends ModelBehavior
             $parentCache[$record->id] = $record;
         }
 
-        self::$objectCache[$this->modelClass][$cacheKey] = $objectCache;
-        self::$parentCache[$this->modelClass][$cacheKey] = $parentCache;
-        self::$cacheSortColumn[$this->modelClass][$cacheKey] = $orderBy;
+        static::$objectCache[$class][$cacheKey] = $objectCache;
+        static::$parentCache[$class][$cacheKey] = $parentCache;
+        static::$cacheSortColumn[$class][$cacheKey] = $orderBy;
     }
 
     /**
@@ -279,7 +280,7 @@ class TreeModel extends ModelBehavior
      */
     private function getCacheKey($orderBy)
     {
-        return $orderBy . $this->model->treeModelSqlFilter;
+        return $orderBy . $this->treeModelSqlFilter;
     }
 
     /**
@@ -289,9 +290,18 @@ class TreeModel extends ModelBehavior
      */
     private function cacheExists($orderBy)
     {
+        $class = get_called_class();
         $cacheKey = $this->getCacheKey($orderBy);
-        return array_key_exists($this->modelClass, self::$objectCache) &&
-            array_key_exists($cacheKey, self::$objectCache[$this->modelClass]);
+        return array_key_exists($class, static::$objectCache) &&
+            array_key_exists($cacheKey, static::$objectCache[$class]);
+    }
+
+    /**
+     * Return a custom TreeCollection collection
+     */
+    public function newCollection(array $models = [])
+    {
+        return new TreeCollection($models);
     }
 
 }
