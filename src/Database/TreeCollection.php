@@ -16,9 +16,10 @@ class TreeCollection extends CollectionBase
     /**
      * Converts a flat collection of nested set models to an set where
      * children is eager loaded
+     * @param bool $removeOrphans Remove nodes that exist without their parents.
      * @return Illuminate\Database\Eloquent\Collection
      */
-    public function toNested()
+    public function toNested($removeOrphans = true)
     {
         /*
          * Set new collection for "children" relations
@@ -33,10 +34,14 @@ class TreeCollection extends CollectionBase
          */
         $nestedKeys = [];
         foreach($collection as $key => $model) {
-            $parentKey = $model->getParentId();
+            if (!$parentKey = $model->getParentId())
+                continue;
 
-            if ($parentKey !== null && array_key_exists($parentKey, $collection)) {
+            if (array_key_exists($parentKey, $collection)) {
                 $collection[$parentKey]->children[] = $model;
+                $nestedKeys[] = $model->getKey();
+            }
+            elseif ($removeOrphans) {
                 $nestedKeys[] = $model->getKey();
             }
         }
