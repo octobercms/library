@@ -487,6 +487,8 @@ class NestedSetModel extends ModelBehavior
      */
     public function scopeGetNested($query)
     {
+        $query = $query->orderByNested();
+
         $results = $query->get();
         $collection = $this->makeHierarchy($results);
 
@@ -502,6 +504,8 @@ class NestedSetModel extends ModelBehavior
      */
     public function scopeListsNested($query, $column, $key = null, $indent = '&nbsp;&nbsp;&nbsp;')
     {
+        $query = $query->orderByNested();
+
         $columns = [$this->getDepthColumnName(), $column];
         if ($key !== null)
             $columns[] = $key;
