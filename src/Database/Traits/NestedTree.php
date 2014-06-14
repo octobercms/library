@@ -664,10 +664,11 @@ trait NestedTree
     public function setDefaultLeftAndRight()
     {
         $highRight = $this
-            ->newQuery()
+            ->newQueryWithoutScopes()
             ->orderBy($this->getRightColumnName(), 'desc')
             ->limit(1)
-            ->first();
+            ->first()
+        ;
 
         $maxRight = 0;
         if ($highRight !== null) {
