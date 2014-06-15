@@ -39,7 +39,9 @@ if (!function_exists('traceLog'))
      */
     function traceLog($message, $level = 'info')
     {
-        if (is_array($message) || is_object($message))
+        if ($message instanceof Exception)
+            $level = 'error';
+        elseif (is_array($message) || is_object($message))
             $message = print_r($message, true);
 
         Log::$level($message);
