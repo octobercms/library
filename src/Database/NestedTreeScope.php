@@ -33,7 +33,7 @@ class NestedTreeScope implements ScopeInterface
                 continue;
 
             unset($query->orders[$key]);
-            $query->orders = array_values($query->orders);
+            $query->orders = array_values($query->orders) ?: null;
         }
     }
 
