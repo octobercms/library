@@ -67,8 +67,8 @@ class Updater
             return;
 
         require_once $file;
-        $class = $this->getClassFromFile($file);
-        return new $class;
+        if ($class = $this->getClassFromFile($file))
+            return new $class;
     }
 
     /**
@@ -137,6 +137,9 @@ class Updater
 
             }
         }
+
+        if (!strlen(trim($namespace)) && !strlen(trim($class)))
+            return false;
 
         return trim($namespace) . '\\' . trim($class);
     }
