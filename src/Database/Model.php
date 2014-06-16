@@ -59,16 +59,6 @@ class Model extends EloquentModel
     protected $dates = [];
 
     /**
-     * @var array List of original attribute values before they were hashed.
-     */
-    private $originalHashableValues = [];
-
-    /**
-     * @var array List of original attribute values before they were purged.
-     */
-    private $originalPurgeableValues = [];
-
-    /**
      * Cleaner declaration of relationships.
      * Uses a similar approach to the relation methods used by Eloquent, but as separate properties
      * that make the class file less cluttered.

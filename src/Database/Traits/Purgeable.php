@@ -8,6 +8,16 @@ trait Purgeable
     protected $purgeable = [];
 
     /**
+     * @var array List of original attribute values before they were hashed.
+     */
+    private $originalHashableValues = [];
+
+    /**
+     * @var array List of original attribute values before they were purged.
+     */
+    private $originalPurgeableValues = [];
+
+    /**
      * Removes purged attributes from the dataset, used before saving.
      * @param $attributes mixed Attribute(s) to purge, if unspecified, $purgable property is used
      * @return array Current attribute set
