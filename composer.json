@@ -20,7 +20,7 @@
         "illuminate/support": "4.2.*",
         "illuminate/filesystem": "4.2.*",
         "twig/twig": "1.*",
-        "symfony/yaml": "2.3.*",
+        "symfony/yaml": "2.4.*",
         "kriswallsmith/assetic": "1.*",
         "leafo/lessphp": "dev-master",
         "linkorb/jsmin-php": "dev-master",
