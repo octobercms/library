@@ -159,6 +159,8 @@ trait ExtendableTrait
 
             return $parent->{$name} = $value;
         }
+        
+        return $this->{$name} = $value;
     }
 
     public function extendableCall($name, $params = null)
