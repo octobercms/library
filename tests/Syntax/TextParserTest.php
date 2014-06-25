@@ -5,11 +5,8 @@ use October\Rain\Syntax\TextParser;
 class TextParserTest extends TestCase
 {
 
-    public function testParse()
+    public function testParseCombination()
     {
-        /*
-         * Combination
-         */
         $content = '{welcome}';
         $content .= '{posts}{title}{/posts}';
         $vars = [
@@ -21,18 +18,18 @@ class TextParserTest extends TestCase
         ];
         $result = TextParser::parse($content, $vars);
         $this->assertEquals('Hello!FooBar', $result);
+    }
 
-        /*
-         * Single key
-         */
+    public function testParseSingleKey()
+    {
         $content = '{foo} {foo} {foo}';
         $vars = ['foo' => 'bar'];
         $result = TextParser::parse($content, $vars);
         $this->assertEquals('bar bar bar', $result);
+    }
 
-        /*
-         * Looping key
-         */
+    public function testParseLoopingKey()
+    {
         $content = '';
         $content .= '{posts}{title}{/posts}';
         $content .= '{posts}{title}{/posts}';
