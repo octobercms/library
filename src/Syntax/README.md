@@ -1,14 +1,14 @@
 # Rain Dynamic Syntax
 
-Dynamic Syntax is a templating engine that supports two modes of rendering. Parsing template text can produce two results, either a **view** or **editor** mode. Using this template text, for example
+Dynamic Syntax is a templating engine that supports two modes of rendering. Parsing template text can produce two results, either a **view** or **editor** mode. Using this template text as an example:
 
     <h1>{text name="websiteName" label="Website Name"}Our wonderful website{/text}</h1>
 
-The inner part of the `{text}...{/text}` tags represents the default text. Tags can also be called without default text, usually used for extracting their values in the template logic. For example:
+The inner part of the `{text}...{/text}` tags represents the default **view** text, the remaining values (text, name and label) are used for the **editor** mode. Tags can also be called without default text, for example:
 
     {text name="websiteName" label="Website Name"}
 
-This will only appear in the **editor** mode and will not render any value for the **view** mode.
+This will only appear in the **editor** mode and will not render any value for the **view** mode. This is puseful for defining variables and using their values elsewhere in the template logic.
 
 ## Class usage
 

@@ -7,13 +7,6 @@ class FieldParser
 {
 
     /**
-     * @var array Parsing options
-     */
-    protected $options = [
-        'encodeHtml' => true
-    ];
-
-    /**
      * @var string Template contents
      */
     protected $template = '';
@@ -97,13 +90,13 @@ class FieldParser
 
         $match = $matchSingle + $matchDouble;
 
-        echo PHP_EOL.PHP_EOL;
-        echo $string;
-        echo PHP_EOL.PHP_EOL;
-        echo $regex . PHP_EOL;
-        echo PHP_EOL.PHP_EOL;
-        print_r($match);
-        echo PHP_EOL.PHP_EOL;
+        // echo PHP_EOL.PHP_EOL;
+        // echo $string;
+        // echo PHP_EOL.PHP_EOL;
+        // echo $regex . PHP_EOL;
+        // echo PHP_EOL.PHP_EOL;
+        // print_r($match);
+        // echo PHP_EOL.PHP_EOL;
 
         return ($match) ? $match : false;
     }
