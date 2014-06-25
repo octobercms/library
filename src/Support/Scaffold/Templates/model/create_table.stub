@@ -18,7 +18,7 @@ class Create{{studly_plural_name}}Table extends Migration
 
     public function down()
     {
-        Schema::drop('{{lower_author}}_{{lower_plugin}}_{{snake_plural_name}}');
+        Schema::dropIfExists('{{lower_author}}_{{lower_plugin}}_{{snake_plural_name}}');
     }
 
 }
