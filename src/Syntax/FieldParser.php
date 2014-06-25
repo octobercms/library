@@ -88,16 +88,32 @@ class FieldParser
 
         preg_match_all($regex, $string, $matchDouble);
 
-        $match = $matchSingle + $matchDouble;
-
-        // echo PHP_EOL.PHP_EOL;
-        // echo $string;
-        // echo PHP_EOL.PHP_EOL;
-        // echo $regex . PHP_EOL;
-        // echo PHP_EOL.PHP_EOL;
-        // print_r($match);
-        // echo PHP_EOL.PHP_EOL;
+        $match = $this->mergeSinglesAndDoubles($matchSingle, $matchDouble);
 
         return ($match) ? $match : false;
     }
+
+    private function mergeSinglesAndDoubles($singles, $doubles)
+    {
+        if (!count($singles[0])) {
+            $singles[2] = [];
+            return $singles;
+        }
+
+        $singles[2] = array_fill(0, count($singles[0]), null);
+        $matched = [];
+        $result = [];
+        foreach ($singles[1] as $singleKey => $needle) {
+
+            $doubleKey = array_search($needle, $doubles[1]);
+            if ($doubleKey === false)
+                continue;
+
+            $singles[0][$singleKey] = $doubles[0][$doubleKey];
+            $singles[2][$singleKey] = $doubles[2][$doubleKey];
+        }
+
+        return $singles;
+    }
+
 }

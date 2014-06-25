@@ -4,11 +4,11 @@ Dynamic Syntax is a templating engine that supports two modes of rendering. Pars
 
     <h1>{text name="websiteName" label="Website Name"}Our wonderful website{/text}</h1>
 
-The inner part of the `{text}...{/text}` tags represents the default **view** text, the remaining values (text, name and label) are used for the **editor** mode. Tags can also be called without default text, for example:
+The inner part of the `{text}...{/text}` tags represents the default **view** text, the remaining properties (name and label) are used primarily for the **editor** mode. Tags can also be called without default text, for example:
 
     {text name="websiteName" label="Website Name"}
 
-This will only appear in the **editor** mode and will not render any value for the **view** mode. This is puseful for defining variables and using their values elsewhere in the template logic.
+This will only appear in the **editor** mode and will not render any value for the **view** mode. This is useful for defining variables and using their values elsewhere in the template logic.
 
 ## Class usage
 
@@ -33,10 +33,16 @@ Example
     $syntax = Parser::parse('<h1>{text name="websiteName" label="Website Name"}Our wonderful website{/text}</h1>');
 
     // Outputs <h1>{{ websiteName }}</h1>
-    $syntax->toView();
+    echo $syntax->toView();
 
     // Returns ['websiteName' => [...] ]
     $syntax->toEdit();
+
+    // Outputs <h1>Our wonderful website</h1>
+    echo $syntax->render();
+
+    // Outputs <h1>Your awesome web page</h1>
+    echo $syntax->render(['websiteName' => 'Your awesome web page']);
 
 ## Supported tags
 
