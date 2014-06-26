@@ -16,4 +16,12 @@ class FieldParserTest extends TestCase
 
     }
 
+    public function testProcessParamsRegex()
+    {
+        $parser = new FieldParser('');
+        $content = 'name="test" comment="This is a test"';
+        $result = $parser->processParamsRegex($content);
+        print_r($result);
+    }
+
 }

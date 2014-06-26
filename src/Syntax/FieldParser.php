@@ -40,6 +40,50 @@ class FieldParser
         }
     }
 
+    /**
+     * Converts parameter string to an array.
+     *
+     *  In: name="test" comment="This is a test"
+     *  Out: ['name' => 'test', 'comment' => 'This is a test']
+     * 
+     * @param  [type] $string [description]
+     * @return [type]         [description]
+     */
+    public function processParamsRegex($string)
+    {
+        /**
+         * Match key/value pairs
+         *
+         * (\w+)="((?:\\.|[^"\\]+)*|[^"]*)"
+         */
+        $regex = '/';
+        $regex .= '(\w+)'; // Any word
+        $regex .= '="'; // Equal sign and open quote
+
+        $regex .= '('; // Capture
+        $regex .= '(?:\\\\.|[^"\\\\]+)*'; // Include escaped quotes \"
+        $regex .= '|[^"]'; // Or anything other than a quote
+        $regex .= '*)'; // Capture value
+        $regex .= '"';
+        $regex .= '/';
+
+        preg_match_all($regex, $string, $match);
+
+        return $match;
+    }
+
+    /**
+     * Performs a regex looking for a field type (key) and returns
+     * an array where:
+     *
+     *  0 - The full tag definition, eg: {text name="test"}...{/text}
+     *  1 - The tag parameters as a string, eg: name="test"
+     *  2 - The default text inside the tag (optional), eg: ...
+     *
+     * @param  string $string
+     * @param  string $key
+     * @return array
+     */
     public function processFieldsRegex($string, $key)
     {
         $open = preg_quote(Parser::CHAR_OPEN);
