@@ -49,7 +49,7 @@ class FieldParser
      * @param  [type] $string [description]
      * @return [type]         [description]
      */
-    public function processParamsRegex($string)
+    protected function processParamsRegex($string)
     {
         /**
          * Match key/value pairs
@@ -84,7 +84,7 @@ class FieldParser
      * @param  string $key
      * @return array
      */
-    public function processFieldsRegex($string, $key)
+    protected function processFieldsRegex($string, $key)
     {
         $open = preg_quote(Parser::CHAR_OPEN);
         $close = preg_quote(Parser::CHAR_CLOSE);
