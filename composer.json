@@ -22,7 +22,7 @@
         "twig/twig": "1.*",
         "symfony/yaml": "2.4.*",
         "kriswallsmith/assetic": "1.*",
-        "leafo/lessphp": "dev-master",
+        "oyejorge/less.php": "dev-master",
         "linkorb/jsmin-php": "dev-master",
         "erusev/parsedown-extra": "dev-master"
     },
