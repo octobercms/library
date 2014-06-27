@@ -34,7 +34,8 @@ class FieldParser
      */
     protected $registeredTags = [
         'text',
-        'textarea'
+        'textarea',
+        'fileupload'
     ];
 
     /**
