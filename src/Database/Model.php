@@ -260,6 +260,15 @@ class Model extends EloquentModel
                 });
             }
         }
+
+        /*
+         * Hook to boot events
+         */
+        static::registerModelEvent('booted', function($model){
+            $model->fireEvent('model.afterBoot');
+            if ($model->methodExists('afterBoot'))
+                return $model->afterBoot();
+        });
     }
 
     /**
