@@ -110,29 +110,14 @@ class FieldParser
      */
     protected function processTags($template)
     {
-        foreach ($this->registeredTags as $tag) {
-            list($tags, $fields) = $this->processTag($template, $tag);
-            $this->tags = $this->tags + $tags;
-            $this->fields = $this->fields + $fields;
-        }
-    }
-
-    /**
-     * Processes the template text for a single tag, returns
-     * two arrays: tag strings and field definitions.
-     * @param  string $template
-     * @param  string $tag
-     * @return array
-     */
-    protected function processTag($template, $tag)
-    {
         $tags = [];
         $fields = [];
 
-        $result = $this->processTagsRegex($template, $tag);
+        $result = $this->processTagsRegex($template, $this->registeredTags);
         $tagStrings = $result[0];
-        $paramStrings = $result[1];
-        $defaultValues = $result[2];
+        $tagNames = $result[1];
+        $paramStrings = $result[2];
+        $defaultValues = $result[3];
 
         foreach ($tagStrings as $key => $tagString) {
             $result = $this->processParamsRegex($paramStrings[$key]);
@@ -148,12 +133,15 @@ class FieldParser
                 $name = md5($tagString);
             }
 
-            $params['type'] = $tag;
+            $params['type'] = $tagNames[$key];
             $params['default'] = $defaultValues[$key];
 
             $tags[$name] = $tagString;
             $fields[$name] = $params;
         }
+
+        $this->tags = $this->tags + $tags;
+        $this->fields = $this->fields + $fields;
 
         return [$tags, $fields];
     }
@@ -202,29 +190,37 @@ class FieldParser
      * @param  string $tag
      * @return array
      */
-    protected function processTagsRegex($string, $tag)
+    protected function processTagsRegex($string, $tags)
     {
+        /*
+         * Full regex:
+         * {(text|textarea)\s([^}]+)}(((?!{(?:\1))[\s\S])*){/(?:\1)}
+         */
         $open = preg_quote(Parser::CHAR_OPEN);
         $close = preg_quote(Parser::CHAR_CLOSE);
 
+        $tags = implode('|', $tags);
         /*
          * Match the opening tag:
          * 
          * {text something="value"}
-         * {text\s([^}]+)}
+         * {(text|textarea)\s([^}]+)}
          */
-        $regexOpen = $open.$tag.'\s'; // Open
-        $regexOpen .= '([^'.$close.']+)'; // All but Close tag
+        $regexOpen = $open.'('.$tags.')\s'; // Open (Group 1)
+        $regexOpen .= '([^'.$close.']+)'; // All but Close tag (Group 2)
         $regexOpen .= $close; // Close
+
+        // Reference to group 1 value
+        $openTagRef = '(?:\1)';
 
         /*
          * Match all that does not contain another opening tag:
          *
-         * (((?!{text)[\s\S])*)
+         * (((?!{(?:\1))[\s\S])*)
          */
         $regexContent = '('; // Capture
         $regexContent .= '(?:'; // Non capture (negative lookahead)
-        $regexContent .= '(?!'.$open.$tag.')'; // Not Close tag
+        $regexContent .= '(?!'.$open.$openTagRef.')'; // Not Close tag
         $regexContent .= '[\s\S]'; // All multiline
         $regexContent .= ')'; // End non capture
         $regexContent .= '*)'; // Capture content
@@ -233,20 +229,21 @@ class FieldParser
          * Match the closing tag:
          * 
          * {/text}
+         * {/(?:\1)}
          */
-        $regexClose = $open.'/'.$tag.$close; // Close
+        $regexClose = $open.'/'.$openTagRef.$close; // Close
 
-        $regex = '|';
+        $regex = '~';
         $regex .= $regexOpen;
-        $regex .='|';
+        $regex .='~';
 
         preg_match_all($regex, $string, $matchSingle);
 
-        $regex = '|';
+        $regex = '~';
         $regex .= $regexOpen;
         $regex .= $regexContent;
         $regex .= $regexClose;
-        $regex .='|';
+        $regex .='~';
 
         preg_match_all($regex, $string, $matchDouble);
 
@@ -264,21 +261,21 @@ class FieldParser
     private function mergeSinglesAndDoubles($singles, $doubles)
     {
         if (!count($singles[0])) {
-            $singles[2] = [];
+            $singles[3] = [];
             return $singles;
         }
 
-        $singles[2] = array_fill(0, count($singles[0]), null);
+        $singles[3] = array_fill(0, count($singles[0]), null);
         $matched = [];
         $result = [];
-        foreach ($singles[1] as $singleKey => $needle) {
+        foreach ($singles[2] as $singleKey => $needle) {
 
-            $doubleKey = array_search($needle, $doubles[1]);
+            $doubleKey = array_search($needle, $doubles[2]);
             if ($doubleKey === false)
                 continue;
 
             $singles[0][$singleKey] = $doubles[0][$doubleKey];
-            $singles[2][$singleKey] = $doubles[2][$doubleKey];
+            $singles[3][$singleKey] = $doubles[3][$doubleKey];
         }
 
         return $singles;

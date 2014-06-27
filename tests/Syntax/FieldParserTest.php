@@ -40,7 +40,7 @@ class FieldParserTest extends TestCase
         $this->assertArrayHasKey('type', $fields['field3']);
         $this->assertArrayHasKey('type', $fields['field4']);
 
-        $this->assertEquals('text', $fields['field1']['type']);
+        $this->assertEquals('textarea', $fields['field1']['type']);
     }
 
     public function testProcessTag()
@@ -51,8 +51,8 @@ class FieldParserTest extends TestCase
         $content .= '{text name="blogName" label="Blog Name" color="re\"d"}OctoberCMS{/text}'.PHP_EOL;
         $content .= '{text name="storeName" label="Store Name" shape="circle"}{/text}';
         $content .= '{text label="Unnamed" distance="400m"}Foobar{/text}';
-        $content .= '{textarea name="nullName" label="Valid tag, not searched by this test"}{/textarea}';
-        list($tags, $fields) = self::callProtectedMethod($parser, 'processTag', [$content, 'text']);
+        $content .= '{foobar name="nullName" label="Valid tag, not searched by this test"}{/foobar}';
+        list($tags, $fields) = self::callProtectedMethod($parser, 'processTags', [$content]);
 
         $unnamedTag = md5('{text label="Unnamed" distance="400m"}Foobar{/text}');
 
@@ -122,19 +122,19 @@ class FieldParserTest extends TestCase
         $content .= '{text name="websiteName" label="Website Name"}'.PHP_EOL;
         $content .= '{text name="blogName" label="Blog Name"}OctoberCMS{/text}'.PHP_EOL;
         $content .= '{text name="storeName" label="Store Name"}{/text}';
-        $result = self::callProtectedMethod($parser, 'processTagsRegex', [$content, 'text']);
+        $result = self::callProtectedMethod($parser, 'processTagsRegex', [$content, ['text']]);
 
-        $this->assertArrayHasKey(0, $result[1]);
-        $this->assertArrayHasKey(1, $result[1]);
-        $this->assertArrayHasKey(2, $result[1]);
+        $this->assertArrayHasKey(0, $result[2]);
+        $this->assertArrayHasKey(1, $result[2]);
+        $this->assertArrayHasKey(2, $result[2]);
 
-        $this->assertEquals('name="websiteName" label="Website Name"', $result[1][0]);
-        $this->assertEquals('name="blogName" label="Blog Name"', $result[1][1]);
-        $this->assertEquals('name="storeName" label="Store Name"', $result[1][2]);
+        $this->assertEquals('name="websiteName" label="Website Name"', $result[2][0]);
+        $this->assertEquals('name="blogName" label="Blog Name"', $result[2][1]);
+        $this->assertEquals('name="storeName" label="Store Name"', $result[2][2]);
 
-        $this->assertNull($result[2][0]);
-        $this->assertEquals('OctoberCMS', $result[2][1]);
-        $this->assertEquals('', $result[2][2]);
+        $this->assertNull($result[3][0]);
+        $this->assertEquals('OctoberCMS', $result[3][1]);
+        $this->assertEquals('', $result[3][2]);
     }
 
     public function testProcessParamsRegex()
