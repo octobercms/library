@@ -16,11 +16,11 @@ Calling `$syntax->render($params)` will render the template:
 
     <h1>Our wonderful website</h1>
 
-Calling `$syntax->toView()` will render as Twig markup:
+Calling `$syntax->toTwig()` will render as Twig markup:
 
     <h1>{{ websiteName }}</h1>
 
-Calling `$syntax->toEdit()` will return an array:
+Calling `$syntax->toEditor()` will return an array:
 
     'websiteName' => [
         'label' => 'Website name',
@@ -36,7 +36,7 @@ Example
     echo $syntax->toView();
 
     // Returns ['websiteName' => [...] ]
-    $syntax->toEdit();
+    $syntax->toEditor();
 
     // Outputs <h1>Our wonderful website</h1>
     echo $syntax->render();

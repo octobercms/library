@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Syntax;
 
 /**
- * Dynamic Syntax parser
+ * Simple Text parser
  */
 class TextParser
 {
@@ -14,9 +14,21 @@ class TextParser
 
     public function __construct($options = [])
     {
-        $this->options = $options;
+        $this->setOptions($options);
     }
 
+    public function setOptions($options = [])
+    {
+        $this->options = array_merge($this->options, $options);
+    }
+
+    /**
+     * Static helper for new instances of this class.
+     * @param  string $template
+     * @param  array $vars
+     * @param  array $options
+     * @return self
+     */
     public static function parse($template, $vars = [], $options = [])
     {
         $obj = new static($options);
@@ -54,7 +66,7 @@ class TextParser
     protected function parseKey($key, $value, $string)
     {
         if (isset($this->options['encodeHtml']) && $this->options['encodeHtml'])
-            $value = Html::encode($value);
+            $value = htmlentities($value, ENT_QUOTES, 'UTF-8', false);
 
         $returnStr = str_replace(Parser::CHAR_OPEN.$key.Parser::CHAR_CLOSE, $value, $string);
 

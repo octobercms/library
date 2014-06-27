@@ -8,22 +8,121 @@ class FieldParserTest extends TestCase
     public function testParse()
     {
         $content = '';
-        $content .= '{text name="websiteName" label="Website Name"}'.PHP_EOL;
-        $content .= '{text name="blogName" label="Blog Name"}OctoberCMS{/text}'.PHP_EOL;
-        $content .= '{text name="storeName" label="Store Name"}{/text}';
+        $content .= '{text name="field1" label="Field 1"}'.PHP_EOL;
+        $content .= '{textarea name="field1" label="Field 1 Again"}'.PHP_EOL;
+        $content .= '{text name="field2" label="Field 2"}Default Text{/text}'.PHP_EOL;
+        $content .= '{textarea name="field3" label="Field 3"}Default Text{/textarea}'.PHP_EOL;
+        $content .= '{textarea name="field4" label="Field 4"}Invalid Tag{/invalid}'.PHP_EOL;
 
         $result = FieldParser::parse($content);
+        $tags = $result->getTags();
+        $fields = $result->getFields();
 
+        $this->assertArrayHasKey('field1', $fields);
+        $this->assertArrayHasKey('field2', $fields);
+        $this->assertArrayHasKey('field3', $fields);
+        $this->assertArrayHasKey('field4', $fields);
+
+        $this->assertArrayHasKey('field1', $tags);
+        $this->assertArrayHasKey('field2', $tags);
+        $this->assertArrayHasKey('field3', $tags);
+        $this->assertArrayHasKey('field4', $tags);
+
+        $this->assertEquals('{textarea name="field4" label="Field 4"}', $tags['field4']);
+
+        $this->assertArrayNotHasKey('name', $fields['field1']);
+        $this->assertArrayNotHasKey('name', $fields['field2']);
+        $this->assertArrayNotHasKey('name', $fields['field3']);
+        $this->assertArrayNotHasKey('name', $fields['field4']);
+
+        $this->assertArrayHasKey('type', $fields['field1']);
+        $this->assertArrayHasKey('type', $fields['field2']);
+        $this->assertArrayHasKey('type', $fields['field3']);
+        $this->assertArrayHasKey('type', $fields['field4']);
+
+        $this->assertEquals('text', $fields['field1']['type']);
     }
 
-    public function testProcessFieldsRegex()
+    public function testProcessTag()
     {
-        $parser = new FieldParser('');
+        $parser = new FieldParser;
+        $content = '';
+        $content .= '{text name="websiteName" label="Website Name" size="large"}'.PHP_EOL;
+        $content .= '{text name="blogName" label="Blog Name" color="re\"d"}OctoberCMS{/text}'.PHP_EOL;
+        $content .= '{text name="storeName" label="Store Name" shape="circle"}{/text}';
+        $content .= '{text label="Unnamed" distance="400m"}Foobar{/text}';
+        $content .= '{textarea name="nullName" label="Valid tag, not searched by this test"}{/textarea}';
+        list($tags, $fields) = self::callProtectedMethod($parser, 'processTag', [$content, 'text']);
+
+        $unnamedTag = md5('{text label="Unnamed" distance="400m"}Foobar{/text}');
+
+        $this->assertArrayNotHasKey('Unnamed', $fields);
+        $this->assertArrayNotHasKey('nullName', $fields);
+        $this->assertArrayHasKey('websiteName', $fields);
+        $this->assertArrayHasKey('blogName', $fields);
+        $this->assertArrayHasKey('storeName', $fields);
+        $this->assertArrayHasKey($unnamedTag, $fields);
+
+        $this->assertArrayNotHasKey('name', $fields['websiteName']);
+        $this->assertArrayHasKey('label', $fields['websiteName']);
+        $this->assertArrayHasKey('size', $fields['websiteName']);
+        $this->assertArrayHasKey('type', $fields['websiteName']);
+        $this->assertArrayHasKey('default', $fields['websiteName']);
+        $this->assertEquals('Website Name', $fields['websiteName']['label']);
+        $this->assertEquals('large', $fields['websiteName']['size']);
+        $this->assertEquals('text', $fields['websiteName']['type']);
+        $this->assertNull($fields['websiteName']['default']);
+
+        $this->assertArrayNotHasKey('name', $fields['blogName']);
+        $this->assertArrayHasKey('label', $fields['blogName']);
+        $this->assertArrayHasKey('color', $fields['blogName']);
+        $this->assertArrayHasKey('type', $fields['blogName']);
+        $this->assertArrayHasKey('default', $fields['blogName']);
+        $this->assertEquals('Blog Name', $fields['blogName']['label']);
+        $this->assertEquals('re\"d', $fields['blogName']['color']);
+        $this->assertEquals('text', $fields['blogName']['type']);
+        $this->assertNotNull($fields['blogName']['default']);
+        $this->assertEquals('OctoberCMS', $fields['blogName']['default']);
+
+        $this->assertArrayNotHasKey('name', $fields['storeName']);
+        $this->assertArrayHasKey('label', $fields['storeName']);
+        $this->assertArrayHasKey('shape', $fields['storeName']);
+        $this->assertArrayHasKey('type', $fields['storeName']);
+        $this->assertArrayHasKey('default', $fields['storeName']);
+        $this->assertEquals('Store Name', $fields['storeName']['label']);
+        $this->assertEquals('circle', $fields['storeName']['shape']);
+        $this->assertEquals('text', $fields['storeName']['type']);
+        $this->assertNotNull($fields['storeName']['default']);
+        $this->assertEquals('', $fields['storeName']['default']);
+
+
+        $this->assertArrayNotHasKey('name', $fields[$unnamedTag]);
+        $this->assertArrayHasKey('label', $fields[$unnamedTag]);
+        $this->assertArrayHasKey('distance', $fields[$unnamedTag]);
+        $this->assertArrayHasKey('type', $fields[$unnamedTag]);
+        $this->assertArrayHasKey('default', $fields[$unnamedTag]);
+        $this->assertEquals('Unnamed', $fields[$unnamedTag]['label']);
+        $this->assertEquals('400m', $fields[$unnamedTag]['distance']);
+        $this->assertEquals('text', $fields[$unnamedTag]['type']);
+        $this->assertNotNull($fields[$unnamedTag]['default']);
+        $this->assertEquals('Foobar', $fields[$unnamedTag]['default']);
+
+        $this->assertArrayNotHasKey('Unnamed', $tags);
+        $this->assertArrayNotHasKey('nullName', $tags);
+        $this->assertArrayHasKey('websiteName', $tags);
+        $this->assertArrayHasKey('blogName', $tags);
+        $this->assertArrayHasKey('storeName', $tags);
+        $this->assertArrayHasKey($unnamedTag, $tags);
+    }
+
+    public function testProcessTagsRegex()
+    {
+        $parser = new FieldParser;
         $content = '';
         $content .= '{text name="websiteName" label="Website Name"}'.PHP_EOL;
         $content .= '{text name="blogName" label="Blog Name"}OctoberCMS{/text}'.PHP_EOL;
         $content .= '{text name="storeName" label="Store Name"}{/text}';
-        $result = self::callProtectedMethod($parser, 'processFieldsRegex', [$content, 'text']);
+        $result = self::callProtectedMethod($parser, 'processTagsRegex', [$content, 'text']);
 
         $this->assertArrayHasKey(0, $result[1]);
         $this->assertArrayHasKey(1, $result[1]);
@@ -40,7 +139,7 @@ class FieldParserTest extends TestCase
 
     public function testProcessParamsRegex()
     {
-        $parser = new FieldParser('');
+        $parser = new FieldParser;
         $content = 'name="test" comment="This is a test"';
         $result = self::callProtectedMethod($parser, 'processParamsRegex', [$content]);
 
