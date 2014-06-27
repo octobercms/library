@@ -927,6 +927,19 @@ class Model extends EloquentModel
         // Save the record
         $result = parent::save($options);
 
+        // Halted by event
+        if ($result === false)
+            return $result;
+
+        /*
+         * If there is nothing to update, Eloquent will not fire afterSave(),
+         * events should still fire for consistency.
+         */
+        if ($result === null) {
+            $this->fireModelEvent('updated', false);
+            $this->fireModelEvent('saved', false);
+        }
+
         // Apply any deferred bindings
         if ($this->sessionKey !== null)
             $this->commitDeferred($this->sessionKey);
