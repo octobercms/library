@@ -9,7 +9,8 @@ class TextParser
      * @var array Parsing options
      */
     protected $options = [
-        'encodeHtml' => true
+        'encodeHtml' => false,
+        'newlineToBr' => true,
     ];
 
     public function __construct($options = [])
@@ -67,6 +68,9 @@ class TextParser
     {
         if (isset($this->options['encodeHtml']) && $this->options['encodeHtml'])
             $value = htmlentities($value, ENT_QUOTES, 'UTF-8', false);
+
+        if (isset($this->options['newlineToBr']) && $this->options['newlineToBr'])
+            $value = nl2br($value);
 
         $returnStr = str_replace(Parser::CHAR_OPEN.$key.Parser::CHAR_CLOSE, $value, $string);
 

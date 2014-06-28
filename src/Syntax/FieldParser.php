@@ -134,7 +134,7 @@ class FieldParser
             }
 
             $params['type'] = $tagNames[$key];
-            $params['default'] = $defaultValues[$key];
+            $params['default'] = trim($defaultValues[$key]);
 
             $tags[$name] = $tagString;
             $fields[$name] = $params;

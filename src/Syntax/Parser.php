@@ -49,9 +49,18 @@ class Parser
      */
     public function render($vars = [], $options = [])
     {
-        $vars = array_merge($this->fieldParser->getDefaultParams(), $vars);
+        $vars = array_merge($this->getFieldValues(), (array) $vars);
         $this->textParser->setOptions($options);
         return $this->textParser->parseString($this->toView(), $vars);
+    }
+
+    /**
+     * Returns the default field values defined in the template
+     * @return array
+     */
+    public function getFieldValues()
+    {
+        return $this->fieldParser->getDefaultParams();
     }
 
     /**

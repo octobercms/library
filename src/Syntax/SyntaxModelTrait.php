@@ -46,11 +46,15 @@ trait SyntaxModelTrait
         return $this->getAttribute($this->getSyntaxFieldsColumnName());
     }
 
-    public function makeSyntaxFields($content)
+    /**
+     * Prepare the syntax fields for use in a Form builder. The array
+     * name is added to each field.
+     * @return array
+     */
+    public function getFormSyntaxFields()
     {
-        $fields = Parser::parse($content)->toEditor();
         $newFields = [];
-        foreach ($fields as $field => $params) {
+        foreach ($this->getSyntaxFields() as $field => $params) {
 
             if ($params['type'] != 'fileupload')
                 $newField = $this->getSyntaxDataColumnName().'['.$field.']';
@@ -60,8 +64,24 @@ trait SyntaxModelTrait
             $newFields[$newField] = $params;
         }
 
-        $this->setAttribute($this->getSyntaxFieldsColumnName(), $newFields);
         return $newFields;
+    }
+
+    public function makeSyntaxFields($content)
+    {
+        $parser = Parser::parse($content);
+        $fields = $parser->toEditor() ?: [];
+
+        $this->setAttribute($this->getSyntaxFieldsColumnName(), $fields);
+
+        /*
+         * Remove fields no longer present and add default values
+         */
+        $currentFields = array_intersect_key($this->getSyntaxData(), $parser->getFieldValues());
+        $currentFields = array_merge($currentFields, $parser->getFieldValues());
+        $this->setAttribute($this->getSyntaxDataColumnName(), $currentFields);
+
+        return $fields;
     }
 
     public function applySyntaxFields()
@@ -78,5 +98,14 @@ trait SyntaxModelTrait
         }
     }
 
+    public function getSyntaxParser($content)
+    {
+        return Parser::parse($content);
+    }
+
+    // public function syntaxRender($content)
+    // {
+    //     return $this->getSyntaxParser($content)->render($this->getSyntaxData());
+    // }
 
 }
