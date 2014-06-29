@@ -972,11 +972,13 @@ class Model extends EloquentModel
      */
     public function push($sessionKey = null)
     {
-        if (!$this->save(null, $sessionKey)) return false;
+        if (!$this->save(null, $sessionKey))
+            return false;
 
         foreach ($this->relations as $models) {
             foreach (Collection::make($models) as $model) {
-                if (!$model->push()) return false;
+                if (!$model->push($sessionKey))
+                    return false;
             }
         }
 
