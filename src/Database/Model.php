@@ -1104,7 +1104,7 @@ class Model extends EloquentModel
         }
 
         // Handle jsonable
-        if (in_array($key, $this->jsonable) && !empty($value)) {
+        if (in_array($key, $this->jsonable) && (!empty($value) || is_array($value))) {
             $value = json_encode($value);
         }
 

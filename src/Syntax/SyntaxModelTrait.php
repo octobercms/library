@@ -53,8 +53,12 @@ trait SyntaxModelTrait
      */
     public function getFormSyntaxFields()
     {
+        $fields = $this->getSyntaxFields();
+        if (!is_array($fields))
+            return [];
+
         $newFields = [];
-        foreach ($this->getSyntaxFields() as $field => $params) {
+        foreach ($fields as $field => $params) {
 
             if ($params['type'] != 'fileupload')
                 $newField = $this->getSyntaxDataColumnName().'['.$field.']';
