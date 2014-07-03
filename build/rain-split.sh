@@ -4,6 +4,7 @@
 
 ./git-subsplit.sh init git@github.com:octobercms/library.git
 ./git-subsplit.sh publish --no-tags src/Translation:git@github.com:octoberrain/translation.git
+./git-subsplit.sh publish --no-tags src/Syntax:git@github.com:octoberrain/syntax.git
 ./git-subsplit.sh publish --no-tags src/Support:git@github.com:octoberrain/support.git
 ./git-subsplit.sh publish --no-tags src/Router:git@github.com:octoberrain/router.git
 ./git-subsplit.sh publish --no-tags src/Network:git@github.com:octoberrain/network.git
@@ -12,6 +13,7 @@
 ./git-subsplit.sh publish --no-tags src/Filesystem:git@github.com:octoberrain/filesystem.git
 ./git-subsplit.sh publish --no-tags src/Extension:git@github.com:octoberrain/extension.git
 ./git-subsplit.sh publish --no-tags src/Database:git@github.com:octoberrain/database.git
+./git-subsplit.sh publish --no-tags src/Cron:git@github.com:octoberrain/cron.git
 ./git-subsplit.sh publish --no-tags src/Config:git@github.com:octoberrain/config.git
 ./git-subsplit.sh publish --no-tags src/Auth:git@github.com:octoberrain/auth.git
 rm -rf .subsplit/
