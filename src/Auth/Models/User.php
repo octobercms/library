@@ -182,7 +182,7 @@ class User extends Model
      */
     public function getIsActivatedAttribute($activated)
     {
-        return (bool)$activated;
+        return (bool) $activated;
     }
 
     /**
