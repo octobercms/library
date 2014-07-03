@@ -1,0 +1,28 @@
+{
+    "name": "october/cron",
+    "description": "Database / Cron Queue driver",
+    "homepage": "http://octobercms.com",
+    "keywords": ["laravel", "cron", "database", "queue", "october cms", "october"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alexey Bobkov",
+            "email": "aleksey.bobkov@gmail.com"
+        },
+        {
+            "name": "Samuel Georges",
+            "email": "daftspunky@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "illuminate/queue": "4.2.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "October\\Rain\\Translation": ""
+        }
+    },
+    "target-dir": "October/Rain/Translation",
+    "minimum-stability": "dev"
+}
