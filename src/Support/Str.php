@@ -221,4 +221,13 @@ class Str extends StrHelper
 
         return $name;
     }
+
+    /**
+     * Returns a class namespace
+     */
+    public static function getClassNamespace($name)
+    {
+        $name = static::normalizeClassName($name);
+        return substr($name, 0, strrpos($name, "\\"));
+    }
 }

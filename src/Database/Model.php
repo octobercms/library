@@ -260,6 +260,15 @@ class Model extends EloquentModel
                 });
             }
         }
+
+        /*
+         * Hook to boot events
+         */
+        static::registerModelEvent('booted', function($model){
+            $model->fireEvent('model.afterBoot');
+            if ($model->methodExists('afterBoot'))
+                return $model->afterBoot();
+        });
     }
 
     /**
@@ -430,6 +439,18 @@ class Model extends EloquentModel
     }
 
     /**
+     * Determines whether the specified relation should be saved
+     * when push() is called instead of save() on the model.
+     * @param  string  $name Relation name
+     * @return boolean
+     */
+    public function isRelationPushable($name)
+    {
+        $definition = $this->getRelationDefinition($name);
+        return array_key_exists('push', $definition) && !$definition['push'];
+    }
+
+    /**
      * Looks for the relation and does the correct magic as Eloquent would require
      * inside relation methods. For more information, read the documentation of the mentioned property.
      * @param string $relationName the relation key, camel-case version
@@ -511,7 +532,7 @@ class Model extends EloquentModel
         $relation = $this->getRelationDefinition($relationName);
 
         // Query filter arguments
-        $filters = ['order', 'pivot', 'timestamps'];
+        $filters = ['order', 'pivot', 'timestamps', 'push'];
 
         foreach (array_merge($optional, $filters) as $key) {
             if (!array_key_exists($key, $relation)) {
@@ -927,6 +948,19 @@ class Model extends EloquentModel
         // Save the record
         $result = parent::save($options);
 
+        // Halted by event
+        if ($result === false)
+            return $result;
+
+        /*
+         * If there is nothing to update, Eloquent will not fire afterSave(),
+         * events should still fire for consistency.
+         */
+        if ($result === null) {
+            $this->fireModelEvent('updated', false);
+            $this->fireModelEvent('saved', false);
+        }
+
         // Apply any deferred bindings
         if ($this->sessionKey !== null)
             $this->commitDeferred($this->sessionKey);
@@ -950,11 +984,16 @@ class Model extends EloquentModel
      */
     public function push($sessionKey = null)
     {
-        if (!$this->save(null, $sessionKey)) return false;
+        if (!$this->save(null, $sessionKey))
+            return false;
 
-        foreach ($this->relations as $models) {
+        foreach ($this->relations as $name => $models) {
+            if (!$this->isRelationPushable($name))
+                continue;
+
             foreach (Collection::make($models) as $model) {
-                if (!$model->push()) return false;
+                if (!$model->push($sessionKey))
+                    return false;
             }
         }
 
@@ -1065,7 +1104,7 @@ class Model extends EloquentModel
         }
 
         // Handle jsonable
-        if (in_array($key, $this->jsonable) && !empty($value)) {
+        if (in_array($key, $this->jsonable) && (!empty($value) || is_array($value))) {
             $value = json_encode($value);
         }
 

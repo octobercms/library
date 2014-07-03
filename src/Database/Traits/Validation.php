@@ -93,7 +93,12 @@ trait Validation
         $success = true;
 
         if (!empty($rules)) {
-            $data = array_merge($this->getAttributes(), $this->getOriginalHashValues());
+            /*
+             * Remove all hashed values, then add the original values
+             */
+            $data = array_diff_key($this->getAttributes(), array_flip($this->getHashableAttributes()));
+            $data = array_merge($data, $this->getOriginalHashValues());
+
             $customMessages = is_null($customMessages) ? $this->customMessages : $customMessages;
             $validator = self::makeValidator($data, $rules, $customMessages);
             $success = $validator->passes();

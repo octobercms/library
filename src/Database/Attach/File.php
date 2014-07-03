@@ -102,7 +102,7 @@ class File extends Model
         $this->content_type = $file->getMimeType();
         $this->disk_name = $this->getDiskName();
 
-        $this->putFile($uploadedFile->getRealPath(), $this->disk_name);
+        $this->putFile($file->getRealPath(), $this->disk_name);
     }
 
     /**
