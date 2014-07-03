@@ -20,9 +20,9 @@
     },
     "autoload": {
         "psr-0": {
-            "October\\Rain\\Translation": ""
+            "October\\Rain\\Cron": ""
         }
     },
-    "target-dir": "October/Rain/Translation",
+    "target-dir": "October/Rain/Cron",
     "minimum-stability": "dev"
 }
