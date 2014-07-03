@@ -1,6 +1,6 @@
 <?php namespace October\Rain\Cron\Models;
 
-use October\Rain\Database\Model;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Cron Job Model
