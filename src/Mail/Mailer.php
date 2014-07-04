@@ -38,7 +38,7 @@ class Mailer extends MailerBase
          * $message - Illuminate\Mail\Message object,
          *            check Swift_Mime_SimpleMessage for useful functions.
          */
-        if ($this->fireEvent('beforeSend', [$view, $message], true) === false)
+        if ($this->fireEvent('mailer.beforeSend', [$view, $message], true) === false)
             return;
 
         /*
@@ -50,7 +50,7 @@ class Mailer extends MailerBase
         /*
          * Extensbility
          */
-        $this->fireEvent('send', [$view, $message]);
+        $this->fireEvent('mailer.send', [$view, $message]);
     }
 
     /**
@@ -67,7 +67,7 @@ class Mailer extends MailerBase
         /*
          * Extensbility
          */
-        if ($this->fireEvent('beforeAddContent', [$message, $view, $plain, $data], true) === false)
+        if ($this->fireEvent('mailer.beforeAddContent', [$message, $view, $plain, $data], true) === false)
             return;
 
         if (isset($view)) {
@@ -89,7 +89,7 @@ class Mailer extends MailerBase
         /*
          * Extensbility
          */
-        $this->fireEvent('addContent', [$message, $view, $plain, $data]);
+        $this->fireEvent('mailer.addContent', [$message, $view, $plain, $data]);
     }
 
 }
