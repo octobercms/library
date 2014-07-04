@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Mail;
 
+use Event;
 use Illuminate\Mail\Mailer as MailerBase;
 
 /**
@@ -38,8 +39,8 @@ class Mailer extends MailerBase
          * $message - Illuminate\Mail\Message object,
          *            check Swift_Mime_SimpleMessage for useful functions.
          */
-        if ($this->fireEvent('mailer.beforeSend', [$view, $message], true) === false)
-            return;
+        if (Event::fire('mailer.beforeSend', [$this, $view, $message], true) === false) return;
+        if ($this->fireEvent('mailer.beforeSend', [$view, $message], true) === false) return;
 
         /*
          * Send the message
@@ -50,6 +51,7 @@ class Mailer extends MailerBase
         /*
          * Extensbility
          */
+        Event::fire('mailer.send', [$this, $view, $message]);
         $this->fireEvent('mailer.send', [$view, $message]);
     }
 
@@ -67,8 +69,8 @@ class Mailer extends MailerBase
         /*
          * Extensbility
          */
-        if ($this->fireEvent('mailer.beforeAddContent', [$message, $view, $plain, $data], true) === false)
-            return;
+        if (Event::fire('mailer.beforeAddContent', [$this, $message, $view, $plain, $data], true) === false) return;
+        if ($this->fireEvent('mailer.beforeAddContent', [$message, $view, $plain, $data], true) === false) return;
 
         if (isset($view)) {
             $viewContent = $this->getView($view, $data);
@@ -89,6 +91,7 @@ class Mailer extends MailerBase
         /*
          * Extensbility
          */
+        Event::fire('mailer.addContent', [$this, $message, $view, $plain, $data]);
         $this->fireEvent('mailer.addContent', [$message, $view, $plain, $data]);
     }
 
