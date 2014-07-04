@@ -15,10 +15,17 @@ class MailServiceProvider extends MailServiceProviderBase
      */
     public function register()
     {
-        $this->app['events']->fire('mailer.beforeRegister');
 
         $this->app->bindShared('mailer', function($app) {
 
+            /*
+             * Extensibility
+             */
+            $this->app['events']->fire('mailer.beforeRegister', [$this]);
+
+            /*
+             * Inherit logic from Illuminate\Mail\MailServiceProvider
+             */
             $this->registerSwiftMailer();
 
             $mailer = new Mailer($app['view'], $app['swift.mailer']);
@@ -33,9 +40,13 @@ class MailServiceProvider extends MailServiceProviderBase
             $pretend = $app['config']->get('mail.pretend', false);
             $mailer->pretend($pretend);
 
+            /*
+             * Extensibility
+             */
+            $this->app['events']->fire('mailer.register', [$this, $mailer]);
+
             return $mailer;
         });
 
-        $this->app['events']->fire('mailer.register');
     }
 }
