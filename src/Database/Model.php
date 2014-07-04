@@ -156,7 +156,7 @@ class Model extends EloquentModel
     /**
      * Constructor
      */
-    public function __construct(array $attributes = array())
+    public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
         $this->extendableConstruct();
@@ -276,9 +276,9 @@ class Model extends EloquentModel
      * @param  array  $attributes
      * @return \Illuminate\Database\Eloquent\Model|static
      */
-    public function newFromBuilder($attributes = array())
+    public function newFromBuilder($attributes = [])
     {
-        $instance = $this->newInstance(array(), true);
+        $instance = $this->newInstance([], true);
         if ($instance->fireModelEvent('fetching') === false)
             return $instance;
 
@@ -320,11 +320,11 @@ class Model extends EloquentModel
     public function getObservableEvents()
     {
         return array_merge(
-            array(
+            [
                 'creating', 'created', 'updating', 'updated',
                 'deleting', 'deleted', 'saving', 'saved',
                 'restoring', 'restored', 'fetching', 'fetched'
-            ),
+            ],
             $this->observables
         );
     }
