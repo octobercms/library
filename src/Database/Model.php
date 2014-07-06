@@ -991,9 +991,11 @@ class Model extends EloquentModel
      * Save the model and all of its relationships.
      * @return bool
      */
-    public function push($sessionKey = null)
+    public function push($sessionKey = null, $options = [])
     {
-        if (!$this->save(null, $sessionKey))
+        $always = array_get($options, 'always', false);
+
+        if (!$this->save(null, $sessionKey) && !$always)
             return false;
 
         foreach ($this->relations as $name => $models) {
@@ -1007,6 +1009,16 @@ class Model extends EloquentModel
         }
 
         return true;
+    }
+
+    /**
+     * Pushes the first level of relations even if the parent
+     * model has no changes.
+     * @return bool
+     */
+    public function alwaysPush($sessionKey)
+    {
+        return $this->push($sessionKey, ['always' => true]);
     }
 
     //
