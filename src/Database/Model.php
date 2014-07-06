@@ -854,6 +854,12 @@ class Model extends EloquentModel
                 break;
 
             case 'belongsTo':
+                // Nulling the relationship
+                if (!$value) {
+                    $this->setAttribute($relationObj->getForeignKey(), null);
+                    break;
+                }
+
                 if ($value instanceof EloquentModel) {
                     /*
                      * Non existent model, use a single serve event to associate it again when ready
