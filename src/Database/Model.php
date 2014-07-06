@@ -440,14 +440,17 @@ class Model extends EloquentModel
 
     /**
      * Determines whether the specified relation should be saved
-     * when push() is called instead of save() on the model.
+     * when push() is called instead of save() on the model. Default: true.
      * @param  string  $name Relation name
      * @return boolean
      */
     public function isRelationPushable($name)
     {
         $definition = $this->getRelationDefinition($name);
-        return array_key_exists('push', $definition) && !$definition['push'];
+        if (!array_key_exists('push', $definition))
+            return true;
+
+        return (bool) $definition['push'];
     }
 
     /**
