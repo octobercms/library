@@ -44,6 +44,13 @@ class FieldParser
      */
     public function __construct($template = null)
     {
+        /*
+         * This is a fix for PHP 5.5 causing segmentation fault
+         * @todo Replicate and look at better ways to resolve this,
+         * perhaps using more efficient regex.
+         */
+        ini_set('pcre.recursion_limit', '524'); // PHP default is 100,000.
+
         if ($template) {
             $this->template = $template;
             $this->processTags($template);
