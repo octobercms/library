@@ -8,8 +8,8 @@ class FieldParserTest extends TestCase
     public function testParse()
     {
         $content = '';
-        $content .= '{text name="field1" label="Field 1"}'.PHP_EOL;
-        $content .= '{textarea name="field1" label="Field 1 Again"}'.PHP_EOL;
+        $content .= '{text name="field1" label="Field 1"}{/text}'.PHP_EOL;
+        $content .= '{textarea name="field1" label="Field 1 Again"}{/textarea}'.PHP_EOL;
         $content .= '{text name="field2" label="Field 2"}Default Text{/text}'.PHP_EOL;
         $content .= '{textarea name="field3" label="Field 3"}Default Text{/textarea}'.PHP_EOL;
         $content .= '{textarea name="field4" label="Field 4"}Invalid Tag{/invalid}'.PHP_EOL;
@@ -21,24 +21,22 @@ class FieldParserTest extends TestCase
         $this->assertArrayHasKey('field1', $fields);
         $this->assertArrayHasKey('field2', $fields);
         $this->assertArrayHasKey('field3', $fields);
-        $this->assertArrayHasKey('field4', $fields);
+        $this->assertArrayNotHasKey('field4', $fields);
 
         $this->assertArrayHasKey('field1', $tags);
         $this->assertArrayHasKey('field2', $tags);
         $this->assertArrayHasKey('field3', $tags);
-        $this->assertArrayHasKey('field4', $tags);
+        $this->assertArrayNotHasKey('field4', $tags);
 
-        $this->assertEquals('{textarea name="field4" label="Field 4"}', $tags['field4']);
+        $this->assertEquals('{textarea name="field1" label="Field 1 Again"}{/textarea}', $tags['field1']);
 
         $this->assertArrayNotHasKey('name', $fields['field1']);
         $this->assertArrayNotHasKey('name', $fields['field2']);
         $this->assertArrayNotHasKey('name', $fields['field3']);
-        $this->assertArrayNotHasKey('name', $fields['field4']);
 
         $this->assertArrayHasKey('type', $fields['field1']);
         $this->assertArrayHasKey('type', $fields['field2']);
         $this->assertArrayHasKey('type', $fields['field3']);
-        $this->assertArrayHasKey('type', $fields['field4']);
 
         $this->assertEquals('textarea', $fields['field1']['type']);
     }
@@ -47,7 +45,7 @@ class FieldParserTest extends TestCase
     {
         $parser = new FieldParser;
         $content = '';
-        $content .= '{text name="websiteName" label="Website Name" size="large"}'.PHP_EOL;
+        $content .= '{text name="websiteName" label="Website Name" size="large"}{/text}'.PHP_EOL;
         $content .= '{text name="blogName" label="Blog Name" color="re\"d"}OctoberCMS{/text}'.PHP_EOL;
         $content .= '{text name="storeName" label="Store Name" shape="circle"}{/text}';
         $content .= '{text label="Unnamed" distance="400m"}Foobar{/text}';
@@ -71,7 +69,8 @@ class FieldParserTest extends TestCase
         $this->assertEquals('Website Name', $fields['websiteName']['label']);
         $this->assertEquals('large', $fields['websiteName']['size']);
         $this->assertEquals('text', $fields['websiteName']['type']);
-        $this->assertNull($fields['websiteName']['default']);
+        $this->assertNotNull($fields['websiteName']['default']);
+        $this->assertEquals('', $fields['websiteName']['default']);
 
         $this->assertArrayNotHasKey('name', $fields['blogName']);
         $this->assertArrayHasKey('label', $fields['blogName']);
@@ -119,7 +118,7 @@ class FieldParserTest extends TestCase
     {
         $parser = new FieldParser;
         $content = '';
-        $content .= '{text name="websiteName" label="Website Name"}'.PHP_EOL;
+        $content .= '{text name="websiteName" label="Website Name"}{/text}'.PHP_EOL;
         $content .= '{text name="blogName" label="Blog Name"}OctoberCMS{/text}'.PHP_EOL;
         $content .= '{text name="storeName" label="Store Name"}{/text}';
         $result = self::callProtectedMethod($parser, 'processTagsRegex', [$content, ['text']]);
@@ -128,13 +127,9 @@ class FieldParserTest extends TestCase
         $this->assertArrayHasKey(1, $result[2]);
         $this->assertArrayHasKey(2, $result[2]);
 
-        $this->assertEquals('name="websiteName" label="Website Name"', $result[2][0]);
-        $this->assertEquals('name="blogName" label="Blog Name"', $result[2][1]);
-        $this->assertEquals('name="storeName" label="Store Name"', $result[2][2]);
-
-        $this->assertNull($result[3][0]);
-        $this->assertEquals('OctoberCMS', $result[3][1]);
-        $this->assertEquals('', $result[3][2]);
+        $this->assertEquals('name="websiteName" label="Website Name"}', $result[2][0]);
+        $this->assertEquals('name="blogName" label="Blog Name"}OctoberCMS', $result[2][1]);
+        $this->assertEquals('name="storeName" label="Store Name"}', $result[2][2]);
     }
 
     public function testProcessParamsRegex()

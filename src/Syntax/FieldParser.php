@@ -44,13 +44,6 @@ class FieldParser
      */
     public function __construct($template = null)
     {
-        /*
-         * This is a fix for PHP 5.5 causing segmentation fault
-         * @todo Replicate and look at better ways to resolve this,
-         * perhaps using more efficient regex.
-         */
-        ini_set('pcre.recursion_limit', '524'); // PHP default is 100,000.
-
         if ($template) {
             $this->template = $template;
             $this->processTags($template);
@@ -124,13 +117,9 @@ class FieldParser
         $tagStrings = $result[0];
         $tagNames = $result[1];
         $paramStrings = $result[2];
-        $defaultValues = $result[3];
 
         foreach ($tagStrings as $key => $tagString) {
-            $result = $this->processParamsRegex($paramStrings[$key]);
-            $paramNames = $result[1];
-            $paramValues = $result[2];
-            $params = array_combine($paramNames, $paramValues);
+            $params = $this->processParams($paramStrings[$key]);
 
             if (isset($params['name'])) {
                 $name = $params['name'];
@@ -141,7 +130,6 @@ class FieldParser
             }
 
             $params['type'] = $tagNames[$key];
-            $params['default'] = trim($defaultValues[$key]);
 
             $tags[$name] = $tagString;
             $fields[$name] = $params;
@@ -151,6 +139,37 @@ class FieldParser
         $this->fields = $this->fields + $fields;
 
         return [$tags, $fields];
+    }
+
+    /**
+     * Processes group 2 from the Tag regex and returns
+     * an array of captured parameters.
+     * @param  string $value
+     * @return array
+     */
+    protected function processParams($value)
+    {
+        $close = Parser::CHAR_CLOSE;
+        $closePos = strpos($value, $close);
+        $defaultValue = '';
+        if ($closePos === false) {
+            $paramString = $value;
+        }
+        elseif (substr($value, -1) == $close) {
+            $paramString = substr($value, 0, -1);
+        }
+        else {
+            $paramString = substr($value, 0, $closePos);
+            $defaultValue = trim(substr($value, $closePos + 1));
+        }
+
+        $result = $this->processParamsRegex($paramString);
+        $paramNames = $result[1];
+        $paramValues = $result[2];
+        $params = array_combine($paramNames, $paramValues);
+        $params['default'] = $defaultValue;
+
+        return $params;
     }
 
     /**
@@ -164,12 +183,12 @@ class FieldParser
      */
     protected function processParamsRegex($string)
     {
-        /**
+        /*
          * Match key/value pairs
          *
          * (\w+)="((?:\\.|[^"\\]+)*|[^"]*)"
          */
-        $regex = '/';
+        $regex = '#';
         $regex .= '(\w+)'; // Any word
         $regex .= '="'; // Equal sign and open quote
 
@@ -178,7 +197,7 @@ class FieldParser
         $regex .= '|[^"]'; // Or anything other than a quote
         $regex .= '*)'; // Capture value
         $regex .= '"';
-        $regex .= '/';
+        $regex .= '#';
 
         preg_match_all($regex, $string, $match);
 
@@ -189,10 +208,11 @@ class FieldParser
      * Performs a regex looking for a field type (key) and returns
      * an array where:
      *
-     *  0 - The full tag definition, eg: {text name="test"}...{/text}
-     *  1 - The tag parameters as a string, eg: name="test"
-     *  2 - The default text inside the tag (optional), eg: ...
-     *
+     *  0 - The full tag definition, eg: {text name="test"}Foobar{/text}
+     *  1 - The opening and closing tag name
+     *  2 - The tag parameters as a string, eg: name="test"} and;
+     *  2 - The default text inside the tag (optional), eg: Foobar
+     * 
      * @param  string $string
      * @param  string $tag
      * @return array
@@ -200,92 +220,23 @@ class FieldParser
     protected function processTagsRegex($string, $tags)
     {
         /*
-         * Full regex:
-         * {(text|textarea)\s([^}]+)}(((?!{(?:\1))[\s\S])*){/(?:\1)}
+         * Match opening and close tags
+         *
+         * {(text|textarea)\s([\S\s]+?){/(?:\1)}
          */
         $open = preg_quote(Parser::CHAR_OPEN);
         $close = preg_quote(Parser::CHAR_CLOSE);
-
         $tags = implode('|', $tags);
-        /*
-         * Match the opening tag:
-         * 
-         * {text something="value"}
-         * {(text|textarea)\s([^}]+)}
-         */
-        $regexOpen = $open.'('.$tags.')\s'; // Open (Group 1)
-        $regexOpen .= '([^'.$close.']+)'; // All but Close tag (Group 2)
-        $regexOpen .= $close; // Close
 
-        // Reference to group 1 value
-        $openTagRef = '(?:\1)';
+        $regex = '#';
+        $regex .= $open.'('.$tags.')\s'; // Group 1
+        $regex .= '([\S\s]+?)'; // Group 2 (Non greedy)
+        $regex .= $open.'/(?:\1)'.$close; // Group X (Not captured)
+        $regex .= '#';
 
-        /*
-         * Match all that does not contain another opening tag:
-         *
-         * (((?!{(?:\1))[\s\S])*)
-         */
-        $regexContent = '('; // Capture
-        $regexContent .= '(?:'; // Non capture (negative lookahead)
-        $regexContent .= '(?!'.$open.$openTagRef.')'; // Not Close tag
-        $regexContent .= '[\s\S]'; // All multiline
-        $regexContent .= ')'; // End non capture
-        $regexContent .= '*)'; // Capture content
+        preg_match_all($regex, $string, $match);
 
-        /*
-         * Match the closing tag:
-         * 
-         * {/text}
-         * {/(?:\1)}
-         */
-        $regexClose = $open.'/'.$openTagRef.$close; // Close
-
-        $regex = '~';
-        $regex .= $regexOpen;
-        $regex .='~';
-
-        preg_match_all($regex, $string, $matchSingle);
-
-        $regex = '~';
-        $regex .= $regexOpen;
-        $regex .= $regexContent;
-        $regex .= $regexClose;
-        $regex .='~';
-
-        preg_match_all($regex, $string, $matchDouble);
-
-        $match = $this->mergeSinglesAndDoubles($matchSingle, $matchDouble);
-
-        return ($match) ? $match : false;
-    }
-
-    /**
-     * Internal method to merge singular tags with double tags (open/close)
-     * @param  array $singles
-     * @param  array $doubles
-     * @return array
-     */
-    private function mergeSinglesAndDoubles($singles, $doubles)
-    {
-        if (!count($singles[0])) {
-            $singles[3] = [];
-            return $singles;
-        }
-
-        $singles[3] = array_fill(0, count($singles[0]), null);
-        $matched = [];
-        $result = [];
-        foreach ($singles[2] as $singleKey => $needle) {
-
-            $doubleKey = array_search($needle, $doubles[2]);
-            if ($doubleKey === false)
-                continue;
-
-            $singles[0][$singleKey] = $doubles[0][$doubleKey];
-            $singles[3][$singleKey] = $doubles[3][$doubleKey];
-        }
-
-        return $singles;
+        return $match;
     }
 
 }
