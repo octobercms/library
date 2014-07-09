@@ -830,6 +830,30 @@ class Model extends EloquentModel
     }
 
     /**
+     * Returns a relation key value(s), not as an object.
+     */
+    public function getRelationValue($relationName)
+    {
+        $relationType = $this->getRelationType($relationName);
+        $relationObj = $this->$relationName();
+        $value = null;
+
+        switch ($relationType) {
+            case 'belongsTo':
+                $value = $this->getAttribute($relationObj->getForeignKey());
+                break;
+
+            case 'belongsToMany':
+            case 'morphToMany':
+            case 'morphedByMany':
+                $value = $relationObj->getRelatedIds();
+                break;
+        }
+
+        return $value;
+    }
+
+    /**
      * Sets a relation value directly from its attribute.
      */
     protected function setRelationValue($relationName, $value)
@@ -1057,7 +1081,6 @@ class Model extends EloquentModel
 
     /**
      * Get a plain attribute (not a relationship).
-     *
      * @param  string  $key
      * @return mixed
      */
