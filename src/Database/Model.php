@@ -34,7 +34,6 @@ class Model extends EloquentModel
     use \October\Rain\Extension\ExtendableTrait;
     use \October\Rain\Database\Traits\Validation;
     use \October\Rain\Database\Traits\Purgeable;
-    use \October\Rain\Database\Traits\Sluggable;
     use \October\Rain\Database\Traits\DeferredBinding;
 
     /**
@@ -962,12 +961,11 @@ class Model extends EloquentModel
         if (!$valid)
             return false;
 
+        // Event
+        $this->fireEvent('model.saveInternal', [$data, $options]);
+
         // Remove any purge attributes from the data set
         $this->purgeAttributes();
-
-        // Set slugged attributes on new records
-        if (!$this->exists)
-            $this->slugAttributes();
 
         /*
          * Validate attributes before trying to save

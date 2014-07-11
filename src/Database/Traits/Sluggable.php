@@ -6,8 +6,31 @@ trait Sluggable
 {
     /**
      * @var array List of attributes to automatically generate unique URL names (slugs) for.
+     * 
+     * protected $slugs = [];
      */
-    protected $slugs = [];
+
+    /**
+     * Boot the sluggable trait for a model.
+     * @return void
+     */
+    public static function bootSluggable()
+    {
+        if (!property_exists(get_called_class(), 'slugs'))
+            throw new Exception(sprintf('You must define a $slugs property in %s to use the Sluggable trait.', get_called_class()));
+
+        /*
+         * Set slugged attributes on new records
+         */
+        static::extend(function($model){
+            $model->bindEvent('model.saveInternal', function($data, $options) use ($model) {
+                if ($model->exists)
+                    return;
+
+                $model->slugAttributes();
+            });
+        });
+    }
 
     /**
      * Adds slug attributes to the dataset, used before saving.
