@@ -17,7 +17,6 @@ trait Hashable
 
     /**
      * Boot the hashable trait for a model.
-     *
      * @return void
      */
     public static function bootHashable()
@@ -25,20 +24,24 @@ trait Hashable
         if (!property_exists(get_called_class(), 'hashable'))
             throw new Exception(sprintf('You must define a $hashable property in %s to use the Hashable trait.', get_called_class()));
 
+        /*
+         * Hash required fields when necessary
+         */
         static::extend(function($model){
             $model->bindEvent('model.beforeSetAttribute', function($key, $value) use ($model) {
-
-                /*
-                 * Hash required fields when necessary
-                 */
                 $hashable = $model->getHashableAttributes();
                 if (in_array($key, $hashable) && !empty($value))
                     return $model->makeHashValue($value);
-
             });
         });
     }
 
+    /**
+     * Hashes an attribute value and saves it in the original locker.
+     * @param  string $key   Attribute
+     * @param  string $value Value to hash
+     * @return string        Hashed value
+     */
     public function makeHashValue($key, $value)
     {
         $this->originalHashableValues[$key] = $value;
@@ -47,6 +50,7 @@ trait Hashable
 
     /**
      * Returns a collection of fields that will be hashed.
+     * @return array
      */
     public function getHashableAttributes()
     {
@@ -55,6 +59,7 @@ trait Hashable
 
     /**
      * Returns the original values of any hashed attributes.
+     * @return array
      */
     public function getOriginalHashValues()
     {
@@ -63,6 +68,7 @@ trait Hashable
 
     /**
      * Returns the original values of any hashed attributes.
+     * @return mixed
      */
     public function getOriginalHashValue($attribute)
     {

@@ -1140,12 +1140,6 @@ class Model extends EloquentModel
         if (($_value = $this->fireEvent('model.beforeSetAttribute', [$key, $value], true)) !== null)
             $value = $_value;
 
-        // Hash required fields when necessary
-        // if (in_array($key, $this->hashable) && !empty($value)) {
-        //     $this->originalHashableValues[$key] = $value;
-        //     $value = Hash::make($value);
-        // }
-
         // Handle jsonable
         if (in_array($key, $this->jsonable) && (!empty($value) || is_array($value))) {
             $value = json_encode($value);
