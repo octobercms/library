@@ -872,9 +872,9 @@ class Model extends EloquentModel
                 if (!is_array($value)) $value = [$value];
 
                 // Do not sync until the model is saved
-                $this->bindEvent('model.afterSave', function() use ($relationObj, $value){
+                $this->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
                     $relationObj->sync($value);
-                }, true);
+                });
                 break;
 
             case 'belongsTo':
@@ -889,9 +889,9 @@ class Model extends EloquentModel
                      * Non existent model, use a single serve event to associate it again when ready
                      */
                     if (!$value->exists) {
-                        $value->bindEvent('model.afterSave', function() use ($relationObj, $value){
+                        $value->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
                             $relationObj->associate($value);
-                        }, true);
+                        });
                     }
 
                     $relationObj->associate($value);
@@ -902,9 +902,9 @@ class Model extends EloquentModel
 
             case 'attachMany':
                 if ($value instanceof UploadedFile) {
-                    $this->bindEvent('model.afterSave', function() use ($relationObj, $value){
+                    $this->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
                         $relationObj->create(['data' => $value]);
-                    }, true);
+                    });
                 }
                 elseif (is_array($value)) {
                     $files = [];
@@ -912,11 +912,11 @@ class Model extends EloquentModel
                         if ($_value instanceof UploadedFile)
                             $files[] = $_value;
                     }
-                    $this->bindEvent('model.afterSave', function() use ($relationObj, $files){
+                    $this->bindEventOnce('model.afterSave', function() use ($relationObj, $files){
                         foreach ($files as $file) {
                             $relationObj->create(['data' => $file]);
                         }
-                    }, true);
+                    });
                 }
                 break;
 
@@ -925,9 +925,9 @@ class Model extends EloquentModel
                     $value = reset($value);
 
                 if ($value instanceof UploadedFile) {
-                    $this->bindEvent('model.afterSave', function() use ($relationObj, $value){
+                    $this->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
                         $relationObj->create(['data' => $value]);
-                    }, true);
+                    });
                 }
                 break;
         }
@@ -961,7 +961,8 @@ class Model extends EloquentModel
             return false;
 
         // Event
-        $this->fireEvent('model.saveInternal', [$data, $options]);
+        if ($this->fireEvent('model.saveInternal', [$data, $options], true) === false)
+            return false;
 
         /*
          * Validate attributes before trying to save

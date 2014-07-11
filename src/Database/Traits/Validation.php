@@ -57,7 +57,7 @@ trait Validation
      * outside of Laravel.
      * @return \Illuminate\Validation\Validator
      */
-    protected static function makeValidator($data, $rules, $customMessages) 
+    protected static function makeValidator($data, $rules, $customMessages)
     {
         return Validator::make($data, $rules, $customMessages);
     }
