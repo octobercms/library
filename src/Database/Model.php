@@ -33,7 +33,6 @@ class Model extends EloquentModel
     use \October\Rain\Support\Traits\Emitter;
     use \October\Rain\Extension\ExtendableTrait;
     use \October\Rain\Database\Traits\Validation;
-    use \October\Rain\Database\Traits\Purgeable;
     use \October\Rain\Database\Traits\DeferredBinding;
 
     /**
@@ -963,9 +962,6 @@ class Model extends EloquentModel
 
         // Event
         $this->fireEvent('model.saveInternal', [$data, $options]);
-
-        // Remove any purge attributes from the data set
-        $this->purgeAttributes();
 
         /*
          * Validate attributes before trying to save

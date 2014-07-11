@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Database\Traits;
 
 use October\Rain\Support\Str;
+use Exception;
 
 trait Sluggable
 {
