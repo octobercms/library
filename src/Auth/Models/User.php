@@ -12,6 +12,8 @@ use InvalidArgumentException;
  */
 class User extends Model
 {
+    use \October\Rain\Database\Traits\Hashable;
+
     /**
      * @var string The table associated with the model.
      */

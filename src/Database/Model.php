@@ -35,7 +35,6 @@ class Model extends EloquentModel
     use \October\Rain\Database\Traits\Validation;
     use \October\Rain\Database\Traits\Purgeable;
     use \October\Rain\Database\Traits\Sluggable;
-    use \October\Rain\Database\Traits\Hashable;
     use \October\Rain\Database\Traits\DeferredBinding;
 
     /**
@@ -1138,14 +1137,14 @@ class Model extends EloquentModel
     public function setAttribute($key, $value)
     {
         // Before Event
-        if ($this->fireEvent('model.beforeSetAttribute', [$key, $value], true) === false)
-            return;
+        if (($_value = $this->fireEvent('model.beforeSetAttribute', [$key, $value], true)) !== null)
+            $value = $_value;
 
         // Hash required fields when necessary
-        if (in_array($key, $this->hashable) && !empty($value)) {
-            $this->originalHashableValues[$key] = $value;
-            $value = Hash::make($value);
-        }
+        // if (in_array($key, $this->hashable) && !empty($value)) {
+        //     $this->originalHashableValues[$key] = $value;
+        //     $value = Hash::make($value);
+        // }
 
         // Handle jsonable
         if (in_array($key, $this->jsonable) && (!empty($value) || is_array($value))) {

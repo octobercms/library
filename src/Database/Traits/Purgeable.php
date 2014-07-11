@@ -8,11 +8,6 @@ trait Purgeable
     protected $purgeable = [];
 
     /**
-     * @var array List of original attribute values before they were hashed.
-     */
-    private $originalHashableValues = [];
-
-    /**
      * @var array List of original attribute values before they were purged.
      */
     private $originalPurgeableValues = [];

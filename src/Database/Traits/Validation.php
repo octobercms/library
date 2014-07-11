@@ -93,11 +93,16 @@ trait Validation
         $success = true;
 
         if (!empty($rules)) {
+
+            $data = $this->getAttributes();
+
             /*
-             * Remove all hashed values, then add the original values
+             * Compatability with Hashable trait: Remove all hashed values, add the original values.
              */
-            $data = array_diff_key($this->getAttributes(), array_flip($this->getHashableAttributes()));
-            $data = array_merge($data, $this->getOriginalHashValues());
+            if (method_exists($this, 'getHashableAttributes')) {
+                $data = array_diff_key($data, array_flip($this->getHashableAttributes()));
+                $data = array_merge($data, $this->getOriginalHashValues());
+            }
 
             $customMessages = is_null($customMessages) ? $this->customMessages : $customMessages;
             $validator = self::makeValidator($data, $rules, $customMessages);
