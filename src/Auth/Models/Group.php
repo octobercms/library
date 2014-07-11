@@ -8,6 +8,8 @@ use October\Rain\Database\Model;
  */
 class Group extends Model
 {
+    use \October\Rain\Database\Traits\Validation;
+
     /**
      * @var string The table associated with the model.
      */

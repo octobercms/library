@@ -4,13 +4,15 @@ use Input;
 use October\Rain\Database\ModelException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\MessageBag;
+use Exception;
 
 trait Validation
 {
     /**
      * @var array The rules to be applied to the data.
+     *
+     * public $rules = [];
      */
-    public $rules = [];
 
     /**
      * @var array The array of custom error messages.
@@ -35,8 +37,28 @@ trait Validation
      */
     public static function bootValidation()
     {
+        if (!property_exists(get_called_class(), 'rules'))
+            throw new Exception(sprintf('You must define a $rules property in %s to use the Validation trait.', get_called_class()));
+
         static::extend(function($model){
             $model->validationErrors = new MessageBag;
+
+            $model->bindEvent('model.saveInternal', function($data, $options) use ($model) {
+                /*
+                 * If forcing the save event, the beforeValidate/afterValidate
+                 * events should still fire for consistency. So validate an
+                 * empty set of rules and messages.
+                 */
+                $force = array_get($options, 'force', false);
+                if ($force)
+                    $valid = $model->validate([], []);
+                else
+                    $valid = $model->validate();
+
+                if (!$valid)
+                    return false;
+
+            }, 500);
         });
 
         static::validating(function($model) {

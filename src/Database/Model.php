@@ -32,7 +32,6 @@ class Model extends EloquentModel
 {
     use \October\Rain\Support\Traits\Emitter;
     use \October\Rain\Extension\ExtendableTrait;
-    use \October\Rain\Database\Traits\Validation;
     use \October\Rain\Database\Traits\DeferredBinding;
 
     /**
@@ -945,20 +944,6 @@ class Model extends EloquentModel
     {
         if ($data !== null)
             $this->fill($data);
-
-        /*
-         * If forcing the save event, the beforeValidate/afterValidate
-         * events should still fire for consistency. So validate an
-         * empty set of rules and messages.
-         */
-        $force = array_get($options, 'force', false);
-        if ($force)
-            $valid = $this->validate([], []);
-        else
-            $valid = $this->validate();
-
-        if (!$valid)
-            return false;
 
         // Event
         if ($this->fireEvent('model.saveInternal', [$data, $options], true) === false)

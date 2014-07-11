@@ -13,6 +13,8 @@ use InvalidArgumentException;
 class User extends Model
 {
     use \October\Rain\Database\Traits\Hashable;
+    use \October\Rain\Database\Traits\Purgeable;
+    use \October\Rain\Database\Traits\Validation;
 
     /**
      * @var string The table associated with the model.
