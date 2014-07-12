@@ -230,7 +230,7 @@ class File extends Model
             else
                 $this->fromFile($this->data);
 
-            $this->purgeAttributes('data');
+            unset($this->data);
         }
     }
 
