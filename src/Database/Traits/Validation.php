@@ -206,6 +206,36 @@ trait Validation
     }
 
     /**
+     * Determines if an attribute is required based on the validation rules.
+     * @param  string  $attribute
+     * @return boolean
+     */
+    public function isAttributeRequired($attribute)
+    {
+        if (!isset($this->rules[$attribute]))
+            return false;
+
+        $ruleset = $this->rules[$attribute];
+
+        if (is_array($ruleset))
+            $ruleset = implode('|', $ruleset);
+
+        if (strpos($ruleset, 'required:create') !== false && $this->exists)
+            return false;
+
+        if (strpos($ruleset, 'required:update') !== false && !$this->exists)
+            return false;
+
+        if (strpos($ruleset, 'required_with') !== false) {
+            $requiredWith = substr($ruleset, strpos($ruleset, 'required_with') + 14);
+            $requiredWith = substr($requiredWith, 0, strpos($requiredWith, '|'));
+            return $this->isAttributeRequired($requiredWith);
+        }
+
+        return strpos($ruleset, 'required') !== false;
+    }
+
+    /**
      * Get validation error message collection for the Model
      * @return \Illuminate\Support\MessageBag
      */
