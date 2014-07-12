@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Traits;
 
+use Hash;
 use Exception;
 
 trait Hashable
@@ -31,7 +32,7 @@ trait Hashable
             $model->bindEvent('model.beforeSetAttribute', function($key, $value) use ($model) {
                 $hashable = $model->getHashableAttributes();
                 if (in_array($key, $hashable) && !empty($value))
-                    return $model->makeHashValue($value);
+                    return $model->makeHashValue($key, $value);
             });
         });
     }
