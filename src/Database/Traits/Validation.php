@@ -2,8 +2,8 @@
 
 use Input;
 use October\Rain\Database\ModelException;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\MessageBag;
+use Illuminate\Support\Facades\Validator;
 use Exception;
 
 trait Validation
@@ -16,19 +16,21 @@ trait Validation
 
     /**
      * @var array The array of custom error messages.
+     *
+     * public $customMessages = [];
      */
-    public $customMessages = [];
+
+    /**
+     * @var bool Makes the validation procedure throw an {@link October\Rain\Database\ModelException}
+     * instead of returning false when validation fails.
+     *
+     * public $throwOnValidation = true;
+     */
 
     /**
      * @var \Illuminate\Support\MessageBag The message bag instance containing validation error messages
      */
-    public $validationErrors;
-
-    /**
-     * @var bool Makes the validation procedure throw an {@link October\Rain\Database\ModelException} instead of returning
-     * false when validation fails.
-     */
-    public $throwOnValidation = true;
+    private $validationErrors;
 
     /**
      * Boot the validation trait for this model.
@@ -41,8 +43,6 @@ trait Validation
             throw new Exception(sprintf('You must define a $rules property in %s to use the Validation trait.', get_called_class()));
 
         static::extend(function($model){
-            $model->validationErrors = new MessageBag;
-
             $model->bindEvent('model.saveInternal', function($data, $options) use ($model) {
                 /*
                  * If forcing the save event, the beforeValidate/afterValidate
@@ -100,8 +100,13 @@ trait Validation
      */
     public function validate($rules = null, $customMessages = null)
     {
+        if ($this->validationErrors === null)
+            $this->validationErrors = new MessageBag;
+
+        $throwOnValidation = property_exists($this, 'throwOnValidation') ? $this->throwOnValidation : true;
+
         if ($this->fireModelEvent('validating') === false) {
-            if ($this->throwOnValidation)
+            if ($throwOnValidation)
                 throw new ModelException($this);
             else
                 return false;
@@ -126,7 +131,12 @@ trait Validation
                 $data = array_merge($data, $this->getOriginalHashValues());
             }
 
-            $customMessages = is_null($customMessages) ? $this->customMessages : $customMessages;
+            if (property_exists($this, 'customMessages') && is_null($customMessages))
+                $customMessages = $this->customMessages;
+
+            if (is_null($customMessages))
+                $customMessages = [];
+
             $validator = self::makeValidator($data, $rules, $customMessages);
             $success = $validator->passes();
 
@@ -142,7 +152,7 @@ trait Validation
 
         $this->fireModelEvent('validated', false);
 
-        if (!$success && $this->throwOnValidation)
+        if (!$success && $throwOnValidation)
             throw new ModelException($this);
 
         return $success;

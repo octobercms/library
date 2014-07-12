@@ -14,11 +14,6 @@ class DeferredBinding extends Model
     public $table = 'deferred_bindings';
 
     /**
-     * {@inheritDoc}
-     */
-    public $throwOnValidation = false;
-
-    /**
      * Prevents duplicates and conflicting binds.
      */
     public function beforeValidate()
