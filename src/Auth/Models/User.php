@@ -1,11 +1,11 @@
 <?php namespace October\Rain\Auth\Models;
 
 use Hash;
-use DateTime;
 use October\Rain\Database\Model;
 use October\Rain\Auth\Hash\HasherBase;
-use RuntimeException;
 use InvalidArgumentException;
+use RuntimeException;
+use DateTime;
 
 /**
  * User model
