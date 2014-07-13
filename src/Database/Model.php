@@ -153,8 +153,9 @@ class Model extends EloquentModel
      */
     public function __construct(array $attributes = [])
     {
-        parent::__construct($attributes);
+        parent::__construct();
         $this->extendableConstruct();
+        $this->fill($attributes);
     }
 
     /**
