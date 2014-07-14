@@ -1,17 +1,21 @@
 <?php namespace October\Rain\Auth\Models;
 
 use Hash;
-use DateTime;
 use October\Rain\Database\Model;
 use October\Rain\Auth\Hash\HasherBase;
-use RuntimeException;
 use InvalidArgumentException;
+use RuntimeException;
+use DateTime;
 
 /**
  * User model
  */
 class User extends Model
 {
+    use \October\Rain\Database\Traits\Hashable;
+    use \October\Rain\Database\Traits\Purgeable;
+    use \October\Rain\Database\Traits\Validation;
+
     /**
      * @var string The table associated with the model.
      */

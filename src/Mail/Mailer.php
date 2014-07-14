@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Mail;
 
+use Event;
 use Illuminate\Mail\Mailer as MailerBase;
 
 /**
@@ -14,6 +15,47 @@ class Mailer extends MailerBase
     use \October\Rain\Support\Traits\Emitter;
 
     /**
+     * Send a new message using a view.
+     *
+     * @param  string|array  $view
+     * @param  array  $data
+     * @param  Closure|string  $callback
+     * @return void
+     */
+    public function send($view, array $data, $callback)
+    {
+        /*
+         * Inherit logic from Illuminate\Mail\Mailer
+         */
+        list($view, $plain) = $this->parseView($view);
+
+        $data['message'] = $message = $this->createMessage();
+        $this->callMessageBuilder($callback, $message);
+        $this->addContent($message, $view, $plain, $data);
+
+        /*
+         * Extensbility
+         * $view    - View code as a string
+         * $message - Illuminate\Mail\Message object,
+         *            check Swift_Mime_SimpleMessage for useful functions.
+         */
+        if (Event::fire('mailer.beforeSend', [$this, $view, $message], true) === false) return;
+        if ($this->fireEvent('mailer.beforeSend', [$view, $message], true) === false) return;
+
+        /*
+         * Send the message
+         */
+        $_message = $message->getSwiftMessage();
+        $this->sendSwiftMessage($_message);
+
+        /*
+         * Extensbility
+         */
+        Event::fire('mailer.send', [$this, $view, $message]);
+        $this->fireEvent('mailer.send', [$view, $message]);
+    }
+
+    /**
      * Add the content to a given message.
      *
      * @param  \Illuminate\Mail\Message  $message
@@ -24,8 +66,11 @@ class Mailer extends MailerBase
      */
     protected function addContent($message, $view, $plain, $data)
     {
-        if ($this->fireEvent('content.beforeAdd', [$message, $view, $plain, $data], true) === false)
-            return;
+        /*
+         * Extensbility
+         */
+        if (Event::fire('mailer.beforeAddContent', [$this, $message, $view, $plain, $data], true) === false) return;
+        if ($this->fireEvent('mailer.beforeAddContent', [$message, $view, $plain, $data], true) === false) return;
 
         if (isset($view)) {
             $viewContent = $this->getView($view, $data);
@@ -43,7 +88,11 @@ class Mailer extends MailerBase
             $message->addPart($this->getView($plain, $data), 'text/plain');
         }
 
-        $this->fireEvent('content.add', [$message, $view, $plain, $data]);
+        /*
+         * Extensbility
+         */
+        Event::fire('mailer.addContent', [$this, $message, $view, $plain, $data]);
+        $this->fireEvent('mailer.addContent', [$message, $view, $plain, $data]);
     }
 
 }

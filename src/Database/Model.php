@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Database;
 
-use Hash;
 use Input;
 use Closure;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
@@ -32,10 +31,6 @@ class Model extends EloquentModel
 {
     use \October\Rain\Support\Traits\Emitter;
     use \October\Rain\Extension\ExtendableTrait;
-    use \October\Rain\Database\Traits\Validation;
-    use \October\Rain\Database\Traits\Purgeable;
-    use \October\Rain\Database\Traits\Sluggable;
-    use \October\Rain\Database\Traits\Hashable;
     use \October\Rain\Database\Traits\DeferredBinding;
 
     /**
@@ -156,10 +151,11 @@ class Model extends EloquentModel
     /**
      * Constructor
      */
-    public function __construct(array $attributes = array())
+    public function __construct(array $attributes = [])
     {
-        parent::__construct($attributes);
+        parent::__construct();
         $this->extendableConstruct();
+        $this->fill($attributes);
     }
 
     /**
@@ -214,21 +210,6 @@ class Model extends EloquentModel
     }
 
     /**
-     * Boot all of the bootable traits on the model.
-     * @return void
-     */
-    protected static function bootTraits()
-    {
-        foreach (class_uses('October\Rain\Database\Model') as $trait) {
-            if (method_exists(get_called_class(), $method = 'boot'.class_basename($trait))) {
-                forward_static_call([get_called_class(), $method]);
-            }
-        }
-
-        parent::bootTraits();
-    }
-
-    /**
      * Extend this object properties upon construction.
      */
     public static function extend(Closure $callback)
@@ -276,9 +257,9 @@ class Model extends EloquentModel
      * @param  array  $attributes
      * @return \Illuminate\Database\Eloquent\Model|static
      */
-    public function newFromBuilder($attributes = array())
+    public function newFromBuilder($attributes = [])
     {
-        $instance = $this->newInstance(array(), true);
+        $instance = $this->newInstance([], true);
         if ($instance->fireModelEvent('fetching') === false)
             return $instance;
 
@@ -320,11 +301,11 @@ class Model extends EloquentModel
     public function getObservableEvents()
     {
         return array_merge(
-            array(
+            [
                 'creating', 'created', 'updating', 'updated',
                 'deleting', 'deleted', 'saving', 'saved',
                 'restoring', 'restored', 'fetching', 'fetched'
-            ),
+            ],
             $this->observables
         );
     }
@@ -440,14 +421,17 @@ class Model extends EloquentModel
 
     /**
      * Determines whether the specified relation should be saved
-     * when push() is called instead of save() on the model.
+     * when push() is called instead of save() on the model. Default: true.
      * @param  string  $name Relation name
      * @return boolean
      */
     public function isRelationPushable($name)
     {
         $definition = $this->getRelationDefinition($name);
-        return array_key_exists('push', $definition) && !$definition['push'];
+        if (!array_key_exists('push', $definition))
+            return true;
+
+        return (bool) $definition['push'];
     }
 
     /**
@@ -827,6 +811,30 @@ class Model extends EloquentModel
     }
 
     /**
+     * Returns a relation key value(s), not as an object.
+     */
+    public function getRelationValue($relationName)
+    {
+        $relationType = $this->getRelationType($relationName);
+        $relationObj = $this->$relationName();
+        $value = null;
+
+        switch ($relationType) {
+            case 'belongsTo':
+                $value = $this->getAttribute($relationObj->getForeignKey());
+                break;
+
+            case 'belongsToMany':
+            case 'morphToMany':
+            case 'morphedByMany':
+                $value = $relationObj->getRelatedIds();
+                break;
+        }
+
+        return $value;
+    }
+
+    /**
      * Sets a relation value directly from its attribute.
      */
     protected function setRelationValue($relationName, $value)
@@ -848,20 +856,26 @@ class Model extends EloquentModel
                 if (!is_array($value)) $value = [$value];
 
                 // Do not sync until the model is saved
-                $this->bindEvent('model.afterSave', function() use ($relationObj, $value){
+                $this->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
                     $relationObj->sync($value);
-                }, true);
+                });
                 break;
 
             case 'belongsTo':
+                // Nulling the relationship
+                if (!$value) {
+                    $this->setAttribute($relationObj->getForeignKey(), null);
+                    break;
+                }
+
                 if ($value instanceof EloquentModel) {
                     /*
                      * Non existent model, use a single serve event to associate it again when ready
                      */
                     if (!$value->exists) {
-                        $value->bindEvent('model.afterSave', function() use ($relationObj, $value){
+                        $value->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
                             $relationObj->associate($value);
-                        }, true);
+                        });
                     }
 
                     $relationObj->associate($value);
@@ -872,9 +886,9 @@ class Model extends EloquentModel
 
             case 'attachMany':
                 if ($value instanceof UploadedFile) {
-                    $this->bindEvent('model.afterSave', function() use ($relationObj, $value){
+                    $this->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
                         $relationObj->create(['data' => $value]);
-                    }, true);
+                    });
                 }
                 elseif (is_array($value)) {
                     $files = [];
@@ -882,11 +896,11 @@ class Model extends EloquentModel
                         if ($_value instanceof UploadedFile)
                             $files[] = $_value;
                     }
-                    $this->bindEvent('model.afterSave', function() use ($relationObj, $files){
+                    $this->bindEventOnce('model.afterSave', function() use ($relationObj, $files){
                         foreach ($files as $file) {
                             $relationObj->create(['data' => $file]);
                         }
-                    }, true);
+                    });
                 }
                 break;
 
@@ -895,9 +909,9 @@ class Model extends EloquentModel
                     $value = reset($value);
 
                 if ($value instanceof UploadedFile) {
-                    $this->bindEvent('model.afterSave', function() use ($relationObj, $value){
+                    $this->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
                         $relationObj->create(['data' => $value]);
-                    }, true);
+                    });
                 }
                 break;
         }
@@ -916,26 +930,9 @@ class Model extends EloquentModel
         if ($data !== null)
             $this->fill($data);
 
-        /*
-         * If forcing the save event, the beforeValidate/afterValidate
-         * events should still fire for consistency. So validate an
-         * empty set of rules and messages.
-         */
-        $force = array_get($options, 'force', false);
-        if ($force)
-            $valid = $this->validate([], []);
-        else
-            $valid = $this->validate();
-
-        if (!$valid)
+        // Event
+        if ($this->fireEvent('model.saveInternal', [$data, $options], true) === false)
             return false;
-
-        // Remove any purge attributes from the data set
-        $this->purgeAttributes();
-
-        // Set slugged attributes on new records
-        if (!$this->exists)
-            $this->slugAttributes();
 
         /*
          * Validate attributes before trying to save
@@ -982,9 +979,11 @@ class Model extends EloquentModel
      * Save the model and all of its relationships.
      * @return bool
      */
-    public function push($sessionKey = null)
+    public function push($sessionKey = null, $options = [])
     {
-        if (!$this->save(null, $sessionKey))
+        $always = array_get($options, 'always', false);
+
+        if (!$this->save(null, $sessionKey) && !$always)
             return false;
 
         foreach ($this->relations as $name => $models) {
@@ -998,6 +997,16 @@ class Model extends EloquentModel
         }
 
         return true;
+    }
+
+    /**
+     * Pushes the first level of relations even if the parent
+     * model has no changes.
+     * @return bool
+     */
+    public function alwaysPush($sessionKey)
+    {
+        return $this->push($sessionKey, ['always' => true]);
     }
 
     //
@@ -1036,7 +1045,6 @@ class Model extends EloquentModel
 
     /**
      * Get a plain attribute (not a relationship).
-     *
      * @param  string  $key
      * @return mixed
      */
@@ -1094,14 +1102,8 @@ class Model extends EloquentModel
     public function setAttribute($key, $value)
     {
         // Before Event
-        if ($this->fireEvent('model.beforeSetAttribute', [$key, $value], true) === false)
-            return;
-
-        // Hash required fields when necessary
-        if (in_array($key, $this->hashable) && !empty($value)) {
-            $this->originalHashableValues[$key] = $value;
-            $value = Hash::make($value);
-        }
+        if (($_value = $this->fireEvent('model.beforeSetAttribute', [$key, $value], true)) !== null)
+            $value = $_value;
 
         // Handle jsonable
         if (in_array($key, $this->jsonable) && (!empty($value) || is_array($value))) {

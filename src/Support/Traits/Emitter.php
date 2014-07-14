@@ -19,17 +19,46 @@ trait Emitter
     protected $emitterEventCollection = [];
 
     /**
+     * @var array Sorted collection of events.
+     */
+    protected $emitterEventSorted = [];
+
+    /**
      * Create a new event binding.
      * @return Self
      */
-    public function bindEvent($event, $callback, $onceOnly = false)
+    public function bindEvent($event, $callback, $priority = 0)
     {
-        if ($onceOnly)
-            $this->emitterSingleEventCollection[$event][] = $callback;
-        else
-            $this->emitterEventCollection[$event][] = $callback;
-
+        $this->emitterEventCollection[$event][$priority][] = $callback;
+        unset($this->emitterEventSorted[$event]);
         return $this;
+    }
+
+    /**
+     * Create a new event binding that fires once only
+     * @return Self
+     */
+    public function bindEventOnce($event, $callback)
+    {
+        $this->emitterSingleEventCollection[$event][] = $callback;
+        return $this;
+    }
+
+    /**
+     * Sort the listeners for a given event by priority.
+     *
+     * @param  string  $eventName
+     * @return array
+     */
+    protected function emitterEventSortEvents($eventName)
+    {
+        $this->emitterEventSorted[$eventName] = [];
+
+        if (isset($this->emitterEventCollection[$eventName])) {
+            krsort($this->emitterEventCollection[$eventName]);
+
+            $this->emitterEventSorted[$eventName] = call_user_func_array('array_merge', $this->emitterEventCollection[$eventName]);
+        }
     }
 
     /**
@@ -52,6 +81,7 @@ trait Emitter
         if ($event === null) {
             unset($this->emitterSingleEventCollection);
             unset($this->emitterEventCollection);
+            unset($this->emitterEventSorted);
             return $this;
         }
 
@@ -60,6 +90,9 @@ trait Emitter
 
         if (isset($this->emitterEventCollection[$event]))
             unset($this->emitterEventCollection[$event]);
+
+        if (isset($this->emitterEventSorted[$event]))
+            unset($this->emitterEventSorted[$event]);
 
         return $this;
     }
@@ -91,15 +124,20 @@ trait Emitter
         }
 
         /*
-         * Recurring events
+         * Recurring events, with priority
          */
         if (isset($this->emitterEventCollection[$event])) {
-            foreach ($this->emitterEventCollection[$event] as $callback) {
+
+            if (!isset($this->emitterEventSorted[$event]))
+                $this->emitterEventSortEvents($event);
+
+            foreach ($this->emitterEventSorted[$event] as $callback) {
                 $response = call_user_func_array($callback, $params);
                 if (is_null($response)) continue;
                 if ($halt) return $response;
                 $result[] = $response;
             }
+
         }
 
         return $halt ? null : $result;

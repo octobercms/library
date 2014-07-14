@@ -428,8 +428,8 @@ class Http
      */
     public function timeout($timeout)
     {
-        $this->setOptions(CURLOPT_CONNECTTIMEOUT, $timeout);
-        $this->setOptions(CURLOPT_TIMEOUT, $timeout);
+        $this->setOption(CURLOPT_CONNECTTIMEOUT, $timeout);
+        $this->setOption(CURLOPT_TIMEOUT, $timeout);
         return $this;
     }
 

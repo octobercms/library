@@ -2,31 +2,35 @@
 
 use Input;
 use October\Rain\Database\ModelException;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\MessageBag;
+use Illuminate\Support\Facades\Validator;
+use Exception;
 
 trait Validation
 {
     /**
      * @var array The rules to be applied to the data.
+     *
+     * public $rules = [];
      */
-    public $rules = [];
 
     /**
      * @var array The array of custom error messages.
+     *
+     * public $customMessages = [];
      */
-    public $customMessages = [];
+
+    /**
+     * @var bool Makes the validation procedure throw an {@link October\Rain\Database\ModelException}
+     * instead of returning false when validation fails.
+     *
+     * public $throwOnValidation = true;
+     */
 
     /**
      * @var \Illuminate\Support\MessageBag The message bag instance containing validation error messages
      */
-    public $validationErrors;
-
-    /**
-     * @var bool Makes the validation procedure throw an {@link October\Rain\Database\ModelException} instead of returning
-     * false when validation fails.
-     */
-    public $throwOnValidation = true;
+    private $validationErrors;
 
     /**
      * Boot the validation trait for this model.
@@ -35,8 +39,26 @@ trait Validation
      */
     public static function bootValidation()
     {
+        if (!property_exists(get_called_class(), 'rules'))
+            throw new Exception(sprintf('You must define a $rules property in %s to use the Validation trait.', get_called_class()));
+
         static::extend(function($model){
-            $model->validationErrors = new MessageBag;
+            $model->bindEvent('model.saveInternal', function($data, $options) use ($model) {
+                /*
+                 * If forcing the save event, the beforeValidate/afterValidate
+                 * events should still fire for consistency. So validate an
+                 * empty set of rules and messages.
+                 */
+                $force = array_get($options, 'force', false);
+                if ($force)
+                    $valid = $model->validate([], []);
+                else
+                    $valid = $model->validate();
+
+                if (!$valid)
+                    return false;
+
+            }, 500);
         });
 
         static::validating(function($model) {
@@ -57,7 +79,7 @@ trait Validation
      * outside of Laravel.
      * @return \Illuminate\Validation\Validator
      */
-    protected static function makeValidator($data, $rules, $customMessages) 
+    protected static function makeValidator($data, $rules, $customMessages)
     {
         return Validator::make($data, $rules, $customMessages);
     }
@@ -78,8 +100,13 @@ trait Validation
      */
     public function validate($rules = null, $customMessages = null)
     {
+        if ($this->validationErrors === null)
+            $this->validationErrors = new MessageBag;
+
+        $throwOnValidation = property_exists($this, 'throwOnValidation') ? $this->throwOnValidation : true;
+
         if ($this->fireModelEvent('validating') === false) {
-            if ($this->throwOnValidation)
+            if ($throwOnValidation)
                 throw new ModelException($this);
             else
                 return false;
@@ -93,13 +120,23 @@ trait Validation
         $success = true;
 
         if (!empty($rules)) {
-            /*
-             * Remove all hashed values, then add the original values
-             */
-            $data = array_diff_key($this->getAttributes(), array_flip($this->getHashableAttributes()));
-            $data = array_merge($data, $this->getOriginalHashValues());
 
-            $customMessages = is_null($customMessages) ? $this->customMessages : $customMessages;
+            $data = $this->getAttributes();
+
+            /*
+             * Compatability with Hashable trait: Remove all hashed values, add the original values.
+             */
+            if (method_exists($this, 'getHashableAttributes')) {
+                $data = array_diff_key($data, array_flip($this->getHashableAttributes()));
+                $data = array_merge($data, $this->getOriginalHashValues());
+            }
+
+            if (property_exists($this, 'customMessages') && is_null($customMessages))
+                $customMessages = $this->customMessages;
+
+            if (is_null($customMessages))
+                $customMessages = [];
+
             $validator = self::makeValidator($data, $rules, $customMessages);
             $success = $validator->passes();
 
@@ -115,7 +152,7 @@ trait Validation
 
         $this->fireModelEvent('validated', false);
 
-        if (!$success && $this->throwOnValidation)
+        if (!$success && $throwOnValidation)
             throw new ModelException($this);
 
         return $success;
@@ -166,6 +203,36 @@ trait Validation
         }
 
         return $rules;
+    }
+
+    /**
+     * Determines if an attribute is required based on the validation rules.
+     * @param  string  $attribute
+     * @return boolean
+     */
+    public function isAttributeRequired($attribute)
+    {
+        if (!isset($this->rules[$attribute]))
+            return false;
+
+        $ruleset = $this->rules[$attribute];
+
+        if (is_array($ruleset))
+            $ruleset = implode('|', $ruleset);
+
+        if (strpos($ruleset, 'required:create') !== false && $this->exists)
+            return false;
+
+        if (strpos($ruleset, 'required:update') !== false && !$this->exists)
+            return false;
+
+        if (strpos($ruleset, 'required_with') !== false) {
+            $requiredWith = substr($ruleset, strpos($ruleset, 'required_with') + 14);
+            $requiredWith = substr($requiredWith, 0, strpos($requiredWith, '|'));
+            return $this->isAttributeRequired($requiredWith);
+        }
+
+        return strpos($ruleset, 'required') !== false;
     }
 
     /**
