@@ -1024,7 +1024,7 @@ class Model extends EloquentModel
             return $this->getAttributeDotted($key);
 
         // Before Event
-        if ($attr = $this->fireEvent('model.beforeGetAttribute', [$key], true))
+        if ($attr = $this->fireEvent('model.beforeGetAttribute', [$key], true) !== null)
             return $attr;
 
         $attr = parent::getAttribute($key);
@@ -1037,7 +1037,7 @@ class Model extends EloquentModel
         }
 
         // After Event
-        if ($_attr = $this->fireEvent('model.getAttribute', [$key, $attr], true))
+        if ($_attr = $this->fireEvent('model.getAttribute', [$key, $attr], true) !== null)
             return $_attr;
 
         return $attr;
