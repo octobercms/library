@@ -24,11 +24,6 @@ class {{studly_name}} extends Model
     protected $fillable = [];
 
     /**
-     * @var array Validation rules
-     */
-    public $rules = [];
-
-    /**
      * @var array Relations
      */
     public $hasOne = [];

@@ -182,7 +182,7 @@ class Manager
         if (!$user)
             throw new Exception("A user was not found with the given credentials.");
 
-        $userId = $user->getId();
+        $userId = $user->getKey();
         return $this->findThrottleByUserId($userId, $ipAddress);
     }
 
@@ -328,7 +328,7 @@ class Manager
          * Throttle check
          */
         if ($this->useThrottle) {
-            $throttle = $this->findThrottleByUserId($user->getId());
+            $throttle = $this->findThrottleByUserId($user->getKey());
 
             if ($throttle->is_banned || $throttle->checkSuspended()) {
                 $this->logout();
@@ -355,7 +355,7 @@ class Manager
         /*
          * Create session/cookie data to persist the session
          */
-        $toPersist = [$user->getId(), $user->getPersistCode()];
+        $toPersist = [$user->getKey(), $user->getPersistCode()];
         Session::put($this->sessionKey, $toPersist);
 
         if ($remember)
