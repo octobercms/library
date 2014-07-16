@@ -3,14 +3,16 @@
 use Hash;
 use October\Rain\Database\Model;
 use October\Rain\Auth\Hash\HasherBase;
+use Illuminate\Auth\UserInterface;
 use InvalidArgumentException;
 use RuntimeException;
+use Exception;
 use DateTime;
 
 /**
  * User model
  */
-class User extends Model
+class User extends Model implements UserInterface
 {
     use \October\Rain\Database\Traits\Hashable;
     use \October\Rain\Database\Traits\Purgeable;
@@ -88,14 +90,6 @@ class User extends Model
      * @var array The user merged permissions.
      */
     protected $mergedPermissions;
-
-    /**
-     * @return mixed Returns the user's ID.
-     */
-    public function getId()
-    {
-        return $this->getKey();
-    }
 
     /**
      * @return string Returns the name for the user's login.
@@ -210,7 +204,7 @@ class User extends Model
     public function attemptActivation($activationCode)
     {
         if ($this->is_activated)
-            throw new \Exception('User is already active!');
+            throw new Exception('User is already active!');
 
         if ($activationCode == $this->activation_code) {
             $this->activation_code = null;
@@ -355,7 +349,7 @@ class User extends Model
     public function inGroup($group)
     {
         foreach ($this->getGroups() as $_group) {
-            if ($_group->getId() == $group->getId())
+            if ($_group->getKey() == $group->getKey())
                 return true;
         }
 
@@ -542,6 +536,65 @@ class User extends Model
         }
 
         $this->attributes['permissions'] = (!empty($permissions)) ? json_encode($permissions) : '';
+    }
+
+    //
+    // User Interface
+    //
+
+    /**
+     * Get the unique identifier for the user.
+     * @return mixed
+     */
+    public function getAuthIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Get the password for the user.
+     * @return string
+     */
+    public function getAuthPassword()
+    {
+        return $this->password;
+    }
+
+    /**
+     * Get the e-mail address where password reminders are sent.
+     * @return string
+     */
+    public function getReminderEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * Get the token value for the "remember me" session.
+     * @return string
+     */
+    public function getRememberToken()
+    {
+        return $this->getPersistCode();
+    }
+
+    /**
+     * Set the token value for the "remember me" session.
+     * @param  string $value
+     * @return void
+     */
+    public function setRememberToken($value)
+    {
+        $this->persist_code = $value;
+    }
+
+    /**
+     * Get the column name for the "remember me" token.
+     * @return string
+     */
+    public function getRememberTokenName()
+    {
+        return 'persist_code';
     }
 
     //

@@ -49,14 +49,6 @@ class Group extends Model
     protected $guarded = [];
 
     /**
-     * @return mixed Returns the group's ID.
-     */
-    public function getId()
-    {
-        return $this->getKey();
-    }
-
-    /**
      * See if a group has access to the passed permission(s).
      *
      * If multiple permissions are passed, the group must
