@@ -21,7 +21,7 @@ class Util
     {
         if (func_num_args() > 1)
             $collection = func_get_args();
-        
+
         return call_user_func_array('array_merge', $collection);
     }
 
