@@ -141,7 +141,10 @@ trait ExtendableTrait
     }
 
     /**
-     * Returns a behavior object from an extendable class
+     * Returns a behavior object from an extendable class, example:
+     *
+     *   $this->getClassExtension('Backend.Behaviors.FormController')
+     *
      * @param  string $name Fully qualified behavior name
      * @return mixed
      */
@@ -151,6 +154,24 @@ trait ExtendableTrait
         return (isset($this->extensionData['extensions'][$name]))
             ? $this->extensionData['extensions'][$name]
             : null;
+    }
+
+    /**
+     * Short hand for getClassExtension() method, except takes the short
+     * extension name, example:
+     *
+     *   $this->asExtension('FormController')
+     *
+     * @param  string $shortName
+     * @return mixed
+     */
+    public function asExtension($shortName)
+    {
+        $hints = [];
+        foreach ($this->extensionData['extensions'] as $class => $obj) {
+            if (preg_match('@\\\\([\w]+)$@', $class, $matches) && $matches[1] == $shortName)
+                return $obj;
+        }
     }
 
     /**
