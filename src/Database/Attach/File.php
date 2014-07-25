@@ -51,11 +51,11 @@ class File extends Model
     protected $autoMimeTypes = [
         'docx' => 'application/msword',
         'xlsx' => 'application/excel',
-        'gif' => 'image/gif',
-        'png' => 'image/png',
-        'jpg' => 'image/jpeg',
+        'gif'  => 'image/gif',
+        'png'  => 'image/png',
+        'jpg'  => 'image/jpeg',
         'jpeg' => 'image/jpeg',
-        'pdf' => 'application/pdf'
+        'pdf'  => 'application/pdf'
     ];
 
     /**
@@ -275,14 +275,14 @@ class File extends Model
         if (!$this->isImage())
             return $this->getPath();
 
-        $width = (int)$width;
-        $height = (int)$height;
+        $width = (int) $width;
+        $height = (int) $height;
 
         $defaultOptions = [
-            'extension' => 'png',
-            'quality' => 95,
-            'mode' => 'auto',
-            'offset' => [0, 0]
+            'mode'      => 'auto',
+            'offset'    => [0, 0],
+            'quality'   => 95,
+            'extension' => 'jpg',
         ];
 
         if (!is_array($options))

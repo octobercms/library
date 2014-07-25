@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Attach;
 
+use File as FileHelper;
 use Symfony\Component\HttpFoundation\File\File as FileObj;
 
 /**
@@ -101,7 +102,7 @@ class Resizer
     public function resize($newWidth, $newHeight, $mode = 'auto', $offset = [])
     {
         // Get optimal width and height - based on supplied mode.
-        $optionsArray = $this->getDimensions((int)$newWidth, (int)$newHeight, $mode);
+        $optionsArray = $this->getDimensions((int) $newWidth, (int) $newHeight, $mode);
 
         $optimalWidth = $optionsArray['optimalWidth'];
         $optimalHeight = $optionsArray['optimalHeight'];
@@ -136,8 +137,11 @@ class Resizer
             $this->imageResized = $this->image;
         }
 
+        // Determine the image type from the destination file
+        $extension = FileHelper::extension($savePath) ?: $this->extension;
+
         // Create and save an image based on it's extension
-        switch($this->extension) {
+        switch ($extension) {
             case 'jpg':
             case 'jpeg':
                 // Check JPG support is enabled
