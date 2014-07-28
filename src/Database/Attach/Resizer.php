@@ -127,10 +127,10 @@ class Resizer
     /**
      * Save the image based on its file type.
      * @param string $savePath Where to save the image
-     * @param int $image_quality The output quality of the image
+     * @param int $imageQuality The output quality of the image
      * @return boolean
      */
-    public function save($savePath, $image_quality = 95)
+    public function save($savePath, $imageQuality = 95)
     {
         // If the image wasn't resized, fetch original image.
         if (!$this->imageResized) {
@@ -146,7 +146,7 @@ class Resizer
             case 'jpeg':
                 // Check JPG support is enabled
                 if (imagetypes() & IMG_JPG) {
-                    imagejpeg($this->imageResized, $savePath, $image_quality);
+                    imagejpeg($this->imageResized, $savePath, $imageQuality);
                 }
                 break;
 
@@ -159,7 +159,7 @@ class Resizer
 
             case 'png':
                 // Scale quality from 0-100 to 0-9
-                $scaleQuality = round(($image_quality/100) * 9);
+                $scaleQuality = round(($imageQuality/100) * 9);
 
                 // Invert quality setting as 0 is best, not 9
                 $invertScaleQuality = 9 - $scaleQuality;

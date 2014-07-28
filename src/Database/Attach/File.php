@@ -376,7 +376,7 @@ class File extends Model
         $dir = dirname($dir);
         if (!$this->isDirectoryEmpty($dir))
             return;
-        
+
         FileHelper::deleteDirectory($dir);
     }
 
