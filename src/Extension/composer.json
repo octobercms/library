@@ -18,10 +18,14 @@
         "php": ">=5.4.0"
     },
     "autoload": {
-        "psr-0": {
-            "October\\Rain\\Extension": ""
+        "psr-4": {
+            "October\\Rain\\Extension\\": ""
         }
     },
-    "target-dir": "October/Rain/Extension",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    },
     "minimum-stability": "dev"
 }
