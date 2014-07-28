@@ -46,6 +46,7 @@
         "october/network": "self.version",
         "october/router": "self.version",
         "october/support": "self.version",
+        "october/syntax": "self.version",
         "october/translation": "self.version"
     },
     "autoload": {
