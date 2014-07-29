@@ -516,7 +516,7 @@ class Model extends EloquentModel
         $relation = $this->getRelationDefinition($relationName);
 
         // Query filter arguments
-        $filters = ['order', 'pivot', 'timestamps', 'push'];
+        $filters = ['scope', 'conditions', 'order', 'pivot', 'timestamps', 'push'];
 
         foreach (array_merge($optional, $filters) as $key) {
             if (!array_key_exists($key, $relation)) {
@@ -560,6 +560,13 @@ class Model extends EloquentModel
         }
 
         /*
+         * Conditions
+         */
+        if ($conditions = $args['conditions']) {
+            $relation->whereRaw($conditions);
+        }
+
+        /*
          * Sort order
          */
         if ($orderBy = $args['order']) {
@@ -576,6 +583,13 @@ class Model extends EloquentModel
 
                 $relation->orderBy($column, $direction);
             }
+        }
+
+        /*
+         * Scope
+         */
+        if ($scope = $args['scope']) {
+            $relation->$scope();
         }
 
         return $relation;
