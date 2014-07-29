@@ -11,7 +11,7 @@ trait DeferOneOrMany
     public function withDeferred($sessionKey)
     {
         $modelQuery = $this->query;
-        $newQuery = $modelQuery->getQuery()->newQuery();
+        $newQuery = $modelQuery->newQuery()->getQuery();
 
         $newQuery->from($this->related->getTable());
         $newQuery->where(function($query) use ($sessionKey) {
