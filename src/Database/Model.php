@@ -1034,9 +1034,6 @@ class Model extends EloquentModel
      */
     public function getAttribute($key)
     {
-        if (strpos($key, '.'))
-            return $this->getAttributeDotted($key);
-
         // Before Event
         if (($attr = $this->fireEvent('model.beforeGetAttribute', [$key], true)) !== null)
             return $attr;
@@ -1073,24 +1070,6 @@ class Model extends EloquentModel
         }
 
         return $attr;
-    }
-
-    /**
-     * Get an attribute relation value using dotted notation.
-     * Eg: author.name
-     * @return mixed
-     */
-    public function getAttributeDotted($key)
-    {
-        $keyParts = explode('.', $key);
-        $value = $this;
-        foreach ($keyParts as $part) {
-            if (!isset($value[$part]))
-                return null;
-
-            $value = $value[$part];
-        }
-        return $value;
     }
 
     /**
