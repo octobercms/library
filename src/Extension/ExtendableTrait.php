@@ -195,7 +195,7 @@ trait ExtendableTrait
      * @param  string $propertyName
      * @return boolean
      */
-    private function extendableIsAccessible($class, $propertyName)
+    protected function extendableIsAccessible($class, $propertyName)
     {
         $reflector = new \ReflectionClass($class);
         $property = $reflector->getProperty($propertyName);

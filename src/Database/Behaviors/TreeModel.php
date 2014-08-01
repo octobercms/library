@@ -240,7 +240,7 @@ class TreeModel extends ModelBehavior
      * @param  string $orderBy Specifies a database column name to sort the items by.
      * @return void
      */
-    private function initCache($orderBy)
+    protected function initCache($orderBy)
     {
         $className = $this->modelClass;
         $cacheKey = $this->getCacheKey($orderBy);
@@ -277,7 +277,7 @@ class TreeModel extends ModelBehavior
      * @param  string $orderBy
      * @return string
      */
-    private function getCacheKey($orderBy)
+    protected function getCacheKey($orderBy)
     {
         return $orderBy . $this->model->treeModelSqlFilter;
     }
@@ -287,7 +287,7 @@ class TreeModel extends ModelBehavior
      * @param  string $orderBy
      * @return boolean
      */
-    private function cacheExists($orderBy)
+    protected function cacheExists($orderBy)
     {
         $cacheKey = $this->getCacheKey($orderBy);
         return array_key_exists($this->modelClass, self::$objectCache) &&

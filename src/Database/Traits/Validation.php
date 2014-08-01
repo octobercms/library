@@ -161,7 +161,7 @@ trait Validation
     /**
      * Process rules
      */
-    private function processValidationRules($rules)
+    protected function processValidationRules($rules)
     {
         foreach ($rules as $field => $ruleParts) {
             /*

@@ -184,7 +184,7 @@ class Resizer
      * @param array $file Attributes of file from the $_FILES array
      * @return mixed
      */
-    private function openImage($file)
+    protected function openImage($file)
     {
         $mime = $file->getMimeType();
         $filePath = $file->getPathname();
@@ -205,7 +205,7 @@ class Resizer
      * @param string $option Either exact, portrait, landscape, auto or crop.
      * @return array
      */
-    private function getDimensions($newWidth, $newHeight, $option)
+    protected function getDimensions($newWidth, $newHeight, $option)
     {
         switch ($option) {
             case 'exact':
@@ -243,7 +243,7 @@ class Resizer
      * @param int $newHeight The height of the image
      * @return int
      */
-    private function getSizeByFixedHeight($newHeight)
+    protected function getSizeByFixedHeight($newHeight)
     {
         $ratio = $this->width / $this->height;
         $newWidth = $newHeight * $ratio;
@@ -256,7 +256,7 @@ class Resizer
      * @param int $newWidth The width of the image
      * @return int
      */
-    private function getSizeByFixedWidth($newWidth)
+    protected function getSizeByFixedWidth($newWidth)
     {
         $ratio = $this->height / $this->width;
         $newHeight = $newWidth * $ratio;
@@ -270,7 +270,7 @@ class Resizer
      * @param int $newHeight The height of the image
      * @return array
      */
-    private function getSizeByAuto($newWidth, $newHeight)
+    protected function getSizeByAuto($newWidth, $newHeight)
     {
          // Less than 1 pixel height and width? (revert to original)
         if ($newWidth <= 1 && $newHeight <= 1) {
@@ -325,7 +325,7 @@ class Resizer
      * @param int $newHeight The height of the image
      * @return array
      */
-    private function getOptimalCrop($newWidth, $newHeight)
+    protected function getOptimalCrop($newWidth, $newHeight)
     {
         $heightRatio = $this->height / $newHeight;
         $widthRatio  = $this->width /  $newWidth;
@@ -354,7 +354,7 @@ class Resizer
      * @param array $offset The offset of the crop = [ left, top ]
      * @return true
      */
-    private function crop($optimalWidth, $optimalHeight, $newWidth, $newHeight, $offset)
+    protected function crop($optimalWidth, $optimalHeight, $newWidth, $newHeight, $offset)
     {
         // Find center - this will be used for the crop
         $cropStartX = ($optimalWidth  / 2) - ($newWidth  / 2) - $offset[0];

@@ -312,7 +312,7 @@ class Http
      * @param string $header
      * @return array
      */
-    private function headerToArray($header)
+    protected function headerToArray($header)
     {
         $headers = [];
         $parts = explode("\r\n", $header);

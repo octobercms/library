@@ -510,7 +510,7 @@ class Model extends EloquentModel
     /**
      * Validate relation supplied arguments.
      */
-    private function validateRelationArgs($relationName, $optional, $required = [])
+    protected function validateRelationArgs($relationName, $optional, $required = [])
     {
 
         $relation = $this->getRelationDefinition($relationName);
@@ -543,7 +543,7 @@ class Model extends EloquentModel
      * @param $relation Relationship object
      * @return Relationship object
      */
-    private function applyRelationFilters($args, $relation)
+    protected function applyRelationFilters($args, $relation)
     {
         /*
          * Pivot data (belongsToMany, morphToMany, morphByMany)

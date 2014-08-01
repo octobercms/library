@@ -360,7 +360,7 @@ class File extends Model
      * Checks if directory is empty then deletes it,
      * three levels up to match the partition directory.
      */
-    private function deleteEmptyDirectory($dir = null)
+    protected function deleteEmptyDirectory($dir = null)
     {
         if (!$this->isDirectoryEmpty($dir))
             return;
@@ -383,7 +383,7 @@ class File extends Model
     /**
      * Returns true if a directory contains no files.
      */
-    private function isDirectoryEmpty($dir = null)
+    protected function isDirectoryEmpty($dir = null)
     {
         if (!is_readable($dir))
             return false;

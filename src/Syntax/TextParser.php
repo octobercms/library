@@ -115,7 +115,7 @@ class TextParser
      * @param  string $key
      * @return string
      */
-    private function parseLoopRegex($string, $key)
+    protected function parseLoopRegex($string, $key)
     {
         $open = preg_quote(Parser::CHAR_OPEN);
         $close = preg_quote(Parser::CHAR_CLOSE);

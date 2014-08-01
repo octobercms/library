@@ -74,7 +74,7 @@ class Updater
     /**
      * Checks if the object is a valid update script.
      */
-    private function isValidScript($object)
+    protected function isValidScript($object)
     {
         if ($object instanceof Updates\Migration)
             return true;
