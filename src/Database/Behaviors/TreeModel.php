@@ -37,7 +37,7 @@ class TreeModel extends ModelBehavior
     private static $parentCache = [];
     private static $cacheSortColumn = [];
 
-    private $modelClass;
+    protected $modelClass;
 
     /*
      * Constructor

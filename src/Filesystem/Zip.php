@@ -48,7 +48,7 @@ class Zip extends ZipArchive
     /**
      * @var string Folder prefix
      */
-    private $folderPrefix = '';
+    protected $folderPrefix = '';
 
     /**
      * Extract an existing zip file.

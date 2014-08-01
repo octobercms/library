@@ -28,7 +28,7 @@ class JavascriptImporter implements FilterInterface
     /**
      * @var array Cache of required files.
      */
-    private $includedFiles = [];
+    protected $includedFiles = [];
 
     public function filterLoad(AssetInterface $asset) {}
 

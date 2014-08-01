@@ -28,32 +28,32 @@ class Resizer
     /**
      * @var Resource The symfony uploaded file object.
      */
-    private $file;
+    protected $file;
 
     /**
      * @var Resource The extension of the uploaded file.
      */
-    private $extension;
+    protected $extension;
 
     /**
      * @var Resource The image (on disk) that's being resized.
      */
-    private $image;
+    protected $image;
 
     /**
      * @var int Original width of the image being resized.
      */
-    private $width;
+    protected $width;
     
     /**
      * @var int Original height of the image being resized.
      */
-    private $height;
+    protected $height;
 
     /**
      * @var Resource The cached, resized image.
      */
-    private $imageResized;
+    protected $imageResized;
 
     /**
      * Instantiates the Resizer and receives the path to an image we're working with

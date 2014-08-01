@@ -13,7 +13,7 @@ trait Purgeable
     /**
      * @var array List of original attribute values before they were purged.
      */
-    private $originalPurgeableValues = [];
+    protected $originalPurgeableValues = [];
 
     /**
      * Boot the purgeable trait for a model.

@@ -49,7 +49,7 @@ class DataFeed
     /**
      * @var Builder Cache containing the generic collection union query.
      */
-    private $queryCache;
+    protected $queryCache;
 
     /**
      * @var bool
