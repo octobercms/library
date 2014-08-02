@@ -30,7 +30,7 @@ trait Validation
     /**
      * @var \Illuminate\Support\MessageBag The message bag instance containing validation error messages
      */
-    protected $validationErrors;
+    private $validationErrors;
 
     /**
      * Boot the validation trait for this model.
