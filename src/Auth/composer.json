@@ -15,14 +15,18 @@
         }
     ],
     "require": {
-        "php": ">=5.3.0",
-        "october/support": "1.*"
+        "php": ">=5.4.0",
+        "october/support": "~1.0"
     },
     "autoload": {
-        "psr-0": {
-            "October\\Rain\\Auth": ""
+        "psr-4": {
+            "October\\Rain\\Auth\\": ""
         }
     },
-    "target-dir": "October/Rain/Auth",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    },
     "minimum-stability": "dev"
 }

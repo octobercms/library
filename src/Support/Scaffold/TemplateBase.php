@@ -134,7 +134,7 @@ abstract class TemplateBase
      * @param array The collection of original variables
      * @return array A collection of variables with modifiers added
      */
-    private function processVars($vars)
+    protected function processVars($vars)
     {
         $cases = ['upper', 'lower', 'snake', 'studly', 'camel'];
         $modifiers = ['plural', 'singular'];

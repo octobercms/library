@@ -14,7 +14,7 @@ trait Hashable
     /**
      * @var array List of original attribute values before they were hashed.
      */
-    private $originalHashableValues = [];
+    protected $originalHashableValues = [];
 
     /**
      * Boot the hashable trait for a model.

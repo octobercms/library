@@ -28,7 +28,7 @@ trait Singleton
     /**
      * Constructor.
      */
-    final private function __construct()
+    final protected function __construct()
     {
         $this->init();
     }

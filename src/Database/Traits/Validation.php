@@ -30,7 +30,7 @@ trait Validation
     /**
      * @var \Illuminate\Support\MessageBag The message bag instance containing validation error messages
      */
-    private $validationErrors;
+    protected $validationErrors;
 
     /**
      * Boot the validation trait for this model.
@@ -161,7 +161,7 @@ trait Validation
     /**
      * Process rules
      */
-    private function processValidationRules($rules)
+    protected function processValidationRules($rules)
     {
         foreach ($rules as $field => $ruleParts) {
             /*

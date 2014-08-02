@@ -28,7 +28,7 @@ class JavascriptImporter implements FilterInterface
     /**
      * @var array Cache of required files.
      */
-    private $includedFiles = [];
+    protected $includedFiles = [];
 
     public function filterLoad(AssetInterface $asset) {}
 
@@ -81,7 +81,7 @@ class JavascriptImporter implements FilterInterface
     /**
      * Directive to process script includes
      */
-    private function directiveInclude($data, $context = "", $required = false)
+    protected function directiveInclude($data, $context = "", $required = false)
     {
         $require = explode(',', $data);
         $result = "";
@@ -123,7 +123,7 @@ class JavascriptImporter implements FilterInterface
     /**
      * Directive to process mandatory script includes
      */
-    private function directiveRequire($data, $context = "")
+    protected function directiveRequire($data, $context = "")
     {
         return $this->directiveInclude($data, $context, true);
     }
@@ -131,7 +131,7 @@ class JavascriptImporter implements FilterInterface
     /**
      * Directive to define and replace variables
      */
-    private function directiveDefine($data, $context = "")
+    protected function directiveDefine($data, $context = "")
     {
         if (preg_match('@([^\\s]*)\\s+(.*)@', $data, $matches))
             return str_replace($matches[1], $matches[2], $context);

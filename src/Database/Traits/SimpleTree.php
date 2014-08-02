@@ -241,7 +241,7 @@ trait SimpleTree
      * @param  string $orderBy Specifies a database column name to sort the items by.
      * @return void
      */
-    private function initCache($orderBy)
+    protected function initCache($orderBy)
     {
         $class = get_called_class();
         $cacheKey = $this->getCacheKey($orderBy);
@@ -278,7 +278,7 @@ trait SimpleTree
      * @param  string $orderBy
      * @return string
      */
-    private function getCacheKey($orderBy)
+    protected function getCacheKey($orderBy)
     {
         return $orderBy . $this->treeModelSqlFilter;
     }
@@ -288,7 +288,7 @@ trait SimpleTree
      * @param  string $orderBy
      * @return boolean
      */
-    private function cacheExists($orderBy)
+    protected function cacheExists($orderBy)
     {
         $class = get_called_class();
         $cacheKey = $this->getCacheKey($orderBy);

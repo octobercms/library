@@ -510,13 +510,13 @@ class Model extends EloquentModel
     /**
      * Validate relation supplied arguments.
      */
-    private function validateRelationArgs($relationName, $optional, $required = [])
+    protected function validateRelationArgs($relationName, $optional, $required = [])
     {
 
         $relation = $this->getRelationDefinition($relationName);
 
         // Query filter arguments
-        $filters = ['order', 'pivot', 'timestamps', 'push'];
+        $filters = ['scope', 'conditions', 'order', 'pivot', 'timestamps', 'push'];
 
         foreach (array_merge($optional, $filters) as $key) {
             if (!array_key_exists($key, $relation)) {
@@ -543,7 +543,7 @@ class Model extends EloquentModel
      * @param $relation Relationship object
      * @return Relationship object
      */
-    private function applyRelationFilters($args, $relation)
+    protected function applyRelationFilters($args, $relation)
     {
         /*
          * Pivot data (belongsToMany, morphToMany, morphByMany)
@@ -557,6 +557,13 @@ class Model extends EloquentModel
          */
         if ($args['timestamps']) {
             $relation->withTimestamps();
+        }
+
+        /*
+         * Conditions
+         */
+        if ($conditions = $args['conditions']) {
+            $relation->whereRaw($conditions);
         }
 
         /*
@@ -576,6 +583,13 @@ class Model extends EloquentModel
 
                 $relation->orderBy($column, $direction);
             }
+        }
+
+        /*
+         * Scope
+         */
+        if ($scope = $args['scope']) {
+            $relation->$scope();
         }
 
         return $relation;
@@ -1020,11 +1034,8 @@ class Model extends EloquentModel
      */
     public function getAttribute($key)
     {
-        if (strpos($key, '.'))
-            return $this->getAttributeDotted($key);
-
         // Before Event
-        if ($attr = $this->fireEvent('model.beforeGetAttribute', [$key], true) !== null)
+        if (($attr = $this->fireEvent('model.beforeGetAttribute', [$key], true)) !== null)
             return $attr;
 
         $attr = parent::getAttribute($key);
@@ -1037,7 +1048,7 @@ class Model extends EloquentModel
         }
 
         // After Event
-        if ($_attr = $this->fireEvent('model.getAttribute', [$key, $attr], true) !== null)
+        if (($_attr = $this->fireEvent('model.getAttribute', [$key, $attr], true)) !== null)
             return $_attr;
 
         return $attr;
@@ -1059,24 +1070,6 @@ class Model extends EloquentModel
         }
 
         return $attr;
-    }
-
-    /**
-     * Get an attribute relation value using dotted notation.
-     * Eg: author.name
-     * @return mixed
-     */
-    public function getAttributeDotted($key)
-    {
-        $keyParts = explode('.', $key);
-        $value = $this;
-        foreach ($keyParts as $part) {
-            if (!isset($value[$part]))
-                return null;
-
-            $value = $value[$part];
-        }
-        return $value;
     }
 
     /**

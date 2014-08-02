@@ -19,10 +19,14 @@
         "illuminate/support": "4.2.*"
     },
     "autoload": {
-        "psr-0": {
-            "October\\Rain\\Support": ""
+        "psr-4": {
+            "October\\Rain\\Support\\": ""
         }
     },
-    "target-dir": "October/Rain/Support",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    },
     "minimum-stability": "dev"
 }

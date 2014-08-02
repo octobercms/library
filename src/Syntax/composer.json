@@ -1,8 +1,8 @@
 {
-    "name": "october/mail",
-    "description": "Custom Mail service",
+    "name": "october/syntax",
+    "description": "Dynamic Syntax Templating Language",
     "homepage": "http://octobercms.com",
-    "keywords": ["october cms", "october", "mail"],
+    "keywords": ["october cms", "october", "dynamic syntax", "template", "templating"],
     "license": "MIT",
     "authors": [
         {
@@ -15,14 +15,11 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0",
-        "illuminate/mail": "4.2.*",
-        "october/filesystem": "~1.0",
-        "october/support": "~1.0"
+        "php": ">=5.4.0"
     },
     "autoload": {
         "psr-4": {
-            "October\\Rain\\Mail\\": ""
+            "October\\Rain\\Syntax\\": ""
         }
     },
     "extra": {

@@ -8,8 +8,8 @@
  */
 class BlockBuilder
 {
-    private $blockStack = [];
-    private $blocks = [];
+    protected $blockStack = [];
+    protected $blocks = [];
 
     /**
      * Helper for startBlock

@@ -29,7 +29,7 @@ class Router
     /**
      * @var array A list of parameters names and values extracted from the URL pattern and URL string
      */
-    private $parameters = array();
+    protected $parameters = array();
 
     /**
      * Registers a new route rule

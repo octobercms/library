@@ -59,7 +59,7 @@ trait Sluggable
 
             $slugArr = [];
             foreach ($sourceAttributes as $attribute) {
-                $slugArr[] = $this->getAttribute($attribute);
+                $slugArr[] = $this->getSluggableSourceAttributeValue($attribute);
             }
 
             $slug = implode(' ', $slugArr);
@@ -70,7 +70,7 @@ trait Sluggable
             $slug = $this->{$slugAttribute};
         }
 
-        return $this->{$slugAttribute} = $this->getUniqueAttributeValue($slugAttribute, $slug);
+        return $this->{$slugAttribute} = $this->getSluggableUniqueAttributeValue($slugAttribute, $slug);
     }
 
     /**
@@ -79,7 +79,7 @@ trait Sluggable
      * @param value $value The desired column value.
      * @return string A safe value that is unique.
      */
-    public function getUniqueAttributeValue($name, $value)
+    protected function getSluggableUniqueAttributeValue($name, $value)
     {
         $counter = 1;
         $separator = '-';
@@ -93,6 +93,28 @@ trait Sluggable
         }
 
         return $_value;
+    }
+
+    /**
+     * Get an attribute relation value using dotted notation.
+     * Eg: author.name
+     * @return mixed
+     */
+    protected function getSluggableSourceAttributeValue($key)
+    {
+        if (strpos($key, '.') === false)
+            return $this->getAttribute($key);
+
+        $keyParts = explode('.', $key);
+        $value = $this;
+        foreach ($keyParts as $part) {
+            if (!isset($value[$part]))
+                return null;
+
+            $value = $value[$part];
+        }
+
+        return $value;
     }
 
 }

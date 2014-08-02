@@ -48,7 +48,7 @@ class Zip extends ZipArchive
     /**
      * @var string Folder prefix
      */
-    private $folderPrefix = '';
+    protected $folderPrefix = '';
 
     /**
      * Extract an existing zip file.
@@ -207,7 +207,7 @@ class Zip extends ZipArchive
      * @param  string $path /var/sites/moo/cow/
      * @return string moo/cow/
      */
-    private function removePathPrefix($prefix, $path)
+    protected function removePathPrefix($prefix, $path)
     {
         return (strpos($path, $prefix) === 0)
             ? substr($path, strlen($prefix))

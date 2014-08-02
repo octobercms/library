@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Attach;
 
+use File as FileHelper;
 use Symfony\Component\HttpFoundation\File\File as FileObj;
 
 /**
@@ -27,32 +28,32 @@ class Resizer
     /**
      * @var Resource The symfony uploaded file object.
      */
-    private $file;
+    protected $file;
 
     /**
      * @var Resource The extension of the uploaded file.
      */
-    private $extension;
+    protected $extension;
 
     /**
      * @var Resource The image (on disk) that's being resized.
      */
-    private $image;
+    protected $image;
 
     /**
      * @var int Original width of the image being resized.
      */
-    private $width;
+    protected $width;
     
     /**
      * @var int Original height of the image being resized.
      */
-    private $height;
+    protected $height;
 
     /**
      * @var Resource The cached, resized image.
      */
-    private $imageResized;
+    protected $imageResized;
 
     /**
      * Instantiates the Resizer and receives the path to an image we're working with
@@ -101,7 +102,7 @@ class Resizer
     public function resize($newWidth, $newHeight, $mode = 'auto', $offset = [])
     {
         // Get optimal width and height - based on supplied mode.
-        $optionsArray = $this->getDimensions((int)$newWidth, (int)$newHeight, $mode);
+        $optionsArray = $this->getDimensions((int) $newWidth, (int) $newHeight, $mode);
 
         $optimalWidth = $optionsArray['optimalWidth'];
         $optimalHeight = $optionsArray['optimalHeight'];
@@ -126,23 +127,26 @@ class Resizer
     /**
      * Save the image based on its file type.
      * @param string $savePath Where to save the image
-     * @param int $image_quality The output quality of the image
+     * @param int $imageQuality The output quality of the image
      * @return boolean
      */
-    public function save($savePath, $image_quality = 95)
+    public function save($savePath, $imageQuality = 95)
     {
         // If the image wasn't resized, fetch original image.
         if (!$this->imageResized) {
             $this->imageResized = $this->image;
         }
 
+        // Determine the image type from the destination file
+        $extension = FileHelper::extension($savePath) ?: $this->extension;
+
         // Create and save an image based on it's extension
-        switch($this->extension) {
+        switch ($extension) {
             case 'jpg':
             case 'jpeg':
                 // Check JPG support is enabled
                 if (imagetypes() & IMG_JPG) {
-                    imagejpeg($this->imageResized, $savePath, $image_quality);
+                    imagejpeg($this->imageResized, $savePath, $imageQuality);
                 }
                 break;
 
@@ -155,7 +159,7 @@ class Resizer
 
             case 'png':
                 // Scale quality from 0-100 to 0-9
-                $scaleQuality = round(($image_quality/100) * 9);
+                $scaleQuality = round(($imageQuality/100) * 9);
 
                 // Invert quality setting as 0 is best, not 9
                 $invertScaleQuality = 9 - $scaleQuality;
@@ -180,7 +184,7 @@ class Resizer
      * @param array $file Attributes of file from the $_FILES array
      * @return mixed
      */
-    private function openImage($file)
+    protected function openImage($file)
     {
         $mime = $file->getMimeType();
         $filePath = $file->getPathname();
@@ -201,7 +205,7 @@ class Resizer
      * @param string $option Either exact, portrait, landscape, auto or crop.
      * @return array
      */
-    private function getDimensions($newWidth, $newHeight, $option)
+    protected function getDimensions($newWidth, $newHeight, $option)
     {
         switch ($option) {
             case 'exact':
@@ -239,7 +243,7 @@ class Resizer
      * @param int $newHeight The height of the image
      * @return int
      */
-    private function getSizeByFixedHeight($newHeight)
+    protected function getSizeByFixedHeight($newHeight)
     {
         $ratio = $this->width / $this->height;
         $newWidth = $newHeight * $ratio;
@@ -252,7 +256,7 @@ class Resizer
      * @param int $newWidth The width of the image
      * @return int
      */
-    private function getSizeByFixedWidth($newWidth)
+    protected function getSizeByFixedWidth($newWidth)
     {
         $ratio = $this->height / $this->width;
         $newHeight = $newWidth * $ratio;
@@ -266,7 +270,7 @@ class Resizer
      * @param int $newHeight The height of the image
      * @return array
      */
-    private function getSizeByAuto($newWidth, $newHeight)
+    protected function getSizeByAuto($newWidth, $newHeight)
     {
          // Less than 1 pixel height and width? (revert to original)
         if ($newWidth <= 1 && $newHeight <= 1) {
@@ -321,7 +325,7 @@ class Resizer
      * @param int $newHeight The height of the image
      * @return array
      */
-    private function getOptimalCrop($newWidth, $newHeight)
+    protected function getOptimalCrop($newWidth, $newHeight)
     {
         $heightRatio = $this->height / $newHeight;
         $widthRatio  = $this->width /  $newWidth;
@@ -350,7 +354,7 @@ class Resizer
      * @param array $offset The offset of the crop = [ left, top ]
      * @return true
      */
-    private function crop($optimalWidth, $optimalHeight, $newWidth, $newHeight, $offset)
+    protected function crop($optimalWidth, $optimalHeight, $newWidth, $newHeight, $offset)
     {
         // Find center - this will be used for the crop
         $cropStartX = ($optimalWidth  / 2) - ($newWidth  / 2) - $offset[0];

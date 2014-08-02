@@ -1,5 +1,7 @@
 <?php namespace October\Rain\Database;
 
+use Exception;
+
 /**
  * Database driver dongle
  *
@@ -8,20 +10,56 @@
 class Dongle
 {
 
+    /**
+     * @var DB Database hlper object
+     */
     protected $db;
+
+    /**
+     * @var string Driver to convert to: mysql, sqlite, pgsql, sqlsrv.
+     */
     protected $driver;
 
+    /**
+     * Constructor.
+     */
     public function __construct($driver = 'mysql', $db = null)
     {
         $this->db = $db;
         $this->driver = $driver;
     }
 
+    /**
+     * Helper method, softly checks if a database is present.
+     * @return boolean
+     */
+    public function hasDatabase()
+    {
+        try {
+            $this->db->connection()->getDatabaseName();
+        }
+        catch (Exception $ex) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Transforms and executes a raw SQL statement
+     * @param  string $sql
+     * @return mixed
+     */
     public function raw($sql)
     {
         return $this->db->raw($this->parse($sql));
     }
 
+    /**
+     * Transforms an SQL statement to match the active driver.
+     * @param  string $sql
+     * @return string
+     */
     public function parse($sql)
     {
         $sql = $this->parseGroupConcat($sql);
@@ -29,6 +67,11 @@ class Dongle
         return $sql;
     }
 
+    /**
+     * Transforms GROUP_CONCAT statement.
+     * @param  string $sql
+     * @return string
+     */
     public function parseGroupConcat($sql)
     {
         return preg_replace_callback('/group_concat\(([^)]+)\)/i', function($matches){
@@ -46,6 +89,11 @@ class Dongle
         }, $sql);
     }
 
+    /**
+     * Transforms CONCAT statement.
+     * @param  string $sql
+     * @return string
+     */
     public function parseConcat($sql)
     {
         return preg_replace_callback('/(?:group_)?concat\(([^)]+)\)/i', function($matches){

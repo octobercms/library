@@ -10,7 +10,7 @@ trait SoftDeleting
      *
      * @var bool
      */
-    private $forceDeleting = false;
+    protected $forceDeleting = false;
 
     /**
      * Boot the soft deleting trait for a model.
