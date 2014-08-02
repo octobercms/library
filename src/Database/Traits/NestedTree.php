@@ -72,7 +72,7 @@ trait NestedTree
     /**
      * @var int Indicates if the model should be aligned to new parent.
      */
-    protected $moveToNewParentId = null;
+    private $moveToNewParentId = null;
 
     /*
      * Constructor
