@@ -40,7 +40,7 @@ trait Sluggable
      */
     public function slugAttributes()
     {
-        if ( !isset($this->slugsSeparator) ) $this->slugsSeparator = '-';
+        if (!isset($this->slugsSeparator)) $this->slugsSeparator = '-';
 
         foreach ($this->slugs as $slugAttribute => $sourceAttributes)
             $this->setSluggedValue($slugAttribute, $sourceAttributes);
