@@ -5,11 +5,11 @@ use Exception;
 
 trait Sluggable
 {
+
     /**
      * @var array List of attributes to automatically generate unique URL names (slugs) for.
      *
      * protected $slugs = [];
-     * protected $slugsSeparator = '-';
      */
 
     /**
@@ -40,10 +40,9 @@ trait Sluggable
      */
     public function slugAttributes()
     {
-        if (!isset($this->slugsSeparator)) $this->slugsSeparator = '-';
-
-        foreach ($this->slugs as $slugAttribute => $sourceAttributes)
+        foreach ($this->slugs as $slugAttribute => $sourceAttributes) {
             $this->setSluggedValue($slugAttribute, $sourceAttributes);
+        }
     }
 
     /**
@@ -67,7 +66,7 @@ trait Sluggable
 
             $slug = implode(' ', $slugArr);
             $slug = substr($slug, 0, $maxLength);
-            $slug = Str::slug($slug, $this->slugsSeparator);
+            $slug = Str::slug($slug, $this->getSluggableSeparator());
         }
         else {
             $slug = $this->{$slugAttribute};
@@ -85,7 +84,7 @@ trait Sluggable
     protected function getSluggableUniqueAttributeValue($name, $value)
     {
         $counter = 1;
-        $separator = $this->slugsSeparator;
+        $separator = $this->getSluggableSeparator();
 
         // Remove any existing suffixes
         $_value = preg_replace('/'.preg_quote($separator).'[0-9]+$/', '', trim($value));
@@ -118,6 +117,15 @@ trait Sluggable
         }
 
         return $value;
+    }
+
+    /**
+     * Override the default slug separator.
+     * @return string
+     */
+    public function getSluggableSeparator()
+    {
+        return defined('static::SLUG_SEPARATOR') ? static::SLUG_SEPARATOR : '-';
     }
 
 }
