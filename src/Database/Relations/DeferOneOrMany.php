@@ -11,7 +11,7 @@ trait DeferOneOrMany
     public function withDeferred($sessionKey)
     {
         $modelQuery = $this->query;
-        $newQuery = $modelQuery->newQuery()->getQuery();
+        $newQuery = $modelQuery->getQuery()->newQuery();
 
         $newQuery->from($this->related->getTable());
         $newQuery->where(function($query) use ($sessionKey) {
@@ -56,6 +56,7 @@ trait DeferOneOrMany
         });
 
         $modelQuery->setQuery($newQuery);
+        $modelQuery = $this->related->applyGlobalScopes($modelQuery);
         return $this->query = $modelQuery;
     }
 }
