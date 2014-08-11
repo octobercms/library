@@ -2,6 +2,7 @@
 
 use File as FileHelper;
 use Symfony\Component\HttpFoundation\File\File as FileObj;
+use Exception;
 
 /**
  * Image resizer
@@ -171,7 +172,7 @@ class Resizer
                 break;
 
             default:
-                throw new Exception('Invalid image type', 1);
+                throw new Exception('Invalid image type. Accepted types: jpg, gif, png.');
                 break;
         }
 
@@ -229,6 +230,9 @@ class Resizer
                 $optionsArray   = $this->getOptimalCrop($newWidth, $newHeight);
                 $optimalWidth   = $optionsArray['optimalWidth'];
                 $optimalHeight  = $optionsArray['optimalHeight'];
+                break;
+            default:
+                throw new Exception('Invalid dimension type. Accepted types: exact, portrait, landscape, auto, crop.');
                 break;
         }
 
