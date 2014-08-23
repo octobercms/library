@@ -48,12 +48,12 @@ class Builder extends BuilderModel
     }
 
     /**
-     * Perform a search on this query for term found in columns
+     * Perform a search on this query for term found in columns.
      * @param  string $term  Search query
      * @param  array $columns Table columns to search
      * @return self
      */
-    public function searchWhere($term, $columns = [])
+    public function searchWhere($term, $columns = [], $boolean = 'and')
     {
         if (!is_array($columns))
             $columns = [$columns];
@@ -70,9 +70,20 @@ class Builder extends BuilderModel
                     }
                 });
             }
-        });
+        }, null, null, $boolean);
 
         return $this;
+    }
+
+    /**
+     * Add an "or search where" clause to the query.
+     * @param  string $term  Search query
+     * @param  array $columns Table columns to search
+     * @return self
+     */
+    public function orSearchWhere($term, $columns = [])
+    {
+        return $this->searchWhere($term, $columns, 'or');
     }
 
     /**
