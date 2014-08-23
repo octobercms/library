@@ -14,40 +14,6 @@ class Builder extends BuilderModel
 {
 
     /**
-     * Joins relationships to a query and optionally eager loads them
-     */
-    public function joinWith($relations, $eagerLoad = true)
-    {
-        if (is_string($relations)) $relations = func_get_args();
-
-        foreach ($relations as $index => $relation) {
-            if (!$this->model->hasRelation($relation))
-                unset($relations[$index]);
-        }
-
-        $selectTables = [];
-
-        if ($eagerLoad)
-            $this->with($relations);
-
-        foreach ($relations as $relation) {
-            $relationObj = $this->model->$relation();
-            $relationObj->joinWithQuery($this);
-        }
-
-        /*
-         * Adds the final selection of primary model table and removes duplicates
-         */
-        $selectTables[] = $this->model->getTable().'.*';
-        if (count($this->query->columns))
-            $this->query->columns = array_diff($this->query->columns, $selectTables);
-
-        $this->addSelect($selectTables);
-
-        return $this;
-    }
-
-    /**
      * Perform a search on this query for term found in columns.
      * @param  string $term  Search query
      * @param  array $columns Table columns to search
