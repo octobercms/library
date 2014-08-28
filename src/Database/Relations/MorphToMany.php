@@ -42,5 +42,3 @@ class MorphToMany extends MorphToManyBase
     }
 
 }
-
-
