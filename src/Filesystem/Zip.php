@@ -12,22 +12,28 @@
  *
  *   Zip::make('file.zip', function($zip) {
  *
+ *       // Add all PHP files and directories
  *       $zip->add('/some/path/*.php');
  *
+ *       // Do not include subdirectories, one level only
  *       $zip->add('/non/recursive/*', ['recursive' => false]);
  *
+ *       // Add multiple paths
  *       $zip->add([
  *           '/collection/of/paths/*',
  *           '/a/single/file.php'
  *       ]);
  *
+ *       // Add all INI files to a zip folder "config"
  *       $zip->folder('/config', '/path/to/config/*.ini');
  *
+ *       // Add multiple paths to a zip folder "images"
  *       $zip->folder('/images', function($zip) {
  *           $zip->add('/my/gifs/*.gif', );
  *           $zip->add('/photo/reel/*.{png,jpg}', );
  *       });
  *
+ *       // Remove these files/folders from the zip
  *       $zip->remove([
  *           '.htaccess',
  *           'config.php',
@@ -120,8 +126,14 @@ class Zip extends ZipArchive
             'baseglob' => basename($source)
         ], $options));
 
-        $files = glob($source, GLOB_BRACE);
-        $folders = glob(dirname($source) . '/*', GLOB_ONLYDIR);
+        if (is_file($source)) {
+            $files = [$source];
+            $recursive = false;
+        }
+        else {
+            $files = glob($source, GLOB_BRACE);
+            $folders = glob(dirname($source) . '/*', GLOB_ONLYDIR);
+        }
 
         foreach ($files as $file) {
             if (!is_file($file)) continue;
@@ -130,6 +142,9 @@ class Zip extends ZipArchive
             $localfile = $this->folderPrefix . $localpath . basename($file);
             $this->addFile($file, $localfile);
         }
+
+        if (!$recursive)
+            return $this;
 
         foreach ($folders as $folder) {
             if (!is_dir($folder)) continue;
