@@ -5,3 +5,4 @@
 columns:
     id:
         label: ID
+        searchable: true
