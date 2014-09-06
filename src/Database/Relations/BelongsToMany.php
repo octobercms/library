@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 class BelongsToMany extends BelongsToManyBase
 {
 
+    use DeferOneOrMany;
+
     /**
      * Adds a model to this relationship type.
      */
@@ -30,14 +32,6 @@ class BelongsToMany extends BelongsToManyBase
         else {
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);
         }
-    }
-
-    /**
-     * Returns the model query with deferred bindings added
-     */
-    public function withDeferred($sessionKey)
-    {
-        // @todo See DeferOneOrMany trait
     }
 
 }
