@@ -148,16 +148,4 @@ trait AttachOneOrMany
         }
     }
 
-    /**
-     * Joins the relationship tables to a query as a LEFT JOIN.
-     */
-    public function joinWithQuery($query)
-    {
-        $query = $query ?: $this->query;
-
-        // @todo Join everything that has my foreign key in the other table
-        // with constraints
-
-        return $this;
-    }
 }

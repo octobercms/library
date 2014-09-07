@@ -64,20 +64,4 @@ trait HasOneOrMany
         }
     }
 
-    /**
-     * Joins the relationship tables to a query as a LEFT JOIN.
-     */
-    public function joinWithQuery($query)
-    {
-        $query = $query ?: $this->query;
-
-        /*
-         * Join the 'other' relation table
-         */
-        $otherTable = $this->related->getTable();
-        $otherKey = $this->parent->getTable().'.'.$this->related->getKeyName();
-        $query->leftJoin($otherTable, $this->foreignKey, '=', $otherKey);
-
-        return $this;
-    }
 }

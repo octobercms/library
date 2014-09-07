@@ -42,6 +42,18 @@ class Str extends StrHelper
     }
 
     /**
+     * Converts a HTML array string to an identifier string.
+     * HTML: user[location][city]
+     * Result: user-location-city
+     * @param $string String to process
+     * @return string
+     */
+    public static function evalHtmlId($string)
+    {
+        return rtrim(str_replace(['[', ']'], '-', $string), '-');
+    }
+
+    /**
      * Converts a HTML array string to a PHP array. Empty values are removed.
      * HTML: user[location][city]
      * PHP:  ['user', 'location', 'city']

@@ -122,7 +122,7 @@ class User extends Model implements UserInterface
 
     public function afterLogin()
     {
-        $this->last_login = new DateTime;
+        $this->last_login = $this->freshTimestamp();
         $this->forceSave();
     }
 
@@ -209,7 +209,7 @@ class User extends Model implements UserInterface
         if ($activationCode == $this->activation_code) {
             $this->activation_code = null;
             $this->is_activated = true;
-            $this->activated_at = new DateTime;
+            $this->activated_at = $this->freshTimestamp();
             return $this->forceSave();
         }
 

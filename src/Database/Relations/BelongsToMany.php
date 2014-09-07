@@ -5,6 +5,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class BelongsToMany extends BelongsToManyBase
 {
+
+    use DeferOneOrMany;
+
     /**
      * Adds a model to this relationship type.
      */
@@ -31,38 +34,4 @@ class BelongsToMany extends BelongsToManyBase
         }
     }
 
-    /**
-     * Returns the model query with deferred bindings added
-     */
-    public function withDeferred($sessionKey)
-    {
-        // @todo See DeferOneOrMany trait
-    }
-
-    /**
-     * Joins the relationship tables to a query as a LEFT JOIN.
-     */
-    public function joinWithQuery($query)
-    {
-        $query = $query ?: $this->query;
-
-        /*
-         * Join the pivot table
-         */
-
-        $foreignTable = $this->parent->getTable();
-        $foreignKey = $foreignTable.'.'.$this->parent->getKeyName();
-
-        $query->leftJoin($this->table, $foreignKey, '=', $this->getForeignKey());
-
-        /*
-         * Join the 'other' relation table
-         */
-        $otherTable = $this->related->getTable();
-        $otherKey = $otherTable.'.'.$this->related->getKeyName();
-
-        $query->leftJoin($otherTable, $otherKey, '=', $this->getOtherKey());
-
-        return $this;
-    }
 }

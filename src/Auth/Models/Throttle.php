@@ -2,6 +2,7 @@
 
 use DateTime;
 use October\Rain\Database\Model;
+use Exception;
 
 /**
  * Throttle model
@@ -134,7 +135,7 @@ class Throttle extends Model
     {
         if ($this->is_suspended && $this->suspended_at) {
             $this->removeSuspensionIfAllowed();
-            return (bool)$this->is_suspended;
+            return (bool) $this->is_suspended;
         }
 
         return false;
@@ -173,11 +174,11 @@ class Throttle extends Model
     public function check()
     {
         if ($this->is_banned) {
-            throw new \Exception(sprintf('User [%s] has been banned.', $this->getUser()->getLogin()));
+            throw new Exception(sprintf('User [%s] has been banned.', $this->user->getLogin()));
         }
 
         if ($this->checkSuspended()) {
-            throw new \Exception(sprintf('User [%s] has been suspended.', $this->getUser()->getLogin()));
+            throw new Exception(sprintf('User [%s] has been suspended.', $this->user->getLogin()));
         }
 
         return true;
@@ -239,7 +240,7 @@ class Throttle extends Model
      */
     public function getIsSuspendedAttribute($suspended)
     {
-        return (bool)$suspended;
+        return (bool) $suspended;
     }
 
     /**
@@ -249,7 +250,7 @@ class Throttle extends Model
      */
     public function getIsBannedAttribute($banned)
     {
-        return (bool)$banned;
+        return (bool) $banned;
     }
 
     /**
@@ -270,10 +271,10 @@ class Throttle extends Model
         $result = parent::toArray();
 
         if (isset($result['is_suspended']))
-            $result['is_suspended'] = $this->getSuspended($result['is_suspended']);
+            $result['is_suspended'] = $this->getIsSuspendedAttribute($result['is_suspended']);
 
         if (isset($result['is_banned']))
-            $result['is_banned'] = $this->getBanned($result['is_banned']);
+            $result['is_banned'] = $this->getIsBannedAttribute($result['is_banned']);
 
         if (isset($result['last_attempt_at']) && $result['last_attempt_at'] instanceof DateTime)
             $result['last_attempt_at'] = $result['last_attempt_at']->format('Y-m-d H:i:s');

@@ -1,6 +1,12 @@
 <?php
 
+/** @deprecated Thanks to Laravel 4.3 */
 if (!function_exists('post'))
+{
+    function post($name = null, $default = null) { return input($name, $default); }
+}
+
+if (!function_exists('input'))
 {
     /**
      * Returns an input parameter or the default value.
@@ -15,7 +21,7 @@ if (!function_exists('post'))
      * @param string $default
      * @return string
      */
-    function post($name = null, $default = null)
+    function input($name = null, $default = null)
     {
         if ($name === null)
             return Input::all();

@@ -1,5 +1,7 @@
 <?php namespace October\Rain\Html;
 
+use Exception;
+
 /**
  * Block manager
  *
@@ -51,16 +53,17 @@ class BlockBuilder
     public function endBlock($append = false)
     {
         if (!count($this->blockStack))
-            throw new \Exception('Invalid block nesting');
+            throw new Exception('Invalid block nesting');
 
         $name = array_pop($this->blockStack);
         $contents = ob_get_clean();
 
-        if (!isset($this->blocks[$name]))
+        if ($append) {
+            $this->append($name, $contents);
+        }
+        else {
             $this->blocks[$name] = $contents;
-        else
-            if ($append)
-                $this->blocks[$name] .= $contents;
+        }
     }
 
     /**

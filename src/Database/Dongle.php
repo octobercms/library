@@ -11,7 +11,7 @@ class Dongle
 {
 
     /**
-     * @var DB Database hlper object
+     * @var DB Database helper object
      */
     protected $db;
 

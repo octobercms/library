@@ -699,7 +699,7 @@ class Model extends EloquentModel
         $primaryKey = $primaryKey ?: $this->getForeignKey();
         $throughKey = $throughKey ?: $throughInstance->getForeignKey();
 
-        return new HasManyThrough($instance->newQuery(), $instance, $throughInstance, $primaryKey, $throughKey);
+        return new HasManyThrough($instance->newQuery(), $this, $throughInstance, $primaryKey, $throughKey);
     }
 
     /**

@@ -23,7 +23,7 @@ use October\Rain\Database\TreeCollection;
  *
  * To get root elements:
  *
- *   $model->getRootChildren();
+ *   $model->getAllRoot();
  *
  * You can change the sort field used by declaring:
  *
@@ -92,7 +92,7 @@ trait SimpleTree
      * @param  string $orderBy Specifies a database column name to sort the items by.
      * @return Illuminate\Database\Eloquent\Collection
      */
-    public function getRootChildren($orderBy = 'name')
+    public function getAllRoot($orderBy = 'name')
     {
         $class = get_called_class();
 
@@ -303,5 +303,8 @@ trait SimpleTree
     {
         return new TreeCollection($models);
     }
+
+    /** @deprecated Remove this if year >= 2015 */
+    public function getRootChildren($orderBy = 'name') { return $this->getAllRoot($orderBy); }
 
 }
