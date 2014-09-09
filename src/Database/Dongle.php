@@ -64,6 +64,7 @@ class Dongle
     {
         $sql = $this->parseGroupConcat($sql);
         $sql = $this->parseConcat($sql);
+        $sql = $this->parseIfNull($sql);
         return $sql;
     }
 
@@ -115,6 +116,32 @@ class Dongle
                     return implode(' || ', $concatFields);
             }
         }, $sql);
+    }
+
+    /**
+     * Transforms IFNULL statement.
+     * @param  string $sql
+     * @return string
+     */
+    public function parseIfNull($sql)
+    {
+        if ($this->driver !== 'pgsql')
+            return $sql;
+
+        return str_ireplace('ifnull(', 'coalesce(', $sql);
+    }
+
+    /**
+     * Some drivers require same-type comparisons.
+     * @param  string $sql
+     * @return string
+     */
+    public function cast($sql, $asType = 'INTEGER')
+    {
+        if ($this->driver !== 'pgsql')
+            return $sql;
+
+        return 'CAST('.$sql.' AS '.$asType.')';
     }
 
 }
