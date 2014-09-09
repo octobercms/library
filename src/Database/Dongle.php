@@ -75,7 +75,7 @@ class Dongle
      */
     public function parseGroupConcat($sql)
     {
-        return preg_replace_callback('/group_concat\(([^)]+)\)/i', function($matches){
+        $result = preg_replace_callback('/group_concat\(([^)]+)\)/i', function($matches){
             if (!isset($matches[1]))
                 return $matches[0];
 
@@ -84,10 +84,16 @@ class Dongle
                 case 'mysql':
                     return $matches[0];
 
+                case 'pgsql':
                 case 'sqlite':
                     return str_ireplace(' separator ', ', ', $matches[0]);
             }
         }, $sql);
+
+        if ($this->driver == 'pgsql')
+            $result = str_ireplace('group_concat(', 'string_agg(', $result);
+
+        return $result;
     }
 
     /**
@@ -112,6 +118,7 @@ class Dongle
                 case 'mysql':
                     return $matches[0];
 
+                case 'pgsql':
                 case 'sqlite':
                     return implode(' || ', $concatFields);
             }
@@ -125,7 +132,7 @@ class Dongle
      */
     public function parseIfNull($sql)
     {
-        if ($this->driver !== 'pgsql')
+        if ($this->driver != 'pgsql')
             return $sql;
 
         return str_ireplace('ifnull(', 'coalesce(', $sql);
@@ -138,7 +145,7 @@ class Dongle
      */
     public function cast($sql, $asType = 'INTEGER')
     {
-        if ($this->driver !== 'pgsql')
+        if ($this->driver != 'pgsql')
             return $sql;
 
         return 'CAST('.$sql.' AS '.$asType.')';
