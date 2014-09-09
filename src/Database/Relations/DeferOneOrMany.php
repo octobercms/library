@@ -43,7 +43,7 @@ trait DeferOneOrMany
                 ->where('session_key', $sessionKey)
                 ->where('is_bind', false)
                 ->whereRaw(DbDongle::parse('id > ifnull((select max(id) from deferred_bindings where
-                        slave_id = '.$this->related->getQualifiedKeyName().' and
+                        '.DbDogle::cast('slave_id', 'INTEGER').' = '.$this->related->getQualifiedKeyName().' and
                         master_field = ? and
                         master_type = ? and
                         session_key = ? and
