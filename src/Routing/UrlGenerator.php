@@ -15,7 +15,7 @@ class UrlGenerator extends UrlGeneratorBase{
 		if ($this->isValidUrl($path)) return $path;
 		if(trans('backend::lang.layout.direction') == 'rtl'){
 			$pathParts = pathinfo($path);
-			$rtlPath = $pathParts['dirname'] .'/' . $pathParts['filename'] . '-rtl.' . $pathParts['extension'];
+			$rtlPath = $pathParts['dirname'] .'/' . $pathParts['filename'] . '-rtl.' . (isset($pathParts['extension']) ? $pathParts['extension']: '');
 			if(File::isFile(public_path() . '/' . $rtlPath)){
 				$path = $rtlPath;
 			}
