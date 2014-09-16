@@ -918,6 +918,23 @@ class Model extends EloquentModel
                 }
                 break;
 
+            case 'hasOne':
+                if (!$value || is_array($value))
+                    return;
+
+                if ($value instanceof EloquentModel)
+                    $instance = $value;
+                else
+                    $instance = $relationObj->find($value);
+
+                if ($instance) {
+                    $this->bindEventOnce('model.afterSave', function() use ($relationObj, $instance){
+                        $instance->setAttribute($relationObj->getPlainForeignKey(), $relationObj->getParentKey());
+                        $instance->save();
+                    });
+                }
+                break;
+
             case 'attachOne':
                 if (is_array($value))
                     $value = reset($value);
