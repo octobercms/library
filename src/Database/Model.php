@@ -925,9 +925,11 @@ class Model extends EloquentModel
                 if ($value instanceof EloquentModel)
                     $instance = $value;
                 else
-                    $instance = $relationObj->find($value);
+                    $instance = $relationObj->getRelated()->find($value);
 
                 if ($instance) {
+                    $this->setRelation($relationName, $instance);
+
                     $this->bindEventOnce('model.afterSave', function() use ($relationObj, $instance){
                         $instance->setAttribute($relationObj->getPlainForeignKey(), $relationObj->getParentKey());
                         $instance->save();
