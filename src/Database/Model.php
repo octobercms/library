@@ -931,6 +931,7 @@ class Model extends EloquentModel
                     $this->setRelation($relationName, $instance);
 
                     $this->bindEventOnce('model.afterSave', function() use ($relationObj, $instance){
+                        $relationObj->update([$relationObj->getForeignKey() => null]);
                         $instance->setAttribute($relationObj->getPlainForeignKey(), $relationObj->getParentKey());
                         $instance->save();
                     });
