@@ -23,4 +23,18 @@ class HasOne extends HasOneBase
 
         parent::__construct($query, $parent, $foreignKey, $localKey);
     }
+
+    /**
+     * Get the results of the relationship.
+     * @return mixed
+     */
+    public function getResults()
+    {
+        // New models have no possibility of having a relationship here
+        // so prevent the first orphaned relation from being used.
+        if (!$this->parent->exists)
+            return null;
+
+        return parent::getResults();
+    }
 }
