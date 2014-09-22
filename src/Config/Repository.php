@@ -39,7 +39,7 @@ class Repository extends IlluminateRepository
     {
         parent::addNamespace($namespace, $hint);
 
-        $namespaceAppPath = app_path().'/config/'.str_replace('.', '/', $namespace);
+        $namespaceAppPath = app_path().'/config/'.str_replace('.', '/', strtolower($namespace));
         $this->appRepository->addNamespace($namespace, $namespaceAppPath);
     }
 
