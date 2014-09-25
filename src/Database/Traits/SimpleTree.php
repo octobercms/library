@@ -10,6 +10,9 @@ use October\Rain\Database\TreeCollection;
  * Simple category implementation, for advanced implementation see:
  * October\Rain\Database\Traits\NestedTree
  *
+ * SimpleTree is useful for providing an orderBy column on the fly,
+ * whereas NestedTree has a fixed structure.
+ *
  * Usage:
  *
  * Model table must have parent_id table column.
@@ -17,26 +20,36 @@ use October\Rain\Database\TreeCollection;
  *
  *   use \October\Rain\Database\Traits\SimpleTree;
  *
- * To get children:
+ * General access methods:
  *
- *   $model->getChildren();
+ *   $model->getChildren(); // Returns children of this node
+ *   $model->getAllChildren(); // Returns all children of this node
+ *   $model->getAllRoot(); // Returns all root level nodes
  *
- * To get root elements:
+ * To supply an order column:
  *
- *   $model->getAllRoot();
+ *   $model->orderBy('sort_order')->getAllRoot();
+ *
+ * Query builder methods:
+ *
+ *   $query->listsNested(); // Returns an indented array of key and value columns.
  *
  * You can change the sort field used by declaring:
  *
  *   const PARENT_ID = 'my_parent_column';
+ *
+ * You can change the database column that identifies each item by name:
+ *
+ *   const TREE_LABEL = 'my_name';
  *
  */
 trait SimpleTree
 {
 
     /**
-     * @var string The database column that identifies each item by name.
+     * @var array The active ordering column for this model.
      */
-    public $treeModelNameColumn = 'name';
+    public $treeModelActiveOrderBy = null;
 
     /**
      * @var string The database column that identifies each item by name.
@@ -60,11 +73,11 @@ trait SimpleTree
 
     /**
      * Returns a list of children records.
-     * @param  string $orderBy Specifies a database column name to sort the items by.
      * @return Illuminate\Database\Eloquent\Collection
      */
-    public function getChildren($orderBy = 'name')
+    public function getChildren()
     {
+        $orderBy = $this->getTreeOrderBy();
         $class = get_called_class();
 
         if (!$this->cacheExists($orderBy))
@@ -89,11 +102,11 @@ trait SimpleTree
 
     /**
      * Returns a list of root records.
-     * @param  string $orderBy Specifies a database column name to sort the items by.
      * @return Illuminate\Database\Eloquent\Collection
      */
-    public function getAllRoot($orderBy = 'name')
+    public function getAllRoot()
     {
+        $orderBy = $this->getTreeOrderBy();
         $class = get_called_class();
 
         if (!$this->cacheExists($orderBy))
@@ -109,11 +122,11 @@ trait SimpleTree
 
     /**
      * Get a list of children records, with their children (recursive)
-     * @param  string $orderBy Specifies a database column name to sort the items by.
      * @return array
      */
-    public function getAllChildren($orderBy = 'name')
+    public function getAllChildren()
     {
+        $orderBy = $this->getTreeOrderBy();
         $result = [];
         $children = $this->getChildren($orderBy);
 
@@ -135,25 +148,28 @@ trait SimpleTree
      * @param  string  $orderBy
      * @return string
      */
-    public function getPath($separator = ' > ', $includeSelf = true, $orderBy = 'name')
+    public function getPath($separator = ' > ', $includeSelf = true)
     {
-        $parents = $this->getParents($includeSelf, $orderBy);
+        $orderBy = $this->getTreeOrderBy();
+        $parents = $this->getParents($includeSelf);
         $parents = array_reverse($parents);
+
+        $labelColumn = $this->getLabelColumnName();
 
         $result = [];
         foreach ($parents as $parent)
-            $result[] = $parent->{$this->treeModelNameColumn};
+            $result[] = $parent->{$labelColumn};
 
         return implode($separator, array_reverse($result));
     }
 
     /**
      * Returns a parent record.
-     * @param  string $orderBy Specifies a database column name to sort the items by.
      * @return array
      */
-    public function getParent($orderBy = 'name')
+    public function getParent()
     {
+        $orderBy = $this->getTreeOrderBy();
         $class = get_called_class();
 
         if (!$this->cacheExists($orderBy))
@@ -173,11 +189,11 @@ trait SimpleTree
 
     /**
      * Returns a list of parent records.
-     * @param  string $orderBy Specifies a database column name to sort the items by.
      * @return array
      */
-    public function getParents($orderBy = 'name')
+    public function getParents()
     {
+        $orderBy = $this->getTreeOrderBy();
         $parent = $this->getParent($orderBy);
         $result = [];
 
@@ -191,14 +207,58 @@ trait SimpleTree
 
     /**
      * Returns a list of parent records, including the current record.
-     * @param  string $orderBy Specifies a database column name to sort the items by.
      * @return array
      */
-    public function getParentsAndSelf($orderBy = 'name')
+    public function getParentsAndSelf()
     {
+        $orderBy = $this->getTreeOrderBy();
         $collection = $this->getParents();
         array_unshift($collection, $this);
         return $collection;
+    }
+
+    /**
+     * Gets an array with values of a given column. Values are indented according to their depth.
+     * @param  string $column Array values
+     * @param  string $key    Array keys
+     * @param  string $indent Character to indent depth
+     * @return array
+     */
+    public function scopeListsNested($query, $column, $key = null, $indent = '&nbsp;&nbsp;&nbsp;')
+    {
+        /*
+         * Recursive helper function
+         */
+        $buildCollection = function($items, $depth = 0) use (&$buildCollection, $column, $key, $indent) {
+            $result = [];
+
+            $indentString = str_repeat($indent, $depth);
+
+            foreach ($items as $item) {
+                if ($key !== null)
+                    $result[$item->{$key}] = $indentString . $item->{$column};
+                else
+                    $result[] = $indentString . $item->{$column};
+
+                /*
+                 * Add the children
+                 */
+                $childItems = $item->getChildren();
+                if ($childItems->count() > 0) {
+                    $result = $result + $buildCollection($childItems, $depth + 1);
+                }
+            }
+
+            return $result;
+        };
+
+        /*
+         * Build a nested collection
+         */
+        $model = $query->getModel();
+        $rootItems = $model->getAllRoot();
+        $result = $buildCollection($rootItems);
+        return $result;
     }
 
     //
@@ -212,6 +272,15 @@ trait SimpleTree
     public function getParentColumnName()
     {
         return defined('static::PARENT_ID') ? static::PARENT_ID : 'parent_id';
+    }
+
+    /**
+     * Get label column name.
+     * @return string
+     */
+    public function getLabelColumnName()
+    {
+        return defined('static::TREE_LABEL') ? static::TREE_LABEL : 'name';
     }
 
     /**
@@ -248,7 +317,8 @@ trait SimpleTree
 
         $query = $this->newQuery();
 
-        $query = $query->orderBy($orderBy);
+        list($order, $direction) = $orderBy;
+        $query = $query->orderBy($order, $direction);
 
         if ($this->treeModelSqlFilter)
             $query = $query->whereRaw($this->treeModelSqlFilter);
@@ -259,7 +329,9 @@ trait SimpleTree
 
         $parentKey = $this->getParentColumnName();
         foreach ($records as $record) {
-            $parentId = $record->$parentKey !== null ? $record->$parentKey : -1;
+            $parentId = $record->{$parentKey} !== null ? $record->{$parentKey} : -1;
+
+            $record->setTreeOrderBy($order, $direction);
 
             if (!isset($objectCache[$parentId]))
                 $objectCache[$parentId] = [];
@@ -280,7 +352,7 @@ trait SimpleTree
      */
     protected function getCacheKey($orderBy)
     {
-        return $orderBy . $this->treeModelSqlFilter;
+        return implode('-', (array) $orderBy) . $this->treeModelSqlFilter;
     }
 
     /**
@@ -294,6 +366,33 @@ trait SimpleTree
         $cacheKey = $this->getCacheKey($orderBy);
         return array_key_exists($class, static::$objectCache) &&
             array_key_exists($cacheKey, static::$objectCache[$class]);
+    }
+
+    /**
+     * Sets the ordering column and direction for this instance.
+     * @param string $order
+     * @param string $direction
+     */
+    public function setTreeOrderBy($order, $direction)
+    {
+        $this->treeModelActiveOrderBy = [$order, $direction];
+    }
+
+    /**
+     * Returns the column used for ordering the tree children.
+     * @return string
+     */
+    public function getTreeOrderBy()
+    {
+        if ($this->treeModelActiveOrderBy !== null)
+            return $this->treeModelActiveOrderBy;
+
+        $query = $this->getQuery();
+        $orders = $query->orders;
+
+        return $this->treeModelActiveOrderBy = (count($orders) > 0)
+            ? end($orders)
+            : [$this->getLabelColumnName(), 'desc'];
     }
 
     /**
