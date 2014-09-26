@@ -23,6 +23,7 @@
         "illuminate/html": "4.2.*",
         "illuminate/queue": "4.2.*",
         "illuminate/support": "4.2.*",
+        "indatus/dispatcher": "1.*",
         "kriswallsmith/assetic": "~1.1",
         "linkorb/jsmin-php": "~1.0",
         "oyejorge/less.php": "~1.7",
