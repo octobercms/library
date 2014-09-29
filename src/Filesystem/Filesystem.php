@@ -109,7 +109,7 @@ class Filesystem extends FilesystemBase
      * @param  string $path Absolute path
      * @return string
      */
-    public static function localToPublic($path)
+    public function localToPublic($path)
     {
         $result = null;
         $publicPath = public_path();
@@ -121,11 +121,22 @@ class Filesystem extends FilesystemBase
     }
 
     /**
+     * Returns true if the specified path is an absolute/local path
+     * to the application.
+     * @param  string  $path
+     * @return boolean
+     */
+    public function isLocalPath($path)
+    {
+        return strpos($path, base_path()) === 0;
+    }
+
+    /**
      * Finds the path to a class
      * @param  mixed  $className Class name or object
      * @return string The file path
      */
-    public static function fromClass($className)
+    public function fromClass($className)
     {
         $reflector = new ReflectionClass($className);
         return $reflector->getFileName();
