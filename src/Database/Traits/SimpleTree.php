@@ -385,13 +385,24 @@ trait SimpleTree
     }
 
     /**
+     * Sets the tree model SQL filter statement.
+     * @param string $rawSql
+     */
+    public function setTreeSqlFilter($rawSql)
+    {
+        $this->treeModelSqlFilter = $rawSql;
+        return $this;
+    }
+
+    /**
      * Sets the ordering column and direction for this instance.
      * @param string $order
      * @param string $direction
      */
-    public function setTreeOrderBy($order, $direction)
+    public function setTreeOrderBy($order, $direction = 'asc')
     {
         $this->treeModelActiveOrderBy = [$order, $direction];
+        return $this;
     }
 
     /**
@@ -403,12 +414,7 @@ trait SimpleTree
         if ($this->treeModelActiveOrderBy !== null)
             return $this->treeModelActiveOrderBy;
 
-        $query = $this->getQuery();
-        $orders = $query->orders;
-
-        return $this->treeModelActiveOrderBy = (count($orders) > 0)
-            ? end($orders)
-            : [$this->getLabelColumnName(), 'asc'];
+        return $this->treeModelActiveOrderBy = [$this->getLabelColumnName(), 'asc'];
     }
 
     /**
