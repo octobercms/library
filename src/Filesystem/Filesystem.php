@@ -14,6 +14,15 @@ class Filesystem extends FilesystemBase
 {
 
     /**
+     * @var array Known path symbols and their prefixes.
+     */
+    protected $pathSymbols = [
+        '$' => PATH_PLUGINS,
+        '~' => PATH_BASE,
+        '@' => PATH_BASE, // @deprecated
+    ];
+
+    /**
      * @var string Default file permission mask as a string ("777").
      */
     public $filePermissions = null;
@@ -160,6 +169,34 @@ class Filesystem extends FilesystemBase
     public function normalizePath($path)
     {
         return str_replace('\\', '/', $path);
+    }
+
+    /**
+     * Converts a path.
+     * @param  string $path
+     * @return string
+     */
+    public function symbolizePath($path, $default = false)
+    {
+        if (!$firstChar = $this->isPathSymbol($path))
+            return $default;
+
+        $_path = substr($path, 1);
+        return $this->pathSymbols[$firstChar] . $_path;
+    }
+
+    /**
+     * Returns true if the path uses a symbol.
+     * @param  string  $path
+     * @return boolean
+     */
+    public function isPathSymbol($path)
+    {
+        $firstChar = substr($path, 0, 1);
+        if (isset($this->pathSymbols[$firstChar]))
+            return $firstChar;
+
+        return false;
     }
 
     /**
