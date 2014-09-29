@@ -408,7 +408,7 @@ trait SimpleTree
 
         return $this->treeModelActiveOrderBy = (count($orders) > 0)
             ? end($orders)
-            : [$this->getLabelColumnName(), 'desc'];
+            : [$this->getLabelColumnName(), 'asc'];
     }
 
     /**
