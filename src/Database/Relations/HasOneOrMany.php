@@ -17,9 +17,7 @@ trait HasOneOrMany
         }
         else {
             $this->add($model, $sessionKey);
-
-            // Save the related model and any deferred bindings it might have
-            return $model->save(null, $sessionKey) ? $model : false;
+            return $model->save() ? $model : false;
         }
     }
 

@@ -64,6 +64,7 @@ class Dongle
     {
         $sql = $this->parseGroupConcat($sql);
         $sql = $this->parseConcat($sql);
+        $sql = $this->parseIfNull($sql);
         return $sql;
     }
 
@@ -74,7 +75,7 @@ class Dongle
      */
     public function parseGroupConcat($sql)
     {
-        return preg_replace_callback('/group_concat\(([^)]+)\)/i', function($matches){
+        $result = preg_replace_callback('/group_concat\(([^)]+)\)/i', function($matches){
             if (!isset($matches[1]))
                 return $matches[0];
 
@@ -83,10 +84,16 @@ class Dongle
                 case 'mysql':
                     return $matches[0];
 
+                case 'pgsql':
                 case 'sqlite':
                     return str_ireplace(' separator ', ', ', $matches[0]);
             }
         }, $sql);
+
+        if ($this->driver == 'pgsql')
+            $result = str_ireplace('group_concat(', 'string_agg(', $result);
+
+        return $result;
     }
 
     /**
@@ -111,10 +118,37 @@ class Dongle
                 case 'mysql':
                     return $matches[0];
 
+                case 'pgsql':
                 case 'sqlite':
                     return implode(' || ', $concatFields);
             }
         }, $sql);
+    }
+
+    /**
+     * Transforms IFNULL statement.
+     * @param  string $sql
+     * @return string
+     */
+    public function parseIfNull($sql)
+    {
+        if ($this->driver != 'pgsql')
+            return $sql;
+
+        return str_ireplace('ifnull(', 'coalesce(', $sql);
+    }
+
+    /**
+     * Some drivers require same-type comparisons.
+     * @param  string $sql
+     * @return string
+     */
+    public function cast($sql, $asType = 'INTEGER')
+    {
+        if ($this->driver != 'pgsql')
+            return $sql;
+
+        return 'CAST('.$sql.' AS '.$asType.')';
     }
 
 }

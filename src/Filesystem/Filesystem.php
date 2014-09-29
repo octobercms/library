@@ -24,6 +24,11 @@ class Filesystem extends FilesystemBase
     public $folderPermissions = null;
 
     /**
+     * @var array Known path symbols and their prefixes.
+     */
+    public $pathSymbols = [];
+
+    /**
      * Determine if the given path contains no files.
      * @param  string  $directory
      * @return bool
@@ -104,7 +109,7 @@ class Filesystem extends FilesystemBase
      * @param  string $path Absolute path
      * @return string
      */
-    public static function localToPublic($path)
+    public function localToPublic($path)
     {
         $result = null;
         $publicPath = public_path();
@@ -116,11 +121,22 @@ class Filesystem extends FilesystemBase
     }
 
     /**
+     * Returns true if the specified path is an absolute/local path
+     * to the application.
+     * @param  string  $path
+     * @return boolean
+     */
+    public function isLocalPath($path)
+    {
+        return strpos($path, base_path()) === 0;
+    }
+
+    /**
      * Finds the path to a class
      * @param  mixed  $className Class name or object
      * @return string The file path
      */
-    public static function fromClass($className)
+    public function fromClass($className)
     {
         $reflector = new ReflectionClass($className);
         return $reflector->getFileName();
@@ -160,6 +176,34 @@ class Filesystem extends FilesystemBase
     public function normalizePath($path)
     {
         return str_replace('\\', '/', $path);
+    }
+
+    /**
+     * Converts a path.
+     * @param  string $path
+     * @return string
+     */
+    public function symbolizePath($path, $default = false)
+    {
+        if (!$firstChar = $this->isPathSymbol($path))
+            return $default;
+
+        $_path = substr($path, 1);
+        return $this->pathSymbols[$firstChar] . $_path;
+    }
+
+    /**
+     * Returns true if the path uses a symbol.
+     * @param  string  $path
+     * @return boolean
+     */
+    public function isPathSymbol($path)
+    {
+        $firstChar = substr($path, 0, 1);
+        if (isset($this->pathSymbols[$firstChar]))
+            return $firstChar;
+
+        return false;
     }
 
     /**
