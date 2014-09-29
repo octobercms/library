@@ -124,6 +124,15 @@ trait Validation
             $data = $this->getAttributes();
 
             /*
+             * Add relation values, if specified.
+             */
+            foreach ($rules as $attribute => $rule) {
+                if (!$this->hasRelation($attribute)) continue;
+                if (array_key_exists($attribute, $data)) continue;
+                $data[$attribute] = $this->getRelationValue($attribute);
+            }
+
+            /*
              * Compatability with Hashable trait: Remove all hashed values, add the original values.
              */
             if (method_exists($this, 'getHashableAttributes')) {
@@ -143,7 +152,8 @@ trait Validation
             if ($success) {
                 if ($this->validationErrors->count() > 0)
                     $this->validationErrors = new MessageBag;
-            } else {
+            }
+            else {
                 $this->validationErrors = $validator->messages();
                 if (Input::hasSession())
                     Input::flash();
