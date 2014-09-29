@@ -6,7 +6,7 @@
 name: {{singular_name}}
 
 # Model Form Field configuration
-form: @/plugins/{{lower_author}}/{{lower_plugin}}/models/{{lower_model}}/fields.yaml
+form: $/{{lower_author}}/{{lower_plugin}}/models/{{lower_model}}/fields.yaml
 
 # Model Class name
 modelClass: {{studly_author}}\{{studly_plugin}}\Models\{{studly_model}}
