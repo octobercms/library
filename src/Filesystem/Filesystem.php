@@ -14,15 +14,6 @@ class Filesystem extends FilesystemBase
 {
 
     /**
-     * @var array Known path symbols and their prefixes.
-     */
-    protected $pathSymbols = [
-        '$' => PATH_PLUGINS,
-        '~' => PATH_BASE,
-        '@' => PATH_BASE, // @deprecated
-    ];
-
-    /**
      * @var string Default file permission mask as a string ("777").
      */
     public $filePermissions = null;
@@ -31,6 +22,11 @@ class Filesystem extends FilesystemBase
      * @var string Default folder permission mask as a string ("777").
      */
     public $folderPermissions = null;
+
+    /**
+     * @var array Known path symbols and their prefixes.
+     */
+    public $pathSymbols = [];
 
     /**
      * Determine if the given path contains no files.
