@@ -222,7 +222,18 @@ class Str extends StrHelper
     }
 
     /**
-     * Obtains an object class name without namespaces
+     * Returns a class namespace
+     */
+    public static function getClassNamespace($name)
+    {
+        $name = static::normalizeClassName($name);
+        return substr($name, 0, strrpos($name, "\\"));
+    }
+
+    /**
+     * @deprecated Obtains an object class name without namespaces
+     * @see class_basename
+     * @todo Remove this method if year >= 2015
      */
     public static function getRealClass($name)
     {
@@ -232,14 +243,5 @@ class Str extends StrHelper
             $name = $matches[1];
 
         return $name;
-    }
-
-    /**
-     * Returns a class namespace
-     */
-    public static function getClassNamespace($name)
-    {
-        $name = static::normalizeClassName($name);
-        return substr($name, 0, strrpos($name, "\\"));
     }
 }
