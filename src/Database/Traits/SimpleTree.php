@@ -25,6 +25,7 @@ use October\Rain\Database\TreeCollection;
  *   $model->getChildren(); // Returns children of this node
  *   $model->getAllChildren(); // Returns all children of this node
  *   $model->getAllRoot(); // Returns all root level nodes
+ *   $model->getAll(); // Returns everything in correct order.
  *
  * To supply an order column:
  *
@@ -101,6 +102,21 @@ trait SimpleTree
     }
 
     /**
+     * Returns all nodes and children.
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public function getAll()
+    {
+        $collection = [];
+        foreach ($this->getAllRoot() as $rootNode) {
+            $collection[] = $rootNode;
+            $collection = $collection + $rootNode->getAllChildren()->getDictionary();
+        }
+
+        return new Collection($collection);
+    }
+
+    /**
      * Returns a list of root records.
      * @return Illuminate\Database\Eloquent\Collection
      */
@@ -138,7 +154,7 @@ trait SimpleTree
                 $result[] = $subChild;
         }
 
-        return $result;
+        return new Collection($result);
     }
 
     /**
