@@ -25,6 +25,7 @@ use October\Rain\Database\TreeCollection;
  *   $model->getChildren(); // Returns children of this node
  *   $model->getAllChildren(); // Returns all children of this node
  *   $model->getAllRoot(); // Returns all root level nodes
+ *   $model->getAll(); // Returns everything in correct order.
  *
  * To supply an order column:
  *
@@ -101,6 +102,21 @@ trait SimpleTree
     }
 
     /**
+     * Returns all nodes and children.
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public function getAll()
+    {
+        $collection = [];
+        foreach ($this->getAllRoot() as $rootNode) {
+            $collection[] = $rootNode;
+            $collection = $collection + $rootNode->getAllChildren()->getDictionary();
+        }
+
+        return new Collection($collection);
+    }
+
+    /**
      * Returns a list of root records.
      * @return Illuminate\Database\Eloquent\Collection
      */
@@ -138,7 +154,7 @@ trait SimpleTree
                 $result[] = $subChild;
         }
 
-        return $result;
+        return new Collection($result);
     }
 
     /**
@@ -369,13 +385,24 @@ trait SimpleTree
     }
 
     /**
+     * Sets the tree model SQL filter statement.
+     * @param string $rawSql
+     */
+    public function setTreeSqlFilter($rawSql)
+    {
+        $this->treeModelSqlFilter = $rawSql;
+        return $this;
+    }
+
+    /**
      * Sets the ordering column and direction for this instance.
      * @param string $order
      * @param string $direction
      */
-    public function setTreeOrderBy($order, $direction)
+    public function setTreeOrderBy($order, $direction = 'asc')
     {
         $this->treeModelActiveOrderBy = [$order, $direction];
+        return $this;
     }
 
     /**
@@ -387,12 +414,7 @@ trait SimpleTree
         if ($this->treeModelActiveOrderBy !== null)
             return $this->treeModelActiveOrderBy;
 
-        $query = $this->getQuery();
-        $orders = $query->orders;
-
-        return $this->treeModelActiveOrderBy = (count($orders) > 0)
-            ? end($orders)
-            : [$this->getLabelColumnName(), 'desc'];
+        return $this->treeModelActiveOrderBy = [$this->getLabelColumnName(), 'asc'];
     }
 
     /**
