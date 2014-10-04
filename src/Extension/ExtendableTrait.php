@@ -347,7 +347,10 @@ trait ExtendableTrait
             $extension = self::$extendableStaticMethods[$className][$name];
 
             if (method_exists($extension, $name) && is_callable([$extension, $name])) {
-                return forward_static_call_array(array($extension, $name), $params);
+                $extension::$extendableStaticCalledClass = $className;
+                $result = forward_static_call_array(array($extension, $name), $params);
+                $extension::$extendableStaticCalledClass = null;
+                return $result;
             }
         }
 
