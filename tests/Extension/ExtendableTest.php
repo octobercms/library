@@ -14,6 +14,16 @@ class ExampleBehaviorClass1 extends ExtensionBase
     {
         return 'foo';
     }
+
+    public static function getStaticBar()
+    {
+        return 'bar';
+    }
+
+    public static function vanillaIceIce()
+    {
+        return 'cream';
+    }
 }
 
 class ExampleBehaviorClass2 extends ExtensionBase
@@ -27,6 +37,16 @@ class ExampleBehaviorClass2 extends ExtensionBase
 }
 
 /*
+ * Example class that has an invalid implementation
+ */
+class InvalidExtendableClass extends Extendable
+{
+    public $implement = 24;
+
+    public $classAttribute;
+}
+
+/*
  * Example class that has extensions enabled
  */
 class ExampleExtendableClass extends Extendable
@@ -34,6 +54,11 @@ class ExampleExtendableClass extends Extendable
     public $implement = ['ExampleBehaviorClass1'];
 
     public $classAttribute;
+
+    public static function vanillaIceIce()
+    {
+        return 'baby';
+    }
 }
 
 /**
@@ -49,6 +74,7 @@ class ExampleClass
 
 class ExtendableTest extends TestCase
 {
+
     public function testSettingDeclaredAttributeOnClass()
     {
         $subject = new ExampleExtendableClass;
@@ -120,5 +146,33 @@ class ExtendableTest extends TestCase
         $subject->addDynamicMethod('getAppName', ['ExampleClass', 'getName']);
 
         $this->assertEquals('october', $subject->getAppName());
+    }
+
+    public function testCallingStaticMethod()
+    {
+        $result = ExampleExtendableClass::getStaticBar();
+        $this->assertEquals('bar', $result);
+
+        $result = ExampleExtendableClass::vanillaIceIce();
+        $this->assertEquals('baby', $result);
+    }
+
+    /**
+     * @expectedException        Exception
+     * @expectedExceptionMessage Class ExampleExtendableClass does not have a method definition for undefinedMethod
+     */
+    public function testCallingUndefinedStaticMethod()
+    {
+        $result = ExampleExtendableClass::undefinedMethod();
+        $this->assertEquals('bar', $result);
+    }
+
+    /**
+     * @expectedException        Exception
+     * @expectedExceptionMessage Class InvalidExtendableClass contains an invalid $implement value
+     */
+    public function testInvalidImplementValue()
+    {
+        $result = new InvalidExtendableClass;
     }
 }

@@ -1,6 +1,8 @@
 <?php namespace October\Rain\Extension;
 
 use Exception;
+use ReflectionClass;
+use ReflectionMethod;
 
 /**
  * Extension trait
@@ -27,6 +29,11 @@ trait ExtendableTrait
      * Eg: Class::extend(function($obj) { })
      */
     protected static $extendableCallbacks = [];
+
+    /**
+     * @var array Collection of static methods used by behaviors.
+     */
+    protected static $extendableStaticMethods = [];
 
     /**
      * Constructor.
@@ -197,7 +204,7 @@ trait ExtendableTrait
      */
     protected function extendableIsAccessible($class, $propertyName)
     {
-        $reflector = new \ReflectionClass($class);
+        $reflector = new ReflectionClass($class);
         $property = $reflector->getProperty($propertyName);
         return $property->isPublic();
     }
@@ -293,6 +300,66 @@ trait ExtendableTrait
         }
 
         throw new Exception(sprintf('Class %s does not have a method definition for %s', get_class($this), $name));
+    }
+
+    /**
+     * Magic method for __callStatic()
+     * @param  string $name
+     * @param  array  $params
+     * @return mixed
+     */
+    public static function extendableCallStatic($name, $params = null)
+    {
+        $className = get_called_class();
+        if (method_exists($className, $name))
+            return forward_static_call_array(array($className, $name), $params);
+
+        if (!array_key_exists($className, self::$extendableStaticMethods)) {
+
+            self::$extendableStaticMethods[$className] = [];
+
+            $class = new ReflectionClass($className);
+            $defaultProperties = $class->getDefaultProperties();
+            if (array_key_exists('implement', $defaultProperties)) {
+                $implement = $defaultProperties['implement'];
+
+                if (is_string($implement))
+                    $uses = explode(',', $implement);
+                elseif (is_array($implement))
+                    $uses = $implement;
+                else
+                    throw new Exception(sprintf('Class %s contains an invalid $implement value', $className));
+
+                foreach ($uses as $use) {
+                    $useClassName = str_replace('.', '\\', trim($use));
+
+                    $useClass = new ReflectionClass($useClassName);
+                    $staticMethods = $useClass->getMethods(ReflectionMethod::IS_STATIC);
+                    foreach ($staticMethods as $method) {
+                        self::$extendableStaticMethods[$className][$method->getName()] = $useClassName;
+                    }
+                }
+            }
+
+        }
+
+        if (isset(self::$extendableStaticMethods[$className][$name])) {
+            $extension = self::$extendableStaticMethods[$className][$name];
+
+            if (method_exists($extension, $name) && is_callable([$extension, $name])) {
+                return forward_static_call_array(array($extension, $name), $params);
+            }
+        }
+
+        // $parent = get_parent_class($className);
+        // if ($parent !== false) {
+        //     if (method_exists($parent, '__callStatic'))
+        //         return parent::__callStatic($name, $params);
+
+        //     return forward_static_call_array(array($parent, $name), $params);
+        // }
+
+        throw new Exception(sprintf('Class %s does not have a method definition for %s', $className, $name));
     }
 
 }
