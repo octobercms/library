@@ -855,6 +855,7 @@ class Model extends EloquentModel
     {
         $relationType = $this->getRelationType($relationName);
         $relationObj = $this->$relationName();
+        $relationModel = $relationObj->getRelated();
 
         switch ($relationType) {
 
@@ -873,6 +874,13 @@ class Model extends EloquentModel
                 $this->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
                     $relationObj->sync($value);
                 });
+
+                $relationCollection = $value instanceof Collection
+                    ? $value
+                    : $relationModel->whereIn($relationModel->getKeyName(), $value)->get();
+
+                // Associate
+                $this->setRelation($relationName, $relationCollection);
                 break;
 
             case 'belongsTo':
@@ -925,7 +933,7 @@ class Model extends EloquentModel
                 if ($value instanceof EloquentModel)
                     $instance = $value;
                 else
-                    $instance = $relationObj->getRelated()->find($value);
+                    $instance = $relationModel->find($value);
 
                 if ($instance) {
                     $this->setRelation($relationName, $instance);
