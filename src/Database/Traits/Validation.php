@@ -147,15 +147,15 @@ trait Validation
                 $customMessages = [];
 
             $validator = self::makeValidator($data, $rules, $customMessages);
-            
+
             /*
              * Use custom language attributes
              */
             $customAttributes = trans('validation.attributes');
-            if(is_array($customAttributes) && !empty($customAttributes)) {
+            if (is_array($customAttributes) && !empty($customAttributes)) {
                 $validator->setAttributeNames($customAttributes);
             }
-            
+
             $success = $validator->passes();
 
             if ($success) {
