@@ -232,10 +232,10 @@ class Manager
     public function authenticate(array $credentials, $remember = true)
     {
         /*
-         * Default to the login name field or fallback to a hard-coded 'login' value
+         * Default to the login name field or fallback to a hard-coded 'username' value
          */
         $loginName = $this->createUserModel()->getLoginName();
-        $loginCredentialKey = (isset($credentials[$loginName])) ? $loginName : 'login';
+        $loginCredentialKey = (isset($credentials[$loginName])) ? $loginName : 'username';
 
         if (empty($credentials[$loginCredentialKey]))
             throw new Exception(sprintf('The "%s" attribute is required.', $loginCredentialKey));
@@ -244,7 +244,7 @@ class Manager
             throw new Exception('The password attribute is required.');
 
         /*
-         * If the fallback 'login' was provided and did not match the necessary
+         * If the fallback 'username' was provided and did not match the necessary
          * login name, swap it over
          */
         if ($loginCredentialKey !== $loginName) {
