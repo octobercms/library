@@ -17,7 +17,6 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
 
     /**
      * Register the service provider.
-     *
      * @return void
      */
     public function register()
@@ -26,8 +25,21 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
 
         $this->app->bindShared('db.dongle', function($app)
         {
-            return new Dongle($app['db']->getDefaultConnection(), $app['db']);
+            return new Dongle($this->getDefaultDatabaseDriver(), $app['db']);
         });
+    }
+
+    /**
+     * Returns the default database driver, not just the connection name.
+     * @return string
+     */
+    protected function getDefaultDatabaseDriver()
+    {
+        $defaultConnection = $this->app['db']->getDefaultConnection();
+        if (!$config = array_get($this->app['config']['database.connections'], $defaultConnection))
+            return $defaultConnection;
+
+        return array_get($config, 'driver');
     }
 
 }
