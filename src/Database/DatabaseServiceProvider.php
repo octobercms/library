@@ -36,10 +36,8 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
     protected function getDefaultDatabaseDriver()
     {
         $defaultConnection = $this->app['db']->getDefaultConnection();
-        if (!$config = array_get($this->app['config']['database.connections'], $defaultConnection))
-            return $defaultConnection;
-
-        return array_get($config, 'driver');
+        $defaultDriver = $this->app['db']['database.connections.'.$defaultConnection.'.driver'];
+        return $defaultDriver;
     }
 
 }
