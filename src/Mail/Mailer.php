@@ -25,10 +25,10 @@ class Mailer extends MailerBase
     public function send($view, array $data, $callback)
     {
         /*
-         * Allow for mail interception for queuing
+         * Extensbility
          */
-        if (Event::fire('mailer.prepareSend', [$view, $data, $callback], true) === false) return;
-        if ($this->fireEvent('mailer.prepareSend', [$view, $data, $callback], true) === false) return;
+        if (Event::fire('mailer.beforeSend', [$view, $data, $callback], true) === false) return;
+        if ($this->fireEvent('mailer.beforeSend', [$view, $data, $callback], true) === false) return;
 
         /*
          * Inherit logic from Illuminate\Mail\Mailer
@@ -45,8 +45,8 @@ class Mailer extends MailerBase
          * $message - Illuminate\Mail\Message object,
          *            check Swift_Mime_SimpleMessage for useful functions.
          */
-        if (Event::fire('mailer.beforeSend', [$this, $view, $message], true) === false) return;
-        if ($this->fireEvent('mailer.beforeSend', [$view, $message], true) === false) return;
+        if (Event::fire('mailer.prepareSend', [$this, $view, $message], true) === false) return;
+        if ($this->fireEvent('mailer.prepareSend', [$view, $message], true) === false) return;
 
         /*
          * Send the message
