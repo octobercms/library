@@ -12,8 +12,8 @@ class DbThrottle extends Migration
         {
             $table->engine = 'InnoDB';
             $table->increments('id');
-            $table->integer('user_id')->unsigned();
-            $table->string('ip_address')->nullable();
+            $table->integer('user_id')->unsigned()->nullable()->index();
+            $table->string('ip_address')->nullable()->index();
             $table->integer('attempts')->default(0);
             $table->timestamp('last_attempt_at')->nullable();
             $table->boolean('is_suspended')->default(0);
