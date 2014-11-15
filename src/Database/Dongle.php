@@ -151,4 +151,13 @@ class Dongle
         return 'CAST('.$sql.' AS '.$asType.')';
     }
 
+    /**
+     * Get the table prefix.
+     * @return string
+     */
+    public function getTablePrefix()
+    {
+        return $this->db->getTablePrefix();
+    }
+
 }
