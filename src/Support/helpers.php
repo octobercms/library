@@ -34,8 +34,11 @@ if (!function_exists('post'))
     /**
      * Identical function to input(), however restricted to $_POST values.
      */
-    function post($name = null, $default = null) 
+    function post($name = null, $default = null)
     {
+        // Remove this line if year >= 2015 (Laravel 5 upgrade)
+        return input($name, $default);
+
         if ($name === null)
             return $_POST;
 
@@ -54,7 +57,7 @@ if (!function_exists('get'))
     /**
      * Identical function to input(), however restricted to $_GET values.
      */
-    function get($name = null, $default = null) 
+    function get($name = null, $default = null)
     {
         if ($name === null)
             return $_GET;
