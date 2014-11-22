@@ -1,20 +1,14 @@
 <?php
 
-/** @deprecated Thanks to Laravel 4.3 */
-if (!function_exists('post'))
-{
-    function post($name = null, $default = null) { return input($name, $default); }
-}
-
 if (!function_exists('input'))
 {
     /**
      * Returns an input parameter or the default value.
      * Supports HTML Array names.
      * <pre>
-     * $value = post('value', 'not found');
-     * $name = post('contact[name]');
-     * $name = post('contact[location][city]');
+     * $value = input('value', 'not found');
+     * $name = input('contact[name]');
+     * $name = input('contact[location][city]');
      * </pre>
      * Booleans are converted from strings
      * @param string $name
@@ -32,6 +26,45 @@ if (!function_exists('input'))
         $keyParts = October\Rain\Support\Str::evalHtmlArray($name);
         $dottedName = implode('.', $keyParts);
         return Input::get($dottedName, $default);
+    }
+}
+
+if (!function_exists('post'))
+{
+    /**
+     * Identical function to input(), however restricted to $_POST values.
+     */
+    function post($name = null, $default = null) 
+    {
+        if ($name === null)
+            return $_POST;
+
+        /*
+         * Array field name, eg: field[key][key2][key3]
+         */
+        $keyParts = October\Rain\Support\Str::evalHtmlArray($name);
+        $dottedName = implode('.', $keyParts);
+        return array_get($_POST, $dottedName, $default);
+    }
+}
+
+
+if (!function_exists('get'))
+{
+    /**
+     * Identical function to input(), however restricted to $_GET values.
+     */
+    function get($name = null, $default = null) 
+    {
+        if ($name === null)
+            return $_GET;
+
+        /*
+         * Array field name, eg: field[key][key2][key3]
+         */
+        $keyParts = October\Rain\Support\Str::evalHtmlArray($name);
+        $dottedName = implode('.', $keyParts);
+        return array_get($_GET, $dottedName, $default);
     }
 }
 
