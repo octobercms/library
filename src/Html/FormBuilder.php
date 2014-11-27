@@ -96,11 +96,12 @@ class FormBuilder extends FormBuilderBase
     }
 
     /**
-     * Helper for getting form values.
+     * Helper for getting form values. Tries to find the "old" value (Laravel),
+     * then looks at the form model values, then uses a postback value.
      */
     public function value($name, $value = null)
     {
-        return $this->getValueAttribute($name, $value);
+        return $this->getValueAttribute($name) ?: post($name, $value);
     }
 
     /**
