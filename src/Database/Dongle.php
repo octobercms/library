@@ -16,7 +16,7 @@ class Dongle
     protected $db;
 
     /**
-     * @var string Driver to convert to: mysql, sqlite, pgsql, sqlsrv.
+     * @var string Driver to convert to: mysql, sqlite, pgsql, sqlsrv, postgis.
      */
     protected $driver;
 
@@ -85,12 +85,13 @@ class Dongle
                     return $matches[0];
 
                 case 'pgsql':
+                case 'postgis':
                 case 'sqlite':
                     return str_ireplace(' separator ', ', ', $matches[0]);
             }
         }, $sql);
 
-        if ($this->driver == 'pgsql')
+        if ($this->driver == 'pgsql' || $this->driver == 'postgis')
             $result = str_ireplace('group_concat(', 'string_agg(', $result);
 
         return $result;
@@ -119,6 +120,7 @@ class Dongle
                     return $matches[0];
 
                 case 'pgsql':
+                case 'postgis':
                 case 'sqlite':
                     return implode(' || ', $concatFields);
             }
@@ -132,7 +134,7 @@ class Dongle
      */
     public function parseIfNull($sql)
     {
-        if ($this->driver != 'pgsql')
+        if ($this->driver != 'pgsql' && $this->driver != 'postgis')
             return $sql;
 
         return str_ireplace('ifnull(', 'coalesce(', $sql);
@@ -145,7 +147,7 @@ class Dongle
      */
     public function cast($sql, $asType = 'INTEGER')
     {
-        if ($this->driver != 'pgsql')
+        if ($this->driver != 'pgsql' && $this->driver != 'postgis')
             return $sql;
 
         return 'CAST('.$sql.' AS '.$asType.')';
