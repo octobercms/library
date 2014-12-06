@@ -16,16 +16,16 @@ defaultRedirect: {{lower_author}}/{{lower_plugin}}/{{lower_name}}
 
 # Create page
 create:
-    title: Create {{name}}
+    title: Create {{singular_name}}
     redirect: {{lower_author}}/{{lower_plugin}}/{{lower_name}}/update/:id
     redirectClose: {{lower_author}}/{{lower_plugin}}/{{lower_name}}
 
 # Update page
 update:
-    title: Edit {{name}}
+    title: Edit {{singular_name}}
     redirect: {{lower_author}}/{{lower_plugin}}/{{lower_name}}
     redirectClose: {{lower_author}}/{{lower_plugin}}/{{lower_name}}
 
 # Preview page
 preview:
-    title: Preview {{name}}
+    title: Preview {{singular_name}}
