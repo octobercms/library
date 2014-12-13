@@ -80,7 +80,7 @@ class Helper
             if (!isset($object->{$column}) || is_array($object->{$column}))
                 continue;
 
-            $string = str_replace(':'.$column, (string)$object->{$column}, $string);
+            $string = str_replace(':'.$column, urlencode((string) $object->{$column}), $string);
         }
 
         return $string;
