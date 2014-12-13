@@ -428,7 +428,7 @@ class Model extends EloquentModel
     public function isRelationPushable($name)
     {
         $definition = $this->getRelationDefinition($name);
-        if (!array_key_exists('push', $definition))
+        if (!is_null($definition) && !array_key_exists('push', $definition))
             return true;
 
         return (bool) $definition['push'];
