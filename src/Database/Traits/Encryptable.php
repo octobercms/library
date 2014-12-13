@@ -35,7 +35,7 @@ trait Encryptable {
                     return $model->makeEncryptableValue($key, $value);
             });
             $model->bindEvent('model.beforeGetAttribute', function($key) use ($model, $encryptable) {
-                if (in_array($key, $encryptable))
+                if (in_array($key, $encryptable) && $model->attributes[$key] != null)
                     return $model->getEncryptableValue($key);
             });
         });
