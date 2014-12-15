@@ -13,7 +13,7 @@ use October\Rain\Database\Relations\MorphToMany;
 use October\Rain\Database\Relations\MorphOne;
 use October\Rain\Database\Relations\AttachMany;
 use October\Rain\Database\Relations\AttachOne;
-use October\Rain\Database\Relations\hasManyThrough;
+use October\Rain\Database\Relations\HasManyThrough;
 use October\Rain\Database\ModelException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use InvalidArgumentException;
