@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database;
 
+use Config;
 use DB;
 use Str;
 use Closure;
@@ -176,7 +177,12 @@ class DataFeed
             extract($data);
             $cleanQuery = clone $this->getQuery($item);
             $model = $this->getModel($item);
-            $class = str_replace('\\', '\\\\', get_class($model));
+            if (Config::get('database.default') == 'sqlite') {
+                $class = get_class($model);
+            }
+            else {
+                $class = str_replace('\\', '\\\\', get_class($model));
+            }
 
             $sorting = $model->getTable() . '.';
             $sorting .= $orderBy ?: $this->sortField;
