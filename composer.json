@@ -17,6 +17,7 @@
     "require": {
         "php": ">=5.4",
         "doctrine/dbal": "~2.3",
+        "guzzlehttp/guzzle": "~4.0",
         "erusev/parsedown-extra": "~0.1",
         "illuminate/database": "4.2.*",
         "illuminate/filesystem": "4.2.*",
