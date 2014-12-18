@@ -19,22 +19,25 @@
         "doctrine/dbal": "~2.3",
         "guzzlehttp/guzzle": "~4.0",
         "erusev/parsedown-extra": "~0.1",
+        "indatus/dispatcher": "1.*",
+        "kriswallsmith/assetic": "~1.1",
+        "linkorb/jsmin-php": "~1.0",
+        "oyejorge/less.php": "~1.7",
+        "symfony/yaml": "2.5.*",
+        "twig/twig": "~1.13"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.0",
         "illuminate/database": "4.2.*",
         "illuminate/filesystem": "4.2.*",
         "illuminate/html": "4.2.*",
         "illuminate/queue": "4.2.*",
         "illuminate/support": "4.2.*",
-        "indatus/dispatcher": "1.*",
-        "kriswallsmith/assetic": "~1.1",
-        "linkorb/jsmin-php": "~1.0",
-        "oyejorge/less.php": "~1.7",
+        "illuminate/mail": "4.2.*",
+        "illuminate/view": "4.2.*",
+        "swiftmailer/swiftmailer": "~5.1",
         "symfony/config": "2.5.*",
-        "symfony/translation": "2.5.*",
-        "symfony/yaml": "2.5.*",
-        "twig/twig": "~1.13"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "~4.0"
+        "symfony/translation": "2.5.*"
     },
     "replace": {
         "october/auth": "self.version",
