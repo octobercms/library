@@ -85,7 +85,7 @@ class Mailer extends MailerBase
      * @param  boolean $queue
      * @return void
      */
-    public function sendTo($recipients, $view, array $data, $callback = null, $queue = false)
+    public function sendTo($recipients, $view, array $data = [], $callback = null, $queue = false)
     {
         if (is_bool($callback))
             $queue = $callback;
