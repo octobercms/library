@@ -264,7 +264,7 @@ class File extends Model
      */
     public function isImage()
     {
-        return in_array($this->getExtension(), static::$imageExtensions);
+        return in_array(strtolower($this->getExtension()), static::$imageExtensions);
     }
 
     /**

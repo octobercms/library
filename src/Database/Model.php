@@ -13,7 +13,7 @@ use October\Rain\Database\Relations\MorphToMany;
 use October\Rain\Database\Relations\MorphOne;
 use October\Rain\Database\Relations\AttachMany;
 use October\Rain\Database\Relations\AttachOne;
-use October\Rain\Database\Relations\hasManyThrough;
+use October\Rain\Database\Relations\HasManyThrough;
 use October\Rain\Database\ModelException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use InvalidArgumentException;
@@ -428,7 +428,7 @@ class Model extends EloquentModel
     public function isRelationPushable($name)
     {
         $definition = $this->getRelationDefinition($name);
-        if (!array_key_exists('push', $definition))
+        if (!is_null($definition) && !array_key_exists('push', $definition))
             return true;
 
         return (bool) $definition['push'];
@@ -855,6 +855,7 @@ class Model extends EloquentModel
     {
         $relationType = $this->getRelationType($relationName);
         $relationObj = $this->$relationName();
+        $relationModel = $relationObj->getRelated();
 
         switch ($relationType) {
 
@@ -873,6 +874,13 @@ class Model extends EloquentModel
                 $this->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
                     $relationObj->sync($value);
                 });
+
+                $relationCollection = $value instanceof Collection
+                    ? $value
+                    : $relationModel->whereIn($relationModel->getKeyName(), $value)->get();
+
+                // Associate
+                $this->setRelation($relationName, $relationCollection);
                 break;
 
             case 'belongsTo':
@@ -925,7 +933,7 @@ class Model extends EloquentModel
                 if ($value instanceof EloquentModel)
                     $instance = $value;
                 else
-                    $instance = $relationObj->getRelated()->find($value);
+                    $instance = $relationModel->find($value);
 
                 if ($instance) {
                     $this->setRelation($relationName, $instance);

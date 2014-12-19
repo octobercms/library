@@ -79,7 +79,7 @@ class User extends Model implements UserInterface
     /**
      * @var string The login attribute.
      */
-    protected static $loginAttribute = 'email';
+    public static $loginAttribute = 'email';
 
     /**
      * @var array The user groups.
