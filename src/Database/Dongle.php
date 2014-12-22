@@ -92,7 +92,7 @@ class Dongle
         }, $sql);
 
         if ($this->driver == 'pgsql' || $this->driver == 'postgis')
-            $result = str_ireplace('group_concat(', 'string_agg(', $result);
+            $result = str_ireplace('group_concat(', 'string_agg(', preg_replace("/\\(([]a-zA-Z\\-\\_]+)\\,/i", "(CAST($1 AS VARCHAR),", $result));
 
         return $result;
     }
