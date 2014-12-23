@@ -4,6 +4,7 @@ use File as FileHelper;
 use October\Rain\Database\Model;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\File\File as FileObj;
+use October\Rain\Database\Attach\FileException;
 
 /**
  * File attachment model
@@ -272,6 +273,9 @@ class File extends Model
      */
     public function getThumb($width, $height, $options = [])
     {
+        if (!$this->hasFile($this->getDiskPath()))
+            throw new FileException;
+
         if (!$this->isImage())
             return $this->getPath();
 
