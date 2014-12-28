@@ -834,6 +834,29 @@ class Model extends EloquentModel
         $value = null;
 
         switch ($relationType) {
+            case 'attachOne':
+                $file = $this->sessionKey
+                    ? $relationObj->withDeferred($this->sessionKey)->first()
+                    : $this->$relationName;
+
+                if ($file) {
+                    $value = $file->getPath();
+                }
+                break;
+
+            case 'attachMany':
+                $files = $this->sessionKey
+                    ? $relationObj->withDeferred($this->sessionKey)->get()
+                    : $this->$relationName;
+
+                if ($files) {
+                    $value = [];
+                    $files->each(function($file) use (&$value){
+                        $value[] = $file->getPath();
+                    });
+                }
+                break;
+
             case 'belongsTo':
                 $value = $this->getAttribute($relationObj->getForeignKey());
                 break;
