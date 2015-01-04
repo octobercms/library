@@ -91,8 +91,10 @@ class Dongle
             }
         }, $sql);
 
-        if ($this->driver == 'pgsql' || $this->driver == 'postgis')
-            $result = str_ireplace('group_concat(', 'string_agg(', preg_replace("/\\(([]a-zA-Z\\-\\_]+)\\,/i", "(CAST($1 AS VARCHAR),", $result));
+        if ($this->driver == 'pgsql' || $this->driver == 'postgis') {
+            $result = preg_replace("/\\(([]a-zA-Z\\-\\_]+)\\,/i", "(CAST($1 AS VARCHAR),", $result);
+            $result = str_ireplace('group_concat(', 'string_agg(', $result);
+        }
 
         return $result;
     }
@@ -105,12 +107,14 @@ class Dongle
     public function parseConcat($sql)
     {
         return preg_replace_callback('/(?:group_)?concat\(([^)]+)\)/i', function($matches){
-            if (!isset($matches[1]))
+            if (!isset($matches[1])) {
                 return $matches[0];
+            }
 
             // This is a group_concat() so ignore it
-            if (strpos($matches[0], 'group_') === 0)
+            if (strpos($matches[0], 'group_') === 0) {
                 return $matches[0];
+            }
 
             $concatFields = array_map('trim', explode(',', $matches[1]));
 
@@ -134,8 +138,9 @@ class Dongle
      */
     public function parseIfNull($sql)
     {
-        if ($this->driver != 'pgsql' && $this->driver != 'postgis')
+        if ($this->driver != 'pgsql' && $this->driver != 'postgis') {
             return $sql;
+        }
 
         return str_ireplace('ifnull(', 'coalesce(', $sql);
     }
@@ -147,8 +152,9 @@ class Dongle
      */
     public function cast($sql, $asType = 'INTEGER')
     {
-        if ($this->driver != 'pgsql' && $this->driver != 'postgis')
+        if ($this->driver != 'pgsql' && $this->driver != 'postgis') {
             return $sql;
+        }
 
         return 'CAST('.$sql.' AS '.$asType.')';
     }
