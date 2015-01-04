@@ -160,6 +160,15 @@ class Dongle
     }
 
     /**
+     * Returns the driver name as a string, eg: pgsql
+     * @return string
+     */
+    public function getDriver()
+    {
+        return $this->driver;
+    }
+
+    /**
      * Get the table prefix.
      * @return string
      */

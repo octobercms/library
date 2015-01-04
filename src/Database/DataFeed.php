@@ -1,9 +1,9 @@
 <?php namespace October\Rain\Database;
 
-use Config;
 use DB;
 use Str;
 use Closure;
+use DbDongle;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
@@ -177,7 +177,8 @@ class DataFeed
             extract($data);
             $cleanQuery = clone $this->getQuery($item);
             $model = $this->getModel($item);
-            if (Config::get('database.default') == 'sqlite') {
+
+            if (DbDongle::getDriver() == 'sqlite') {
                 $class = get_class($model);
             }
             else {
