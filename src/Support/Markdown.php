@@ -1,23 +1,22 @@
 <?php namespace October\Rain\Support;
 
-use ParsedownExtra;
+use October\Rain\Support\Facade;
 
 /**
- * Markdown content parser
+ * Markdown parser Facade
  *
  * @package october\support
- * @author Alexey Bobkov, Samuel Georges
+ * @author Frank Wikström
  */
-class Markdown
+class Markdown extends Facade
 {
     /**
-     * Parse text using Markdown and Markdown-Extra
-     * @param  string $text Mardown text to parse
-     * @return string       Resulting HTML
+     * Get the registered name of the component.
+     *
+     * Resolves to:
+     * - October\Rain\Support\Markdown
+     *
+     * @return string
      */
-    public static function parse($text)
-    {
-        $instance = new ParsedownExtra;
-        return $instance->text($text);
-    }
+    protected static function getFacadeAccessor() { return 'markdown'; }
 }
