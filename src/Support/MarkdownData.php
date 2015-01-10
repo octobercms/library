@@ -3,7 +3,7 @@
 /**
  * Helper class for passing partially parsed Markdown input
  * to and from the markdown.beforeParse and markdown.parse
- * even handlers
+ * event handlers
  *
  * @package october\support
  * @author Alexey Bobkov, Samuel Georges
@@ -14,5 +14,5 @@ class MarkdownData
         $this->text = $text;
     }
 
-    var $text;
+    public $text;
 }
