@@ -454,18 +454,30 @@ class Model extends EloquentModel
         switch ($relationType) {
             case 'hasOne':
             case 'hasMany':
-                $relation = $this->validateRelationArgs($relationName, ['primaryKey', 'localKey']);
-                $relationObj = $this->$relationType($relation[0], $relation['primaryKey'], $relation['localKey'], $relationName);
+                // @deprecated Remove if year >= 2016
+                $relation['key'] = array_get($relation, 'primaryKey', array_get($relation, 'key'));
+                $relation['otherKey'] = array_get($relation, 'localKey', array_get($relation, 'otherKey'));
+
+                $relation = $this->validateRelationArgs($relationName, ['key', 'otherKey']);
+                $relationObj = $this->$relationType($relation[0], $relation['key'], $relation['otherKey'], $relationName);
                 break;
 
             case 'belongsTo':
-                $relation = $this->validateRelationArgs($relationName, ['foreignKey', 'parentKey']);
-                $relationObj = $this->$relationType($relation[0], $relation['foreignKey'], $relation['parentKey'], $relationName);
+                // @deprecated Remove if year >= 2016
+                $relation['key'] = array_get($relation, 'foreignKey', array_get($relation, 'key'));
+                $relation['otherKey'] = array_get($relation, 'parentKey', array_get($relation, 'otherKey'));
+
+                $relation = $this->validateRelationArgs($relationName, ['key', 'otherKey']);
+                $relationObj = $this->$relationType($relation[0], $relation['key'], $relation['otherKey'], $relationName);
                 break;
 
             case 'belongsToMany':
-                $relation = $this->validateRelationArgs($relationName, ['table', 'primaryKey', 'foreignKey', 'pivot', 'timestamps']);
-                $relationObj = $this->$relationType($relation[0], $relation['table'], $relation['primaryKey'], $relation['foreignKey'], $relationName);
+                // @deprecated Remove if year >= 2016
+                $relation['key'] = array_get($relation, 'primaryKey', array_get($relation, 'key'));
+                $relation['otherKey'] = array_get($relation, 'foreignKey', array_get($relation, 'otherKey'));
+
+                $relation = $this->validateRelationArgs($relationName, ['table', 'key', 'otherKey', 'pivot', 'timestamps']);
+                $relationObj = $this->$relationType($relation[0], $relation['table'], $relation['key'], $relation['otherKey'], $relationName);
                 break;
 
             case 'morphTo':
@@ -475,29 +487,46 @@ class Model extends EloquentModel
 
             case 'morphOne':
             case 'morphMany':
-                $relation = $this->validateRelationArgs($relationName, ['type', 'id', 'localKey'], ['name']);
-                $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['type'], $relation['id'], $relation['localKey'], $relationName);
+                // @deprecated Remove if year >= 2016
+                $relation['key'] = array_get($relation, 'localKey', array_get($relation, 'key'));
+
+                $relation = $this->validateRelationArgs($relationName, ['type', 'id', 'key'], ['name']);
+                $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['type'], $relation['id'], $relation['key'], $relationName);
                 break;
 
             case 'morphToMany':
-                $relation = $this->validateRelationArgs($relationName, ['table', 'primaryKey', 'foreignKey', 'pivot', 'timestamps'], ['name']);
-                $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['table'], $relation['primaryKey'], $relation['foreignKey'], false, $relationName);
+                // @deprecated Remove if year >= 2016
+                $relation['key'] = array_get($relation, 'primaryKey', array_get($relation, 'key'));
+                $relation['otherKey'] = array_get($relation, 'foreignKey', array_get($relation, 'otherKey'));
+
+                $relation = $this->validateRelationArgs($relationName, ['table', 'key', 'otherKey', 'pivot', 'timestamps'], ['name']);
+                $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['table'], $relation['key'], $relation['otherKey'], false, $relationName);
                 break;
 
             case 'morphedByMany':
-                $relation = $this->validateRelationArgs($relationName, ['table', 'primaryKey', 'foreignKey', 'pivot', 'timestamps'], ['name']);
-                $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['table'], $relation['primaryKey'], $relation['foreignKey'], $relationName);
+                // @deprecated Remove if year >= 2016
+                $relation['key'] = array_get($relation, 'primaryKey', array_get($relation, 'key'));
+                $relation['otherKey'] = array_get($relation, 'foreignKey', array_get($relation, 'otherKey'));
+
+                $relation = $this->validateRelationArgs($relationName, ['table', 'key', 'otherKey', 'pivot', 'timestamps'], ['name']);
+                $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['table'], $relation['key'], $relation['otherKey'], $relationName);
                 break;
 
             case 'attachOne':
             case 'attachMany':
-                $relation = $this->validateRelationArgs($relationName, ['public', 'localKey']);
-                $relationObj = $this->$relationType($relation[0], $relation['public'], $relation['localKey'], $relationName);
+                // @deprecated Remove if year >= 2016
+                $relation['key'] = array_get($relation, 'localKey', array_get($relation, 'key'));
+
+                $relation = $this->validateRelationArgs($relationName, ['public', 'key']);
+                $relationObj = $this->$relationType($relation[0], $relation['public'], $relation['key'], $relationName);
                 break;
 
             case 'hasManyThrough':
-                $relation = $this->validateRelationArgs($relationName, ['primaryKey', 'throughKey'], ['through']);
-                $relationObj = $this->$relationType($relation[0], $relation['through'], $relation['primaryKey'], $relation['throughKey']);
+                // @deprecated Remove if year >= 2016
+                $relation['key'] = array_get($relation, 'primaryKey', array_get($relation, 'key'));
+
+                $relation = $this->validateRelationArgs($relationName, ['key', 'throughKey'], ['through']);
+                $relationObj = $this->$relationType($relation[0], $relation['through'], $relation['key'], $relation['throughKey']);
                 break;
 
             default:
