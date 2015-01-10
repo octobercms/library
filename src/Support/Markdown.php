@@ -1,15 +1,10 @@
 <?php namespace October\Rain\Support;
 
+
 use Event;
 use ParsedownExtra;
 
-/**
- * Markdown content parser
- *
- * @package october\support
- * @author Alexey Bobkov, Samuel Georges
- */
-class Markdown
+class Markdown extends Facade
 {
 
     use \October\Rain\Support\Traits\Emitter;
@@ -47,3 +42,4 @@ class Markdown
         return $data->text;
     }
 }
+
