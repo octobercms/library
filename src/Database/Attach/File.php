@@ -275,7 +275,7 @@ class File extends Model
     {
         // @todo See: https://github.com/octobercms/october/issues/181
         if (!$this->hasFile($this->getDiskPath()))
-            throw new FileException;
+            return '';
 
         if (!$this->isImage())
             return $this->getPath();
