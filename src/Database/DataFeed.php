@@ -3,6 +3,7 @@
 use DB;
 use Str;
 use Closure;
+use DbDongle;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
@@ -176,7 +177,13 @@ class DataFeed
             extract($data);
             $cleanQuery = clone $this->getQuery($item);
             $model = $this->getModel($item);
-            $class = str_replace('\\', '\\\\', get_class($model));
+
+            if (DbDongle::getDriver() == 'sqlite') {
+                $class = get_class($model);
+            }
+            else {
+                $class = str_replace('\\', '\\\\', get_class($model));
+            }
 
             $sorting = $model->getTable() . '.';
             $sorting .= $orderBy ?: $this->sortField;
