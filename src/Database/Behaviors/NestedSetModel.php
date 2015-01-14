@@ -55,13 +55,13 @@ class NestedSetModel extends ModelBehavior
          */
         $model->hasMany['children'] = [
             get_class($model),
-            'primaryKey' => $this->getParentColumnName(),
+            'key' => $this->getParentColumnName(),
             'order' => $this->getLeftColumnName()
         ];
 
         $model->belongsTo['parent'] = [
             get_class($model),
-            'foreignKey' => $this->getParentColumnName()
+            'key' => $this->getParentColumnName()
         ];
 
         /*
