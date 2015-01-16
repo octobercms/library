@@ -68,6 +68,10 @@ class Manager
         if ($activate)
             $user->attemptActivation($user->getActivationCode());
 
+        // Prevents revalidation of the password field
+        // on subsequent saves to this model object
+        $user->password = null;
+
         return $this->user = $user;
     }
 
