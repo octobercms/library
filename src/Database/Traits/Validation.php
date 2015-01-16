@@ -136,8 +136,7 @@ trait Validation
              * Compatability with Hashable trait: Remove all hashed values, add the original values.
              */
             if (method_exists($this, 'getHashableAttributes')) {
-                $data = array_diff_key($data, array_flip($this->getHashableAttributes()));
-                $data = array_merge($data, $this->getOriginalHashValues());
+                $data = array_merge($data, array_intersect_key($this->getOriginalHashValues(), $data));
             }
 
             if (property_exists($this, 'customMessages') && is_null($customMessages))

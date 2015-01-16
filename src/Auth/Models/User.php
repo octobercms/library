@@ -285,8 +285,9 @@ class User extends Model implements UserInterface
      */
     public function setPasswordAttribute($value)
     {
-        if ($this->exists && empty($value))
+        if ($this->exists && empty($value)) {
             unset($this->attributes['password']);
+        }
         else {
             $this->attributes['password'] = $value;
 
