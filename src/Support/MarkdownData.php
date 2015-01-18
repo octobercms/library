@@ -10,9 +10,13 @@
  */
 class MarkdownData
 {
-    public function __construct($text) {
+    /**
+     * @var string
+     */
+    public $text;
+
+    public function __construct($text)
+    {
         $this->text = $text;
     }
-
-    public $text;
 }

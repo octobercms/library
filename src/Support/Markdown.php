@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Support;
 
-
 use Event;
 use ParsedownExtra;
 
@@ -30,7 +29,6 @@ use ParsedownExtra;
  **/
 class Markdown
 {
-
     use \October\Rain\Support\Traits\Emitter;
     use \October\Rain\Support\Traits\Singleton;
 
