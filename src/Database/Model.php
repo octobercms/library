@@ -1153,8 +1153,7 @@ class Model extends EloquentModel
 
         // Handle jsonable
         if (in_array($key, $this->jsonable) && !empty($attr)) {
-            if ($value = json_decode($attr, true))
-                $attr = $value;
+            $attr = json_decode($attr, true);
         }
 
         return $attr;
