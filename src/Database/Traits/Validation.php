@@ -133,10 +133,14 @@ trait Validation
             }
 
             /*
-             * Compatability with Hashable trait: Remove all hashed values, add the original values.
+             * Compatability with Hashable trait:
+             * Remove all hashable values regardless, add the original values back 
+             * only if they are part of the data being validated.
              */
             if (method_exists($this, 'getHashableAttributes')) {
-                $data = array_merge($data, array_intersect_key($this->getOriginalHashValues(), $data));
+                $cleanAttributes = array_diff_key($data, array_flip($this->getHashableAttributes()));
+                $hashedAttributes = array_intersect_key($this->getOriginalHashValues(), $data);
+                $data = array_merge($cleanAttributes, $hashedAttributes);
             }
 
             if (property_exists($this, 'customMessages') && is_null($customMessages))
