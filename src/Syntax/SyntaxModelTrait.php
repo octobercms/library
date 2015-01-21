@@ -82,7 +82,7 @@ trait SyntaxModelTrait
          * Remove fields no longer present and add default values
          */
         $currentFields = array_intersect_key((array) $this->getSyntaxData(), $parser->getFieldValues());
-        $currentFields = array_merge($currentFields, $parser->getFieldValues());
+        $currentFields = array_merge($parser->getFieldValues(), $currentFields);
         $this->setAttribute($this->getSyntaxDataColumnName(), $currentFields);
 
         return $fields;
