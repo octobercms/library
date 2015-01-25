@@ -3,6 +3,7 @@
 use October\Rain\Support\Facades\DbDongle;
 use Illuminate\Support\Facades\Db;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany as BelongsToManyBase;
 
 trait DeferOneOrMany
 {
@@ -15,12 +16,23 @@ trait DeferOneOrMany
         $newQuery = $modelQuery->getQuery()->newQuery();
 
         $newQuery->from($this->related->getTable());
+
+        // A left join so the ON constraint is not strict
+        if ($this instanceof BelongsToManyBase) {
+            $this->setLeftJoin($newQuery);
+        }
+
         $newQuery->where(function($query) use ($sessionKey) {
 
             // Trick the relation to add constraints to this nested query
             if ($this->parent->exists) {
                 $this->query = $query;
-                $this->addConstraints();
+                if ($this instanceof BelongsToManyBase) {
+                    $this->setWhere();
+                }
+                else {
+                    $this->addConstraints();
+                }
             }
 
             // Bind (Add)

@@ -56,4 +56,23 @@ class BelongsToMany extends BelongsToManyBase
         }
     }
 
+    /**
+     * Set the left join clause for the relation query, used by DeferOneOrMany.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder|null
+     * @return $this
+     */
+    protected function setLeftJoin($query = null)
+    {
+        $query = $query ?: $this->query;
+
+        $baseTable = $this->related->getTable();
+
+        $key = $baseTable.'.'.$this->related->getKeyName();
+
+        $query->leftJoin($this->table, $key, '=', $this->getOtherKey());
+
+        return $this;
+    }
+
 }
