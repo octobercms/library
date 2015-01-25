@@ -9,6 +9,28 @@ class BelongsToMany extends BelongsToManyBase
     use DeferOneOrMany;
 
     /**
+     * Save the supplied related model with deferred binding support.
+     */
+    public function save(Model $model, array $pivotData = [], $sessionKey = null)
+    {
+        $model->save();
+        $this->add($model, $sessionKey, $pivotData);
+        return $model;
+    }
+
+    /**
+     * Create a new instance of this related model with deferred binding support.
+     */
+    public function create(array $attributes, array $pivotData = [], $sessionKey = null)
+    {
+        $model = $this->related->create($attributes);
+
+        $this->add($model, $sessionKey, $pivotData);
+
+        return $model;
+    }
+
+    /**
      * Adds a model to this relationship type.
      */
     public function add(Model $model, $sessionKey = null, $pivotData = [])
