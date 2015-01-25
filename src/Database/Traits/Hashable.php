@@ -38,6 +38,17 @@ trait Hashable
     }
 
     /**
+     * Adds an attribute to the hashable attributes list
+     * @param string $attribute Attribute
+     * @return this
+     */
+    public function addHashableAttribute($attribute)
+    {
+        $this->hashable[] = $attribute;
+        return $this;
+    }
+
+    /**
      * Hashes an attribute value and saves it in the original locker.
      * @param  string $key   Attribute
      * @param  string $value Value to hash
