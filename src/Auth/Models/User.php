@@ -60,6 +60,16 @@ class User extends Model implements UserInterface
     protected $purgeable = ['password_confirmation'];
 
     /**
+     * @var array The array of custom attribute names.
+     */
+    public $attributeNames = [];
+
+    /**
+     * @var array The array of custom error messages.
+     */
+    public $customMessages = [];
+
+    /**
      * @var array List of attribute names which are json encoded and decoded from the database.
      */
     protected $jsonable = ['permissions'];
