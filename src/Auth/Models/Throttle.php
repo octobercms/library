@@ -69,7 +69,7 @@ class Throttle extends Model
     public function addLoginAttempt()
     {
         $this->attempts++;
-        $this->last_attempt_at = $this->freshTimeStamp();
+        $this->last_attempt_at = $this->freshTimestamp();
 
         if ($this->getLoginAttempts() >= static::$attemptLimit)
             $this->suspend();
@@ -107,7 +107,7 @@ class Throttle extends Model
     {
         if (!$this->is_suspended) {
             $this->is_suspended = true;
-            $this->suspended_at = $this->freshTimeStamp();
+            $this->suspended_at = $this->freshTimestamp();
             $this->save();
         }
     }
@@ -149,7 +149,7 @@ class Throttle extends Model
     {
         if (!$this->is_banned) {
             $this->is_banned = true;
-            $this->banned_at = $this->freshTimeStamp();
+            $this->banned_at = $this->freshTimestamp();
             $this->save();
         }
     }

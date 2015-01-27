@@ -35,6 +35,8 @@ class FieldParser
     protected $registeredTags = [
         'text',
         'textarea',
+        'richeditor',
+        'markdown',
         'fileupload'
     ];
 

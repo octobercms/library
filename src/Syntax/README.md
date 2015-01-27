@@ -54,6 +54,22 @@ Renders a multiple line editor field for larger blocks of text. The view value i
 
     {textarea name="websiteDescription" label="Website Description"}This is our vision for things to come{/textarea}
 
+### Rich editor
+
+    {richeditor name="content" label="Main content"}Default text{/checkbox}
+
+Renders in Twig as
+
+    {{ content|raw }}
+
+### Markdown
+
+    {markdown name="content" label="Markdown content"}Default text{/markdown}
+
+Renders in Twig as
+
+    {{ content|md }}
+
 ### Checkbox
 
     {checkbox name="showHeader" label="Show heading" default="true"}

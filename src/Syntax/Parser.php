@@ -123,6 +123,12 @@ class Parser
             case 'textarea':
                 $result = '{{ ' . $field . ' }}';
                 break;
+            case 'markdown':
+                $result = '{{ ' . $field . '|md }}';
+                break;
+            case 'richeditor':
+                $result = '{{ ' . $field . '|raw }}';
+                break;
         }
 
         return $result;
@@ -140,8 +146,6 @@ class Parser
 
         switch ($type) {
             default:
-            case 'text':
-            case 'textarea':
                 $result = static::CHAR_OPEN . $field . static::CHAR_CLOSE;
                 break;
         }
