@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Support;
+<?php namespace October\Rain\Parse;
 
 use Event;
 use ParsedownExtra;
@@ -30,19 +30,13 @@ use ParsedownExtra;
 class Markdown
 {
     use \October\Rain\Support\Traits\Emitter;
-    use \October\Rain\Support\Traits\Singleton;
-
-    public static function parse($text)
-    {
-        return self::instance()->parseText($text);
-    }
 
     /**
      * Parse text using Markdown and Markdown-Extra
      * @param  string $text Markdown text to parse
      * @return string       Resulting HTML
      */
-    public function parseText($text)
+    public function parse($text)
     {
         $data = new MarkdownData($text);
 

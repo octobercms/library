@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Support\Scaffold;
+<?php namespace October\Rain\Scaffold;
 
 use Exception;
 use October\Rain\Support\Str;

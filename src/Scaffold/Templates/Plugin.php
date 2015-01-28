@@ -1,6 +1,6 @@
-<?php namespace October\Rain\Support\Scaffold\Templates;
+<?php namespace October\Rain\Scaffold\Templates;
 
-use October\Rain\Support\Scaffold\TemplateBase;
+use October\Rain\Scaffold\TemplateBase;
 
 class Plugin extends TemplateBase
 {

@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Support;
+<?php namespace October\Rain\Flash;
 
 use App;
 use Illuminate\Support\MessageBag;

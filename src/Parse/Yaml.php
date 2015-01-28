@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Support;
+<?php namespace October\Rain\Parse;
 
 use Symfony\Component\Yaml\Parser;
 
@@ -15,20 +15,20 @@ class Yaml
      * @param string $contents YAML contents to parse.
      * @return array The YAML contents as an array.
      */
-    public static function parse($contents)
+    public function parse($contents)
     {
         $yaml = new Parser();
         return $yaml->parse($contents);
     }
-    
+
     /**
      * Parses YAML file contents in to a PHP array.
      * @param $fileName File to read contents and parse.
      * @return array The YAML contents as an array.
      */
-    public static function parseFile($fileName)
+    public function parseFile($fileName)
     {
         $contents = file_get_contents($fileName);
-        return self::parse($contents);
+        return $this->parse($contents);
     }
 }

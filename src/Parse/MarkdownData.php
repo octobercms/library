@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Support;
+<?php namespace October\Rain\Parse;
 
 /**
  * Helper class for passing partially parsed Markdown input

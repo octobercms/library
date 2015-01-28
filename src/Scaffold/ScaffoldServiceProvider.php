@@ -1,10 +1,10 @@
-<?php namespace October\Rain\Support\Scaffold;
+<?php namespace October\Rain\Scaffold;
 
 use Illuminate\Support\ServiceProvider;
-use October\Rain\Support\Scaffold\Console\CreatePlugin;
-use October\Rain\Support\Scaffold\Console\CreateModel;
-use October\Rain\Support\Scaffold\Console\CreateController;
-use October\Rain\Support\Scaffold\Console\CreateComponent;
+use October\Rain\Scaffold\Console\CreatePlugin;
+use October\Rain\Scaffold\Console\CreateModel;
+use October\Rain\Scaffold\Console\CreateController;
+use October\Rain\Scaffold\Console\CreateComponent;
 
 class ScaffoldServiceProvider extends ServiceProvider
 {

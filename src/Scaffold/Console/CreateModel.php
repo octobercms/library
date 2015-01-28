@@ -1,22 +1,22 @@
-<?php namespace October\Rain\Support\Scaffold\Console;
+<?php namespace October\Rain\Scaffold\Console;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use October\Rain\Support\Scaffold\Templates\Plugin;
+use October\Rain\Scaffold\Templates\Model;
 
-class CreatePlugin extends Command
+class CreateModel extends Command
 {
 
     /**
      * The console command name.
      */
-    protected $name = 'create:plugin';
+    protected $name = 'create:model';
 
     /**
      * The console command description.
      */
-    protected $description = 'Creates a new plugin.';
+    protected $description = 'Creates a new model.';
 
     /**
      * Create a new command instance.
@@ -36,26 +36,20 @@ class CreatePlugin extends Command
          */
         $pluginCode = $this->argument('pluginCode');
         $parts = explode('.', $pluginCode);
-
-        if (count($parts) != 2) {
-            $this->error('Invalid plugin name, either too many dots or not enough.');
-            $this->error('Example name: AuthorName.PluginName');
-            return;
-        }
-
-
         $pluginName = array_pop($parts);
         $authorName = array_pop($parts);
 
-        $destinationPath = base_path() . '/plugins';
+        $destinationPath = base_path() . '/plugins/' . strtolower($authorName) . '/' . strtolower($pluginName);
+        $modelName = $this->argument('modelName');
         $vars = [
-            'name'   => $pluginName,
+            'name' => $modelName,
             'author' => $authorName,
+            'plugin' => $pluginName
         ];
 
-        Plugin::make($destinationPath, $vars, $this->option('force'));
+        Model::make($destinationPath, $vars, $this->option('force'));
 
-        $this->info(sprintf('Successfully generated Plugin named "%s"', $pluginCode));
+        $this->info(sprintf('Successfully generated Model named "%s"', $modelName));
     }
 
     /**
@@ -64,7 +58,8 @@ class CreatePlugin extends Command
     protected function getArguments()
     {
         return [
-            ['pluginCode', InputArgument::REQUIRED, 'The name of the plugin to create. Eg: RainLab.Blog'],
+            ['pluginCode', InputArgument::REQUIRED, 'The name of the plugin. Eg: RainLab.Blog'],
+            ['modelName', InputArgument::REQUIRED, 'The name of the model. Eg: Post'],
         ];
     }
 

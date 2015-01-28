@@ -1,7 +1,7 @@
 <?php
 
-use October\Rain\Support\Scaffold\Base;
-use October\Rain\Support\Scaffold\Templates\Model;
+use October\Rain\Scaffold\Base;
+use October\Rain\Scaffold\Templates\Model;
 
 class ScaffoldBaseTest extends TestCase
 {

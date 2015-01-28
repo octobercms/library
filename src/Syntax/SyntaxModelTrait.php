@@ -1,5 +1,7 @@
 <?php namespace October\Rain\Syntax;
 
+use Request;
+
 trait SyntaxModelTrait
 {
 
@@ -47,6 +49,36 @@ trait SyntaxModelTrait
     }
 
     /**
+     * Prepare the syntax field data for saving.
+     */
+    public function getFormSyntaxData()
+    {
+        $data = $this->getSyntaxData();
+
+        $fields = $this->getSyntaxFields();
+        if (!is_array($fields))
+            return $data;
+
+        foreach ($fields as $field => $params) {
+            if ($params['type'] == 'fileupload') {
+                if ($this->sessionKey) {
+                    if ($image = $this->$field()->withDeferred($this->sessionKey)->first()) {
+                        $data[$field] = Request::getSchemeAndHttpHost() . $image->getPath();
+                    }
+                    else {
+                        unset($data[$field]);
+                    }
+                }
+                elseif ($this->$field) {
+                    $data[$field] = Request::getSchemeAndHttpHost() . $this->$field->getPath();
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
      * Prepare the syntax fields for use in a Form builder. The array
      * name is added to each field.
      * @return array
@@ -81,7 +113,7 @@ trait SyntaxModelTrait
         /*
          * Remove fields no longer present and add default values
          */
-        $currentFields = array_intersect_key((array) $this->getSyntaxData(), $parser->getFieldValues());
+        $currentFields = array_intersect_key((array) $this->getFormSyntaxData(), $parser->getFieldValues());
         $currentFields = array_merge($parser->getFieldValues(), $currentFields);
         $this->setAttribute($this->getSyntaxDataColumnName(), $currentFields);
 

@@ -1,10 +1,10 @@
-<?php namespace October\Rain\Support\Scaffold\Console;
+<?php namespace October\Rain\Scaffold\Console;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use October\Rain\Support\Str;
-use October\Rain\Support\Scaffold\Templates\Component;
+use October\Rain\Scaffold\Templates\Component;
 
 class CreateComponent extends Command
 {
