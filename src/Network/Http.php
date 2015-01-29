@@ -216,7 +216,7 @@ class Http
      * Execute the HTTP request.
      * @return string response body
      */
-    public function send()
+    public function send($maxRedirect = 3)
     {
         if (!function_exists('curl_init')) {
             echo 'cURL PHP extension required.'.PHP_EOL;
@@ -230,10 +230,12 @@ class Http
         curl_setopt($curl, CURLOPT_URL, $this->url);
         curl_setopt($curl, CURLOPT_HEADER, true);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-
+        if (ini_get('open_basedir') == '') {
+			curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+			curl_setopt($curl, CURLOPT_MAXREDIRS, $maxRedirect);
+		}
         if ($this->requestOptions && is_array($this->requestOptions))
             curl_setopt_array($curl, $this->requestOptions);
 
@@ -304,6 +306,12 @@ class Http
         if ($this->streamFile)
             fclose($stream);
 
+		if(in_array($this->code, array(301, 302))) {
+			$this->url = array_get($this->info, 'url');
+			if( !empty($this->url) && $maxRedirect > 0) {
+				$this->send( --$maxRedirect );
+			}
+		}
         return $this;
     }
 
