@@ -872,26 +872,8 @@ class Model extends EloquentModel
 
         switch ($relationType) {
             case 'attachOne':
-                $file = $this->sessionKey
-                    ? $relationObj->withDeferred($this->sessionKey)->first()
-                    : $this->$relationName;
-
-                if ($file) {
-                    $value = $file->getPath();
-                }
-                break;
-
             case 'attachMany':
-                $files = $this->sessionKey
-                    ? $relationObj->withDeferred($this->sessionKey)->get()
-                    : $this->$relationName;
-
-                if ($files) {
-                    $value = [];
-                    $files->each(function($file) use (&$value){
-                        $value[] = $file->getPath();
-                    });
-                }
+                $value = $relationObj->getSimpleValue();
                 break;
 
             case 'belongsTo':
@@ -966,26 +948,6 @@ class Model extends EloquentModel
                     $this->setAttribute($relationObj->getForeignKey(), $value);
                 break;
 
-            case 'attachMany':
-                if ($value instanceof UploadedFile) {
-                    $this->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
-                        $relationObj->create(['data' => $value]);
-                    });
-                }
-                elseif (is_array($value)) {
-                    $files = [];
-                    foreach ($value as $_value) {
-                        if ($_value instanceof UploadedFile)
-                            $files[] = $_value;
-                    }
-                    $this->bindEventOnce('model.afterSave', function() use ($relationObj, $files){
-                        foreach ($files as $file) {
-                            $relationObj->create(['data' => $file]);
-                        }
-                    });
-                }
-                break;
-
             case 'hasOne':
                 if (!$value || is_array($value))
                     return;
@@ -1007,14 +969,8 @@ class Model extends EloquentModel
                 break;
 
             case 'attachOne':
-                if (is_array($value))
-                    $value = reset($value);
-
-                if ($value instanceof UploadedFile) {
-                    $this->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
-                        $relationObj->create(['data' => $value]);
-                    });
-                }
+            case 'attachMany':
+                $relationObj->setSimpleValue($value);
                 break;
         }
     }
