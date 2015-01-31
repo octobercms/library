@@ -126,6 +126,16 @@ class Http
     public $streamFilter;
 
     /**
+     * @var int The maximum redirects allowed.
+     */
+    public $maxRedirects = 10;
+
+    /**
+     * @var int Internal counter
+     */
+    protected $redirectCount = null;
+
+    /**
      * Make the object with common properties
      * @param string   $url     HTTP request address
      * @param string   $method  Request method (GET, POST, PUT, DELETE, etc)
@@ -216,7 +226,7 @@ class Http
      * Execute the HTTP request.
      * @return string response body
      */
-    public function send($maxRedirect = 3)
+    public function send()
     {
         if (!function_exists('curl_init')) {
             echo 'cURL PHP extension required.'.PHP_EOL;
@@ -232,10 +242,10 @@ class Http
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-        if (ini_get('open_basedir') == '') {
-			curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-			curl_setopt($curl, CURLOPT_MAXREDIRS, $maxRedirect);
-		}
+        if (defined('CURLOPT_FOLLOWLOCATION')) {
+            curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($curl, CURLOPT_MAXREDIRS, $this->maxRedirects);
+        }
         if ($this->requestOptions && is_array($this->requestOptions))
             curl_setopt_array($curl, $this->requestOptions);
 
@@ -303,15 +313,26 @@ class Http
          */
         curl_close($curl);
 
-        if ($this->streamFile)
+        if ($this->streamFile) {
             fclose($stream);
+        }
 
-		if(in_array($this->code, array(301, 302))) {
-			$this->url = array_get($this->info, 'url');
-			if( !empty($this->url) && $maxRedirect > 0) {
-				$this->send( --$maxRedirect );
-			}
-		}
+        /*
+         * Emulate FOLLOW LOCATION behavior
+         */
+        if (!defined('CURLOPT_FOLLOWLOCATION')) {
+            if ($this->redirectCount === null) {
+                $this->redirectCount = $this->maxRedirects;
+            }
+            if (in_array($this->code, [301, 302])) {
+                $this->url = array_get($this->info, 'url');
+                if (!empty($this->url) && $this->redirectCount > 0) {
+                    $this->redirectCount -= 1;
+                    return $this->send();
+                }
+            }
+        }
+
         return $this;
     }
 
