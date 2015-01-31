@@ -149,6 +149,17 @@ trait Validation
                 $data = array_merge($cleanAttributes, $hashedAttributes);
             }
 
+            /*
+             * Compatability with Encryptable trait:
+             * Remove all encryptable values regardless, add the original values back
+             * only if they are part of the data being validated.
+             */
+            if (method_exists($this, 'getEncryptableAttributes')) {
+                $cleanAttributes = array_diff_key($data, array_flip($this->getEncryptableAttributes()));
+                $encryptedAttributes = array_intersect_key($this->getOriginalEncryptableValues(), $data);
+                $data = array_merge($cleanAttributes, $encryptedAttributes);
+            }
+
             if (property_exists($this, 'customMessages') && is_null($customMessages))
                 $customMessages = $this->customMessages;
 
