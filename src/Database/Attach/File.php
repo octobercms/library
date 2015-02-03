@@ -273,10 +273,6 @@ class File extends Model
      */
     public function getThumb($width, $height, $options = [])
     {
-        // @todo See: https://github.com/octobercms/october/issues/181
-        // if (!$this->hasFile($this->getDiskPath()))
-        //     return '';
-
         if (!$this->isImage())
             return $this->getPath();
 
@@ -304,6 +300,14 @@ class File extends Model
 
         if ($this->hasFile($thumbFile))
             return $thumbPublic;
+
+        /*
+         * Handle a broken source image
+         */
+        if (!$this->hasFile($this->disk_name)) {
+            BrokenImage::copyTo($thumbPath);
+            return $thumbPublic;
+        }
 
         /*
          * Generate thumbnail
