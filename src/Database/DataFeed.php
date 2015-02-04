@@ -1,6 +1,6 @@
 <?php namespace October\Rain\Database;
 
-use DB;
+use Db;
 use Str;
 use Closure;
 use DbDongle;
@@ -83,7 +83,7 @@ class DataFeed
     public function count()
     {
         $query = $this->processCollection();
-        $result = DB::table(DB::raw("(".$query->toSql().") as records"))->select(DB::raw("COUNT(*) as total"))->first();
+        $result = Db::table(Db::raw("(".$query->toSql().") as records"))->select(Db::raw("COUNT(*) as total"))->first();
         return $result->total;
     }
 
@@ -99,7 +99,7 @@ class DataFeed
          * @todo Safe?
          */
         $orderBySql = 'ORDER BY ' . $this->sortVar . ' ' . $this->sortDirection;
-        $records = DB::select(DB::raw($query->toSql() . ' ' . $orderBySql), $query->getBindings());
+        $records = Db::select(Db::raw($query->toSql() . ' ' . $orderBySql), $query->getBindings());
 
         // $query->limitUnion(3);
         // $query->orderUnionBy($this->sortVar, $this->sortDirection);
@@ -192,9 +192,9 @@ class DataFeed
              * Flush the select, add ID, tag and class
              */
             $cleanQuery = $cleanQuery->select('id');
-            $cleanQuery = $cleanQuery->addSelect(DB::raw("(SELECT '".$tag."') as ".$this->tagVar));
-            $cleanQuery = $cleanQuery->addSelect(DB::raw("(SELECT '".$class."') as ".$this->modelVar));
-            $cleanQuery = $cleanQuery->addSelect(DB::raw("(SELECT ".$sorting.") as ".$this->sortVar));
+            $cleanQuery = $cleanQuery->addSelect(Db::raw("(SELECT '".$tag."') as ".$this->tagVar));
+            $cleanQuery = $cleanQuery->addSelect(Db::raw("(SELECT '".$class."') as ".$this->modelVar));
+            $cleanQuery = $cleanQuery->addSelect(Db::raw("(SELECT ".$sorting.") as ".$this->sortVar));
 
             /*
              * Union this query with the previous one
