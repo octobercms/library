@@ -15,6 +15,12 @@ trait Validation
      */
 
     /**
+     * @var array The array of custom attribute names.
+     *
+     * public $attributeNames = [];
+     */
+
+    /**
      * @var array The array of custom error messages.
      *
      * public $customMessages = [];
@@ -79,9 +85,9 @@ trait Validation
      * outside of Laravel.
      * @return \Illuminate\Validation\Validator
      */
-    protected static function makeValidator($data, $rules, $customMessages)
+    protected static function makeValidator($data, $rules, $customMessages, $attributeNames)
     {
-        return Validator::make($data, $rules, $customMessages);
+        return Validator::make($data, $rules, $customMessages, $attributeNames);
     }
 
     /**
@@ -98,7 +104,7 @@ trait Validation
      * Validate the model instance
      * @return bool
      */
-    public function validate($rules = null, $customMessages = null)
+    public function validate($rules = null, $customMessages = null, $attributeNames = null)
     {
         if ($this->validationErrors === null)
             $this->validationErrors = new MessageBag;
@@ -134,7 +140,7 @@ trait Validation
 
             /*
              * Compatability with Hashable trait:
-             * Remove all hashable values regardless, add the original values back 
+             * Remove all hashable values regardless, add the original values back
              * only if they are part of the data being validated.
              */
             if (method_exists($this, 'getHashableAttributes')) {
@@ -143,21 +149,38 @@ trait Validation
                 $data = array_merge($cleanAttributes, $hashedAttributes);
             }
 
+            /*
+             * Compatability with Encryptable trait:
+             * Remove all encryptable values regardless, add the original values back
+             * only if they are part of the data being validated.
+             */
+            if (method_exists($this, 'getEncryptableAttributes')) {
+                $cleanAttributes = array_diff_key($data, array_flip($this->getEncryptableAttributes()));
+                $encryptedAttributes = array_intersect_key($this->getOriginalEncryptableValues(), $data);
+                $data = array_merge($cleanAttributes, $encryptedAttributes);
+            }
+
             if (property_exists($this, 'customMessages') && is_null($customMessages))
                 $customMessages = $this->customMessages;
 
             if (is_null($customMessages))
                 $customMessages = [];
 
-            $validator = self::makeValidator($data, $rules, $customMessages);
+            if (is_null($attributeNames))
+                $attributeNames = [];
+
+            if (property_exists($this, 'attributeNames'))
+                $attributeNames = array_merge($this->attributeNames, $attributeNames);
 
             /*
              * Use custom language attributes
              */
-            $customAttributes = trans('validation.attributes');
-            if (is_array($customAttributes) && !empty($customAttributes)) {
-                $validator->setAttributeNames($customAttributes);
-            }
+            $translations = trans('validation.attributes');
+            if (is_array($translations))
+                $attributeNames = array_merge($translations, $attributeNames);
+
+
+            $validator = self::makeValidator($data, $rules, $customMessages, $attributeNames);
 
             $success = $validator->passes();
 

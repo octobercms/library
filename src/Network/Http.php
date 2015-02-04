@@ -126,6 +126,16 @@ class Http
     public $streamFilter;
 
     /**
+     * @var int The maximum redirects allowed.
+     */
+    public $maxRedirects = 10;
+
+    /**
+     * @var int Internal counter
+     */
+    protected $redirectCount = null;
+
+    /**
      * Make the object with common properties
      * @param string   $url     HTTP request address
      * @param string   $method  Request method (GET, POST, PUT, DELETE, etc)
@@ -230,10 +240,12 @@ class Http
         curl_setopt($curl, CURLOPT_URL, $this->url);
         curl_setopt($curl, CURLOPT_HEADER, true);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-
+        if (defined('CURLOPT_FOLLOWLOCATION')) {
+            curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($curl, CURLOPT_MAXREDIRS, $this->maxRedirects);
+        }
         if ($this->requestOptions && is_array($this->requestOptions))
             curl_setopt_array($curl, $this->requestOptions);
 
@@ -301,8 +313,25 @@ class Http
          */
         curl_close($curl);
 
-        if ($this->streamFile)
+        if ($this->streamFile) {
             fclose($stream);
+        }
+
+        /*
+         * Emulate FOLLOW LOCATION behavior
+         */
+        if (!defined('CURLOPT_FOLLOWLOCATION')) {
+            if ($this->redirectCount === null) {
+                $this->redirectCount = $this->maxRedirects;
+            }
+            if (in_array($this->code, [301, 302])) {
+                $this->url = array_get($this->info, 'url');
+                if (!empty($this->url) && $this->redirectCount > 0) {
+                    $this->redirectCount -= 1;
+                    return $this->send();
+                }
+            }
+        }
 
         return $this;
     }
