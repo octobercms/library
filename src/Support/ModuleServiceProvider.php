@@ -18,10 +18,16 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
     public function boot()
     {
         if ($module = $this->getModule(func_get_args())) {
+            // @todo L5 clean this up
+            // $this->package($module, $module, base_path() . '/modules/' . $module);
+
             /*
              * Register paths for: config, translator, view
              */
-            $this->package($module, $module, base_path() . '/modules/' . $module);
+            $modulePath = base_path() . '/modules/' . $module;
+            $this->loadViewsFrom($module, $modulePath);
+            $this->loadTranslationsFrom($module, $modulePath);
+            // $this->mergeConfigFrom($module, $modulePath);
         }
     }
 

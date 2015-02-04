@@ -3,7 +3,6 @@
 use Hash;
 use October\Rain\Database\Model;
 use October\Rain\Auth\Hash\HasherBase;
-use Illuminate\Auth\UserInterface;
 use InvalidArgumentException;
 use RuntimeException;
 use Exception;
@@ -12,7 +11,7 @@ use DateTime;
 /**
  * User model
  */
-class User extends Model implements UserInterface
+class User extends Model
 {
     use \October\Rain\Database\Traits\Hashable;
     use \October\Rain\Database\Traits\Purgeable;

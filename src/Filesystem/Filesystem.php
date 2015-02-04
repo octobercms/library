@@ -212,9 +212,9 @@ class Filesystem extends FilesystemBase
      * @param  string  $contents
      * @return int
      */
-    public function put($path, $contents)
+    public function put($path, $contents, $lock = false)
     {
-        $result = parent::put($path, $contents);
+        $result = parent::put($path, $contents, $lock);
         if ($mask = $this->getFilePermissions()) @chmod($path, $mask);
         return $result;
     }
