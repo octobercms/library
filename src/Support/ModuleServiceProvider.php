@@ -18,16 +18,13 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
     public function boot()
     {
         if ($module = $this->getModule(func_get_args())) {
-            // @todo L5 clean this up
-            // $this->package($module, $module, base_path() . '/modules/' . $module);
-
             /*
              * Register paths for: config, translator, view
              */
             $modulePath = base_path() . '/modules/' . $module;
             $this->loadViewsFrom($module, $modulePath);
             $this->loadTranslationsFrom($module, $modulePath);
-            // $this->mergeConfigFrom($module, $modulePath);
+            $this->loadConfigFrom($module, $modulePath);
         }
     }
 
@@ -77,4 +74,16 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
 
         $this->commands($key);
     }
+
+    /**
+     * Register a config file namespace.
+     * @param  string  $path
+     * @param  string  $namespace
+     * @return void
+     */
+    protected function loadConfigFrom($path, $namespace)
+    {
+        $this->app['config']->package($namespace, $path, $namespace);
+    }
+
 }
