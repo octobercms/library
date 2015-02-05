@@ -22,9 +22,9 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
              * Register paths for: config, translator, view
              */
             $modulePath = base_path() . '/modules/' . $module;
-            $this->loadViewsFrom($module, $modulePath);
-            $this->loadTranslationsFrom($module, $modulePath);
-            $this->loadConfigFrom($module, $modulePath);
+            $this->loadViewsFrom($modulePath . '/views', $module);
+            $this->loadTranslationsFrom($modulePath . '/lang', $module);
+            $this->loadConfigFrom($modulePath . '/config', $module);
         }
     }
 
