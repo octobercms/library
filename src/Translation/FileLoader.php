@@ -120,7 +120,6 @@ class FileLoader implements LoaderInterface {
      */
     public function addNamespace($namespace, $hint)
     {
-        traceLog($namespace.'--'.$hint);
         $this->hints[$namespace] = $hint;
     }
 
