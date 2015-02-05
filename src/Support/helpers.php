@@ -118,3 +118,21 @@ if (!function_exists('traceSql'))
         });
     }
 }
+
+
+if (!function_exists('trans'))
+{
+    /**
+     * Translate the given message.
+     *
+     * @param  string  $id
+     * @param  array   $parameters
+     * @param  string  $domain
+     * @param  string  $locale
+     * @return string
+     */
+    function trans($id = null, $parameters = array(), $domain = 'messages', $locale = null)
+    {
+        return app('translator')->trans($id, $parameters, $domain, $locale);
+    }
+}
