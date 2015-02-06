@@ -78,6 +78,10 @@ class Translator
      */
     public function get($key, array $replace = [], $locale = null)
     {
+        if ($line = $this->getValidationSpecific($key, $replace, $locale)) {
+            return $line;
+        }
+
         list($namespace, $group, $item) = $this->parseKey($key);
 
         if (is_null($namespace)) {
@@ -105,6 +109,31 @@ class Translator
             return $key;
 
         return $line;
+    }
+
+    /**
+     * Check the system namespace by default for "validation" keys.
+     *
+     * @param  string  $key
+     * @param  array   $replace
+     * @param  string  $locale
+     * @return string
+     */
+    protected function getValidationSpecific($key, $replace, $locale)
+    {
+        if (
+            starts_with($key, 'validation.') &&
+            !starts_with($key, 'validation.custom.') &&
+            !starts_with($key, 'validation.attributes.')
+        ) {
+            $nativeKey = 'system::'.$key;
+            $line = $this->get($nativeKey, $replace, $locale);
+            if ($line !== $nativeKey) {
+                return $line;
+            }
+        }
+
+        return null;
     }
 
     /**

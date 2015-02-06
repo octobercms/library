@@ -63,8 +63,7 @@ class FileLoader implements LoaderInterface
         // as any environment folders with their specific configuration items.
         $path = $this->getPath($namespace);
 
-        if (is_null($path))
-        {
+        if (is_null($path)) {
             return $items;
         }
 
@@ -127,8 +126,7 @@ class FileLoader implements LoaderInterface
         // To check if a group exists, we will simply get the path based on the
         // namespace, and then check to see if this files exists within that
         // namespace. False is returned if no path exists for a namespace.
-        if (is_null($path))
-        {
+        if (is_null($path)) {
             return $this->exists[$key] = false;
         }
 
@@ -156,25 +154,19 @@ class FileLoader implements LoaderInterface
         // First we will look for a configuration file in the packages configuration
         // folder. If it exists, we will load it and merge it with these original
         // options so that we will easily "cascade" a package's configurations.
-        $file = "packages/{$package}/{$group}.php";
+        $path = $this->getPackagePath($package, $group);
 
-        if ($this->files->exists($path = $this->defaultPath.'/'.$file))
-        {
-            $items = array_merge(
-                $items, $this->getRequire($path)
-            );
+        if ($this->files->exists($path)) {
+            $items = array_merge($items, $this->getRequire($path));
         }
 
         // Once we have merged the regular package configuration we need to look for
         // an environment specific configuration file. If one exists, we will get
         // the contents and merge them on top of this array of options we have.
-        $path = $this->getPackagePath($env, $package, $group);
+        $path = $this->getPackagePath($package, $group, $env);
 
-        if ($this->files->exists($path))
-        {
-            $items = array_merge(
-                $items, $this->getRequire($path)
-            );
+        if ($this->files->exists($path)) {
+            $items = array_merge($items, $this->getRequire($path));
         }
 
         return $items;
@@ -188,9 +180,16 @@ class FileLoader implements LoaderInterface
      * @param  string  $group
      * @return string
      */
-    protected function getPackagePath($env, $package, $group)
+    protected function getPackagePath($package, $group, $env = null)
     {
-        $file = "packages/{$package}/{$env}/{$group}.php";
+        $package = strtolower(str_replace('.', '/', $package));
+
+        if (!$env) {
+            $file = "{$package}/{$group}.php";
+        }
+        else {
+            $file = "{$package}/{$env}/{$group}.php";
+        }
 
         return $this->defaultPath.'/'.$file;
     }

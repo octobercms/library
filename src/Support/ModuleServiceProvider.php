@@ -83,7 +83,7 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
      */
     protected function loadConfigFrom($path, $namespace)
     {
-        $this->app['config']->package($namespace, $path, $namespace);
+        $this->app['config']->package($namespace, $path);
     }
 
 }
