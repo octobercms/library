@@ -98,8 +98,9 @@ if (!function_exists('traceSql'))
      */
     function traceSql()
     {
-        Event::listen('illuminate.query', function($query, $bindings, $time, $name)
-        {
+        define('OCTOBER_NO_EVENT_LOGGING', 1);
+
+        Event::listen('illuminate.query', function($query, $bindings, $time, $name) {
             $data = compact('bindings', 'time', 'name');
 
             foreach ($bindings as $i => $binding){
