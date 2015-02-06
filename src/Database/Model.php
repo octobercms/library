@@ -15,6 +15,7 @@ use October\Rain\Database\Relations\AttachMany;
 use October\Rain\Database\Relations\AttachOne;
 use October\Rain\Database\Relations\HasManyThrough;
 use October\Rain\Database\ModelException;
+use October\Rain\Database\QueryBuilder;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use InvalidArgumentException;
 use Exception;
@@ -319,6 +320,20 @@ class Model extends EloquentModel
     public function newEloquentBuilder($query)
     {
         return new Builder($query);
+    }
+
+    /**
+     * Get a new query builder instance for the connection.
+     *
+     * @return \Illuminate\Database\Query\Builder
+     */
+    protected function newBaseQueryBuilder()
+    {
+        $conn = $this->getConnection();
+
+        $grammar = $conn->getQueryGrammar();
+
+        return new QueryBuilder($conn, $grammar, $conn->getPostProcessor());
     }
 
     //
