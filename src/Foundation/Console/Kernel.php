@@ -16,7 +16,7 @@ class Kernel extends ConsoleKernel
         'Illuminate\Foundation\Bootstrap\DetectEnvironment',
         'October\Rain\Foundation\Bootstrap\LoadConfiguration',
         'October\Rain\Foundation\Bootstrap\LoadTranslation',
-        'Illuminate\Foundation\Bootstrap\ConfigureLogging',
+        'October\Rain\Foundation\Bootstrap\ConfigureLogging',
         'Illuminate\Foundation\Bootstrap\HandleExceptions',
         'Illuminate\Foundation\Bootstrap\RegisterFacades',
         'Illuminate\Foundation\Bootstrap\RegisterProviders',
@@ -40,8 +40,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('inspire')
-                 ->hourly();
+        // $schedule->command('inspire')
+        //          ->hourly();
     }
 
 }

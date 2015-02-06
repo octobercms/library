@@ -15,7 +15,7 @@ class Kernel extends HttpKernel
         'Illuminate\Foundation\Bootstrap\DetectEnvironment',
         'October\Rain\Foundation\Bootstrap\LoadConfiguration',
         'October\Rain\Foundation\Bootstrap\LoadTranslation',
-        'Illuminate\Foundation\Bootstrap\ConfigureLogging',
+        'October\Rain\Foundation\Bootstrap\ConfigureLogging',
         'Illuminate\Foundation\Bootstrap\HandleExceptions',
         'Illuminate\Foundation\Bootstrap\RegisterFacades',
         'Illuminate\Foundation\Bootstrap\RegisterProviders',

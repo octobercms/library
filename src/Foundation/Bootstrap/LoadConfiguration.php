@@ -22,11 +22,7 @@ class LoadConfiguration
         date_default_timezone_set($config['app.timezone']);
         mb_internal_encoding('UTF-8');
 
-        /*
-        |--------------------------------------------------------------------------
-        | Fix for XDebug aborting threads > 100 nested
-        |--------------------------------------------------------------------------
-        */
+        // Fix for XDebug aborting threads > 100 nested
         ini_set('xdebug.max_nesting_level', 300);
     }
 
