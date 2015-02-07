@@ -120,6 +120,61 @@ if (!function_exists('traceSql'))
     }
 }
 
+if (!function_exists('plugins_path'))
+{
+    /**
+     * Get the path to the plugins folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function plugins_path($path = '')
+    {
+        return app('path.plugins').($path ? '/'.$path : $path);
+    }
+}
+
+if (!function_exists('uploads_path'))
+{
+    /**
+     * Get the path to the uploads folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function uploads_path($path = '')
+    {
+        return app('path.uploads').($path ? '/'.$path : $path);
+    }
+}
+
+if (!function_exists('themes_path'))
+{
+    /**
+     * Get the path to the themes folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function themes_path($path = '')
+    {
+        return app('path.themes').($path ? '/'.$path : $path);
+    }
+}
+
+if (!function_exists('temp_path'))
+{
+    /**
+     * Get the path to the temporary storage folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function temp_path($path = '')
+    {
+        return app('path.temp').($path ? '/'.$path : $path);
+    }
+}
 
 if (!function_exists('trans'))
 {

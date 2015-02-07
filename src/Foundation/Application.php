@@ -26,6 +26,61 @@ class Application extends ApplicationBase
     }
 
     /**
+     * Bind all of the application paths in the container.
+     *
+     * @return void
+     */
+    protected function bindPathsInContainer()
+    {
+        parent::bindPathsInContainer();
+
+        foreach (['plugins', 'uploads', 'themes', 'temp'] as $path)
+        {
+            $this->instance('path.'.$path, $this->{$path.'Path'}());
+        }
+    }
+
+    /**
+     * Get the path to the public / web directory.
+     *
+     * @return string
+     */
+    public function pluginsPath()
+    {
+        return $this->basePath.'/plugins';
+    }
+
+    /**
+     * Get the path to the public / web directory.
+     *
+     * @return string
+     */
+    public function uploadsPath()
+    {
+        return $this->basePath.'/uploads';
+    }
+
+    /**
+     * Get the path to the public / web directory.
+     *
+     * @return string
+     */
+    public function themesPath()
+    {
+        return $this->basePath.'/themes';
+    }
+
+    /**
+     * Get the path to the public / web directory.
+     *
+     * @return string
+     */
+    public function tempPath()
+    {
+        return $this->basePath.'/storage/temp';
+    }
+
+    /**
      * Register a "before" application filter.
      *
      * @param  \Closure|string  $callback
