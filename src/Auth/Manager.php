@@ -34,7 +34,7 @@ class Manager
 
     protected function init()
     {
-        $this->ipAddress = Request::getClientIp();
+        $this->ipAddress = Request::ip();
     }
 
     //
