@@ -11,7 +11,7 @@ use Symfony\Component\Translation\TranslatorInterface;
  * @package translation
  * @author Alexey Bobkov, Samuel Georges
  */
-class Translator
+class Translator implements TranslatorInterface
 {
     use \October\Rain\Support\Traits\KeyParser;
 
