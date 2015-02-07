@@ -97,6 +97,10 @@ class ErrorHandler
         }
     }
 
+    //
+    // Overrides
+    //
+
     /**
      * Check if using a custom error page, if so return the contents.
      * Return NULL if a custom error is not set up.

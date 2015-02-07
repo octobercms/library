@@ -1,7 +1,10 @@
-<?php namespace October\Rain\Foundation\Exceptions;
+<?php namespace October\Rain\Foundation\Exception;
 
-use Exception;
+use Event;
+use Response;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Exception;
 
 class Handler extends ExceptionHandler
 {
@@ -37,14 +40,33 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $e)
     {
-        if ($this->isHttpException($e))
-        {
+        $statusCode = $this->getStatusCode($e);
+        if ($event = Event::fire('exception.beforeRender', [$e, $statusCode, $request], true)) {
+            return Response::make($event, $statusCode);
+        }
+
+        if ($this->isHttpException($e)) {
             return $this->renderHttpException($e);
         }
-        else
-        {
+        else {
             return parent::render($request, $e);
         }
     }
 
+    /**
+     * Checks if the exception implements the HttpExceptionInterface, or returns
+     * as generic 500 error code for a server side error.
+     * @return int
+     */
+    protected function getStatusCode($exception)
+    {
+        if ($exception instanceof HttpExceptionInterface) {
+            $code = $exception->getStatusCode();
+        }
+        else {
+            $code = 500;
+        }
+
+        return $code;
+    }
 }
