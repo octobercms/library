@@ -17,10 +17,10 @@ class Kernel extends ConsoleKernel
         'October\Rain\Foundation\Bootstrap\LoadConfiguration',
         'October\Rain\Foundation\Bootstrap\LoadTranslation',
         'October\Rain\Foundation\Bootstrap\ConfigureLogging',
-        'October\Rain\Foundation\Bootstrap\RegisterRequest',
         'Illuminate\Foundation\Bootstrap\HandleExceptions',
         'October\Rain\Foundation\Bootstrap\RegisterOctober',
         'Illuminate\Foundation\Bootstrap\RegisterFacades',
+        'Illuminate\Foundation\Bootstrap\SetRequestForConsole',
         'Illuminate\Foundation\Bootstrap\RegisterProviders',
         'Illuminate\Foundation\Bootstrap\BootProviders',
     ];
@@ -40,6 +40,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $this->app['events']->fire('console.schedule', [$schedule]);
     }
 
 }
