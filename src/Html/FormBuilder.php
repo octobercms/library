@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Html;
 
 use Illuminate\Html\FormBuilder as FormBuilderBase;
-use Illuminate\Routing\UrlGenerator;
+use Illuminate\Routing\UrlGenerator as UrlGeneratorBase;
 
 /**
  * Form builder
@@ -41,7 +41,7 @@ class FormBuilder extends FormBuilderBase
      * @param string  $sessionKey
      * @return void
      */
-    public function __construct(HtmlBuilder $html, UrlGenerator $url, $csrfToken, $sessionKey)
+    public function __construct(HtmlBuilder $html, UrlGeneratorBase $url, $csrfToken, $sessionKey)
     {
         $this->sessionKey = $sessionKey;
         parent::__construct($html, $url, $csrfToken);

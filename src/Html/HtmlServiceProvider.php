@@ -63,7 +63,7 @@ class HtmlServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return array('html', 'form', 'block');
+        return ['html', 'form', 'block'];
     }
 
 }
