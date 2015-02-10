@@ -13,7 +13,6 @@
 ./git-subsplit.sh publish --no-tags src/Filesystem:git@github.com:octoberrain/filesystem.git
 ./git-subsplit.sh publish --no-tags src/Extension:git@github.com:octoberrain/extension.git
 ./git-subsplit.sh publish --no-tags src/Database:git@github.com:octoberrain/database.git
-./git-subsplit.sh publish --no-tags src/Cron:git@github.com:octoberrain/cron.git
 ./git-subsplit.sh publish --no-tags src/Config:git@github.com:octoberrain/config.git
 ./git-subsplit.sh publish --no-tags src/Auth:git@github.com:octoberrain/auth.git
 rm -rf .subsplit/
