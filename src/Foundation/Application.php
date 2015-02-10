@@ -6,6 +6,27 @@ class Application extends ApplicationBase
 {
 
     /**
+     * The base path for plugins.
+     *
+     * @var string
+     */
+    protected $pluginsPath;
+
+    /**
+     * The base path for themes.
+     *
+     * @var string
+     */
+    protected $themesPath;
+
+    /**
+     * The base path for uploads.
+     *
+     * @var string
+     */
+    protected $uploadsPath;
+
+    /**
      * Get the path to the public / web directory.
      *
      * @return string
@@ -34,8 +55,7 @@ class Application extends ApplicationBase
     {
         parent::bindPathsInContainer();
 
-        foreach (['plugins', 'uploads', 'themes', 'temp'] as $path)
-        {
+        foreach (['plugins', 'themes', 'uploads', 'temp'] as $path) {
             $this->instance('path.'.$path, $this->{$path.'Path'}());
         }
     }
@@ -47,17 +67,20 @@ class Application extends ApplicationBase
      */
     public function pluginsPath()
     {
-        return $this->basePath.'/plugins';
+        return $this->pluginsPath ?: $this->basePath.'/plugins';
     }
 
     /**
-     * Get the path to the public / web directory.
+     * Set the plugins path for the application.
      *
-     * @return string
+     * @param  string  $basePath
+     * @return $this
      */
-    public function uploadsPath()
+    public function setPluginsPath($path)
     {
-        return $this->basePath.'/uploads';
+        $this->pluginsPath = $path;
+        $this->instance('path.plugins', $path);
+        return $this;
     }
 
     /**
@@ -67,7 +90,43 @@ class Application extends ApplicationBase
      */
     public function themesPath()
     {
-        return $this->basePath.'/themes';
+        return $this->themesPath ?: $this->basePath.'/themes';
+    }
+
+    /**
+     * Set the themes path for the application.
+     *
+     * @param  string  $basePath
+     * @return $this
+     */
+    public function setThemesPath($path)
+    {
+        $this->themesPath = $path;
+        $this->instance('path.themes', $path);
+        return $this;
+    }
+
+    /**
+     * Get the path to the public / web directory.
+     *
+     * @return string
+     */
+    public function uploadsPath()
+    {
+        return $this->uploadsPath ?: $this->basePath.'/uploads';
+    }
+
+    /**
+     * Set the uploads path for the application.
+     *
+     * @param  string  $basePath
+     * @return $this
+     */
+    public function setUploadsPath($path)
+    {
+        $this->uploadsPath = $path;
+        $this->instance('path.uploads', $path);
+        return $this;
     }
 
     /**

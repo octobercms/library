@@ -21,6 +21,21 @@ class RegisterOctober
         $app->singleton('string', function () {
             return new \October\Rain\Support\Str;
         });
+
+        /*
+         * Change paths based on config
+         */
+        if ($pluginsPath = $app['config']->get('cms.pluginsDir')) {
+            $app->setPluginsPath(base_path().$pluginsPath);
+        }
+
+        if ($themesPath = $app['config']->get('cms.themesDir')) {
+            $app->setThemesPath(base_path().$themesPath);
+        }
+
+        if ($uploadsPath = $app['config']->get('cms.uploadsDir')) {
+            $app->setUploadsPath(base_path().$uploadsPath);
+        }
     }
 
 }

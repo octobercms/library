@@ -18,7 +18,7 @@ class UrlServiceProvider extends ServiceProvider
     {
         $this->registerUrlGenerator();
 
-        if (!$this->app->runningInConsole()) {
+        if (!$this->app->runningInConsole() || $this->app->runningUnitTests()) {
             $this->setUrlGeneratorPolicy();
         }
     }
