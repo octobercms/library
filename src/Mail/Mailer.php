@@ -37,11 +37,11 @@ class Mailer extends MailerBase
         /*
          * Inherit logic from Illuminate\Mail\Mailer
          */
-        list($view, $plain) = $this->parseView($view);
+        list($view, $plain, $raw) = $this->parseView($view);
 
         $data['message'] = $message = $this->createMessage();
         $this->callMessageBuilder($callback, $message);
-        $this->addContent($message, $view, $plain, $data);
+        $this->addContent($message, $view, $plain, $raw, $data);
 
         /*
          * Extensbility
@@ -166,14 +166,14 @@ class Mailer extends MailerBase
      * @param  array $data
      * @return void
      */
-    protected function addContent($message, $view, $plain, $data)
+    protected function addContent($message, $view, $plain, $raw, $data)
     {
         /*
          * Extensbility
          */
         if (
-            ($this->fireEvent('mailer.beforeAddContent', [$message, $view, $plain, $data], true) === false) ||
-            (Event::fire('mailer.beforeAddContent', [$this, $message, $view, $plain, $data], true) === false)
+            ($this->fireEvent('mailer.beforeAddContent', [$message, $view, $data], true) === false) ||
+            (Event::fire('mailer.beforeAddContent', [$this, $message, $view, $data], true) === false)
         ) {
             return;
         }
@@ -194,11 +194,15 @@ class Mailer extends MailerBase
             $message->addPart($this->getView($plain, $data), 'text/plain');
         }
 
+        if (isset($raw)) {
+            $message->addPart($raw, 'text/plain');
+        }
+
         /*
          * Extensbility
          */
-        $this->fireEvent('mailer.addContent', [$message, $view, $plain, $data]);
-        Event::fire('mailer.addContent', [$this, $message, $view, $plain, $data]);
+        $this->fireEvent('mailer.addContent', [$message, $view, $data]);
+        Event::fire('mailer.addContent', [$this, $message, $view, $data]);
     }
 
 }
