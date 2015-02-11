@@ -48,5 +48,6 @@ class MailServiceProvider extends MailServiceProviderBase
             return $mailer;
         });
 
+        $this->app['mailer']->getSwiftMailer()->registerPlugin(new CssInlinerPlugin());
     }
 }

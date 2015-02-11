@@ -18,7 +18,8 @@
         "php": ">=5.4.0",
         "illuminate/mail": "4.2.*",
         "october/filesystem": "~1.0",
-        "october/support": "~1.0"
+        "october/support": "~1.0",
+        "tijsverkoyen/css-to-inline-styles": "~1.2"
     },
     "autoload": {
         "psr-4": {

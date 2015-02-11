@@ -24,7 +24,8 @@
         "oyejorge/less.php": "~1.7",
         "symfony/yaml": "2.5.*",
         "twig/twig": "~1.13",
-        "league/csv": "~6.0"
+        "league/csv": "~6.0",
+        "tijsverkoyen/css-to-inline-styles": "~1.2"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.0",
