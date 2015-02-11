@@ -63,19 +63,36 @@ trait SyntaxModelTrait
             if ($params['type'] == 'fileupload' && $this->hasRelation($field)) {
                 if ($this->sessionKey) {
                     if ($image = $this->$field()->withDeferred($this->sessionKey)->first()) {
-                        $data[$field] = Request::getSchemeAndHttpHost() . $image->getPath();
+                        $data[$field] = $this->getThumbForImage($image, $params);
                     }
                     else {
                         unset($data[$field]);
                     }
                 }
                 elseif ($this->$field) {
-                    $data[$field] = Request::getSchemeAndHttpHost() . $this->$field->getPath();
+                    $data[$field] = $this->getThumbForImage($this->$field, $params);
                 }
             }
         }
 
         return $data;
+    }
+
+    /**
+     * Helper to get the perfect sized image.
+     */
+    protected function getThumbForImage($image, $params = [])
+    {
+        $imageWidth = array_get($params, 'imageWidth');
+        $imageHeight = array_get($params, 'imageHeight');
+        if ($imageWidth && $imageHeight) {
+            $path = $image->getThumb($imageWidth, $imageHeight, ['mode' => 'crop']);
+        }
+        else {
+            $path = $image->getPath();
+        }
+
+        return Request::getSchemeAndHttpHost()  . $path;
     }
 
     /**
