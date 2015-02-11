@@ -60,7 +60,7 @@ trait SyntaxModelTrait
             return $data;
 
         foreach ($fields as $field => $params) {
-            if ($params['type'] == 'fileupload') {
+            if ($params['type'] == 'fileupload' && $this->hasRelation($field)) {
                 if ($this->sessionKey) {
                     if ($image = $this->$field()->withDeferred($this->sessionKey)->first()) {
                         $data[$field] = Request::getSchemeAndHttpHost() . $image->getPath();
