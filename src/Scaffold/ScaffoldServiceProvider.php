@@ -5,6 +5,7 @@ use October\Rain\Scaffold\Console\CreatePlugin;
 use October\Rain\Scaffold\Console\CreateModel;
 use October\Rain\Scaffold\Console\CreateController;
 use October\Rain\Scaffold\Console\CreateComponent;
+use October\Rain\Scaffold\Console\CreateFormWidget;
 
 class ScaffoldServiceProvider extends ServiceProvider
 {
@@ -30,10 +31,15 @@ class ScaffoldServiceProvider extends ServiceProvider
             return new CreateComponent;
         });
 
+        $this->app->bindShared('command.create.formwidget', function() {
+            return new CreateFormWidget;
+        });
+
         $this->commands('command.create.plugin');
         $this->commands('command.create.model');
         $this->commands('command.create.controller');
         $this->commands('command.create.component');
+        $this->commands('command.create.formwidget');
     }
 
     /**
@@ -47,6 +53,7 @@ class ScaffoldServiceProvider extends ServiceProvider
             'command.create.model',
             'command.create.controller',
             'command.create.component',
+            'command.create.formwidget',
         ];
     }
 }
