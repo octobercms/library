@@ -33,7 +33,7 @@ class UrlGenerator extends UrlGeneratorBase
             return $this->request->fullUrl();
         }
 
-        $forcingRelative = $this->forceRelative;
+        $forcingRelative = $this->forcedRelative;
         if ($forcingRelative) $this->forceRelative(false);
 
         $url = $this->to($path);
