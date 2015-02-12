@@ -23,6 +23,16 @@ class UrlGenerator extends UrlGeneratorBase
     }
 
     /**
+     * Get whether or not relative URLs are being forced.
+     *
+     * @return boolean
+     */
+    public function forcingRelative()
+    {
+        return $this->forcedRelative;
+    }
+
+    /**
      * Get the full URL for the current request.
      *
      * @return string
@@ -33,7 +43,7 @@ class UrlGenerator extends UrlGeneratorBase
             return $this->request->fullUrl();
         }
 
-        $forcingRelative = $this->forceRelative;
+        $forcingRelative = $this->forcingRelative();
         if ($forcingRelative) $this->forceRelative(false);
 
         $url = $this->to($path);
