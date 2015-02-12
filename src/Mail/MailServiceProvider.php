@@ -28,9 +28,9 @@ class MailServiceProvider extends MailServiceProviderBase
              */
             $this->registerSwiftMailer();
 
-            $mailer = new Mailer($app['view'], $app['swift.mailer']);
-            $mailer->setLogger($app['log'])->setQueue($app['queue']);
-            $mailer->setContainer($app);
+            $mailer = new Mailer($app['view'], $app['swift.mailer'], $app['events']);
+
+            $this->setMailerDependencies($mailer, $app);
 
             $from = $app['config']['mail.from'];
             if (is_array($from) && isset($from['address'])) {

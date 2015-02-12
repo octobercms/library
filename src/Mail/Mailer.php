@@ -93,7 +93,7 @@ class Mailer extends MailerBase
         $method = $queue === true ? 'queue' : 'send';
         $recipients = $this->processRecipients($recipients);
 
-        $this->{$method}($view, $data, function($message) use ($recipients, $callback){
+        $this->{$method}($view, $data, function($message) use ($recipients, $callback) {
             foreach ($recipients as $address => $name) {
                 $message->to($address, $name);
             }
