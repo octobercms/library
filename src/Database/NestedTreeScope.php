@@ -15,7 +15,6 @@ class NestedTreeScope implements ScopeInterface
      */
     public function apply(BuilderBase $builder, Model $model)
     {
-        $model = $builder->getModel();
         $builder->orderBy($model->getLeftColumnName());
     }
 
