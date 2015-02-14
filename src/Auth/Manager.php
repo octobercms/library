@@ -4,8 +4,7 @@ use Hash;
 use Cookie;
 use Session;
 use Request;
-use Exception;
-use InvalidArgumentException;
+use October\Rain\Auth\AuthException;
 
 /**
  * Authentication manager
@@ -65,8 +64,9 @@ class Manager
         $user->fill($credentials);
         $user->save();
 
-        if ($activate)
+        if ($activate) {
             $user->attemptActivation($user->getActivationCode());
+        }
 
         // Prevents revalidation of the password field
         // on subsequent saves to this model object
@@ -88,8 +88,9 @@ class Manager
      */
     public function getUser()
     {
-        if (is_null($this->user))
+        if (is_null($this->user)) {
             $this->check();
+        }
 
         return $this->user;
     }
@@ -124,8 +125,9 @@ class Manager
         $model = $this->createUserModel();
         $loginName = $model->getLoginName();
 
-        if (!array_key_exists($loginName, $credentials))
-            throw new InvalidArgumentException(sprintf('Login attribute "%s" was not provided.', $loginName));
+        if (!array_key_exists($loginName, $credentials)) {
+            throw new AuthException(sprintf('Login attribute "%s" was not provided.', $loginName));
+        }
 
         $query = $model->newQuery();
         $hashableAttributes = $model->getHashableAttributes();
@@ -142,8 +144,9 @@ class Manager
                 $query = $query->where($credential, '=', $value);
         }
 
-        if (!$user = $query->first())
-            throw new Exception('A user was not found with the given credentials.');
+        if (!$user = $query->first()) {
+            throw new AuthException('A user was not found with the given credentials.');
+        }
 
         /*
          * Check the hashed credentials match
@@ -151,14 +154,13 @@ class Manager
         foreach ($hashedCredentials as $credential => $value) {
 
             if (!Hash::check($value, $user->{$credential})) {
-                $message = sprintf('A user was found to match all plain text credentials however hashed credential "%s" did not match.', $credential);
-
                 // Incorrect password
-                if ($credential == 'password')
-                    throw new Exception($message);
+                if ($credential == 'password') {
+                    throw new AuthException(sprintf('A user was found to match all plain text credentials however hashed credential "%s" did not match.', $credential));
+                }
 
                 // User not found
-                throw new Exception($message);
+                throw new AuthException('A user was not found with the given credentials.');
             }
         }
 
@@ -186,7 +188,7 @@ class Manager
     {
         $user = $this->findUserByLogin($loginName);
         if (!$user)
-            throw new Exception("A user was not found with the given credentials.");
+            throw new AuthException("A user was not found with the given credentials.");
 
         $userId = $user->getKey();
         return $this->findThrottleByUserId($userId, $ipAddress);
@@ -242,10 +244,10 @@ class Manager
         $loginCredentialKey = (isset($credentials[$loginName])) ? $loginName : 'login';
 
         if (empty($credentials[$loginCredentialKey]))
-            throw new Exception(sprintf('The "%s" attribute is required.', $loginCredentialKey));
+            throw new AuthException(sprintf('The "%s" attribute is required.', $loginCredentialKey));
 
         if (empty($credentials['password']))
-            throw new Exception('The password attribute is required.');
+            throw new AuthException('The password attribute is required.');
 
         /*
          * If the fallback 'login' was provided and did not match the necessary
@@ -357,7 +359,7 @@ class Manager
     {
         if ($this->requireActivation && !$user->is_activated) {
             $login = $user->getLogin();
-            throw new Exception(sprintf('Cannot login user "%s" as they are not activated.', $login));
+            throw new AuthException(sprintf('Cannot login user "%s" as they are not activated.', $login));
         }
 
         $this->user = $user;
