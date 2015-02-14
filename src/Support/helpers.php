@@ -23,21 +23,26 @@ if (!function_exists('input'))
         /*
          * Array field name, eg: field[key][key2][key3]
          */
-        $keyParts = October\Rain\Support\Str::evalHtmlArray($name);
-        $dottedName = implode('.', $keyParts);
-        return Input::get($dottedName, $default);
+        $name = implode('.', Str::evalHtmlArray($name));
+        return Input::get($name, $default);
     }
 }
 
 if (!function_exists('post'))
 {
     /**
-     * Identical function to input(), however may be restricted 
-     * to $_POST values in future.
+     * Identical function to input(), however restricted to $_POST values.
      */
     function post($name = null, $default = null)
     {
-        return input($name, $default);
+        if ($name === null)
+            return $_POST;
+
+        /*
+         * Array field name, eg: field[key][key2][key3]
+         */
+        $name = implode('.', Str::evalHtmlArray($name));
+        return array_get($_POST, $name, $default);
     }
 }
 
@@ -55,9 +60,8 @@ if (!function_exists('get'))
         /*
          * Array field name, eg: field[key][key2][key3]
          */
-        $keyParts = October\Rain\Support\Str::evalHtmlArray($name);
-        $dottedName = implode('.', $keyParts);
-        return array_get($_GET, $dottedName, $default);
+        $name = implode('.', Str::evalHtmlArray($name));
+        return array_get($_GET, $name, $default);
     }
 }
 

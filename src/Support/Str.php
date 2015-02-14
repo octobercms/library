@@ -64,6 +64,9 @@ class Str extends StrHelper
     {
         $result = [$string];
 
+        if (strpbrk($string, '[]') === false)
+            return $result;
+
         if (preg_match('/^([^\]]+)(?:\[(.+)\])+$/', $string, $matches)) {
             if (count($matches) < 2)
                 return $result;
