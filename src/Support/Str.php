@@ -229,19 +229,4 @@ class Str extends StrHelper
         $name = static::normalizeClassName($name);
         return substr($name, 0, strrpos($name, "\\"));
     }
-
-    /**
-     * @deprecated Obtains an object class name without namespaces
-     * @see class_basename
-     * @todo Remove this method if year >= 2015
-     */
-    public static function getRealClass($name)
-    {
-        $name = static::normalizeClassName($name);
-
-        if (preg_match('@\\\\([\w]+)$@', $name, $matches))
-            $name = $matches[1];
-
-        return $name;
-    }
 }

@@ -425,7 +425,4 @@ trait SimpleTree
         return new TreeCollection($models);
     }
 
-    /** @deprecated Remove this if year >= 2015 */
-    public function getRootChildren($orderBy = 'name') { return $this->getAllRoot($orderBy); }
-
 }

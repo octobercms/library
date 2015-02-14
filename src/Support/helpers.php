@@ -32,22 +32,12 @@ if (!function_exists('input'))
 if (!function_exists('post'))
 {
     /**
-     * Identical function to input(), however restricted to $_POST values.
+     * Identical function to input(), however may be restricted 
+     * to $_POST values in future.
      */
     function post($name = null, $default = null)
     {
-        // Remove this line if year >= 2015 (Laravel 5 upgrade)
         return input($name, $default);
-
-        if ($name === null)
-            return $_POST;
-
-        /*
-         * Array field name, eg: field[key][key2][key3]
-         */
-        $keyParts = October\Rain\Support\Str::evalHtmlArray($name);
-        $dottedName = implode('.', $keyParts);
-        return array_get($_POST, $dottedName, $default);
     }
 }
 

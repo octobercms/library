@@ -19,7 +19,6 @@ class UrlServiceProvider extends ServiceProvider
         $this->setUrlGeneratorPolicy();
     }
 
-
     /**
      * Controls how URL links are generated throughout the application.
      *
