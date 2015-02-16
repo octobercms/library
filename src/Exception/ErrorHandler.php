@@ -1,8 +1,11 @@
 <?php namespace October\Rain\Exception;
 
 use App;
+use Config;
 use Request;
 use Response;
+use Exception;
+use October\Rain\Exception\ApplcationException;
 
 /**
  * System Error Handler, this class handles application exception events.
@@ -29,7 +32,7 @@ class ErrorHandler
      * @param Exception $proposedException The exception candidate that has been thrown.
      * @return mixed Error page contents
      */
-    public function handleException(\Exception $proposedException, $httpCode = 500)
+    public function handleException(Exception $proposedException)
     {
         // Disable the error handler for test and CLI environment
         if (App::runningUnitTests() || App::runningInConsole()) {
@@ -38,8 +41,10 @@ class ErrorHandler
 
         // Detect AJAX request and use error 500
         if (Request::ajax()) {
-            return Response::make($proposedException->getMessage(), $httpCode);
+            return static::getDetailedMessage($proposedException);
         }
+
+        $this->beforeHandleError($proposedException);
 
         // Clear the output buffer
         while (ob_get_level()) {
@@ -74,7 +79,7 @@ class ErrorHandler
      * @param Exception $exception The mask exception.
      * @return void
      */
-    public static function applyMask(\Exception $exception)
+    public static function applyMask(Exception $exception)
     {
         if (static::$activeMask !== null) {
             array_push(static::$maskLayers, static::$activeMask);
@@ -97,9 +102,41 @@ class ErrorHandler
         }
     }
 
+    /**
+     * Returns a more descriptive error message if application
+     * debug mode is turned on.
+     * @param Exception $exception
+     * @return string
+     */
+    public static function getDetailedMessage($exception)
+    {
+        /*
+         * Application Exceptions never display a detailed error
+         */
+        if (!($exception instanceof ApplicationException) && Config::get('app.debug', false)) {
+            return sprintf('"%s" on line %s of %s',
+                $exception->getMessage(),
+                $exception->getLine(),
+                $exception->getFile()
+            );
+        }
+        else {
+            return $exception->getMessage();
+        }
+    }
+
     //
     // Overrides
     //
+
+    /**
+     * We are about to display an error page to the user,
+     * provide an opportunity to handle extra functions.
+     * @return void
+     */
+    public function beforeHandleError($exception)
+    {
+    }
 
     /**
      * Check if using a custom error page, if so return the contents.

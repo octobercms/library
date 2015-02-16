@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Foundation\Exception;
 
+use Log;
 use Event;
 use Response;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -15,7 +16,9 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        'Symfony\Component\HttpKernel\Exception\HttpException'
+        'October\Rain\Exception\ValidationException',
+        'October\Rain\Exception\ApplicationException',
+        'Symfony\Component\HttpKernel\Exception\HttpException',
     ];
 
     /**
@@ -28,7 +31,10 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $e)
     {
-        return parent::report($e);
+        if ($this->shouldntReport($e))
+            return;
+
+        Log::error($e);
     }
 
     /**
@@ -45,12 +51,7 @@ class Handler extends ExceptionHandler
             return Response::make($event, $statusCode);
         }
 
-        if ($this->isHttpException($e)) {
-            return $this->renderHttpException($e);
-        }
-        else {
-            return parent::render($request, $e);
-        }
+        return parent::render($request, $e);
     }
 
     /**
