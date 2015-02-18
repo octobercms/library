@@ -1,16 +1,30 @@
 <?php namespace October\Rain\Filesystem;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Filesystem\FilesystemManager;
+use Illuminate\Filesystem\FilesystemServiceProvider as FilesystemServiceProviderBase;
 
-class FilesystemServiceProvider extends ServiceProvider
+class FilesystemServiceProvider extends FilesystemServiceProviderBase
 {
+
     /**
      * Register the service provider.
      * @return void
      */
     public function register()
     {
-        $this->app->bindShared('files', function() {
+        $this->registerNativeFilesystem();
+
+        $this->registerFlysystem();
+    }
+
+    /**
+     * Register the native filesystem implementation.
+     * @return void
+     */
+    protected function registerNativeFilesystem()
+    {
+        $this->app->singleton('files', function() {
             $config = $this->app['config'];
             $files = new Filesystem;
             $files->filePermissions = $config->get('cms.defaultMask.file', null);
@@ -30,6 +44,6 @@ class FilesystemServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return array('files');
+        return ['files', 'filesystem'];
     }
 }
