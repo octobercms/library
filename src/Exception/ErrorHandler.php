@@ -5,7 +5,7 @@ use Config;
 use Request;
 use Response;
 use Exception;
-use October\Rain\Exception\ApplcationException;
+use October\Rain\Exception\ApplicationException;
 
 /**
  * System Error Handler, this class handles application exception events.
