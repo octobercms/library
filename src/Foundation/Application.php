@@ -20,13 +20,6 @@ class Application extends ApplicationBase
     protected $themesPath;
 
     /**
-     * The base path for uploads.
-     *
-     * @var string
-     */
-    protected $uploadsPath;
-
-    /**
      * Get the path to the public / web directory.
      *
      * @return string
@@ -55,7 +48,7 @@ class Application extends ApplicationBase
     {
         parent::bindPathsInContainer();
 
-        foreach (['plugins', 'themes', 'uploads', 'temp'] as $path) {
+        foreach (['plugins', 'themes', 'temp'] as $path) {
             $this->instance('path.'.$path, $this->{$path.'Path'}());
         }
     }
@@ -103,29 +96,6 @@ class Application extends ApplicationBase
     {
         $this->themesPath = $path;
         $this->instance('path.themes', $path);
-        return $this;
-    }
-
-    /**
-     * Get the path to the public / web directory.
-     *
-     * @return string
-     */
-    public function uploadsPath()
-    {
-        return $this->uploadsPath ?: $this->basePath.'/uploads';
-    }
-
-    /**
-     * Set the uploads path for the application.
-     *
-     * @param  string  $basePath
-     * @return $this
-     */
-    public function setUploadsPath($path)
-    {
-        $this->uploadsPath = $path;
-        $this->instance('path.uploads', $path);
         return $this;
     }
 
