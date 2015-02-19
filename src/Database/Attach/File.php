@@ -428,7 +428,7 @@ class File extends Model
     {
         if (!$dir) return null;
 
-        return empty(Storage::allFiles($dir));
+        return count(Storage::allFiles($dir)) === 0;
     }
 
     /*
