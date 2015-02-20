@@ -258,7 +258,7 @@ class Model extends EloquentModel
      * @param  array  $attributes
      * @return \Illuminate\Database\Eloquent\Model|static
      */
-    public function newFromBuilder($attributes = [])
+    public function newFromBuilder($attributes = [], $connection = null)
     {
         $instance = $this->newInstance([], true);
         if ($instance->fireModelEvent('fetching') === false)
@@ -267,6 +267,8 @@ class Model extends EloquentModel
         $instance->setRawAttributes((array) $attributes, true);
 
         $instance->fireModelEvent('fetched', false);
+
+        $instance->setConnection($connection ?: $this->connection);
 
         return $instance;
     }
