@@ -108,19 +108,22 @@ class Resizer
         $optimalWidth = $optionsArray['optimalWidth'];
         $optimalHeight = $optionsArray['optimalHeight'];
 
-        // Resample - create image canvas of x, y size.
-        $this->imageResized = imagecreatetruecolor($optimalWidth, $optimalHeight);
+        // Resample - create image canvas of x, y size
+        $imageResized = imagecreatetruecolor($optimalWidth, $optimalHeight);
 
-        // Retain transparency for PNG and GIF files.
-        imagecolortransparent($this->imageResized , imagecolorallocatealpha($this->imageResized, 0, 0, 0, 127));
-        imagealphablending($this->imageResized, false);
-        imagesavealpha($this->imageResized, true);
+        // Retain transparency for PNG and GIF files
+        imagecolortransparent($imageResized, imagecolorallocatealpha($imageResized, 0, 0, 0, 127));
+        imagealphablending($imageResized, false);
+        imagesavealpha($imageResized, true);
 
-        // Create the new image.
-        imagecopyresampled($this->imageResized, $this->image, 0, 0, 0, 0, $optimalWidth, $optimalHeight, $this->width, $this->height);
+        // Create the new image
+        imagecopyresampled($imageResized, $this->image, 0, 0, 0, 0, $optimalWidth, $optimalHeight, $this->width, $this->height);
 
-        if ($mode == 'crop')
+        $this->imageResized = $imageResized;
+
+        if ($mode == 'crop') {
             $this->crop($optimalWidth, $optimalHeight, $newWidth, $newHeight, $offset);
+        }
 
         return $this;
     }
@@ -189,6 +192,7 @@ class Resizer
     {
         $mime = $file->getMimeType();
         $filePath = $file->getPathname();
+
         switch ($mime) {
             case 'image/jpeg': $img = @imagecreatefromjpeg($filePath); break;
             case 'image/gif':  $img = @imagecreatefromgif($filePath);  break;
@@ -281,35 +285,35 @@ class Resizer
             $newWidth = $this->width;
             $newHeight = $this->height;
         }
-
-        else if ($newWidth <= 1)
+        elseif ($newWidth <= 1) {
             $newWidth = $this->getSizeByFixedHeight($newHeight);
-
+        }
          // Less than 1 pixel height? (portrait)
-        elseif ($newHeight <= 1)
+        elseif ($newHeight <= 1) {
             $newHeight = $this->getSizeByFixedWidth($newWidth);
+        }
 
         // Image to be resized is wider (landscape)
         if ($this->height < $this->width) {
             $optimalWidth = $newWidth;
             $optimalHeight = $this->getSizeByFixedWidth($newWidth);
         }
-
         // Image to be resized is taller (portrait)
         elseif ($this->height > $this->width) {
             $optimalWidth = $this->getSizeByFixedHeight($newHeight);
             $optimalHeight = $newHeight;
         }
-
         // Image to be resized is a square
         else {
             if ($newHeight < $newWidth) {
                 $optimalWidth = $newWidth;
                 $optimalHeight = $this->getSizeByFixedWidth($newWidth);
-            } elseif ($newHeight > $newWidth) {
+            }
+            elseif ($newHeight > $newWidth) {
                 $optimalWidth = $this->getSizeByFixedHeight($newHeight);
                 $optimalHeight = $newHeight;
-            } else {
+            }
+            else {
                 // Square being resized to a square
                 $optimalWidth = $newWidth;
                 $optimalHeight = $newHeight;
@@ -336,7 +340,8 @@ class Resizer
 
         if ($heightRatio < $widthRatio) {
             $optimalRatio = $heightRatio;
-        } else {
+        }
+        else {
             $optimalRatio = $widthRatio;
         }
 
@@ -366,9 +371,18 @@ class Resizer
 
         $crop = $this->imageResized;
 
+        // Create a new canvas
+        $imageResized = imagecreatetruecolor($newWidth, $newHeight);
+
+        // Retain transparency for PNG and GIF files
+        imagecolortransparent($imageResized, imagecolorallocatealpha($imageResized, 0, 0, 0, 127));
+        imagealphablending($imageResized, false);
+        imagesavealpha($imageResized, true);
+
         // Now crop from center to exact requested size
-        $this->imageResized = imagecreatetruecolor($newWidth, $newHeight);
-        imagecopyresampled($this->imageResized, $crop, 0, 0, $cropStartX, $cropStartY, $newWidth, $newHeight, $newWidth, $newHeight);
+        imagecopyresampled($imageResized, $crop, 0, 0, $cropStartX, $cropStartY, $newWidth, $newHeight, $newWidth, $newHeight);
+
+        $this->imageResized = $imageResized;
 
         return true;
     }

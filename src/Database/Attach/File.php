@@ -278,12 +278,16 @@ class File extends Model
             'extension' => 'jpg',
         ];
 
-        if (!is_array($options))
+        if (!is_array($options)) {
             $options = ['mode' => $options];
+        }
 
         $options = array_merge($defaultOptions, $options);
 
-        $thumbExt = strtolower($options['extension']);
+        if (($thumbExt = strtolower($options['extension'])) == 'auto') {
+            $thumbExt = $this->getExtension();
+        }
+
         $thumbMode = strtolower($options['mode']);
         $thumbOffset = $options['offset'];
         $thumbFile = 'thumb_' . $this->id . '_' . $width . 'x' . $height . '_' . $thumbOffset[0] . '_' . $thumbOffset[1] . '_' . $thumbMode . '.' . $thumbExt;
