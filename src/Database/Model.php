@@ -1048,6 +1048,20 @@ class Model extends EloquentModel
     }
 
     //
+    // Adders
+    //
+
+    /**
+     * Adds a datetime attribute to convert to an instance of Carbon/DateTime object.
+     * @param string   $attribute
+     * @return void
+     */
+    public function addDateAttribute($attribute)
+    {
+        if ( !in_array($this->dates, $attribute) ) $this->dates[] = $attribute;
+    }
+
+    //
     // Getters
     //
 
