@@ -1058,7 +1058,9 @@ class Model extends EloquentModel
      */
     public function addDateAttribute($attribute)
     {
-        if ( !in_array($this->dates, $attribute) ) $this->dates[] = $attribute;
+        if (in_array($this->dates, $attribute)) return;
+
+        $this->dates[] = $attribute;
     }
 
     //
