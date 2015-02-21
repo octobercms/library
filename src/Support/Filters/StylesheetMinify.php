@@ -28,6 +28,7 @@ class StylesheetMinify implements FilterInterface
     protected function minify($css)
     {
         $css = preg_replace('#\s+#', ' ', $css);
+        $css = preg_replace('#}#', '}'.PHP_EOL, $css);
         $css = preg_replace('#/\*.*?\*/#s', '', $css);
         $css = str_replace('; ', ';', $css);
         $css = str_replace(': ', ':', $css);
