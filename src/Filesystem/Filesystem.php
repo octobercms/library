@@ -220,6 +220,19 @@ class Filesystem extends FilesystemBase
     }
 
     /**
+     * Copy a file to a new location.
+     * @param  string  $path
+     * @param  string  $target
+     * @return bool
+     */
+    public function copy($path, $target)
+    {
+        $result = parent::copy($path, $target);
+        if ($mask = $this->getFilePermissions()) @chmod($target, $mask);
+        return $result;
+    }
+
+    /**
      * Create a directory.
      * @param  string  $path
      * @param  int     $mode
