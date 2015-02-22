@@ -244,8 +244,11 @@ class File extends Model
      */
     public function afterDelete()
     {
-        $this->deleteThumbs();
-        $this->deleteFile();
+        try {
+            $this->deleteThumbs();
+            $this->deleteFile();
+        }
+        catch (\Exception $ex) {}
     }
 
     //
