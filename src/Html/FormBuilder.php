@@ -101,7 +101,7 @@ class FormBuilder extends FormBuilderBase
      */
     public function value($name, $value = null)
     {
-        return $this->getValueAttribute($name) ?: post($name, $value);
+        return $this->getValueAttribute($name) ?: input($name, $value);
     }
 
     /**
