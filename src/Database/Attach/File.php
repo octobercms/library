@@ -192,7 +192,7 @@ class File extends Model
      */
     public function getPath()
     {
-        return $this->getPublicDirectory() . $this->getPartitionDirectory() . $this->disk_name;
+        return $this->getPublicPath() . $this->getPartitionDirectory() . $this->disk_name;
     }
 
     /**
@@ -292,15 +292,54 @@ class File extends Model
         $thumbOffset = $options['offset'];
         $thumbFile = 'thumb_' . $this->id . '_' . $width . 'x' . $height . '_' . $thumbOffset[0] . '_' . $thumbOffset[1] . '_' . $thumbMode . '.' . $thumbExt;
         $thumbPath = $this->getStorageDirectory() . $this->getPartitionDirectory() . $thumbFile;
-        $thumbPublic = $this->getPublicDirectory() . $this->getPartitionDirectory() . $thumbFile;
+        $thumbPublic = $this->getPublicPath() . $this->getPartitionDirectory() . $thumbFile;
 
-        if ($this->hasFile($thumbFile)) {
-            return $thumbPublic;
+        if (!$this->hasFile($thumbFile)) {
+
+            if ($this->isLocalStorage()) {
+                $this->makeThumbLocal($thumbFile, $thumbPath, $width, $height, $options);
+            }
+            else {
+                $this->makeThumbStorage($thumbFile, $thumbPath, $width, $height, $options);
+            }
+
         }
 
+        return $thumbPublic;
+    }
+
+    /**
+     * Generate the thumbnail based on the local file system. This step is necessary
+     * to simplify things and ensure the correct file permissions are given
+     * to the local files.
+     */
+    protected function makeThumbLocal($thumbFile, $thumbPath, $width, $height, $options)
+    {
+        $rootPath = $this->getLocalRootPath();
+        $filePath = $rootPath.'/'.$this->getDiskPath();
+        $thumbPath = $rootPath.'/'.$thumbPath;
+
         /*
-         * Set up some working files
+         * Handle a broken source image
          */
+        if (!$this->hasFile($this->disk_name)) {
+            BrokenImage::copyTo($thumbPath);
+        }
+        /*
+         * Generate thumbnail
+         */
+        else {
+            $resizer = Resizer::open($filePath);
+            $resizer->resize($width, $height, $options['mode'], $options['offset']);
+            $resizer->save($thumbPath, $options['quality']);
+        }
+    }
+
+    /**
+     * Generate the thumbnail based on a remote storage engine.
+     */
+    protected function makeThumbStorage($thumbFile, $thumbPath, $width, $height, $options)
+    {
         $tempFile = $this->getLocalTempPath();
         $tempThumb = $this->getLocalTempPath($thumbFile);
 
@@ -326,22 +365,23 @@ class File extends Model
          */
         $this->copyLocalToStorage($tempThumb, $thumbPath);
         FileHelper::delete($tempThumb);
-
-        return $thumbPublic;
-    }
-
-    protected function getLocalTempPath($path = null)
-    {
-        if (!$path) {
-            return $this->getTempDirectory() . '/' . md5($this->getDiskPath()) . '.' . $this->getExtension();
-        }
-
-        return $this->getTempDirectory() . '/' . $path;
     }
 
     //
     // File handling
     //
+
+    /**
+     * Returns a temporary local path to work from.
+     */
+    protected function getLocalTempPath($path = null)
+    {
+        if (!$path) {
+            return $this->getTempPath() . '/' . md5($this->getDiskPath()) . '.' . $this->getExtension();
+        }
+
+        return $this->getTempPath() . '/' . $path;
+    }
 
     /**
      * Copy the Storage to local file
@@ -366,12 +406,27 @@ class File extends Model
      */
     protected function putFile($sourcePath, $destinationFileName = null)
     {
-        if (!$destinationFileName)
+        if (!$destinationFileName) {
             $destinationFileName = $this->disk_name;
+        }
 
         $destinationPath = $this->getStorageDirectory() . $this->getPartitionDirectory();
 
-        return $this->copyLocalToStorage($sourcePath, $destinationPath . $destinationFileName);
+        if (!$this->isLocalStorage()) {
+            return $this->copyLocalToStorage($sourcePath, $destinationPath . $destinationFileName);
+        }
+
+        /*
+         * Using local storage, tack on the root path and work locally
+         * this will ensure the correct permissions are used.
+         */
+        $destinationPath = $this->getLocalRootPath() . '/' . $destinationPath;
+
+        if (!FileHelper::isDirectory($destinationPath)) {
+            FileHelper::makeDirectory($destinationPath, 0777, true);
+        }
+
+        return FileHelper::copy($sourcePath, $destinationPath . $destinationFileName);
     }
 
     /**
@@ -486,9 +541,25 @@ class File extends Model
     }
 
     /**
+     * Returns true if the storage engine is local.
+     */
+    protected function isLocalStorage()
+    {
+        return Storage::getDefaultDriver() == 'local';
+    }
+
+    /**
+     * If working with local storage, determine the absolute local path.
+     */
+    protected function getLocalRootPath()
+    {
+        return storage_path().'/app';
+    }
+
+    /**
      * Define the public address for the storage path.
      */
-    public function getPublicDirectory()
+    public function getPublicPath()
     {
         if ($this->isPublic()) {
             return 'http://localhost/uploads/public/';
@@ -501,7 +572,7 @@ class File extends Model
     /**
      * Define the internal working path, override this method to define.
      */
-    public function getTempDirectory()
+    public function getTempPath()
     {
         $path = temp_path() . '/uploads';
 
