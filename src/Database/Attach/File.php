@@ -336,6 +336,8 @@ class File extends Model
             $resizer->resize($width, $height, $options['mode'], $options['offset']);
             $resizer->save($thumbPath, $options['quality']);
         }
+
+        FileHelper::chmod($thumbPath);
     }
 
     /**
