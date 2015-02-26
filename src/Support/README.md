@@ -21,13 +21,13 @@ $class = MyClass::instance();
 
 ### Global helpers
 
-**post()**
+**input()**
 
 Similar to `Input::get()` this returns an input parameter or the default value. However it supports HTML Array names. Booleans are also converted from strings.
 ```php
-$value = post('value', 'not found');
-$name = post('contact[name]');
-$city = post('contact[location][city]');
+$value = input('value', 'not found');
+$name = input('contact[name]');
+$city = input('contact[location][city]');
 ```
 
 ### String helper extensions
