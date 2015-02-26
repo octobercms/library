@@ -1,8 +1,9 @@
 <?php namespace October\Rain\Auth\Models;
 
-use DateTime;
+use Carbon\Carbon;
 use October\Rain\Database\Model;
 use Exception;
+use DateTime;
 
 /**
  * Throttle model
@@ -198,7 +199,7 @@ class Throttle extends Model
 
         $suspensionTime = static::$suspensionTime;
         $clearAttemptsAt = $lastAttempt->modify("+{$suspensionTime} minutes");
-        $now = new DateTime;
+        $now = new Carbon;
 
         if ($clearAttemptsAt <= $now) {
             $this->attempts = 0;
@@ -223,7 +224,7 @@ class Throttle extends Model
 
         $suspensionTime = static::$suspensionTime;
         $unsuspendAt = $suspended->modify("+{$suspensionTime} minutes");
-        $now = new DateTime;
+        $now = new Carbon;
 
         if ($unsuspendAt <= $now)
             $this->unsuspend();
