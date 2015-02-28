@@ -77,7 +77,7 @@ class Helper
     {
         $defaultColumns = ['id'];
         foreach ($columns as $column) {
-            if (!isset($object->{$column}) || is_array($object->{$column}))
+            if (!isset($object->{$column}) || is_array($object->{$column}) || is_object($object->{$column}))
                 continue;
 
             $string = str_replace(':'.$column, urlencode((string) $object->{$column}), $string);
