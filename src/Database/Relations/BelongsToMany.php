@@ -75,4 +75,22 @@ class BelongsToMany extends BelongsToManyBase
         return $this;
     }
 
+    /**
+     * Get a paginator for the "select" statement. Complies with October Rain.
+     *
+     * @param  int    $perPage
+     * @param  array  $columns
+     * @return \Illuminate\Pagination\Paginator
+     */
+    public function paginate($perPage = null, $currentPage = null, $columns = ['*'])
+    {
+        $this->query->addSelect($this->getSelectColumns($columns));
+
+        $paginator = $this->query->paginate($perPage, $currentPage, $columns);
+
+        $this->hydratePivotRelation($paginator->items());
+
+        return $paginator;
+    }
+
 }
