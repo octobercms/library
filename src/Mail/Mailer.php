@@ -60,13 +60,15 @@ class Mailer extends MailerBase
          * Send the message
          */
         $_message = $message->getSwiftMessage();
-        $this->sendSwiftMessage($_message);
+        $response = $this->sendSwiftMessage($_message);
 
         /*
          * Extensbility
          */
         $this->fireEvent('mailer.send', [$view, $message]);
         Event::fire('mailer.send', [$this, $view, $message]);
+        
+        return $response;
     }
 
     /**
