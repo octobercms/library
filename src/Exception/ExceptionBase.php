@@ -9,7 +9,7 @@ use Exception;
  * This class represents a base interface and set of properties
  * for system and application exceptions.
  *
- * @package october\system
+ * @package october\exception
  * @author Alexey Bobkov, Samuel Georges
  */
 class ExceptionBase extends Exception
