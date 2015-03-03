@@ -20,7 +20,7 @@ class Mailer extends MailerBase
      * @param  string|array $view
      * @param  array $data
      * @param  Closure|string $callback
-     * @return void
+     * @return mixed
      */
     public function send($view, array $data, $callback)
     {
@@ -65,8 +65,8 @@ class Mailer extends MailerBase
         /*
          * Extensbility
          */
-        $this->fireEvent('mailer.send', [$view, $message]);
-        Event::fire('mailer.send', [$this, $view, $message]);
+        $this->fireEvent('mailer.send', [$view, $message, $response]);
+        Event::fire('mailer.send', [$this, $view, $message, $response]);
         
         return $response;
     }
