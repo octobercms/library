@@ -5,6 +5,7 @@ use Config;
 use Request;
 use Response;
 use Exception;
+use October\Rain\Exception\AjaxException;
 use October\Rain\Exception\ApplicationException;
 
 /**
@@ -41,7 +42,9 @@ class ErrorHandler
 
         // Detect AJAX request and use error 500
         if (Request::ajax()) {
-            return static::getDetailedMessage($proposedException);
+            return $proposedException instanceof AjaxException
+                 ? $proposedException->getContents()
+                 : static::getDetailedMessage($proposedException);
         }
 
         $this->beforeHandleError($proposedException);

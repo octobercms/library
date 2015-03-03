@@ -5,6 +5,7 @@ use Event;
 use Response;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use October\Rain\Exception\AjaxException;
 use Exception;
 
 class Handler extends ExceptionHandler
@@ -15,6 +16,7 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
+        'October\Rain\Exception\AjaxException',
         'October\Rain\Exception\ValidationException',
         'October\Rain\Exception\ApplicationException',
         'Symfony\Component\HttpKernel\Exception\HttpException',
@@ -62,6 +64,9 @@ class Handler extends ExceptionHandler
     {
         if ($exception instanceof HttpExceptionInterface) {
             $code = $exception->getStatusCode();
+        }
+        elseif ($exception instanceof AjaxException) {
+            $code = 406;
         }
         else {
             $code = 500;
