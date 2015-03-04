@@ -3,6 +3,7 @@
 use Closure;
 use Illuminate\Filesystem\Filesystem;
 use ArrayAccess;
+use Illuminate\Contracts\Config\Repository as ConfigContract;
 
 /**
  * October config repository class.
@@ -10,7 +11,7 @@ use ArrayAccess;
  * @package config
  * @author Alexey Bobkov, Samuel Georges
  */
-class Repository implements ArrayAccess
+class Repository implements ArrayAccess, ConfigContract
 {
     use \October\Rain\Support\Traits\KeyParser;
 
@@ -116,7 +117,7 @@ class Repository implements ArrayAccess
      * @param  mixed   $value
      * @return void
      */
-    public function set($key, $value)
+    public function set($key, $value = null)
     {
         list($namespace, $group, $item) = $this->parseConfigKey($key);
 
@@ -133,6 +134,38 @@ class Repository implements ArrayAccess
         else {
             array_set($this->items[$collection], $item, $value);
         }
+    }
+
+    /**
+     * Prepend a value onto an array configuration value.
+     *
+     * @param  string  $key
+     * @param  mixed  $value
+     * @return void
+     */
+    public function prepend($key, $value)
+    {
+        $array = $this->get($key);
+
+        array_unshift($array, $value);
+
+        $this->set($key, $array);
+    }
+
+    /**
+     * Push a value onto an array configuration value.
+     *
+     * @param  string  $key
+     * @param  mixed  $value
+     * @return void
+     */
+    public function push($key, $value)
+    {
+        $array = $this->get($key);
+
+        $array[] = $value;
+
+        $this->set($key, $array);
     }
 
     /**
