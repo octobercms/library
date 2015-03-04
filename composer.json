@@ -36,6 +36,7 @@
         "illuminate/queue": "5.0.*",
         "illuminate/support": "5.0.*",
         "illuminate/mail": "5.0.*",
+        "illuminate/events": "5.0.*",
         "illuminate/view": "5.0.*",
         "swiftmailer/swiftmailer": "~5.1",
         "symfony/config": "2.5.*",
