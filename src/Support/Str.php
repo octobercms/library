@@ -50,7 +50,7 @@ class Str extends StrHelper
      */
     public static function evalHtmlId($string)
     {
-        return rtrim(str_replace(['[', ']'], '-', $string), '-');
+        return rtrim(str_replace('--', '-', str_replace(['[', ']'], '-', $string)), '-');
     }
 
     /**
