@@ -48,7 +48,7 @@ class FieldParser
     {
         if ($template) {
             $this->template = $template;
-            $this->processTags($template);
+            $this->processTemplate($template);
         }
     }
 
@@ -106,16 +106,62 @@ class FieldParser
     }
 
     /**
+     * Processes repeating tags first, then reigstered tags and assigns
+     * the results to local object properties.
+     * @return void
+     */
+    protected function processTemplate($template)
+    {
+        // Process repeaters
+        list($template, $tags, $fields) = $this->processRepeaterTags($template);
+        $this->tags = $this->tags + $tags;
+        $this->fields = $this->fields + $fields;
+
+        // Process registered tags
+        list($tags, $fields) = $this->processTags($template);
+        $this->tags = $this->tags + $tags;
+        $this->fields = $this->fields + $fields;
+    }
+
+    /**
+     * Processes all repeating tags against a template, this will strip
+     * any repeaters from the template for further processing.
+     * @param  string $template
+     * @return void
+     */
+    protected function processRepeaterTags($template)
+    {
+        list($tags, $fields) = $this->processTags($template, ['repeater']);
+
+        // Remove the repeater tags for further parsing
+        $template = str_replace($tags, '', $template);
+
+        foreach ($fields as $name => &$field) {
+            $innerTemplate = $field['default'];
+            unset($field['default']);
+            list($innerTags, $innerFields) = $this->processTags($innerTemplate);
+            $tags[$name] = $innerTags;
+            $field['fields'] = $innerFields;
+        }
+
+        return [$template, $tags, $fields];
+    }
+
+    /**
      * Processes all registered tags against a template.
      * @param  string $template
      * @return void
      */
-    protected function processTags($template)
+    protected function processTags($template, $usingTags = null)
     {
+        if (!$usingTags) {
+            $usingTags = $this->registeredTags;
+        }
+
         $tags = [];
         $fields = [];
 
-        $result = $this->processTagsRegex($template, $this->registeredTags);
+        $result = $this->processTagsRegex($template, $usingTags);
         $tagStrings = $result[0];
         $tagNames = $result[1];
         $paramStrings = $result[2];
@@ -136,9 +182,6 @@ class FieldParser
             $tags[$name] = $tagString;
             $fields[$name] = $params;
         }
-
-        $this->tags = $this->tags + $tags;
-        $this->fields = $this->fields + $fields;
 
         return [$tags, $fields];
     }

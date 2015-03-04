@@ -97,6 +97,30 @@ Renders a file upload editor field. The view value is the full path to the file.
 
 Renders in Twig as
 
-    {% for content in repeater %}
-        {{ content|raw }}
+    {% for fields in repeater %}
+        <h2>{{ fields.title }}</h2>
+        <p>{{ fields.content|raw }}</p>
     {% endfor %}
+
+Calling `$syntax->toEditor()` will return a different array for a repeater field:
+
+    'repeater' => [
+        'label' => 'Website name',
+        'type' => 'repeater'
+        'fields' => [
+
+            'title' => [
+                'label' => 'Title',
+                'default' => 'Title',
+                'type' => 'text'
+            ],
+            'content' => [
+                'label' => 'Content',
+                'default' => 'Content',
+                'type' => 'textarea'
+            ]
+
+        ]
+    ]
+
+
