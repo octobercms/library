@@ -1103,9 +1103,15 @@ class Model extends EloquentModel
     {
         $attr = parent::getAttributeValue($key);
 
-        // Handle jsonable
+        /*
+         * Return valid json (boolean, array) if valid, otherwise
+         * jsonable fields will return a string for invalid data.
+         */
         if (in_array($key, $this->jsonable) && !empty($attr)) {
-            $attr = json_decode($attr, true);
+            $_attr = json_decode($attr, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $attr = $_attr;
+            }
         }
 
         return $attr;
