@@ -24,7 +24,7 @@ class Throttle extends Model
      * @var array Relations
      */
     public $belongsTo = [
-        'user' => ['October\Rain\Auth\User', 'foreignKey' => 'user_id']
+        'user' => ['October\Rain\Auth\User', 'key' => 'user_id']
     ];
 
     /**
