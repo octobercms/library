@@ -8,44 +8,27 @@ trait SyntaxModelTrait
     public static function bootSyntaxModelTrait()
     {
         static::fetched(function($model){
-            $model->applySyntaxFields();
+            $model->defineSyntaxRelations();
         });
     }
 
     /**
-     * Get data column name.
-     * @return string
+     * Defines any relationships (attachments) that this model will need
+     * based on the field definitions.
+     * @return void
      */
-    public function getSyntaxDataColumnName()
+    public function defineSyntaxRelations()
     {
-        return defined('static::SYNTAX_DATA') ? static::SYNTAX_DATA : 'syntax_data';
-    }
+        $fields = $this->getSyntaxFields();
+        if (!is_array($fields))
+            return;
 
-    /**
-     * Get value of the model syntax_data column.
-     * @return int
-     */
-    public function getSyntaxData()
-    {
-        return $this->getAttribute($this->getSyntaxDataColumnName());
-    }
+        foreach ($fields as $field => $params) {
+            if (!isset($params['type'])) continue;
 
-    /**
-     * Get fields column name.
-     * @return string
-     */
-    public function getSyntaxFieldsColumnName()
-    {
-        return defined('static::SYNTAX_FIELDS') ? static::SYNTAX_FIELDS : 'syntax_fields';
-    }
-
-    /**
-     * Get value of the model syntax_fields column.
-     * @return int
-     */
-    public function getSyntaxFields()
-    {
-        return $this->getAttribute($this->getSyntaxFieldsColumnName());
+            if ($params['type'] == 'fileupload')
+                $this->attachOne[$field] = ['System\Models\File'];
+        }
     }
 
     /**
@@ -60,6 +43,10 @@ trait SyntaxModelTrait
             return $data;
 
         foreach ($fields as $field => $params) {
+
+            /*
+             * File upload
+             */
             if ($params['type'] == 'fileupload' && $this->hasRelation($field)) {
                 if ($this->sessionKey) {
                     if ($image = $this->$field()->withDeferred($this->sessionKey)->first()) {
@@ -73,6 +60,7 @@ trait SyntaxModelTrait
                     $data[$field] = $this->getThumbForImage($this->$field, $params);
                 }
             }
+
         }
 
         return $data;
@@ -109,10 +97,17 @@ trait SyntaxModelTrait
         $newFields = [];
         foreach ($fields as $field => $params) {
 
-            if ($params['type'] != 'fileupload')
+            if ($params['type'] != 'fileupload') {
                 $newField = $this->getSyntaxDataColumnName().'['.$field.']';
-            else
+            }
+            else {
                 $newField = $field;
+            }
+
+            if ($params['type'] == 'repeater') {
+                $params['form']['fields'] = array_get($params, 'fields', []);
+                unset($params['fields']);
+            }
 
             $newFields[$newField] = $params;
         }
@@ -120,6 +115,13 @@ trait SyntaxModelTrait
         return $newFields;
     }
 
+    /**
+     * Processes supplied content and extracts the field definitions
+     * and default data. It is mixed with the current data and applied
+     * to the fields and data attributes.
+     * @param string $content
+     * @return array
+     */
     public function makeSyntaxFields($content)
     {
         $parser = Parser::parse($content);
@@ -131,24 +133,11 @@ trait SyntaxModelTrait
          * Remove fields no longer present and add default values
          */
         $currentFields = array_intersect_key((array) $this->getFormSyntaxData(), $parser->getFieldValues());
-        $currentFields = array_merge($parser->getFieldValues(), $currentFields);
+        $currentFields = $currentFields + $parser->getFieldValues();
+
         $this->setAttribute($this->getSyntaxDataColumnName(), $currentFields);
 
         return $fields;
-    }
-
-    public function applySyntaxFields()
-    {
-        $fields = $this->getSyntaxFields();
-        if (!is_array($fields))
-            return;
-
-        foreach ($fields as $field => $params) {
-            if (!isset($params['type'])) continue;
-
-            if ($params['type'] == 'fileupload')
-                $this->attachOne[$field] = ['System\Models\File'];
-        }
     }
 
     public function getSyntaxParser($content)
@@ -160,5 +149,41 @@ trait SyntaxModelTrait
     // {
     //     return $this->getSyntaxParser($content)->render($this->getSyntaxData());
     // }
+
+    /**
+     * Get data column name.
+     * @return string
+     */
+    public function getSyntaxDataColumnName()
+    {
+        return defined('static::SYNTAX_DATA') ? static::SYNTAX_DATA : 'syntax_data';
+    }
+
+    /**
+     * Get value of the model syntax_data column.
+     * @return int
+     */
+    public function getSyntaxData()
+    {
+        return $this->getAttribute($this->getSyntaxDataColumnName());
+    }
+
+    /**
+     * Get fields column name.
+     * @return string
+     */
+    public function getSyntaxFieldsColumnName()
+    {
+        return defined('static::SYNTAX_FIELDS') ? static::SYNTAX_FIELDS : 'syntax_fields';
+    }
+
+    /**
+     * Get value of the model syntax_fields column.
+     * @return int
+     */
+    public function getSyntaxFields()
+    {
+        return $this->getAttribute($this->getSyntaxFieldsColumnName());
+    }
 
 }

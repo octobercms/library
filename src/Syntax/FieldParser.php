@@ -53,6 +53,24 @@ class FieldParser
     }
 
     /**
+     * Processes repeating tags first, then reigstered tags and assigns
+     * the results to local object properties.
+     * @return void
+     */
+    protected function processTemplate($template)
+    {
+        // Process repeaters
+        list($template, $tags, $fields) = $this->processRepeaterTags($template);
+        $this->tags = $this->tags + $tags;
+        $this->fields = $this->fields + $fields;
+
+        // Process registered tags
+        list($tags, $fields) = $this->processTags($template);
+        $this->tags = $this->tags + $tags;
+        $this->fields = $this->fields + $fields;
+    }
+
+    /**
      * Static helper for new instances of this class.
      * @param  string $template
      * @return self
@@ -60,6 +78,26 @@ class FieldParser
     public static function parse($template)
     {
         return new static($template);
+    }
+
+    /**
+     * Returns all tag strings found in the template
+     * @return array
+     */
+    public function getTags()
+    {
+        return $this->tags;
+    }
+
+    /**
+     * Returns tag strings for a specific field
+     * @return array
+     */
+    public function getFieldTags($field)
+    {
+        return isset($this->tags[$field])
+            ? $this->tags[$field]
+            : [];
     }
 
     /**
@@ -87,40 +125,25 @@ class FieldParser
      * Returns default values for all fields.
      * @return array
      */
-    public function getDefaultParams()
+    public function getDefaultParams($fields = null)
     {
-        $defaults = [];
-        foreach ($this->fields as $field => $params) {
-            $defaults[$field] = isset($params['default']) ? $params['default'] : null;
+        if (!$fields) {
+            $fields = $this->fields;
         }
+
+        $defaults = [];
+
+        foreach ($fields as $field => $params) {
+            if ($params['type'] == 'repeater') {
+                $defaults[$field] = [];
+                $defaults[$field][] = $this->getDefaultParams(array_get($params, 'fields', []));
+            }
+            else {
+                $defaults[$field] = isset($params['default']) ? $params['default'] : null;
+            }
+        }
+
         return $defaults;
-    }
-
-    /**
-     * Returns all tag strings found in the template
-     * @return array
-     */
-    public function getTags()
-    {
-        return $this->tags;
-    }
-
-    /**
-     * Processes repeating tags first, then reigstered tags and assigns
-     * the results to local object properties.
-     * @return void
-     */
-    protected function processTemplate($template)
-    {
-        // Process repeaters
-        list($template, $tags, $fields) = $this->processRepeaterTags($template);
-        $this->tags = $this->tags + $tags;
-        $this->fields = $this->fields + $fields;
-
-        // Process registered tags
-        list($tags, $fields) = $this->processTags($template);
-        $this->tags = $this->tags + $tags;
-        $this->fields = $this->fields + $fields;
     }
 
     /**
@@ -137,11 +160,19 @@ class FieldParser
         $template = str_replace($tags, '', $template);
 
         foreach ($fields as $name => &$field) {
+            $outerTemplate = $tags[$name];
             $innerTemplate = $field['default'];
             unset($field['default']);
             list($innerTags, $innerFields) = $this->processTags($innerTemplate);
-            $tags[$name] = $innerTags;
+            list($openTag, $closeTag) = explode($innerTemplate, $outerTemplate);
+
             $field['fields'] = $innerFields;
+            $tags[$name] = [
+                'tags'     => $innerTags,
+                'template' => $outerTemplate,
+                'open'     => $openTag,
+                'close'    => $closeTag
+            ];
         }
 
         return [$template, $tags, $fields];

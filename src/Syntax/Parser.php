@@ -100,10 +100,60 @@ class Parser
     {
         $engine = ucfirst($engine);
         $template = $this->template;
-        foreach ($this->fieldParser->getTags() as $field => $tagString) {
-            $tagReplacement = $this->{'eval'.$engine.'ViewField'}($field, $this->fieldParser->getFieldParams($field));
-            $template = str_replace($tagString, $tagReplacement, $template);
+
+
+        $tags = $this->fieldParser->getTags();
+        foreach ($tags as $field => $tag) {
+            $template = is_array($tag)
+                ? $this->processRepeatingTag($engine, $template, $field, $tag)
+                : $this->processTag($engine, $template, $field, $tag);
         }
+
+        return $template;
+    }
+
+    protected function processRepeatingTag($engine, $template, $field, $tagDetails)
+    {
+        $params = $this->fieldParser->getFieldParams($field);
+        $innerFields = array_get($params, 'fields', []);
+        $innerTags = $tagDetails['tags'];
+        $innerTemplate = $tagDetails['template'];
+
+        /*
+         * Replace all the inner tags
+         */
+        foreach ($innerTags as $innerField => $tagString) {
+            $innerParams = array_get($innerFields, $innerField, []);
+            $tagReplacement = $this->{'eval'.$engine.'ViewField'}($innerField, $innerParams, 'fields');
+            $innerTemplate = str_replace($tagString, $tagReplacement, $innerTemplate);
+        }
+
+        /*
+         * Replace the opening tag
+         */
+        $openTag = array_get($tagDetails, 'open', '{repeater}');
+        $openReplacement = $engine == 'Twig' ? '{% for fields in '.$field.' %}' : '{'.$field.'}';
+        $openReplacement = $openReplacement . PHP_EOL;
+        $innerTemplate = str_replace($openTag, $openReplacement, $innerTemplate);
+
+        /*
+         * Replace the closing tag
+         */
+        $closeTag = array_get($tagDetails, 'close', '{/repeater}');
+        $closeReplacement = $engine == 'Twig' ? '{% endfor %}' : '{/'.$field.'}';
+        $closeReplacement = PHP_EOL . $closeReplacement;
+        $innerTemplate = str_replace($closeTag, $closeReplacement, $innerTemplate);
+
+        $templateString = $tagDetails['template'];
+        $template = str_replace($templateString, $innerTemplate, $template);
+        return $template;
+    }
+
+    protected function processTag($engine, $template, $field, $tagString)
+    {
+        $params = $this->fieldParser->getFieldParams($field);
+        $tagReplacement = $this->{'eval'.$engine.'ViewField'}($field, $params);
+        $template = str_replace($tagString, $tagReplacement, $template);
         return $template;
     }
 
@@ -113,9 +163,13 @@ class Parser
      * @param  array $params
      * @return string
      */
-    protected function evalTwigViewField($field, $params)
+    protected function evalTwigViewField($field, $params, $prefix = null)
     {
         $type = isset($params['type']) ? $params['type'] : 'text';
+
+        if ($prefix) {
+            $field = $prefix.'.'.$field;
+        }
 
         switch ($type) {
             default:
@@ -140,7 +194,7 @@ class Parser
      * @param  array $params
      * @return string
      */
-    protected function evalSimpleViewField($field, $params)
+    protected function evalSimpleViewField($field, $params, $prefix = null)
     {
         $type = isset($params['type']) ? $params['type'] : 'text';
 

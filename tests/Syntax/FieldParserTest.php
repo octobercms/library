@@ -46,14 +46,14 @@ class FieldParserTest extends TestCase
         $content = '';
         $content .= '{text name="field1" label="Field 1"}{/text}'.PHP_EOL;
         $content .= '{repeater name="repeater1" label="Repeater 1"}'.PHP_EOL;
-            $content .= '{textarea name="field1" label="Field 1 Again"}{/textarea}'.PHP_EOL;
-            $content .= '{text name="field2" label="Field 2"}Default Text{/text}'.PHP_EOL;
+            $content .= '{textarea name="field1" label="Field 1 Again"}This Default Text{/textarea}'.PHP_EOL;
+            $content .= '{text name="field2" label="Field 2"}{/text}'.PHP_EOL;
         $content .= '{/repeater}'.PHP_EOL;
         $content .= '{textarea name="field3" label="Field 3"}Default Text{/textarea}'.PHP_EOL;
         $content .= '{textarea name="field4" label="Field 4"}Invalid Tag{/invalid}'.PHP_EOL;
         $content .= '{repeater name="repeater2" label="Repeater 2"}'.PHP_EOL;
             $content .= '{textarea name="field5" label="Field 5 Again"}{/textarea}'.PHP_EOL;
-            $content .= '{text name="field6" label="Field 6"}Default Text{/text}'.PHP_EOL;
+            $content .= '{text name="field6" label="Field 6"}Some Default Text{/text}'.PHP_EOL;
         $content .= '{/repeater}'.PHP_EOL;
         $content .= '{richeditor name="field7" label="Field 7"}{/richeditor}'.PHP_EOL;
 
@@ -82,15 +82,21 @@ class FieldParserTest extends TestCase
         $this->assertArrayNotHasKey('field5', $tags);
         $this->assertArrayNotHasKey('field6', $tags);
         $this->assertArrayHasKey('field7', $tags);
-        $this->assertArrayHasKey('field1', $tags['repeater1']);
-        $this->assertArrayHasKey('field2', $tags['repeater1']);
-        $this->assertArrayHasKey('field5', $tags['repeater2']);
-        $this->assertArrayHasKey('field6', $tags['repeater2']);
+
+        $this->assertArrayHasKey('tags', $tags['repeater1']);
+        $this->assertArrayHasKey('template', $tags['repeater1']);
+        $this->assertArrayHasKey('tags', $tags['repeater2']);
+        $this->assertArrayHasKey('template', $tags['repeater2']);
+
+        $this->assertArrayHasKey('field1', $tags['repeater1']['tags']);
+        $this->assertArrayHasKey('field2', $tags['repeater1']['tags']);
+        $this->assertArrayHasKey('field5', $tags['repeater2']['tags']);
+        $this->assertArrayHasKey('field6', $tags['repeater2']['tags']);
 
         $this->assertEquals('{text name="field1" label="Field 1"}{/text}', $tags['field1']);
-        $this->assertEquals('{textarea name="field1" label="Field 1 Again"}{/textarea}', $tags['repeater1']['field1']);
-        $this->assertEquals('{text name="field2" label="Field 2"}Default Text{/text}', $tags['repeater1']['field2']);
-        $this->assertEquals('{textarea name="field5" label="Field 5 Again"}{/textarea}', $tags['repeater2']['field5']);
+        $this->assertEquals('{textarea name="field1" label="Field 1 Again"}This Default Text{/textarea}', $tags['repeater1']['tags']['field1']);
+        $this->assertEquals('{text name="field2" label="Field 2"}{/text}', $tags['repeater1']['tags']['field2']);
+        $this->assertEquals('{textarea name="field5" label="Field 5 Again"}{/textarea}', $tags['repeater2']['tags']['field5']);
 
         $this->assertArrayNotHasKey('name', $fields['field1']);
         $this->assertArrayNotHasKey('name', $fields['field3']);
@@ -105,6 +111,11 @@ class FieldParserTest extends TestCase
         $this->assertEquals('repeater', $fields['repeater2']['type']);
         $this->assertEquals('textarea', $fields['repeater2']['fields']['field5']['type']);
         $this->assertEquals('richeditor', $fields['field7']['type']);
+
+        $defaults = $result->getDefaultParams();
+        $this->assertEquals('Default Text', $defaults['field3']);
+        $this->assertEquals('This Default Text', $defaults['repeater1'][0]['field1']);
+        $this->assertEquals('Some Default Text', $defaults['repeater2'][0]['field6']);
     }
 
     public function testProcessTag()
