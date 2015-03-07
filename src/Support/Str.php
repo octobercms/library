@@ -12,37 +12,6 @@ use October\Rain\Html\Helper as HtmlHelper; // For @deprecate Remove if year >= 
 class Str extends StrHelper
 {
     /**
-     * Converts a string to a boolean.
-     */
-    public static function toBoolean($string)
-    {
-        return self::evalBoolean($string) === true;
-    }
-
-    /**
-     * Checks if a string is a boolean and returns it, otherwise the plain string is returned.
-     * True values: y, yes, true.
-     * False values: n, no, false.
-     */
-    public static function evalBoolean($string)
-    {
-        switch (strtolower(trim($string))) {
-            case 'y':
-            case 'yes':
-            case 'true':
-                return true;
-
-            case 'n':
-            case 'no':
-            case 'false':
-                return false;
-
-            default:
-                return $string;
-        }
-    }
-
-    /**
      * Converts line breaks to a standard \r\n pattern.
      */
     public static function normalizeEol($string)
