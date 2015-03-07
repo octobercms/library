@@ -1,9 +1,9 @@
 <?php namespace October\Rain\Database\Traits;
 
-use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use October\Rain\Database\TreeCollection;
 use October\Rain\Database\NestedTreeScope;
+use Exception;
 
 /**
  * Nested set model trait
@@ -112,7 +112,7 @@ trait NestedTree
                 $model->setDepth();
             });
 
-            $model->bindEvent('model.beforeDeleting', function() use ($model){
+            $model->bindEvent('model.beforeDeleting', function() use ($model) {
                 $model->deleteDescendants();
             });
         });
