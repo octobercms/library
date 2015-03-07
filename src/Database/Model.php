@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Database;
 
-use Str;
 use Input;
 use Closure;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
