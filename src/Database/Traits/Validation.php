@@ -5,6 +5,7 @@ use October\Rain\Database\ModelException;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Facades\Validator;
 use Exception;
+use Lang;
 
 trait Validation
 {
@@ -166,6 +167,16 @@ trait Validation
             if (is_null($customMessages))
                 $customMessages = [];
 
+            /*
+             * Handle translation strings for custom messages
+             */
+            $translatedCustomMessages = [];
+            foreach ($customMessages as $rule => $customMessage){
+                $translatedCustomMessages[$rule] = Lang::get($customMessage);
+            }
+
+            $customMessages = $translatedCustomMessages;
+
             if (is_null($attributeNames))
                 $attributeNames = [];
 
@@ -173,12 +184,21 @@ trait Validation
                 $attributeNames = array_merge($this->attributeNames, $attributeNames);
 
             /*
+             * Handle translation strings for attribute names
+             */
+            $translatedAttributeNames = [];
+            foreach ($attributeNames as $attribute => $attributeName){
+                $translatedAttributeNames[$attribute] = Lang::get($attributeName);
+            }
+
+            $attributeNames = $translatedAttributeNames;
+
+            /*
              * Use custom language attributes
              */
-            $translations = trans('validation.attributes');
+            $translations = Lang::get('validation.attributes');
             if (is_array($translations))
                 $attributeNames = array_merge($translations, $attributeNames);
-
 
             $validator = self::makeValidator($data, $rules, $customMessages, $attributeNames);
 
