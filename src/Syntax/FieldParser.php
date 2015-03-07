@@ -37,7 +37,8 @@ class FieldParser
         'textarea',
         'richeditor',
         'markdown',
-        'fileupload'
+        'fileupload',
+        'repeater'
     ];
 
     /**
@@ -60,14 +61,24 @@ class FieldParser
     protected function processTemplate($template)
     {
         // Process repeaters
-        list($template, $tags, $fields) = $this->processRepeaterTags($template);
-        $this->tags = $this->tags + $tags;
-        $this->fields = $this->fields + $fields;
+        list($template, $repeatTags, $repeatfields) = $this->processRepeaterTags($template);
 
         // Process registered tags
         list($tags, $fields) = $this->processTags($template);
         $this->tags = $this->tags + $tags;
         $this->fields = $this->fields + $fields;
+
+        /*
+         * Layer the repeater tags over the standard ones to retain 
+         * the original sort order
+         */
+        foreach ($repeatfields as $field => $params) {
+            $this->fields[$field] = $params;
+        }
+
+        foreach ($repeatTags as $field => $params) {
+            $this->tags[$field] = $params;
+        }
     }
 
     /**
@@ -156,9 +167,6 @@ class FieldParser
     {
         list($tags, $fields) = $this->processTags($template, ['repeater']);
 
-        // Remove the repeater tags for further parsing
-        $template = str_replace($tags, '', $template);
-
         foreach ($fields as $name => &$field) {
             $outerTemplate = $tags[$name];
             $innerTemplate = $field['default'];
@@ -173,6 +181,10 @@ class FieldParser
                 'open'     => $openTag,
                 'close'    => $closeTag
             ];
+
+            // Remove the inner content of the repeater 
+            // tag to prevent further parsing
+            $template = str_replace($outerTemplate, $openTag.$closeTag, $template);
         }
 
         return [$template, $tags, $fields];
