@@ -67,7 +67,7 @@ class Mailer extends MailerBase
          */
         $this->fireEvent('mailer.send', [$view, $message, $response]);
         Event::fire('mailer.send', [$this, $view, $message, $response]);
-        
+
         return $response;
     }
 
