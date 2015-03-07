@@ -149,12 +149,15 @@ class Model extends EloquentModel
      */
     protected static $relationTypes = ['hasOne', 'hasMany', 'belongsTo', 'belongsToMany', 'morphTo', 'morphOne', 'morphMany', 'morphToMany', 'morphedByMany', 'attachOne', 'attachMany', 'hasManyThrough'];
 
+    protected static $eventsBooted = [];
+
     /**
      * Constructor
      */
     public function __construct(array $attributes = [])
     {
         parent::__construct();
+        static::bootNicerEvents();
         $this->extendableConstruct();
         $this->fill($attributes);
     }
@@ -199,18 +202,6 @@ class Model extends EloquentModel
     }
 
     /**
-     * The "booting" method of the model.
-     * Overrided to attach before/after method hooks into the model events.
-     * @see \Illuminate\Database\Eloquent\Model::boot()
-     * @return void
-     */
-    public static function boot()
-    {
-        parent::boot();
-        self::bootNicerEvents();
-    }
-
-    /**
      * Extend this object properties upon construction.
      */
     public static function extend(Closure $callback)
@@ -221,9 +212,14 @@ class Model extends EloquentModel
     /**
      * Bind some nicer events to this model, in the format of method overrides.
      */
-    private static function bootNicerEvents()
+    protected static function bootNicerEvents()
     {
         $self = get_called_class();
+
+        if (isset(static::$eventsBooted[$self])) {
+            return;
+        }
+
         $radicals = ['creat', 'sav', 'updat', 'delet', 'fetch'];
         $hooks = ['before' => 'ing', 'after' => 'ed'];
 
@@ -251,6 +247,22 @@ class Model extends EloquentModel
             if ($model->methodExists('afterBoot'))
                 return $model->afterBoot();
         });
+
+        static::$eventsBooted[$self] = true;
+    }
+
+    /**
+     * Remove all of the event listeners for the model
+     * Also flush registry of models that had events booted
+     * Allows painless unit testing.
+     *
+     * @override
+     * @return void
+     */
+    public static function flushEventListeners()
+    {
+        parent::flushEventListeners();
+        static::$eventsBooted = [];
     }
 
     /**
