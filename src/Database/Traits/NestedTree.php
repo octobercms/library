@@ -95,26 +95,26 @@ trait NestedTree
                 get_class($model),
                 'key' => $model->getParentColumnName()
             ];
-        });
 
-        /*
-         * Bind events
-         */
-        static::creating(function($model) {
-            $model->setDefaultLeftAndRight();
-        });
+            /*
+             * Bind events
+             */
+            $model->bindEvent('model.beforeCreating', function() use ($model) {
+                $model->setDefaultLeftAndRight();
+            });
 
-        static::saving(function($model) {
-            $model->storeNewParent();
-        });
+            $model->bindEvent('model.beforeSaving', function() use ($model) {
+                $model->storeNewParent();
+            });
 
-        static::saved(function($model) {
-            $model->moveToNewParent();
-            $model->setDepth();
-        });
+            $model->bindEvent('model.afterSaved', function() use ($model) {
+                $model->moveToNewParent();
+                $model->setDepth();
+            });
 
-        static::deleting(function($model) {
-            $model->deleteDescendants();
+            $model->bindEvent('model.beforeDeleting', function() use ($model){
+                $model->deleteDescendants();
+            });
         });
     }
 
