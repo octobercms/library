@@ -1136,7 +1136,7 @@ class Model extends EloquentModel
     public function resolveAttribute($attribute)
     {
         $model = $this;
-        $parts = explode('.', $attribute);
+        $parts = is_array($attribute) ? $attribute : explode('.', $attribute);
         $last = array_pop($parts);
 
         foreach ($parts as $part) {
