@@ -149,6 +149,9 @@ class Model extends EloquentModel
      */
     protected static $relationTypes = ['hasOne', 'hasMany', 'belongsTo', 'belongsToMany', 'morphTo', 'morphOne', 'morphMany', 'morphToMany', 'morphedByMany', 'attachOne', 'attachMany', 'hasManyThrough'];
 
+    /**
+     * @var array The array of models booted events.
+     */
     protected static $eventsBooted = [];
 
     /**
@@ -157,7 +160,7 @@ class Model extends EloquentModel
     public function __construct(array $attributes = [])
     {
         parent::__construct();
-        static::bootNicerEvents();
+        $this->bootNicerEvents();
         $this->extendableConstruct();
         $this->fill($attributes);
     }
@@ -212,11 +215,11 @@ class Model extends EloquentModel
     /**
      * Bind some nicer events to this model, in the format of method overrides.
      */
-    protected static function bootNicerEvents()
+    protected function bootNicerEvents()
     {
-        $self = get_called_class();
+        $class = get_called_class();
 
-        if (isset(static::$eventsBooted[$self])) {
+        if (isset(static::$eventsBooted[$class])) {
             return;
         }
 
@@ -230,7 +233,7 @@ class Model extends EloquentModel
                 $method = $hook . ucfirst($radical); // beforeSave / afterSave
                 if ($radical != 'fetch') $method .= 'e';
 
-                self::$eventMethod(function($model) use ($self, $method) {
+                self::$eventMethod(function($model) use ($method) {
                     $model->fireEvent('model.' . $method);
 
                     if ($model->methodExists($method))
@@ -248,7 +251,7 @@ class Model extends EloquentModel
                 return $model->afterBoot();
         });
 
-        static::$eventsBooted[$self] = true;
+        static::$eventsBooted[$class] = true;
     }
 
     /**
