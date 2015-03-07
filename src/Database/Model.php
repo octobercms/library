@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database;
 
+use Str;
 use Input;
 use Closure;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
@@ -1125,6 +1126,25 @@ class Model extends EloquentModel
     public function hasGetMutator($key)
     {
         return $this->methodExists('get'.studly_case($key).'Attribute');
+    }
+
+    /**
+     * Returns the final model and attribute name of a nested attribute.
+     * Eg: list($model, $attribute) = $this->resolveAttribute('person.phone');
+     * @param  string $attribute.
+     * @return array
+     */
+    public function resolveAttribute($attribute)
+    {
+        $model = $this;
+        $parts = explode('.', $attribute);
+        $last = array_pop($parts);
+
+        foreach ($parts as $part) {
+            $model = $model->{$part};
+        }
+
+        return [$model, $last];
     }
 
     //
