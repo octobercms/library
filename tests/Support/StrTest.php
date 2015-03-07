@@ -29,32 +29,4 @@ class StrTest extends TestCase
         $this->assertEquals('nothing to see here', $result);
     }
 
-    public function testEvalHtmlArray()
-    {
-        $result = Str::evalHtmlArray('field');
-        $this->assertInternalType('array', $result);
-        $this->assertEquals(1, count($result));
-        $this->assertTrue(in_array('field', $result));
-
-        $result = Str::evalHtmlArray('field[key1]');
-        $this->assertInternalType('array', $result);
-        $this->assertEquals(2, count($result));
-        $this->assertTrue(in_array('field', $result));
-        $this->assertTrue(in_array('key1', $result));
-
-        $result = Str::evalHtmlArray('field[][key1]');
-        $this->assertInternalType('array', $result);
-        $this->assertEquals(2, count($result));
-        $this->assertTrue(in_array('field', $result));
-        $this->assertTrue(in_array('key1', $result));
-
-        $result = Str::evalHtmlArray('field[key1][key2][key3]');
-        $this->assertInternalType('array', $result);
-        $this->assertEquals(4, count($result));
-        $this->assertTrue(in_array('field', $result));
-        $this->assertTrue(in_array('key1', $result));
-        $this->assertTrue(in_array('key2', $result));
-        $this->assertTrue(in_array('key3', $result));
-    }
-
 }
