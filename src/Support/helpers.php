@@ -23,7 +23,10 @@ if (!function_exists('input'))
         /*
          * Array field name, eg: field[key][key2][key3]
          */
-        $name = implode('.', Str::evalHtmlArray($name));
+        if (class_exists('October\Rain\Html\Helper')) {
+            $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
+        }
+
         return Input::get($name, $default);
     }
 }
@@ -41,7 +44,10 @@ if (!function_exists('post'))
         /*
          * Array field name, eg: field[key][key2][key3]
          */
-        $name = implode('.', Str::evalHtmlArray($name));
+        if (class_exists('October\Rain\Html\Helper')) {
+            $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
+        }
+
         return array_get($_POST, $name, $default);
     }
 }
@@ -60,7 +66,10 @@ if (!function_exists('get'))
         /*
          * Array field name, eg: field[key][key2][key3]
          */
-        $name = implode('.', Str::evalHtmlArray($name));
+        if (class_exists('October\Rain\Html\Helper')) {
+            $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
+        }
+
         return array_get($_GET, $name, $default);
     }
 }

@@ -30,27 +30,6 @@ $name = input('contact[name]');
 $city = input('contact[location][city]');
 ```
 
-### String helper extensions
-
-These additional helpers are available in the `Str` class.
-
-**evalHtmlArray**
-
-Converts a HTML array string to a PHP array. Empty values are removed.
-
-```php
-// Converts to PHP array ['user', 'location', 'city']
-$array = Str::evalHtmlArray('user[location][city]');
-```
-
-**stripHtml**
-
-Removes HTML from a string.
-```php
-// Outputs: Fatal Error! Oh noes!
-echo Str::stripHtml('<b>Fatal Error!</b> Oh noes!');
-```
-
 ### Event emitter
 
 Adds event related features to any class.
