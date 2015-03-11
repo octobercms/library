@@ -41,7 +41,13 @@ class Mailer extends MailerBase
 
         $data['message'] = $message = $this->createMessage();
         $this->callMessageBuilder($callback, $message);
-        $this->addContent($message, $view, $plain, $raw, $data);
+
+        if (is_bool($raw) && $raw === true) {
+            $this->addContentRaw($message, $view, $plain);
+        }
+        else {
+            $this->addContent($message, $view, $plain, $raw, $data);
+        }
 
         /*
          * Extensbility
@@ -81,6 +87,7 @@ class Mailer extends MailerBase
      *  - queueName
      *  - callback
      *  - delay
+     * @param  array $recipients
      * @param  string|array $view
      * @param  array $data
      * @param  Closure|string $callback
@@ -95,7 +102,7 @@ class Mailer extends MailerBase
         $method = $queue === true ? 'queue' : 'send';
         $recipients = $this->processRecipients($recipients);
 
-        $this->{$method}($view, $data, function($message) use ($recipients, $callback) {
+        return $this->{$method}($view, $data, function($message) use ($recipients, $callback) {
             foreach ($recipients as $address => $name) {
                 $message->to($address, $name);
             }
@@ -104,6 +111,24 @@ class Mailer extends MailerBase
                 $callback($message);
             }
         });
+    }
+
+    /**
+     * Helper for raw() method, send a new message when only a raw text part.
+     * @param  array $recipients
+     * @param  string  $text
+     * @param  mixed   $callback
+     * @param  boolean $queue
+     * @return int
+     */
+    public function rawTo($recipients, $view, $callback = null, $queue = false)
+    {
+        if (!is_array($view)) {
+            $view = ['text' => $view];
+        }
+
+        $view['raw'] = true;
+        return $this->sendTo($recipients, $view, [], $callback, $queue);
     }
 
     /**
@@ -180,31 +205,57 @@ class Mailer extends MailerBase
             return;
         }
 
+        $html = null;
+        $text = null;
+
         if (isset($view)) {
             $viewContent = $this->getView($view, $data);
             $result = MailParser::parse($viewContent);
-            $message->setBody($result['html'], 'text/html');
+            $html = $result['html'];
 
-            if ($result['text'])
-                $message->addPart($result['text'], 'text/plain');
+            if ($result['text']) {
+                $text = $result['text'];
+            }
 
-            if ($subject = array_get($result['settings'], 'subject'))
+            if ($subject = array_get($result['settings'], 'subject')) {
                 $message->subject($subject);
+            }
         }
 
         if (isset($plain)) {
-            $message->addPart($this->getView($plain, $data), 'text/plain');
+            $text = $this->getView($plain, $data);
         }
 
         if (isset($raw)) {
-            $message->addPart($raw, 'text/plain');
+            $text = $raw;
         }
+
+        $this->addContentRaw($message, $html, $text);
 
         /*
          * Extensbility
          */
         $this->fireEvent('mailer.addContent', [$message, $view, $data]);
         Event::fire('mailer.addContent', [$this, $message, $view, $data]);
+    }
+
+    /**
+     * Add the raw content to a given message.
+     *
+     * @param  \Illuminate\Mail\Message  $message
+     * @param  string  $html
+     * @param  string  $text
+     * @return void
+     */
+    protected function addContentRaw($message, $html, $text)
+    {
+        if (isset($html)) {
+            $message->setBody($html, 'text/html');
+        }
+
+        if (isset($text)) {
+            $message->addPart($text, 'text/plain');
+        }
     }
 
 }
