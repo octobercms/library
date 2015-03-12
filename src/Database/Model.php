@@ -905,7 +905,7 @@ class Model extends EloquentModel
                     break;
                 }
 
-                if (!is_array($value)) $value = [$value];
+                if (is_string($value)) $value = [$value];
 
                 // Do not sync until the model is saved
                 $this->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
