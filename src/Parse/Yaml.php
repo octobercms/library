@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Parse;
 
+use Symfony\Component\Yaml\Dumper;
 use Symfony\Component\Yaml\Parser;
 
 /**
@@ -17,7 +18,7 @@ class Yaml
      */
     public function parse($contents)
     {
-        $yaml = new Parser();
+        $yaml = new Parser;
         return $yaml->parse($contents);
     }
 
@@ -30,5 +31,27 @@ class Yaml
     {
         $contents = file_get_contents($fileName);
         return $this->parse($contents);
+    }
+
+    /**
+     * Renders a PHP array to YAML format.
+     * @param array $vars
+     * @param array $options
+     *
+     * Supported options:
+     * - inline: The level where you switch to inline YAML.
+     * - exceptionOnInvalidType: if an exception must be thrown on invalid types.
+     * - objectSupport: if object support is enabled.
+     */
+    public function render($vars = [], $options = [])
+    {
+        extract(array_merge([
+            'inline' => 20,
+            'exceptionOnInvalidType' => false,
+            'objectSupport' => true,
+        ], $options));
+
+        $yaml = new Dumper;
+        return $yaml->dump($vars, $inline, 0, $exceptionOnInvalidType, $objectSupport);
     }
 }
