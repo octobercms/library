@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Exception;
 
-use Exception;
 use Illuminate\Support\MessageBag;
 use Illuminate\Validation\Validator;
+use Exception;
 
 /**
  * Validation exception class.
