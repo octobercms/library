@@ -93,4 +93,28 @@ class BelongsToMany extends BelongsToManyBase
         return $paginator;
     }
 
+    /**
+     * Create a new pivot model instance.
+     *
+     * @param  array  $attributes
+     * @param  bool   $exists
+     * @return \Illuminate\Database\Eloquent\Relations\Pivot
+     */
+    public function newPivot(array $attributes = array(), $exists = false)
+    {
+        /*
+         * October looks to the relationship parent
+         */
+        $pivot = $this->parent->newRelationPivot($this->relationName, $this->parent, $attributes, $this->table, $exists);
+
+        /*
+         * Laravel looks to the related model
+         */
+        if (empty($pivot)) {
+            $pivot = $this->related->newPivot($this->parent, $attributes, $this->table, $exists);
+        }
+
+        return $pivot->setPivotKeys($this->foreignKey, $this->otherKey);
+    }
+
 }
