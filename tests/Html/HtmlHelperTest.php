@@ -69,6 +69,13 @@ class HtmlHelperTest extends TestCase
 
         $result = HtmlHelper::clean('<span style="width: expression(alert(\'Ping!\'));"></span>');
         $this->assertEquals('<span ></span>', $result);
+
+        $result = HtmlHelper::clean('<a href="javascript: alert(\'Ping!\');">Test</a>');
+        $this->assertEquals('<a href="nojavascript... alert(\'Ping!\');">Test</a>', $result);
+
+        // This fails
+        // $result = HtmlHelper::clean('<a href=" &#14;  javascript: alert(\'Ping!\');">Test</a>');
+        // $this->assertEquals('<a href="nojavascript... alert(\'Ping!\');">Test</a>', $result);
     }
 
 }
