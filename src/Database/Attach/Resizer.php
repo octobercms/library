@@ -145,7 +145,7 @@ class Resizer
         $extension = FileHelper::extension($savePath) ?: $this->extension;
 
         // Create and save an image based on it's extension
-        switch ($extension) {
+        switch (strtolower($extension)) {
             case 'jpg':
             case 'jpeg':
                 // Check JPG support is enabled
