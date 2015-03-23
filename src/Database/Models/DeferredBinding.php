@@ -18,19 +18,21 @@ class DeferredBinding extends Model
      */
     public function beforeValidate()
     {
-        if ($this->exists)
+        if ($this->exists) {
             return;
+        }
 
         /*
          * Skip repeating bindings
          */
         if ($this->is_bind) {
             $model = $this->findBindingRecord(1);
-            if ($model)
+            if ($model) {
                 return false;
+            }
         }
         /*
-         *Remove add-delete pairs
+         * Remove add-delete pairs
          */
         else {
             $model = $this->findBindingRecord(1);
@@ -101,34 +103,38 @@ class DeferredBinding extends Model
          */
         try
         {
-            if (!$this->is_bind)
+            if (!$this->is_bind) {
                 return;
+            }
 
             $masterType = $this->master_type;
             $masterObject = new $masterType();
 
-            if (!$masterObject->isDeferrable($this->master_field))
+            if (!$masterObject->isDeferrable($this->master_field)) {
                 return;
+            }
 
             $related = $masterObject->makeRelation($this->master_field);
             $relatedObj = $related->find($this->slave_id);
-            if (!$relatedObj)
+            if (!$relatedObj) {
                 return;
+            }
 
             $options = $masterObject->getRelationDefinition($this->master_field);
 
-            // @todo Determine if suitable -- This is an added protection layer
-            // if (!array_key_exists('delete', $options) || !$options['delete'])
-            //     return;
+            if (!array_get($options, 'delete', false)) {
+                return;
+            }
 
             $foreignKey = array_get($options, 'key', $masterObject->getForeignKey());
 
             // Only delete it if the relationship is null.
-            if (!$relatedObj->$foreignKey)
+            if (!$relatedObj->$foreignKey) {
                 $relatedObj->delete();
+            }
+
         }
-        catch (\Exception $ex)
-        {
+        catch (\Exception $ex) {
             // Do nothing
         }
     }

@@ -417,7 +417,7 @@ class Model extends EloquentModel
     public function getRelationDefinition($name)
     {
         if (($type = $this->getRelationType($name)) !== null) {
-            return $this->{$type}[$name];
+            return $this->{$type}[$name] + $this->getRelationDefaults($type);
         }
     }
 
@@ -466,6 +466,23 @@ class Model extends EloquentModel
         }
 
         return (bool) $definition['push'];
+    }
+
+    /**
+     * Returns default relation arguments for a given type.
+     * @param string $name Relation type
+     * @return array
+     */
+    protected function getRelationDefaults($type)
+    {
+        switch ($type) {
+            case 'attachOne':
+            case 'attachMany':
+                return ['order' => 'sort_order', 'delete' => true];
+
+            default:
+                return [];
+        }
     }
 
     /**
@@ -546,7 +563,6 @@ class Model extends EloquentModel
      */
     protected function validateRelationArgs($relationName, $optional, $required = [])
     {
-
         $relation = $this->getRelationDefinition($relationName);
 
         // Query filter arguments

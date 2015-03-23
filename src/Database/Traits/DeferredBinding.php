@@ -55,8 +55,9 @@ trait DeferredBinding
      */
     public function commitDeferred($sessionKey)
     {
-        if (!strlen($sessionKey))
+        if (!strlen($sessionKey)) {
             return;
+        }
 
         $bindings = DeferredBindingModel::where('master_type', get_class($this))
             ->where('session_key', $sessionKey)
@@ -64,11 +65,13 @@ trait DeferredBinding
 
         foreach ($bindings as $binding) {
 
-            if (!($relationName = $binding->master_field))
+            if (!($relationName = $binding->master_field)) {
                 continue;
+            }
 
-            if (!$this->isDeferrable($relationName))
+            if (!$this->isDeferrable($relationName)) {
                 continue;
+            }
 
             /*
              * Find the slave model
@@ -76,8 +79,9 @@ trait DeferredBinding
             $slaveClass = $binding->slave_type;
             $slaveModel = new $slaveClass();
             $slaveModel = $slaveModel->find($binding->slave_id);
-            if (!$slaveModel)
+            if (!$slaveModel) {
                 continue;
+            }
 
             /*
              * Bind/Unbind the relationship, save the related model with any
@@ -85,12 +89,12 @@ trait DeferredBinding
              */
             $relationObj = $this->$relationName();
 
-            if ($binding->is_bind)
+            if ($binding->is_bind) {
                 $relationObj->add($slaveModel);
-            else
+            }
+            else {
                 $relationObj->remove($slaveModel);
-
-            $slaveModel->save(null, $sessionKey);
+            }
 
             $binding->delete();
         }
@@ -101,8 +105,9 @@ trait DeferredBinding
      */
     public function isDeferrable($relationName)
     {
-        if (!$this->hasRelation($relationName))
+        if (!$this->hasRelation($relationName)) {
             return false;
+        }
 
         $type = $this->getRelationType($relationName);
         return (

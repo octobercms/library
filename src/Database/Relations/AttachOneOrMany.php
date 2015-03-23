@@ -135,11 +135,19 @@ trait AttachOneOrMany
     {
         if ($sessionKey === null) {
 
-            // Make this model an orphan ;~(
-            $model->setAttribute($this->getPlainForeignKey(), null);
-            $model->setAttribute($this->getPlainMorphType(), null);
-            $model->setAttribute('field', null);
-            $model->save();
+            $options = $this->parent->getRelationDefinition($this->relationName);
+
+            if (array_get($options, 'delete', false)) {
+                $model->delete();
+            }
+            else {
+                // Make this model an orphan ;~(
+                $model->setAttribute($this->getPlainForeignKey(), null);
+                $model->setAttribute($this->getPlainMorphType(), null);
+                $model->setAttribute('field', null);
+                $model->save();
+            }
+
         }
         else {
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);
