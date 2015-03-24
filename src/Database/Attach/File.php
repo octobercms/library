@@ -88,6 +88,8 @@ class File extends Model
         $this->disk_name = $this->getDiskName();
 
         $this->putFile($uploadedFile->getRealPath(), $this->disk_name);
+
+        return $this;
     }
 
     /**
@@ -105,6 +107,8 @@ class File extends Model
         $this->disk_name = $this->getDiskName();
 
         $this->putFile($file->getRealPath(), $this->disk_name);
+
+        return $this;
     }
 
     /**
