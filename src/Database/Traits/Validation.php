@@ -67,18 +67,6 @@ trait Validation
 
             }, 500);
         });
-
-        static::validating(function($model) {
-            $model->fireEvent('model.beforeValidate');
-            if ($model->methodExists('beforeValidate'))
-                $model->beforeValidate();
-        });
-
-        static::validated(function($model) {
-            $model->fireEvent('model.afterValidate');
-            if ($model->methodExists('afterValidate'))
-                $model->afterValidate();
-        });
     }
 
     /**
@@ -115,7 +103,7 @@ trait Validation
             ? $this->throwOnValidation
             : true;
 
-        if ($this->fireModelEvent('validating') === false) {
+        if ($this->fireEvent('model.beforeValidate') === false) {
             if ($throwOnValidation) {
                 throw new ModelException($this);
             }
@@ -123,6 +111,9 @@ trait Validation
                 return false;
             }
         }
+
+        if ($this->methodExists('beforeValidate'))
+            $this->beforeValidate();
 
         /*
          * Perform validation
@@ -227,7 +218,9 @@ trait Validation
             }
         }
 
-        $this->fireModelEvent('validated', false);
+        $this->fireEvent('model.afterValidate');
+        if ($this->methodExists('afterValidate'))
+            $this->afterValidate();
 
         if (!$success && $throwOnValidation) {
             throw new ModelException($this);
@@ -320,26 +313,6 @@ trait Validation
     public function errors()
     {
         return $this->validationErrors;
-    }
-
-    /**
-     * Create a new native event for handling beforeValidate().
-     * @param Closure|string $callback
-     * @return void
-     */
-    public static function validating($callback)
-    {
-        static::registerModelEvent('validating', $callback);
-    }
-
-    /**
-     * Create a new native event for handling afterValidate().
-     * @param Closure|string $callback
-     * @return void
-     */
-    public static function validated($callback)
-    {
-        static::registerModelEvent('validated', $callback);
     }
 
 }
