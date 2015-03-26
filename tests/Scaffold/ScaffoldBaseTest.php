@@ -46,7 +46,8 @@ class ScaffoldBaseTest extends TestCase
         $testVars = [
             'name' => 'duffMan',
             'author' => 'Moe',
-            'plugin' => 'Duff'
+            'plugin' => 'Duff',
+            'class' => 'TaxClass',
         ];
 
         $result = self::callProtectedMethod($obj, 'processVars', [$testVars]);
@@ -54,6 +55,9 @@ class ScaffoldBaseTest extends TestCase
         $this->assertArrayHasKey('name', $result);
         $this->assertArrayHasKey('author', $result);
         $this->assertArrayHasKey('plugin', $result);
+        $this->assertArrayHasKey('title_name', $result);
+        $this->assertArrayHasKey('title_author', $result);
+        $this->assertArrayHasKey('title_plugin', $result);
         $this->assertArrayHasKey('upper_name', $result);
         $this->assertArrayHasKey('upper_plural_name', $result);
         $this->assertArrayHasKey('upper_singular_name', $result);
@@ -109,6 +113,7 @@ class ScaffoldBaseTest extends TestCase
         $this->assertEquals('duffMan', $result['name']);
         $this->assertEquals('Moe', $result['author']);
         $this->assertEquals('Duff', $result['plugin']);
+        $this->assertEquals('Duff Man', $result['title_name']);
         $this->assertEquals('DUFFMAN', $result['upper_name']);
         $this->assertEquals('DUFFMEN', $result['upper_plural_name']);
         $this->assertEquals('DUFFMAN', $result['upper_singular_name']);
@@ -160,5 +165,9 @@ class ScaffoldBaseTest extends TestCase
         $this->assertEquals('duff', $result['camel_singular_plugin']);
         $this->assertEquals('Duffs', $result['plural_plugin']);
         $this->assertEquals('Duff', $result['singular_plugin']);
+        $this->assertEquals('Tax Class', $result['title_class']);
+        $this->assertEquals('Tax Class', $result['title_singular_class']);
+        $this->assertEquals('Tax Classes', $result['title_plural_class']);
+        $this->assertEquals('tax class', $result['lower_title_class']);
     }
 }

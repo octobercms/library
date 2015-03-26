@@ -4,7 +4,7 @@ use BackendMenu;
 use Backend\Classes\Controller;
 
 /**
- * {{name}} Back-end Controller
+ * {{title_name}} Back-end Controller
  */
 class {{studly_name}} extends Controller
 {

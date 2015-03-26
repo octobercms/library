@@ -136,8 +136,8 @@ abstract class TemplateBase
      */
     protected function processVars($vars)
     {
-        $cases = ['upper', 'lower', 'snake', 'studly', 'camel'];
-        $modifiers = ['plural', 'singular'];
+        $cases = ['upper', 'lower', 'snake', 'studly', 'camel', 'title'];
+        $modifiers = ['plural', 'singular', 'title'];
 
         foreach ($vars as $key => $var) {
 
@@ -146,11 +146,11 @@ abstract class TemplateBase
              */
             foreach ($cases as $case) {
                 $primaryKey = $case . '_' . $key;
-                $vars[$primaryKey] = Str::$case($var);
+                $vars[$primaryKey] = $this->modifyString($case, $var);
 
                 foreach ($modifiers as $modifier) {
                     $secondaryKey = $case . '_' . $modifier . '_' . $key;
-                    $vars[$secondaryKey] = Str::$case(Str::$modifier($var));
+                    $vars[$secondaryKey] = $this->modifyString([$modifier, $case], $var);
                 }
             }
 
@@ -159,11 +159,35 @@ abstract class TemplateBase
              */
             foreach ($modifiers as $modifier) {
                 $primaryKey = $modifier . '_' . $key;
-                $vars[$primaryKey] = Str::$modifier($var);
+                $vars[$primaryKey] = $this->modifyString($modifier, $var);
             }
 
         }
 
         return $vars;
     }
+
+    /**
+     * Internal helper that handles modify a string, with extra logic.
+     * @param string|array $type
+     * @param string $string
+     * @return string
+     */
+    protected function modifyString($type, $string)
+    {
+        if (is_array($type)) {
+            foreach ($type as $_type) {
+                $string = $this->modifyString($_type, $string);
+            }
+
+            return $string;
+        }
+
+        if ($type == 'title') {
+            $string = str_replace('_', ' ', Str::snake($string));
+        }
+
+        return Str::$type($string);
+    }
+
 }

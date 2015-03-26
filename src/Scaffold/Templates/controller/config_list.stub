@@ -9,7 +9,7 @@ list: $/{{lower_author}}/{{lower_plugin}}/models/{{lower_model}}/columns.yaml
 modelClass: {{studly_author}}\{{studly_plugin}}\Models\{{studly_model}}
 
 # List Title
-title: Manage {{plural_name}}
+title: Manage {{title_plural_name}}
 
 # Link URL for each record
 recordUrl: {{lower_author}}/{{lower_plugin}}/{{lower_name}}/update/:id
