@@ -88,10 +88,10 @@ class Str extends StrHelper
     /**
      * @deprecated Moved to October\Rain\Html\Helper::limit
      */
-    public static function limitHtml($string)
+    public static function limitHtml($string, $maxLength, $end = '...')
     {
         traceLog('Str::limitHtml has been deprecated, use October\Rain\Html\Helper::limit instead.');
-        return HtmlHelper::limit($string);
+        return HtmlHelper::limit($string, $maxLength, $end);
     }
 
     /**
