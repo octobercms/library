@@ -417,7 +417,7 @@ class Model extends EloquentModel
     public function getRelationDefinition($name)
     {
         if (($type = $this->getRelationType($name)) !== null) {
-            return $this->{$type}[$name] + $this->getRelationDefaults($type);
+            return (array) $this->{$type}[$name] + $this->getRelationDefaults($type);
         }
     }
 
