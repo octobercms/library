@@ -99,20 +99,20 @@ trait NestedTree
             /*
              * Bind events
              */
-            $model->bindEvent('model.beforeCreating', function() use ($model) {
+            $model->bindEvent('model.beforeCreate', function() use ($model) {
                 $model->setDefaultLeftAndRight();
             });
 
-            $model->bindEvent('model.beforeSaving', function() use ($model) {
+            $model->bindEvent('model.beforeSave', function() use ($model) {
                 $model->storeNewParent();
             });
 
-            $model->bindEvent('model.afterSaved', function() use ($model) {
+            $model->bindEvent('model.afterSave', function() use ($model) {
                 $model->moveToNewParent();
                 $model->setDepth();
             });
 
-            $model->bindEvent('model.beforeDeleting', function() use ($model) {
+            $model->bindEvent('model.beforeDelete', function() use ($model) {
                 $model->deleteDescendants();
             });
         });
