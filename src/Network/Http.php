@@ -264,7 +264,7 @@ class Http
          */
         if ($this->requestData) {
             if (in_array($this->method, [self::METHOD_POST, self::METHOD_PATCH, self::METHOD_PUT])) {
-                curl_setopt($curl, CURLOPT_POSTFIELDS, $this->requestData);
+                curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($this->requestData));
             }
             elseif ($this->method == self::METHOD_GET) {
                 curl_setopt($curl, CURLOPT_URL, $this->url . '?' . http_build_query($this->requestData));
