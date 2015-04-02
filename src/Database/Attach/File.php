@@ -405,7 +405,7 @@ class File extends Model
      */
     protected function copyLocalToStorage($localPath, $storagePath)
     {
-        return Storage::put($storagePath, FileHelper::get($localPath));
+        return Storage::put($storagePath, FileHelper::get($localPath), ($this->isPublic()) ? 'public' : null);
     }
 
     /**
