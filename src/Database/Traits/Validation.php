@@ -218,10 +218,12 @@ trait Validation
             }
         }
 
-	$this->fireModelEvent('validated', false);
+        $this->fireModelEvent('validated', false);
         $this->fireEvent('model.afterValidate');
-        if ($this->methodExists('afterValidate'))
+
+        if ($this->methodExists('afterValidate')) {
             $this->afterValidate();
+        }
 
         if (!$success && $throwOnValidation) {
             throw new ModelException($this);
