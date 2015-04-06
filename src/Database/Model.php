@@ -1097,7 +1097,11 @@ class Model extends EloquentModel
             if (!$this->isRelationPushable($name))
                 continue;
 
-            foreach (Collection::make($models) as $model) {
+            $models = $models instanceof Collection
+                ? $models->all()
+                : (array) $models;
+
+            foreach (array_filter($models) as $model) {
                 if (!$model->push($sessionKey))
                     return false;
             }
