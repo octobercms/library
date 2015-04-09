@@ -189,7 +189,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Reloads the model from the database.
+     * Reloads the model attributes from the database.
      * @return \Illuminate\Database\Eloquent\Model|static
      */
     public function reload()
@@ -202,6 +202,21 @@ class Model extends EloquentModel
         }
 
         return $this;
+    }
+
+    /**
+     * Reloads the model relationship cache.
+     * @param string  $relationName
+     * @return void
+     */
+    public function reloadRelations($relationName = null)
+    {
+        if (!$relationName) {
+            $this->setRelations([]);
+        }
+        else {
+            $this->setRelation($relationName, null);
+        }
     }
 
     /**
