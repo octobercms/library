@@ -24,7 +24,7 @@ class FormBuilder extends FormBuilderBase
      * The reserved form open attributes.
      * @var array
      */
-    protected $reservedAjax = ['request', 'success', 'error', 'confirm', 'redirect', 'update', 'data'];
+    protected $reservedAjax = ['request', 'success', 'error', 'complete', 'confirm', 'redirect', 'update', 'data'];
 
     /**
      * The session key used by the form builder.
