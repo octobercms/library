@@ -129,6 +129,34 @@ class Resizer
     }
 
     /**
+     * Resamples the original image.
+     * This method works exactly like PHP imagecopyresampled() GD function with a minor difference -
+     * the destination X and Y coordinates are fixed and always 0, 0.
+     * @param int $srcX X-coordinate of source point.
+     * @param int $srcY Y-coordinate of source point.
+     * @param int $newWidth The width of the image
+     * @param int $newHeight The height of the image
+     * @param int $srcW Source area width.
+     * @param int $srcH Source area height.
+     * @return Self
+     */
+    public function resample($srcX, $srcY, $newWidth, $newHeight, $srcW, $srcH)
+    {
+        // Resample - create image canvas of x, y size
+        $imageResized = imagecreatetruecolor($newWidth, $newHeight);
+
+        // Retain transparency for PNG and GIF files
+        imagecolortransparent($imageResized, imagecolorallocatealpha($imageResized, 0, 0, 0, 127));
+        imagealphablending($imageResized, false);
+        imagesavealpha($imageResized, true);
+
+        // Create the new image
+        imagecopyresampled($imageResized, $this->image, 0, 0, $srcX, $srcY, $newWidth, $newHeight, $srcW, $srcH);
+
+        $this->imageResized = $imageResized;
+    }
+
+    /**
      * Save the image based on its file type.
      * @param string $savePath Where to save the image
      * @param int $imageQuality The output quality of the image
