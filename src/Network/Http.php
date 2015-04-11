@@ -242,10 +242,42 @@ class Http
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-        if (defined('CURLOPT_FOLLOWLOCATION') && !ini_get('open_basedir')) {
-            curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($curl, CURLOPT_MAXREDIRS, $this->maxRedirects);
-        }
+	  	if (ini_get('open_basedir') === '' && ini_get('safe_mode' === 'Off')) { 
+				curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+				curl_setopt($curl, CURLOPT_MAXREDIRS, $max_redirects);
+				//$data = curl_exec($curl);
+		} else {
+			curl_setopt($curl, CURLOPT_FOLLOWLOCATION, false);
+			$mr = $max_redirects;
+			if ($mr > 0) { 
+				$newurl = curl_getinfo($curl, CURLINFO_EFFECTIVE_URL);
+				
+				$rcurl = curl_copy_handle($curl);
+				curl_setopt($rcurl, CURLOPT_HEADER, true);
+				curl_setopt($rcurl, CURLOPT_NOBODY, true);
+				curl_setopt($rcurl, CURLOPT_FORBID_REUSE, false);
+				curl_setopt($rcurl, CURLOPT_RETURNTRANSFER, true);
+				do {
+					curl_setopt($rcurl, CURLOPT_URL, $newurl);
+					$header = curl_exec($rcurl);
+						if (curl_errno($rcurl)) {
+					$code = 0;
+				} else {
+					  $code = curl_getinfo($rcurl, CURLINFO_HTTP_CODE);
+					  if ($code == 301 || $code == 302) {
+							preg_match('/Location:(.*?)\n/', $header, $matches);
+							$newurl = trim(array_pop($matches));
+					  } else {
+							$code = 0;
+					  }
+				 }
+			  } while ($code && --$mr);
+					curl_close($rcurl);
+					if ($mr > 0) {
+					  curl_setopt($curl, CURLOPT_URL, $newurl);
+					} 
+			}
+		}
         if ($this->requestOptions && is_array($this->requestOptions))
             curl_setopt_array($curl, $this->requestOptions);
 
