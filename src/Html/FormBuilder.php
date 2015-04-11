@@ -105,6 +105,23 @@ class FormBuilder extends FormBuilderBase
     }
 
     /**
+     * Create a select box field with empty option support.
+     * @param  string  $name
+     * @param  array   $list
+     * @param  string  $selected
+     * @param  array   $options
+     * @return string
+     */
+    public function select($name, $list = [], $selected = null, $options = [])
+    {
+        if (array_key_exists('emptyOption', $options)) {
+            $list = ['' => $options['emptyOption']] + $list;
+        }
+
+        return parent::select($name, $list, $selected, $options);
+    }
+
+    /**
      * Returns a hidden HTML input, supplying the session key value.
      * @return string
      */
