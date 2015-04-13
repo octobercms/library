@@ -1114,7 +1114,7 @@ class Model extends EloquentModel
 
             $models = $models instanceof Collection
                 ? $models->all()
-                : (array) $models;
+                : array($models);
 
             foreach (array_filter($models) as $model) {
                 if (!$model->push($sessionKey))
