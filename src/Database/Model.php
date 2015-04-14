@@ -1105,20 +1105,29 @@ class Model extends EloquentModel
     {
         $always = array_get($options, 'always', false);
 
-        if (!$this->save(null, $sessionKey) && !$always)
+        if (!$this->save(null, $sessionKey) && !$always) {
             return false;
+        }
 
         foreach ($this->relations as $name => $models) {
-            if (!$this->isRelationPushable($name))
+            if (!$this->isRelationPushable($name)) {
                 continue;
+            }
 
-            $models = $models instanceof Collection
-                ? $models->all()
-                : array($models);
+            if ($models instanceof Collection) {
+                $models = $models->all();
+            }
+            elseif ($models instanceof EloquentModel) {
+                $models = [$models];
+            }
+            else {
+                $models = (array) $models;
+            }
 
             foreach (array_filter($models) as $model) {
-                if (!$model->push($sessionKey))
+                if (!$model->push($sessionKey)) {
                     return false;
+                }
             }
         }
 
