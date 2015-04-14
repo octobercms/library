@@ -222,10 +222,10 @@ class ExceptionBase extends Exception
         $result = [];
         $traceInfo = $this->filterCallStack($this->getTrueException()->getTrace());
         $lastIndex = count($traceInfo) - 1;
-        
+
         foreach ($traceInfo as $index => $event) {
-            
-            if (isset($event['function']) === false) {
+
+            if (!isset($event['function'])) {
                 $event['function'] = null;
             }
 
@@ -240,7 +240,7 @@ class ExceptionBase extends Exception
             if (isset($event['args']) && count($event['args'])) {
                 $args = $this->formatStackArguments($event['args'], false);
             }
-            
+
             $result[] = (object)[
                 'id'   => $lastIndex - $index + 1,
                 'code' => $functionName,
