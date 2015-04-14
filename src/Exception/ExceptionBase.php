@@ -224,6 +224,10 @@ class ExceptionBase extends Exception
         $lastIndex = count($traceInfo) - 1;
         
         foreach ($traceInfo as $index => $event) {
+            
+            if (isset($event['function']) === false) {
+                $event['function'] = null;
+            }
 
             $functionName = (isset($event['class']) && strlen($event['class']))
                 ? $event['class'].$event['type'].$event['function']
