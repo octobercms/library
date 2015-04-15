@@ -22,6 +22,21 @@ trait HasOneOrMany
     }
 
     /**
+     * Attach an array of models to the parent instance with deferred binding support.
+     *
+     * @param  array  $models
+     * @return array
+     */
+    public function saveMany(array $models, $sessionKey = null)
+    {
+        foreach ($models as $model) {
+            $this->save($model,$sessionKey);
+        }
+
+        return $models;
+    }
+
+    /**
      * Create a new instance of this related model with deferred binding support.
      */
     public function create(array $attributes, $sessionKey = null)
