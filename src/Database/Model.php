@@ -1177,11 +1177,11 @@ class Model extends EloquentModel
 
         $attr = parent::getAttribute($key);
 
-        if ($attr === null) {
-            if ($this->hasRelation($key)) {
-                $this->relations[$key] = $this->$key()->getResults();
-                return $this->relations[$key];
-            }
+        if ($attr === null &&
+            $this->hasRelation($key) &&
+            !array_key_exists($key, $this->relations)
+        ) {
+            $attr = $this->relations[$key] = $this->$key()->getResults();
         }
 
         // After Event

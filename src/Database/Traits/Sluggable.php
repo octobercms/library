@@ -55,7 +55,7 @@ trait Sluggable
      */
     public function setSluggedValue($slugAttribute, $sourceAttributes, $maxLength = 240)
     {
-        if (!isset($this->{$slugAttribute})) {
+        if (!isset($this->{$slugAttribute}) || !strlen($this->{$slugAttribute})) {
             if (!is_array($sourceAttributes))
                 $sourceAttributes = [$sourceAttributes];
 
