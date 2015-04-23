@@ -13,7 +13,7 @@ trait DeferOneOrMany
     public function withDeferred($sessionKey)
     {
         $modelQuery = $this->query;
-        $newQuery = $modelQuery->getQuery()->newQuery();
+        $newQuery = $modelQuery->getQuery()->newQuery(DB::connection());
 
         $newQuery->from($this->related->getTable());
 
@@ -38,7 +38,7 @@ trait DeferOneOrMany
             // Bind (Add)
             $query = $query->orWhereExists(function($query) use ($sessionKey) {
                 $query->from('deferred_bindings')
-                    ->whereRaw(DbDongle::cast('slave_id', 'INTEGER').' = '.DbDongle::getTablePrefix().$this->related->getQualifiedKeyName())
+                    ->whereRaw(DbDongle::cast('slave_id', 'INTEGER').' = '.$query->getConnection()->getTablePrefix().$this->related->getQualifiedKeyName())
                     ->where('master_field', $this->relationName)
                     ->where('master_type', get_class($this->parent))
                     ->where('session_key', $sessionKey)
@@ -49,13 +49,13 @@ trait DeferOneOrMany
         // Unbind (Remove)
         $newQuery->whereNotExists(function($query) use ($sessionKey) {
             $query->from('deferred_bindings')
-                ->whereRaw(DbDongle::cast('slave_id', 'INTEGER').' = '.DbDongle::getTablePrefix().$this->related->getQualifiedKeyName())
+                ->whereRaw(DbDongle::cast('slave_id', 'INTEGER').' = '.$query->getConnection()->getTablePrefix().$this->related->getQualifiedKeyName())
                 ->where('master_field', $this->relationName)
                 ->where('master_type', get_class($this->parent))
                 ->where('session_key', $sessionKey)
                 ->where('is_bind', false)
                 ->whereRaw(DbDongle::parse('id > ifnull((select max(id) from '.DbDongle::getTablePrefix().'deferred_bindings where
-                        '.DbDongle::cast('slave_id', 'INTEGER').' = '.DbDongle::getTablePrefix().$this->related->getQualifiedKeyName().' and
+                        '.DbDongle::cast('slave_id', 'INTEGER').' = '.$query->getConnection()->getTablePrefix().$this->related->getQualifiedKeyName().' and
                         master_field = ? and
                         master_type = ? and
                         session_key = ? and
