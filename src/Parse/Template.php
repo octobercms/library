@@ -16,7 +16,7 @@ class Template
      */
     protected $options = [
         'encodeHtml' => false,
-        'newlineToBr' => true,
+        'newlineToBr' => false,
     ];
 
     public function __construct($options = [])
