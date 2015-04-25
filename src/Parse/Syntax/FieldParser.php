@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Syntax;
+<?php namespace October\Rain\Parse\Syntax;
 
 /**
  * Dynamic Syntax parser

@@ -1,8 +1,8 @@
 {
-    "name": "october/syntax",
-    "description": "Dynamic Syntax Templating Language",
+    "name": "october/parse",
+    "description": "Various parsing utilities",
     "homepage": "http://octobercms.com",
-    "keywords": ["october cms", "october", "dynamic syntax", "template", "templating"],
+    "keywords": ["october cms", "october", "parse", "template", "markdown", "yaml"],
     "license": "MIT",
     "authors": [
         {
@@ -19,7 +19,7 @@
     },
     "autoload": {
         "psr-4": {
-            "October\\Rain\\Syntax\\": ""
+            "October\\Rain\\Parse\\": ""
         }
     },
     "extra": {

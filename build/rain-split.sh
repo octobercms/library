@@ -4,7 +4,6 @@
 
 ./git-subsplit.sh init git@github.com:octobercms/library.git
 ./git-subsplit.sh publish --no-tags src/Translation:git@github.com:octoberrain/translation.git
-./git-subsplit.sh publish --no-tags src/Syntax:git@github.com:octoberrain/syntax.git
 ./git-subsplit.sh publish --no-tags src/Support:git@github.com:octoberrain/support.git
 ./git-subsplit.sh publish --no-tags src/Router:git@github.com:octoberrain/router.git
 ./git-subsplit.sh publish --no-tags src/Network:git@github.com:octoberrain/network.git

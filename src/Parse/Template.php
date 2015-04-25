@@ -1,10 +1,16 @@
-<?php namespace October\Rain\Syntax;
+<?php namespace October\Rain\Parse;
 
 /**
- * Simple Text parser
+ * Simple template parser
+ *
+ * @package october\parse
+ * @author Alexey Bobkov, Samuel Georges
  */
-class TextParser
+class Template
 {
+    const CHAR_OPEN = '{';
+    const CHAR_CLOSE = '}';
+
     /**
      * @var array Parsing options
      */
@@ -72,7 +78,7 @@ class TextParser
         if (isset($this->options['newlineToBr']) && $this->options['newlineToBr'])
             $value = nl2br($value);
 
-        $returnStr = str_replace(Parser::CHAR_OPEN.$key.Parser::CHAR_CLOSE, $value, $string);
+        $returnStr = str_replace(static::CHAR_OPEN.$key.static::CHAR_CLOSE, $value, $string);
 
         return $returnStr;
     }
@@ -117,8 +123,8 @@ class TextParser
      */
     protected function parseLoopRegex($string, $key)
     {
-        $open = preg_quote(Parser::CHAR_OPEN);
-        $close = preg_quote(Parser::CHAR_CLOSE);
+        $open = preg_quote(static::CHAR_OPEN);
+        $close = preg_quote(static::CHAR_CLOSE);
 
         $regex = '|';
         $regex .= $open.$key.$close; // Open

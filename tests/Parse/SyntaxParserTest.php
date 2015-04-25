@@ -1,8 +1,8 @@
 <?php
 
-use October\Rain\Syntax\Parser;
+use October\Rain\Parse\Syntax\Parser;
 
-class ParserTest extends TestCase
+class SyntaxParserTest extends TestCase
 {
 
     public function testParseToTwig()

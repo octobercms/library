@@ -1,8 +1,8 @@
 <?php
 
-use October\Rain\Syntax\TextParser;
+use October\Rain\Parse\Template as TextParser;
 
-class TextParserTest extends TestCase
+class TemplateTest extends TestCase
 {
 
     public function testParseCombination()

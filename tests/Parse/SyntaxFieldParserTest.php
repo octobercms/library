@@ -1,8 +1,8 @@
 <?php
 
-use October\Rain\Syntax\FieldParser;
+use October\Rain\Parse\Syntax\FieldParser;
 
-class FieldParserTest extends TestCase
+class SyntaxFieldParserTest extends TestCase
 {
 
     public function testParse()

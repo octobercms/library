@@ -1,4 +1,6 @@
-<?php namespace October\Rain\Syntax;
+<?php namespace October\Rain\Parse\Syntax;
+
+use October\Rain\Parse\Template as TextParser;
 
 /**
  * Dynamic Syntax parser
@@ -9,12 +11,12 @@ class Parser
     const CHAR_CLOSE = '}';
 
     /**
-     * @var October\Rain\Syntax\FieldParser Field parser instance.
+     * @var October\Rain\Parse\Syntax\FieldParser Field parser instance.
      */
     protected $fieldParser;
 
     /**
-     * @var October\Rain\Syntax\TextParser Text parser instance.
+     * @var October\Rain\Parse\Template Text parser instance.
      */
     protected $textParser;
 
