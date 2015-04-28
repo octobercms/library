@@ -63,15 +63,15 @@ class File extends Model
     /**
      * @var mixed Externally set path
      */
-    public $path = -1;
+    public $pathOverride = -1;
 
     /**
      * @var array Helper attribute for getPath
      */
     public function getPathAttribute()
     {
-        if ($this->path !== -1) {
-            return $this->path;
+        if ($this->pathOverride !== -1) {
+            return $this->pathOverride;
         }
 
         return $this->getPath();
