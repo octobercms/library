@@ -30,7 +30,7 @@ trait HasOneOrMany
     public function saveMany(array $models, $sessionKey = null)
     {
         foreach ($models as $model) {
-            $this->save($model,$sessionKey);
+            $this->save($model, $sessionKey);
         }
 
         return $models;
