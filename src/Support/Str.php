@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Str as StrHelper;
 use October\Rain\Html\Helper as HtmlHelper; // For @deprecate Remove if year >= 2016
+use Html; // For @deprecate Remove if year >= 2016
 
 /**
  * String helper
@@ -81,8 +82,8 @@ class Str extends StrHelper
      */
     public static function stripHtml($string)
     {
-        traceLog('Str::stripHtml has been deprecated, use October\Rain\Html\Helper::strip instead.');
-        return HtmlHelper::strip($string);
+        traceLog('Str::stripHtml has been deprecated, use Html::strip instead.');
+        return Html::strip($string);
     }
 
     /**
@@ -90,8 +91,8 @@ class Str extends StrHelper
      */
     public static function limitHtml($string, $maxLength, $end = '...')
     {
-        traceLog('Str::limitHtml has been deprecated, use October\Rain\Html\Helper::limit instead.');
-        return HtmlHelper::limit($string, $maxLength, $end);
+        traceLog('Str::limitHtml has been deprecated, use Html::limit instead.');
+        return Html::limit($string, $maxLength, $end);
     }
 
     /**
@@ -99,8 +100,8 @@ class Str extends StrHelper
      */
     public static function cleanHtml($string)
     {
-        traceLog('Str::cleanHtml has been deprecated, use October\Rain\Html\Helper::clean instead.');
-        return HtmlHelper::clean($string);
+        traceLog('Str::cleanHtml has been deprecated, use Html::clean instead.');
+        return Html::clean($string);
     }
 
 }

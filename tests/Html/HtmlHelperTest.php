@@ -46,41 +46,4 @@ class HtmlHelperTest extends TestCase
         $this->assertTrue(in_array('key2', $result));
         $this->assertTrue(in_array('key3', $result));
     }
-
-    public function testStrip()
-    {
-        $result = HtmlHelper::strip('<p>hello</p>');
-        $this->assertEquals('hello', $result);
-    }
-
-    public function testLimit()
-    {
-        $result = HtmlHelper::limit('<p>The quick brown fox jumped over the lazy dog</p>', 10);
-        $this->assertEquals('<p>The quick ...</p>', $result);
-
-        $result = HtmlHelper::limit('<p>The quick brown fox jumped over the lazy dog</p>', 20, '!!!');
-        $this->assertEquals('<p>The quick brown fox !!!</p>', $result);
-    }
-
-    public function testClean()
-    {
-        $result = HtmlHelper::clean('<script>window.location = "http://google.com"</script>');
-        $this->assertEquals('window.location = "http://google.com"', $result);
-
-        $result = HtmlHelper::clean('<span style="width: expression(alert(\'Ping!\'));"></span>');
-        $this->assertEquals('<span ></span>', $result);
-
-        $result = HtmlHelper::clean('<a href="javascript: alert(\'Ping!\');">Test</a>');
-        $this->assertEquals('<a href="nojavascript... alert(\'Ping!\');">Test</a>', $result);
-
-        $result = HtmlHelper::clean('<a href=" &#14;  javascript: alert(\'Ping!\');">Test</a>');
-        $this->assertEquals('<a href="nojavascript... alert(\'Ping!\');">Test</a>', $result);
-
-        $result = HtmlHelper::clean('<a href=" &#14  javascript: alert(\'Ping!\');">Test</a>');
-        $this->assertEquals('<a href="nojavascript... alert(\'Ping!\');">Test</a>', $result);
-
-        $result = HtmlHelper::clean('<a href=" &#14;;  javascript: alert(\'Ping!\');">Test</a>');
-        $this->assertEquals('<a href="nojavascript... alert(\'Ping!\');">Test</a>', $result);
-    }
-
 }
