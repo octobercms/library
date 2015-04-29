@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Exception;
 
-use URL;
 use File;
 use Exception;
 
@@ -233,7 +232,7 @@ class ExceptionBase extends Exception
                 ? $event['class'].$event['type'].$event['function']
                 : $event['function'];
 
-            $file = isset($event['file']) ? URL::to(str_replace(public_path(), '', $event['file'])) : null;
+            $file = isset($event['file']) ? '~'.File::localToPublic($event['file']) : null;
             $line = isset($event['line']) ? $event['line'] : null;
 
             $args = null;
