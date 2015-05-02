@@ -3,8 +3,9 @@
 use Db;
 use Str;
 use Closure;
-use DbDongle;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Collection;
+use Exception;
 
 /**
  * Model Data Feed class.
@@ -21,11 +22,6 @@ class DataFeed
      * @var string The attribute to use for each model tag name.
      */
     public $tagVar = 'tag_name';
-
-    /**
-     * @var string The attribute to use for each model class name.
-     */
-    public $modelVar = 'model_name';
 
     /**
      * @var string An alias to use for each entries timestamp attribute.
@@ -79,7 +75,11 @@ class DataFeed
         if (!$item)
             return;
 
-        $this->collection[] = compact('item', 'tag', 'orderBy');
+        $keyName = $item instanceof EloquentModel
+            ? $item->getKeyName()
+            : $item->getModel()->getKeyName();
+
+        $this->collection[$tag] = compact('item', 'orderBy', 'keyName');
 
         // Reset the query cache
         $this->queryCache = null;
@@ -122,17 +122,18 @@ class DataFeed
          */
         $mixedArray = [];
         foreach ($records as $record) {
-            $className = $record->{$this->modelVar};
-            $mixedArray[$className][] = $record->id;
+            $tagName = $record->{$this->tagVar};
+            $mixedArray[$tagName][] = $record->id;
         }
 
         /*
          * Eager load the data collection
          */
         $collectionArray = [];
-        foreach ($mixedArray as $className => $ids) {
-            $obj = new $className;
-            $collectionArray[$className] = $obj->whereIn($obj->getKeyName(), $ids)->get();
+        foreach ($mixedArray as $tagName => $ids) {
+            $obj = $this->getModelByTag($tagName);
+            $keyName = $this->getKeyNameByTag($tagName);
+            $collectionArray[$tagName] = $obj->whereIn($keyName, $ids)->get();
         }
 
         /*
@@ -141,11 +142,9 @@ class DataFeed
         $dataArray = [];
         foreach ($records as $record) {
             $tagName = $record->{$this->tagVar};
-            $className = $record->{$this->modelVar};
 
-            $obj = $collectionArray[$className]->find($record->id);
+            $obj = $collectionArray[$tagName]->find($record->id);
             $obj->{$this->tagVar} = $tagName;
-            $obj->{$this->modelVar} = $className;
 
             $dataArray[] = $obj;
         }
@@ -201,28 +200,20 @@ class DataFeed
             return $this->queryCache;
 
         $lastQuery = null;
-        foreach ($this->collection as $data)
+        foreach ($this->collection as $tag => $data)
         {
             extract($data);
-            $cleanQuery = clone $this->getQuery($item);
-            $model = $this->getModel($item);
-
-            if (DbDongle::getDriver() == 'sqlite') {
-                $class = get_class($model);
-            }
-            else {
-                $class = str_replace('\\', '\\\\', get_class($model));
-            }
+            $cleanQuery = clone $item->getQuery();
+            $model = $item->getModel();
 
             $sorting = $model->getTable() . '.';
             $sorting .= $orderBy ?: $this->sortField;
 
             /*
-             * Flush the select, add ID, tag and class
+             * Flush the select, add ID and tag
              */
-            $cleanQuery = $cleanQuery->select(Db::raw($model->getKeyName()." as id"));
+            $cleanQuery = $cleanQuery->select(Db::raw($keyName." as id"));
             $cleanQuery = $cleanQuery->addSelect(Db::raw("(SELECT '".$tag."') as ".$this->tagVar));
-            $cleanQuery = $cleanQuery->addSelect(Db::raw("(SELECT '".$class."') as ".$this->modelVar));
             $cleanQuery = $cleanQuery->addSelect(Db::raw("(SELECT ".$sorting.") as ".$this->sortVar));
 
             /*
@@ -242,18 +233,35 @@ class DataFeed
     }
 
     /**
-     * Get the model from a builder object
+     * Returns a prepared model by its tag name.
+     * @return Model
      */
-    protected function getModel($item)
+    protected function getModelByTag($tag)
     {
-        return $item->getModel();
+        extract($this->getDataByTag($tag));
+        return $item;
     }
 
     /**
-     * Get the query from a builder object
+     * Returns a model key name by its tag name.
+     * @return Model
      */
-    protected function getQuery($item)
+    protected function getKeyNameByTag($tag)
     {
-        return $item->getQuery();
+        extract($this->getDataByTag($tag));
+        return $keyName;
+    }
+
+    /**
+     * Returns a data stored about an item by its tag name.
+     * @return array
+     */
+    protected function getDataByTag($tag)
+    {
+        if (!$data = array_get($this->collection, $tag)) {
+            throw new Exception('Unable to find model in collection with tag: '. $tag);
+        }
+
+        return $data;
     }
 }
