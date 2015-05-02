@@ -43,6 +43,16 @@ class DataFeed
     public $sortDirection = 'desc';
 
     /**
+     * @var string Limits the number of results.
+     */
+    public $limitCount = null;
+
+    /**
+     * @var string Set the limit offset.
+     */
+    public $limitOffset = null;
+
+    /**
      * @var array Model collection pre-query.
      */
     protected $collection = [];
@@ -95,14 +105,15 @@ class DataFeed
         $query = $this->processCollection();
 
         /*
-         * Apply sorting to the entire query
-         * @todo Safe?
+         * Apply constraints to the entire query
          */
-        $orderBySql = 'ORDER BY ' . $this->sortVar . ' ' . $this->sortDirection;
-        $records = Db::select(Db::raw($query->toSql() . ' ' . $orderBySql), $query->getBindings());
+        $query->limit($this->limitCount);
 
-        // $query->limitUnion(3);
-        // $query->orderUnionBy($this->sortVar, $this->sortDirection);
+        if ($this->limitOffset) {
+            $query->offset($this->limitOffset);
+        }
+
+        $query->orderBy($this->sortVar, $this->sortDirection);
 
         $records = $query->get();
 
@@ -157,11 +168,29 @@ class DataFeed
     public function orderBy($field, $direction = null)
     {
         $this->sortField = $field;
-        if ($direction)
+        if ($direction) {
             $this->sortDirection = $direction;
+        }
 
         return $this;
     }
+
+    /**
+     * Limits the number of results displayed.
+     */
+    public function limit($count, $offset = null)
+    {
+        $this->limitCount = $count;
+        if ($offset) {
+            $this->limitOffset = $offset;
+        }
+
+        return $this;
+    }
+
+    //
+    // Internals
+    //
 
     /**
      * Creates a generic union query of each added collection
