@@ -4,7 +4,6 @@ use Illuminate\Foundation\Application as ApplicationBase;
 
 class Application extends ApplicationBase
 {
-
     /**
      * The base path for plugins.
      *
@@ -18,6 +17,13 @@ class Application extends ApplicationBase
      * @var string
      */
     protected $themesPath;
+
+    /**
+     * The request execution context (front-end, back-end)
+     *
+     * @var string
+     */
+    protected $executionContext;
 
     /**
      * Get the path to the public / web directory.
@@ -131,5 +137,24 @@ class Application extends ApplicationBase
         return $this['router']->after($callback);
     }
 
+    /**
+     * Determine if we are running in the back-end area.
+     *
+     * @return bool
+     */
+    public function runningInBackend()
+    {
+        return $this->executionContext == 'back-end';
+    }
 
+    /**
+     * Sets the execution context
+     *
+     * @param  string  $context
+     * @return void
+     */
+    public function setExecutionContext($context)
+    {
+        $this->executionContext = $context;
+    }
 }
