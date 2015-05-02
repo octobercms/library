@@ -255,7 +255,7 @@ class ExceptionBase extends Exception
     /**
      * Removes the final steps of a call stack, which add no value for the user.
      * The following exceptions and any trace information afterwards will be filtered:
-     * - Illuminate\Exception\Handler
+     * - Illuminate\Foundation\Bootstrap\HandleExceptions
      *
      * @param array $traceInfo The trace information from getTrace() or debug_backtrace().
      * @return array The filtered array containing the trace information.
@@ -269,7 +269,7 @@ class ExceptionBase extends Exception
         foreach ($traceInfo as $event) {
             if (
                 isset($event['class']) &&
-                $event['class'] == 'Illuminate\Exception\Handler' &&
+                $event['class'] == 'Illuminate\Foundation\Bootstrap\HandleExceptions' &&
                 $event['function'] == 'handleError'
             ) {
                 $useFilter = true;
@@ -288,7 +288,7 @@ class ExceptionBase extends Exception
              */
             if (
                 isset($event['class']) &&
-                $event['class'] == 'Illuminate\Exception\Handler' &&
+                $event['class'] == 'Illuminate\Foundation\Bootstrap\HandleExceptions' &&
                 $event['function'] == 'handleError'
             ) {
                 $pruneResult = false;
