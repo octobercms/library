@@ -86,7 +86,8 @@ class FileLoader implements LoaderInterface
      */
     protected function loadNamespaceOverrides(array $lines, $locale, $group, $namespace)
     {
-        $file = "{$this->path}/{$namespace}/{$locale}/{$group}.php";
+        $namespace = str_replace('.', '/', $namespace);
+        $file = "{$this->path}/{$locale}/{$namespace}/{$group}.php";
 
         if ($this->files->exists($file)) {
             return array_replace_recursive($lines, $this->files->getRequire($file));
