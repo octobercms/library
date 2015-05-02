@@ -132,7 +132,7 @@ class DataFeed
         $collectionArray = [];
         foreach ($mixedArray as $className => $ids) {
             $obj = new $className;
-            $collectionArray[$className] = $obj->whereIn('id', $ids)->get();
+            $collectionArray[$className] = $obj->whereIn($obj->getKeyName(), $ids)->get();
         }
 
         /*
@@ -220,7 +220,7 @@ class DataFeed
             /*
              * Flush the select, add ID, tag and class
              */
-            $cleanQuery = $cleanQuery->select('id');
+            $cleanQuery = $cleanQuery->select(Db::raw($model->getKeyName()." as id"));
             $cleanQuery = $cleanQuery->addSelect(Db::raw("(SELECT '".$tag."') as ".$this->tagVar));
             $cleanQuery = $cleanQuery->addSelect(Db::raw("(SELECT '".$class."') as ".$this->modelVar));
             $cleanQuery = $cleanQuery->addSelect(Db::raw("(SELECT ".$sorting.") as ".$this->sortVar));
