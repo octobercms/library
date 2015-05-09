@@ -1160,6 +1160,19 @@ class Model extends EloquentModel
         $this->dates[] = $attribute;
     }
 
+    /**
+     * Add fillable attributes for the model.
+     *
+     * @param  array|string|null  $attributes
+     * @return void
+     */
+    public function addFillable($attributes = null)
+    {
+        $attributes = is_array($attributes) ? $attributes : func_get_args();
+
+        $this->fillable = array_merge($this->fillable, $attributes);
+    }
+
     //
     // Getters
     //
