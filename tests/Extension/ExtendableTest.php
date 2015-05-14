@@ -3,75 +3,6 @@
 use October\Rain\Extension\Extendable;
 use October\Rain\Extension\ExtensionBase;
 
-/**
- * Example behavior classes
- */
-class ExampleBehaviorClass1 extends ExtensionBase
-{
-    public $behaviorAttribute;
-
-    public function getFoo()
-    {
-        return 'foo';
-    }
-
-    public static function getStaticBar()
-    {
-        return 'bar';
-    }
-
-    public static function vanillaIceIce()
-    {
-        return 'cream';
-    }
-}
-
-class ExampleBehaviorClass2 extends ExtensionBase
-{
-    public $behaviorAttribute;
-
-    public function getFoo()
-    {
-        return 'bar';
-    }
-}
-
-/*
- * Example class that has an invalid implementation
- */
-class InvalidExtendableClass extends Extendable
-{
-    public $implement = 24;
-
-    public $classAttribute;
-}
-
-/*
- * Example class that has extensions enabled
- */
-class ExampleExtendableClass extends Extendable
-{
-    public $implement = ['ExampleBehaviorClass1'];
-
-    public $classAttribute;
-
-    public static function vanillaIceIce()
-    {
-        return 'baby';
-    }
-}
-
-/**
- * A normal class without extensions enabled
- */
-class ExampleClass
-{
-    public static function getName()
-    {
-        return 'october';
-    }
-}
-
 class ExtendableTest extends TestCase
 {
 
@@ -175,4 +106,133 @@ class ExtendableTest extends TestCase
     {
         $result = new InvalidExtendableClass;
     }
+
+    public function testSoftImplementFake()
+    {
+        $result = new ExampleExtendableSoftImplementFakeClass;
+        $this->assertFalse($result->isClassExtendedWith('RabbleRabbleRabble'));
+        $this->assertEquals('working', $result->getStatus());
+    }
+
+    public function testSoftImplementReal()
+    {
+        $result = new ExampleExtendableSoftImplementRealClass;
+        $this->assertTrue($result->isClassExtendedWith('ExampleBehaviorClass1'));
+        $this->assertEquals('foo', $result->getFoo());
+    }
+
+    public function testSoftImplementCombo()
+    {
+        $result = new ExampleExtendableSoftImplementComboClass;
+        $this->assertFalse($result->isClassExtendedWith('RabbleRabbleRabble'));
+        $this->assertTrue($result->isClassExtendedWith('ExampleBehaviorClass1'));
+        $this->assertTrue($result->isClassExtendedWith('ExampleBehaviorClass2'));
+        $this->assertEquals('bar', $result->getFoo()); // ExampleBehaviorClass2 takes priority, defined last
+    }
+}
+
+//
+// Test classes
+//
+
+/**
+ * Example behavior classes
+ */
+class ExampleBehaviorClass1 extends ExtensionBase
+{
+    public $behaviorAttribute;
+
+    public function getFoo()
+    {
+        return 'foo';
+    }
+
+    public static function getStaticBar()
+    {
+        return 'bar';
+    }
+
+    public static function vanillaIceIce()
+    {
+        return 'cream';
+    }
+}
+
+class ExampleBehaviorClass2 extends ExtensionBase
+{
+    public $behaviorAttribute;
+
+    public function getFoo()
+    {
+        return 'bar';
+    }
+}
+
+/*
+ * Example class that has an invalid implementation
+ */
+class InvalidExtendableClass extends Extendable
+{
+    public $implement = 24;
+
+    public $classAttribute;
+}
+
+/*
+ * Example class that has extensions enabled
+ */
+class ExampleExtendableClass extends Extendable
+{
+    public $implement = ['ExampleBehaviorClass1'];
+
+    public $classAttribute;
+
+    public static function vanillaIceIce()
+    {
+        return 'baby';
+    }
+}
+
+/**
+ * A normal class without extensions enabled
+ */
+class ExampleClass
+{
+    public static function getName()
+    {
+        return 'october';
+    }
+}
+
+/*
+ * Example class with soft implement failure
+ */
+class ExampleExtendableSoftImplementFakeClass extends Extendable
+{
+    public $implement = ['@RabbleRabbleRabble'];
+
+    public static function getStatus()
+    {
+        return 'working';
+    }
+}
+
+/*
+ * Example class with soft implement success
+ */
+class ExampleExtendableSoftImplementRealClass extends Extendable
+{
+    public $implement = ['@ExampleBehaviorClass1'];
+}
+
+/*
+ * Example class with soft implement hybrid
+ */
+class ExampleExtendableSoftImplementComboClass extends Extendable
+{
+    public $implement = [
+        'ExampleBehaviorClass1',
+        '@ExampleBehaviorClass2',
+        '@RabbleRabbleRabble'
+    ];
 }

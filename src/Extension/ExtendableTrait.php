@@ -58,15 +58,27 @@ trait ExtendableTrait
         if (!$this->implement)
             return;
 
-        if (is_string($this->implement))
+        if (is_string($this->implement)) {
             $uses = explode(',', $this->implement);
-        elseif (is_array($this->implement))
+        }
+        elseif (is_array($this->implement)) {
             $uses = $this->implement;
-        else
+        }
+        else {
             throw new Exception(sprintf('Class %s contains an invalid $implement value', get_class($this)));
+        }
 
         foreach ($uses as $use) {
             $useClass = str_replace('.', '\\', trim($use));
+
+            /*
+             * Soft implement
+             */
+            if (substr($useClass, 0, 1) == '@') {
+                $useClass = substr($useClass, 1);
+                if (!class_exists($useClass)) continue;
+            }
+
             $this->extendClassWith($useClass);
         }
     }
