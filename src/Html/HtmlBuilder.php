@@ -51,7 +51,7 @@ class HtmlBuilder extends HtmlBuilderBase
      * @param  string  $end
      * @return string
      */
-    public static function limit($html, $maxLength, $end = '...')
+    public static function limit($html, $maxLength = 100, $end = '...')
     {
         $printedLength = 0;
         $position = 0;
