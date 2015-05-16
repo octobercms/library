@@ -39,7 +39,7 @@ class HandleRedirects implements Middleware
             return $next($request);
         }
 
-        if ($result = $this->redirectIfDuplicateSlash()) {
+        if ($result = $this->redirectIfDuplicateContent()) {
             return $this->app['redirect']->to($result, 301);
         }
 
@@ -53,7 +53,7 @@ class HandleRedirects implements Middleware
     /**
      * Check if the request path ends in a single trailing slash.
      */
-    protected function redirectIfDuplicateSlash()
+    protected function redirectIfDuplicateContent()
     {
         $oldPath = $path = $this->app['request']->getPathInfo();
 
