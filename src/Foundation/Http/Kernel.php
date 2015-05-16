@@ -29,6 +29,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
+        'October\Rain\Foundation\Http\Middleware\HandleRedirects',
         'Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode',
         'Illuminate\Cookie\Middleware\EncryptCookies',
         'Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse',
