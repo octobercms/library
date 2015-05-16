@@ -134,6 +134,15 @@ Any class that uses the `Extendable` or `ExtendableTrait` can have its construct
         $controller->implement[] = 'MyNamespace.Behaviors.ListController';
     });
 
+### Dynamically creating methods
+Methods can be aded to a `Model` through the use of `addDynamicMethod`.
+
+    Post::extend(function($model) {
+        $model->addDynamicMethod('getTagsAttribute', function() use ($model) {
+            return $model->tags()->lists('name');
+        });
+    });
+
 ### Soft definition
 
 If a behavior class does not exist, like a trait, an *Class not found* error will be thrown. In some cases you may wish to suppress this error, for conditional implementation if a module is present in the system. You can do this by placing an `@` symbol at the beginning of the class name.
