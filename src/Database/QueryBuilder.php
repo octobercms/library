@@ -172,6 +172,8 @@ class QueryBuilder extends QueryBuilderBase
     {
         $previousOrders = $this->orders;
 
+        $this->orders = null;
+
         $result = parent::count($columns);
 
         $this->orders = $previousOrders;
