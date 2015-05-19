@@ -27,44 +27,6 @@ class QueryBuilder extends QueryBuilderBase
     protected $cacheTags;
 
     /**
-     * Aggregate is causing PostgreSQL to fail due to standards.
-     *
-     * - See: https://github.com/laravel/framework/pull/8801
-     *
-     * @param  string  $function
-     * @param  array   $columns
-     * @return float|int
-     */
-    public function aggregate($function, $columns = array('*'))
-    {
-        $this->aggregate = compact('function', 'columns');
-
-        $previousColumns = $this->columns;
-
-        $previousOrders = $this->orders;
-
-        $this->orders = null;
-
-        $results = $this->get($columns);
-
-        // Once we have executed the query, we will reset the aggregate property so
-        // that more select queries can be executed against the database without
-        // the aggregate value getting in the way when the grammar builds it.
-        $this->aggregate = null;
-
-        $this->columns = $previousColumns;
-
-        $this->orders = $previousOrders;
-
-        if (isset($results[0]))
-        {
-            $result = array_change_key_case((array) $results[0]);
-
-            return $result['aggregate'];
-        }
-    }
-
-    /**
      * Indicate that the query results should be cached.
      *
      * @param  \DateTime|int  $minutes
@@ -197,5 +159,23 @@ class QueryBuilder extends QueryBuilderBase
     protected function getCacheCallback($columns)
     {
         return function() use ($columns) { return $this->getFresh($columns); };
+    }
+
+    /**
+     * Retrieve the "count" result of the query,
+     * also strips off any orderBy clause.
+     *
+     * @param  string  $columns
+     * @return int
+     */
+    public function count($columns = '*')
+    {
+        $previousOrders = $this->orders;
+
+        $result = parent::count($columns);
+
+        $this->orders = $previousOrders;
+
+        return $result;
     }
 }
