@@ -92,8 +92,9 @@ class JavascriptImporter implements FilterInterface
         foreach ($require as $script) {
             $script = trim($script);
 
-            if (!File::extension($script))
+            if (!File::extension($script)) {
                 $script = $script . '.js';
+            }
 
             $scriptPath = realpath($this->scriptPath . '/' . $script);
             if (!File::isFile($scriptPath)) {
@@ -102,7 +103,7 @@ class JavascriptImporter implements FilterInterface
                     throw new RuntimeException($errorMsg);
                 }
                 else {
-                    $result .= '/* ' . $errorMsg . ' */' . PHP_EOL;
+                    $result .= PHP_EOL . '/* ' . $errorMsg . ' */' . PHP_EOL;
                     continue;
                 }
             }
@@ -110,14 +111,30 @@ class JavascriptImporter implements FilterInterface
             /*
              * Exclude duplicates
              */
-            if (in_array($script, $this->includedFiles))
+            if (in_array($script, $this->includedFiles)) {
                 continue;
+            }
 
             $this->includedFiles[] = $script;
+
+            /*
+             * Nested parsing
+             */
+            $oldScriptPath = $this->scriptPath;
+            $oldScriptFile = $this->scriptFile;
+
+            $this->scriptPath = dirname($scriptPath);
+            $this->scriptFile = basename($scriptPath);
 
             $content = File::get($scriptPath);
             $content = PHP_EOL . $this->parse($content) . PHP_EOL;
 
+            $this->scriptPath = $oldScriptPath;
+            $this->scriptFile = $oldScriptFile;
+
+            /*
+             * Parse in "magic constants"
+             */
             $content = str_replace(
                 ['__DATE__', '__FILE__'],
                 [date("D M j G:i:s T Y"), $script],
