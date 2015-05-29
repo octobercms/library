@@ -20,18 +20,18 @@
                     data-request="onSave"
                     data-request-data="redirect:0"
                     data-hotkey="ctrl+s, cmd+s"
-                    data-load-indicator="Saving {{singular_name}}..."
+                    data-load-indicator="<?= e(trans('backend::lang.form.saving_name', ["name" => "{{singular_name}}"])) ?>"
                     class="btn btn-primary">
-                    <u>S</u>ave
+                    <?= e(trans('backend::lang.form.save')) ?>
                 </button>
                 <button
                     type="button"
                     data-request="onSave"
                     data-request-data="close:1"
                     data-hotkey="ctrl+enter, cmd+enter"
-                    data-load-indicator="Saving {{singular_name}}..."
+                    data-load-indicator="<?= e(trans('backend::lang.form.saving_name', ["name" => "{{singular_name}}"])) ?>"
                     class="btn btn-default">
-                    Save and Close
+                    <?= e(trans('backend::lang.form.save_and_close')) ?>
                 </button>
                 <button
                     type="button"
@@ -41,7 +41,7 @@
                     data-request-confirm="Do you really want to delete this {{lower_singular_name}}?">
                 </button>
                 <span class="btn-text">
-                    or <a href="<?= Backend::url('{{lower_author}}/{{lower_plugin}}/{{lower_name}}') ?>">Cancel</a>
+                    <?= e(trans('backend::lang.form.or')) ?> <a href="<?= Backend::url('{{lower_author}}/{{lower_plugin}}/{{lower_name}}') ?>"><?= e(trans('backend::lang.form.cancel')) ?></a>
                 </span>
             </div>
         </div>
