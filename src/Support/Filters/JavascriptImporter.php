@@ -3,6 +3,8 @@
 use File;
 use Assetic\Asset\AssetInterface;
 use Assetic\Filter\FilterInterface;
+use RuntimeException;
+use Exception;
 
 /**
  * Importer JS Filter
@@ -26,6 +28,11 @@ class JavascriptImporter implements FilterInterface
     protected $scriptPath;
 
     /**
+     * @var string File name for the processed JS script.
+     */
+    protected $scriptFile;
+
+    /**
      * @var array Cache of required files.
      */
     protected $includedFiles = [];
@@ -35,6 +42,8 @@ class JavascriptImporter implements FilterInterface
     public function filterDump(AssetInterface $asset)
     {
         $this->scriptPath = dirname($asset->getSourceRoot() . '/' . $asset->getSourcePath());
+        $this->scriptFile = basename($asset->getSourcePath());
+
         $asset->setContent($this->parse($asset->getContent()));
     }
 
@@ -65,13 +74,7 @@ class JavascriptImporter implements FilterInterface
                 if (!method_exists($this, $method))
                     continue;
 
-                try {
-                    $content = $this->$method($matches2[2][$index], $content);
-                }
-                catch (\Exception $ex) {
-                    $content = '/* ' . $ex->getMessage() . ' */';
-                }
-
+                $content = $this->$method($matches2[2][$index], $content);
             }
         }
 
@@ -94,12 +97,19 @@ class JavascriptImporter implements FilterInterface
 
             $scriptPath = realpath($this->scriptPath . '/' . $script);
             if (!File::isFile($scriptPath)) {
-                if ($required)
-                    throw new \Exception('Required script does not exist: ' . $script);
-                else
+                $errorMsg = sprintf("File '%s' not found. in %s", $script, $this->scriptFile);
+                if ($required) {
+                    throw new RuntimeException($errorMsg);
+                }
+                else {
+                    $result .= '/* ' . $errorMsg . ' */' . PHP_EOL;
                     continue;
+                }
             }
 
+            /*
+             * Exclude duplicates
+             */
             if (in_array($script, $this->includedFiles))
                 continue;
 
