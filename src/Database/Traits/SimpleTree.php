@@ -6,7 +6,7 @@ use October\Rain\Database\TreeCollection;
 
 /**
  * Simple Tree model trait
- * 
+ *
  * Simple category implementation, for advanced implementation see:
  * October\Rain\Database\Traits\NestedTree
  *
@@ -138,7 +138,7 @@ trait SimpleTree
 
     /**
      * Get a list of children records, with their children (recursive)
-     * @return array
+     * @return Illuminate\Database\Eloquent\Collection
      */
     public function getAllChildren()
     {
