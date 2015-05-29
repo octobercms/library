@@ -13,6 +13,7 @@ use Exception;
  * =include library/jquery.js;
  * =require library/jquery.js;
  * 
+ * (@todo Below needs fixing)
  * =define #FOO "Bar";
  * console.log(#FOO);
  *
@@ -37,6 +38,11 @@ class JavascriptImporter implements FilterInterface
      */
     protected $includedFiles = [];
 
+    /**
+     * @var array Variables defined by this script.
+     */
+    protected $definedVars = [];
+
     public function filterLoad(AssetInterface $asset) {}
 
     public function filterDump(AssetInterface $asset)
@@ -55,36 +61,37 @@ class JavascriptImporter implements FilterInterface
     protected function parse($content)
     {
         $macros = [];
+        $imported = '';
 
         // Look for: /* comments */
-        if (!preg_match_all('@/\*(.*)\*/@msU', $content, $matches))
+        if (!preg_match_all('@/\*(.*)\*/@msU', $content, $matches)) {
             return $content;
+        }
 
         foreach ($matches[1] as $macro) {
 
             // Look for: =include something
-            if (!preg_match_all('/=([^\\s]*)\\s(.*)\n/', $macro, $matches2))
+            if (!preg_match_all('/=([^\\s]*)\\s(.*)\n/', $macro, $matches2)) {
                 continue;
-
-            $matches2[1] = array_reverse($matches2[1]);
-            $matches2[2] = array_reverse($matches2[2]);
-
-            foreach ($matches2[1] as $index => $macro_name) {
-                $method = 'directive' . ucfirst(strtolower($macro_name));
-                if (!method_exists($this, $method))
-                    continue;
-
-                $content = $this->$method($matches2[2][$index], $content);
             }
+
+            foreach ($matches2[1] as $index => $macroName) {
+                $method = 'directive' . ucfirst(strtolower($macroName));
+
+                if (method_exists($this, $method)) {
+                    $imported .= $this->$method($matches2[2][$index]);
+                }
+            }
+
         }
 
-        return $content;
+        return $imported . $content;
     }
 
     /**
      * Directive to process script includes
      */
-    protected function directiveInclude($data, $context = "", $required = false)
+    protected function directiveInclude($data, $required = false)
     {
         $require = explode(',', $data);
         $result = "";
@@ -103,7 +110,7 @@ class JavascriptImporter implements FilterInterface
                     throw new RuntimeException($errorMsg);
                 }
                 else {
-                    $result .= PHP_EOL . '/* ' . $errorMsg . ' */' . PHP_EOL;
+                    $result .= '/* ' . $errorMsg . ' */' . PHP_EOL;
                     continue;
                 }
             }
@@ -127,7 +134,7 @@ class JavascriptImporter implements FilterInterface
             $this->scriptFile = basename($scriptPath);
 
             $content = File::get($scriptPath);
-            $content = PHP_EOL . $this->parse($content) . PHP_EOL;
+            $content = $this->parse($content) . PHP_EOL;
 
             $this->scriptPath = $oldScriptPath;
             $this->scriptFile = $oldScriptFile;
@@ -144,26 +151,28 @@ class JavascriptImporter implements FilterInterface
             $result .= $content;
         }
 
-        return $result . $context;
+        return $result;
     }
 
     /**
      * Directive to process mandatory script includes
      */
-    protected function directiveRequire($data, $context = "")
+    protected function directiveRequire($data)
     {
-        return $this->directiveInclude($data, $context, true);
+        return $this->directiveInclude($data, true);
     }
 
     /**
      * Directive to define and replace variables
      */
-    protected function directiveDefine($data, $context = "")
+    protected function directiveDefine($data)
     {
-        if (preg_match('@([^\\s]*)\\s+(.*)@', $data, $matches))
-            return str_replace($matches[1], $matches[2], $context);
-        else
-            return $context;
+        if (preg_match('@([^\\s]*)\\s+(.*)@', $data, $matches)) {
+            // str_replace($matches[1], $matches[2], $context);
+            $this->definedVars[] = [$matches[1], $matches[2]];
+        }
+
+        return '';
     }
 
 }
