@@ -57,20 +57,25 @@ class Filesystem extends FilesystemBase
      */
     public function sizeToString($bytes)
     {
-        if ($bytes >= 1073741824)
+        if ($bytes >= 1073741824) {
             return number_format($bytes / 1073741824, 2) . ' GB';
+        }
 
-        if ($bytes >= 1048576)
+        if ($bytes >= 1048576) {
             return number_format($bytes / 1048576, 2) . ' MB';
+        }
 
-        if ($bytes >= 1024)
+        if ($bytes >= 1024) {
             return $bytes = number_format($bytes / 1024, 2) . ' KB';
+        }
 
-        if ($bytes > 1)
+        if ($bytes > 1) {
             return $bytes = $bytes . ' bytes';
+        }
 
-        if ($bytes == 1)
+        if ($bytes == 1) {
             return $bytes . ' byte';
+        }
 
         return '0 bytes';
     }
@@ -86,8 +91,9 @@ class Filesystem extends FilesystemBase
         $result = null;
         $publicPath = public_path();
 
-        if (strpos($path, $publicPath) === 0)
+        if (strpos($path, $publicPath) === 0) {
             $result = str_replace("\\", "/", substr($path, strlen($publicPath)));
+        }
 
         return $result;
     }
@@ -128,8 +134,9 @@ class Filesystem extends FilesystemBase
         $directoryName = dirname($path);
         $pathLower = strtolower($path);
 
-        if (!$files = self::glob($directoryName . '/*', GLOB_NOSORT))
+        if (!$files = self::glob($directoryName . '/*', GLOB_NOSORT)) {
             return false;
+        }
 
         foreach ($files as $file) {
             if (strtolower($file) == $pathLower) {
@@ -151,14 +158,17 @@ class Filesystem extends FilesystemBase
     }
 
     /**
-     * Converts a path.
+     * Converts a path using path symbol. Returns the original path if 
+     * no symbol is used and no default is specified.
      * @param  string $path
+     * @param  mixed $default
      * @return string
      */
     public function symbolizePath($path, $default = false)
     {
-        if (!$firstChar = $this->isPathSymbol($path))
-            return $default;
+        if (!$firstChar = $this->isPathSymbol($path)) {
+            return $default === false ? $path : $default;
+        }
 
         $_path = substr($path, 1);
         return $this->pathSymbols[$firstChar] . $_path;
@@ -172,8 +182,9 @@ class Filesystem extends FilesystemBase
     public function isPathSymbol($path)
     {
         $firstChar = substr($path, 0, 1);
-        if (isset($this->pathSymbols[$firstChar]))
+        if (isset($this->pathSymbols[$firstChar])) {
             return $firstChar;
+        }
 
         return false;
     }
