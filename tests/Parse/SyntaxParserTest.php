@@ -8,9 +8,12 @@ class SyntaxParserTest extends TestCase
     public function testParseToTwig()
     {
         $content = '<h1>{text name="websiteName" label="Website Name"}Our wonderful website{/text}</h1>';
-        $syntax = Parser::parse($content);
-        $result = $syntax->toTwig();
+
+        $result = Parser::parse($content)->toTwig();
         $this->assertEquals('<h1>{{ websiteName }}</h1>', $result);
+
+        $result = Parser::parse($content, ['varPrefix' => 'joker.'])->toTwig();
+        $this->assertEquals('<h1>{{ joker.websiteName }}</h1>', $result);
     }
 
     public function testParseRepeaterToTwig()
@@ -20,11 +23,17 @@ class SyntaxParserTest extends TestCase
             $content .= '<h1>{text name="websiteName" label="Website Name"}Our wonderful website{/text}</h1>'.PHP_EOL;
             $content .= '{textarea name="websiteContent" label="Website Content"}Here are all the reasons we like our website{/textarea}'.PHP_EOL;
         $content .= '{/repeater}'.PHP_EOL;
-        $syntax = Parser::parse($content);
-        $result = $syntax->toTwig();
 
+        $result = Parser::parse($content)->toTwig();
         $expected = '';
         $expected .= '{% for fields in websiteRepeater %}'.PHP_EOL;
+        $expected .= '<h1>{{ fields.websiteName }}</h1>'.PHP_EOL;
+        $expected .= '{{ fields.websiteContent }}'.PHP_EOL;
+        $expected .= '{% endfor %}'.PHP_EOL;
+
+        $result = Parser::parse($content, ['varPrefix' => 'batman.'])->toTwig();
+        $expected = '';
+        $expected .= '{% for fields in batman.websiteRepeater %}'.PHP_EOL;
         $expected .= '<h1>{{ fields.websiteName }}</h1>'.PHP_EOL;
         $expected .= '{{ fields.websiteContent }}'.PHP_EOL;
         $expected .= '{% endfor %}'.PHP_EOL;
@@ -35,9 +44,12 @@ class SyntaxParserTest extends TestCase
     public function testParseToView()
     {
         $content = '<h1>{text name="websiteName" label="Website Name"}Our wonderful website{/text}</h1>';
-        $syntax = Parser::parse($content);
-        $result = $syntax->toView();
+
+        $result = Parser::parse($content)->toView();
         $this->assertEquals('<h1>{websiteName}</h1>', $result);
+
+        $result = Parser::parse($content, ['varPrefix' => 'joker_'])->toView();
+        $this->assertEquals('<h1>{joker_websiteName}</h1>', $result);
     }
 
     public function testParseRepeaterToView()
@@ -47,14 +59,20 @@ class SyntaxParserTest extends TestCase
             $content .= '<h1>{text name="websiteName" label="Website Name"}Our wonderful website{/text}</h1>'.PHP_EOL;
             $content .= '{textarea name="websiteContent" label="Website Content"}Here are all the reasons we like our website{/textarea}'.PHP_EOL;
         $content .= '{/repeater}'.PHP_EOL;
-        $syntax = Parser::parse($content);
-        $result = $syntax->toView();
 
+        $result = Parser::parse($content)->toView();
         $expected = '';
         $expected .= '{websiteRepeater}'.PHP_EOL;
         $expected .= '<h1>{websiteName}</h1>'.PHP_EOL;
         $expected .= '{websiteContent}'.PHP_EOL;
         $expected .= '{/websiteRepeater}'.PHP_EOL;
+
+        $result = Parser::parse($content, ['varPrefix' => 'batman_'])->toView();
+        $expected = '';
+        $expected .= '{batman_websiteRepeater}'.PHP_EOL;
+        $expected .= '<h1>{websiteName}</h1>'.PHP_EOL;
+        $expected .= '{websiteContent}'.PHP_EOL;
+        $expected .= '{/batman_websiteRepeater}'.PHP_EOL;
 
         $this->assertEquals($expected, $result);
     }
@@ -62,9 +80,8 @@ class SyntaxParserTest extends TestCase
     public function testParseToEdit()
     {
         $content = '<h1>{text name="websiteName" label="Website Name"}Our wonderful website{/text}</h1>';
-        $syntax = Parser::parse($content);
-        $result = $syntax->toEditor();
 
+        $result = Parser::parse($content)->toEditor();
         $this->assertArrayHasKey('websiteName', $result);
         $this->assertArrayHasKey('type', $result['websiteName']);
         $this->assertArrayHasKey('default', $result['websiteName']);

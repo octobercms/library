@@ -145,11 +145,6 @@ trait SyntaxModelTrait
         return Parser::parse($content);
     }
 
-    // public function syntaxRender($content)
-    // {
-    //     return $this->getSyntaxParser($content)->render($this->getSyntaxData());
-    // }
-
     /**
      * Get data column name.
      * @return string

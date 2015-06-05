@@ -30,6 +30,12 @@ class FieldParser
     protected $tags = [];
 
     /**
+     * @var string A prefix to place before all tag references
+     * eg: {namespace:text}{/namespace:text}
+     */
+    protected $tagPrefix = '';
+
+    /**
      * @var array Registered template tags
      */
     protected $registeredTags = [
@@ -45,9 +51,10 @@ class FieldParser
      * Constructor
      * @param string $template Template to parse.
      */
-    public function __construct($template = null)
+    public function __construct($template = null, $options = [])
     {
         if ($template) {
+            $this->tagPrefix = array_get($options, 'tagPrefix', '');
             $this->template = $template;
             $this->processTemplate($template);
         }
@@ -86,9 +93,9 @@ class FieldParser
      * @param  string $template
      * @return self
      */
-    public static function parse($template)
+    public static function parse($template, $options = [])
     {
-        return new static($template);
+        return new static($template, $options);
     }
 
     /**
@@ -199,6 +206,12 @@ class FieldParser
     {
         if (!$usingTags) {
             $usingTags = $this->registeredTags;
+        }
+
+        if ($this->tagPrefix) {
+            foreach ($usingTags as $tag) {
+                $usingTags[] = $this->tagPrefix . $tag;
+            }
         }
 
         $tags = [];

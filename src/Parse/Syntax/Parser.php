@@ -21,14 +21,25 @@ class Parser
     protected $textParser;
 
     /**
-     * Constructor
+     * @var string A prefix to place before all variable references
+     * when rendering the view.
+     */
+    protected $varPrefix = '';
+
+    /**
+     * Constructor.
+     * Available options:
+     * - varPrefix: Prefix to add to every top level parameter.
+     * - tagPrefix: Prefix to add to all tags, in addition to tags without a prefix.
+     * @param array $options
      * @param string $template Template to parse.
      */
-    public function __construct($template = null)
+    public function __construct($template = null, $options = [])
     {
         if ($template) {
             $this->template = $template;
-            $this->fieldParser = new FieldParser($template);
+            $this->varPrefix = array_get($options, 'varPrefix', '');
+            $this->fieldParser = new FieldParser($template, $options);
             $this->textParser = new TextParser;
         }
     }
@@ -38,9 +49,9 @@ class Parser
      * @param  string $template
      * @return self
      */
-    public static function parse($template)
+    public static function parse($template, $options = [])
     {
-        return new static($template);
+        return new static($template, $options);
     }
 
     /**
@@ -116,6 +127,7 @@ class Parser
 
     protected function processRepeatingTag($engine, $template, $field, $tagDetails)
     {
+        $prefixField = $this->varPrefix.$field;
         $params = $this->fieldParser->getFieldParams($field);
         $innerFields = array_get($params, 'fields', []);
         $innerTags = $tagDetails['tags'];
@@ -134,7 +146,7 @@ class Parser
          * Replace the opening tag
          */
         $openTag = array_get($tagDetails, 'open', '{repeater}');
-        $openReplacement = $engine == 'Twig' ? '{% for fields in '.$field.' %}' : '{'.$field.'}';
+        $openReplacement = $engine == 'Twig' ? '{% for fields in '.$prefixField.' %}' : '{'.$prefixField.'}';
         $openReplacement = $openReplacement . PHP_EOL;
         $innerTemplate = str_replace($openTag, $openReplacement, $innerTemplate);
 
@@ -142,7 +154,7 @@ class Parser
          * Replace the closing tag
          */
         $closeTag = array_get($tagDetails, 'close', '{/repeater}');
-        $closeReplacement = $engine == 'Twig' ? '{% endfor %}' : '{/'.$field.'}';
+        $closeReplacement = $engine == 'Twig' ? '{% endfor %}' : '{/'.$prefixField.'}';
         $closeReplacement = PHP_EOL . $closeReplacement;
         $innerTemplate = str_replace($closeTag, $closeReplacement, $innerTemplate);
 
@@ -153,8 +165,9 @@ class Parser
 
     protected function processTag($engine, $template, $field, $tagString)
     {
+        $prefixField = $this->varPrefix.$field;
         $params = $this->fieldParser->getFieldParams($field);
-        $tagReplacement = $this->{'eval'.$engine.'ViewField'}($field, $params);
+        $tagReplacement = $this->{'eval'.$engine.'ViewField'}($prefixField, $params);
         $template = str_replace($tagString, $tagReplacement, $template);
         return $template;
     }
@@ -163,12 +176,16 @@ class Parser
      * Processes a field type and converts it to the Twig engine.
      * @param  string $field
      * @param  array $params
+     * @param  string $prefix
      * @return string
      */
     protected function evalTwigViewField($field, $params, $prefix = null)
     {
         $type = isset($params['type']) ? $params['type'] : 'text';
 
+        /*
+         * Used by Twig for loop
+         */
         if ($prefix) {
             $field = $prefix.'.'.$field;
         }

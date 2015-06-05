@@ -41,6 +41,46 @@ class SyntaxFieldParserTest extends TestCase
         $this->assertEquals('textarea', $fields['field1']['type']);
     }
 
+    public function testParseWithPrefix()
+    {
+        $content = '';
+        $content .= '{text '.PHP_EOL.'name="field1"'.PHP_EOL.' label="Ignore me"}{/oc:text}'.PHP_EOL;
+        $content .= '{text '.PHP_EOL.'name="field1"'.PHP_EOL.' label="Field 1"}{/text}'.PHP_EOL;
+        $content .= '{textarea name="field1" label="Field 1 Again"}{/textarea}'.PHP_EOL;
+        $content .= '{oc:text name="field2" label="Field 2"}Default Text{/oc:text}'.PHP_EOL;
+        $content .= '{oc:textarea '.PHP_EOL.'name="field3" '.PHP_EOL.'label="Field 3"}Default Text{/oc:textarea}'.PHP_EOL;
+        $content .= '{oc:textarea name="field4" label="Field 4"}Invalid Tag{/oc:invalid}'.PHP_EOL;
+        $content .= '{occ:textarea name="field1" label="Ignore me too"}{/occ:textarea}'.PHP_EOL;
+
+        $result = FieldParser::parse($content, ['tagPrefix' => 'oc:']);
+        $tags = $result->getTags();
+        $fields = $result->getFields();
+
+        $this->assertArrayHasKey('field1', $fields);
+        $this->assertArrayHasKey('field2', $fields);
+        $this->assertArrayHasKey('field3', $fields);
+        $this->assertArrayNotHasKey('field4', $fields);
+
+        $this->assertArrayHasKey('field1', $tags);
+        $this->assertArrayHasKey('field2', $tags);
+        $this->assertArrayHasKey('field3', $tags);
+        $this->assertArrayNotHasKey('field4', $tags);
+
+        $this->assertEquals('{textarea name="field1" label="Field 1 Again"}{/textarea}', $tags['field1']);
+        $this->assertEquals('{oc:text name="field2" label="Field 2"}Default Text{/oc:text}', $tags['field2']);
+
+        $this->assertArrayNotHasKey('name', $fields['field1']);
+        $this->assertArrayNotHasKey('name', $fields['field2']);
+        $this->assertArrayNotHasKey('name', $fields['field3']);
+
+        $this->assertArrayHasKey('type', $fields['field1']);
+        $this->assertArrayHasKey('type', $fields['field2']);
+        $this->assertArrayHasKey('type', $fields['field3']);
+
+        $this->assertEquals('textarea', $fields['field1']['type']);
+        $this->assertEquals('oc:text', $fields['field2']['type']);
+    }
+
     public function testParseRepeater()
     {
         $content = '';
