@@ -6,6 +6,7 @@ use October\Rain\Database\Model;
 use October\Rain\Database\Attach\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\File\File as FileObj;
+use Exception;
 
 /**
  * File attachment model
@@ -151,6 +152,15 @@ class File extends Model
     }
 
     /**
+     * Returns the file size as string.
+     * @return string Returns the size as string.
+     */
+    public function sizeToString()
+    {
+        return FileHelper::sizeToString($this->file_size);
+    }
+
+    /**
      * Returns the file content type.
      */
     protected function getContentType()
@@ -261,7 +271,7 @@ class File extends Model
             $this->deleteThumbs();
             $this->deleteFile();
         }
-        catch (\Exception $ex) {}
+        catch (Exception $ex) {}
     }
 
     //
