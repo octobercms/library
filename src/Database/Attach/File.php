@@ -189,6 +189,27 @@ class File extends Model
         echo $this->getContents();
     }
 
+
+    /**
+     * Outputs the raw thumbfile contents.
+     */
+    public function outputThumb($width, $height, $options)
+    {
+        header("Content-type: ".$this->getContentType());
+        header('Content-Disposition: inline; filename="'.$this->file_name.'"');
+        header('Cache-Control: private');
+        header('Cache-Control: no-store, no-cache, must-revalidate');
+        header('Cache-Control: pre-check=0, post-check=0, max-age=0');
+        header('Accept-Ranges: bytes');
+        // The Content-Length header needs to be set from thumb file size?
+        $this->getThumb($width, $height, $options);
+        $clean_options = $this->getCleanThumbOptions($options);
+        $thumbFile = $this->getThumbFilename($width, $height, $clean_options);
+        echo $this->getContents($thumbFile);
+    }
+
+
+
     /**
      * Get file contents from storage device.
      */
@@ -287,26 +308,9 @@ class File extends Model
         $width = (int) $width;
         $height = (int) $height;
 
-        $defaultOptions = [
-            'mode'      => 'auto',
-            'offset'    => [0, 0],
-            'quality'   => 95,
-            'extension' => 'jpg',
-        ];
+        $options = $this->getCleanThumbOptions($options);
 
-        if (!is_array($options)) {
-            $options = ['mode' => $options];
-        }
-
-        $options = array_merge($defaultOptions, $options);
-
-        if (($thumbExt = strtolower($options['extension'])) == 'auto') {
-            $thumbExt = $this->getExtension();
-        }
-
-        $thumbMode = strtolower($options['mode']);
-        $thumbOffset = $options['offset'];
-        $thumbFile = 'thumb_' . $this->id . '_' . $width . 'x' . $height . '_' . $thumbOffset[0] . '_' . $thumbOffset[1] . '_' . $thumbMode . '.' . $thumbExt;
+        $thumbFile = $this->getThumbFilename($width, $height, $options);
         $thumbPath = $this->getStorageDirectory() . $this->getPartitionDirectory() . $thumbFile;
         $thumbPublic = $this->getPublicPath() . $this->getPartitionDirectory() . $thumbFile;
 
@@ -323,6 +327,37 @@ class File extends Model
 
         return $thumbPublic;
     }
+    
+    private function getThumbFilename($width, $height, $clean_options)
+    {
+        return 'thumb_' . $this->id . '_' . $width . 'x' . $height . '_' . $clean_options['offset'][0] . '_' . $clean_options['offset'][1] . '_' . $clean_options['mode'] . '.' . $clean_options['extension'];
+    }
+
+    private function getCleanThumbOptions($unclean_options)
+    {
+        $defaultOptions = [
+            'mode'      => 'auto',
+            'offset'    => [0, 0],
+            'quality'   => 95,
+            'extension' => 'jpg',
+        ];
+
+        if (!is_array($unclean_options)) {
+            $unclean_options = ['mode' => $unclean_options];
+        }
+
+        $clean_options = array_merge($defaultOptions, $unclean_options);
+
+        $clean_options['mode'] = strtolower($clean_options['mode']);
+
+        if ((strtolower($clean_options['extension'])) == 'auto') {
+            $clean_options['extension'] = $this->getExtension();
+        }
+
+        return $clean_options;
+    }
+
+
 
     /**
      * Generate the thumbnail based on the local file system. This step is necessary
