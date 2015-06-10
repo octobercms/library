@@ -185,6 +185,57 @@ class File extends Model
     }
 
     /**
+     * Returns the default common file extensions.
+     * @return array
+     */
+    public static function getDefaultFileTypes($isImage = false)
+    {
+        if ($isImage) {
+            return [
+                'jpg',
+                'jpeg',
+                'bmp',
+                'png',
+                'gif',
+                'svg'
+            ];
+        }
+        else {
+            return [
+                'jpg',
+                'jpeg',
+                'bmp',
+                'png',
+                'gif',
+                'svg',
+                'js',
+                'map',
+                'ico',
+                'css',
+                'less',
+                'scss',
+                'pdf',
+                'swf',
+                'txt',
+                'xml',
+                'xls',
+                'eot',
+                'woff',
+                'woff2',
+                'ttf',
+                'wmv',
+                'mp3',
+                'wav',
+                'avi',
+                'mov',
+                'mp4',
+                'webm',
+                'ogg'
+            ];
+        }
+    }
+
+    /**
      * Outputs the raw file contents.
      */
     public function output($disposition = 'inline')
@@ -291,8 +342,9 @@ class File extends Model
      */
     public function getThumb($width, $height, $options = [])
     {
-        if (!$this->isImage())
+        if (!$this->isImage()) {
             return $this->getPath();
+        }
 
         $width = (int) $width;
         $height = (int) $height;
