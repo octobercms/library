@@ -102,8 +102,25 @@ class Resizer
      */
     public function resize($newWidth, $newHeight, $mode = 'auto', $offset = [])
     {
+        /*
+         * Sanitize input
+         */
+        $newWidth = (int) $newWidth;
+        $newHeight = (int) $newHeight;
+
+        if (!$newWidth && !$newHeight) {
+            $newWidth = $this->width;
+            $newWidth = $this->height;
+        }
+        elseif (!$newWidth) {
+            $newWidth = $this->getSizeByFixedHeight($newHeight);
+        }
+        elseif (!$newHeight) {
+            $newHeight = $this->getSizeByFixedWidth($newWidth);
+        }
+
         // Get optimal width and height - based on supplied mode.
-        $optionsArray = $this->getDimensions((int) $newWidth, (int) $newHeight, $mode);
+        $optionsArray = $this->getDimensions($newWidth, $newHeight, $mode);
 
         $optimalWidth = $optionsArray['optimalWidth'];
         $optimalHeight = $optionsArray['optimalHeight'];
