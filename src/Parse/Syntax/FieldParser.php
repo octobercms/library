@@ -44,6 +44,7 @@ class FieldParser
         'richeditor',
         'markdown',
         'fileupload',
+        'mediafinder',
         'repeater'
     ];
 
