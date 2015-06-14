@@ -149,4 +149,30 @@ class SyntaxParserTest extends TestCase
         $this->assertEquals($expected, $result);
     }
 
+    public function testParseVariable()
+    {
+        $content = '{variable type="text" name="websiteName" label="Website Name"}Our wonderful website{/variable}';
+
+        $result = Parser::parse($content)->toTwig();
+        $this->assertEquals('', $result);
+
+        $content = '{variable type="text" name="websiteName" label="Website Name"}Our wonderful website{/variable}';
+
+        $result = Parser::parse($content)->toView();
+        $this->assertEquals('', $result);
+    }
+
+    public function testParseVariableToEdit()
+    {
+        $content = '{variable type="text" name="websiteName" label="Website Name"}Our wonderful website{/variable}';
+
+        $result = Parser::parse($content)->toEditor();
+        $this->assertArrayHasKey('websiteName', $result);
+        $this->assertArrayHasKey('type', $result['websiteName']);
+        $this->assertArrayHasKey('default', $result['websiteName']);
+        $this->assertArrayHasKey('label', $result['websiteName']);
+        $this->assertEquals('text', $result['websiteName']['type']);
+        $this->assertEquals('Our wonderful website', $result['websiteName']['default']);
+        $this->assertEquals('Website Name', $result['websiteName']['label']);
+    }
 }

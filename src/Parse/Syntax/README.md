@@ -131,4 +131,8 @@ Calling `$syntax->toEditor()` will return a different array for a repeater field
         ]
     ]
 
+### Variable
 
+Used for adding fields to editor mode only. This tag will not affect the view mode and will be replaced with an empty string.
+
+    {variable type="text" name="websiteName" label="Website Name"}Our wonderful website{/variable}

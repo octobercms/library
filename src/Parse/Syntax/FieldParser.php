@@ -45,7 +45,8 @@ class FieldParser
         'markdown',
         'fileupload',
         'mediafinder',
-        'repeater'
+        'repeater',
+        'variable'
     ];
 
     /**
@@ -234,7 +235,12 @@ class FieldParser
                 $name = md5($tagString);
             }
 
-            $params['type'] = $tagNames[$key];
+            if ($tagNames[$key] == 'variable') {
+                $params['X_OCTOBER_IS_VARIABLE'] = true;
+            }
+            else {
+                $params['type'] = $tagNames[$key];
+            }
 
             $tags[$name] = $tagString;
             $fields[$name] = $params;

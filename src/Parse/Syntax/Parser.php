@@ -114,7 +114,6 @@ class Parser
         $engine = ucfirst($engine);
         $template = $this->template;
 
-
         $tags = $this->fieldParser->getTags();
         foreach ($tags as $field => $tag) {
             $template = is_array($tag)
@@ -181,7 +180,9 @@ class Parser
      */
     protected function evalTwigViewField($field, $params, $prefix = null)
     {
-        $type = isset($params['type']) ? $params['type'] : 'text';
+        if (isset($params['X_OCTOBER_IS_VARIABLE'])) {
+            return '';
+        }
 
         /*
          * Used by Twig for loop
@@ -190,6 +191,7 @@ class Parser
             $field = $prefix.'.'.$field;
         }
 
+        $type = isset($params['type']) ? $params['type'] : 'text';
         switch ($type) {
             default:
             case 'text':
@@ -215,6 +217,10 @@ class Parser
      */
     protected function evalSimpleViewField($field, $params, $prefix = null)
     {
+        if (isset($params['X_OCTOBER_IS_VARIABLE'])) {
+            return '';
+        }
+
         $type = isset($params['type']) ? $params['type'] : 'text';
 
         switch ($type) {
