@@ -66,22 +66,9 @@ class File extends Model
      */
     public $pathOverride = -1;
 
-    /**
-     * @var array Helper attribute for getPath
-     */
-    public function getPathAttribute()
-    {
-        if ($this->pathOverride !== -1) {
-            return $this->pathOverride;
-        }
-
-        return $this->getPath();
-    }
-
-    public function getExtensionAttribute()
-    {
-        return $this->getExtension();
-    }
+    //
+    // Constructors
+    //
 
     /**
      * Creates a file object from a file an uploaded file.
@@ -121,6 +108,73 @@ class File extends Model
         return $this;
     }
 
+    //
+    // Attribute mutators
+    //
+
+    /**
+     * @var array Helper attribute for getPath
+     */
+    public function getPathAttribute()
+    {
+        if ($this->pathOverride !== -1) {
+            return $this->pathOverride;
+        }
+
+        return $this->getPath();
+    }
+
+    public function getExtensionAttribute()
+    {
+        return $this->getExtension();
+    }
+
+    //
+    // Raw output
+    //
+
+    /**
+     * Outputs the raw file contents.
+     * @return void
+     */
+    public function output($disposition = 'inline')
+    {
+        header("Content-type: ".$this->getContentType());
+        header('Content-Disposition: '.$disposition.'; filename="'.$this->file_name.'"');
+        header('Cache-Control: private');
+        header('Cache-Control: no-store, no-cache, must-revalidate');
+        header('Cache-Control: pre-check=0, post-check=0, max-age=0');
+        header('Accept-Ranges: bytes');
+        header('Content-Length: '.$this->file_size);
+        echo $this->getContents();
+    }
+
+    /**
+     * Outputs the raw thumbfile contents.
+     * @return void
+     */
+    public function outputThumb($width, $height, $options = [])
+    {
+        $disposition = array_get($options, 'disposition', 'inline');
+        $this->getThumb($width, $height, $options);
+        $options = $this->getDefaultThumbOptions($options);
+        $thumbFile = $this->getThumbFilename($width, $height, $options);
+        $contents = $this->getContents($thumbFile);
+
+        header("Content-type: ".$this->getContentType());
+        header('Content-Disposition: '.$disposition.'; filename="'.basename($thumbFile).'"');
+        header('Cache-Control: private');
+        header('Cache-Control: no-store, no-cache, must-revalidate');
+        header('Cache-Control: pre-check=0, post-check=0, max-age=0');
+        header('Accept-Ranges: bytes');
+        header('Content-Length: '.mb_strlen($contents, '8bit'));
+        echo $contents;
+    }
+
+    //
+    // Getters
+    //
+
     /**
      * Generates a disk name from the supplied file name.
      */
@@ -152,15 +206,6 @@ class File extends Model
     }
 
     /**
-     * Returns the file size as string.
-     * @return string Returns the size as string.
-     */
-    public function sizeToString()
-    {
-        return FileHelper::sizeToString($this->file_size);
-    }
-
-    /**
      * Returns the file content type.
      */
     protected function getContentType()
@@ -176,108 +221,13 @@ class File extends Model
     }
 
     /**
-     * Returns the maximum size of an uploaded file as configured in php.ini
-     * @return int The maximum size of an uploaded file in kilobytes
-     */
-    public static function getMaxFilesize()
-    {
-        return round(UploadedFile::getMaxFilesize() / 1024);
-    }
-
-    /**
-     * Returns the default common file extensions.
-     * @return array
-     */
-    public static function getDefaultFileTypes($isImage = false)
-    {
-        if ($isImage) {
-            return [
-                'jpg',
-                'jpeg',
-                'bmp',
-                'png',
-                'gif',
-                'svg'
-            ];
-        }
-        else {
-            return [
-                'jpg',
-                'jpeg',
-                'bmp',
-                'png',
-                'gif',
-                'svg',
-                'js',
-                'map',
-                'ico',
-                'css',
-                'less',
-                'scss',
-                'pdf',
-                'swf',
-                'txt',
-                'xml',
-                'xls',
-                'eot',
-                'woff',
-                'woff2',
-                'ttf',
-                'wmv',
-                'mp3',
-                'wav',
-                'avi',
-                'mov',
-                'mp4',
-                'webm',
-                'ogg'
-            ];
-        }
-    }
-
-    /**
-     * Outputs the raw file contents.
-     */
-    public function output($disposition = 'inline')
-    {
-        header("Content-type: ".$this->getContentType());
-        header('Content-Disposition: '.$disposition.'; filename="'.$this->file_name.'"');
-        header('Cache-Control: private');
-        header('Cache-Control: no-store, no-cache, must-revalidate');
-        header('Cache-Control: pre-check=0, post-check=0, max-age=0');
-        header('Accept-Ranges: bytes');
-        header('Content-Length: '.$this->file_size);
-        echo $this->getContents();
-    }
-
-
-    /**
-     * Outputs the raw thumbfile contents.
-     */
-    public function outputThumb($width, $height, $options)
-    {
-        header("Content-type: ".$this->getContentType());
-        header('Content-Disposition: inline; filename="'.$this->file_name.'"');
-        header('Cache-Control: private');
-        header('Cache-Control: no-store, no-cache, must-revalidate');
-        header('Cache-Control: pre-check=0, post-check=0, max-age=0');
-        header('Accept-Ranges: bytes');
-        // The Content-Length header needs to be set from thumb file size?
-        $this->getThumb($width, $height, $options);
-        $clean_options = $this->getCleanThumbOptions($options);
-        $thumbFile = $this->getThumbFilename($width, $height, $clean_options);
-        echo $this->getContents($thumbFile);
-    }
-
-
-
-    /**
      * Get file contents from storage device.
      */
     public function getContents($fileName = null)
     {
-        if (!$fileName)
+        if (!$fileName) {
             $fileName = $this->disk_name;
+        }
 
         return Storage::get($this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName);
     }
@@ -311,6 +261,19 @@ class File extends Model
 
         return true;
     }
+
+    /**
+     * Returns the file size as string.
+     * @return string Returns the size as string.
+     */
+    public function sizeToString()
+    {
+        return FileHelper::sizeToString($this->file_size);
+    }
+
+    //
+    // Events
+    //
 
     /**
      * Before the model is saved
@@ -370,7 +333,7 @@ class File extends Model
         $width = (int) $width;
         $height = (int) $height;
 
-        $options = $this->getCleanThumbOptions($options);
+        $options = $this->getDefaultThumbOptions($options);
 
         $thumbFile = $this->getThumbFilename($width, $height, $options);
         $thumbPath = $this->getStorageDirectory() . $this->getPartitionDirectory() . $thumbFile;
@@ -389,13 +352,21 @@ class File extends Model
 
         return $thumbPublic;
     }
-    
-    private function getThumbFilename($width, $height, $clean_options)
+
+    /**
+     * Generates a thumbnail filename.
+     * @return string
+     */
+    protected function getThumbFilename($width, $height, $options)
     {
-        return 'thumb_' . $this->id . '_' . $width . 'x' . $height . '_' . $clean_options['offset'][0] . '_' . $clean_options['offset'][1] . '_' . $clean_options['mode'] . '.' . $clean_options['extension'];
+        return 'thumb_' . $this->id . '_' . $width . 'x' . $height . '_' . $options['offset'][0] . '_' . $options['offset'][1] . '_' . $options['mode'] . '.' . $options['extension'];
     }
 
-    private function getCleanThumbOptions($unclean_options)
+    /**
+     * Returns the default thumbnail options.
+     * @return array
+     */
+    protected function getDefaultThumbOptions($overrideOptions = [])
     {
         $defaultOptions = [
             'mode'      => 'auto',
@@ -404,22 +375,20 @@ class File extends Model
             'extension' => 'jpg',
         ];
 
-        if (!is_array($unclean_options)) {
-            $unclean_options = ['mode' => $unclean_options];
+        if (!is_array($overrideOptions)) {
+            $overrideOptions = ['mode' => $overrideOptions];
         }
 
-        $clean_options = array_merge($defaultOptions, $unclean_options);
+        $options = array_merge($defaultOptions, $overrideOptions);
 
-        $clean_options['mode'] = strtolower($clean_options['mode']);
+        $options['mode'] = strtolower($options['mode']);
 
-        if ((strtolower($clean_options['extension'])) == 'auto') {
-            $clean_options['extension'] = $this->getExtension();
+        if ((strtolower($options['extension'])) == 'auto') {
+            $options['extension'] = $this->getExtension();
         }
 
-        return $clean_options;
+        return $options;
     }
-
-
 
     /**
      * Generate the thumbnail based on the local file system. This step is necessary
@@ -480,6 +449,27 @@ class File extends Model
          */
         $this->copyLocalToStorage($tempThumb, $thumbPath);
         FileHelper::delete($tempThumb);
+    }
+
+    /*
+     * Delete all thumbnails for this file.
+     */
+    protected function deleteThumbs()
+    {
+        $pattern = 'thumb_'.$this->id.'_';
+
+        $directory = $this->getStorageDirectory() . $this->getPartitionDirectory();
+        $allFiles = Storage::files($directory);
+        $collection = [];
+        foreach ($allFiles as $file) {
+            if (starts_with(basename($file), $pattern)) {
+                $collection[] = $file;
+            }
+        }
+
+        if (!empty($collection)) {
+            Storage::delete($collection);
+        }
     }
 
     //
@@ -605,41 +595,68 @@ class File extends Model
         return count(Storage::allFiles($dir)) === 0;
     }
 
-    /*
-     * Delete all thumbnails for this file.
-     */
-    protected function deleteThumbs()
-    {
-        $pattern = 'thumb_'.$this->id.'_';
-
-        $directory = $this->getStorageDirectory() . $this->getPartitionDirectory();
-        $allFiles = Storage::files($directory);
-        $collection = [];
-        foreach ($allFiles as $file) {
-            if (starts_with(basename($file), $pattern)) {
-                $collection[] = $file;
-            }
-        }
-
-        if (!empty($collection)) {
-            Storage::delete($collection);
-        }
-    }
-
     //
     // Configuration
     //
 
     /**
-    * Generates a partition for the file.
-    * return /ABC/DE1/234 for an name of ABCDE1234.
-    * @param Attachment $attachment
-    * @param string $styleName
-    * @return mixed
-    */
-    protected function getPartitionDirectory()
+     * Returns the maximum size of an uploaded file as configured in php.ini
+     * @return int The maximum size of an uploaded file in kilobytes
+     */
+    public static function getMaxFilesize()
     {
-        return implode('/', array_slice(str_split($this->disk_name, 3), 0, 3)) . '/';
+        return round(UploadedFile::getMaxFilesize() / 1024);
+    }
+
+    /**
+     * Returns the default common file extensions.
+     * @return array
+     */
+    public static function getDefaultFileTypes($isImage = false)
+    {
+        if ($isImage) {
+            return [
+                'jpg',
+                'jpeg',
+                'bmp',
+                'png',
+                'gif',
+                'svg'
+            ];
+        }
+        else {
+            return [
+                'jpg',
+                'jpeg',
+                'bmp',
+                'png',
+                'gif',
+                'svg',
+                'js',
+                'map',
+                'ico',
+                'css',
+                'less',
+                'scss',
+                'pdf',
+                'swf',
+                'txt',
+                'xml',
+                'xls',
+                'eot',
+                'woff',
+                'woff2',
+                'ttf',
+                'wmv',
+                'mp3',
+                'wav',
+                'avi',
+                'mov',
+                'mp4',
+                'webm',
+                'ogg'
+            ];
+        }
     }
 
     /**
@@ -653,22 +670,6 @@ class File extends Model
         else {
             return 'uploads/protected/';
         }
-    }
-
-    /**
-     * Returns true if the storage engine is local.
-     */
-    protected function isLocalStorage()
-    {
-        return Storage::getDefaultDriver() == 'local';
-    }
-
-    /**
-     * If working with local storage, determine the absolute local path.
-     */
-    protected function getLocalRootPath()
-    {
-        return storage_path().'/app';
     }
 
     /**
@@ -698,4 +699,33 @@ class File extends Model
         return $path;
     }
 
+    /**
+     * Returns true if the storage engine is local.
+     * @return bool
+     */
+    protected function isLocalStorage()
+    {
+        return Storage::getDefaultDriver() == 'local';
+    }
+
+    /**
+    * Generates a partition for the file.
+    * return /ABC/DE1/234 for an name of ABCDE1234.
+    * @param Attachment $attachment
+    * @param string $styleName
+    * @return mixed
+    */
+    protected function getPartitionDirectory()
+    {
+        return implode('/', array_slice(str_split($this->disk_name, 3), 0, 3)) . '/';
+    }
+
+    /**
+     * If working with local storage, determine the absolute local path.
+     * @return string
+     */
+    protected function getLocalRootPath()
+    {
+        return storage_path().'/app';
+    }
 }
