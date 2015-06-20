@@ -647,14 +647,17 @@ class File extends Model
                 'woff',
                 'woff2',
                 'ttf',
+                'flv',
                 'wmv',
                 'mp3',
+                'ogg',
                 'wav',
                 'avi',
                 'mov',
                 'mp4',
+                'mpeg',
                 'webm',
-                'ogg'
+                'mkv'
             ];
         }
     }
