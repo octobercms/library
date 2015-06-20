@@ -61,11 +61,6 @@ class File extends Model
         'pdf'  => 'application/pdf'
     ];
 
-    /**
-     * @var mixed Externally set path
-     */
-    public $pathOverride = -1;
-
     //
     // Constructors
     //
@@ -113,17 +108,18 @@ class File extends Model
     //
 
     /**
-     * @var array Helper attribute for getPath
+     * Helper attribute for getPath.
+     * @return string
      */
     public function getPathAttribute()
     {
-        if ($this->pathOverride !== -1) {
-            return $this->pathOverride;
-        }
-
         return $this->getPath();
     }
 
+    /**
+     * Helper attribute for getExtension.
+     * @return string
+     */
     public function getExtensionAttribute()
     {
         return $this->getExtension();
@@ -210,12 +206,14 @@ class File extends Model
      */
     protected function getContentType()
     {
-        if ($this->content_type !== null)
+        if ($this->content_type !== null) {
             return $this->content_type;
+        }
 
         $ext = $this->getExtension();
-        if (isset($this->autoMimeTypes[$ext]))
+        if (isset($this->autoMimeTypes[$ext])) {
             return $this->content_type = $this->autoMimeTypes[$ext];
+        }
 
         return null;
     }
