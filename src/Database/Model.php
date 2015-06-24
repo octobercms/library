@@ -670,10 +670,7 @@ class Model extends EloquentModel
         if (is_null($name))
             $name = snake_case($this->getRelationCaller());
 
-        list($type, $id) = $this->getMorphs($name, $type, $id);
-        $class = $this->$type;
-
-        return $this->belongsTo($class, $id);
+        return parent::morphTo($name, $type, $id);
     }
 
     /**
