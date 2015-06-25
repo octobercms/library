@@ -382,7 +382,7 @@ class File extends Model
         $options['mode'] = strtolower($options['mode']);
 
         if ((strtolower($options['extension'])) == 'auto') {
-            $options['extension'] = $this->getExtension();
+            $options['extension'] = strtolower($this->getExtension());
         }
 
         return $options;
