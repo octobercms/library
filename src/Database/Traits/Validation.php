@@ -57,13 +57,16 @@ trait Validation
                  * empty set of rules and messages.
                  */
                 $force = array_get($options, 'force', false);
-                if ($force)
+                if ($force) {
                     $valid = $model->validate([], []);
-                else
+                }
+                else {
                     $valid = $model->validate();
+                }
 
-                if (!$valid)
+                if (!$valid) {
                     return false;
+                }
 
             }, 500);
         });
@@ -83,10 +86,10 @@ trait Validation
      * Force save the model even if validation fails.
      * @return bool
      */
-    public function forceSave(array $data = null, $sessionKey = null)
+    public function forceSave($options = null, $sessionKey = null)
     {
         $this->sessionKey = $sessionKey;
-        return $this->saveInternal($data, ['force' => true]);
+        return $this->saveInternal((array) $options + ['force' => false]);
     }
 
     /**

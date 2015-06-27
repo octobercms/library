@@ -25,7 +25,7 @@ trait Sluggable
          * Set slugged attributes on new records
          */
         static::extend(function($model){
-            $model->bindEvent('model.saveInternal', function($data, $options) use ($model) {
+            $model->bindEvent('model.saveInternal', function() use ($model) {
                 if ($model->exists)
                     return;
 

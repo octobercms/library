@@ -1052,29 +1052,29 @@ class Model extends EloquentModel
      * Save the model to the database. Is used by {@link save()} and {@link forceSave()}.
      * @return bool
      */
-    protected function saveInternal($data = [], $options = [])
+    protected function saveInternal($options = [])
     {
-        if ($data !== null)
-            $this->fill($data);
-
         // Event
-        if ($this->fireEvent('model.saveInternal', [$data, $options], true) === false)
+        if ($this->fireEvent('model.saveInternal', [$this->attributes, $options], true) === false) {
             return false;
+        }
 
         /*
          * Validate attributes before trying to save
          */
         foreach ($this->attributes as $attribute => $value) {
-            if (is_array($value))
+            if (is_array($value)) {
                 throw new Exception(sprintf('Unexpected type of array, should attribute "%s" be jsonable?', $attribute));
+            }
         }
 
         // Save the record
         $result = parent::save($options);
 
         // Halted by event
-        if ($result === false)
+        if ($result === false) {
             return $result;
+        }
 
         /*
          * If there is nothing to update, Eloquent will not fire afterSave(),
@@ -1086,8 +1086,9 @@ class Model extends EloquentModel
         }
 
         // Apply any deferred bindings
-        if ($this->sessionKey !== null)
+        if ($this->sessionKey !== null) {
             $this->commitDeferred($this->sessionKey);
+        }
 
         return $result;
     }
@@ -1096,17 +1097,17 @@ class Model extends EloquentModel
      * Save the model to the database.
      * @return bool
      */
-    public function save(array $data = null, $sessionKey = null)
+    public function save(array $options = null, $sessionKey = null)
     {
         $this->sessionKey = $sessionKey;
-        return $this->saveInternal($data, ['force' => false]);
+        return $this->saveInternal((array) $options + ['force' => false]);
     }
 
     /**
      * Save the model and all of its relationships.
      * @return bool
      */
-    public function push($sessionKey = null, $options = [])
+    public function push($options = null, $sessionKey = null)
     {
         $always = array_get($options, 'always', false);
 
@@ -1130,7 +1131,7 @@ class Model extends EloquentModel
             }
 
             foreach (array_filter($models) as $model) {
-                if (!$model->push($sessionKey)) {
+                if (!$model->push(null, $sessionKey)) {
                     return false;
                 }
             }
@@ -1144,9 +1145,9 @@ class Model extends EloquentModel
      * model has no changes.
      * @return bool
      */
-    public function alwaysPush($sessionKey)
+    public function alwaysPush($options = null, $sessionKey)
     {
-        return $this->push($sessionKey, ['always' => true]);
+        return $this->push(['always' => true] + (array) $options, $sessionKey);
     }
 
     //
