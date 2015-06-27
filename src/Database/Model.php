@@ -581,7 +581,7 @@ class Model extends EloquentModel
         $relation = $this->getRelationDefinition($relationName);
 
         // Query filter arguments
-        $filters = ['scope', 'conditions', 'order', 'pivot', 'timestamps', 'push'];
+        $filters = ['scope', 'conditions', 'order', 'pivot', 'timestamps', 'push', 'count'];
 
         foreach (array_merge($optional, $filters) as $key) {
             if (!array_key_exists($key, $relation)) {
@@ -622,6 +622,14 @@ class Model extends EloquentModel
          */
         if ($args['timestamps']) {
             $relation->withTimestamps();
+        }
+
+        /*
+         * Count related records
+         */
+        if ($count = $args['count']) {
+            $relation->selectRaw($relation->getForeignKey() . ', count(*) as count')
+                ->groupBy($relation->getForeignKey());
         }
 
         /*
