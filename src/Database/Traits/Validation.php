@@ -89,7 +89,7 @@ trait Validation
     public function forceSave($options = null, $sessionKey = null)
     {
         $this->sessionKey = $sessionKey;
-        return $this->saveInternal((array) $options + ['force' => false]);
+        return $this->saveInternal(['force' => true] + (array) $options);
     }
 
     /**

@@ -1100,7 +1100,7 @@ class Model extends EloquentModel
     public function save(array $options = null, $sessionKey = null)
     {
         $this->sessionKey = $sessionKey;
-        return $this->saveInternal((array) $options + ['force' => false]);
+        return $this->saveInternal(['force' => false] + (array) $options);
     }
 
     /**
