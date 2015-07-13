@@ -139,7 +139,7 @@ class HtmlBuilder extends HtmlBuilderBase
             // Remove namespaced elements (we do not need them)
             $html = preg_replace('#</*\w+:\w[^>]*>#i', "", $html);
 
-            // Remove really unwanted tags    
+            // Remove really unwanted tags
             $html = preg_replace('#</*(applet|meta|xml|blink|link|style|script|embed|object|iframe|frame|frameset|ilayer|layer|bgsound|title|base)[^>]*>#i', "", $html);
         }
         while ($oldHtml !== $html);
