@@ -75,6 +75,10 @@ class Helper
      */
     public static function parseValues($object, array $columns, $string)
     {
+        if (is_array($object)) {
+            $object = (object) $object;
+        }
+
         $defaultColumns = ['id'];
         foreach ($columns as $column) {
             if (
