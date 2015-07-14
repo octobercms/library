@@ -643,24 +643,4 @@ class User extends Model
     {
         return array_merge(parent::getDates(), ['activated_at', 'last_login']);
     }
-
-    /**
-     * Convert the model instance to an array.
-     * @return array
-     */
-    public function toArray()
-    {
-        $result = parent::toArray();
-
-        if (isset($result['is_activated']))
-            $result['is_activated'] = $this->getIsActivatedAttribute($result['is_activated']);
-
-        if (isset($result['permissions']))
-            $result['permissions'] = $this->getPermissionsAttribute($result['permissions']);
-
-        if (isset($result['suspended_at']))
-            $result['suspended_at'] = $result['suspended_at']->format('Y-m-d H:i:s');
-
-        return $result;
-    }
 }

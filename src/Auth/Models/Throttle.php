@@ -262,27 +262,4 @@ class Throttle extends Model
     {
         return array_merge(parent::getDates(), ['last_attempt_at', 'suspended_at', 'banned_at']);
     }
-
-    /**
-     * Convert the model instance to an array.
-     * @return array
-     */
-    public function toArray()
-    {
-        $result = parent::toArray();
-
-        if (isset($result['is_suspended']))
-            $result['is_suspended'] = $this->getIsSuspendedAttribute($result['is_suspended']);
-
-        if (isset($result['is_banned']))
-            $result['is_banned'] = $this->getIsBannedAttribute($result['is_banned']);
-
-        if (isset($result['last_attempt_at']) && $result['last_attempt_at'] instanceof DateTime)
-            $result['last_attempt_at'] = $result['last_attempt_at']->format('Y-m-d H:i:s');
-
-        if (isset($result['suspended_at']) && $result['suspended_at'] instanceof DateTime)
-            $result['suspended_at'] = $result['suspended_at']->format('Y-m-d H:i:s');
-
-        return $result;
-    }
 }
