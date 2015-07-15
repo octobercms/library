@@ -7,6 +7,7 @@ use October\Rain\Database\Attach\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\File\File as FileObj;
 use Exception;
+use Config;
 
 /**
  * File attachment model
@@ -665,11 +666,13 @@ class File extends Model
      */
     public function getStorageDirectory()
     {
+        $uploadsFolder = Config::get('cms.storage.uploads.folder');
+
         if ($this->isPublic()) {
-            return 'uploads/public/';
+            return $uploadsFolder . '/public/';
         }
         else {
-            return 'uploads/protected/';
+            return $uploadsFolder . '/protected/';
         }
     }
 
