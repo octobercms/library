@@ -49,4 +49,14 @@ class MailServiceProvider extends MailServiceProviderBase
         });
 
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function registerSwiftTransport()
+    {
+        $this->app['swift.transport'] = $this->app->share(function($app) {
+            return new TransportManager($app);
+        });
+    }
 }
