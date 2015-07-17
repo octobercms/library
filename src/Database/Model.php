@@ -10,6 +10,7 @@ use October\Rain\Database\Relations\HasMany;
 use October\Rain\Database\Relations\HasOne;
 use October\Rain\Database\Relations\MorphMany;
 use October\Rain\Database\Relations\MorphToMany;
+use October\Rain\Database\Relations\MorphTo;
 use October\Rain\Database\Relations\MorphOne;
 use October\Rain\Database\Relations\AttachMany;
 use October\Rain\Database\Relations\AttachOne;
@@ -678,7 +679,26 @@ class Model extends EloquentModel
         if (is_null($name))
             $name = snake_case($this->getRelationCaller());
 
-        return parent::morphTo($name, $type, $id);
+        list($type, $id) = $this->getMorphs($name, $type, $id);
+
+        // If the type value is null it is probably safe to assume we're eager loading
+        // the relationship. When that is the case we will pass in a dummy query as
+        // there are multiple types in the morph and we can't use single queries.
+        if (is_null($class = $this->$type)) {
+            return new MorphTo(
+                $this->newQuery(), $this, $id, null, $type, $name
+            );
+        }
+        // If we are not eager loading the relationship we will essentially treat this
+        // as a belongs-to style relationship since morph-to extends that class and
+        // we will pass in the appropriate values so that it behaves as expected.
+        else {
+            $instance = new $class;
+
+            return new MorphTo(
+                $instance->newQuery(), $this, $id, $instance->getKeyName(), $type, $name
+            );
+        }
     }
 
     /**
