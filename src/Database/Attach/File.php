@@ -172,20 +172,6 @@ class File extends Model
     //
 
     /**
-     * Generates a disk name from the supplied file name.
-     */
-    protected function getDiskName()
-    {
-        if ($this->disk_name !== null)
-            return $this->disk_name;
-
-        $ext = strtolower($this->getExtension());
-        $name = str_replace('.', '', uniqid(null, true));
-
-        return $this->disk_name = $ext !== null ? $name.'.'.$ext : $name;
-    }
-
-    /**
      * Returns the file name without path
      */
     public function getFilename()
@@ -239,7 +225,29 @@ class File extends Model
     }
 
     /**
-     * Returns the local path to the file.
+     * Returns a local path to this file. If the file is stored remotely,
+     * it will be downloaded to a temporary directory.
+     */
+    public function getLocalPath()
+    {
+        if ($this->isLocalStorage()) {
+            return $this->getLocalRootPath() . '/' . $this->getDiskPath();
+        }
+        else {
+            //
+            // @todo The CDN portion of this method is not complete.
+            // Things to consider:
+            // - Generating the temp [cache] file only once
+            // - Cleaning up the temporary file somehow
+            // - See media manager process as a reference
+            //
+            return -1;
+        }
+    }
+
+    /**
+     * Returns the path to the file, relative to the storage disk.
+     * @reutrn string
      */
     public function getDiskPath()
     {
@@ -473,6 +481,20 @@ class File extends Model
     //
     // File handling
     //
+
+    /**
+     * Generates a disk name from the supplied file name.
+     */
+    protected function getDiskName()
+    {
+        if ($this->disk_name !== null)
+            return $this->disk_name;
+
+        $ext = strtolower($this->getExtension());
+        $name = str_replace('.', '', uniqid(null, true));
+
+        return $this->disk_name = $ext !== null ? $name.'.'.$ext : $name;
+    }
 
     /**
      * Returns a temporary local path to work from.
