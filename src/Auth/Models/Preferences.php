@@ -38,8 +38,9 @@ class Preferences extends Model
     public function resolveUser($user)
     {
         $user = Manager::getUser();
-        if (!$user)
+        if (!$user) {
             throw new Exception('User is not logged in');
+        }
 
         return $user;
     }
@@ -50,7 +51,7 @@ class Preferences extends Model
     public static function forUser($user = null)
     {
         $self = new static;
-        $self->userContext = ($user) ?: $self->resolveUser($user);
+        $self->userContext = $user ?: $self->resolveUser($user);
         return $self;
     }
 
@@ -62,17 +63,20 @@ class Preferences extends Model
      */
     public function get($key, $default = null)
     {
-        if (!($user = $this->userContext))
+        if (!($user = $this->userContext)) {
             return $default;
+        }
 
         $cacheKey = $this->getCacheKey($key, $user);
 
-        if (array_key_exists($cacheKey, static::$cache))
+        if (array_key_exists($cacheKey, static::$cache)) {
             return static::$cache[$cacheKey];
+        }
 
-        $record = static::findRecord($key, $user)->first();
-        if (!$record)
+        $record = static::findRecord($key, $user);
+        if (!$record) {
             return static::$cache[$cacheKey] = $default;
+        }
 
         return static::$cache[$cacheKey] = $record->value;
     }
@@ -86,10 +90,11 @@ class Preferences extends Model
      */
     public function set($key, $value)
     {
-        if (!($user = $this->userContext))
+        if (!$user = $this->userContext) {
             return false;
+        }
 
-        $record = static::findRecord($key, $user)->first();
+        $record = static::findRecord($key, $user);
         if (!$record) {
             list($namespace, $group, $item) = $this->parseKey($key);
             $record = new static;
@@ -108,23 +113,33 @@ class Preferences extends Model
     }
 
     /**
+     * Returns a record
+     * @return self
+     */
+    public static function findRecord($key, $user = null)
+    {
+        return static::applyKeyAndUser($key, $user)->first();
+    }
+
+    /**
      * Scope to find a setting record for the specified module (or plugin) name, setting name and user.
      * @param string $key Specifies the setting key value, for example 'backend:items.perpage'
      * @param mixed $default The default value to return if the setting doesn't exist in the DB.
      * @param mixed $user An optional user object.
      * @return mixed Returns the found record or null.
      */
-    public function scopeFindRecord($query, $key, $user = null)
+    public function scopeApplyKeyAndUser($query, $key, $user = null)
     {
         list($namespace, $group, $item) = $this->parseKey($key);
 
         $query = $query
-                    ->where('namespace', $namespace)
-                    ->where('group', $group)
-                    ->where('item', $item);
+            ->where('namespace', $namespace)
+            ->where('group', $group)
+            ->where('item', $item);
 
-        if ($user)
+        if ($user) {
             $query = $query->where('user_id', $user->id);
+        }
 
         return $query;
     }
