@@ -1181,7 +1181,7 @@ class Model extends EloquentModel
      */
     public function addDateAttribute($attribute)
     {
-        if (in_array($this->dates, $attribute)) return;
+        if (in_array($attribute, $this->dates)) return;
 
         $this->dates[] = $attribute;
     }
