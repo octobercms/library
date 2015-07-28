@@ -537,7 +537,7 @@ class Model extends EloquentModel
 
             case 'morphTo':
                 $relation = $this->validateRelationArgs($relationName, ['name', 'type', 'id']);
-                $relationObj = $this->$relationType($relation['name'], $relation['type'], $relation['id']);
+                $relationObj = $this->$relationType($relation['name'] ?: $relationName, $relation['type'], $relation['id']);
                 break;
 
             case 'morphOne':
