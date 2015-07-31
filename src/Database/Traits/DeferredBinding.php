@@ -90,13 +90,22 @@ trait DeferredBinding
             $relationObj = $this->$relationName();
 
             if ($binding->is_bind) {
-                $relationObj->add($slaveModel);
+                if(method_exists($relationObj,'add')) {
+                    $relationObj->add($slaveModel);
+                } elseif(method_exists($relationObj, 'associate')) {
+                    $relationObj->associate($slaveModel);
+                }
             }
             else {
-                $relationObj->remove($slaveModel);
+                if(method_exists($relationObj,'remove')) {
+                    $relationObj->remove($slaveModel);
+                } elseif(method_exists($relationObj, 'dissociate')) {
+                    $relationObj->dissociate();
+                }
             }
-
             $binding->delete();
+
+            $relationObj->getParent()->save();
         }
     }
 
@@ -119,7 +128,8 @@ trait DeferredBinding
             $type == 'morphOne' ||
             $type == 'attachMany' ||
             $type == 'attachOne' ||
-            $type == 'belongsToMany'
+            $type == 'belongsToMany' ||
+            $type == 'belongsTo'
         );
     }
 
