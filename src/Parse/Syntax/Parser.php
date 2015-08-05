@@ -40,7 +40,9 @@ class Parser
             $this->template = $template;
             $this->varPrefix = array_get($options, 'varPrefix', '');
             $this->fieldParser = new FieldParser($template, $options);
-            $this->textParser = new TextParser;
+
+            $textFilters = ['md' => ['Markdown', 'parse']];
+            $this->textParser = new TextParser(['filters' => $textFilters]);
         }
     }
 
@@ -62,7 +64,7 @@ class Parser
      */
     public function render($vars = [], $options = [])
     {
-        $vars = array_merge($this->getFieldValues(), (array) $vars);
+        $vars = array_replace_recursive($this->getFieldValues(), (array) $vars);
         $this->textParser->setOptions($options);
         return $this->textParser->parseString($this->toView(), $vars);
     }
@@ -224,6 +226,9 @@ class Parser
         $type = isset($params['type']) ? $params['type'] : 'text';
 
         switch ($type) {
+            case 'markdown':
+                $result = static::CHAR_OPEN . $field . '|md' . static::CHAR_CLOSE;
+                break;
             default:
                 $result = static::CHAR_OPEN . $field . static::CHAR_CLOSE;
                 break;

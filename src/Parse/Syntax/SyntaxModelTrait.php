@@ -20,14 +20,16 @@ trait SyntaxModelTrait
     public function defineSyntaxRelations()
     {
         $fields = $this->getSyntaxFields();
-        if (!is_array($fields))
+        if (!is_array($fields)) {
             return;
+        }
 
         foreach ($fields as $field => $params) {
             if (!isset($params['type'])) continue;
 
-            if ($params['type'] == 'fileupload')
+            if ($params['type'] == 'fileupload') {
                 $this->attachOne[$field] = ['System\Models\File'];
+            }
         }
     }
 
@@ -39,8 +41,9 @@ trait SyntaxModelTrait
         $data = $this->getSyntaxData();
 
         $fields = $this->getSyntaxFields();
-        if (!is_array($fields))
+        if (!is_array($fields)) {
             return $data;
+        }
 
         foreach ($fields as $field => $params) {
 

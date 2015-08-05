@@ -17,6 +17,7 @@ class Template
     protected $options = [
         'encodeHtml' => false,
         'newlineToBr' => false,
+        'filters' => []
     ];
 
     public function __construct($options = [])
@@ -50,14 +51,18 @@ class Template
      */
     public function parseString($string, $data)
     {
-        if (!is_string($string) || !strlen(trim($string)))
+        if (!is_string($string) || !strlen(trim($string))) {
             return false;
+        }
 
         foreach ($data as $key => $value) {
-            if (is_array($value))
+            if (is_array($value)) {
                 $string = $this->parseLoop($key, $value, $string);
-            else
+            }
+            else {
                 $string = $this->parseKey($key, $value, $string);
+                $string = $this->parseKeyFilters($key, $value, $string);
+            }
         }
 
         return $string;
@@ -72,13 +77,41 @@ class Template
      */
     protected function parseKey($key, $value, $string)
     {
-        if (isset($this->options['encodeHtml']) && $this->options['encodeHtml'])
+        if (isset($this->options['encodeHtml']) && $this->options['encodeHtml']) {
             $value = htmlentities($value, ENT_QUOTES, 'UTF-8', false);
+        }
 
-        if (isset($this->options['newlineToBr']) && $this->options['newlineToBr'])
+        if (isset($this->options['newlineToBr']) && $this->options['newlineToBr']) {
             $value = nl2br($value);
+        }
 
         $returnStr = str_replace(static::CHAR_OPEN.$key.static::CHAR_CLOSE, $value, $string);
+
+        return $returnStr;
+    }
+
+    /**
+     * Look for filtered variables and replace them
+     * @param  string $key
+     * @param  string $value
+     * @param  string $string
+     * @return string
+     */
+    protected function parseKeyFilters($key, $value, $string)
+    {
+        if (!$filters = $this->options['filters']) {
+            return $string;
+        }
+
+        $returnStr = $string;
+
+        foreach ($filters as $filter => $func) {
+            $charKey = static::CHAR_OPEN.$key.'|'.$filter.static::CHAR_CLOSE;
+
+            if (is_callable($func) && strpos($string, $charKey) !== false) {
+                $returnStr = str_replace($charKey, $func($value), $returnStr);
+            }
+        }
 
         return $returnStr;
     }
@@ -95,17 +128,21 @@ class Template
         $returnStr = '';
         $match = $this->parseLoopRegex($string, $key);
 
-        if (!$match)
+        if (!$match) {
             return $string;
+        }
 
         foreach ($data as $row) {
             $matchedText = $match[1];
 
             foreach ($row as $key => $value) {
-                if (is_array($value))
+                if (is_array($value)) {
                     $matchedText = $this->parseLoop($key, $value, $matchedText);
-                else
+                }
+                else {
                     $matchedText = $this->parseKey($key, $value, $matchedText);
+                    $matchedText = $this->parseKeyFilters($key, $value, $matchedText);
+                }
             }
 
             $returnStr .= $matchedText;
@@ -135,5 +172,4 @@ class Template
         preg_match($regex, $string, $match);
         return ($match) ? $match : false;
     }
-
 }
