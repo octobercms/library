@@ -63,8 +63,8 @@ class DeferredBinding extends Model
      */
     public static function cancelDeferredActions($masterType, $sessionKey)
     {
-        $records = self::where('master_type=?', $masterType)
-            ->where('session_key=?', $sessionKey)
+        $records = self::where('master_type', $masterType)
+            ->where('session_key', $sessionKey)
             ->get();
 
         foreach ($records as $record) {
