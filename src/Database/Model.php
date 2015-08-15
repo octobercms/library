@@ -324,6 +324,16 @@ class Model extends EloquentModel
         static::registerModelEvent('fetched', $callback);
     }
 
+    /**
+     * Get the jsonable attributes name
+     *
+     * @return array
+     */
+    public function getJsonable()
+    {
+        return $this->jsonable;
+    }
+
     //
     // Overrides
     //
