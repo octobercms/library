@@ -128,6 +128,10 @@ trait Validation
         if (!empty($rules)) {
 
             $data = $this->getAttributes();
+
+            /*
+             * Decode jsonable attribute values
+             */
             foreach ($this->getJsonable() as $jsonable) {
                 $data[$jsonable] = $this->getAttribute($jsonable);
             }
