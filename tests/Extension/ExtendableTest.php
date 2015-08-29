@@ -89,13 +89,41 @@ class ExtendableTest extends TestCase
     }
 
     /**
-     * @expectedException        Exception
-     * @expectedExceptionMessage Class ExampleExtendableClass does not have a method definition for undefinedMethod
+     * @expectedException        BadMethodCallException
+     * @expectedExceptionMessage Call to undefined method ExampleExtendableClass::undefinedMethod()
      */
     public function testCallingUndefinedStaticMethod()
     {
         $result = ExampleExtendableClass::undefinedMethod();
         $this->assertEquals('bar', $result);
+    }
+
+    public function testAccessingProtectedProperty()
+    {
+        $subject = new ExampleExtendableClass;
+        $this->assertEmpty($subject->protectedFoo);
+
+        $subject->protectedFoo = 'snickers';
+        $this->assertEquals('bar', $subject->getProtectedFooAttribute());
+    }
+
+    /**
+     * @expectedException        BadMethodCallException
+     * @expectedExceptionMessage Call to undefined method ExampleExtendableClass::protectedBar()
+     */
+    public function testAccessingProtectedMethod()
+    {
+        $subject = new ExampleExtendableClass;
+        echo $subject->protectedBar();
+    }
+
+    /**
+     * @expectedException        BadMethodCallException
+     * @expectedExceptionMessage Call to undefined method ExampleExtendableClass::protectedMars()
+     */
+    public function testAccessingProtectedStaticMethod()
+    {
+        echo ExampleExtendableClass::protectedMars();
     }
 
     /**
@@ -187,9 +215,26 @@ class ExampleExtendableClass extends Extendable
 
     public $classAttribute;
 
+    protected $protectedFoo = 'bar';
+
     public static function vanillaIceIce()
     {
         return 'baby';
+    }
+
+    protected function protectedBar()
+    {
+        return 'foo';
+    }
+
+    protected static function protectedMars()
+    {
+        return 'bar';
+    }
+
+    public function getProtectedFooAttribute()
+    {
+        return $this->protectedFoo;
     }
 }
 

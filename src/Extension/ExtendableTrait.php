@@ -248,9 +248,6 @@ trait ExtendableTrait
      */
     public function extendableGet($name)
     {
-        if (property_exists($this, $name))
-            return $this->{$name};
-
         foreach ($this->extensionData['extensions'] as $extensionObject) {
             if (
                 property_exists($extensionObject, $name) &&
@@ -261,10 +258,8 @@ trait ExtendableTrait
         }
 
         $parent = get_parent_class();
-        if ($parent !== false) {
-            if (method_exists($parent, '__get')) {
-                return parent::__get($name);
-            }
+        if ($parent !== false && method_exists($parent, '__get')) {
+            return parent::__get($name);
         }
     }
 
@@ -276,10 +271,6 @@ trait ExtendableTrait
      */
     public function extendableSet($name, $value)
     {
-        if (property_exists($this, $name)) {
-            return $this->{$name} = $value;
-        }
-
         foreach ($this->extensionData['extensions'] as $extensionObject) {
             if (!property_exists($extensionObject, $name)) {
                 continue;
@@ -292,10 +283,8 @@ trait ExtendableTrait
          * This targets trait usage in particular
          */
         $parent = get_parent_class();
-        if ($parent !== false) {
-            if (method_exists($parent, '__set')) {
-                parent::__set($name, $value);
-            }
+        if ($parent !== false && method_exists($parent, '__set')) {
+            parent::__set($name, $value);
         }
 
         /*
@@ -314,10 +303,6 @@ trait ExtendableTrait
      */
     public function extendableCall($name, $params = null)
     {
-        if (method_exists($this, $name)) {
-            return call_user_func_array(array($this, $name), $params);
-        }
-
         if (isset($this->extensionData['methods'][$name])) {
             $extension = $this->extensionData['methods'][$name];
             $extensionObject = $this->extensionData['extensions'][$extension];
@@ -336,12 +321,8 @@ trait ExtendableTrait
         }
 
         $parent = get_parent_class();
-        if ($parent !== false) {
-            if (method_exists($parent, '__call')) {
-                return parent::__call($name, $params);
-            }
-
-            return call_user_func_array(array($parent, $name), $params);
+        if ($parent !== false && method_exists($parent, '__call')) {
+            return parent::__call($name, $params);
         }
 
         throw new BadMethodCallException(sprintf(
@@ -360,9 +341,6 @@ trait ExtendableTrait
     public static function extendableCallStatic($name, $params = null)
     {
         $className = get_called_class();
-        if (method_exists($className, $name)) {
-            return forward_static_call_array(array($className, $name), $params);
-        }
 
         if (!array_key_exists($className, self::$extendableStaticMethods)) {
 
@@ -408,11 +386,8 @@ trait ExtendableTrait
         }
 
         // $parent = get_parent_class($className);
-        // if ($parent !== false) {
-        //     if (method_exists($parent, '__callStatic'))
-        //         return parent::__callStatic($name, $params);
-
-        //     return forward_static_call_array(array($parent, $name), $params);
+        // if ($parent !== false && method_exists($parent, '__callStatic')) {
+        //    return parent::__callStatic($name, $params);
         // }
 
         throw new BadMethodCallException(sprintf(
