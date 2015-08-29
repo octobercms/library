@@ -334,6 +334,19 @@ class Model extends EloquentModel
         return $this->jsonable;
     }
 
+    /**
+     * Set the jsonable attributes for the model.
+     *
+     * @param  array  $fillable
+     * @return $this
+     */
+    public function jsonable(array $jsonable)
+    {
+        $this->jsonable = $jsonable;
+
+        return $this;
+    }
+
     //
     // Overrides
     //
