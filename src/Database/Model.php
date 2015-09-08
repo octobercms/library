@@ -1263,7 +1263,7 @@ class Model extends EloquentModel
      * @param  string  $key
      * @return mixed
      */
-    protected function getAttributeValue($key)
+    public function getAttributeValue($key)
     {
         $attr = parent::getAttributeValue($key);
 
