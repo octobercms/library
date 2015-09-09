@@ -286,13 +286,6 @@ trait ExtendableTrait
         if ($parent !== false && method_exists($parent, '__set')) {
             parent::__set($name, $value);
         }
-
-        /*
-         * Setting an undefined property
-         */
-        if (!property_exists($this, $name)) {
-            $this->{$name} = $value;
-        }
     }
 
     /**

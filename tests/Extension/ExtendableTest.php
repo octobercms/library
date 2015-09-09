@@ -17,7 +17,8 @@ class ExtendableTest extends TestCase
     {
         $subject = new ExampleExtendableClass;
         $subject->newAttribute = 'Test';
-        $this->assertEquals('Test', $subject->newAttribute);
+        $this->assertNull($subject->newAttribute);
+        $this->assertFalse(property_exists($subject, 'newAttribute'));
     }
 
     public function testSettingDeclaredAttributeOnBehavior()

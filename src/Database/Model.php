@@ -468,8 +468,9 @@ class Model extends EloquentModel
     public function getRelationType($name)
     {
         foreach (static::$relationTypes as $type) {
-            if (isset($this->{$type}[$name]))
+            if (isset($this->{$type}[$name])) {
                 return $type;
+            }
         }
     }
 
@@ -1005,6 +1006,7 @@ class Model extends EloquentModel
                 // Nulling the relationship
                 if (!$value) {
                     $this->setAttribute($relationObj->getForeignKey(), null);
+                    $this->setRelation($relationName, null);
                     break;
                 }
 
@@ -1019,19 +1021,25 @@ class Model extends EloquentModel
                     }
 
                     $relationObj->associate($value);
+                    $this->setRelation($relationName, $value);
                 }
-                else
+                else {
                     $this->setAttribute($relationObj->getForeignKey(), $value);
+                    unset($this->relations[$relationName]);
+                }
                 break;
 
             case 'hasOne':
-                if (!$value || is_array($value))
+                if (!$value || is_array($value)) {
                     return;
+                }
 
-                if ($value instanceof EloquentModel)
+                if ($value instanceof EloquentModel) {
                     $instance = $value;
-                else
+                }
+                else {
                     $instance = $relationModel->find($value);
+                }
 
                 if ($instance) {
                     $this->setRelation($relationName, $instance);
@@ -1317,8 +1325,14 @@ class Model extends EloquentModel
             $result = $this->setRelationValue($key, $value);
         }
         else {
-            if (!is_object($value) && !is_array($value) && !is_null($value) && !is_bool($value))
+            if (
+                !is_object($value) &&
+                !is_array($value) &&
+                !is_null($value) &&
+                !is_bool($value)
+            ) {
                 $value = trim($value);
+            }
 
             $result = parent::setAttribute($key, $value);
         }
