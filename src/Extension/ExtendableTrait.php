@@ -1,8 +1,9 @@
 <?php namespace October\Rain\Extension;
 
-use Exception;
 use ReflectionClass;
 use ReflectionMethod;
+use BadMethodCallException;
+use Exception;
 
 /**
  * Extension trait
@@ -55,8 +56,9 @@ trait ExtendableTrait
         /*
          * Apply extensions
          */
-        if (!$this->implement)
+        if (!$this->implement) {
             return;
+        }
 
         if (is_string($this->implement)) {
             $uses = explode(',', $this->implement);
@@ -109,8 +111,12 @@ trait ExtendableTrait
     {
         $extensionMethods = get_class_methods($extensionName);
         foreach ($extensionMethods as $methodName) {
-            if ($methodName == '__construct' || $extensionObject->extensionIsHiddenMethod($methodName))
+            if (
+                $methodName == '__construct' ||
+                $extensionObject->extensionIsHiddenMethod($methodName)
+            ) {
                 continue;
+            }
 
             $this->extensionData['methods'][$methodName] = $extensionName;
         }
@@ -124,7 +130,11 @@ trait ExtendableTrait
      */
     public function addDynamicMethod($dynamicName, $method, $extension = null)
     {
-        if (is_string($method) && $extension && ($extensionObj = $this->getClassExtension($extension))) {
+        if (
+            is_string($method) &&
+            $extension &&
+            ($extensionObj = $this->getClassExtension($extension))
+        ) {
             $method = array($extensionObj, $method);
         }
 
@@ -138,11 +148,17 @@ trait ExtendableTrait
      */
     public function extendClassWith($extensionName)
     {
-        if (!strlen($extensionName))
+        if (!strlen($extensionName)) {
             return $this;
+        }
 
-        if (isset($this->extensionData['extensions'][$extensionName]))
-            throw new Exception(sprintf('Class %s has already been extended with %s', get_class($this), $extensionName));
+        if (isset($this->extensionData['extensions'][$extensionName])) {
+            throw new Exception(sprintf(
+                'Class %s has already been extended with %s',
+                get_class($this),
+                $extensionName
+            ));
+        }
 
         $this->extensionData['extensions'][$extensionName] = $extensionObject = new $extensionName($this);
         $this->extensionExtractMethods($extensionName, $extensionObject);
@@ -188,8 +204,12 @@ trait ExtendableTrait
     {
         $hints = [];
         foreach ($this->extensionData['extensions'] as $class => $obj) {
-            if (preg_match('@\\\\([\w]+)$@', $class, $matches) && $matches[1] == $shortName)
+            if (
+                preg_match('@\\\\([\w]+)$@', $class, $matches) &&
+                $matches[1] == $shortName
+            ) {
                 return $obj;
+            }
         }
     }
 
@@ -228,20 +248,18 @@ trait ExtendableTrait
      */
     public function extendableGet($name)
     {
-        if (property_exists($this, $name))
-            return $this->{$name};
-
         foreach ($this->extensionData['extensions'] as $extensionObject) {
-            if (property_exists($extensionObject, $name) && $this->extendableIsAccessible($extensionObject, $name))
+            if (
+                property_exists($extensionObject, $name) &&
+                $this->extendableIsAccessible($extensionObject, $name)
+            ) {
                 return $extensionObject->{$name};
+            }
         }
 
         $parent = get_parent_class();
-        if ($parent !== false) {
-            if (method_exists($parent, '__get'))
-                return parent::__get($name);
-
-            return $parent->{$name};
+        if ($parent !== false && method_exists($parent, '__get')) {
+            return parent::__get($name);
         }
     }
 
@@ -253,28 +271,21 @@ trait ExtendableTrait
      */
     public function extendableSet($name, $value)
     {
-        if (property_exists($this, $name))
-            return $this->{$name} = $value;
-
         foreach ($this->extensionData['extensions'] as $extensionObject) {
-            if (!property_exists($extensionObject, $name))
+            if (!property_exists($extensionObject, $name)) {
                 continue;
+            }
 
-            return $extensionObject->{$name} = $value;
+            $extensionObject->{$name} = $value;
         }
 
         /*
          * This targets trait usage in particular
          */
         $parent = get_parent_class();
-        if ($parent !== false) {
-            if (method_exists($parent, '__set'))
-                return parent::__set($name, $value);
-
-            return $parent->{$name} = $value;
+        if ($parent !== false && method_exists($parent, '__set')) {
+            parent::__set($name, $value);
         }
-
-        return $this->{$name} = $value;
     }
 
     /**
@@ -285,33 +296,33 @@ trait ExtendableTrait
      */
     public function extendableCall($name, $params = null)
     {
-        if (method_exists($this, $name))
-            return call_user_func_array(array($this, $name), $params);
-
         if (isset($this->extensionData['methods'][$name])) {
             $extension = $this->extensionData['methods'][$name];
             $extensionObject = $this->extensionData['extensions'][$extension];
 
-            if (method_exists($extension, $name) && is_callable([$extension, $name]))
+            if (method_exists($extension, $name) && is_callable([$extension, $name])) {
                 return call_user_func_array(array($extensionObject, $name), $params);
+            }
         }
 
         if (isset($this->extensionData['dynamicMethods'][$name])) {
             $dynamicCallable = $this->extensionData['dynamicMethods'][$name];
 
-            if (is_callable($dynamicCallable))
+            if (is_callable($dynamicCallable)) {
                 return call_user_func_array($dynamicCallable, $params);
+            }
         }
 
         $parent = get_parent_class();
-        if ($parent !== false) {
-            if (method_exists($parent, '__call'))
-                return parent::__call($name, $params);
-
-            return call_user_func_array(array($parent, $name), $params);
+        if ($parent !== false && method_exists($parent, '__call')) {
+            return parent::__call($name, $params);
         }
 
-        throw new Exception(sprintf('Class %s does not have a method definition for %s', get_class($this), $name));
+        throw new BadMethodCallException(sprintf(
+            'Call to undefined method %s::%s()',
+            get_class($this),
+            $name
+        ));
     }
 
     /**
@@ -323,8 +334,6 @@ trait ExtendableTrait
     public static function extendableCallStatic($name, $params = null)
     {
         $className = get_called_class();
-        if (method_exists($className, $name))
-            return forward_static_call_array(array($className, $name), $params);
 
         if (!array_key_exists($className, self::$extendableStaticMethods)) {
 
@@ -335,12 +344,15 @@ trait ExtendableTrait
             if (array_key_exists('implement', $defaultProperties)) {
                 $implement = $defaultProperties['implement'];
 
-                if (is_string($implement))
+                if (is_string($implement)) {
                     $uses = explode(',', $implement);
-                elseif (is_array($implement))
+                }
+                elseif (is_array($implement)) {
                     $uses = $implement;
-                else
+                }
+                else {
                     throw new Exception(sprintf('Class %s contains an invalid $implement value', $className));
+                }
 
                 foreach ($uses as $use) {
                     $useClassName = str_replace('.', '\\', trim($use));
@@ -367,14 +379,15 @@ trait ExtendableTrait
         }
 
         // $parent = get_parent_class($className);
-        // if ($parent !== false) {
-        //     if (method_exists($parent, '__callStatic'))
-        //         return parent::__callStatic($name, $params);
-
-        //     return forward_static_call_array(array($parent, $name), $params);
+        // if ($parent !== false && method_exists($parent, '__callStatic')) {
+        //    return parent::__callStatic($name, $params);
         // }
 
-        throw new Exception(sprintf('Class %s does not have a method definition for %s', $className, $name));
+        throw new BadMethodCallException(sprintf(
+            'Call to undefined method %s::%s()',
+            $className,
+            $name
+        ));
     }
 
 }

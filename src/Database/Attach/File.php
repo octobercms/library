@@ -49,6 +49,12 @@ class File extends Model
     protected $appends = ['path', 'extension'];
 
     /**
+     * @var mixed A local file name or an instance of an uploaded file,
+     * objects of the \Symfony\Component\HttpFoundation\File\UploadedFile class.
+     */
+    public $data = null;
+
+    /**
      * @var array Mime types
      */
     protected $autoMimeTypes = [
@@ -288,9 +294,9 @@ class File extends Model
     public function beforeSave()
     {
         /*
-         * Process and purge the data attribute
+         * Process the data property
          */
-        if ($this->isDirty('data')) {
+        if ($this->data !== null) {
             if ($this->data instanceof UploadedFile) {
                 $this->fromPost($this->data);
             }
@@ -298,7 +304,7 @@ class File extends Model
                 $this->fromFile($this->data);
             }
 
-            unset($this->data);
+            $this->data = null;
         }
     }
 
