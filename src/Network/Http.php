@@ -373,7 +373,7 @@ class Http
             foreach ($key as $_key => $_value) {
                 $this->data($_key, $_value);
             }
-            return;
+            return $this;
         }
 
         $this->requestData[$key] = $value;
