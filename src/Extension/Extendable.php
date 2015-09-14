@@ -49,7 +49,7 @@ class Extendable
         return self::extendableCallStatic($name, $params);
     }
 
-    public static function extend(Closure $callback)
+    public static function extend(callable $callback)
     {
         self::extendableExtendCallback($callback);
     }

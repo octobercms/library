@@ -48,7 +48,7 @@ trait ExtendableTrait
         foreach ($classes as $class) {
             if (isset(self::$extendableCallbacks[$class]) && is_array(self::$extendableCallbacks[$class])) {
                 foreach (self::$extendableCallbacks[$class] as $callback) {
-                    $callback($this);
+                    call_user_func($callback, $this);
                 }
             }
         }
