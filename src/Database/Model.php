@@ -1143,7 +1143,7 @@ class Model extends EloquentModel
 
         // Apply post deferred bindings
         if ($this->sessionKey !== null) {
-            $this->commitDeferred($this->sessionKey);
+            $this->commitDeferredAfter($this->sessionKey);
         }
 
         return $result;

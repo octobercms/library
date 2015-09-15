@@ -2,6 +2,7 @@
 
 use Db;
 use October\Rain\Database\Model;
+use Exception;
 
 /**
  * Deferred Binding Model
@@ -11,51 +12,45 @@ use October\Rain\Database\Model;
  */
 class DeferredBinding extends Model
 {
+    /**
+     * @var string The database table used by the model.
+     */
     public $table = 'deferred_bindings';
 
     /**
      * Prevents duplicates and conflicting binds.
      */
-    public function beforeValidate()
+    public function beforeCreate()
     {
-        if ($this->exists) {
-            return;
-        }
-
-        /*
-         * Skip repeating bindings
-         */
-        if ($this->is_bind) {
-            $model = $this->findBindingRecord(1);
-            if ($model) {
+        if ($existingRecord = $this->findBindingRecord()) {
+            /*
+             * Remove add-delete pairs
+             */
+            if ($this->is_bind != $existingRecord->is_bind) {
+                $existingRecord->deleteCancel();
                 return false;
             }
-        }
-        /*
-         * Remove add-delete pairs
-         */
-        else {
-            $model = $this->findBindingRecord(1);
-            if ($model) {
-                $model->deleteCancel();
+            /*
+             * Skip repeating bindings
+             */
+            else {
                 return false;
             }
         }
     }
 
     /**
-     * Finds a binding record
+     * Finds a duplicate binding record.
      */
-    protected function findBindingRecord($isBind)
+    protected function findBindingRecord()
     {
-        $model = self::where('master_type', $this->master_type)
+        return self::where('master_type', $this->master_type)
             ->where('master_field', $this->master_field)
             ->where('slave_type', $this->slave_type)
             ->where('slave_id', $this->slave_id)
             ->where('session_key', $this->session_key)
-            ->where('is_bind', $isBind);
-
-        return $model->first();
+            ->first()
+        ;
     }
 
     /**
@@ -134,7 +129,7 @@ class DeferredBinding extends Model
             }
 
         }
-        catch (\Exception $ex) {
+        catch (Exception $ex) {
             // Do nothing
         }
     }

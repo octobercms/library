@@ -75,18 +75,27 @@ trait DeferredBinding
      */
     public function commitDeferred($sessionKey)
     {
-        $this->commitDeferredOfType($sessionKey, null, 'belongsTo');
+        $this->commitDeferredOfType($sessionKey);
         $this->deferredBindingCache = null;
     }
 
     /**
-     * Commit all deferred bindings to this model before the model is saved.
+     * Internally used method to commit all deferred bindings before saving.
      * It is a rare need to have to call this, since it only applies to the
      * "belongs to" relationship which generally does not need deferring.
      */
-    public function commitDeferredBefore($sessionKey)
+    protected function commitDeferredBefore($sessionKey)
     {
         $this->commitDeferredOfType($sessionKey, 'belongsTo');
+    }
+
+    /**
+     * Internally used method to commit all deferred bindings after saving.
+     */
+    protected function commitDeferredAfter($sessionKey)
+    {
+        $this->commitDeferredOfType($sessionKey, null, 'belongsTo');
+        $this->deferredBindingCache = null;
     }
 
     /**
