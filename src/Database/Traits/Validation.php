@@ -46,10 +46,11 @@ trait Validation
      */
     public static function bootValidation()
     {
-        if (!property_exists(get_called_class(), 'rules'))
+        if (!property_exists(get_called_class(), 'rules')) {
             throw new Exception(sprintf('You must define a $rules property in %s to use the Validation trait.', get_called_class()));
+        }
 
-        static::extend(function($model){
+        static::extend(function($model) {
             $model->bindEvent('model.saveInternal', function($data, $options) use ($model) {
                 /*
                  * If forcing the save event, the beforeValidate/afterValidate
@@ -115,8 +116,9 @@ trait Validation
             }
         }
 
-        if ($this->methodExists('beforeValidate'))
+        if ($this->methodExists('beforeValidate')) {
             $this->beforeValidate();
+        }
 
         /*
          * Perform validation
@@ -296,19 +298,23 @@ trait Validation
      */
     public function isAttributeRequired($attribute)
     {
-        if (!isset($this->rules[$attribute]))
+        if (!isset($this->rules[$attribute])) {
             return false;
+        }
 
         $ruleset = $this->rules[$attribute];
 
-        if (is_array($ruleset))
+        if (is_array($ruleset)) {
             $ruleset = implode('|', $ruleset);
+        }
 
-        if (strpos($ruleset, 'required:create') !== false && $this->exists)
+        if (strpos($ruleset, 'required:create') !== false && $this->exists) {
             return false;
+        }
 
-        if (strpos($ruleset, 'required:update') !== false && !$this->exists)
+        if (strpos($ruleset, 'required:update') !== false && !$this->exists) {
             return false;
+        }
 
         if (strpos($ruleset, 'required_with') !== false) {
             $requiredWith = substr($ruleset, strpos($ruleset, 'required_with') + 14);

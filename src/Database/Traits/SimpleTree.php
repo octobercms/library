@@ -86,8 +86,9 @@ trait SimpleTree
 
         $cacheKey = $this->getCacheKey($orderBy);
 
-        if (isset(static::$objectCache[$class][$cacheKey][$this->id]))
+        if (isset(static::$objectCache[$class][$cacheKey][$this->id])) {
             return new Collection(static::$objectCache[$class][$cacheKey][$this->id]);
+        }
 
         return new Collection();
     }
@@ -125,13 +126,15 @@ trait SimpleTree
         $orderBy = $this->getTreeOrderBy();
         $class = get_called_class();
 
-        if (!$this->cacheExists($orderBy))
+        if (!$this->cacheExists($orderBy)) {
             $this->initCache($orderBy);
+        }
 
         $cacheKey = $this->getCacheKey($orderBy);
 
-        if (isset(static::$objectCache[$class][$cacheKey][-1]))
+        if (isset(static::$objectCache[$class][$cacheKey][-1])) {
             return new Collection(static::$objectCache[$class][$cacheKey][-1]);
+        }
 
         return new Collection();
     }
@@ -150,8 +153,9 @@ trait SimpleTree
             $result[] = $child;
 
             $childResult = $child->getAllChildren($orderBy);
-            foreach ($childResult as $subChild)
+            foreach ($childResult as $subChild) {
                 $result[] = $subChild;
+            }
         }
 
         return new Collection($result);
@@ -173,8 +177,9 @@ trait SimpleTree
         $labelColumn = $this->getLabelColumnName();
 
         $result = [];
-        foreach ($parents as $parent)
+        foreach ($parents as $parent) {
             $result[] = $parent->{$labelColumn};
+        }
 
         return implode($separator, array_reverse($result));
     }
@@ -188,17 +193,20 @@ trait SimpleTree
         $orderBy = $this->getTreeOrderBy();
         $class = get_called_class();
 
-        if (!$this->cacheExists($orderBy))
+        if (!$this->cacheExists($orderBy)) {
             $this->initCache($orderBy);
+        }
 
         $cacheKey = $this->getCacheKey($orderBy);
 
         $parentKey = $this->getParentColumnName();
-        if (!$this->$parentKey)
+        if (!$this->$parentKey) {
             return null;
+        }
 
-        if (!isset(static::$parentCache[$class][$cacheKey][$this->$parentKey]))
+        if (!isset(static::$parentCache[$class][$cacheKey][$this->$parentKey])) {
             return null;
+        }
 
         return static::$parentCache[$class][$cacheKey][$this->$parentKey];
     }
@@ -251,10 +259,12 @@ trait SimpleTree
             $indentString = str_repeat($indent, $depth);
 
             foreach ($items as $item) {
-                if ($key !== null)
+                if ($key !== null) {
                     $result[$item->{$key}] = $indentString . $item->{$column};
-                else
+                }
+                else {
                     $result[] = $indentString . $item->{$column};
+                }
 
                 /*
                  * Add the children
@@ -336,8 +346,9 @@ trait SimpleTree
         list($order, $direction) = $orderBy;
         $query = $query->orderBy($order, $direction);
 
-        if ($this->treeModelSqlFilter)
+        if ($this->treeModelSqlFilter) {
             $query = $query->whereRaw($this->treeModelSqlFilter);
+        }
 
         $records = $query->get();
         $objectCache = [];
@@ -349,8 +360,9 @@ trait SimpleTree
 
             $record->setTreeOrderBy($order, $direction);
 
-            if (!isset($objectCache[$parentId]))
+            if (!isset($objectCache[$parentId])) {
                 $objectCache[$parentId] = [];
+            }
 
             $objectCache[$parentId][] = $record;
             $parentCache[$record->id] = $record;
@@ -411,8 +423,9 @@ trait SimpleTree
      */
     public function getTreeOrderBy()
     {
-        if ($this->treeModelActiveOrderBy !== null)
+        if ($this->treeModelActiveOrderBy !== null) {
             return $this->treeModelActiveOrderBy;
+        }
 
         return $this->treeModelActiveOrderBy = [$this->getLabelColumnName(), 'asc'];
     }

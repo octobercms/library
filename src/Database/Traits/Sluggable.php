@@ -18,16 +18,18 @@ trait Sluggable
      */
     public static function bootSluggable()
     {
-        if (!property_exists(get_called_class(), 'slugs'))
+        if (!property_exists(get_called_class(), 'slugs')) {
             throw new Exception(sprintf('You must define a $slugs property in %s to use the Sluggable trait.', get_called_class()));
+        }
 
         /*
          * Set slugged attributes on new records
          */
-        static::extend(function($model){
+        static::extend(function($model) {
             $model->bindEvent('model.saveInternal', function() use ($model) {
-                if ($model->exists)
+                if ($model->exists) {
                     return;
+                }
 
                 $model->slugAttributes();
             });
@@ -56,8 +58,9 @@ trait Sluggable
     public function setSluggedValue($slugAttribute, $sourceAttributes, $maxLength = 240)
     {
         if (!isset($this->{$slugAttribute}) || !strlen($this->{$slugAttribute})) {
-            if (!is_array($sourceAttributes))
+            if (!is_array($sourceAttributes)) {
                 $sourceAttributes = [$sourceAttributes];
+            }
 
             $slugArr = [];
             foreach ($sourceAttributes as $attribute) {
@@ -110,8 +113,9 @@ trait Sluggable
         $keyParts = explode('.', $key);
         $value = $this;
         foreach ($keyParts as $part) {
-            if (!isset($value[$part]))
+            if (!isset($value[$part])) {
                 return null;
+            }
 
             $value = $value[$part];
         }

@@ -26,7 +26,9 @@ class File extends Model
     /**
      * Relations
      */
-    public $morphTo = ['attachment'];
+    public $morphTo = [
+        'attachment' => []
+    ];
 
     /**
      * @var array The attributes that aren't mass assignable.

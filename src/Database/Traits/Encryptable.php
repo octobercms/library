@@ -10,7 +10,7 @@ trait Encryptable {
      * 
      * protected $encryptable = [];
      */
-    
+
     /**
      * @var array List of original attribute values before they were encrypted.
      */
@@ -22,13 +22,14 @@ trait Encryptable {
      */
     public static function bootEncryptable()
     {
-        if (!property_exists(get_called_class(), 'encryptable'))
+        if (!property_exists(get_called_class(), 'encryptable')) {
             throw new Exception(sprintf('You must define a $encryptable property in %s to use the Encryptable trait.', get_called_class()));
+        }
 
         /*
          * Encrypt required fields when necessary
          */
-        static::extend(function($model){
+        static::extend(function($model) {
             $encryptable = $model->getEncryptableAttributes();
             $model->bindEvent('model.beforeSetAttribute', function($key, $value) use ($model, $encryptable) {
                 if (in_array($key, $encryptable) && !empty($value))
