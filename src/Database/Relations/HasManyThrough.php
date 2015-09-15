@@ -21,4 +21,17 @@ class HasManyThrough extends HasManyThroughBase
 
         parent::__construct($query, $farParent, $parent, $firstKey, $secondKey);
     }
+
+    /**
+     * Determine whether close parent of the relation uses Soft Deletes.
+     *
+     * @return bool
+     */
+    public function parentSoftDeletes()
+    {
+        $uses = class_uses_recursive(get_class($this->parent));
+
+        return in_array('October\Rain\Database\Traits\SoftDeleting', $uses) ||
+            in_array('Illuminate\Database\Eloquent\SoftDeletes', $uses);
+    }
 }
