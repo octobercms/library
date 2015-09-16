@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Foundation;
 
+use Closure;
 use Illuminate\Foundation\Application as ApplicationBase;
 
 class Application extends ApplicationBase
@@ -135,6 +136,17 @@ class Application extends ApplicationBase
     public function after($callback)
     {
         return $this['router']->after($callback);
+    }
+
+    /**
+     * Register an application error handler.
+     *
+     * @param  \Closure  $callback
+     * @return void
+     */
+    public function error(Closure $callback)
+    {
+        $this->make('Illuminate\Contracts\Debug\ExceptionHandler')->error($callback);
     }
 
     /**
