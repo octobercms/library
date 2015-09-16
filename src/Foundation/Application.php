@@ -2,6 +2,7 @@
 
 use Closure;
 use Illuminate\Foundation\Application as ApplicationBase;
+use \Symfony\Component\Debug\Exception\FatalErrorException;
 
 class Application extends ApplicationBase
 {
@@ -147,6 +148,19 @@ class Application extends ApplicationBase
     public function error(Closure $callback)
     {
         $this->make('Illuminate\Contracts\Debug\ExceptionHandler')->error($callback);
+    }
+
+    /**
+     * Register an error handler for fatal errors.
+     *
+     * @param  \Closure  $callback
+     * @return void
+     */
+    public function fatal(Closure $callback)
+    {
+        $this->error(function(FatalErrorException $e) use ($callback) {
+            return call_user_func($callback, $e);
+        });
     }
 
     /**
