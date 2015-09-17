@@ -137,7 +137,7 @@ class FormBuilder extends FormBuilderBase
      * Returns a hidden HTML input, supplying the session key value.
      * @return string
      */
-    protected function sessionKey($sessionKey = null)
+    public function sessionKey($sessionKey = null)
     {
         if (!$sessionKey)
             $sessionKey = post('_session_key', $this->sessionKey);
