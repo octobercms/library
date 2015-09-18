@@ -55,7 +55,7 @@ class HtmlBuilder extends HtmlBuilderBase
     {
         $printedLength = 0;
         $position = 0;
-        $tags = array();
+        $tags = [];
 
         $re = '{</?([a-z]+)[^>]*>|&#?[a-zA-Z0-9]+;|[\x80-\xFF][\x80-\xBF]*}';
 
@@ -88,8 +88,9 @@ class HtmlBuilder extends HtmlBuilderBase
                     $openingTag = array_pop($tags);
                     $result .= $tag;
                 }
-                else if ($tag[StrHelper::length($tag) - 2] == '/')
+                else if ($tag[StrHelper::length($tag) - 2] == '/') {
                     $result .= $tag;
+                }
                 else {
                     $result .= $tag;
                     $tags[] = $tagName;
@@ -99,11 +100,13 @@ class HtmlBuilder extends HtmlBuilderBase
             $position = $tagPosition + StrHelper::length($tag);
         }
 
-        if ($printedLength < $maxLength && $position < StrHelper::length($html))
+        if ($printedLength < $maxLength && $position < StrHelper::length($html)) {
             $result .= substr($html, $position, $maxLength - $printedLength);
+        }
 
-        while (!empty($tags))
+        while (!empty($tags)) {
             $result .= sprintf('</%s>', array_pop($tags));
+        }
 
         return $result;
     }
