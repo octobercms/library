@@ -272,7 +272,7 @@ class Manager
         try {
             $user = $this->findUserByCredentials($credentials);
         }
-        catch (Exception $ex) {
+        catch (AuthException $ex) {
             if ($this->useThrottle)
                 $throttle->addLoginAttempt();
 
