@@ -74,7 +74,7 @@ if (!function_exists('get'))
     }
 }
 
-if (!function_exists('traceLog'))
+if (!function_exists('trace_log'))
 {
     /**
      * Writes a trace message to a log file.
@@ -82,24 +82,38 @@ if (!function_exists('traceLog'))
      * @param string $level Specifies a level to use. If this parameter is omitted, the default listener will be used (info).
      * @return void
      */
-    function traceLog($message, $level = 'info')
+    function trace_log($message, $level = 'info')
     {
-        if ($message instanceof Exception)
+        if ($message instanceof Exception) {
             $level = 'error';
-        elseif (is_array($message) || is_object($message))
+        }
+        elseif (is_array($message) || is_object($message)) {
             $message = print_r($message, true);
+        }
 
         Log::$level($message);
     }
 }
 
-if (!function_exists('traceSql'))
+if (!function_exists('traceLog'))
+{
+    /**
+     * Alias for trace_log()
+     * @return void
+     */
+    function traceLog($message, $level = 'info')
+    {
+        trace_log($message, $level);
+    }
+}
+
+if (!function_exists('trace_sql'))
 {
     /**
      * Begins to monitor all SQL output.
      * @return void
      */
-    function traceSql()
+    function trace_sql()
     {
         if (!defined('OCTOBER_NO_EVENT_LOGGING')) {
             define('OCTOBER_NO_EVENT_LOGGING', 1);
@@ -122,6 +136,18 @@ if (!function_exists('traceSql'))
 
             traceLog($query);
         });
+    }
+}
+
+if (!function_exists('traceSql'))
+{
+    /**
+     * Alias for trace_sql()
+     * @return void
+     */
+    function traceSql()
+    {
+        trace_sql();
     }
 }
 
