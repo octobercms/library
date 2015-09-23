@@ -19,7 +19,7 @@ class Router
     /**
      * @var array A list of specified routes
      */
-    protected $routeMap = array();
+    protected $routeMap = [];
 
     /**
      * @var \October\Rain\Router\Rule A refered to the matched router rule
@@ -29,7 +29,7 @@ class Router
     /**
      * @var array A list of parameters names and values extracted from the URL pattern and URL string
      */
-    protected $parameters = array();
+    protected $parameters = [];
 
     /**
      * Registers a new route rule
@@ -51,7 +51,7 @@ class Router
         $this->matchedRouteRule = null;
 
         $url = Helper::normalizeUrl($url);
-        $parameters = array();
+        $parameters = [];
 
         foreach ($this->routeMap as $name => $routeRule) {
             if ($routeRule->resolveUrl($url, $parameters)) {
@@ -65,7 +65,7 @@ class Router
 
                     // Callback responded to abort
                     if ($callbackResult === false) {
-                        $parameters = array();
+                        $parameters = [];
                         $this->matchedRouteRule = null;
                         continue;
                     }
@@ -187,10 +187,12 @@ class Router
          */
         $lastPopulatedIndex = 0;
         foreach ($url as $index => $segment) {
-            if ($segment)
+            if ($segment) {
                 $lastPopulatedIndex = $index;
-            else
+            }
+            else {
                 $url[$index] = static::$defaultValue;
+            }
         }
 
         $url = array_slice($url, 0, $lastPopulatedIndex + 1);
@@ -239,7 +241,7 @@ class Router
      */
     public function reset()
     {
-        $this->routeMap = array();
+        $this->routeMap = [];
         return $this;
     }
 
@@ -253,20 +255,25 @@ class Router
             $lengthA = $a->staticSegmentCount;
             $lengthB = $b->staticSegmentCount;
 
-            if ($lengthA > $lengthB)
+            if ($lengthA > $lengthB) {
                 return -1;
-            else if ($lengthA < $lengthB)
+            }
+            else if ($lengthA < $lengthB) {
                 return 1;
+            }
             else {
                 $lengthA = $a->dynamicSegmentCount;
                 $lengthB = $b->dynamicSegmentCount;
 
-                if ($lengthA > $lengthB)
+                if ($lengthA > $lengthB) {
                     return 1;
-                else if ($lengthA < $lengthB)
+                }
+                else if ($lengthA < $lengthB) {
                     return -1;
-                else
+                }
+                else {
                     return 0;
+                }
             }
         });
     }
