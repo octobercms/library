@@ -146,7 +146,7 @@ trait ExtendableTrait
      * @param string   $dynamicName
      * @param string   $value
      */
-    public function addDynamicProperty($dynamicName, $value)
+    public function addDynamicProperty($dynamicName, $value = null)
     {
         if (!property_exists($this, $dynamicName)) {
             $this->{$dynamicName} = $value;
