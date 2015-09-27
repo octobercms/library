@@ -195,7 +195,7 @@ class Rule
                 /*
                  * Determine if wildcard and add stored paramters as a suffix
                  */
-                if (Helper::segmentIsWildcard($patternSegment)) {
+                if (Helper::segmentIsWildcard($patternSegment) && count($wildSegments)) {
                     $parameters[$paramName] .= Helper::rebuildUrl($wildSegments);
                 }
 
