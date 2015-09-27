@@ -37,6 +37,11 @@ trait ExtendableTrait
     protected static $extendableStaticMethods = [];
 
     /**
+     * @var bool Indicates if dynamic properties can be created.
+     */
+    protected static $extendableGuardProperties = true;
+
+    /**
      * Constructor.
      */
     public function extendableConstruct()
@@ -148,9 +153,13 @@ trait ExtendableTrait
      */
     public function addDynamicProperty($dynamicName, $value = null)
     {
+        self::$extendableGuardProperties = false;
+
         if (!property_exists($this, $dynamicName)) {
             $this->{$dynamicName} = $value;
         }
+
+        self::$extendableGuardProperties = true;
     }
 
     /**
@@ -227,8 +236,7 @@ trait ExtendableTrait
 
     /**
      * Checks if a method exists, extension equivalent of method_exists()
-     * @param  mixed  $class
-     * @param  string $propertyName
+     * @param  string $name
      * @return boolean
      */
     public function methodExists($name)
@@ -238,6 +246,29 @@ trait ExtendableTrait
             isset($this->extensionData['methods'][$name]) ||
             isset($this->extensionData['dynamicMethods'][$name])
         );
+    }
+
+    /**
+     * Checks if a property exists, extension equivalent of property_exists()
+     * @param  string $name
+     * @return boolean
+     */
+    public function propertyExists($name)
+    {
+        if (property_exists($this, $name)) {
+            return true;
+        }
+
+        foreach ($this->extensionData['extensions'] as $extensionObject) {
+            if (
+                property_exists($extensionObject, $name) &&
+                $this->extendableIsAccessible($extensionObject, $name)
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -297,6 +328,13 @@ trait ExtendableTrait
         $parent = get_parent_class();
         if ($parent !== false && method_exists($parent, '__set')) {
             parent::__set($name, $value);
+        }
+
+        /*
+         * Setting an undefined property
+         */
+        if (!self::$extendableGuardProperties) {
+            $this->{$name} = $value;
         }
     }
 

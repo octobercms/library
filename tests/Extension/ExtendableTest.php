@@ -6,14 +6,14 @@ use October\Rain\Extension\ExtensionBase;
 class ExtendableTest extends TestCase
 {
 
-    public function testSettingDeclaredAttributeOnClass()
+    public function testSettingDeclaredPropertyOnClass()
     {
         $subject = new ExampleExtendableClass;
         $subject->classAttribute = 'Test';
         $this->assertEquals('Test', $subject->classAttribute);
     }
 
-    public function testSettingUndeclaredAttributeOnClass()
+    public function testSettingUndeclaredPropertyOnClass()
     {
         $subject = new ExampleExtendableClass;
         $subject->newAttribute = 'Test';
@@ -21,7 +21,7 @@ class ExtendableTest extends TestCase
         $this->assertFalse(property_exists($subject, 'newAttribute'));
     }
 
-    public function testSettingDeclaredAttributeOnBehavior()
+    public function testSettingDeclaredPropertyOnBehavior()
     {
         $subject = new ExampleExtendableClass;
         $behavior = $subject->getClassExtension('ExampleBehaviorClass1');
@@ -30,6 +30,15 @@ class ExtendableTest extends TestCase
         $this->assertEquals('Test', $subject->behaviorAttribute);
         $this->assertEquals('Test', $behavior->behaviorAttribute);
         $this->assertTrue($subject->isClassExtendedWith('ExampleBehaviorClass1'));
+    }
+
+    public function testDynamicPropertyOnClass()
+    {
+        $subject = new ExampleExtendableClass;
+        $this->assertFalse(property_exists($subject, 'newAttribute'));
+        $subject->addDynamicProperty('dynamicAttribute', 'Test');
+        $this->assertEquals('Test', $subject->dynamicAttribute);
+        $this->assertTrue(property_exists($subject, 'dynamicAttribute'));
     }
 
     public function testDynamicallyExtendingClass()
