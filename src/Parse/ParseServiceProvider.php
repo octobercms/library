@@ -23,6 +23,15 @@ class ParseServiceProvider extends ServiceProvider
         $this->app['yaml'] = $this->app->share(function($app) {
             return new Yaml;
         });
+
+        $this->app['twig'] = $this->app->share(function($app) {
+            return new Twig;
+        });
+
+        // $this->app['twig.environment'] = $this->app->share(function($app) {
+        //     $emptyLoader = new \Twig_Loader_Array([]);
+        //     return new \Twig_Environment($emptyLoader);
+        // });
     }
 
     /**
@@ -31,6 +40,6 @@ class ParseServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return array('markdown', 'yaml');
+        return array('markdown', 'yaml', 'twig');
     }
 }

@@ -2,15 +2,15 @@
 
 use October\Rain\Support\Facade;
 
-class Yaml extends Facade
+class Twig extends Facade
 {
     /**
      * Get the registered name of the component.
      * 
      * Resolves to:
-     * - October\Rain\Parse\Yaml
+     * - October\Rain\Parse\Twig
      * 
      * @return string
      */
-    protected static function getFacadeAccessor() { return 'yaml'; }
+    protected static function getFacadeAccessor() { return 'twig'; }
 }
