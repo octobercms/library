@@ -406,7 +406,7 @@ class Model extends EloquentModel
         return $this->extendableSet($name, $value);
     }
 
-    public function __call($name, $params = null)
+    public function __call($name, $params)
     {
         /*
          * Never call handleRelation() anywhere else as it could
