@@ -16,6 +16,8 @@ layout = "default"
 min = 1.2
 max = 3
 ESC;
+        $content = preg_replace('~\R~u', PHP_EOL, $content); // Normalize EOL
+
         $vars = [
             'title' => 'Plugin components',
             'url' => '/demo/plugins',
@@ -54,6 +56,7 @@ excludeStatuses[] = 1
 excludeStatuses[] = 42
 excludeStatuses[] = 69
 ESC;
+        $content = preg_replace('~\R~u', PHP_EOL, $content); // Normalize EOL
 
         $vars = [
             'products' => [
@@ -82,6 +85,7 @@ properties[type] = "string"
 properties[title] = "Redirection page"
 properties[default] = "/clients"
 ESC;
+        $content = preg_replace('~\R~u', PHP_EOL, $content); // Normalize EOL
 
         $vars = [
             'viewBag' => [
@@ -124,6 +128,7 @@ server=192.0.2.62
 port=143
 file="payroll.dat"
 ESC;
+        $content = preg_replace('~\R~u', PHP_EOL, $content); // Normalize EOL
 
         $vars = [
             'owner' => [
@@ -158,6 +163,7 @@ server = "192.0.2.62"
 port = 143
 file = "payroll.dat"
 ESC;
+        $content = preg_replace('~\R~u', PHP_EOL, $content); // Normalize EOL
 
         $result = $parser->render($vars);
         $this->assertEquals($content, $result);
@@ -222,6 +228,7 @@ primary_key[type] = "checkbox"
 primary_key[width] = "50px"
 default[title] = "column_default"
 ESC;
+        $content = preg_replace('~\R~u', PHP_EOL, $content); // Normalize EOL
 
         $vars = [
             'firstLevelValue' => 'relax',

@@ -46,6 +46,7 @@ class Ini
      */
     protected function parsePreProcess($contents)
     {
+        $contents = preg_replace('~\R~u', PHP_EOL, $contents); // Normalize EOL
         $contents = explode(PHP_EOL, $contents);
         $count = 0;
         $lastName = null;
