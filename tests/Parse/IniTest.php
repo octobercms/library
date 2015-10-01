@@ -122,9 +122,9 @@ name=John Doe
 organization=Acme Widgets Inc.
 
 [database]
-# use IP address in case network name resolution is not working
+; use IP address in case network name resolution is not working
 server=192.0.2.62
-# server=127.0.0.1
+; server=127.0.0.1
 port=143
 file="payroll.dat"
 ESC;
