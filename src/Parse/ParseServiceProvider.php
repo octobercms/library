@@ -28,6 +28,10 @@ class ParseServiceProvider extends ServiceProvider
             return new Twig;
         });
 
+        $this->app['ini'] = $this->app->share(function($app) {
+            return new Ini;
+        });
+
         // $this->app['twig.environment'] = $this->app->share(function($app) {
         //     $emptyLoader = new \Twig_Loader_Array([]);
         //     return new \Twig_Environment($emptyLoader);
@@ -40,6 +44,6 @@ class ParseServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return array('markdown', 'yaml', 'twig');
+        return array('markdown', 'yaml', 'twig', 'ini');
     }
 }
