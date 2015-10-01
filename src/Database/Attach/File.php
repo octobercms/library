@@ -133,6 +133,15 @@ class File extends Model
         return $this->getExtension();
     }
 
+    /**
+     * Used only when filling attributes.
+     * @return void
+     */
+    public function setDataAttribute($value)
+    {
+        $this->data = $value;
+    }
+
     //
     // Raw output
     //
