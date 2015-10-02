@@ -7,16 +7,9 @@ class IniTest extends TestCase
 
     public function testBasic()
     {
-        $content = <<<ESC
-title = "Plugin components"
-url = "/demo/plugins"
-layout = "default"
-
-[demoTodo]
-min = 1.2
-max = 3
-ESC;
-        $content = preg_replace('~\R~u', PHP_EOL, $content); // Normalize EOL
+        $path = __DIR__.'/../fixtures/parse/basic.ini';
+        $this->assertFileExists($path);
+        $content = $this->getContents($path);
 
         $vars = [
             'title' => 'Plugin components',
@@ -50,13 +43,9 @@ ESC;
 
     public function testArray()
     {
-        $content = <<<ESC
-[products]
-excludeStatuses[] = 1
-excludeStatuses[] = 42
-excludeStatuses[] = 69
-ESC;
-        $content = preg_replace('~\R~u', PHP_EOL, $content); // Normalize EOL
+        $path = __DIR__.'/../fixtures/parse/array.ini';
+        $this->assertFileExists($path);
+        $content = $this->getContents($path);
 
         $vars = [
             'products' => [
@@ -77,15 +66,9 @@ ESC;
 
     public function testObject()
     {
-        $content = <<<ESC
-[viewBag]
-code = "signin-snippet"
-name = "Sign in snippet"
-properties[type] = "string"
-properties[title] = "Redirection page"
-properties[default] = "/clients"
-ESC;
-        $content = preg_replace('~\R~u', PHP_EOL, $content); // Normalize EOL
+        $path = __DIR__.'/../fixtures/parse/object.ini';
+        $this->assertFileExists($path);
+        $content = $this->getContents($path);
 
         $vars = [
             'viewBag' => [
@@ -114,21 +97,9 @@ ESC;
 
     public function testComments()
     {
-        $content = <<<ESC
-; last modified 1 April 2001 by John Doe
-[owner]
-name=John Doe
-; name=Adam Person
-organization=Acme Widgets Inc.
-
-[database]
-; use IP address in case network name resolution is not working
-server=192.0.2.62
-; server=127.0.0.1
-port=143
-file="payroll.dat"
-ESC;
-        $content = preg_replace('~\R~u', PHP_EOL, $content); // Normalize EOL
+        $path = __DIR__.'/../fixtures/parse/comments.ini';
+        $this->assertFileExists($path);
+        $content = $this->getContents($path);
 
         $vars = [
             'owner' => [
@@ -153,16 +124,10 @@ ESC;
         $this->assertArrayHasKey('file', $result['database']);
         $this->assertEquals($vars, $result);
 
-        $content = <<<ESC
-[owner]
-name = "John Doe"
-organization = "Acme Widgets Inc."
+        $path = __DIR__.'/../fixtures/parse/comments-clean.ini';
+        $this->assertFileExists($path);
+        $content = $this->getContents($path);
 
-[database]
-server = "192.0.2.62"
-port = 143
-file = "payroll.dat"
-ESC;
         $content = preg_replace('~\R~u', PHP_EOL, $content); // Normalize EOL
 
         $result = $parser->render($vars);
@@ -171,64 +136,9 @@ ESC;
 
     public function testComplex()
     {
-        $content = <<<ESC
-firstLevelValue = "relax"
-firstLevelArray[] = "foo"
-firstLevelArray[] = "bar"
-
-[someComponent]
-secondLevelArray[] = "hello"
-secondLevelArray[] = "world"
-name[title] = "column_name_name"
-name[validation][required][message] = "column_name_required"
-name[validation][regex][pattern] = "^[0-9_a-z]+$"
-name[validation][regex][message] = "column_validation_title"
-type[title] = "column_name_type"
-type[type] = "dropdown"
-type[options][integer] = "Integer"
-type[options][smallInteger] = "Small Integer"
-type[options][bigInteger] = "Big Integer"
-type[options][date] = "Date"
-type[options][time] = "Time"
-type[options][dateTime] = "Date and Time"
-type[options][timestamp] = "Timestamp"
-type[options][string] = "String"
-type[options][text] = "Text"
-type[options][binary] = "Binary"
-type[options][boolean] = "Boolean"
-type[options][decimal] = "Decimal"
-type[options][double] = "Double"
-type[validation][required][message] = "column_type_required"
-modes[title] = "column_name_type"
-modes[type] = "checkboxlist"
-modes[options][] = 12
-modes[options][] = 34
-modes[options][] = 56
-modes[options][] = 78
-modes[options][] = 99
-security[title] = "column_name_security"
-security[type] = "radio"
-security[options][all][] = "All"
-security[options][all][] = "Everyone"
-security[options][users][] = "Users"
-security[options][users][] = "Users only"
-security[options][guests][] = "Guests"
-security[options][guests][] = "Guests only"
-length[title] = "column_name_length"
-length[validation][regex][pattern] = "(^[0-9]+$)|(^[0-9]+,[0-9]+$)"
-length[validation][regex][message] = "column_validation_length"
-unsigned[title] = "column_name_unsigned"
-unsigned[type] = "checkbox"
-allow_null[title] = "column_name_nullable"
-allow_null[type] = "checkbox"
-auto_increment[title] = "column_auto_increment"
-auto_increment[type] = "checkbox"
-primary_key[title] = "column_auto_primary_key"
-primary_key[type] = "checkbox"
-primary_key[width] = "50px"
-default[title] = "column_default"
-ESC;
-        $content = preg_replace('~\R~u', PHP_EOL, $content); // Normalize EOL
+        $path = __DIR__.'/../fixtures/parse/complex.ini';
+        $this->assertFileExists($path);
+        $content = $this->getContents($path);
 
         $vars = [
             'firstLevelValue' => 'relax',
@@ -324,5 +234,81 @@ ESC;
         $result = $parser->render($vars);
         $this->assertEquals($content, $result);
     }
+
+    public function testRender()
+    {
+        $parser = new IniParser;
+
+        $data = [
+            'var1'=>'value 1',
+            'var2'=>'value 21'
+        ];
+
+        $path = __DIR__.'/../fixtures/parse/simple.ini';
+        $this->assertFileExists($path);
+
+        $str = $parser->render($data);
+
+        $this->assertNotEmpty($str);
+        $this->assertEquals($this->getContents($path), $str);
+
+        $data = [
+            'section' => [
+                'sectionVar1' => 'section value 1',
+                'sectionVar2' => 'section value 2'
+            ],
+            'section data' => [
+                'sectionVar3' => 'section value 3',
+                'sectionVar4' => 'section value 4'
+            ],
+            'var1'=>'value 1',
+            'var2'=>'value 21'
+        ];
+
+        $path = __DIR__.'/../fixtures/parse/sections.ini';
+        $this->assertFileExists($path);
+
+        $str = $parser->render($data);
+        $this->assertEquals($this->getContents($path), $str);
+
+        $data = [
+            'section' => [
+                'sectionVar1' => 'section value 1',
+                'sectionVar2' => 'section value 2',
+                'subsection' => [
+                    'subsection value 1',
+                    'subsection value 2'
+                ],
+                'sectionVar3' => 'section value 3'
+            ],
+            'section data' => [
+                'sectionVar3' => 'section value 3',
+                'sectionVar4' => 'section value 4',
+                'subsection' => [
+                    'subsection value 1',
+                    'subsection value 2'
+                ]
+            ],
+            'var1'=>'value 1',
+            'var2'=>'value 21'
+        ];
+
+        $path = __DIR__.'/../fixtures/parse/subsections.ini';
+        $this->assertFileExists($path);
+
+        $str = $parser->render($data);
+        $this->assertEquals($this->getContents($path), $str);
+   }
+
+   //
+   // Helpers
+   //
+
+   protected function getContents($path)
+   {
+        $content = file_get_contents($path);
+        $content = preg_replace('~\R~u', PHP_EOL, $content); // Normalize EOL
+        return $content;
+   }
 
 }
