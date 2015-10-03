@@ -98,7 +98,7 @@ Renders a file upload editor field. The view value is the full path to the file.
 
 Renders a repeating section with other fields inside.
 
-    {repeater}
+    {repeater name="content_sections" prompt="Add another content section"}
         <h2>{text name="title" label="Title"}Title{/text}</h2>
         <p>{textarea name="content" label="Content"}Content{/textarea}</p>
     {/repeater}

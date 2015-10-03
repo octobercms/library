@@ -41,7 +41,11 @@ class Parser
             $this->varPrefix = array_get($options, 'varPrefix', '');
             $this->fieldParser = new FieldParser($template, $options);
 
-            $textFilters = ['md' => ['Markdown', 'parse']];
+            $textFilters = [
+                'md' => ['Markdown', 'parse'],
+                'media' => ['Cms\Classes\MediaLibrary', 'url']
+            ];
+
             $this->textParser = new TextParser(['filters' => $textFilters]);
         }
     }
@@ -206,6 +210,9 @@ class Parser
             case 'richeditor':
                 $result = '{{ ' . $field . '|raw }}';
                 break;
+            case 'mediafinder':
+                $result = '{{ ' . $field . '|media }}';
+                break;
         }
 
         return $result;
@@ -228,6 +235,9 @@ class Parser
         switch ($type) {
             case 'markdown':
                 $result = static::CHAR_OPEN . $field . '|md' . static::CHAR_CLOSE;
+                break;
+            case 'mediafinder':
+                $result = static::CHAR_OPEN . $field . '|media' . static::CHAR_CLOSE;
                 break;
             default:
                 $result = static::CHAR_OPEN . $field . static::CHAR_CLOSE;
