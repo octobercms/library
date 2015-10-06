@@ -51,54 +51,31 @@ class Filesystem extends FilesystemBase
     }
 
     /**
-     * Modify file/folder permissions recursively
-     * @param  string $path
-     * @param  octal $fileMask
-     * @param  octal $directoryMask
-     * @return void
-     */
-    public function chmodRecursive($path, $fileMask, $directoryMask = null)
-    {
-        if (!$this->isDirectory($path))
-            return @chmod($path, $fileMask);
-
-        if (!$directoryMask)
-            $directoryMask = $fileMask;
-
-        $items = new FilesystemIterator($path, FilesystemIterator::SKIP_DOTS);
-        foreach ($items as $item) {
-            if ($item->isDir()) {
-                $_path = $item->getPathname();
-                @chmod($_path, $directoryMask);
-                $this->chmodRecursive($_path, $fileMask, $directoryMask);
-            }
-            else {
-                @chmod($item->getPathname(), $fileMask);
-            }
-        }
-    }
-
-    /**
      * Converts a file size in bytes to human readable format.
      * @param  int $bytes
      * @return string
      */
     public function sizeToString($bytes)
     {
-        if ($bytes >= 1073741824)
+        if ($bytes >= 1073741824) {
             return number_format($bytes / 1073741824, 2) . ' GB';
+        }
 
-        if ($bytes >= 1048576)
+        if ($bytes >= 1048576) {
             return number_format($bytes / 1048576, 2) . ' MB';
+        }
 
-        if ($bytes >= 1024)
+        if ($bytes >= 1024) {
             return $bytes = number_format($bytes / 1024, 2) . ' KB';
+        }
 
-        if ($bytes > 1)
+        if ($bytes > 1) {
             return $bytes = $bytes . ' bytes';
+        }
 
-        if ($bytes == 1)
+        if ($bytes == 1) {
             return $bytes . ' byte';
+        }
 
         return '0 bytes';
     }
@@ -114,8 +91,9 @@ class Filesystem extends FilesystemBase
         $result = null;
         $publicPath = public_path();
 
-        if (strpos($path, $publicPath) === 0)
+        if (strpos($path, $publicPath) === 0) {
             $result = str_replace("\\", "/", substr($path, strlen($publicPath)));
+        }
 
         return $result;
     }
@@ -156,8 +134,9 @@ class Filesystem extends FilesystemBase
         $directoryName = dirname($path);
         $pathLower = strtolower($path);
 
-        if (!$files = self::glob($directoryName . '/*', GLOB_NOSORT))
+        if (!$files = self::glob($directoryName . '/*', GLOB_NOSORT)) {
             return false;
+        }
 
         foreach ($files as $file) {
             if (strtolower($file) == $pathLower) {
@@ -179,14 +158,17 @@ class Filesystem extends FilesystemBase
     }
 
     /**
-     * Converts a path.
+     * Converts a path using path symbol. Returns the original path if 
+     * no symbol is used and no default is specified.
      * @param  string $path
+     * @param  mixed $default
      * @return string
      */
     public function symbolizePath($path, $default = false)
     {
-        if (!$firstChar = $this->isPathSymbol($path))
-            return $default;
+        if (!$firstChar = $this->isPathSymbol($path)) {
+            return $default === false ? $path : $default;
+        }
 
         $_path = substr($path, 1);
         return $this->pathSymbols[$firstChar] . $_path;
@@ -200,8 +182,9 @@ class Filesystem extends FilesystemBase
     public function isPathSymbol($path)
     {
         $firstChar = substr($path, 0, 1);
-        if (isset($this->pathSymbols[$firstChar]))
+        if (isset($this->pathSymbols[$firstChar])) {
             return $firstChar;
+        }
 
         return false;
     }
@@ -212,10 +195,23 @@ class Filesystem extends FilesystemBase
      * @param  string  $contents
      * @return int
      */
-    public function put($path, $contents)
+    public function put($path, $contents, $lock = false)
     {
-        $result = parent::put($path, $contents);
-        if ($mask = $this->getFilePermissions()) @chmod($path, $mask);
+        $result = parent::put($path, $contents, $lock);
+        $this->chmod($path);
+        return $result;
+    }
+
+    /**
+     * Copy a file to a new location.
+     * @param  string  $path
+     * @param  string  $target
+     * @return bool
+     */
+    public function copy($path, $target)
+    {
+        $result = parent::copy($path, $target);
+        $this->chmod($target);
         return $result;
     }
 
@@ -232,7 +228,99 @@ class Filesystem extends FilesystemBase
         if ($mask = $this->getFolderPermissions())
             $mode = $mask;
 
-        return parent::makeDirectory($path, $mode, $recursive, $force);
+        /*
+         * Find the green leaves
+         */
+        if ($recursive && $mask) {
+            $chmodPath = $path;
+            while (true) {
+                $basePath = dirname($chmodPath);
+                if ($chmodPath == $basePath) break;
+                if ($this->isDirectory($basePath)) break;
+                $chmodPath = $basePath;
+            }
+        }
+        else {
+            $chmodPath = $path;
+        }
+
+        /*
+         * Make the directory
+         */
+        $result = parent::makeDirectory($path, $mode, $recursive, $force);
+
+        /*
+         * Apply the permissions
+         */
+        if ($mask) {
+            $this->chmod($chmodPath, $mask);
+
+            if ($recursive) {
+                $this->chmodRecursive($chmodPath, null, $mask);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Modify file/folder permissions
+     * @param  string $path
+     * @param  octal $fileMask
+     * @param  octal $directoryMask
+     * @return void
+     */
+    public function chmod($path, $mask = null)
+    {
+        if (!$mask) {
+            $mask = $this->isDirectory($path)
+                ? $this->getFolderPermissions()
+                : $this->getFilePermissions();
+        }
+
+        if (!$mask) {
+            return;
+        }
+
+        return @chmod($path, $mask);
+    }
+
+    /**
+     * Modify file/folder permissions recursively
+     * @param  string $path
+     * @param  octal $fileMask
+     * @param  octal $directoryMask
+     * @return void
+     */
+    public function chmodRecursive($path, $fileMask = null, $directoryMask = null)
+    {
+        if (!$fileMask) {
+            $fileMask = $this->getFilePermissions();
+        }
+
+        if (!$directoryMask) {
+            $directoryMask = $this->getFolderPermissions() ?: $fileMask;
+        }
+
+        if (!$fileMask) {
+            return;
+        }
+
+        if (!$this->isDirectory($path)) {
+            return $this->chmod($path, $fileMask);
+        }
+
+        $items = new FilesystemIterator($path, FilesystemIterator::SKIP_DOTS);
+        foreach ($items as $item) {
+            if ($item->isDir()) {
+                $_path = $item->getPathname();
+                $this->chmod($_path, $directoryMask);
+                $this->chmodRecursive($_path, $fileMask, $directoryMask);
+            }
+            else {
+                $this->chmod($item->getPathname(), $fileMask);
+            }
+        }
     }
 
     /**

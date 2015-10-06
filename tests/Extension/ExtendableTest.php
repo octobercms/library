@@ -3,93 +3,25 @@
 use October\Rain\Extension\Extendable;
 use October\Rain\Extension\ExtensionBase;
 
-/**
- * Example behavior classes
- */
-class ExampleBehaviorClass1 extends ExtensionBase
-{
-    public $behaviorAttribute;
-
-    public function getFoo()
-    {
-        return 'foo';
-    }
-
-    public static function getStaticBar()
-    {
-        return 'bar';
-    }
-
-    public static function vanillaIceIce()
-    {
-        return 'cream';
-    }
-}
-
-class ExampleBehaviorClass2 extends ExtensionBase
-{
-    public $behaviorAttribute;
-
-    public function getFoo()
-    {
-        return 'bar';
-    }
-}
-
-/*
- * Example class that has an invalid implementation
- */
-class InvalidExtendableClass extends Extendable
-{
-    public $implement = 24;
-
-    public $classAttribute;
-}
-
-/*
- * Example class that has extensions enabled
- */
-class ExampleExtendableClass extends Extendable
-{
-    public $implement = ['ExampleBehaviorClass1'];
-
-    public $classAttribute;
-
-    public static function vanillaIceIce()
-    {
-        return 'baby';
-    }
-}
-
-/**
- * A normal class without extensions enabled
- */
-class ExampleClass
-{
-    public static function getName()
-    {
-        return 'october';
-    }
-}
-
 class ExtendableTest extends TestCase
 {
 
-    public function testSettingDeclaredAttributeOnClass()
+    public function testSettingDeclaredPropertyOnClass()
     {
         $subject = new ExampleExtendableClass;
         $subject->classAttribute = 'Test';
         $this->assertEquals('Test', $subject->classAttribute);
     }
 
-    public function testSettingUndeclaredAttributeOnClass()
+    public function testSettingUndeclaredPropertyOnClass()
     {
         $subject = new ExampleExtendableClass;
         $subject->newAttribute = 'Test';
-        $this->assertEquals('Test', $subject->newAttribute);
+        $this->assertNull($subject->newAttribute);
+        $this->assertFalse(property_exists($subject, 'newAttribute'));
     }
 
-    public function testSettingDeclaredAttributeOnBehavior()
+    public function testSettingDeclaredPropertyOnBehavior()
     {
         $subject = new ExampleExtendableClass;
         $behavior = $subject->getClassExtension('ExampleBehaviorClass1');
@@ -98,6 +30,15 @@ class ExtendableTest extends TestCase
         $this->assertEquals('Test', $subject->behaviorAttribute);
         $this->assertEquals('Test', $behavior->behaviorAttribute);
         $this->assertTrue($subject->isClassExtendedWith('ExampleBehaviorClass1'));
+    }
+
+    public function testDynamicPropertyOnClass()
+    {
+        $subject = new ExampleExtendableClass;
+        $this->assertFalse(property_exists($subject, 'newAttribute'));
+        $subject->addDynamicProperty('dynamicAttribute', 'Test');
+        $this->assertEquals('Test', $subject->dynamicAttribute);
+        $this->assertTrue(property_exists($subject, 'dynamicAttribute'));
     }
 
     public function testDynamicallyExtendingClass()
@@ -158,13 +99,41 @@ class ExtendableTest extends TestCase
     }
 
     /**
-     * @expectedException        Exception
-     * @expectedExceptionMessage Class ExampleExtendableClass does not have a method definition for undefinedMethod
+     * @expectedException        BadMethodCallException
+     * @expectedExceptionMessage Call to undefined method ExampleExtendableClass::undefinedMethod()
      */
     public function testCallingUndefinedStaticMethod()
     {
         $result = ExampleExtendableClass::undefinedMethod();
         $this->assertEquals('bar', $result);
+    }
+
+    public function testAccessingProtectedProperty()
+    {
+        $subject = new ExampleExtendableClass;
+        $this->assertEmpty($subject->protectedFoo);
+
+        $subject->protectedFoo = 'snickers';
+        $this->assertEquals('bar', $subject->getProtectedFooAttribute());
+    }
+
+    /**
+     * @expectedException        BadMethodCallException
+     * @expectedExceptionMessage Call to undefined method ExampleExtendableClass::protectedBar()
+     */
+    public function testAccessingProtectedMethod()
+    {
+        $subject = new ExampleExtendableClass;
+        echo $subject->protectedBar();
+    }
+
+    /**
+     * @expectedException        BadMethodCallException
+     * @expectedExceptionMessage Call to undefined method ExampleExtendableClass::protectedMars()
+     */
+    public function testAccessingProtectedStaticMethod()
+    {
+        echo ExampleExtendableClass::protectedMars();
     }
 
     /**
@@ -175,4 +144,150 @@ class ExtendableTest extends TestCase
     {
         $result = new InvalidExtendableClass;
     }
+
+    public function testSoftImplementFake()
+    {
+        $result = new ExampleExtendableSoftImplementFakeClass;
+        $this->assertFalse($result->isClassExtendedWith('RabbleRabbleRabble'));
+        $this->assertEquals('working', $result->getStatus());
+    }
+
+    public function testSoftImplementReal()
+    {
+        $result = new ExampleExtendableSoftImplementRealClass;
+        $this->assertTrue($result->isClassExtendedWith('ExampleBehaviorClass1'));
+        $this->assertEquals('foo', $result->getFoo());
+    }
+
+    public function testSoftImplementCombo()
+    {
+        $result = new ExampleExtendableSoftImplementComboClass;
+        $this->assertFalse($result->isClassExtendedWith('RabbleRabbleRabble'));
+        $this->assertTrue($result->isClassExtendedWith('ExampleBehaviorClass1'));
+        $this->assertTrue($result->isClassExtendedWith('ExampleBehaviorClass2'));
+        $this->assertEquals('bar', $result->getFoo()); // ExampleBehaviorClass2 takes priority, defined last
+    }
+}
+
+//
+// Test classes
+//
+
+/**
+ * Example behavior classes
+ */
+class ExampleBehaviorClass1 extends ExtensionBase
+{
+    public $behaviorAttribute;
+
+    public function getFoo()
+    {
+        return 'foo';
+    }
+
+    public static function getStaticBar()
+    {
+        return 'bar';
+    }
+
+    public static function vanillaIceIce()
+    {
+        return 'cream';
+    }
+}
+
+class ExampleBehaviorClass2 extends ExtensionBase
+{
+    public $behaviorAttribute;
+
+    public function getFoo()
+    {
+        return 'bar';
+    }
+}
+
+/*
+ * Example class that has an invalid implementation
+ */
+class InvalidExtendableClass extends Extendable
+{
+    public $implement = 24;
+
+    public $classAttribute;
+}
+
+/*
+ * Example class that has extensions enabled
+ */
+class ExampleExtendableClass extends Extendable
+{
+    public $implement = ['ExampleBehaviorClass1'];
+
+    public $classAttribute;
+
+    protected $protectedFoo = 'bar';
+
+    public static function vanillaIceIce()
+    {
+        return 'baby';
+    }
+
+    protected function protectedBar()
+    {
+        return 'foo';
+    }
+
+    protected static function protectedMars()
+    {
+        return 'bar';
+    }
+
+    public function getProtectedFooAttribute()
+    {
+        return $this->protectedFoo;
+    }
+}
+
+/**
+ * A normal class without extensions enabled
+ */
+class ExampleClass
+{
+    public static function getName()
+    {
+        return 'october';
+    }
+}
+
+/*
+ * Example class with soft implement failure
+ */
+class ExampleExtendableSoftImplementFakeClass extends Extendable
+{
+    public $implement = ['@RabbleRabbleRabble'];
+
+    public static function getStatus()
+    {
+        return 'working';
+    }
+}
+
+/*
+ * Example class with soft implement success
+ */
+class ExampleExtendableSoftImplementRealClass extends Extendable
+{
+    public $implement = ['@ExampleBehaviorClass1'];
+}
+
+/*
+ * Example class with soft implement hybrid
+ */
+class ExampleExtendableSoftImplementComboClass extends Extendable
+{
+    public $implement = [
+        'ExampleBehaviorClass1',
+        '@ExampleBehaviorClass2',
+        '@RabbleRabbleRabble'
+    ];
 }

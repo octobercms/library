@@ -126,6 +126,16 @@ class Http
     public $streamFilter;
 
     /**
+     * @var int The maximum redirects allowed.
+     */
+    public $maxRedirects = 10;
+
+    /**
+     * @var int Internal counter
+     */
+    protected $redirectCount = null;
+
+    /**
      * Make the object with common properties
      * @param string   $url     HTTP request address
      * @param string   $method  Request method (GET, POST, PUT, DELETE, etc)
@@ -230,10 +240,12 @@ class Http
         curl_setopt($curl, CURLOPT_URL, $this->url);
         curl_setopt($curl, CURLOPT_HEADER, true);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-
+        if (defined('CURLOPT_FOLLOWLOCATION') && !ini_get('open_basedir')) {
+            curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($curl, CURLOPT_MAXREDIRS, $this->maxRedirects);
+        }
         if ($this->requestOptions && is_array($this->requestOptions))
             curl_setopt_array($curl, $this->requestOptions);
 
@@ -252,7 +264,7 @@ class Http
          */
         if ($this->requestData) {
             if (in_array($this->method, [self::METHOD_POST, self::METHOD_PATCH, self::METHOD_PUT])) {
-                curl_setopt($curl, CURLOPT_POSTFIELDS, $this->requestData);
+                curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($this->requestData));
             }
             elseif ($this->method == self::METHOD_GET) {
                 curl_setopt($curl, CURLOPT_URL, $this->url . '?' . http_build_query($this->requestData));
@@ -301,8 +313,25 @@ class Http
          */
         curl_close($curl);
 
-        if ($this->streamFile)
+        if ($this->streamFile) {
             fclose($stream);
+        }
+
+        /*
+         * Emulate FOLLOW LOCATION behavior
+         */
+        if (!defined('CURLOPT_FOLLOWLOCATION') || ini_get('open_basedir')) {
+            if ($this->redirectCount === null) {
+                $this->redirectCount = $this->maxRedirects;
+            }
+            if (in_array($this->code, [301, 302])) {
+                $this->url = array_get($this->info, 'url');
+                if (!empty($this->url) && $this->redirectCount > 0) {
+                    $this->redirectCount -= 1;
+                    return $this->send();
+                }
+            }
+        }
 
         return $this;
     }
@@ -344,7 +373,7 @@ class Http
             foreach ($key as $_key => $_value) {
                 $this->data($_key, $_value);
             }
-            return;
+            return $this;
         }
 
         $this->requestData[$key] = $value;

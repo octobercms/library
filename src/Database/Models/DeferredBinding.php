@@ -2,6 +2,7 @@
 
 use Db;
 use October\Rain\Database\Model;
+use Exception;
 
 /**
  * Deferred Binding Model
@@ -11,49 +12,45 @@ use October\Rain\Database\Model;
  */
 class DeferredBinding extends Model
 {
+    /**
+     * @var string The database table used by the model.
+     */
     public $table = 'deferred_bindings';
 
     /**
      * Prevents duplicates and conflicting binds.
      */
-    public function beforeValidate()
+    public function beforeCreate()
     {
-        if ($this->exists)
-            return;
-
-        /*
-         * Skip repeating bindings
-         */
-        if ($this->is_bind) {
-            $model = $this->findBindingRecord(1);
-            if ($model)
+        if ($existingRecord = $this->findBindingRecord()) {
+            /*
+             * Remove add-delete pairs
+             */
+            if ($this->is_bind != $existingRecord->is_bind) {
+                $existingRecord->deleteCancel();
                 return false;
-        }
-        /*
-         *Remove add-delete pairs
-         */
-        else {
-            $model = $this->findBindingRecord(1);
-            if ($model) {
-                $model->deleteCancel();
+            }
+            /*
+             * Skip repeating bindings
+             */
+            else {
                 return false;
             }
         }
     }
 
     /**
-     * Finds a binding record
+     * Finds a duplicate binding record.
      */
-    protected function findBindingRecord($isBind)
+    protected function findBindingRecord()
     {
-        $model = self::where('master_type', $this->master_type)
+        return self::where('master_type', $this->master_type)
             ->where('master_field', $this->master_field)
             ->where('slave_type', $this->slave_type)
             ->where('slave_id', $this->slave_id)
             ->where('session_key', $this->session_key)
-            ->where('is_bind', $isBind);
-
-        return $model->first();
+            ->first()
+        ;
     }
 
     /**
@@ -61,8 +58,8 @@ class DeferredBinding extends Model
      */
     public static function cancelDeferredActions($masterType, $sessionKey)
     {
-        $records = self::where('master_type=?', $masterType)
-            ->where('session_key=?', $sessionKey)
+        $records = self::where('master_type', $masterType)
+            ->where('session_key', $sessionKey)
             ->get();
 
         foreach ($records as $record) {
@@ -101,34 +98,38 @@ class DeferredBinding extends Model
          */
         try
         {
-            if (!$this->is_bind)
+            if (!$this->is_bind) {
                 return;
+            }
 
             $masterType = $this->master_type;
             $masterObject = new $masterType();
 
-            if (!$masterObject->isDeferrable($this->master_field))
+            if (!$masterObject->isDeferrable($this->master_field)) {
                 return;
+            }
 
             $related = $masterObject->makeRelation($this->master_field);
             $relatedObj = $related->find($this->slave_id);
-            if (!$relatedObj)
+            if (!$relatedObj) {
                 return;
+            }
 
             $options = $masterObject->getRelationDefinition($this->master_field);
 
-            // @todo Determine if suitable -- This is an added protection layer
-            // if (!array_key_exists('delete', $options) || !$options['delete'])
-            //     return;
+            if (!array_get($options, 'delete', false)) {
+                return;
+            }
 
-            $foreignKey = array_get($options, 'foreignKey', $masterObject->getForeignKey());
+            $foreignKey = array_get($options, 'key', $masterObject->getForeignKey());
 
             // Only delete it if the relationship is null.
-            if (!$relatedObj->$foreignKey)
+            if (!$relatedObj->$foreignKey) {
                 $relatedObj->delete();
+            }
+
         }
-        catch (\Exception $ex)
-        {
+        catch (Exception $ex) {
             // Do nothing
         }
     }

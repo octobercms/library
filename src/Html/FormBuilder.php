@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Html;
 
 use Illuminate\Html\FormBuilder as FormBuilderBase;
-use Illuminate\Routing\UrlGenerator;
+use Illuminate\Routing\UrlGenerator as UrlGeneratorBase;
 
 /**
  * Form builder
@@ -24,7 +24,7 @@ class FormBuilder extends FormBuilderBase
      * The reserved form open attributes.
      * @var array
      */
-    protected $reservedAjax = ['request', 'success', 'error', 'confirm', 'redirect', 'update', 'data'];
+    protected $reservedAjax = ['request', 'success', 'error', 'complete', 'confirm', 'redirect', 'update', 'data'];
 
     /**
      * The session key used by the form builder.
@@ -41,7 +41,7 @@ class FormBuilder extends FormBuilderBase
      * @param string  $sessionKey
      * @return void
      */
-    public function __construct(HtmlBuilder $html, UrlGenerator $url, $csrfToken, $sessionKey)
+    public function __construct(HtmlBuilder $html, UrlGeneratorBase $url, $csrfToken, $sessionKey)
     {
         $this->sessionKey = $sessionKey;
         parent::__construct($html, $url, $csrfToken);
@@ -101,7 +101,24 @@ class FormBuilder extends FormBuilderBase
      */
     public function value($name, $value = null)
     {
-        return $this->getValueAttribute($name) ?: post($name, $value);
+        return $this->getValueAttribute($name) ?: input($name, $value);
+    }
+
+    /**
+     * Create a select box field with empty option support.
+     * @param  string  $name
+     * @param  array   $list
+     * @param  string  $selected
+     * @param  array   $options
+     * @return string
+     */
+    public function select($name, $list = [], $selected = null, $options = [])
+    {
+        if (array_key_exists('emptyOption', $options)) {
+            $list = ['' => $options['emptyOption']] + $list;
+        }
+
+        return parent::select($name, $list, $selected, $options);
     }
 
     /**
@@ -120,7 +137,7 @@ class FormBuilder extends FormBuilderBase
      * Returns a hidden HTML input, supplying the session key value.
      * @return string
      */
-    protected function sessionKey($sessionKey = null)
+    public function sessionKey($sessionKey = null)
     {
         if (!$sessionKey)
             $sessionKey = post('_session_key', $this->sessionKey);

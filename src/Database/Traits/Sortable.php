@@ -33,7 +33,7 @@ trait Sortable
      */
     public static function bootSortable()
     {
-        static::created(function($model){
+        static::created(function($model) {
             $model->setSortableOrder($model->id);
         });
     }
@@ -50,8 +50,9 @@ trait Sortable
         if ($itemOrders === null)
             $itemOrders = $itemIds;
 
-        if (count($itemIds) != count($itemOrders))
+        if (count($itemIds) != count($itemOrders)) {
             throw new Exception('Invalid setSortableOrder call - count of itemIds do not match count of itemOrders');
+        }
 
         foreach ($itemIds as $index => $id) {
             $order = $itemOrders[$index];

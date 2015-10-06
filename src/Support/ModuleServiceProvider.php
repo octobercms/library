@@ -21,7 +21,10 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
             /*
              * Register paths for: config, translator, view
              */
-            $this->package($module, $module, base_path() . '/modules/' . $module);
+            $modulePath = base_path() . '/modules/' . $module;
+            $this->loadViewsFrom($modulePath . '/views', $module);
+            $this->loadTranslationsFrom($modulePath . '/lang', $module);
+            $this->loadConfigFrom($modulePath . '/config', $module);
         }
     }
 
@@ -71,4 +74,16 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
 
         $this->commands($key);
     }
+
+    /**
+     * Register a config file namespace.
+     * @param  string  $path
+     * @param  string  $namespace
+     * @return void
+     */
+    protected function loadConfigFrom($path, $namespace)
+    {
+        $this->app['config']->package($namespace, $path);
+    }
+
 }

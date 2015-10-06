@@ -27,7 +27,7 @@ app
         en
           file.php
 ````
-Example: app/lang/october/blog/en/errors.php
+Example: lang/october/blog/en/errors.php
 
 To override a module's localization:
 
@@ -38,4 +38,4 @@ app
       en
         file.php
 ````
-Example: app/lang/cms/en/errors.php
+Example: lang/cms/en/errors.php

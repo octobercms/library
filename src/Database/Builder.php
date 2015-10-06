@@ -1,5 +1,7 @@
 <?php namespace October\Rain\Database;
 
+use Illuminate\Pagination\Paginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder as BuilderModel;
 
 /**
@@ -51,6 +53,68 @@ class Builder extends BuilderModel
     {
         return $this->searchWhere($term, $columns, 'or');
     }
+
+    /**
+     * Paginate the given query.
+     *
+     * @param  int  $perPage
+     * @param  int  $currentPage
+     * @param  array  $columns
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function paginate($perPage = 15, $currentPage = null, $columns = ['*'])
+    {
+        if (is_array($currentPage)) {
+            $columns = $currentPage;
+            $currentPage = null;
+        }
+
+        if (!$currentPage) {
+            $currentPage = Paginator::resolveCurrentPage();
+        }
+
+        if (!$perPage) {
+            $perPage = $this->model->getPerPage();
+        }
+
+        $total = $this->query->getCountForPagination();
+        $this->query->forPage($currentPage, $perPage);
+
+        return new LengthAwarePaginator($this->get($columns)->all(), $total, $perPage, $currentPage, [
+            'path' => Paginator::resolveCurrentPath()
+        ]);
+    }
+
+    /**
+     * Paginate the given query into a simple paginator.
+     *
+     * @param  int  $perPage
+     * @param  int  $currentPage
+     * @param  array  $columns
+     * @return \Illuminate\Contracts\Pagination\Paginator
+     */
+    public function simplePaginate($perPage = null, $currentPage = null, $columns = ['*'])
+    {
+        if (is_array($currentPage)) {
+            $columns = $currentPage;
+            $currentPage = null;
+        }
+
+        if (!$currentPage) {
+            $currentPage = Paginator::resolveCurrentPage();
+        }
+
+        if (!$perPage) {
+            $perPage = $this->model->getPerPage();
+        }
+
+        $this->skip(($currentPage - 1) * $perPage)->take($perPage + 1);
+
+        return new Paginator($this->get($columns)->all(), $perPage, $currentPage, [
+            'path' => Paginator::resolveCurrentPath()
+        ]);
+    }
+
 
     /**
      * Dynamically handle calls into the query instance.

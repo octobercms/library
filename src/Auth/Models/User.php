@@ -3,7 +3,6 @@
 use Hash;
 use October\Rain\Database\Model;
 use October\Rain\Auth\Hash\HasherBase;
-use Illuminate\Auth\UserInterface;
 use InvalidArgumentException;
 use RuntimeException;
 use Exception;
@@ -12,7 +11,7 @@ use DateTime;
 /**
  * User model
  */
-class User extends Model implements UserInterface
+class User extends Model
 {
     use \October\Rain\Database\Traits\Hashable;
     use \October\Rain\Database\Traits\Purgeable;
@@ -58,6 +57,16 @@ class User extends Model implements UserInterface
      * @var array List of attribute names which should not be saved to the database.
      */
     protected $purgeable = ['password_confirmation'];
+
+    /**
+     * @var array The array of custom attribute names.
+     */
+    public $attributeNames = [];
+
+    /**
+     * @var array The array of custom error messages.
+     */
+    public $customMessages = [];
 
     /**
      * @var array List of attribute names which are json encoded and decoded from the database.
@@ -210,7 +219,8 @@ class User extends Model implements UserInterface
             $this->activation_code = null;
             $this->is_activated = true;
             $this->activated_at = $this->freshTimestamp();
-            return $this->forceSave();
+            $this->forceSave();
+            return true;
         }
 
         return false;
@@ -285,8 +295,9 @@ class User extends Model implements UserInterface
      */
     public function setPasswordAttribute($value)
     {
-        if ($this->exists && empty($value))
+        if ($this->exists && empty($value)) {
             unset($this->attributes['password']);
+        }
         else {
             $this->attributes['password'] = $value;
 
@@ -631,25 +642,5 @@ class User extends Model implements UserInterface
     public function getDates()
     {
         return array_merge(parent::getDates(), ['activated_at', 'last_login']);
-    }
-
-    /**
-     * Convert the model instance to an array.
-     * @return array
-     */
-    public function toArray()
-    {
-        $result = parent::toArray();
-
-        if (isset($result['is_activated']))
-            $result['is_activated'] = $this->getIsActivatedAttribute($result['is_activated']);
-
-        if (isset($result['permissions']))
-            $result['permissions'] = $this->getPermissionsAttribute($result['permissions']);
-
-        if (isset($result['suspended_at']))
-            $result['suspended_at'] = $result['suspended_at']->format('Y-m-d H:i:s');
-
-        return $result;
     }
 }

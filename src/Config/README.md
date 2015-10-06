@@ -26,7 +26,7 @@ app
       pluginname
         file.php
 ````
-Example: app/config/october/blog/options.php
+Example: config/october/blog/options.php
 
 To override a module's configuration:
 
@@ -36,4 +36,4 @@ app
     modulename
       file.php
 ````
-Example: app/config/cms/options.php
+Example: config/cms/options.php

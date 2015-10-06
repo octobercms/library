@@ -1,0 +1,7 @@
+<div data-control="toolbar">
+    <a
+        href="<?= Backend::url('{{lower_author}}/{{lower_plugin}}/{{lower_name}}/create') ?>"
+        class="btn btn-primary oc-icon-plus">
+        New {{title_singular_name}}
+    </a>
+</div>

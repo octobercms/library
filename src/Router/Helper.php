@@ -27,7 +27,7 @@ class Helper
 
         return $url;
     }
-    
+
     /**
      * Splits an URL by segments separated by the slash symbol.
      *
@@ -39,10 +39,11 @@ class Helper
         $url = self::normalizeUrl($url);
         $segments = explode('/', $url);
 
-        $result = array();
+        $result = [];
         foreach ($segments as $segment) {
-            if (strlen($segment))
+            if (strlen($segment)) {
                 $result[] = $segment;
+            }
         }
 
         return $result;
@@ -58,8 +59,9 @@ class Helper
     {
         $url = '';
         foreach ($urlArray as $segment) {
-            if (strlen($segment))
+            if (strlen($segment)) {
                 $url .= '/'.trim($segment);
+            }
         }
 
         return self::normalizeUrl($url);
@@ -75,15 +77,34 @@ class Helper
      */
     public static function parseValues($object, array $columns, $string)
     {
+        if (is_array($object)) {
+            $object = (object) $object;
+        }
+
         $defaultColumns = ['id'];
         foreach ($columns as $column) {
-            if (!isset($object->{$column}) || is_array($object->{$column}))
+            if (
+                !isset($object->{$column}) ||
+                is_array($object->{$column}) ||
+                (is_object($object->{$column}) && !method_exists($object->{$column}, '__toString'))
+            ) {
                 continue;
+            }
 
             $string = str_replace(':'.$column, urlencode((string) $object->{$column}), $string);
         }
 
         return $string;
+    }
+
+    /**
+     * Checks whether an URL pattern segment is a wildcard.
+     * @param string $segment The segment definition.
+     * @return boolean Returns boolean true if the segment is a wildcard. Returns false otherwise.
+     */
+    public static function segmentIsWildcard($segment)
+    {
+        return mb_strpos($segment, ':') === 0 && mb_substr($segment, -1) === '*';
     }
 
     /**
@@ -96,15 +117,18 @@ class Helper
         $name = mb_substr($segment, 1);
 
         $optMarkerPos = mb_strpos($name, '?');
-        if ($optMarkerPos === false)
+        if ($optMarkerPos === false) {
             return false;
+        }
 
         $regexMarkerPos = mb_strpos($name, '|');
-        if ($regexMarkerPos === false)
+        if ($regexMarkerPos === false) {
             return true;
+        }
 
-        if ($optMarkerPos !== false && $regexMarkerPos !== false)
+        if ($optMarkerPos !== false && $regexMarkerPos !== false) {
             return $optMarkerPos < $regexMarkerPos;
+        }
 
         return false;
     }
@@ -119,20 +143,29 @@ class Helper
         $name = mb_substr($segment, 1);
 
         $optMarkerPos = mb_strpos($name, '?');
+        $wildMarkerPos = mb_strpos($name, '*');
         $regexMarkerPos = mb_strpos($name, '|');
 
-        if ($optMarkerPos !== false && $regexMarkerPos !== false) {
-            if ($optMarkerPos < $regexMarkerPos)
-                return mb_substr($name, 0, $optMarkerPos);
-            else
-                return mb_substr($name, 0, $regexMarkerPos);
+        if ($wildMarkerPos !== false) {
+            return mb_substr($name, 0, $wildMarkerPos);
         }
 
-        if ($optMarkerPos !== false)
-            return mb_substr($name, 0, $optMarkerPos);
+        if ($optMarkerPos !== false && $regexMarkerPos !== false) {
+            if ($optMarkerPos < $regexMarkerPos) {
+                return mb_substr($name, 0, $optMarkerPos);
+            }
+            else {
+                return mb_substr($name, 0, $regexMarkerPos);
+            }
+        }
 
-        if ($regexMarkerPos !== false)
+        if ($optMarkerPos !== false) {
+            return mb_substr($name, 0, $optMarkerPos);
+        }
+
+        if ($regexMarkerPos !== false) {
             return mb_substr($name, 0, $regexMarkerPos);
+        }
 
         return $name;
     }

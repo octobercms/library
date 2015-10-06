@@ -7,7 +7,7 @@ trait Hashable
 {
     /**
      * @var array List of attribute names which should be hashed using the Bcrypt hashing algorithm.
-     * 
+     *
      * protected $hashable = [];
      */
 
@@ -35,6 +35,19 @@ trait Hashable
                     return $model->makeHashValue($key, $value);
             });
         });
+    }
+
+    /**
+     * Adds an attribute to the hashable attributes list
+     * @param string $attribute Attribute
+     * @return this
+     */
+    public function addHashableAttribute($attribute)
+    {
+        if (in_array($attribute, $this->hashable)) return;
+
+        $this->hashable[] = $attribute;
+        return $this;
     }
 
     /**

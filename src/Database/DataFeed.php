@@ -1,10 +1,11 @@
 <?php namespace October\Rain\Database;
 
-use DB;
+use Db;
 use Str;
 use Closure;
-use DbDongle;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Collection;
+use Exception;
 
 /**
  * Model Data Feed class.
@@ -23,11 +24,6 @@ class DataFeed
     public $tagVar = 'tag_name';
 
     /**
-     * @var string The attribute to use for each model class name.
-     */
-    public $modelVar = 'model_name';
-
-    /**
      * @var string An alias to use for each entries timestamp attribute.
      */
     public $sortVar = 'order_by_column_name';
@@ -41,6 +37,16 @@ class DataFeed
      * @var string Default sorting direction.
      */
     public $sortDirection = 'desc';
+
+    /**
+     * @var string Limits the number of results.
+     */
+    public $limitCount = null;
+
+    /**
+     * @var string Set the limit offset.
+     */
+    public $limitOffset = null;
 
     /**
      * @var array Model collection pre-query.
@@ -69,7 +75,11 @@ class DataFeed
         if (!$item)
             return;
 
-        $this->collection[] = compact('item', 'tag', 'orderBy');
+        $keyName = $item instanceof EloquentModel
+            ? $item->getKeyName()
+            : $item->getModel()->getKeyName();
+
+        $this->collection[$tag] = compact('item', 'orderBy', 'keyName');
 
         // Reset the query cache
         $this->queryCache = null;
@@ -83,7 +93,7 @@ class DataFeed
     public function count()
     {
         $query = $this->processCollection();
-        $result = DB::table(DB::raw("(".$query->toSql().") as records"))->select(DB::raw("COUNT(*) as total"))->first();
+        $result = Db::table(Db::raw("(".$query->toSql().") as records"))->select(Db::raw("COUNT(*) as total"))->first();
         return $result->total;
     }
 
@@ -95,14 +105,15 @@ class DataFeed
         $query = $this->processCollection();
 
         /*
-         * Apply sorting to the entire query
-         * @todo Safe?
+         * Apply constraints to the entire query
          */
-        $orderBySql = 'ORDER BY ' . $this->sortVar . ' ' . $this->sortDirection;
-        $records = DB::select(DB::raw($query->toSql() . ' ' . $orderBySql), $query->getBindings());
+        $query->limit($this->limitCount);
 
-        // $query->limitUnion(3);
-        // $query->orderUnionBy($this->sortVar, $this->sortDirection);
+        if ($this->limitOffset) {
+            $query->offset($this->limitOffset);
+        }
+
+        $query->orderBy($this->sortVar, $this->sortDirection);
 
         $records = $query->get();
 
@@ -111,17 +122,18 @@ class DataFeed
          */
         $mixedArray = [];
         foreach ($records as $record) {
-            $className = $record->{$this->modelVar};
-            $mixedArray[$className][] = $record->id;
+            $tagName = $record->{$this->tagVar};
+            $mixedArray[$tagName][] = $record->id;
         }
 
         /*
          * Eager load the data collection
          */
         $collectionArray = [];
-        foreach ($mixedArray as $className => $ids) {
-            $obj = new $className;
-            $collectionArray[$className] = $obj->whereIn('id', $ids)->get();
+        foreach ($mixedArray as $tagName => $ids) {
+            $obj = $this->getModelByTag($tagName);
+            $keyName = $this->getKeyNameByTag($tagName);
+            $collectionArray[$tagName] = $obj->whereIn($keyName, $ids)->get();
         }
 
         /*
@@ -130,11 +142,9 @@ class DataFeed
         $dataArray = [];
         foreach ($records as $record) {
             $tagName = $record->{$this->tagVar};
-            $className = $record->{$this->modelVar};
 
-            $obj = $collectionArray[$className]->find($record->id);
+            $obj = $collectionArray[$tagName]->find($record->id);
             $obj->{$this->tagVar} = $tagName;
-            $obj->{$this->modelVar} = $className;
 
             $dataArray[] = $obj;
         }
@@ -157,11 +167,29 @@ class DataFeed
     public function orderBy($field, $direction = null)
     {
         $this->sortField = $field;
-        if ($direction)
+        if ($direction) {
             $this->sortDirection = $direction;
+        }
 
         return $this;
     }
+
+    /**
+     * Limits the number of results displayed.
+     */
+    public function limit($count, $offset = null)
+    {
+        $this->limitCount = $count;
+        if ($offset) {
+            $this->limitOffset = $offset;
+        }
+
+        return $this;
+    }
+
+    //
+    // Internals
+    //
 
     /**
      * Creates a generic union query of each added collection
@@ -172,29 +200,21 @@ class DataFeed
             return $this->queryCache;
 
         $lastQuery = null;
-        foreach ($this->collection as $data)
+        foreach ($this->collection as $tag => $data)
         {
             extract($data);
-            $cleanQuery = clone $this->getQuery($item);
-            $model = $this->getModel($item);
-
-            if (DbDongle::getDriver() == 'sqlite') {
-                $class = get_class($model);
-            }
-            else {
-                $class = str_replace('\\', '\\\\', get_class($model));
-            }
+            $cleanQuery = clone $item->getQuery();
+            $model = $item->getModel();
 
             $sorting = $model->getTable() . '.';
             $sorting .= $orderBy ?: $this->sortField;
 
             /*
-             * Flush the select, add ID, tag and class
+             * Flush the select, add ID and tag
              */
-            $cleanQuery = $cleanQuery->select('id');
-            $cleanQuery = $cleanQuery->addSelect(DB::raw("(SELECT '".$tag."') as ".$this->tagVar));
-            $cleanQuery = $cleanQuery->addSelect(DB::raw("(SELECT '".$class."') as ".$this->modelVar));
-            $cleanQuery = $cleanQuery->addSelect(DB::raw("(SELECT ".$sorting.") as ".$this->sortVar));
+            $cleanQuery = $cleanQuery->select(Db::raw($keyName." as id"));
+            $cleanQuery = $cleanQuery->addSelect(Db::raw("(SELECT '".$tag."') as ".$this->tagVar));
+            $cleanQuery = $cleanQuery->addSelect(Db::raw("(SELECT ".$sorting.") as ".$this->sortVar));
 
             /*
              * Union this query with the previous one
@@ -213,18 +233,35 @@ class DataFeed
     }
 
     /**
-     * Get the model from a builder object
+     * Returns a prepared model by its tag name.
+     * @return Model
      */
-    protected function getModel($item)
+    protected function getModelByTag($tag)
     {
-        return $item->getModel();
+        extract($this->getDataByTag($tag));
+        return $item;
     }
 
     /**
-     * Get the query from a builder object
+     * Returns a model key name by its tag name.
+     * @return Model
      */
-    protected function getQuery($item)
+    protected function getKeyNameByTag($tag)
     {
-        return $item->getQuery();
+        extract($this->getDataByTag($tag));
+        return $keyName;
+    }
+
+    /**
+     * Returns a data stored about an item by its tag name.
+     * @return array
+     */
+    protected function getDataByTag($tag)
+    {
+        if (!$data = array_get($this->collection, $tag)) {
+            throw new Exception('Unable to find model in collection with tag: '. $tag);
+        }
+
+        return $data;
     }
 }

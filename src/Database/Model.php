@@ -10,11 +10,13 @@ use October\Rain\Database\Relations\HasMany;
 use October\Rain\Database\Relations\HasOne;
 use October\Rain\Database\Relations\MorphMany;
 use October\Rain\Database\Relations\MorphToMany;
+use October\Rain\Database\Relations\MorphTo;
 use October\Rain\Database\Relations\MorphOne;
 use October\Rain\Database\Relations\AttachMany;
 use October\Rain\Database\Relations\AttachOne;
 use October\Rain\Database\Relations\HasManyThrough;
 use October\Rain\Database\ModelException;
+use October\Rain\Database\QueryBuilder;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use InvalidArgumentException;
 use Exception;
@@ -149,11 +151,17 @@ class Model extends EloquentModel
     protected static $relationTypes = ['hasOne', 'hasMany', 'belongsTo', 'belongsToMany', 'morphTo', 'morphOne', 'morphMany', 'morphToMany', 'morphedByMany', 'attachOne', 'attachMany', 'hasManyThrough'];
 
     /**
+     * @var array The array of models booted events.
+     */
+    protected static $eventsBooted = [];
+
+    /**
      * Constructor
      */
     public function __construct(array $attributes = [])
     {
         parent::__construct();
+        $this->bootNicerEvents();
         $this->extendableConstruct();
         $this->fill($attributes);
     }
@@ -182,7 +190,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Reloads the model from the database.
+     * Reloads the model attributes from the database.
      * @return \Illuminate\Database\Eloquent\Model|static
      */
     public function reload()
@@ -198,15 +206,18 @@ class Model extends EloquentModel
     }
 
     /**
-     * The "booting" method of the model.
-     * Overrided to attach before/after method hooks into the model events.
-     * @see \Illuminate\Database\Eloquent\Model::boot()
+     * Reloads the model relationship cache.
+     * @param string  $relationName
      * @return void
      */
-    public static function boot()
+    public function reloadRelations($relationName = null)
     {
-        parent::boot();
-        self::bootNicerEvents();
+        if (!$relationName) {
+            $this->setRelations([]);
+        }
+        else {
+            $this->setRelation($relationName, null);
+        }
     }
 
     /**
@@ -220,9 +231,14 @@ class Model extends EloquentModel
     /**
      * Bind some nicer events to this model, in the format of method overrides.
      */
-    private static function bootNicerEvents()
+    protected function bootNicerEvents()
     {
-        $self = get_called_class();
+        $class = get_called_class();
+
+        if (isset(static::$eventsBooted[$class])) {
+            return;
+        }
+
         $radicals = ['creat', 'sav', 'updat', 'delet', 'fetch'];
         $hooks = ['before' => 'ing', 'after' => 'ed'];
 
@@ -233,7 +249,7 @@ class Model extends EloquentModel
                 $method = $hook . ucfirst($radical); // beforeSave / afterSave
                 if ($radical != 'fetch') $method .= 'e';
 
-                self::$eventMethod(function($model) use ($self, $method) {
+                self::$eventMethod(function($model) use ($method) {
                     $model->fireEvent('model.' . $method);
 
                     if ($model->methodExists($method))
@@ -250,6 +266,22 @@ class Model extends EloquentModel
             if ($model->methodExists('afterBoot'))
                 return $model->afterBoot();
         });
+
+        static::$eventsBooted[$class] = true;
+    }
+
+    /**
+     * Remove all of the event listeners for the model
+     * Also flush registry of models that had events booted
+     * Allows painless unit testing.
+     *
+     * @override
+     * @return void
+     */
+    public static function flushEventListeners()
+    {
+        parent::flushEventListeners();
+        static::$eventsBooted = [];
     }
 
     /**
@@ -257,7 +289,7 @@ class Model extends EloquentModel
      * @param  array  $attributes
      * @return \Illuminate\Database\Eloquent\Model|static
      */
-    public function newFromBuilder($attributes = [])
+    public function newFromBuilder($attributes = [], $connection = null)
     {
         $instance = $this->newInstance([], true);
         if ($instance->fireModelEvent('fetching') === false)
@@ -266,6 +298,8 @@ class Model extends EloquentModel
         $instance->setRawAttributes((array) $attributes, true);
 
         $instance->fireModelEvent('fetched', false);
+
+        $instance->setConnection($connection ?: $this->connection);
 
         return $instance;
     }
@@ -288,6 +322,29 @@ class Model extends EloquentModel
     public static function fetched($callback)
     {
         static::registerModelEvent('fetched', $callback);
+    }
+
+    /**
+     * Get the jsonable attributes name
+     *
+     * @return array
+     */
+    public function getJsonable()
+    {
+        return $this->jsonable;
+    }
+
+    /**
+     * Set the jsonable attributes for the model.
+     *
+     * @param  array  $fillable
+     * @return $this
+     */
+    public function jsonable(array $jsonable)
+    {
+        $this->jsonable = $jsonable;
+
+        return $this;
     }
 
     //
@@ -321,6 +378,20 @@ class Model extends EloquentModel
         return new Builder($query);
     }
 
+    /**
+     * Get a new query builder instance for the connection.
+     *
+     * @return \Illuminate\Database\Query\Builder
+     */
+    protected function newBaseQueryBuilder()
+    {
+        $conn = $this->getConnection();
+
+        $grammar = $conn->getQueryGrammar();
+
+        return new QueryBuilder($conn, $grammar, $conn->getPostProcessor());
+    }
+
     //
     // Magic
     //
@@ -335,7 +406,7 @@ class Model extends EloquentModel
         return $this->extendableSet($name, $value);
     }
 
-    public function __call($name, $params = null)
+    public function __call($name, $params)
     {
         /*
          * Never call handleRelation() anywhere else as it could
@@ -385,7 +456,7 @@ class Model extends EloquentModel
     public function getRelationDefinition($name)
     {
         if (($type = $this->getRelationType($name)) !== null) {
-            return $this->{$type}[$name];
+            return (array) $this->{$type}[$name] + $this->getRelationDefaults($type);
         }
     }
 
@@ -397,8 +468,9 @@ class Model extends EloquentModel
     public function getRelationType($name)
     {
         foreach (static::$relationTypes as $type) {
-            if (isset($this->{$type}[$name]))
+            if (isset($this->{$type}[$name])) {
                 return $type;
+            }
         }
     }
 
@@ -412,8 +484,9 @@ class Model extends EloquentModel
         $relationType = $this->getRelationType($name);
         $relation = $this->getRelationDefinition($name);
 
-        if ($relationType == 'morphTo' || !isset($relation[0]))
+        if ($relationType == 'morphTo' || !isset($relation[0])) {
             return null;
+        }
 
         $relationClass = $relation[0];
         return new $relationClass();
@@ -428,10 +501,28 @@ class Model extends EloquentModel
     public function isRelationPushable($name)
     {
         $definition = $this->getRelationDefinition($name);
-        if (!is_null($definition) && !array_key_exists('push', $definition))
+        if (is_null($definition) || !array_key_exists('push', $definition)) {
             return true;
+        }
 
         return (bool) $definition['push'];
+    }
+
+    /**
+     * Returns default relation arguments for a given type.
+     * @param string $name Relation type
+     * @return array
+     */
+    protected function getRelationDefaults($type)
+    {
+        switch ($type) {
+            case 'attachOne':
+            case 'attachMany':
+                return ['order' => 'sort_order', 'delete' => true];
+
+            default:
+                return [];
+        }
     }
 
     /**
@@ -455,85 +546,48 @@ class Model extends EloquentModel
             case 'hasOne':
             case 'hasMany':
                 $relation = $this->validateRelationArgs($relationName, ['key', 'otherKey']);
-
-                // @deprecated Remove if year >= 2016
-                $relation['key'] = array_get($relation, 'primaryKey', array_get($relation, 'key'));
-                $relation['otherKey'] = array_get($relation, 'localKey', array_get($relation, 'otherKey'));
-
                 $relationObj = $this->$relationType($relation[0], $relation['key'], $relation['otherKey'], $relationName);
                 break;
 
             case 'belongsTo':
                 $relation = $this->validateRelationArgs($relationName, ['key', 'otherKey']);
-
-                // @deprecated Remove if year >= 2016
-                $relation['key'] = array_get($relation, 'foreignKey', array_get($relation, 'key'));
-                $relation['otherKey'] = array_get($relation, 'parentKey', array_get($relation, 'otherKey'));
-
                 $relationObj = $this->$relationType($relation[0], $relation['key'], $relation['otherKey'], $relationName);
                 break;
 
             case 'belongsToMany':
                 $relation = $this->validateRelationArgs($relationName, ['table', 'key', 'otherKey', 'pivot', 'timestamps']);
-
-                // @deprecated Remove if year >= 2016
-                $relation['key'] = array_get($relation, 'primaryKey', array_get($relation, 'key'));
-                $relation['otherKey'] = array_get($relation, 'foreignKey', array_get($relation, 'otherKey'));
-
                 $relationObj = $this->$relationType($relation[0], $relation['table'], $relation['key'], $relation['otherKey'], $relationName);
                 break;
 
             case 'morphTo':
                 $relation = $this->validateRelationArgs($relationName, ['name', 'type', 'id']);
-                $relationObj = $this->$relationType($relation['name'], $relation['type'], $relation['id']);
+                $relationObj = $this->$relationType($relation['name'] ?: $relationName, $relation['type'], $relation['id']);
                 break;
 
             case 'morphOne':
             case 'morphMany':
                 $relation = $this->validateRelationArgs($relationName, ['type', 'id', 'key'], ['name']);
-
-                // @deprecated Remove if year >= 2016
-                $relation['key'] = array_get($relation, 'localKey', array_get($relation, 'key'));
-
                 $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['type'], $relation['id'], $relation['key'], $relationName);
                 break;
 
             case 'morphToMany':
                 $relation = $this->validateRelationArgs($relationName, ['table', 'key', 'otherKey', 'pivot', 'timestamps'], ['name']);
-
-                // @deprecated Remove if year >= 2016
-                $relation['key'] = array_get($relation, 'primaryKey', array_get($relation, 'key'));
-                $relation['otherKey'] = array_get($relation, 'foreignKey', array_get($relation, 'otherKey'));
-
                 $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['table'], $relation['key'], $relation['otherKey'], false, $relationName);
                 break;
 
             case 'morphedByMany':
                 $relation = $this->validateRelationArgs($relationName, ['table', 'key', 'otherKey', 'pivot', 'timestamps'], ['name']);
-
-                // @deprecated Remove if year >= 2016
-                $relation['key'] = array_get($relation, 'primaryKey', array_get($relation, 'key'));
-                $relation['otherKey'] = array_get($relation, 'foreignKey', array_get($relation, 'otherKey'));
-
                 $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['table'], $relation['key'], $relation['otherKey'], $relationName);
                 break;
 
             case 'attachOne':
             case 'attachMany':
                 $relation = $this->validateRelationArgs($relationName, ['public', 'key']);
-
-                // @deprecated Remove if year >= 2016
-                $relation['key'] = array_get($relation, 'localKey', array_get($relation, 'key'));
-
                 $relationObj = $this->$relationType($relation[0], $relation['public'], $relation['key'], $relationName);
                 break;
 
             case 'hasManyThrough':
                 $relation = $this->validateRelationArgs($relationName, ['key', 'throughKey'], ['through']);
-
-                // @deprecated Remove if year >= 2016
-                $relation['key'] = array_get($relation, 'primaryKey', array_get($relation, 'key'));
-
                 $relationObj = $this->$relationType($relation[0], $relation['through'], $relation['key'], $relation['throughKey']);
                 break;
 
@@ -549,11 +603,10 @@ class Model extends EloquentModel
      */
     protected function validateRelationArgs($relationName, $optional, $required = [])
     {
-
         $relation = $this->getRelationDefinition($relationName);
 
         // Query filter arguments
-        $filters = ['scope', 'conditions', 'order', 'pivot', 'timestamps', 'push'];
+        $filters = ['scope', 'conditions', 'order', 'pivot', 'timestamps', 'push', 'count'];
 
         foreach (array_merge($optional, $filters) as $key) {
             if (!array_key_exists($key, $relation)) {
@@ -594,6 +647,14 @@ class Model extends EloquentModel
          */
         if ($args['timestamps']) {
             $relation->withTimestamps();
+        }
+
+        /*
+         * Count related records
+         */
+        if ($count = $args['count']) {
+            $relation->selectRaw($relation->getForeignKey() . ', count(*) as count')
+                ->groupBy($relation->getForeignKey());
         }
 
         /*
@@ -643,9 +704,25 @@ class Model extends EloquentModel
             $name = snake_case($this->getRelationCaller());
 
         list($type, $id) = $this->getMorphs($name, $type, $id);
-        $class = $this->$type;
 
-        return $this->belongsTo($class, $id);
+        // If the type value is null it is probably safe to assume we're eager loading
+        // the relationship. When that is the case we will pass in a dummy query as
+        // there are multiple types in the morph and we can't use single queries.
+        if (is_null($class = $this->$type)) {
+            return new MorphTo(
+                $this->newQuery(), $this, $id, null, $type, $name
+            );
+        }
+        // If we are not eager loading the relationship we will essentially treat this
+        // as a belongs-to style relationship since morph-to extends that class and
+        // we will pass in the appropriate values so that it behaves as expected.
+        else {
+            $instance = new $class;
+
+            return new MorphTo(
+                $instance->newQuery(), $this, $id, $instance->getKeyName(), $type, $name
+            );
+        }
     }
 
     /**
@@ -872,26 +949,8 @@ class Model extends EloquentModel
 
         switch ($relationType) {
             case 'attachOne':
-                $file = $this->sessionKey
-                    ? $relationObj->withDeferred($this->sessionKey)->first()
-                    : $this->$relationName;
-
-                if ($file) {
-                    $value = $file->getPath();
-                }
-                break;
-
             case 'attachMany':
-                $files = $this->sessionKey
-                    ? $relationObj->withDeferred($this->sessionKey)->get()
-                    : $this->$relationName;
-
-                if ($files) {
-                    $value = [];
-                    $files->each(function($file) use (&$value){
-                        $value[] = $file->getPath();
-                    });
-                }
+                $value = $relationObj->getSimpleValue();
                 break;
 
             case 'belongsTo':
@@ -928,7 +987,7 @@ class Model extends EloquentModel
                     break;
                 }
 
-                if (!is_array($value)) $value = [$value];
+                if (is_string($value)) $value = [$value];
 
                 // Do not sync until the model is saved
                 $this->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
@@ -947,6 +1006,7 @@ class Model extends EloquentModel
                 // Nulling the relationship
                 if (!$value) {
                     $this->setAttribute($relationObj->getForeignKey(), null);
+                    $this->setRelation($relationName, null);
                     break;
                 }
 
@@ -961,39 +1021,25 @@ class Model extends EloquentModel
                     }
 
                     $relationObj->associate($value);
+                    $this->setRelation($relationName, $value);
                 }
-                else
+                else {
                     $this->setAttribute($relationObj->getForeignKey(), $value);
-                break;
-
-            case 'attachMany':
-                if ($value instanceof UploadedFile) {
-                    $this->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
-                        $relationObj->create(['data' => $value]);
-                    });
-                }
-                elseif (is_array($value)) {
-                    $files = [];
-                    foreach ($value as $_value) {
-                        if ($_value instanceof UploadedFile)
-                            $files[] = $_value;
-                    }
-                    $this->bindEventOnce('model.afterSave', function() use ($relationObj, $files){
-                        foreach ($files as $file) {
-                            $relationObj->create(['data' => $file]);
-                        }
-                    });
+                    unset($this->relations[$relationName]);
                 }
                 break;
 
             case 'hasOne':
-                if (!$value || is_array($value))
+                if (!$value || is_array($value)) {
                     return;
+                }
 
-                if ($value instanceof EloquentModel)
+                if ($value instanceof EloquentModel) {
                     $instance = $value;
-                else
+                }
+                else {
                     $instance = $relationModel->find($value);
+                }
 
                 if ($instance) {
                     $this->setRelation($relationName, $instance);
@@ -1007,15 +1053,45 @@ class Model extends EloquentModel
                 break;
 
             case 'attachOne':
-                if (is_array($value))
-                    $value = reset($value);
-
-                if ($value instanceof UploadedFile) {
-                    $this->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
-                        $relationObj->create(['data' => $value]);
-                    });
-                }
+            case 'attachMany':
+                $relationObj->setSimpleValue($value);
                 break;
+        }
+    }
+
+    //
+    // Pivot
+    //
+
+    /**
+     * Create a generic pivot model instance.
+     * @param  \October\Rain\Database\Model  $parent
+     * @param  array   $attributes
+     * @param  string  $table
+     * @param  bool    $exists
+     * @return \October\Rain\Database\Pivot
+     */
+    public function newPivot(EloquentModel $parent, array $attributes, $table, $exists)
+    {
+        return new Pivot($parent, $attributes, $table, $exists);
+    }
+
+    /**
+     * Create a pivot model instance specific to a relation.
+     * @param  \October\Rain\Database\Model  $parent
+     * @param  string  $relationName
+     * @param  array   $attributes
+     * @param  string  $table
+     * @param  bool    $exists
+     * @return \October\Rain\Database\Pivot
+     */
+    public function newRelationPivot($relationName, $parent, $attributes, $table, $exists)
+    {
+        $definition = $this->getRelationDefinition($relationName);
+
+        if (!is_null($definition) && array_key_exists('pivotModel', $definition)) {
+            $pivotModel = $definition['pivotModel'];
+            return new $pivotModel($parent, $attributes, $table, $exists);
         }
     }
 
@@ -1027,29 +1103,34 @@ class Model extends EloquentModel
      * Save the model to the database. Is used by {@link save()} and {@link forceSave()}.
      * @return bool
      */
-    protected function saveInternal($data = [], $options = [])
+    protected function saveInternal($options = [])
     {
-        if ($data !== null)
-            $this->fill($data);
-
         // Event
-        if ($this->fireEvent('model.saveInternal', [$data, $options], true) === false)
+        if ($this->fireEvent('model.saveInternal', [$this->attributes, $options], true) === false) {
             return false;
+        }
 
         /*
          * Validate attributes before trying to save
          */
         foreach ($this->attributes as $attribute => $value) {
-            if (is_array($value))
+            if (is_array($value)) {
                 throw new Exception(sprintf('Unexpected type of array, should attribute "%s" be jsonable?', $attribute));
+            }
+        }
+
+        // Apply pre deferred bindings
+        if ($this->sessionKey !== null) {
+            $this->commitDeferredBefore($this->sessionKey);
         }
 
         // Save the record
         $result = parent::save($options);
 
         // Halted by event
-        if ($result === false)
+        if ($result === false) {
             return $result;
+        }
 
         /*
          * If there is nothing to update, Eloquent will not fire afterSave(),
@@ -1060,9 +1141,10 @@ class Model extends EloquentModel
             $this->fireModelEvent('saved', false);
         }
 
-        // Apply any deferred bindings
-        if ($this->sessionKey !== null)
-            $this->commitDeferred($this->sessionKey);
+        // Apply post deferred bindings
+        if ($this->sessionKey !== null) {
+            $this->commitDeferredAfter($this->sessionKey);
+        }
 
         return $result;
     }
@@ -1071,30 +1153,43 @@ class Model extends EloquentModel
      * Save the model to the database.
      * @return bool
      */
-    public function save(array $data = null, $sessionKey = null)
+    public function save(array $options = null, $sessionKey = null)
     {
         $this->sessionKey = $sessionKey;
-        return $this->saveInternal($data, ['force' => false]);
+        return $this->saveInternal(['force' => false] + (array) $options);
     }
 
     /**
      * Save the model and all of its relationships.
      * @return bool
      */
-    public function push($sessionKey = null, $options = [])
+    public function push($options = null, $sessionKey = null)
     {
         $always = array_get($options, 'always', false);
 
-        if (!$this->save(null, $sessionKey) && !$always)
+        if (!$this->save(null, $sessionKey) && !$always) {
             return false;
+        }
 
         foreach ($this->relations as $name => $models) {
-            if (!$this->isRelationPushable($name))
+            if (!$this->isRelationPushable($name)) {
                 continue;
+            }
 
-            foreach (Collection::make($models) as $model) {
-                if (!$model->push($sessionKey))
+            if ($models instanceof Collection) {
+                $models = $models->all();
+            }
+            elseif ($models instanceof EloquentModel) {
+                $models = [$models];
+            }
+            else {
+                $models = (array) $models;
+            }
+
+            foreach (array_filter($models) as $model) {
+                if (!$model->push(null, $sessionKey)) {
                     return false;
+                }
             }
         }
 
@@ -1106,9 +1201,38 @@ class Model extends EloquentModel
      * model has no changes.
      * @return bool
      */
-    public function alwaysPush($sessionKey)
+    public function alwaysPush($options = null, $sessionKey)
     {
-        return $this->push($sessionKey, ['always' => true]);
+        return $this->push(['always' => true] + (array) $options, $sessionKey);
+    }
+
+    //
+    // Adders
+    //
+
+    /**
+     * Adds a datetime attribute to convert to an instance of Carbon/DateTime object.
+     * @param string   $attribute
+     * @return void
+     */
+    public function addDateAttribute($attribute)
+    {
+        if (in_array($attribute, $this->dates)) return;
+
+        $this->dates[] = $attribute;
+    }
+
+    /**
+     * Add fillable attributes for the model.
+     *
+     * @param  array|string|null  $attributes
+     * @return void
+     */
+    public function addFillable($attributes = null)
+    {
+        $attributes = is_array($attributes) ? $attributes : func_get_args();
+
+        $this->fillable = array_merge($this->fillable, $attributes);
     }
 
     //
@@ -1128,11 +1252,11 @@ class Model extends EloquentModel
 
         $attr = parent::getAttribute($key);
 
-        if ($attr === null) {
-            if ($this->hasRelation($key)) {
-                $this->relations[$key] = $this->$key()->getResults();
-                return $this->relations[$key];
-            }
+        if ($attr === null &&
+            $this->hasRelation($key) &&
+            !array_key_exists($key, $this->relations)
+        ) {
+            $attr = $this->relations[$key] = $this->$key()->getResults();
         }
 
         // After Event
@@ -1147,14 +1271,19 @@ class Model extends EloquentModel
      * @param  string  $key
      * @return mixed
      */
-    protected function getAttributeValue($key)
+    public function getAttributeValue($key)
     {
         $attr = parent::getAttributeValue($key);
 
-        // Handle jsonable
+        /*
+         * Return valid json (boolean, array) if valid, otherwise
+         * jsonable fields will return a string for invalid data.
+         */
         if (in_array($key, $this->jsonable) && !empty($attr)) {
-            if ($value = json_decode($attr, true))
-                $attr = $value;
+            $_attr = json_decode($attr, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $attr = $_attr;
+            }
         }
 
         return $attr;
@@ -1196,8 +1325,14 @@ class Model extends EloquentModel
             $result = $this->setRelationValue($key, $value);
         }
         else {
-            if (!is_object($value) && !is_array($value) && !is_null($value) && !is_bool($value))
+            if (
+                !is_object($value) &&
+                !is_array($value) &&
+                !is_null($value) &&
+                !is_bool($value)
+            ) {
                 $value = trim($value);
+            }
 
             $result = parent::setAttribute($key, $value);
         }

@@ -189,18 +189,4 @@ class Group extends Model
 
         $this->attributes['permissions'] = (!empty($permissions)) ? json_encode($permissions) : '';
     }
-
-    /**
-     * Convert the model instance to an array.
-     * @return array
-     */
-    public function toArray()
-    {
-        $attributes = parent::toArray();
-
-        if (isset($attributes['permissions']))
-            $attributes['permissions'] = $this->getPermissionsAttribute($attributes['permissions']);
-
-        return $attributes;
-    }
 }

@@ -125,6 +125,37 @@ class RouteTest extends TestCase
         $this->assertEquals('my-author-id', $params['author_id']);
         $this->assertArrayHasKey('record_type', $params);
         $this->assertEquals('15', $params['record_type']);
+
+        $rule = $router->reset()->route('testRuleId', '/color/:color/largecode/:largecode*/edit');
+        $result = $rule->resolveUrl('color/brown/largecode/code/with/slashes/edit', $params);
+        $this->assertTrue($result);
+        $this->assertEquals(2, count($params));
+        $this->assertArrayHasKey('color', $params);
+        $this->assertArrayHasKey('largecode', $params);
+        $this->assertEquals('brown', $params['color']);
+        $this->assertEquals('code/with/slashes', $params['largecode']);
+
+        $rule = $router->reset()->route('testRuleId', '/color/:color/largecode/:largecode*/edit');
+        $result = $rule->resolveUrl('color/brown/largecode/code/edit', $params);
+        $this->assertTrue($result);
+        $this->assertEquals(2, count($params));
+        $this->assertArrayHasKey('color', $params);
+        $this->assertArrayHasKey('largecode', $params);
+        $this->assertEquals('brown', $params['color']);
+        $this->assertEquals('code', $params['largecode']);
+
+        $rule = $router->reset()->route('testRuleId', '/color/:color/largecode/:largecode*/create');
+        $result = $rule->resolveUrl('color/brown/largecode/code/with/slashes/edit', $params);
+        $this->assertFalse($result);
+
+        $rule = $router->reset()->route('testRuleId', '/color/:color/largecode/:largecode*');
+        $result = $rule->resolveUrl('color/brown/largecode/code/with/slashes/edit', $params);
+        $this->assertTrue($result);
+        $this->assertEquals(2, count($params));
+        $this->assertArrayHasKey('color', $params);
+        $this->assertArrayHasKey('largecode', $params);
+        $this->assertEquals('brown', $params['color']);
+        $this->assertEquals('code/with/slashes/edit', $params['largecode']);
     }
 
     public function testMatch()
@@ -185,7 +216,7 @@ class RouteTest extends TestCase
 
         $result = $router->url('productPage', array('id' => '7'));
         $this->assertEquals('/product/default/7', $result);
-        
+
         $result = $router->url('productPage', array('id' => '7', 'category' => 'helmets'));
         $this->assertEquals('/product/helmets/7', $result);
     }

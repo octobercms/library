@@ -36,6 +36,7 @@ class StylesheetMinify implements FilterInterface
         $css = str_replace(', ', ',', $css);
         $css = str_replace('} ', '}', $css);
         $css = str_replace(';}', '}', $css);
+        $css = str_replace('}', '}'.PHP_EOL, $css);
 
         return trim($css);
     }

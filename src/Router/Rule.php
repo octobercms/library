@@ -52,6 +52,11 @@ class Rule
     public $dynamicSegmentCount = 0;
 
     /**
+     * @var int The number of wildcard segments found in the pattern
+     */
+    public $wildSegmentCount = 0;
+
+    /**
      * Creates a new router rule instance.
      *
      * @param string $name
@@ -72,8 +77,13 @@ class Rule
                 $staticSegments[] = $segment;
                 $this->staticSegmentCount++;
             }
-            else
+            else {
                 $this->dynamicSegmentCount++;
+
+                if (Helper::segmentIsWildcard($segment)) {
+                    $this->wildSegmentCount++;
+                }
+            }
         }
 
         $this->staticUrl = Helper::rebuildUrl($staticSegments);
@@ -87,17 +97,25 @@ class Rule
      */
     public function resolveUrl($url, &$parameters)
     {
-        $parameters = array();
+        $parameters = [];
 
         $patternSegments = $this->segments;
         $patternSegmentNum = count($patternSegments);
         $urlSegments = Helper::segmentizeUrl($url);
 
         /*
+         * Only one wildcard can be used, if found, pull out the excess segments
+         */
+        if ($this->wildSegmentCount === 1) {
+            $wildSegments = $this->captureWildcardSegments($urlSegments);
+        }
+
+        /*
          * If the number of URL segments is more than the number of pattern segments - return false
          */
-        if (count($urlSegments) > count($patternSegments))
+        if (count($urlSegments) > count($patternSegments)) {
             return false;
+        }
 
         /*
          * Compare pattern and URL segments
@@ -152,8 +170,9 @@ class Rule
                 /*
                  * If the segment is not optional and there is no corresponding value in the URL, return false
                  */
-                if (!$optional && !$urlSegmentExists)
+                if (!$optional && !$urlSegmentExists) {
                     return false;
+                }
 
                 /*
                  * Validate the value with the regular expression
@@ -162,8 +181,9 @@ class Rule
 
                 if ($regexp) {
                     try {
-                        if (!preg_match($regexp, $urlSegments[$index]))
+                        if (!preg_match($regexp, $urlSegments[$index])) {
                             return false;
+                        }
                     } catch (\Exception $ex) {}
                 }
 
@@ -171,10 +191,59 @@ class Rule
                  * Set the parameter value
                  */
                 $parameters[$paramName] = $urlSegments[$index];
+
+                /*
+                 * Determine if wildcard and add stored paramters as a suffix
+                 */
+                if (Helper::segmentIsWildcard($patternSegment) && count($wildSegments)) {
+                    $parameters[$paramName] .= Helper::rebuildUrl($wildSegments);
+                }
+
             }
         }
 
         return true;
+    }
+
+
+    /**
+     * Captures and removes every segment of a URL after a wildcard
+     * pattern segment is detected, until both collections of segments
+     * are the same size.
+     * @param array $urlSegments
+     * @return array
+     */
+    protected function captureWildcardSegments(&$urlSegments)
+    {
+        $wildSegments = [];
+        $patternSegments = $this->segments;
+        $segmentDiff = count($urlSegments) - count($patternSegments);
+        $wildMode = false;
+        $wildCount = 0;
+
+        foreach ($urlSegments as $index => $urlSegment) {
+            if ($wildMode) {
+                if ($wildCount < $segmentDiff) {
+                    $wildSegments[] = $urlSegment;
+                    $wildCount++;
+                    unset($urlSegments[$index]);
+                    continue;
+                }
+                else {
+                    break;
+                }
+            }
+
+            $patternSegment = $patternSegments[$index];
+            if (Helper::segmentIsWildcard($patternSegment)) {
+                $wildMode = true;
+            }
+        }
+
+        // Reset array index
+        $urlSegments = array_values($urlSegments);
+
+        return $wildSegments;
     }
 
     /**

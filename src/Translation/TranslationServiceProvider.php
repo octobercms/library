@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Translation;
 
-use Illuminate\Translation\FileLoader;
 use Illuminate\Support\ServiceProvider;
 
 class TranslationServiceProvider extends ServiceProvider
@@ -10,7 +9,7 @@ class TranslationServiceProvider extends ServiceProvider
      * Indicates if loading of the provider is deferred.
      * @var bool
      */
-    protected $defer = true;
+    protected $defer = false;
 
     /**
      * Register the service provider.
@@ -20,8 +19,20 @@ class TranslationServiceProvider extends ServiceProvider
     {
         $this->registerLoader();
 
-        $this->app->bindShared('translator', function($app){
-            return new Translator($app['translation.loader'], $app['config']['app.locale'], $app['config']['app.fallback_locale'], $app['files']);
+        $this->app->singleton('translator', function($app)
+        {
+            $loader = $app['translation.loader'];
+
+            // When registering the translator component, we'll need to set the default
+            // locale as well as the fallback locale. So, we'll grab the application
+            // configuration so we can easily get both of these values from there.
+            $locale = $app['config']['app.locale'];
+
+            $trans = new Translator($loader, $locale);
+
+            $trans->setFallback($app['config']['app.fallback_locale']);
+
+            return $trans;
         });
     }
 
@@ -31,7 +42,7 @@ class TranslationServiceProvider extends ServiceProvider
      */
     protected function registerLoader()
     {
-        $this->app->bindShared('translation.loader', function($app){
+        $this->app->singleton('translation.loader', function($app) {
             return new FileLoader($app['files'], $app['path'].'/lang');
         });
     }

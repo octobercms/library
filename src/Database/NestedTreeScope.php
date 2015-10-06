@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database;
 
+use Illuminate\Database\Eloquent\Model as ModelBase;
 use Illuminate\Database\Eloquent\Builder as BuilderBase;
 use Illuminate\Database\Eloquent\ScopeInterface;
 
@@ -9,20 +10,21 @@ class NestedTreeScope implements ScopeInterface
     /**
      * Apply the scope to a given Eloquent query builder.
      * @param  \Illuminate\Database\Eloquent\Builder  $builder
+     * @param  \Illuminate\Database\Eloquent\Model  $model
      * @return void
      */
-    public function apply(BuilderBase $builder)
+    public function apply(BuilderBase $builder, ModelBase $model)
     {
-        $model = $builder->getModel();
         $builder->orderBy($model->getLeftColumnName());
     }
 
     /**
      * Remove the scope from the given Eloquent query builder.
      * @param  \Illuminate\Database\Eloquent\Builder  $builder
+     * @param  \Illuminate\Database\Eloquent\Model  $model
      * @return void
      */
-    public function remove(BuilderBase $builder)
+    public function remove(BuilderBase $builder, ModelBase $model)
     {
         $column = $builder->getModel()->getLeftColumnName();
         $query = $builder->getQuery();

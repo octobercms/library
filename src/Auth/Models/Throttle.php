@@ -1,8 +1,9 @@
 <?php namespace October\Rain\Auth\Models;
 
-use DateTime;
+use Carbon\Carbon;
 use October\Rain\Database\Model;
 use Exception;
+use DateTime;
 
 /**
  * Throttle model
@@ -23,7 +24,7 @@ class Throttle extends Model
      * @var array Relations
      */
     public $belongsTo = [
-        'user' => ['October\Rain\Auth\User', 'foreignKey' => 'user_id']
+        'user' => ['October\Rain\Auth\User', 'key' => 'user_id']
     ];
 
     /**
@@ -69,7 +70,7 @@ class Throttle extends Model
     public function addLoginAttempt()
     {
         $this->attempts++;
-        $this->last_attempt_at = $this->freshTimeStamp();
+        $this->last_attempt_at = $this->freshTimestamp();
 
         if ($this->getLoginAttempts() >= static::$attemptLimit)
             $this->suspend();
@@ -107,7 +108,7 @@ class Throttle extends Model
     {
         if (!$this->is_suspended) {
             $this->is_suspended = true;
-            $this->suspended_at = $this->freshTimeStamp();
+            $this->suspended_at = $this->freshTimestamp();
             $this->save();
         }
     }
@@ -149,7 +150,7 @@ class Throttle extends Model
     {
         if (!$this->is_banned) {
             $this->is_banned = true;
-            $this->banned_at = $this->freshTimeStamp();
+            $this->banned_at = $this->freshTimestamp();
             $this->save();
         }
     }
@@ -198,7 +199,7 @@ class Throttle extends Model
 
         $suspensionTime = static::$suspensionTime;
         $clearAttemptsAt = $lastAttempt->modify("+{$suspensionTime} minutes");
-        $now = new DateTime;
+        $now = new Carbon;
 
         if ($clearAttemptsAt <= $now) {
             $this->attempts = 0;
@@ -223,7 +224,7 @@ class Throttle extends Model
 
         $suspensionTime = static::$suspensionTime;
         $unsuspendAt = $suspended->modify("+{$suspensionTime} minutes");
-        $now = new DateTime;
+        $now = new Carbon;
 
         if ($unsuspendAt <= $now)
             $this->unsuspend();
@@ -260,28 +261,5 @@ class Throttle extends Model
     public function getDates()
     {
         return array_merge(parent::getDates(), ['last_attempt_at', 'suspended_at', 'banned_at']);
-    }
-
-    /**
-     * Convert the model instance to an array.
-     * @return array
-     */
-    public function toArray()
-    {
-        $result = parent::toArray();
-
-        if (isset($result['is_suspended']))
-            $result['is_suspended'] = $this->getIsSuspendedAttribute($result['is_suspended']);
-
-        if (isset($result['is_banned']))
-            $result['is_banned'] = $this->getIsBannedAttribute($result['is_banned']);
-
-        if (isset($result['last_attempt_at']) && $result['last_attempt_at'] instanceof DateTime)
-            $result['last_attempt_at'] = $result['last_attempt_at']->format('Y-m-d H:i:s');
-
-        if (isset($result['suspended_at']) && $result['suspended_at'] instanceof DateTime)
-            $result['suspended_at'] = $result['suspended_at']->format('Y-m-d H:i:s');
-
-        return $result;
     }
 }

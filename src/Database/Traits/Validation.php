@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Traits;
 
+use Lang;
 use Input;
 use October\Rain\Database\ModelException;
 use Illuminate\Support\MessageBag;
@@ -12,6 +13,12 @@ trait Validation
      * @var array The rules to be applied to the data.
      *
      * public $rules = [];
+     */
+
+    /**
+     * @var array The array of custom attribute names.
+     *
+     * public $attributeNames = [];
      */
 
     /**
@@ -39,10 +46,11 @@ trait Validation
      */
     public static function bootValidation()
     {
-        if (!property_exists(get_called_class(), 'rules'))
+        if (!property_exists(get_called_class(), 'rules')) {
             throw new Exception(sprintf('You must define a $rules property in %s to use the Validation trait.', get_called_class()));
+        }
 
-        static::extend(function($model){
+        static::extend(function($model) {
             $model->bindEvent('model.saveInternal', function($data, $options) use ($model) {
                 /*
                  * If forcing the save event, the beforeValidate/afterValidate
@@ -50,27 +58,18 @@ trait Validation
                  * empty set of rules and messages.
                  */
                 $force = array_get($options, 'force', false);
-                if ($force)
+                if ($force) {
                     $valid = $model->validate([], []);
-                else
+                }
+                else {
                     $valid = $model->validate();
+                }
 
-                if (!$valid)
+                if (!$valid) {
                     return false;
+                }
 
             }, 500);
-        });
-
-        static::validating(function($model) {
-            $model->fireEvent('model.beforeValidate');
-            if ($model->methodExists('beforeValidate'))
-                $model->beforeValidate();
-        });
-
-        static::validated(function($model) {
-            $model->fireEvent('model.afterValidate');
-            if ($model->methodExists('afterValidate'))
-                $model->afterValidate();
         });
     }
 
@@ -79,37 +78,46 @@ trait Validation
      * outside of Laravel.
      * @return \Illuminate\Validation\Validator
      */
-    protected static function makeValidator($data, $rules, $customMessages)
+    protected static function makeValidator($data, $rules, $customMessages, $attributeNames)
     {
-        return Validator::make($data, $rules, $customMessages);
+        return Validator::make($data, $rules, $customMessages, $attributeNames);
     }
 
     /**
      * Force save the model even if validation fails.
      * @return bool
      */
-    public function forceSave(array $data = null, $sessionKey = null)
+    public function forceSave($options = null, $sessionKey = null)
     {
         $this->sessionKey = $sessionKey;
-        return $this->saveInternal($data, ['force' => true]);
+        return $this->saveInternal(['force' => true] + (array) $options);
     }
 
     /**
      * Validate the model instance
      * @return bool
      */
-    public function validate($rules = null, $customMessages = null)
+    public function validate($rules = null, $customMessages = null, $attributeNames = null)
     {
-        if ($this->validationErrors === null)
+        if ($this->validationErrors === null) {
             $this->validationErrors = new MessageBag;
+        }
 
-        $throwOnValidation = property_exists($this, 'throwOnValidation') ? $this->throwOnValidation : true;
+        $throwOnValidation = property_exists($this, 'throwOnValidation')
+            ? $this->throwOnValidation
+            : true;
 
-        if ($this->fireModelEvent('validating') === false) {
-            if ($throwOnValidation)
+        if (($this->fireModelEvent('validating') === false) || ($this->fireEvent('model.beforeValidate') === false)) {
+            if ($throwOnValidation) {
                 throw new ModelException($this);
-            else
+            }
+            else {
                 return false;
+            }
+        }
+
+        if ($this->methodExists('beforeValidate')) {
+            $this->beforeValidate();
         }
 
         /*
@@ -124,6 +132,13 @@ trait Validation
             $data = $this->getAttributes();
 
             /*
+             * Decode jsonable attribute values
+             */
+            foreach ($this->getJsonable() as $jsonable) {
+                $data[$jsonable] = $this->getAttribute($jsonable);
+            }
+
+            /*
              * Add relation values, if specified.
              */
             foreach ($rules as $attribute => $rule) {
@@ -133,28 +148,75 @@ trait Validation
             }
 
             /*
-             * Compatability with Hashable trait: Remove all hashed values, add the original values.
+             * Compatability with Hashable trait:
+             * Remove all hashable values regardless, add the original values back
+             * only if they are part of the data being validated.
              */
             if (method_exists($this, 'getHashableAttributes')) {
-                $data = array_diff_key($data, array_flip($this->getHashableAttributes()));
-                $data = array_merge($data, $this->getOriginalHashValues());
+                $cleanAttributes = array_diff_key($data, array_flip($this->getHashableAttributes()));
+                $hashedAttributes = array_intersect_key($this->getOriginalHashValues(), $data);
+                $data = array_merge($cleanAttributes, $hashedAttributes);
             }
-
-            if (property_exists($this, 'customMessages') && is_null($customMessages))
-                $customMessages = $this->customMessages;
-
-            if (is_null($customMessages))
-                $customMessages = [];
-
-            $validator = self::makeValidator($data, $rules, $customMessages);
 
             /*
-             * Use custom language attributes
+             * Compatability with Encryptable trait:
+             * Remove all encryptable values regardless, add the original values back
+             * only if they are part of the data being validated.
              */
-            $customAttributes = trans('validation.attributes');
-            if (is_array($customAttributes) && !empty($customAttributes)) {
-                $validator->setAttributeNames($customAttributes);
+            if (method_exists($this, 'getEncryptableAttributes')) {
+                $cleanAttributes = array_diff_key($data, array_flip($this->getEncryptableAttributes()));
+                $encryptedAttributes = array_intersect_key($this->getOriginalEncryptableValues(), $data);
+                $data = array_merge($cleanAttributes, $encryptedAttributes);
             }
+
+            /*
+             * Custom messages, translate internal references
+             */
+            if (property_exists($this, 'customMessages') && is_null($customMessages)) {
+                $customMessages = $this->customMessages;
+            }
+
+            if (is_null($customMessages)) {
+                $customMessages = [];
+            }
+
+            $translatedCustomMessages = [];
+            foreach ($customMessages as $rule => $customMessage){
+                $translatedCustomMessages[$rule] = Lang::get($customMessage);
+            }
+
+            $customMessages = $translatedCustomMessages;
+
+            /*
+             * Attribute names, translate internal references
+             */
+            if (is_null($attributeNames)) {
+                $attributeNames = [];
+            }
+
+            if (property_exists($this, 'attributeNames')) {
+                $attributeNames = array_merge($this->attributeNames, $attributeNames);
+            }
+
+            $translatedAttributeNames = [];
+            foreach ($attributeNames as $attribute => $attributeName){
+                $translatedAttributeNames[$attribute] = Lang::get($attributeName);
+            }
+
+            $attributeNames = $translatedAttributeNames;
+
+            /*
+             * Translate any externally defined attribute names
+             */
+            $translations = Lang::get('validation.attributes');
+            if (is_array($translations)) {
+                $attributeNames = array_merge($translations, $attributeNames);
+            }
+
+            /*
+             * Hand over to the validator
+             */
+            $validator = self::makeValidator($data, $rules, $customMessages, $attributeNames);
 
             $success = $validator->passes();
 
@@ -164,15 +226,20 @@ trait Validation
             }
             else {
                 $this->validationErrors = $validator->messages();
-                if (Input::hasSession())
-                    Input::flash();
+                if (Input::hasSession()) Input::flash();
             }
         }
 
         $this->fireModelEvent('validated', false);
+        $this->fireEvent('model.afterValidate');
 
-        if (!$success && $throwOnValidation)
+        if ($this->methodExists('afterValidate')) {
+            $this->afterValidate();
+        }
+
+        if (!$success && $throwOnValidation) {
             throw new ModelException($this);
+        }
 
         return $success;
     }
@@ -231,19 +298,23 @@ trait Validation
      */
     public function isAttributeRequired($attribute)
     {
-        if (!isset($this->rules[$attribute]))
+        if (!isset($this->rules[$attribute])) {
             return false;
+        }
 
         $ruleset = $this->rules[$attribute];
 
-        if (is_array($ruleset))
+        if (is_array($ruleset)) {
             $ruleset = implode('|', $ruleset);
+        }
 
-        if (strpos($ruleset, 'required:create') !== false && $this->exists)
+        if (strpos($ruleset, 'required:create') !== false && $this->exists) {
             return false;
+        }
 
-        if (strpos($ruleset, 'required:update') !== false && !$this->exists)
+        if (strpos($ruleset, 'required:update') !== false && !$this->exists) {
             return false;
+        }
 
         if (strpos($ruleset, 'required_with') !== false) {
             $requiredWith = substr($ruleset, strpos($ruleset, 'required_with') + 14);

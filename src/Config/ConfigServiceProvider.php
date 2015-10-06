@@ -18,7 +18,7 @@ class ConfigServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bindShared('config', function($app){
-            return new Repository($app->getConfigLoader(), $app['env']);
+            return new Repository($this->getConfigLoader(), $app['env']);
         });
     }
 
@@ -29,6 +29,16 @@ class ConfigServiceProvider extends ServiceProvider
     public function provides()
     {
         return array('config');
+    }
+
+    /**
+     * Get the configuration loader instance.
+     *
+     * @return \Illuminate\Config\LoaderInterface
+     */
+    public function getConfigLoader()
+    {
+        return new FileLoader(new Filesystem, $this->app['path'].'/config');
     }
 
 }

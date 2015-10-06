@@ -1,9 +1,9 @@
 <?php namespace October\Rain\Database\Traits;
 
-use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use October\Rain\Database\TreeCollection;
 use October\Rain\Database\NestedTreeScope;
+use Exception;
 
 /**
  * Nested set model trait
@@ -95,26 +95,26 @@ trait NestedTree
                 get_class($model),
                 'key' => $model->getParentColumnName()
             ];
-        });
 
-        /*
-         * Bind events
-         */
-        static::creating(function($model) {
-            $model->setDefaultLeftAndRight();
-        });
+            /*
+             * Bind events
+             */
+            $model->bindEvent('model.beforeCreate', function() use ($model) {
+                $model->setDefaultLeftAndRight();
+            });
 
-        static::saving(function($model) {
-            $model->storeNewParent();
-        });
+            $model->bindEvent('model.beforeSave', function() use ($model) {
+                $model->storeNewParent();
+            });
 
-        static::saved(function($model) {
-            $model->moveToNewParent();
-            $model->setDepth();
-        });
+            $model->bindEvent('model.afterSave', function() use ($model) {
+                $model->moveToNewParent();
+                $model->setDepth();
+            });
 
-        static::deleting(function($model) {
-            $model->deleteDescendants();
+            $model->bindEvent('model.beforeDelete', function() use ($model) {
+                $model->deleteDescendants();
+            });
         });
     }
 

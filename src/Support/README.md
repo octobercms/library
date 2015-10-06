@@ -21,34 +21,13 @@ $class = MyClass::instance();
 
 ### Global helpers
 
-**post()**
+**input()**
 
 Similar to `Input::get()` this returns an input parameter or the default value. However it supports HTML Array names. Booleans are also converted from strings.
 ```php
-$value = post('value', 'not found');
-$name = post('contact[name]');
-$city = post('contact[location][city]');
-```
-
-### String helper extensions
-
-These additional helpers are available in the `Str` class.
-
-**evalHtmlArray**
-
-Converts a HTML array string to a PHP array. Empty values are removed.
-
-```php
-// Converts to PHP array ['user', 'location', 'city']
-$array = Str::evalHtmlArray('user[location][city]');
-```
-
-**stripHtml**
-
-Removes HTML from a string.
-```php
-// Outputs: Fatal Error! Oh noes!
-echo Str::stripHtml('<b>Fatal Error!</b> Oh noes!');
+$value = input('value', 'not found');
+$name = input('contact[name]');
+$city = input('contact[location][city]');
 ```
 
 ### Event emitter
