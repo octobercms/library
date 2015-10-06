@@ -261,6 +261,7 @@ class IniTest extends TestCase
                 'sectionVar3' => 'section value 3',
                 'sectionVar4' => 'section value 4'
             ],
+            'emptysection' => [],
             'var1'=>'value 1',
             'var2'=>'value 21'
         ];
