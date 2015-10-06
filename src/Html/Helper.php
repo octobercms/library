@@ -1,7 +1,5 @@
 <?php namespace October\Rain\Html;
 
-use Html; // For @deprecate Remove if year >= 2016
-
 /**
  * Methods that may be useful for processing HTML tasks
  *
@@ -50,30 +48,4 @@ class Helper
         return $result;
     }
 
-    /**
-     * @deprecated Moved to Html::strip
-     */
-    public static function strip($string)
-    {
-        traceLog('HtmlHelper::strip has been deprecated, use Html::strip instead.');
-        return Html::strip($string);
-    }
-
-    /**
-     * @deprecated Moved to Html::limit
-     */
-    public static function limit($html, $maxLength, $end = '...')
-    {
-        traceLog('HtmlHelper::limit has been deprecated, use Html::limit instead.');
-        return Html::limit($string, $maxLength, $end);
-    }
-
-    /**
-     * @deprecated Moved to Html::clean
-     */
-    public static function clean($html)
-    {
-        traceLog('HtmlHelper::clean has been deprecated, use Html::clean instead.');
-        return Html::clean($string);
-    }
 }

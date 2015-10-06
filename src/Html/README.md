@@ -20,5 +20,5 @@ $array = Helper::nameToArray('user[location][city]');
 Removes HTML from a string.
 ```php
 // Outputs: Fatal Error! Oh noes!
-echo Helper::strip('<b>Fatal Error!</b> Oh noes!');
+echo Html::strip('<b>Fatal Error!</b> Oh noes!');
 ```
