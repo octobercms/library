@@ -262,7 +262,8 @@ class Ini
      */
     protected function isFinalArray(array $array)
     {
-        return !count(array_filter($array, 'is_array')) &&
+        return !empty($array) &&
+            !count(array_filter($array, 'is_array')) &&
             !count(array_filter(array_keys($array), 'is_string'));
     }
 }
