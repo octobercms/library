@@ -1,9 +1,9 @@
 <?php namespace October\Rain\Auth\Models;
 
 use Carbon\Carbon;
-use October\Rain\Database\Model;
-use Exception;
 use DateTime;
+use October\Rain\Auth\AuthException;
+use October\Rain\Database\Model;
 
 /**
  * Throttle model
@@ -171,15 +171,16 @@ class Throttle extends Model
     /**
      * Check user throttle status.
      * @return bool
+     * @throws AuthException
      */
     public function check()
     {
         if ($this->is_banned) {
-            throw new Exception(sprintf('User [%s] has been banned.', $this->user->getLogin()));
+            throw new AuthException(sprintf('User [%s] has been banned.', $this->user->getLogin()));
         }
 
         if ($this->checkSuspended()) {
-            throw new Exception(sprintf('User [%s] has been suspended.', $this->user->getLogin()));
+            throw new AuthException(sprintf('User [%s] has been suspended.', $this->user->getLogin()));
         }
 
         return true;
