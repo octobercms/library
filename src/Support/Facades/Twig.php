@@ -12,5 +12,5 @@ class Twig extends Facade
      * 
      * @return string
      */
-    protected static function getFacadeAccessor() { return 'twig'; }
+    protected static function getFacadeAccessor() { return 'parse.twig'; }
 }

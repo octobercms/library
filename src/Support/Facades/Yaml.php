@@ -12,5 +12,5 @@ class Yaml extends Facade
      * 
      * @return string
      */
-    protected static function getFacadeAccessor() { return 'yaml'; }
+    protected static function getFacadeAccessor() { return 'parse.yaml'; }
 }

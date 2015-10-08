@@ -183,4 +183,49 @@ class Application extends ApplicationBase
     {
         $this->executionContext = $context;
     }
+
+    //
+    // Caching
+    //
+
+    /**
+     * Get the path to the configuration cache file.
+     *
+     * @return string
+     */
+    public function getCachedConfigPath()
+    {
+        return $this['path.storage'].'/framework/config.php';
+    }
+
+    /**
+     * Get the path to the routes cache file.
+     *
+     * @return string
+     */
+    public function getCachedRoutesPath()
+    {
+        return $this['path.storage'].'/framework/routes.php';
+    }
+
+    /**
+     * Get the path to the cached "compiled.php" file.
+     *
+     * @return string
+     */
+    public function getCachedCompilePath()
+    {
+        return $this->storagePath().'/framework/compiled.php';
+    }
+
+    /**
+     * Get the path to the cached services.json file.
+     *
+     * @return string
+     */
+    public function getCachedServicesPath()
+    {
+        return $this->storagePath().'/framework/services.json';
+    }
+
 }

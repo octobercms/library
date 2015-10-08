@@ -16,19 +16,19 @@ class ParseServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app['markdown'] = $this->app->share(function($app) {
+        $this->app['parse.markdown'] = $this->app->share(function($app) {
             return new Markdown;
         });
 
-        $this->app['yaml'] = $this->app->share(function($app) {
+        $this->app['parse.yaml'] = $this->app->share(function($app) {
             return new Yaml;
         });
 
-        $this->app['twig'] = $this->app->share(function($app) {
+        $this->app['parse.twig'] = $this->app->share(function($app) {
             return new Twig;
         });
 
-        $this->app['ini'] = $this->app->share(function($app) {
+        $this->app['parse.ini'] = $this->app->share(function($app) {
             return new Ini;
         });
 
@@ -44,6 +44,11 @@ class ParseServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return array('markdown', 'yaml', 'twig', 'ini');
+        return [
+            'parse.markdown',
+            'parse.yaml',
+            'parse.twig',
+            'parse.ini'
+        ];
     }
 }

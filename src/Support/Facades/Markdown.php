@@ -12,5 +12,5 @@ class Markdown extends Facade
      * 
      * @return string
      */
-    protected static function getFacadeAccessor() { return 'markdown'; }
+    protected static function getFacadeAccessor() { return 'parse.markdown'; }
 }

@@ -12,5 +12,5 @@ class Ini extends Facade
      * 
      * @return string
      */
-    protected static function getFacadeAccessor() { return 'ini'; }
+    protected static function getFacadeAccessor() { return 'parse.ini'; }
 }
