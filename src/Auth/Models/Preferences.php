@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Auth\Models;
 
-use Exception;
 use October\Rain\Database\Model;
+use October\Rain\Auth\AuthException;
 use October\Rain\Auth\Manager;
 
 /**
@@ -39,7 +39,7 @@ class Preferences extends Model
     {
         $user = Manager::getUser();
         if (!$user) {
-            throw new Exception('User is not logged in');
+            throw new AuthException('User is not logged in');
         }
 
         return $user;
