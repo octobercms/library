@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Auth\Models;
 
-use Exception;
 use October\Rain\Database\Model;
+use October\Rain\Auth\AuthException;
 use October\Rain\Auth\Manager;
 
 /**
@@ -39,7 +39,7 @@ class Preferences extends Model
     {
         $user = Manager::getUser();
         if (!$user) {
-            throw new Exception('User is not logged in');
+            throw new AuthException('User is not logged in');
         }
 
         return $user;
@@ -87,6 +87,7 @@ class Preferences extends Model
      * @param mixed $value The setting value to store, serializable.
      * If the user is not provided the currently authenticated user will be used. If there is no
      * an authenticated user, the exception will be thrown.
+     * @return bool
      */
     public function set($key, $value)
     {
@@ -146,6 +147,7 @@ class Preferences extends Model
 
     /**
      * Builds a cache key for the preferences record.
+     * @return string
      */
     protected function getCacheKey($item, $user)
     {
