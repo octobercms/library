@@ -87,6 +87,7 @@ class Preferences extends Model
      * @param mixed $value The setting value to store, serializable.
      * If the user is not provided the currently authenticated user will be used. If there is no
      * an authenticated user, the exception will be thrown.
+     * @return bool
      */
     public function set($key, $value)
     {
@@ -146,6 +147,7 @@ class Preferences extends Model
 
     /**
      * Builds a cache key for the preferences record.
+     * @return string
      */
     protected function getCacheKey($item, $user)
     {
