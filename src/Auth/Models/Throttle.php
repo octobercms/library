@@ -1,9 +1,9 @@
 <?php namespace October\Rain\Auth\Models;
 
 use Carbon\Carbon;
-use DateTime;
 use October\Rain\Auth\AuthException;
 use October\Rain\Database\Model;
+use DateTime;
 
 /**
  * Throttle model
