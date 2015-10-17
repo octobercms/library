@@ -216,7 +216,7 @@ class Model extends EloquentModel
             $this->setRelations([]);
         }
         else {
-            $this->setRelation($relationName, null);
+            unset($this->relations[$relationName]);
         }
     }
 
@@ -948,13 +948,11 @@ class Model extends EloquentModel
         $value = null;
 
         switch ($relationType) {
+            case 'belongsTo':
+            case 'hasOne':
             case 'attachOne':
             case 'attachMany':
                 $value = $relationObj->getSimpleValue();
-                break;
-
-            case 'belongsTo':
-                $value = $this->getAttribute($relationObj->getForeignKey());
                 break;
 
             case 'belongsToMany':
@@ -977,6 +975,12 @@ class Model extends EloquentModel
         $relationModel = $relationObj->getRelated();
 
         switch ($relationType) {
+            case 'belongsTo':
+            case 'hasOne':
+            case 'attachOne':
+            case 'attachMany':
+                $relationObj->setSimpleValue($value);
+                break;
 
             case 'belongsToMany':
             case 'morphToMany':
@@ -1000,61 +1004,6 @@ class Model extends EloquentModel
 
                 // Associate
                 $this->setRelation($relationName, $relationCollection);
-                break;
-
-            case 'belongsTo':
-                // Nulling the relationship
-                if (!$value) {
-                    $this->setAttribute($relationObj->getForeignKey(), null);
-                    $this->setRelation($relationName, null);
-                    break;
-                }
-
-                if ($value instanceof EloquentModel) {
-                    /*
-                     * Non existent model, use a single serve event to associate it again when ready
-                     */
-                    if (!$value->exists) {
-                        $value->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
-                            $relationObj->associate($value);
-                        });
-                    }
-
-                    $relationObj->associate($value);
-                    $this->setRelation($relationName, $value);
-                }
-                else {
-                    $this->setAttribute($relationObj->getForeignKey(), $value);
-                    unset($this->relations[$relationName]);
-                }
-                break;
-
-            case 'hasOne':
-                if (!$value || is_array($value)) {
-                    return;
-                }
-
-                if ($value instanceof EloquentModel) {
-                    $instance = $value;
-                }
-                else {
-                    $instance = $relationModel->find($value);
-                }
-
-                if ($instance) {
-                    $this->setRelation($relationName, $instance);
-
-                    $this->bindEventOnce('model.afterSave', function() use ($relationObj, $instance){
-                        $relationObj->update([$relationObj->getForeignKey() => null]);
-                        $instance->setAttribute($relationObj->getPlainForeignKey(), $relationObj->getParentKey());
-                        $instance->save();
-                    });
-                }
-                break;
-
-            case 'attachOne':
-            case 'attachMany':
-                $relationObj->setSimpleValue($value);
                 break;
         }
     }

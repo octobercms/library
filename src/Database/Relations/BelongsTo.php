@@ -45,4 +45,45 @@ class BelongsTo extends BelongsToBase
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);
         }
     }
+
+    /**
+     * Helper for setting this relationship using various expected
+     * values. For example, $model->relation = $value;
+     */
+    public function setSimpleValue($value)
+    {
+        // Nulling the relationship
+        if (!$value) {
+            $this->parent->setAttribute($this->getForeignKey(), null);
+            $this->parent->setRelation($this->relationName, null);
+            return;
+        }
+
+        if ($value instanceof Model) {
+            /*
+             * Non existent model, use a single serve event to associate it again when ready
+             */
+            if (!$value->exists) {
+                $value->bindEventOnce('model.afterSave', function() use ($value){
+                    $this->associate($value);
+                });
+            }
+
+            $this->associate($value);
+            $this->parent->setRelation($this->relationName, $value);
+        }
+        else {
+            $this->parent->setAttribute($this->getForeignKey(), $value);
+            $this->parent->reloadRelations($this->relationName);
+        }
+    }
+
+    /**
+     * Helper for getting this relationship simple value,
+     * generally useful with form values.
+     */
+    public function getSimpleValue()
+    {
+        return $this->parent->getAttribute($this->getForeignKey());
+    }
 }
