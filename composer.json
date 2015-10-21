@@ -35,6 +35,7 @@
         "illuminate/mail": "5.0.*",
         "illuminate/events": "5.0.*",
         "illuminate/view": "5.0.*",
+        "satooshi/php-coveralls": "dev-master",
         "swiftmailer/swiftmailer": "~5.1",
         "symfony/config": "2.5.*",
         "symfony/translation": "2.5.*"
