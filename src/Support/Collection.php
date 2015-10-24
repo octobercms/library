@@ -2,6 +2,9 @@
 
 use Illuminate\Support\Collection as CollectionBase;
 
+/**
+ * Proxy class.
+ */
 class Collection extends CollectionBase
 {
 }
