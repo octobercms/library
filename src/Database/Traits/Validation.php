@@ -92,6 +92,17 @@ trait Validation
         $this->sessionKey = $sessionKey;
         return $this->saveInternal(['force' => true] + (array) $options);
     }
+    
+    /**
+	 * Force create the model even if validation fails.
+	 *
+	 * @param  array  $attributes
+	 * @return bool
+	 */
+	public function forceCreate(array $attributes)
+	{
+		return $this->saveInternal(['force' => true] + $attributes);
+	}
 
     /**
      * Validate the model instance
