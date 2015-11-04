@@ -2,6 +2,7 @@
 
 use Lang;
 use Input;
+use App;
 use October\Rain\Database\ModelException;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Facades\Validator;
@@ -75,12 +76,19 @@ trait Validation
 
     /**
      * Instantiates the validator used by the validation process, depending if the class is being used inside or
-     * outside of Laravel.
+     * outside of Laravel. Optional connection string to make the validator use a different database connection
+     * than the default connection.
      * @return \Illuminate\Validation\Validator
      */
-    protected static function makeValidator($data, $rules, $customMessages, $attributeNames)
+    protected static function makeValidator($data, $rules, $customMessages, $attributeNames,$connection = null)
     {
-        return Validator::make($data, $rules, $customMessages, $attributeNames);
+        $validator = Validator::make($data, $rules, $customMessages, $attributeNames);
+        if ($connection !== null) {
+           $verifier = App::make('validation.presence');
+           $verifier->setConnection($connection);
+           $validator->setPresenceVerifier($verifier);
+        }
+        return $validator;
     }
 
     /**
@@ -216,7 +224,7 @@ trait Validation
             /*
              * Hand over to the validator
              */
-            $validator = self::makeValidator($data, $rules, $customMessages, $attributeNames);
+            $validator = self::makeValidator($data, $rules, $customMessages, $attributeNames,$this->getConnectionName());
 
             $success = $validator->passes();
 
