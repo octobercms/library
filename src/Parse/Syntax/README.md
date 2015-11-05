@@ -58,7 +58,7 @@ Renders a multiple line editor field for larger blocks of text. The view value i
 
 Renders a WYSIWYG content editor.
 
-    {richeditor name="content" label="Main content"}Default text{/checkbox}
+    {richeditor name="content" label="Main content"}Default text{/richeditor}
 
 Renders in Twig as
 
