@@ -30,14 +30,18 @@ class ValidationException extends Exception
     {
         parent::__construct();
 
-        if (is_null($validation))
+        if (is_null($validation)) {
             return;
+        }
 
-        if ($validation instanceof Validator)
+        if ($validation instanceof Validator) {
             $this->errors = $validation->messages();
-        else
-            $this->errors = $this->makeErrors($validation);
-
+        } elseif (is_array($validation)) {
+            $this->errors = new MessageBag($validation);
+        } else {
+            throw new InvalidArgumentException('ValidationException constructor requires instance of Validator or array');
+        }
+        
         $this->evalErrors();
     }
 
@@ -51,22 +55,6 @@ class ValidationException extends Exception
         }
 
         $this->message = $this->errors->first();
-    }
-
-    /**
-     * Creates a new MessageBag object from supplied array.
-     */
-    public function makeErrors($fields)
-    {
-        if (!is_array($fields))
-            $fields = [];
-
-        $errors = new MessageBag;
-
-        foreach ($fields as $field => $message)
-            $errors->add($field, $message);
-
-        return $errors;
     }
 
     /**
