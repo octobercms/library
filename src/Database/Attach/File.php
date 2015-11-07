@@ -564,8 +564,16 @@ class File extends Model
          */
         $destinationPath = $this->getLocalRootPath() . '/' . $destinationPath;
 
+         /*
+         * Verify the directory exists, if not try to create it. If creation fails because the directory was created by
+         * a concurrent process then proceed, otherwise trigger the error.
+         */
         if (!FileHelper::isDirectory($destinationPath)) {
-            FileHelper::makeDirectory($destinationPath, 0777, true);
+            if(!FileHelper::makeDirectory($destinationPath, 0777, true, true)){
+                if (!FileHelper::isDirectory($destinationPath)) {
+                    trigger_error(error_get_last(),E_USER_WARNING);
+                }
+            }
         }
 
         return FileHelper::copy($sourcePath, $destinationPath . $destinationFileName);
