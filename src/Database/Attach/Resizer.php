@@ -400,6 +400,24 @@ class Resizer
     }
 
     /**
+     * Get the image original width
+     * @return int
+     */
+    public function getWidth () {
+
+        return $this->width;
+    }
+
+    /**
+     * Get the image original height
+     * @return int
+     */
+    public function getHeight () {
+
+        return $this->height;
+    }
+
+    /**
      * Crops an image from its center
      * @param int $optimalWidth The width of the image
      * @param int $optimalHeight The height of the image
