@@ -207,7 +207,7 @@ class File extends Model
     /**
      * Returns the file content type.
      */
-    protected function getContentType()
+    public function getContentType()
     {
         if ($this->content_type !== null) {
             return $this->content_type;
