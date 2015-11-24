@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Attach;
 
+use Config;
 use Storage;
 use File as FileHelper;
 use October\Rain\Database\Model;
@@ -553,6 +554,19 @@ class File extends Model
         }
 
         $destinationPath = $this->getStorageDirectory() . $this->getPartitionDirectory();
+
+        if ($this->isImage()) {
+
+            $imageMaxWidth = Config::get('cms.storage.uploads.imageMaxWidth',0);
+            $imageMaxHeight = Config::get('cms.storage.uploads.imageMaxHeight',0);
+            $resizer = Resizer::open($sourcePath);
+
+            if (($imageMaxWidth && $resizer->getWidth() > $imageMaxWidth) || ($imageMaxHeight && $resizer->getHeight() > $imageMaxHeight)){
+
+                $resizer->resize($imageMaxWidth,$imageMaxHeight);
+                $resizer->save($sourcePath);
+            }
+        }
 
         if (!$this->isLocalStorage()) {
             return $this->copyLocalToStorage($sourcePath, $destinationPath . $destinationFileName);
