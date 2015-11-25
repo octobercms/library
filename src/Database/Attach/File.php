@@ -557,14 +557,14 @@ class File extends Model
 
         if ($this->isImage()) {
 
-            $imageMaxWidth = Config::get('cms.storage.uploads.imageMaxWidth',0);
-            $imageMaxHeight = Config::get('cms.storage.uploads.imageMaxHeight',0);
+            $imageMaxWidth = Config::get('cms.storage.uploads.image.maxWidth',0);
+            $imageMaxHeight = Config::get('cms.storage.uploads.image.maxHeight',0);
             $resizer = Resizer::open($sourcePath);
 
             if (($imageMaxWidth && $resizer->getWidth() > $imageMaxWidth) || ($imageMaxHeight && $resizer->getHeight() > $imageMaxHeight)){
 
                 $resizer->resize($imageMaxWidth,$imageMaxHeight);
-                $resizer->save($sourcePath);
+                $resizer->save($sourcePath, Config::get('cms.storage.uploads.image.quality', 95));
             }
         }
 
