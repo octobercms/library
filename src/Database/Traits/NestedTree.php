@@ -426,12 +426,17 @@ trait NestedTree
     public function scopeListsNested($query, $column, $key = null, $indent = '&nbsp;&nbsp;&nbsp;')
     {
         $columns = [$this->getDepthColumnName(), $column];
-        if ($key !== null)
+        if ($key !== null) {
             $columns[] = $key;
+        }
 
         $results = new Collection($query->getQuery()->get($columns));
         $values = $results->fetch($columns[1])->all();
         $indentation = $results->fetch($columns[0])->all();
+
+        if (count($values) !== count($indentation)) {
+            throw new Exception('Column mismatch in listsNested method. Are you sure the columns exist?');
+        }
 
         foreach ($values as $_key => $value) {
             $values[$_key] = str_repeat($indent, $indentation[$_key]) . $value;

@@ -133,15 +133,53 @@ trait SimpleTree
      */
     public function scopeListsNested($query, $column, $key = null, $indent = '&nbsp;&nbsp;&nbsp;')
     {
+        $idName = $this->getKeyName();
+        $parentName = $this->getParentColumnName();
+
+        $columns = [$idName, $parentName, $column];
+        if ($key !== null) {
+            $columns[] = $key;
+        }
+
+        $collection = $query->getQuery()->get($columns);
+
+        /*
+         * Assign all child nodes to their parents
+         */
+        $pairMap = [];
+        $rootItems = [];
+        foreach ($collection as $record) {
+            if ($parentId = $record->{$parentName}) {
+                if (!isset($pairMap[$parentId])) {
+                    $pairMap[$parentId] = [];
+                }
+                $pairMap[$parentId][] = $record;
+            }
+            else {
+                $rootItems[] = $record;
+            }
+        }
+
         /*
          * Recursive helper function
          */
-        $buildCollection = function($items, $depth = 0) use (&$buildCollection, $column, $key, $indent) {
+        $buildCollection = function($items, $map, $depth = 0) use (
+            &$buildCollection,
+            $column,
+            $key,
+            $indent,
+            $idName,
+            $parentName
+        ) {
             $result = [];
 
             $indentString = str_repeat($indent, $depth);
 
             foreach ($items as $item) {
+                if (!property_exists($item, $column)) {
+                    throw new Exception('Column mismatch in listsNested method. Are you sure the columns exist?');
+                }
+
                 if ($key !== null) {
                     $result[$item->{$key}] = $indentString . $item->{$column};
                 }
@@ -152,9 +190,9 @@ trait SimpleTree
                 /*
                  * Add the children
                  */
-                $childItems = $item->getChildren();
-                if ($childItems->count() > 0) {
-                    $result = $result + $buildCollection($childItems, $depth + 1);
+                $childItems = array_get($map, $item->{$idName}, []);
+                if (count($childItems) > 0) {
+                    $result = $result + $buildCollection($childItems, $map, $depth + 1);
                 }
             }
 
@@ -164,8 +202,7 @@ trait SimpleTree
         /*
          * Build a nested collection
          */
-        $rootItems = $query->get()->toNested();
-        $result = $buildCollection($rootItems);
+        $result = $buildCollection($rootItems, $pairMap);
         return $result;
     }
 
