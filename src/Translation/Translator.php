@@ -184,8 +184,8 @@ class Translator implements TranslatorInterface
      */
     protected function sortReplacements(array $replace)
     {
-        return (new Collection($replace))->sortBy(function($r) {
-            return mb_strlen($r) * -1;
+        return (new Collection($replace))->sortBy(function ($value, $key) {
+            return mb_strlen($key) * -1;
         });
     }
 
