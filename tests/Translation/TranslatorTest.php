@@ -4,7 +4,7 @@ use Illuminate\Filesystem\Filesystem;
 use October\Rain\Translation\FileLoader;
 use October\Rain\Translation\Translator;
 
-class TranslateTest extends TestCase
+class TranslatorTest extends TestCase
 {
     public function testSimilarWordsParsing()
     {
