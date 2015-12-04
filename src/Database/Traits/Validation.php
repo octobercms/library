@@ -273,6 +273,21 @@ trait Validation
                  */
                 if (starts_with($rulePart, 'unique') && $this->exists) {
                     $ruleParts[$key] = 'unique:'.$this->getTable().','.$field.','.$this->getKey().','.$this->getKeyName();
+
+                    $parameters = explode(',', $rulePart);
+                    // If there were more than three parameters, add them
+                    // back to the rule (idColumn and where statements)
+                    if(count($parameters) > 3) {
+                        $idColumnAndWheres = array_slice($parameters, 3);
+                        $ruleParts[$key] .= ',' . implode(',', $idColumnAndWheres);
+
+                    $parameters = explode(',', $rulePart);
+                    // If there were more than three parameters, add them
+                    // back to the rule (idColumn and where statements)
+                    if(count($parameters) > 3) {
+                        $idColumnAndWheres = array_slice($parameters, 3);
+                        $ruleParts[$key] .= ',' . implode(',', $idColumnAndWheres);
+                }
                 }
                 /*
                  * Look for required:create and required:update rules
