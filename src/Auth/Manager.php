@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Auth;
 
-use Hash;
 use Cookie;
 use Session;
 use Request;
@@ -169,7 +168,7 @@ class Manager
          */
         foreach ($hashedCredentials as $credential => $value) {
 
-            if (!Hash::check($value, $user->{$credential})) {
+            if (!$user->checkHashValue($credential, $value)) {
                 // Incorrect password
                 if ($credential == 'password') {
                     throw new AuthException(sprintf('A user was found to match all plain text credentials however hashed credential "%s" did not match.', $credential));

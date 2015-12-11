@@ -63,6 +63,17 @@ trait Hashable
     }
 
     /**
+     * Checks if the supplied plain value matches the stored hash value.
+     * @param  string $key   Attribute to check
+     * @param  string $value Value to check
+     * @return bool
+     */
+    public function checkHashValue($key, $value)
+    {
+        return Hash::check($value, $this->{$key});
+    }
+
+    /**
      * Returns a collection of fields that will be hashed.
      * @return array
      */
