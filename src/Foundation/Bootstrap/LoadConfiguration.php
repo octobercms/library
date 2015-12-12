@@ -23,7 +23,7 @@ class LoadConfiguration
         mb_internal_encoding('UTF-8');
 
         // Fix for XDebug aborting threads > 100 nested
-        ini_set('xdebug.max_nesting_level', 300);
+        ini_set('xdebug.max_nesting_level', 1000);
     }
 
 }
