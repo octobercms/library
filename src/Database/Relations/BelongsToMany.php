@@ -86,7 +86,7 @@ class BelongsToMany extends BelongsToManyBase
     {
         $this->query->addSelect($this->getSelectColumns($columns));
 
-        $paginator = $this->query->paginate($perPage, $currentPage, $columns);
+        $paginator = $this->query->paginate($perPage, $columns, null, $currentPage);
 
         $this->hydratePivotRelation($paginator->items());
 

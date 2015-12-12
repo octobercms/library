@@ -55,37 +55,6 @@ class Builder extends BuilderModel
     }
 
     /**
-     * Paginate the given query.
-     *
-     * @param  int  $perPage
-     * @param  int  $currentPage
-     * @param  array  $columns
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
-     */
-    public function paginate($perPage = 15, $currentPage = null, $columns = ['*'])
-    {
-        if (is_array($currentPage)) {
-            $columns = $currentPage;
-            $currentPage = null;
-        }
-
-        if (!$currentPage) {
-            $currentPage = Paginator::resolveCurrentPage();
-        }
-
-        if (!$perPage) {
-            $perPage = $this->model->getPerPage();
-        }
-
-        $total = $this->query->getCountForPagination();
-        $this->query->forPage($currentPage, $perPage);
-
-        return new LengthAwarePaginator($this->get($columns), $total, $perPage, $currentPage, [
-            'path' => Paginator::resolveCurrentPath()
-        ]);
-    }
-
-    /**
      * Paginate the given query into a simple paginator.
      *
      * @param  int  $perPage
