@@ -447,4 +447,12 @@ class Repository implements ArrayAccess, ConfigContract
     {
         $this->set($key, null);
     }
+
+    /**
+     * Get all of the configuration items for the application.
+     * @return array
+     */public function all()
+{
+    // TODO: Implement all() method.
+}
 }

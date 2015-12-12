@@ -15,8 +15,8 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0",
-        "illuminate/database": "5.0.*",
+        "php": ">=7.0",
+        "illuminate/database": "5.1.*",
         "october/support": "~1.0"
     },
     "autoload": {
