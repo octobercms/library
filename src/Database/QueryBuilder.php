@@ -158,7 +158,7 @@ class QueryBuilder extends QueryBuilderBase
      */
     protected function getCacheCallback($columns)
     {
-        return function() use ($columns) { return $this->getFresh($columns); };
+        return function() use ($columns) { return $this->get($columns); };
     }
 
     /**
