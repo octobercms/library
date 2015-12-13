@@ -63,6 +63,6 @@ class KeyGenerateCommand extends KeyGenerateCommandBase
 
         $contents = $this->files->get($path = $this->laravel['path.config']."/{$env}app.php");
 
-        return array($path, $contents);
+        return [$path, $contents];
     }
 }

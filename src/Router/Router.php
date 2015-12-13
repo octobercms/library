@@ -229,8 +229,9 @@ class Router
      */
     public function matchedRoute()
     {
-        if (!$this->matchedRouteRule)
+        if (!$this->matchedRouteRule) {
             return false;
+        }
 
         return $this->matchedRouteRule->name();
     }

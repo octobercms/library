@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Database\Relations;
 
-use Illuminate\Support\Facades\Db;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -13,8 +12,9 @@ trait AttachOneOrMany
      */
     public function isPublic()
     {
-        if (isset($this->public) && $this->public !== null)
+        if (isset($this->public) && $this->public !== null) {
             return $this->public;
+        }
 
         return true;
     }
@@ -65,11 +65,13 @@ trait AttachOneOrMany
     public function save(Model $model, $sessionKey = null)
     {
         // Delete siblings for single attachments
-        if ($sessionKey === null && $this instanceof AttachOne)
+        if ($sessionKey === null && $this instanceof AttachOne) {
             $this->delete();
+        }
 
-        if (!array_key_exists('is_public', $model->attributes))
+        if (!array_key_exists('is_public', $model->attributes)) {
             $model->setAttribute('is_public', $this->isPublic());
+        }
 
         $model->setAttribute('field', $this->relationName);
 
@@ -88,18 +90,21 @@ trait AttachOneOrMany
     public function create(array $attributes, $sessionKey = null)
     {
         // Delete siblings for single attachments
-        if ($sessionKey === null && $this instanceof AttachOne)
+        if ($sessionKey === null && $this instanceof AttachOne) {
             $this->delete();
+        }
 
-        if (!array_key_exists('is_public', $attributes))
+        if (!array_key_exists('is_public', $attributes)) {
             $attributes = array_merge(['is_public' => $this->isPublic()], $attributes);
+        }
 
         $attributes['field'] = $this->relationName;
 
         $model = parent::create($attributes);
 
-        if ($sessionKey !== null)
+        if ($sessionKey !== null) {
             $this->add($model, $sessionKey);
+        }
 
         return $model;
     }
@@ -109,14 +114,16 @@ trait AttachOneOrMany
      */
     public function add(Model $model, $sessionKey = null)
     {
-        if (!array_key_exists('is_public', $model->attributes))
+        if (!array_key_exists('is_public', $model->attributes)) {
             $model->is_public = $this->isPublic();
+        }
 
         if ($sessionKey === null) {
 
             // Delete siblings for single attachments
-            if ($this instanceof AttachOne)
+            if ($this instanceof AttachOne) {
                 $this->delete();
+            }
 
             $model->setAttribute($this->getPlainForeignKey(), $this->parent->getKey());
             $model->setAttribute($this->getPlainMorphType(), $this->morphClass);

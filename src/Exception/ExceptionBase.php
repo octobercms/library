@@ -312,12 +312,12 @@ class ExceptionBase extends Exception
      */
     protected function formatStackArguments($arguments)
     {
-        $argsArray = array();
+        $argsArray = [];
         foreach ($arguments as $argument) {
             $arg = null;
 
             if (is_array($argument)) {
-                $items = array();
+                $items = [];
 
                 foreach ($argument as $index => $obj) {
                     if (is_array($obj)) {

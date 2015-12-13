@@ -3,7 +3,6 @@
 use Storage;
 use File as FileHelper;
 use October\Rain\Database\Model;
-use October\Rain\Database\Attach\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\File\File as FileObj;
 use Exception;

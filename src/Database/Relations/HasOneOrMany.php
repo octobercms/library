@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Database\Relations;
 
-use Illuminate\Support\Facades\Db;
 use Illuminate\Database\Eloquent\Model;
 
 trait HasOneOrMany

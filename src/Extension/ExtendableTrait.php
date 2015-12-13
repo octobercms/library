@@ -140,7 +140,7 @@ trait ExtendableTrait
             $extension &&
             ($extensionObj = $this->getClassExtension($extension))
         ) {
-            $method = array($extensionObj, $method);
+            $method = [$extensionObj, $method];
         }
 
         $this->extensionData['dynamicMethods'][$dynamicName] = $method;
@@ -351,7 +351,7 @@ trait ExtendableTrait
             $extensionObject = $this->extensionData['extensions'][$extension];
 
             if (method_exists($extension, $name) && is_callable([$extension, $name])) {
-                return call_user_func_array(array($extensionObject, $name), $params);
+                return call_user_func_array([$extensionObject, $name], $params);
             }
         }
 
@@ -422,7 +422,7 @@ trait ExtendableTrait
 
             if (method_exists($extension, $name) && is_callable([$extension, $name])) {
                 $extension::$extendableStaticCalledClass = $className;
-                $result = forward_static_call_array(array($extension, $name), $params);
+                $result = forward_static_call_array([$extension, $name], $params);
                 $extension::$extendableStaticCalledClass = null;
                 return $result;
             }

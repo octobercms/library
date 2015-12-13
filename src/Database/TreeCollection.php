@@ -34,8 +34,9 @@ class TreeCollection extends CollectionBase
          */
         $nestedKeys = [];
         foreach ($collection as $key => $model) {
-            if (!$parentKey = $model->getParentId())
+            if (!$parentKey = $model->getParentId()) {
                 continue;
+            }
 
             if (array_key_exists($parentKey, $collection)) {
                 $collection[$parentKey]->children[] = $model;

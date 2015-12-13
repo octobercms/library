@@ -3,7 +3,6 @@
 use Cookie;
 use Session;
 use Request;
-use October\Rain\Auth\AuthException;
 
 /**
  * Authentication manager

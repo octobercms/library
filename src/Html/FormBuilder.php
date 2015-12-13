@@ -58,13 +58,15 @@ class FormBuilder extends FormBuilderBase
         $request = array_get($options, 'request');
         $model = array_get($options, 'model');
 
-        if ($model)
+        if ($model) {
             $this->model = $model;
+        }
 
         $append = $this->requestHandler($request);
 
-        if ($method != 'GET')
+        if ($method != 'GET') {
             $append .= $this->sessionKey(array_get($options, 'sessionKey'));
+        }
 
         return parent::open($options) . $append;
     }
@@ -77,8 +79,9 @@ class FormBuilder extends FormBuilderBase
      */
     public function ajax($handler, array $options = [])
     {
-        if (is_array($handler))
+        if (is_array($handler)) {
             $handler = implode('::', $handler);
+        }
 
         $attributes = array_merge(
 
@@ -127,8 +130,9 @@ class FormBuilder extends FormBuilderBase
      */
     protected function requestHandler($name = null)
     {
-        if (!strlen($name))
+        if (!strlen($name)) {
             return '';
+        }
 
         return $this->hidden('_handler', $name);
     }
@@ -139,8 +143,9 @@ class FormBuilder extends FormBuilderBase
      */
     public function sessionKey($sessionKey = null)
     {
-        if (!$sessionKey)
+        if (!$sessionKey) {
             $sessionKey = post('_session_key', $this->sessionKey);
+        }
 
         return $this->hidden('_session_key', $sessionKey);
     }

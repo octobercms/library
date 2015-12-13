@@ -16,10 +16,10 @@ trait ExtensionTrait
      */
     public static $extendableStaticCalledClass = null;
 
-    protected $extensionHidden = array(
-        'fields' => array(),
-        'methods' => array('extensionIsHiddenField', 'extensionIsHiddenField')
-    );
+    protected $extensionHidden = [
+        'fields' => [],
+        'methods' => ['extensionIsHiddenField', 'extensionIsHiddenField']
+    ];
 
     protected function extensionHideField($name)
     {
