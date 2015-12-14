@@ -2,11 +2,9 @@
 
 use Hash;
 use October\Rain\Database\Model;
-use October\Rain\Auth\Hash\HasherBase;
 use InvalidArgumentException;
 use RuntimeException;
 use Exception;
-use DateTime;
 
 /**
  * User model
@@ -323,8 +321,9 @@ class User extends Model
      */
     public function getGroups()
     {
-        if (!$this->userGroups)
+        if (!$this->userGroups) {
             $this->userGroups = $this->groups()->get();
+        }
 
         return $this->userGroups;
     }
@@ -367,8 +366,9 @@ class User extends Model
     public function inGroup($group)
     {
         foreach ($this->getGroups() as $_group) {
-            if ($_group->getKey() == $group->getKey())
+            if ($_group->getKey() == $group->getKey()) {
                 return true;
+            }
         }
 
         return false;
@@ -384,15 +384,16 @@ class User extends Model
             $permissions = [];
 
             foreach ($this->getGroups() as $group) {
-                if (!is_array($group->permissions))
+                if (!is_array($group->permissions)) {
                     continue;
+                }
 
                 $permissions = array_merge($permissions, $group->permissions);
             }
 
-            if (is_array($this->permissions))
+            if (is_array($this->permissions)) {
                 $permissions = array_merge($permissions, $this->permissions);
-
+            }
             $this->mergedPermissions = $permissions;
         }
 

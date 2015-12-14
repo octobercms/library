@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Auth;
 
 use Config;
+use Exception;
 use October\Rain\Exception\ApplicationException;
 
 /**

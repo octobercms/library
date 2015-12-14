@@ -202,12 +202,10 @@ class FileLoader implements LoaderInterface
      */
     protected function getPath($namespace)
     {
-        if (is_null($namespace))
-        {
+        if (is_null($namespace)) {
             return $this->defaultPath;
         }
-        elseif (isset($this->hints[$namespace]))
-        {
+        elseif (isset($this->hints[$namespace])) {
             return $this->hints[$namespace];
         }
     }

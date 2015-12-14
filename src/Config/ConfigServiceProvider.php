@@ -28,7 +28,7 @@ class ConfigServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return array('config');
+        return ['config'];
     }
 
     /**

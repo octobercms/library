@@ -33,8 +33,9 @@ class MailParser
     {
         $sections = preg_split('/^={2,}\s*/m', $content, -1);
         $count = count($sections);
-        foreach ($sections as &$section)
+        foreach ($sections as &$section) {
             $section = trim($section);
+        }
 
         $result = [
             'settings' => [],

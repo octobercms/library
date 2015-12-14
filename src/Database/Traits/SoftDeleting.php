@@ -86,7 +86,7 @@ trait SoftDeleting
 
         $this->{$this->getDeletedAtColumn()} = $time = $this->freshTimestamp();
 
-        $query->update(array($this->getDeletedAtColumn() => $this->fromDateTime($time)));
+        $query->update([$this->getDeletedAtColumn() => $this->fromDateTime($time)]);
     }
 
     /**

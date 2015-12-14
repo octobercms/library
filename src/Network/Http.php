@@ -246,9 +246,9 @@ class Http
             curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($curl, CURLOPT_MAXREDIRS, $this->maxRedirects);
         }
-        if ($this->requestOptions && is_array($this->requestOptions))
+        if ($this->requestOptions && is_array($this->requestOptions)) {
             curl_setopt_array($curl, $this->requestOptions);
-
+        }
         /*
          * Set request method
          */
@@ -256,9 +256,9 @@ class Http
             curl_setopt($curl, CURLOPT_POST, true);
             curl_setopt($curl, CURLOPT_POSTFIELDS, '');
         }
-        elseif ($this->method !== self::METHOD_GET)
+        elseif ($this->method !== self::METHOD_GET) {
             curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $this->method);
-
+        }
         /*
          * Set request data
          */
@@ -351,7 +351,8 @@ class Http
                 $key = substr($singleHeader, 0, $delimiter);
                 $val = substr($singleHeader, $delimiter + 2);
                 $headers[$key] = $val;
-            } else {
+            }
+            else {
                 $delimiter = strpos($singleHeader, ' ');
                 if ($delimiter !== false) {
                     $key = substr($singleHeader, 0, $delimiter);
@@ -402,17 +403,21 @@ class Http
      */
     public function proxy($type, $host, $port, $username = null, $password = null)
     {
-        if ($type === 'http')
+        if ($type === 'http') {
             $this->setOption(CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
-        elseif ($type === 'socks4')
+        }
+        elseif ($type === 'socks4') {
             $this->setOption(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
-        elseif ($type === 'socks5')
+        }
+        elseif ($type === 'socks5') {
             $this->setOption(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
+        }
 
         $this->setOption(CURLOPT_PROXY, $host . ':' . $port);
 
-        if ($username && $password)
+        if ($username && $password) {
             $this->setOption(CURLOPT_PROXYUSERPWD, $username . ':' . $password);
+        }
 
         return $this;
     }
@@ -424,8 +429,9 @@ class Http
      */
     public function auth($user, $pass = null)
     {
-        if (strpos($user, ':') !== null && !$pass)
+        if (strpos($user, ':') !== null && !$pass) {
             list($user, $pass) = explode(':', $user);
+        }
 
         $this->setOption(CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
         $this->setOption(CURLOPT_USERPWD, $user . ':' . $pass);
@@ -472,8 +478,9 @@ class Http
     {
         $this->streamFile = $path;
 
-        if ($filter)
+        if ($filter) {
             $this->streamFilter = $filter;
+        }
 
         return $this;
     }

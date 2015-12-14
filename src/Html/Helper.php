@@ -36,8 +36,9 @@ class Helper
             return $result;
 
         if (preg_match('/^([^\]]+)(?:\[(.+)\])+$/', $string, $matches)) {
-            if (count($matches) < 2)
+            if (count($matches) < 2) {
                 return $result;
+            }
 
             $result = explode('][', $matches[2]);
             array_unshift($result, $matches[1]);

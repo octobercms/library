@@ -130,7 +130,7 @@ class Handler extends ExceptionHandler
             try {
                 $response = $handler($exception, $code, $fromConsole);
             }
-            catch (\Exception $e) {
+            catch (Exception $e) {
                 $response = $this->formatException($e);
             }
             // If this handler returns a "non-null" response, we will return it so it will

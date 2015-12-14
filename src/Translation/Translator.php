@@ -1,7 +1,6 @@
 <?php namespace October\Rain\Translation;
 
 use Illuminate\Support\Collection;
-use Illuminate\Support\NamespacedItemResolver;
 use Symfony\Component\Translation\MessageSelector;
 use Symfony\Component\Translation\TranslatorInterface;
 
@@ -290,10 +289,10 @@ class Translator implements TranslatorInterface
     protected function parseLocale($locale)
     {
         if (!is_null($locale)) {
-            return array_filter(array($locale, $this->fallback));
+            return array_filter([$locale, $this->fallback]);
         }
 
-        return array_filter(array($this->locale, $this->fallback));
+        return array_filter([$this->locale, $this->fallback]);
     }
 
     /**

@@ -31,14 +31,15 @@ class FlashBag extends MessageBag
      */
     protected $session;
 
-    public function __construct(array $messages = array())
+    public function __construct(array $messages = [])
     {
         parent::__construct($messages);
 
         $this->session = App::make('session');
 
-        if ($this->session->has(self::SESSION_KEY))
+        if ($this->session->has(self::SESSION_KEY)) {
             $this->messages = $this->session->get(self::SESSION_KEY);
+        }
 
         $this->purge();
     }
@@ -89,10 +90,12 @@ class FlashBag extends MessageBag
      */
     public function error($message = null)
     {
-        if ($message === null)
+        if ($message === null) {
             return $this->get(FlashBag::ERROR);
-        else
+        }
+        else {
             return $this->add(FlashBag::ERROR, $message);
+        }
     }
 
     /**
@@ -100,10 +103,12 @@ class FlashBag extends MessageBag
      */
     public function success($message = null)
     {
-        if ($message === null)
+        if ($message === null) {
             return $this->get(FlashBag::SUCCESS);
-        else
+        }
+        else {
             return $this->add(FlashBag::SUCCESS, $message);
+        }
     }
 
     /**
@@ -111,10 +116,12 @@ class FlashBag extends MessageBag
      */
     public function warning($message = null)
     {
-        if ($message === null)
+        if ($message === null) {
             return $this->get(FlashBag::WARNING);
-        else
+        }
+        else {
             return $this->add(FlashBag::WARNING, $message);
+        }
     }
 
     /**
@@ -122,10 +129,12 @@ class FlashBag extends MessageBag
      */
     public function info($message = null)
     {
-        if ($message === null)
+        if ($message === null) {
             return $this->get(FlashBag::INFO);
-        else
+        }
+        else {
             return $this->add(FlashBag::INFO, $message);
+        }
     }
 
     /**
@@ -162,11 +171,13 @@ class FlashBag extends MessageBag
             $this->purge();
         }
         else {
-            if (isset($this->messages[$key]))
+            if (isset($this->messages[$key])) {
                 unset($this->messages[$key]);
+            }
 
-            if (isset($this->newMessages[$key]))
+            if (isset($this->newMessages[$key])) {
                 unset($this->newMessages[$key]);
+            }
 
             $this->store();
         }

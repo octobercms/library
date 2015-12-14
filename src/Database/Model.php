@@ -15,9 +15,6 @@ use October\Rain\Database\Relations\MorphOne;
 use October\Rain\Database\Relations\AttachMany;
 use October\Rain\Database\Relations\AttachOne;
 use October\Rain\Database\Relations\HasManyThrough;
-use October\Rain\Database\ModelException;
-use October\Rain\Database\QueryBuilder;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use InvalidArgumentException;
 use Exception;
 
@@ -263,8 +260,9 @@ class Model extends EloquentModel
          */
         static::registerModelEvent('booted', function($model){
             $model->fireEvent('model.afterBoot');
-            if ($model->methodExists('afterBoot'))
+            if ($model->methodExists('afterBoot')) {
                 return $model->afterBoot();
+            }
         });
 
         static::$eventsBooted[$class] = true;
@@ -292,8 +290,9 @@ class Model extends EloquentModel
     public function newFromBuilder($attributes = [], $connection = null)
     {
         $instance = $this->newInstance([], true);
-        if ($instance->fireModelEvent('fetching') === false)
+        if ($instance->fireModelEvent('fetching') === false) {
             return $instance;
+        }
 
         $instance->setRawAttributes((array) $attributes, true);
 

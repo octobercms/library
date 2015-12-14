@@ -1,7 +1,5 @@
 <?php namespace October\Rain\Filesystem;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Filesystem\FilesystemServiceProvider as FilesystemServiceProviderBase;
 
 class FilesystemServiceProvider extends FilesystemServiceProviderBase

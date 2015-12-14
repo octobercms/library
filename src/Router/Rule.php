@@ -128,8 +128,9 @@ class Rule
                 /*
                  * Static segment
                  */
-                if (!array_key_exists($index, $urlSegments) || $patternSegmentLower != mb_strtolower($urlSegments[$index]))
+                if (!array_key_exists($index, $urlSegments) || $patternSegmentLower != mb_strtolower($urlSegments[$index])) {
                     return false;
+                }
             }
             else {
 
@@ -184,7 +185,8 @@ class Rule
                         if (!preg_match($regexp, $urlSegments[$index])) {
                             return false;
                         }
-                    } catch (\Exception $ex) {}
+                    }
+                    catch (\Exception $ex) {}
                 }
 
                 /*

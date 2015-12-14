@@ -46,8 +46,9 @@ abstract class TemplateBase
     {
         $this->files = new Filesystem;
 
-        if ($path !== null && !$this->files->isWritable($path))
+        if ($path !== null && !$this->files->isWritable($path)) {
             throw new Exception(sprintf('Path "%s" is not writable', $path));
+        }
 
         $this->targetPath = $path;
         $this->vars = $this->processVars($vars);
@@ -63,8 +64,9 @@ abstract class TemplateBase
     {
         $self = new static($path, $vars);
 
-        if ($force)
+        if ($force) {
             $self->setOverwrite(true);
+        }
 
         return $self->makeAll();
     }
@@ -96,8 +98,9 @@ abstract class TemplateBase
      */
     public function makeStub($stubName)
     {
-        if (!isset($this->fileMap[$stubName]))
+        if (!isset($this->fileMap[$stubName])) {
             return;
+        }
 
         $sourceFile = __DIR__ . '/Templates/' . $stubName;
         $destinationFile = $this->targetPath . '/' . $this->fileMap[$stubName];
@@ -115,14 +118,16 @@ abstract class TemplateBase
          * Destination directory must exist
          */
         $destinationDirectory = dirname($destinationFile);
-        if (!$this->files->exists($destinationDirectory))
+        if (!$this->files->exists($destinationDirectory)) {
             $this->files->makeDirectory($destinationDirectory, 0777, true); // @todo 777 not supported everywhere
+        }
 
         /*
          * Make sure this file does not already exist
          */
-        if ($this->files->exists($destinationFile) && !$this->overwriteFiles)
+        if ($this->files->exists($destinationFile) && !$this->overwriteFiles) {
             throw new \Exception('Stop everything!!! This file already exists: ' . $destinationFile);
+        }
 
         $this->files->put($destinationFile, $destinationContent);
     }

@@ -125,7 +125,7 @@ class QueryBuilder extends QueryBuilderBase
      */
     protected function getCacheInfo()
     {
-        return array($this->getCacheKey(), $this->cacheMinutes);
+        return [$this->getCacheKey(), $this->cacheMinutes];
     }
 
     /**

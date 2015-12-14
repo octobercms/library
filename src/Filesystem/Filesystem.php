@@ -225,8 +225,9 @@ class Filesystem extends FilesystemBase
      */
     public function makeDirectory($path, $mode = 0777, $recursive = false, $force = false)
     {
-        if ($mask = $this->getFolderPermissions())
+        if ($mask = $this->getFolderPermissions()) {
             $mode = $mask;
+        }
 
         /*
          * Find the green leaves

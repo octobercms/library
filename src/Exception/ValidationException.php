@@ -33,10 +33,12 @@ class ValidationException extends Exception
         if (is_null($validation))
             return;
 
-        if ($validation instanceof Validator)
+        if ($validation instanceof Validator) {
             $this->errors = $validation->messages();
-        else
+        }
+        else {
             $this->errors = $this->makeErrors($validation);
+        }
 
         $this->evalErrors();
     }
@@ -58,13 +60,15 @@ class ValidationException extends Exception
      */
     public function makeErrors($fields)
     {
-        if (!is_array($fields))
+        if (!is_array($fields)) {
             $fields = [];
+        }
 
         $errors = new MessageBag;
 
-        foreach ($fields as $field => $message)
+        foreach ($fields as $field => $message) {
             $errors->add($field, $message);
+        }
 
         return $errors;
     }

@@ -18,7 +18,7 @@
         "php": ">=5.4.0",
         "october/support": "~1.0",
         "october/filesystem": "~1.0",
-        "symfony/config": "2.5.*"
+        "symfony/config": "2.6.*"
     },
     "autoload": {
         "psr-4": {
