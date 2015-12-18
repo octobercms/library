@@ -1266,7 +1266,7 @@ class Model extends EloquentModel
 
         // Handle jsonable
         if (in_array($key, $this->jsonable) && (!empty($value) || is_array($value))) {
-            $value = json_encode($value);
+            $value = json_encode(array_values($value));
         }
 
         // Handle direct relation setting
