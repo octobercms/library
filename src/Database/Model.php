@@ -2,6 +2,7 @@
 
 use Input;
 use Closure;
+use October\Rain\Support\Arr;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Collection;
 use October\Rain\Database\Relations\BelongsTo;
@@ -1266,7 +1267,7 @@ class Model extends EloquentModel
 
         // Handle jsonable
         if (in_array($key, $this->jsonable) && (!empty($value) || is_array($value))) {
-            $value = json_encode(array_values($value));
+            $value = json_encode(Arr::fixKeysNumber($value));
         }
 
         // Handle direct relation setting
