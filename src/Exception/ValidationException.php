@@ -2,6 +2,7 @@
 
 use Illuminate\Support\MessageBag;
 use Illuminate\Validation\Validator;
+use InvalidArgumentException;
 use Exception;
 
 /**
@@ -36,12 +37,14 @@ class ValidationException extends Exception
 
         if ($validation instanceof Validator) {
             $this->errors = $validation->messages();
-        } elseif (is_array($validation)) {
+        }
+        elseif (is_array($validation)) {
             $this->errors = new MessageBag($validation);
-        } else {
+        }
+        else {
             throw new InvalidArgumentException('ValidationException constructor requires instance of Validator or array');
         }
-        
+
         $this->evalErrors();
     }
 
