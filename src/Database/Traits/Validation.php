@@ -261,8 +261,9 @@ trait Validation
             /*
              * Normalize rulesets
              */
-            if (!is_array($ruleParts))
+            if (!is_array($ruleParts)) {
                 $ruleParts = explode('|', $ruleParts);
+            }
 
             /*
              * Analyse each rule individually
@@ -272,22 +273,7 @@ trait Validation
                  * Remove primary key unique validation rule if the model already exists
                  */
                 if (starts_with($rulePart, 'unique') && $this->exists) {
-                    $ruleParts[$key] = 'unique:'.$this->getTable().','.$field.','.$this->getKey().','.$this->getKeyName();
-
-                    $parameters = explode(',', $rulePart);
-                    // If there were more than three parameters, add them
-                    // back to the rule (idColumn and where statements)
-                    if(count($parameters) > 3) {
-                        $idColumnAndWheres = array_slice($parameters, 3);
-                        $ruleParts[$key] .= ',' . implode(',', $idColumnAndWheres);
-
-                    $parameters = explode(',', $rulePart);
-                    // If there were more than three parameters, add them
-                    // back to the rule (idColumn and where statements)
-                    if(count($parameters) > 3) {
-                        $idColumnAndWheres = array_slice($parameters, 3);
-                        $ruleParts[$key] .= ',' . implode(',', $idColumnAndWheres);
-                }
+                    $ruleParts[$key] = $this->processValidationUniqueRule($rulePart, $field);
                 }
                 /*
                  * Look for required:create and required:update rules
@@ -304,6 +290,41 @@ trait Validation
         }
 
         return $rules;
+    }
+
+    /**
+     * Rebuilds the unique validation rule to force for the existing ID
+     * @param string $definition
+     * @param string $fieldName
+     * @return string
+     */
+    protected function processValidationUniqueRule($definition, $fieldName)
+    {
+        list(
+            $table,
+            $column,
+            $key,
+            $keyName,
+            $whereColumn,
+            $whereValue
+        ) = array_pad(explode(',', $definition), 6, null);
+
+        $table = 'unique:' . $this->getTable();
+        $column = $column ?: $fieldName;
+        $key = $keyName ? $this->$keyName : $this->getKey();
+        $keyName = $keyName ?: $this->getKeyName();
+
+        $params = [$table, $column, $key, $keyName];
+
+        if ($whereColumn) {
+            $params[] = $whereColumn;
+        }
+
+        if ($whereValue) {
+            $params[] = $whereValue;
+        }
+
+        return implode(',', $params);
     }
 
     /**
