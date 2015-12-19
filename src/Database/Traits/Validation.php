@@ -272,7 +272,7 @@ trait Validation
                  * Remove primary key unique validation rule if the model already exists
                  */
                 if (starts_with($rulePart, 'unique') && $this->exists) {
-                    $ruleParts[$key] = 'unique:'.$this->getTable().','.$field.','.$this->getKey();
+                    $ruleParts[$key] = 'unique:'.$this->getTable().','.$field.','.$this->getKey().','.$this->getKeyName();
                 }
                 /*
                  * Look for required:create and required:update rules
