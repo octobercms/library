@@ -42,7 +42,6 @@
     "replace": {
         "october/auth": "self.version",
         "october/config": "self.version",
-        "october/cron": "self.version",
         "october/database": "self.version",
         "october/extension": "self.version",
         "october/filesystem": "self.version",
@@ -51,7 +50,6 @@
         "october/network": "self.version",
         "october/router": "self.version",
         "october/support": "self.version",
-        "october/syntax": "self.version",
         "october/translation": "self.version"
     },
     "autoload": {
