@@ -1,6 +1,6 @@
 <?php namespace October\Rain\Html;
 
-use Illuminate\Html\FormBuilder as FormBuilderBase;
+use Collective\Html\FormBuilder as FormBuilderBase;
 use Illuminate\Routing\UrlGenerator as UrlGeneratorBase;
 
 /**
@@ -35,7 +35,7 @@ class FormBuilder extends FormBuilderBase
     /**
      * Create a new form builder instance.
      *
-     * @param \Illuminate\Html\HtmlBuilder  $html
+     * @param \October\Rain\Html\HtmlBuilder  $html
      * @param \Illuminate\Routing\UrlGenerator  $url
      * @param string  $csrfToken
      * @param string  $sessionKey

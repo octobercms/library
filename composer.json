@@ -29,7 +29,7 @@
         "phpunit/phpunit": "~4.0",
         "illuminate/database": "5.0.*",
         "illuminate/filesystem": "5.0.*",
-        "illuminate/html": "5.0.*",
+        "laravelcollective/html": "5.0.*",
         "illuminate/queue": "5.0.*",
         "illuminate/support": "5.0.*",
         "illuminate/mail": "5.0.*",

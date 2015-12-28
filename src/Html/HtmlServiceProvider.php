@@ -12,6 +12,7 @@ class HtmlServiceProvider extends ServiceProvider
 
     /**
      * Register the service provider.
+     *
      * @return void
      */
     public function register()
@@ -25,6 +26,7 @@ class HtmlServiceProvider extends ServiceProvider
 
     /**
      * Register the HTML builder instance.
+     *
      * @return void
      */
     protected function registerHtmlBuilder()
@@ -36,6 +38,7 @@ class HtmlServiceProvider extends ServiceProvider
 
     /**
      * Register the form builder instance.
+     *
      * @return void
      */
     protected function registerFormBuilder()
@@ -48,6 +51,7 @@ class HtmlServiceProvider extends ServiceProvider
 
     /**
      * Register the Block builder instance.
+     *
      * @return void
      */
     protected function registerBlockBuilder()
@@ -59,6 +63,7 @@ class HtmlServiceProvider extends ServiceProvider
 
     /**
      * Get the services provided by the provider.
+     *
      * @return array
      */
     public function provides()

@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Html;
 
 use October\Rain\Support\Str as StrHelper;
-use Illuminate\Html\HtmlBuilder as HtmlBuilderBase;
+use Collective\Html\HtmlBuilder as HtmlBuilderBase;
 
 /**
  * Html builder

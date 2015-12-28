@@ -131,7 +131,7 @@ class BlockBuilder
      */
     public function reset()
     {
-        $this->blockStacks = [];
+        $this->blockStack = [];
         $this->blocks = [];
     }
 
