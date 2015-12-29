@@ -39,6 +39,13 @@ class User extends Model
     ];
 
     /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = ['activated_at', 'last_login'];
+
+    /**
      * @var array The attributes that should be hidden for arrays.
      */
     protected $hidden = ['password', 'reset_password_code', 'activation_code', 'persist_code'];
@@ -644,14 +651,5 @@ class User extends Model
         $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
         return substr(str_shuffle(str_repeat($pool, 5)), 0, $length);
-    }
-
-    /**
-     * Get the attributes that should be converted to dates.
-     * @return array
-     */
-    public function getDates()
-    {
-        return array_merge(parent::getDates(), ['activated_at', 'last_login']);
     }
 }
