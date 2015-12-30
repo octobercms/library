@@ -179,8 +179,9 @@ class Helper
     {
         if (($pos = mb_strpos($segment, '|')) !== false) {
             $regexp = mb_substr($segment, $pos+1);
-            if (!mb_strlen($regexp))
+            if (!mb_strlen($regexp)) {
                 return false;
+            }
 
             return '/'.$regexp.'/';
         }
@@ -196,16 +197,19 @@ class Helper
     public static function getSegmentDefaultValue($segment)
     {
         $optMarkerPos = mb_strpos($segment, '?');
-        if ($optMarkerPos === false)
+        if ($optMarkerPos === false) {
             return false;
+        }
 
         $regexMarkerPos = mb_strpos($segment, '|');
         $value = false;
 
-        if ($regexMarkerPos !== false)
+        if ($regexMarkerPos !== false) {
             $value = mb_substr($segment, $optMarkerPos+1, $regexMarkerPos-$optMarkerPos-1);
-        else
+        }
+        else {
             $value = mb_substr($segment, $optMarkerPos+1);
+        }
 
         return strlen($value) ? $value : false;
     }

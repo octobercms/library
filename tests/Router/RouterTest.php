@@ -6,7 +6,7 @@ class RouteTest extends TestCase
 {
     public function testResolveUrl()
     {
-        $params = array();
+        $params = [];
         $router = new Router();
 
         $rule = $router->reset()->route('testRuleId', 'blog/post');
@@ -160,7 +160,7 @@ class RouteTest extends TestCase
 
     public function testMatch()
     {
-        $params = array();
+        $params = [];
         $router = new Router();
 
         // Set up some dummy rules
@@ -183,7 +183,7 @@ class RouteTest extends TestCase
 
     public function testUrl()
     {
-        $params = array();
+        $params = [];
         $router = new Router();
 
         // Set up some dummy rules
@@ -192,6 +192,7 @@ class RouteTest extends TestCase
         $router->route('userProfile', 'profile/:username');
         $router->route('jobRequest', 'job/:type?request/:id');
         $router->route('productPage', '/product/:category?/:id');
+        $router->route('portfolioPage', '/portfolio/:year?noYear/:category?noCategory/:budget?noBudget');
 
         $result = $router->url('blogPost');
         $this->assertEquals('/blog/post', $result);
@@ -199,25 +200,52 @@ class RouteTest extends TestCase
         $result = $router->url('authorDetails');
         $this->assertEquals('/authors', $result);
 
-        $result = $router->url('authorDetails', array('author_id' => 20));
+        $result = $router->url('authorDetails', ['author_id' => 20]);
         $this->assertEquals('/authors/20', $result);
 
-        $result = $router->url('authorDetails', array('details' => 'history'));
+        $result = $router->url('authorDetails', ['details' => 'history']);
         $this->assertEquals('/authors/default/history', $result);
 
-        $result = $router->url('userProfile', array('username' => 'shaq'));
+        $result = $router->url('authorDetails', ['author_id' => 'default']);
+        $this->assertEquals('/authors/default', $result);
+
+        $result = $router->url('userProfile', ['username' => 'shaq']);
         $this->assertEquals('/profile/shaq', $result);
 
-        $result = $router->url('jobRequest', array('id' => '9'));
+        $result = $router->url('jobRequest', ['id' => '9']);
         $this->assertEquals('/job/request/9', $result);
 
         $result = $router->url('jobRequest');
         $this->assertEquals('/job/request/default', $result);
 
-        $result = $router->url('productPage', array('id' => '7'));
+        $result = $router->url('productPage', ['id' => '7']);
         $this->assertEquals('/product/default/7', $result);
 
-        $result = $router->url('productPage', array('id' => '7', 'category' => 'helmets'));
+        $result = $router->url('productPage', ['id' => '7', 'category' => 'helmets']);
         $this->assertEquals('/product/helmets/7', $result);
+
+        $result = $router->url('portfolioPage');
+        $this->assertEquals('/portfolio', $result);
+
+        $result = $router->url('portfolioPage', ['year' => '2020']);
+        $this->assertEquals('/portfolio/2020', $result);
+
+        $result = $router->url('portfolioPage', ['category' => 'shoes']);
+        $this->assertEquals('/portfolio/noYear/shoes', $result);
+
+        $result = $router->url('portfolioPage', ['category' => null, 'budget' => '50000-above']);
+        $this->assertEquals('/portfolio/noYear/noCategory/50000-above', $result);
+
+        $result = $router->url('portfolioPage', ['year' => false, 'category' => null, 'budget' => 0]);
+        $this->assertEquals('/portfolio/noYear/noCategory/0', $result);
+
+        $result = $router->url('portfolioPage', ['budget' => 0]);
+        $this->assertEquals('/portfolio/noYear/noCategory/0', $result);
+
+        $result = $router->url('portfolioPage', ['year' => '2020', 'category' => 'noCategory']);
+        $this->assertEquals('/portfolio/2020', $result);
+
+        $result = $router->url('portfolioPage', ['year' => 'default', 'category' => 'noCategory', 'budget' => '200-500']);
+        $this->assertEquals('/portfolio/default/noCategory/200-500', $result);
     }
 }

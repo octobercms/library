@@ -129,36 +129,41 @@ class Router
             unset($parameters[$param]);
         }
 
-        // Build a URL
+        /*
+         * Build the URL segments, remember the last populated index
+         */
         $url = [];
-        foreach ($patternSegments as $index => $patternSegment) {
+        $lastPopulatedIndex = 0;
 
+        foreach ($patternSegments as $index => $patternSegment) {
             /*
              * Static segment
              */
             if (strpos($patternSegment, ':') !== 0) {
                 $url[] = $patternSegment;
-                continue;
             }
             /*
              * Dynamic segment
              */
             else {
-                /*
-                 * Get the parameter name
-                 */
                 $paramName = Helper::getParameterName($patternSegment);
 
                 /*
                  * Determine whether it is optional
                  */
-
                 $optional = Helper::segmentIsOptional($patternSegment);
 
                 /*
-                 * Check if parameter has been supplied
+                 * Default value
                  */
-                $parameterExists = array_key_exists($paramName, $parameters);
+                $defaultValue = Helper::getSegmentDefaultValue($patternSegment);
+
+                /*
+                 * Check if parameter has been supplied and is not a default value
+                 */
+                $parameterExists = array_key_exists($paramName, $parameters) &&
+                    strlen($parameters[$paramName]) &&
+                    $parameters[$paramName] !== $defaultValue;
 
                 /*
                  * Use supplied parameter value
@@ -167,10 +172,13 @@ class Router
                     $url[] = $parameters[$paramName];
                 }
                 /*
-                 * Look for default value or set as false
+                 * Look for a specified default value
                  */
                 elseif ($optional) {
-                    $url[] = Helper::getSegmentDefaultValue($patternSegment);
+                    $url[] = $defaultValue ?: static::$defaultValue;
+
+                    // Do not set $lastPopulatedIndex
+                    continue;
                 }
                 /*
                  * Non optional field, use the default value
@@ -178,28 +186,18 @@ class Router
                 else {
                     $url[] = static::$defaultValue;
                 }
-
             }
+
+            $lastPopulatedIndex = $index;
         }
 
         /*
-         * Trim the URL array and set any empty inbetween values to default value
+         * Trim the URL to only include populated segments
          */
-        $lastPopulatedIndex = 0;
-        foreach ($url as $index => $segment) {
-            if ($segment) {
-                $lastPopulatedIndex = $index;
-            }
-            else {
-                $url[$index] = static::$defaultValue;
-            }
-        }
-
         $url = array_slice($url, 0, $lastPopulatedIndex + 1);
 
         return Helper::rebuildUrl($url);
     }
-
 
     /**
      * Returns the active list of router rule objects
