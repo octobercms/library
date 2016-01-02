@@ -217,7 +217,14 @@ class Mailer extends MailerBase
                 $text = $result['text'];
             }
 
-            if ($subject = array_get($result['settings'], 'subject')) {
+            /*
+             * Subject
+             */
+            $customSubject = $message->getSwiftMessage()->getSubject();
+            if (
+                empty($customSubject) &&
+                ($subject = array_get($result['settings'], 'subject'))
+            ) {
                 $message->subject($subject);
             }
         }
