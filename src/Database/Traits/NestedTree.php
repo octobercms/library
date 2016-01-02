@@ -431,8 +431,8 @@ trait NestedTree
         }
 
         $results = new Collection($query->getQuery()->get($columns));
-        $values = $results->fetch($columns[1])->all();
-        $indentation = $results->fetch($columns[0])->all();
+        $values = $results->pluck($columns[1])->all();
+        $indentation = $results->pluck($columns[0])->all();
 
         if (count($values) !== count($indentation)) {
             throw new Exception('Column mismatch in listsNested method. Are you sure the columns exist?');
@@ -443,7 +443,7 @@ trait NestedTree
         }
 
         if ($key !== null && count($results) > 0) {
-            $keys = $results->fetch($key)->all();
+            $keys = $results->pluck($key)->all();
 
             return array_combine($keys, $values);
         }

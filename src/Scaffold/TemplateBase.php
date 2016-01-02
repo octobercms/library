@@ -57,6 +57,7 @@ abstract class TemplateBase
      * Static helper
      * @param string $path Root path to output generated files
      * @param array $vars Variables to pass to the stub templates
+     * @param bool $force
      * @return void
      */
     public static function make($path, $vars = [], $force = false)
@@ -91,7 +92,7 @@ abstract class TemplateBase
 
     /**
      * Make a single stub
-     * @param $stubName The source filename for the stub.
+     * @param string $stubName The source filename for the stub.
      * @return void
      */
     public function makeStub($stubName)
@@ -131,7 +132,7 @@ abstract class TemplateBase
      * Converts all variables to available modifier and case formats.
      * Syntax is CASE_MODIFIER_KEY, eg: lower_plural_xxx
      *
-     * @param array The collection of original variables
+     * @param array $vars The collection of original variables
      * @return array A collection of variables with modifiers added
      */
     protected function processVars($vars)
