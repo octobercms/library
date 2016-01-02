@@ -29,7 +29,6 @@
         "phpunit/phpunit": "~4.0",
         "illuminate/database": "5.1.*",
         "illuminate/filesystem": "5.1.*",
-        "illuminate/html": "5.1.*",
         "illuminate/queue": "5.1.*",
         "illuminate/support": "5.1.*",
         "illuminate/mail": "5.1.*",

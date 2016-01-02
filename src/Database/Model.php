@@ -182,7 +182,7 @@ class Model extends EloquentModel
      * @param string $sessionKey
      * @return \Illuminate\Database\Eloquent\Model|static
      */
-    public static function create(array $attributes, $sessionKey = null)
+    public static function create(array $attributes = [], $sessionKey = null)
     {
         $model = new static($attributes);
         $model->save(null, $sessionKey);

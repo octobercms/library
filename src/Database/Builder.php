@@ -62,7 +62,7 @@ class Builder extends BuilderModel
      * @param  array  $columns
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate($perPage = 15, $currentPage = null, $columns = ['*'])
+    public function paginate($perPage = 15, $currentPage = null, $columns = ['*'], $pageName = 'page')
     {
         if (is_array($currentPage)) {
             $columns = $currentPage;
@@ -70,7 +70,7 @@ class Builder extends BuilderModel
         }
 
         if (!$currentPage) {
-            $currentPage = Paginator::resolveCurrentPage();
+            $currentPage = Paginator::resolveCurrentPage($pageName);
         }
 
         if (!$perPage) {
@@ -81,7 +81,8 @@ class Builder extends BuilderModel
         $this->query->forPage($currentPage, $perPage);
 
         return new LengthAwarePaginator($this->get($columns), $total, $perPage, $currentPage, [
-            'path' => Paginator::resolveCurrentPath()
+            'path' => Paginator::resolveCurrentPath(),
+            'pageName' => $pageName
         ]);
     }
 

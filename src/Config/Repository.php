@@ -169,6 +169,16 @@ class Repository implements ArrayAccess, ConfigContract
     }
 
     /**
+     * Get all of the configuration items for the application.
+     *
+     * @return array
+     */
+    public function all()
+    {
+        return $this->items;
+    }
+
+    /**
      * Load the configuration group for the key.
      *
      * @param  string  $group
