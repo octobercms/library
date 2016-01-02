@@ -17,7 +17,7 @@ class ConfigServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bindShared('config', function($app){
+        $this->app->singleton('config', function($app){
             return new Repository($this->getConfigLoader(), $app['env']);
         });
     }
@@ -28,7 +28,7 @@ class ConfigServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return array('config');
+        return ['config'];
     }
 
     /**

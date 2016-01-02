@@ -131,7 +131,7 @@ if (!function_exists('trace_sql'))
                     $bindings[$i] = "'$binding'";
             }
 
-            $query = str_replace(array('%', '?'), array('%%', '%s'), $query);
+            $query = str_replace(['%', '?'], ['%%', '%s'], $query);
             $query = vsprintf($query, $bindings);
 
             traceLog($query);
@@ -218,7 +218,7 @@ if (!function_exists('trans'))
      * @param  string  $locale
      * @return string
      */
-    function trans($id = null, $parameters = array(), $domain = 'messages', $locale = null)
+    function trans($id = null, $parameters = [], $domain = 'messages', $locale = null)
     {
         return app('translator')->trans($id, $parameters, $domain, $locale);
     }

@@ -31,7 +31,7 @@ class FlashBag extends MessageBag
      */
     protected $session;
 
-    public function __construct(array $messages = array())
+    public function __construct(array $messages = [])
     {
         parent::__construct($messages);
 

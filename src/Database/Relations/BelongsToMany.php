@@ -100,7 +100,7 @@ class BelongsToMany extends BelongsToManyBase
      * @param  bool   $exists
      * @return \Illuminate\Database\Eloquent\Relations\Pivot
      */
-    public function newPivot(array $attributes = array(), $exists = false)
+    public function newPivot(array $attributes = [], $exists = false)
     {
         /*
          * October looks to the relationship parent

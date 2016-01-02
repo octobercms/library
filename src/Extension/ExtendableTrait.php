@@ -130,7 +130,7 @@ trait ExtendableTrait
     /**
      * Programatically adds a method to the extendable class
      * @param string   $dynamicName
-     * @param callable $methodName
+     * @param callable $method
      * @param string   $extension
      */
     public function addDynamicMethod($dynamicName, $method, $extension = null)
@@ -140,7 +140,7 @@ trait ExtendableTrait
             $extension &&
             ($extensionObj = $this->getClassExtension($extension))
         ) {
-            $method = array($extensionObj, $method);
+            $method = [$extensionObj, $method];
         }
 
         $this->extensionData['dynamicMethods'][$dynamicName] = $method;
@@ -351,7 +351,7 @@ trait ExtendableTrait
             $extensionObject = $this->extensionData['extensions'][$extension];
 
             if (method_exists($extension, $name) && is_callable([$extension, $name])) {
-                return call_user_func_array(array($extensionObject, $name), $params);
+                return call_user_func_array([$extensionObject, $name], $params);
             }
         }
 

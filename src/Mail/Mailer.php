@@ -19,7 +19,7 @@ class Mailer extends MailerBase
      *
      * @param  string|array $view
      * @param  array $data
-     * @param  Closure|string $callback
+     * @param  \Closure|string $callback
      * @return mixed
      */
     public function send($view, array $data, $callback)
@@ -90,7 +90,7 @@ class Mailer extends MailerBase
      * @param  array $recipients
      * @param  string|array $view
      * @param  array $data
-     * @param  Closure|string $callback
+     * @param  \Closure|string $callback
      * @param  boolean $queue
      * @return void
      */
@@ -116,7 +116,7 @@ class Mailer extends MailerBase
     /**
      * Helper for raw() method, send a new message when only a raw text part.
      * @param  array $recipients
-     * @param  string  $text
+     * @param  string  $view
      * @param  mixed   $callback
      * @param  boolean $queue
      * @return int

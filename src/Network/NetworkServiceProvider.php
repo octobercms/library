@@ -27,6 +27,6 @@ class NetworkServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return array('network.http');
+        return ['network.http'];
     }
 }
