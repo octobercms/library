@@ -21,7 +21,7 @@
         "kriswallsmith/assetic": "~1.1",
         "linkorb/jsmin-php": "~1.0",
         "oyejorge/less.php": "~1.7",
-        "symfony/yaml": "2.5.*",
+        "symfony/yaml": "2.8.*|3.0.*",
         "twig/twig": "~1.13",
         "league/csv": "~7.0"
     },
@@ -35,8 +35,8 @@
         "illuminate/events": "5.1.*",
         "illuminate/view": "5.1.*",
         "swiftmailer/swiftmailer": "~5.1",
-        "symfony/config": "2.5.*",
-        "symfony/translation": "2.5.*"
+        "symfony/config": "2.8.*|3.0.*",
+        "symfony/translation": "2.8.*|3.0.*"
     },
     "replace": {
         "october/auth": "self.version",

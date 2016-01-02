@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Html;
 
+use Illuminate\Session\Store as Session;
 use Illuminate\Routing\UrlGenerator as UrlGeneratorBase;
 
 /**
