@@ -2,6 +2,7 @@
 
 use Config;
 use October\Rain\Exception\ApplicationException;
+use Exception;
 
 /**
  * Used when user authentication fails. Implements a softer error message.

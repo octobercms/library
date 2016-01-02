@@ -307,17 +307,17 @@ class ExceptionBase extends Exception
 
     /**
      * Prepares a function or method argument list for display in HTML or text format
-     * @param array arguments A list of the function or method arguments
+     * @param array $arguments A list of the function or method arguments
      * @return string
      */
     protected function formatStackArguments($arguments)
     {
-        $argsArray = array();
+        $argsArray = [];
         foreach ($arguments as $argument) {
             $arg = null;
 
             if (is_array($argument)) {
-                $items = array();
+                $items = [];
 
                 foreach ($argument as $index => $obj) {
                     if (is_array($obj)) {

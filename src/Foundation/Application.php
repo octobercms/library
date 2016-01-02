@@ -74,7 +74,7 @@ class Application extends ApplicationBase
     /**
      * Set the plugins path for the application.
      *
-     * @param  string  $basePath
+     * @param  string $path
      * @return $this
      */
     public function setPluginsPath($path)
@@ -97,7 +97,7 @@ class Application extends ApplicationBase
     /**
      * Set the themes path for the application.
      *
-     * @param  string  $basePath
+     * @param  string $path
      * @return $this
      */
     public function setThemesPath($path)
