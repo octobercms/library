@@ -85,7 +85,7 @@ trait AttachOneOrMany
     /**
      * Create a new instance of this related model.
      */
-    public function create(array $attributes, $sessionKey = null)
+    public function create(array $attributes = [], $sessionKey = null)
     {
         // Delete siblings for single attachments
         if ($sessionKey === null && $this instanceof AttachOne)
