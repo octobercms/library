@@ -22,7 +22,10 @@
     "autoload": {
         "psr-4": {
             "October\\Rain\\Html\\": ""
-        }
+        },
+        "files": [
+            "helpers.php"
+        ]
     },
     "extra": {
         "branch-alias": {

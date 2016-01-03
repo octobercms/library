@@ -53,7 +53,8 @@
     },
     "autoload": {
         "files": [
-            "src/Support/helpers.php"
+            "src/Support/helpers.php",
+            "src/Html/helpers.php"
         ],
         "psr-4": {
             "October\\Rain\\": "src/"
