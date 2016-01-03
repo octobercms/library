@@ -337,7 +337,7 @@ class Model extends EloquentModel
     /**
      * Set the jsonable attributes for the model.
      *
-     * @param  array  $fillable
+     * @param  array  $jsonable
      * @return $this
      */
     public function jsonable(array $jsonable)
@@ -510,7 +510,7 @@ class Model extends EloquentModel
 
     /**
      * Returns default relation arguments for a given type.
-     * @param string $name Relation type
+     * @param string $type Relation type
      * @return array
      */
     protected function getRelationDefaults($type)
@@ -1050,6 +1050,7 @@ class Model extends EloquentModel
 
     /**
      * Save the model to the database. Is used by {@link save()} and {@link forceSave()}.
+     * @param array $options
      * @return bool
      */
     protected function saveInternal($options = [])
@@ -1100,6 +1101,8 @@ class Model extends EloquentModel
 
     /**
      * Save the model to the database.
+     * @param array $options
+     * @param null $sessionKey
      * @return bool
      */
     public function save(array $options = null, $sessionKey = null)
@@ -1110,6 +1113,8 @@ class Model extends EloquentModel
 
     /**
      * Save the model and all of its relationships.
+     * @param array $options
+     * @param null $sessionKey
      * @return bool
      */
     public function push($options = null, $sessionKey = null)
@@ -1148,6 +1153,8 @@ class Model extends EloquentModel
     /**
      * Pushes the first level of relations even if the parent
      * model has no changes.
+     * @param array $options
+     * @param string $sessionKey
      * @return bool
      */
     public function alwaysPush($options = null, $sessionKey)
