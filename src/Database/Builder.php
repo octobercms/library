@@ -16,6 +16,28 @@ class Builder extends BuilderModel
 {
 
     /**
+     * Get an array with the values of a given column.
+     *
+     * @param  string  $column
+     * @param  string|null  $key
+     * @return \Illuminate\Support\Collection
+     */
+    public function lists($column, $key = null)
+    {
+        $results = $this->query->lists($column, $key);
+
+        if ($this->model->hasGetMutator($column)) {
+            foreach ($results as $key => &$value) {
+                $fill = [$column => $value];
+
+                $value = $this->model->newFromBuilder($fill)->$column;
+            }
+        }
+
+        return $results;
+    }
+
+    /**
      * Perform a search on this query for term found in columns.
      * @param  string $term  Search query
      * @param  array $columns Table columns to search
@@ -115,7 +137,6 @@ class Builder extends BuilderModel
             'path' => Paginator::resolveCurrentPath()
         ]);
     }
-
 
     /**
      * Dynamically handle calls into the query instance.
