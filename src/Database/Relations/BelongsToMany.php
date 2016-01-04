@@ -21,7 +21,7 @@ class BelongsToMany extends BelongsToManyBase
     /**
      * Create a new instance of this related model with deferred binding support.
      */
-    public function create(array $attributes, array $pivotData = [], $sessionKey = null)
+    public function create(array $attributes = [], array $pivotData = [], $sessionKey = null)
     {
         $model = $this->related->create($attributes);
 
