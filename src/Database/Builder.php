@@ -45,8 +45,9 @@ class Builder extends BuilderModel
      */
     public function searchWhere($term, $columns = [], $boolean = 'and')
     {
-        if (!is_array($columns))
+        if (!is_array($columns)) {
             $columns = [$columns];
+        }
 
         $words = explode(' ', $term);
         $this->where(function($query) use ($columns, $words) {

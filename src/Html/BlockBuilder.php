@@ -42,8 +42,9 @@ class BlockBuilder
     {
         $this->endBlock($append);
 
-        if (!count($this->blockStack) && (ob_get_length() > 0))
+        if (!count($this->blockStack) && (ob_get_length() > 0)) {
             ob_end_clean();
+        }
     }
 
     /**
@@ -52,8 +53,9 @@ class BlockBuilder
      */
     public function endBlock($append = false)
     {
-        if (!count($this->blockStack))
+        if (!count($this->blockStack)) {
             throw new Exception('Invalid block nesting');
+        }
 
         $name = array_pop($this->blockStack);
         $contents = ob_get_clean();
@@ -87,8 +89,9 @@ class BlockBuilder
      */
     public function append($name, $content)
     {
-        if (!isset($this->blocks[$name]))
+        if (!isset($this->blocks[$name])) {
             $this->blocks[$name] = null;
+        }
 
         $this->blocks[$name] .= $content;
     }
@@ -104,8 +107,9 @@ class BlockBuilder
         $result = $this->get($name, $default);
         unset($this->blocks[$name]);
 
-        if (is_string($result))
+        if (is_string($result)) {
             $result = trim($result);
+        }
 
         return $result;
     }
@@ -118,8 +122,9 @@ class BlockBuilder
      */
     public function get($name, $default = null)
     {
-        if (!isset($this->blocks[$name]))
+        if (!isset($this->blocks[$name])) {
             return  $default;
+        }
 
         $result = $this->blocks[$name];
         return $result;
@@ -131,7 +136,7 @@ class BlockBuilder
      */
     public function reset()
     {
-        $this->blockStacks = [];
+        $this->blockStack = [];
         $this->blocks = [];
     }
 

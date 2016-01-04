@@ -27,7 +27,7 @@ trait HasOneOrMany
      * @param  array  $models
      * @return array
      */
-    public function saveMany(array $models, $sessionKey = null)
+    public function saveMany($models, $sessionKey = null)
     {
         foreach ($models as $model) {
             $this->save($model, $sessionKey);
