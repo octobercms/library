@@ -106,6 +106,15 @@ trait ExtendableTrait
     }
 
     /**
+     * Clear the list of extended classes so they will be re-extended.
+     * @return void
+     */
+    public static function clearExtendedClasses()
+    {
+        self::$extendableCallbacks = [];
+    }
+
+    /**
      * Extracts the available methods from a behavior and adds it to the
      * list of callable methods.
      * @param  string $extensionName

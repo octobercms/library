@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database;
 
+use October\Rain\Database\Model;
 use Illuminate\Database\DatabaseServiceProvider as DatabaseServiceProviderBase;
 
 class DatabaseServiceProvider extends DatabaseServiceProviderBase
@@ -22,6 +23,8 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
     public function register()
     {
         parent::register();
+
+        Model::clearExtendedClasses();
 
         $this->app->singleton('db.dongle', function($app)
         {
