@@ -3,7 +3,7 @@
 use Input;
 use Closure;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Collection as CollectionBase;
 use October\Rain\Database\Relations\BelongsTo;
 use October\Rain\Database\Relations\BelongsToMany;
 use October\Rain\Database\Relations\HasMany;
@@ -390,6 +390,17 @@ class Model extends EloquentModel
         $grammar = $conn->getQueryGrammar();
 
         return new QueryBuilder($conn, $grammar, $conn->getPostProcessor());
+    }
+
+    /**
+     * Create a new Model Collection instance.
+     *
+     * @param  array  $models
+     * @return \October\Rain\Database\Collection
+     */
+    public function newCollection(array $models = [])
+    {
+        return new Collection($models);
     }
 
     //
@@ -998,7 +1009,7 @@ class Model extends EloquentModel
                     $relationObj->sync($value);
                 });
 
-                $relationCollection = $value instanceof Collection
+                $relationCollection = $value instanceof CollectionBase
                     ? $value
                     : $relationModel->whereIn($relationModel->getKeyName(), $value)->get();
 
@@ -1130,7 +1141,7 @@ class Model extends EloquentModel
                 continue;
             }
 
-            if ($models instanceof Collection) {
+            if ($models instanceof CollectionBase) {
                 $models = $models->all();
             }
             elseif ($models instanceof EloquentModel) {
