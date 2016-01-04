@@ -1206,7 +1206,7 @@ class Model extends EloquentModel
         if (($attr = $this->fireEvent('model.beforeGetAttribute', [$key], true)) !== null)
             return $attr;
 
-        $attr = parent::getAttribute($key);
+        $attr = parent::getAttributeValue($key);
 
         if ($attr === null &&
             $this->hasRelation($key) &&
