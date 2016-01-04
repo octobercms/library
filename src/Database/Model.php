@@ -1206,13 +1206,17 @@ class Model extends EloquentModel
         if (($attr = $this->fireEvent('model.beforeGetAttribute', [$key], true)) !== null)
             return $attr;
 
-        $attr = parent::getAttributeValue($key);
+        if (array_key_exists($key, $this->attributes) || $this->hasGetMutator($key)) {
+            $attr = $this->getAttributeValue($key);
+        }
 
-        if ($attr === null &&
-            $this->hasRelation($key) &&
-            !array_key_exists($key, $this->relations)
-        ) {
-            $attr = $this->relations[$key] = $this->$key()->getResults();
+        if ($attr === null && $this->hasRelation($key)) {
+            if (isset($this->relations[$key])) {
+                $attr = $this->relations[$key];
+            }
+            else {
+                $attr = $this->relations[$key] = $this->$key()->getResults();
+            }
         }
 
         // After Event
