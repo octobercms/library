@@ -17,7 +17,7 @@ class ConfigServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('config', function($app){
+        $this->app->singleton('config', function($app) {
             return new Repository($this->getConfigLoader(), $app['env']);
         });
     }
@@ -34,7 +34,7 @@ class ConfigServiceProvider extends ServiceProvider
     /**
      * Get the configuration loader instance.
      *
-     * @return \Illuminate\Config\LoaderInterface
+     * @return \October\Rain\Config\LoaderInterface
      */
     public function getConfigLoader()
     {

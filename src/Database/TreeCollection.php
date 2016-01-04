@@ -17,7 +17,7 @@ class TreeCollection extends CollectionBase
      * Converts a flat collection of nested set models to an set where
      * children is eager loaded
      * @param bool $removeOrphans Remove nodes that exist without their parents.
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function toNested($removeOrphans = true)
     {

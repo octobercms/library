@@ -85,21 +85,24 @@ trait AttachOneOrMany
     /**
      * Create a new instance of this related model.
      */
-    public function create(array $attributes, $sessionKey = null)
+    public function create(array $attributes = [], $sessionKey = null)
     {
         // Delete siblings for single attachments
-        if ($sessionKey === null && $this instanceof AttachOne)
+        if ($sessionKey === null && $this instanceof AttachOne) {
             $this->delete();
+        }
 
-        if (!array_key_exists('is_public', $attributes))
+        if (!array_key_exists('is_public', $attributes)) {
             $attributes = array_merge(['is_public' => $this->isPublic()], $attributes);
+        }
 
         $attributes['field'] = $this->relationName;
 
         $model = parent::create($attributes);
 
-        if ($sessionKey !== null)
+        if ($sessionKey !== null) {
             $this->add($model, $sessionKey);
+        }
 
         return $model;
     }
@@ -109,14 +112,16 @@ trait AttachOneOrMany
      */
     public function add(Model $model, $sessionKey = null)
     {
-        if (!array_key_exists('is_public', $model->attributes))
+        if (!array_key_exists('is_public', $model->attributes)) {
             $model->is_public = $this->isPublic();
+        }
 
         if ($sessionKey === null) {
 
             // Delete siblings for single attachments
-            if ($this instanceof AttachOne)
+            if ($this instanceof AttachOne) {
                 $this->delete();
+            }
 
             $model->setAttribute($this->getPlainForeignKey(), $this->parent->getKey());
             $model->setAttribute($this->getPlainMorphType(), $this->morphClass);

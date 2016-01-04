@@ -18,7 +18,7 @@ class Repository implements ArrayAccess, ConfigContract
     /**
      * The loader implementation.
      *
-     * @var \Illuminate\Config\LoaderInterface
+     * @var \October\Rain\Config\LoaderInterface
      */
     protected $loader;
 
@@ -53,7 +53,7 @@ class Repository implements ArrayAccess, ConfigContract
     /**
      * Create a new configuration repository.
      *
-     * @param  \Illuminate\Config\LoaderInterface  $loader
+     * @param  \October\Rain\Config\LoaderInterface  $loader
      * @param  string  $environment
      * @return void
      */
@@ -290,7 +290,7 @@ class Repository implements ArrayAccess, ConfigContract
     /**
      * Register a package for cascading configuration.
      *
-     * @param  string  $package
+     * @param  string  $namespace
      * @param  string  $hint
      * @param  string  $namespace
      * @return void
@@ -365,7 +365,7 @@ class Repository implements ArrayAccess, ConfigContract
     /**
      * Get the loader implementation.
      *
-     * @return \Illuminate\Config\LoaderInterface
+     * @return \October\Rain\Config\LoaderInterface
      */
     public function getLoader()
     {
@@ -375,7 +375,7 @@ class Repository implements ArrayAccess, ConfigContract
     /**
      * Set the loader implementation.
      *
-     * @param  \Illuminate\Config\LoaderInterface  $loader
+     * @param  \October\Rain\Config\LoaderInterface  $loader
      * @return void
      */
     public function setLoader(LoaderInterface $loader)

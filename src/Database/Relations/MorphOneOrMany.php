@@ -24,7 +24,7 @@ trait MorphOneOrMany
     /**
      * Create a new instance of this related model with deferred binding support.
      */
-    public function create(array $attributes, $sessionKey = null)
+    public function create(array $attributes = [], $sessionKey = null)
     {
         $model = parent::create($attributes);
 
