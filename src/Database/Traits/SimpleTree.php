@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database\Traits;
 
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
+use October\Rain\Database\Collection;
 use October\Rain\Database\TreeCollection;
 
 /**
@@ -63,7 +63,7 @@ trait SimpleTree
 
     /**
      * Returns all nodes and children.
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getAll()
     {
@@ -78,7 +78,7 @@ trait SimpleTree
 
     /**
      * Returns a list of all root nodes, eager loaded.
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getAllRoot()
     {
@@ -87,7 +87,7 @@ trait SimpleTree
 
     /**
      * Get a list of children records, with their children (recursive)
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getAllChildren()
     {
@@ -108,7 +108,7 @@ trait SimpleTree
 
     /**
      * Returns direct child nodes.
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getChildren()
     {
