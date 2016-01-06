@@ -113,6 +113,7 @@ class Zip extends ZipArchive
      * Includes a source to the Zip
      * @param mixed $source
      * @param array $options
+     * @return self
      */
     public function add($source, $options = [])
     {
@@ -172,12 +173,12 @@ class Zip extends ZipArchive
 
         $this->folderPrefix = $prefix . $name . '/';
 
-        if (is_string($source))
+        if (is_string($source)) {
             $this->add($source);
-
-        elseif (is_callable($source))
+        }
+        elseif (is_callable($source)) {
             $source($this);
-
+        }
         elseif (is_array($source)) {
             foreach ($source as $_source) {
                 $this->add($_source);
@@ -197,8 +198,9 @@ class Zip extends ZipArchive
     public function remove($source)
     {
         if (is_array($source)) {
-            foreach ($source as $_source)
+            foreach ($source as $_source) {
                 $this->remove($_source);
+            }
         }
 
         if (!is_string($source))
@@ -209,8 +211,9 @@ class Zip extends ZipArchive
 
         for ($i = 0; $i < $this->numFiles; $i++) {
             $stats = $this->statIndex($i);
-            if (substr($stats['name'], 0, strlen($source)) == $source)
+            if (substr($stats['name'], 0, strlen($source)) == $source) {
                 $this->deleteIndex($i);
+            }
         }
 
         return $this;
