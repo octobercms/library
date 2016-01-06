@@ -266,8 +266,7 @@ class Filesystem extends FilesystemBase
     /**
      * Modify file/folder permissions
      * @param  string $path
-     * @param  octal $fileMask
-     * @param  octal $directoryMask
+     * @param  octal $mask
      * @return void
      */
     public function chmod($path, $mask = null)

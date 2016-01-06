@@ -11,12 +11,12 @@ class Parser
     const CHAR_CLOSE = '}';
 
     /**
-     * @var October\Rain\Parse\Syntax\FieldParser Field parser instance.
+     * @var \October\Rain\Parse\Syntax\FieldParser Field parser instance.
      */
     protected $fieldParser;
 
     /**
-     * @var October\Rain\Parse\Template Text parser instance.
+     * @var \October\Rain\Parse\Template Text parser instance.
      */
     protected $textParser;
 

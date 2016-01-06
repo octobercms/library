@@ -1,7 +1,6 @@
 <?php namespace October\Rain\Config;
 
 use Closure;
-use Illuminate\Filesystem\Filesystem;
 use ArrayAccess;
 use Illuminate\Contracts\Config\Repository as ConfigContract;
 

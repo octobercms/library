@@ -1,7 +1,5 @@
 <?php namespace October\Rain\Extension;
 
-use Closure;
-
 /**
  * Extension class
  *
