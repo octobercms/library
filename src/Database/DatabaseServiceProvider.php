@@ -26,8 +26,7 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
 
         Model::clearExtendedClasses();
 
-        $this->app->singleton('db.dongle', function($app)
-        {
+        $this->app->singleton('db.dongle', function($app) {
             return new Dongle($this->getDefaultDatabaseDriver(), $app['db']);
         });
     }

@@ -457,7 +457,7 @@ trait NestedTree
 
     /**
      * Returns all nodes and children.
-     * @return October\Rain\Database\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getAll($columns = ['*'])
     {
@@ -493,7 +493,7 @@ trait NestedTree
 
     /**
      * Returns a list of all root nodes, without eager loading
-     * @return October\Rain\Database\Collection
+     * @return\October\Rain\Database\Collection
      */
     public function getAllRoot()
     {
@@ -508,7 +508,7 @@ trait NestedTree
 
     /**
      * Returns a list of all root nodes, with children eager loaded.
-     * @return October\Rain\Database\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getEagerRoot()
     {
@@ -526,7 +526,7 @@ trait NestedTree
 
     /**
      * The direct parent node.
-     * @return October\Rain\Database\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getParent()
     {
@@ -535,7 +535,7 @@ trait NestedTree
 
     /**
      * Returns all parents up the tree.
-     * @return October\Rain\Database\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getParents()
     {
@@ -544,7 +544,7 @@ trait NestedTree
 
     /**
      * Returns all parents up the tree and self.
-     * @return October\Rain\Database\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getParentsAndSelf()
     {
@@ -553,7 +553,7 @@ trait NestedTree
 
     /**
      * Returns direct child nodes.
-     * @return October\Rain\Database\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getChildren()
     {
@@ -562,7 +562,7 @@ trait NestedTree
 
     /**
      * Returns direct child nodes, with ->children eager loaded.
-     * @return October\Rain\Database\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getEagerChildren()
     {
@@ -571,7 +571,7 @@ trait NestedTree
 
     /**
      * Returns all children down the tree.
-     * @return October\Rain\Database\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getAllChildren()
     {
@@ -580,7 +580,7 @@ trait NestedTree
 
     /**
      * Returns all children and self.
-     * @return October\Rain\Database\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getAllChildrenAndSelf()
     {
@@ -589,7 +589,7 @@ trait NestedTree
 
     /**
      * Return all siblings (parent's children).
-     * @return October\Rain\Database\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getSiblings()
     {
@@ -598,7 +598,7 @@ trait NestedTree
 
     /**
      * Return all siblings and self.
-     * @return October\Rain\Database\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getSiblingsAndSelf()
     {
@@ -607,7 +607,7 @@ trait NestedTree
 
     /**
      * Returns all final nodes without children.
-     * @return October\Rain\Database\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getLeaves()
     {
