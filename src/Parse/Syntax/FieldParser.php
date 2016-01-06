@@ -322,7 +322,7 @@ class FieldParser
      *  2 - The default text inside the tag (optional), eg: Foobar
      * 
      * @param  string $string
-     * @param  string $tag
+     * @param  string $tags
      * @return array
      */
     protected function processTagsRegex($string, $tags)

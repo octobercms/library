@@ -33,6 +33,7 @@
         "illuminate/support": "5.1.*",
         "illuminate/mail": "5.1.*",
         "illuminate/events": "5.1.*",
+        "illuminate/pagination": "5.1.*",
         "illuminate/routing": "5.1.*",
         "illuminate/view": "5.1.*",
         "swiftmailer/swiftmailer": "~5.1",

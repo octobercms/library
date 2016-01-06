@@ -27,7 +27,7 @@ class Ini
 
     /**
      * Parses supplied INI file contents in to a PHP array.
-     * @param $fileName File to read contents and parse.
+     * @param string $fileName File to read contents and parse.
      * @return array
      */
     public function parseFile($fileName)
