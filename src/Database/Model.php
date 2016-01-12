@@ -650,9 +650,13 @@ class Model extends EloquentModel
         }
 
         /*
-         * Count related records
+         * Count "helper" relation
          */
         if ($count = $args['count']) {
+            if ($relation instanceof BelongsToMany) {
+                $relation->countMode = true;
+            }
+
             $relation->selectRaw($relation->getForeignKey() . ', count(*) as count')
                 ->groupBy($relation->getForeignKey());
         }
