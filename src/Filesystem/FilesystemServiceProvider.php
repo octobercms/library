@@ -30,7 +30,6 @@ class FilesystemServiceProvider extends FilesystemServiceProviderBase
             $files->pathSymbols = [
                 '$' => base_path() . $config->get('cms.pluginsDir', '/plugins'),
                 '~' => base_path(),
-                '@' => base_path(), // @deprecated
             ];
             return $files;
         });
