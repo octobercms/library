@@ -31,7 +31,7 @@ class HasManyThrough extends HasManyThroughBase
     {
         $uses = class_uses_recursive(get_class($this->parent));
 
-        return in_array('October\Rain\Database\Traits\SoftDeleting', $uses) ||
+        return in_array('October\Rain\Database\Traits\SoftDelete', $uses) ||
             in_array('Illuminate\Database\Eloquent\SoftDeletes', $uses);
     }
 }

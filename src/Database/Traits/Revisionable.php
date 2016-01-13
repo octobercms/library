@@ -98,7 +98,7 @@ trait Revisionable
         }
 
         $softDeletes = in_array(
-            'October\Rain\Database\Traits\SoftDeleting',
+            'October\Rain\Database\Traits\SoftDelete',
             class_uses_recursive(get_class($this))
         );
 

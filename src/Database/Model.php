@@ -469,6 +469,30 @@ class Model extends EloquentModel
     }
 
     /**
+     * Returns relationship details for all relations defined on this model.
+     * @return array
+     */
+    public function getRelationDefinitions()
+    {
+        $result = [];
+
+        foreach (static::$relationTypes as $type) {
+            $result[$type] = $this->{$type};
+
+            /*
+             * Apply default values for the relation type
+             */
+            if ($defaults = $this->getRelationDefaults($type)) {
+                foreach ($result[$type] as $relation => $options) {
+                    $result[$type][$relation] = (array) $options + $defaults;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Returns a relationship type based on a supplied name.
      * @param string $name Relation name
      * @return string
@@ -1168,6 +1192,49 @@ class Model extends EloquentModel
     public function alwaysPush($options = null, $sessionKey)
     {
         return $this->push(['always' => true] + (array) $options, $sessionKey);
+    }
+
+    //
+    // Deleting
+    //
+
+    /**
+     * Perform the actual delete query on this model instance.
+     * @return void
+     */
+    protected function performDeleteOnModel()
+    {
+        $this->performDeleteOnRelations();
+        $this->setKeysForSaveQuery($this->newQueryWithoutScopes())->delete();
+    }
+
+    /**
+     * Locates relations with delete flag and cascades the delete event.
+     * @return void
+     */
+    protected function performDeleteOnRelations()
+    {
+        $definitions = $this->getRelationDefinitions();
+        foreach ($definitions as $type => $relations) {
+            foreach ($relations as $name => $options) {
+                if (!array_get($options, 'delete', false)) {
+                    continue;
+                }
+
+                if (!$relation = $this->{$name}) {
+                    continue;
+                }
+
+                if ($relation instanceof EloquentModel) {
+                    $relation->forceDelete();
+                }
+                elseif ($relation instanceof CollectionBase) {
+                    $relation->each(function($model) {
+                        $model->forceDelete();
+                    });
+                }
+            }
+        }
     }
 
     //
