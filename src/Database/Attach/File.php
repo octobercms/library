@@ -703,7 +703,9 @@ class File extends Model
                 'mp4',
                 'mpeg',
                 'webm',
-                'mkv'
+                'mkv',
+                'rar',
+                'zip',
             ];
         }
     }
