@@ -100,7 +100,7 @@ class Resizer
      * @param array $offset The offset of the crop = [ left, top ]
      * @return Self
      */
-    public function resize($newWidth, $newHeight, $mode = 'auto', $offset = [])
+    public function resize($newWidth, $newHeight, $mode = 'auto', $offset = [], $sharpen = false)
     {
         /*
          * Sanitize input
@@ -135,6 +135,21 @@ class Resizer
 
         // Create the new image
         imagecopyresampled($imageResized, $this->image, 0, 0, 0, 0, $optimalWidth, $optimalHeight, $this->width, $this->height);
+
+        // Sharpen image
+        if ($sharpen !== false) {
+            // normalize sharpening value
+            $convolutionKernelCenter = exp((80-floatval($sharpen))/18)+9;
+            $matrix = array(
+                array(-1, -1, -1),
+                array(-1, $convolutionKernelCenter, -1),
+                array(-1, -1, -1),
+            );
+        
+            $divisor = array_sum(array_map('array_sum', $matrix));
+            $offset = 0;
+            imageconvolution($imageResized, $matrix, $divisor, $offset);
+        }
 
         $this->imageResized = $imageResized;
 
