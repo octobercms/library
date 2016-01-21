@@ -2,7 +2,6 @@
 
 use October\Rain\Translation\Translator;
 use October\Rain\Translation\FileLoader;
-use Illuminate\Filesystem\Filesystem;
 use Illuminate\Contracts\Foundation\Application;
 
 class LoadTranslation

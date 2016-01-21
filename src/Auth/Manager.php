@@ -3,7 +3,6 @@
 use Cookie;
 use Session;
 use Request;
-use October\Rain\Auth\AuthException;
 
 /**
  * Authentication manager
@@ -51,7 +50,7 @@ class Manager
 
     /**
      * Extend the query used for finding the user.
-     * @param October\Rain\Database\Builder $query
+     * @param \October\Rain\Database\Builder $query
      * @return void
      */
     public function extendUserQuery($query)
