@@ -19,8 +19,7 @@ class TranslationServiceProvider extends ServiceProvider
     {
         $this->registerLoader();
 
-        $this->app->singleton('translator', function($app)
-        {
+        $this->app->singleton('translator', function($app) {
             $loader = $app['translation.loader'];
 
             // When registering the translator component, we'll need to set the default

@@ -25,6 +25,9 @@ class AuthException extends ApplicationException
     /**
      * Softens a detailed authentication error with a more vague message when
      * the application is not in debug mode. This is for security reasons.
+     * @param string $message Error message.
+     * @param int $code Error code.
+     * @param Exception $previous Previous exception.
      */
     public function __construct($message = "", $code = 0, Exception $previous = null)
     {

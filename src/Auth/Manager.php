@@ -3,7 +3,6 @@
 use Cookie;
 use Session;
 use Request;
-use October\Rain\Auth\AuthException;
 
 /**
  * Authentication manager
@@ -39,7 +38,7 @@ class Manager
     // User
     //
 
-    /*
+    /**
      * Creates a new instance of the user model
      */
     public function createUserModel()
@@ -51,7 +50,7 @@ class Manager
 
     /**
      * Extend the query used for finding the user.
-     * @param October\Rain\Database\Builder $query
+     * @param \October\Rain\Database\Builder $query
      * @return void
      */
     public function extendUserQuery($query)
@@ -64,7 +63,7 @@ class Manager
      *
      * @param array $credentials
      * @param bool $activate
-     * @return User
+     * @return Models\User
      */
     public function register(array $credentials, $activate = false)
     {
@@ -171,7 +170,9 @@ class Manager
             if (!$user->checkHashValue($credential, $value)) {
                 // Incorrect password
                 if ($credential == 'password') {
-                    throw new AuthException(sprintf('A user was found to match all plain text credentials however hashed credential "%s" did not match.', $credential));
+                    throw new AuthException(sprintf(
+                        'A user was found to match all plain text credentials however hashed credential "%s" did not match.', $credential
+                    ));
                 }
 
                 // User not found
@@ -388,7 +389,9 @@ class Manager
     {
         if ($this->requireActivation && !$user->is_activated) {
             $login = $user->getLogin();
-            throw new AuthException(sprintf('Cannot login user "%s" as they are not activated.', $login));
+            throw new AuthException(sprintf(
+                'Cannot login user "%s" as they are not activated.', $login
+            ));
         }
 
         $this->user = $user;
