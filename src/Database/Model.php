@@ -657,7 +657,7 @@ class Model extends EloquentModel
                 $relation->countMode = true;
             }
 
-            $relation->selectRaw($relation->getForeignKey() . ', count(*) as count')
+            $relation->select($relation->getForeignKey(), new Expression(' count(*) as count'))
                 ->groupBy($relation->getForeignKey());
         }
 
