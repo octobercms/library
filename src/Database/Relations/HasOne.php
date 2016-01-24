@@ -75,7 +75,7 @@ class HasOne extends HasOneBase
             $this->parent->bindEventOnce('model.afterSave', function() use ($instance){
                 $this->update([$this->getPlainForeignKey() => null]);
                 $instance->setAttribute($this->getPlainForeignKey(), $this->getParentKey());
-                $instance->save();
+                $instance->save(['timestamps' => false]);
             });
         }
     }
