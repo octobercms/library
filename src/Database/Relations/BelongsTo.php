@@ -54,8 +54,7 @@ class BelongsTo extends BelongsToBase
     {
         // Nulling the relationship
         if (!$value) {
-            $this->parent->setAttribute($this->getForeignKey(), null);
-            $this->parent->setRelation($this->relationName, null);
+            $this->dissociate();
             return;
         }
 
