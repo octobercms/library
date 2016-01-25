@@ -395,7 +395,7 @@ class File extends Model
             'mode'      => 'auto',
             'offset'    => [0, 0],
             'quality'   => 95,
-            'extension' => 'jpg',
+            'extension' => 'auto',
         ];
 
         if (!is_array($overrideOptions)) {
