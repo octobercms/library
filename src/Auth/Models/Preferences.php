@@ -26,7 +26,7 @@ class Preferences extends Model
     protected $jsonable = ['value'];
 
     /**
-     * @var October\Rain\Auth\Models\User A user who owns the preferences
+     * @var \October\Rain\Auth\Models\User A user who owns the preferences
      */
     public $userContext;
 

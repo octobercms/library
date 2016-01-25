@@ -38,7 +38,7 @@ class Manager
     // User
     //
 
-    /*
+    /**
      * Creates a new instance of the user model
      */
     public function createUserModel()
@@ -63,7 +63,7 @@ class Manager
      *
      * @param array $credentials
      * @param bool $activate
-     * @return User
+     * @return Models\User
      */
     public function register(array $credentials, $activate = false)
     {
