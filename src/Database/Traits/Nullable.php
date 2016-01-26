@@ -31,13 +31,15 @@ trait Nullable
     public function nullableBeforeSave()
     {
         foreach ($this->nullable as $field) {
-            if (empty($this->$field)) {
+            if (empty($this->{$field})) {
                 if ($this->exists) {
                     $this->attributes[$field] = null;
-                } else {
-                    unset ($this->attributes[$field]);
+                }
+                else {
+                    unset($this->attributes[$field]);
                 }
             }
         }
     }
+
 }
