@@ -2,7 +2,7 @@
 
 use Exception;
 
-trait Nullable 
+trait Nullable
 {
 
     /**
@@ -32,7 +32,11 @@ trait Nullable
     {
         foreach ($this->nullable as $field) {
             if (empty($this->$field)) {
-                $this->$field = null;
+                if ($this->exists) {
+                    $this->attributes[$field] = null;
+                } else {
+                    unset ($this->attributes[$field]);
+                }
             }
         }
     }
