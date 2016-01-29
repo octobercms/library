@@ -2,6 +2,7 @@
 
 use Hash;
 use October\Rain\Database\Model;
+use October\Rain\Auth\UserInterface;
 use October\Rain\Auth\Hash\HasherBase;
 use InvalidArgumentException;
 use RuntimeException;
@@ -11,7 +12,7 @@ use DateTime;
 /**
  * User model
  */
-class User extends Model
+class User extends Model implements UserInterface
 {
     use \October\Rain\Database\Traits\Hashable;
     use \October\Rain\Database\Traits\Purgeable;

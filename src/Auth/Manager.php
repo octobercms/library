@@ -85,8 +85,9 @@ class Manager
 
     /**
      * Sets the user
+     * @param UserInterface $user
      */
-    public function setUser($user)
+    public function setUser(UserInterface $user)
     {
         $this->user = $user;
     }
@@ -383,8 +384,10 @@ class Manager
     /**
      * Logs in the given user and sets properties
      * in the session.
+     * @param UserInterface $user
+     * @param bool $remember
      */
-    public function login($user, $remember = true)
+    public function login(UserInterface $user, $remember = true)
     {
         if ($this->requireActivation && !$user->is_activated) {
             $login = $user->getLogin();
