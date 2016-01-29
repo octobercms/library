@@ -220,7 +220,7 @@ class Resizer
                 break;
 
             default:
-                throw new Exception('Invalid image type. Accepted types: jpg, gif, png.');
+                throw new Exception(sprintf('Invalid image type: %s. Accepted types: jpg, gif, png.', $extension));
                 break;
         }
 
@@ -242,7 +242,10 @@ class Resizer
             case 'image/jpeg': $img = @imagecreatefromjpeg($filePath); break;
             case 'image/gif':  $img = @imagecreatefromgif($filePath);  break;
             case 'image/png':  $img = @imagecreatefrompng($filePath);  break;
-            default:           $img = false;                           break;
+
+            default:
+                throw new Exception(sprintf('Invalid mime type: %s. Accepted types: image/jpeg, image/gif, image/png.', $mime));
+                break;
         }
 
         return $img;

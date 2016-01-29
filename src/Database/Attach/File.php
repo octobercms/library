@@ -434,9 +434,14 @@ class File extends Model
          * Generate thumbnail
          */
         else {
-            $resizer = Resizer::open($filePath);
-            $resizer->resize($width, $height, $options['mode'], $options['offset']);
-            $resizer->save($thumbPath, $options['quality']);
+            try {
+                $resizer = Resizer::open($filePath);
+                $resizer->resize($width, $height, $options['mode'], $options['offset']);
+                $resizer->save($thumbPath, $options['quality']);
+            }
+            catch (Exception $ex) {
+                BrokenImage::copyTo($thumbPath);
+            }
         }
 
         FileHelper::chmod($thumbPath);
@@ -461,9 +466,14 @@ class File extends Model
          */
         else {
             $this->copyStorageToLocal($this->getDiskPath(), $tempFile);
-            $resizer = Resizer::open($tempFile);
-            $resizer->resize($width, $height, $options['mode'], $options['offset']);
-            $resizer->save($tempThumb, $options['quality']);
+            try {
+                $resizer = Resizer::open($tempFile);
+                $resizer->resize($width, $height, $options['mode'], $options['offset']);
+                $resizer->save($tempThumb, $options['quality']);
+            }
+            catch (Exception $ex) {
+                BrokenImage::copyTo($tempThumb);
+            }
             FileHelper::delete($tempFile);
         }
 
