@@ -63,8 +63,9 @@ class Throttle extends Model
      */
     public function getLoginAttempts()
     {
-        if ($this->attempts > 0 and $this->last_attempt_at)
+        if ($this->attempts > 0 and $this->last_attempt_at) {
             $this->clearLoginAttemptsIfAllowed();
+        }
 
         return $this->attempts;
     }
@@ -185,11 +186,15 @@ class Throttle extends Model
     public function check()
     {
         if ($this->is_banned) {
-            throw new AuthException(sprintf('User [%s] has been banned.', $this->user->getLogin()));
+            throw new AuthException(sprintf(
+                'User [%s] has been banned.', $this->user->getLogin()
+            ));
         }
 
         if ($this->checkSuspended()) {
-            throw new AuthException(sprintf('User [%s] has been suspended.', $this->user->getLogin()));
+            throw new AuthException(sprintf(
+                'User [%s] has been suspended.', $this->user->getLogin()
+            ));
         }
 
         return true;

@@ -37,7 +37,7 @@ class Preferences extends Model
      */
     public function resolveUser($user)
     {
-        $user = Manager::getUser();
+        $user = Manager::instance()->getUser();
         if (!$user) {
             throw new AuthException('User is not logged in');
         }

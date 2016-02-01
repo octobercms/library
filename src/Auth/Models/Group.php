@@ -182,7 +182,9 @@ class Group extends Model
         $permissions = json_decode($permissions, true);
         foreach ($permissions as $permission => $value) {
             if (!in_array($value = (int)$value, $this->allowedPermissionsValues)) {
-                throw new InvalidArgumentException(sprintf('Invalid value "%s" for permission "%s" given.', $value, $permission));
+                throw new InvalidArgumentException(sprintf(
+                    'Invalid value "%s" for permission "%s" given.', $value, $permission
+                ));
             }
 
             if ($value === 0) {

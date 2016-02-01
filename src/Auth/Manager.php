@@ -170,7 +170,9 @@ class Manager
             if (!$user->checkHashValue($credential, $value)) {
                 // Incorrect password
                 if ($credential == 'password') {
-                    throw new AuthException(sprintf('A user was found to match all plain text credentials however hashed credential "%s" did not match.', $credential));
+                    throw new AuthException(sprintf(
+                        'A user was found to match all plain text credentials however hashed credential "%s" did not match.', $credential
+                    ));
                 }
 
                 // User not found
@@ -387,7 +389,9 @@ class Manager
     {
         if ($this->requireActivation && !$user->is_activated) {
             $login = $user->getLogin();
-            throw new AuthException(sprintf('Cannot login user "%s" as they are not activated.', $login));
+            throw new AuthException(sprintf(
+                'Cannot login user "%s" as they are not activated.', $login
+            ));
         }
 
         $this->user = $user;
