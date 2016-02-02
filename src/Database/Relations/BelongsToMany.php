@@ -103,10 +103,12 @@ class BelongsToMany extends BelongsToManyBase
      * Get a paginator for the "select" statement. Complies with October Rain.
      *
      * @param  int    $perPage
+     * @param  int    $currentPage
      * @param  array  $columns
-     * @return \Illuminate\Pagination\Paginator
+     * @param  string  $pageName
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate($perPage = null, $currentPage = null, $columns = ['*'])
+    public function paginate($perPage = 15, $currentPage = null, $columns = ['*'], $pageName = 'page')
     {
         $this->query->addSelect($this->getSelectColumns($columns));
 
