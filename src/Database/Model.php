@@ -1224,6 +1224,9 @@ class Model extends EloquentModel
     {
         $definitions = $this->getRelationDefinitions();
         foreach ($definitions as $type => $relations) {
+            /*
+             * Hard 'delete' definintion
+             */
             foreach ($relations as $name => $options) {
                 if (!array_get($options, 'delete', false)) {
                     continue;
@@ -1240,6 +1243,15 @@ class Model extends EloquentModel
                     $relation->each(function($model) {
                         $model->forceDelete();
                     });
+                }
+            }
+
+            /*
+             * Belongs-To-Many should clean up after itself always
+             */
+            if ($type == 'belongsToMany') {
+                foreach ($relations as $name => $options) {
+                    $this->{$name}()->detach();
                 }
             }
         }
