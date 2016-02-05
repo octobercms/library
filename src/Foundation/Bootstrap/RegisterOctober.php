@@ -1,7 +1,5 @@
 <?php namespace October\Rain\Foundation\Bootstrap;
 
-use Illuminate\Http\Request;
-use October\Rain\Support\ClassLoader;
 use Illuminate\Contracts\Foundation\Application;
 
 class RegisterOctober

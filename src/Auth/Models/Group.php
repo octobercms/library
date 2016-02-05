@@ -145,8 +145,9 @@ class Group extends Model
             }
         }
 
-        if ($all === false)
+        if ($all === false) {
             return false;
+        }
 
         return true;
     }
@@ -180,11 +181,15 @@ class Group extends Model
     {
         $permissions = json_decode($permissions, true);
         foreach ($permissions as $permission => $value) {
-            if (!in_array($value = (int)$value, $this->allowedPermissionsValues))
-                throw new InvalidArgumentException(sprintf('Invalid value "%s" for permission "%s" given.', $value, $permission));
+            if (!in_array($value = (int)$value, $this->allowedPermissionsValues)) {
+                throw new InvalidArgumentException(sprintf(
+                    'Invalid value "%s" for permission "%s" given.', $value, $permission
+                ));
+            }
 
-            if ($value === 0)
+            if ($value === 0) {
                 unset($permissions[$permission]);
+            }
         }
 
         $this->attributes['permissions'] = (!empty($permissions)) ? json_encode($permissions) : '';

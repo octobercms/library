@@ -50,7 +50,6 @@ class ExceptionBase extends Exception
      * @param string $message Error message.
      * @param int $code Error code.
      * @param Exception $previous Previous exception.
-     * @return void
      */
     public function __construct($message = "", $code = 0, Exception $previous = null)
     {

@@ -35,10 +35,10 @@
         "illuminate/events": "5.1.*",
         "illuminate/pagination": "5.1.*",
         "illuminate/routing": "5.1.*",
+        "illuminate/validation": "5.1.*",
         "illuminate/view": "5.1.*",
         "swiftmailer/swiftmailer": "~5.1",
-        "symfony/config": "2.8.*|3.0.*",
-        "symfony/translation": "2.8.*|3.0.*"
+        "symfony/config": "2.7.*"
     },
     "replace": {
         "october/auth": "self.version",

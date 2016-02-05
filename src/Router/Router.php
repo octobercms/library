@@ -235,7 +235,7 @@ class Router
 
     /**
      * Clears all existing routes
-     * @return Self
+     * @return self
      */
     public function reset()
     {
