@@ -83,6 +83,7 @@ class Builder extends BuilderModel
      * @param  int  $perPage
      * @param  int  $currentPage
      * @param  array  $columns
+     * @param  string $pageName
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function paginate($perPage = 15, $currentPage = null, $columns = ['*'], $pageName = 'page')
