@@ -1,0 +1,16 @@
+checks:
+  php:
+    code_rating: true
+    duplication: true
+
+build:
+  tests:
+    override:
+      -
+    command: 'phpunit -c tests/phpunit.xml --coverage-clover=./build/logs/clover.xml'
+        coverage:
+          file: './build/logs/clover.xml'
+          format: 'php-clover'
+
+sudo: false
+language: php
