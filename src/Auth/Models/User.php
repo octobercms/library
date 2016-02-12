@@ -7,6 +7,7 @@ use InvalidArgumentException;
 use RuntimeException;
 use Exception;
 use DateTime;
+use Event;
 
 /**
  * User model
@@ -143,6 +144,7 @@ class User extends Model
 
     public function afterLogin()
     {
+        Event::fire('backend.auth.afterLogin', [$this]);
         $this->last_login = $this->freshTimestamp();
         $this->forceSave();
     }
