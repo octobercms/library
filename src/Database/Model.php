@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database;
 
+use Db;
 use Input;
 use Closure;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
@@ -657,7 +658,7 @@ class Model extends EloquentModel
                 $relation->countMode = true;
             }
 
-            $relation->selectRaw($relation->getForeignKey() . ', count(*) as count')
+            $relation->select($relation->getForeignKey(), Db::raw('count(*) as count'))
                 ->groupBy($relation->getForeignKey());
         }
 
