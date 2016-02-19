@@ -10,7 +10,7 @@ class UrlServiceProvider extends ServiceProvider
      */
     protected $defer = false;
 
-    /**
+    /**se
      * Register the service provider.
      * @return void
      */
@@ -35,6 +35,8 @@ class UrlServiceProvider extends ServiceProvider
             case 'force':
                 $appUrl = $this->app['config']->get('app.url');
                 $this->app['url']->forceRootUrl($appUrl);
+                $schema = starts_with($appUrl, 'http://') ? 'http' : 'https';
+                $this->app['url']->forceSchema($schema);
                 break;
             case 'insecure':
                 $this->app['url']->forceSchema('http');
