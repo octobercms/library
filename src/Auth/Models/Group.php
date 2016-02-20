@@ -186,7 +186,6 @@ class Group extends Model
                     'Invalid value "%s" for permission "%s" given.', $value, $permission
                 ));
             }
-            }
 
             if ($value === 0) {
                 unset($permissions[$permission]);
