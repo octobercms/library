@@ -77,15 +77,6 @@ trait SimpleTree
     }
 
     /**
-     * Returns a list of all root nodes, eager loaded.
-     * @return \October\Rain\Database\Collection
-     */
-    public function getAllRoot()
-    {
-        return $this->get()->toNested();
-    }
-
-    /**
      * Get a list of children records, with their children (recursive)
      * @return \October\Rain\Database\Collection
      */
@@ -122,6 +113,29 @@ trait SimpleTree
     public function getChildCount()
     {
         return count($this->getAllChildren());
+    }
+
+    //
+    // Scopes
+    //
+
+    /**
+     * Returns a list of all root nodes, without eager loading.
+     * @return \October\Rain\Database\Collection
+     */
+    public function scopeGetAllRoot($query)
+    {
+        return $query->where('parent_id', null)->get();
+    }
+
+    /**
+     * Non chaining scope, returns an eager loaded hierarchy tree. Children are
+     * eager loaded inside the $model->children relation.
+     * @return Collection A collection
+     */
+    public function scopeGetNested($query)
+    {
+        return $query->get()->toNested();
     }
 
     /**

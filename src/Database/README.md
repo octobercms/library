@@ -23,3 +23,20 @@ Models can define validation rules Laravel's built-in Validator class.
 Deferred bindings allow you to postpone model relationships until the master record commits the changes. This is particularly useful if you need to prepare some models (such as file uploads) and associate them to another model that doesn't exist yet.
 
 [See Deferred binding documentation](https://github.com/octobercms/docs/blob/master/database-deferred-binding.md)
+
+### Tree Trait Interface
+
+Traits do not support interfaces so this cannot be executed in the code. These are the expectations of a "Tree" trait, currently: NestedTree, SimpleTree.
+
+These methods should support query builder chaining, i.e defined as scopes:
+
+- getAllRoot(): Return just the root nodes.
+- getNested(): Return all nodes with the `children` relationship eager loaded.
+- listsNested(): Returns a key, value array of records, where values are indented based on their level.
+
+These methods do not require chaining:
+
+- getChildren(): Return the child nodes below this one.
+- getChildCount(): Return the number of children below this node.
+
+All models must return a collection of the base class `October\Rain\Database\TreeCollection`.

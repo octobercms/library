@@ -407,6 +407,21 @@ trait NestedTree
     }
 
     /**
+     * Returns a list of all root nodes, without eager loading
+     * @return\October\Rain\Database\Collection
+     */
+    public function scopeGetAllRoot($query)
+    {
+        return $query
+            ->where(function($query){
+                $query->whereNull($this->getParentColumnName());
+                $query->orWhere($this->getParentColumnName(), 0);
+            })
+            ->get()
+        ;
+    }
+
+    /**
      * Non chaining scope, returns an eager loaded hierarchy tree. Children are
      * eager loaded inside the $model->children relation.
      * @return Collection A collection
@@ -489,21 +504,6 @@ trait NestedTree
                 return $this;
             }
         }
-    }
-
-    /**
-     * Returns a list of all root nodes, without eager loading
-     * @return\October\Rain\Database\Collection
-     */
-    public function getAllRoot()
-    {
-        return $this->newQuery()
-            ->where(function($query){
-                $query->whereNull($this->getParentColumnName());
-                $query->orWhere($this->getParentColumnName(), 0);
-            })
-            ->get()
-        ;
     }
 
     /**
