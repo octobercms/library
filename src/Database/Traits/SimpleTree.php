@@ -125,7 +125,7 @@ trait SimpleTree
      */
     public function scopeGetAllRoot($query)
     {
-        return $query->where('parent_id', null)->get();
+        return $query->where($this->getParentColumnName(), null)->get();
     }
 
     /**
