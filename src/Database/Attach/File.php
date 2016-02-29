@@ -665,60 +665,6 @@ class File extends Model
     }
 
     /**
-     * Returns the default common file extensions.
-     * @return array
-     */
-    public static function getDefaultFileTypes($isImage = false)
-    {
-        if ($isImage) {
-            return [
-                'jpg',
-                'jpeg',
-                'bmp',
-                'png',
-                'gif',
-                'svg'
-            ];
-        }
-        else {
-            return [
-                'jpg',
-                'jpeg',
-                'bmp',
-                'png',
-                'gif',
-                'svg',
-                'js',
-                'map',
-                'ico',
-                'css',
-                'less',
-                'scss',
-                'pdf',
-                'swf',
-                'txt',
-                'xml',
-                'xls',
-                'eot',
-                'woff',
-                'woff2',
-                'ttf',
-                'flv',
-                'wmv',
-                'mp3',
-                'ogg',
-                'wav',
-                'avi',
-                'mov',
-                'mp4',
-                'mpeg',
-                'webm',
-                'mkv'
-            ];
-        }
-    }
-
-    /**
      * Define the internal storage path, override this method to define.
      */
     public function getStorageDirectory()
