@@ -1,6 +1,6 @@
 <?php namespace October\Rain\Parse\Syntax;
 
-use October\Rain\Parse\Template as TextParser;
+use October\Rain\Parse\Bracket as TextParser;
 
 /**
  * Dynamic Syntax parser
@@ -16,7 +16,7 @@ class Parser
     protected $fieldParser;
 
     /**
-     * @var \October\Rain\Parse\Template Text parser instance.
+     * @var \October\Rain\Parse\Bracket Text parser instance.
      */
     protected $textParser;
 
