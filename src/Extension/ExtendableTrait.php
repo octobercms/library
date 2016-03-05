@@ -400,9 +400,13 @@ trait ExtendableTrait
 
             $class = new ReflectionClass($className);
             $defaultProperties = $class->getDefaultProperties();
-            if (array_key_exists('implement', $defaultProperties)) {
-                $implement = $defaultProperties['implement'];
-
+            if (
+                array_key_exists('implement', $defaultProperties) &&
+                ($implement = $defaultProperties['implement'])
+            ) {
+                /*
+                 * Apply extensions
+                 */
                 if (is_string($implement)) {
                     $uses = explode(',', $implement);
                 }
