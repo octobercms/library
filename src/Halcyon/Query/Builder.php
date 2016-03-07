@@ -134,11 +134,21 @@ class Builder
 
         $result = $this->processor->processUpdate($this, $values);
 
+        $oldName = $oldExtension = null;
+
+        if ($this->model->isDirty('fileName')) {
+            list($oldName, $oldExtension) = $this->model->getFileNameParts(
+                $this->model->getOriginal('fileName')
+            );
+        }
+
         return $this->theme->update(
             $this->model->getObjectTypeDirName(),
             $name,
             $extension,
-            $result
+            $result,
+            $oldName,
+            $oldExtension
         );
     }
 

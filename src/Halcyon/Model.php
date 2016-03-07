@@ -487,6 +487,18 @@ class Model extends Extendable implements ArrayAccess
     }
 
     /**
+     * Get the model's original attribute values.
+     *
+     * @param  string|null  $key
+     * @param  mixed  $default
+     * @return array
+     */
+    public function getOriginal($key = null, $default = null)
+    {
+        return Arr::get($this->original, $key, $default);
+    }
+
+    /**
      * Sync the original attributes with the current.
      *
      * @return $this
@@ -695,6 +707,8 @@ class Model extends Extendable implements ArrayAccess
             if ($this->fireModelEvent('updating') === false) {
                 return false;
             }
+
+            $dirty = $this->getDirty();
 
             if (count($dirty) > 0) {
                 $numRows = $query->update($dirty);

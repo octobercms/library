@@ -159,8 +159,12 @@ class FileTheme implements ThemeInterface
      * @param  array   $content
      * @return int
      */
-    public function update($dirName, $fileName, $extension, $content)
+    public function update($dirName, $fileName, $extension, $content, $oldFileName = null, $oldExtension = null)
     {
+        if ($oldFileName !== null && $oldFileName !== $fileName) {
+            $this->delete($dirName, $oldFileName, $oldExtension);
+        }
+
         try {
             $path = $this->makeFilePath($dirName, $fileName, $extension);
 

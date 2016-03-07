@@ -92,9 +92,14 @@ ESC;
         $page = HalcyonTestPage::find('testfile2');
         $this->assertEquals('Try this', $page->title);
 
-        // @todo Test rename file
+        $page->fileName = 'renamedtest1';
+        $page->save();
 
-        @unlink($targetFile);
+        $newTargetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/renamedtest1.htm';
+        $this->assertFileNotExists($targetFile);
+        $this->assertFileExists($newTargetFile);
+
+        @unlink($newTargetFile);
     }
 
     public function testDeletePage()
