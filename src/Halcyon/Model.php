@@ -85,6 +85,13 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     public $exists = false;
 
     /**
+     * The cache manager instance.
+     *
+     * @var \Illuminate\Cache\CacheManager
+     */
+    protected static $cache;
+
+    /**
      * The theme resolver instance.
      *
      * @var \October\Rain\Halcyon\Theme\ThemeResolverInterface
@@ -116,6 +123,30 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         $this->syncOriginal();
 
         $this->fill($attributes);
+    }
+
+    /**
+     * Helper for {{ page.id }} or {{ layout.id }} twig vars
+     * Returns a semi-unique string for this object.
+     * @return string
+     */
+    public function getIdAttribute()
+    {
+        return str_replace('/', '-', $this->getBaseFileNameAttribute());
+    }
+
+    /**
+     * Returns the file name without the extension.
+     * @return string
+     */
+    public function getBaseFileNameAttribute()
+    {
+        $pos = strrpos($this->fileName, '.');
+        if ($pos === false) {
+            return $this->fileName;
+        }
+
+        return substr($this->fileName, 0, $pos);
     }
 
     /**
@@ -948,6 +979,37 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     public static function unsetEventDispatcher()
     {
         static::$dispatcher = null;
+    }
+
+    /**
+     * Get the cache manager instance.
+     *
+     * @return \Illuminate\Cache\CacheManager
+     */
+    public static function getCacheManager()
+    {
+        return static::$cache;
+    }
+
+    /**
+     * Set the cache manager instance.
+     *
+     * @param  \Illuminate\Cache\CacheManager  $cache
+     * @return void
+     */
+    public static function setCacheManager($cache)
+    {
+        static::$cache = $cache;
+    }
+
+    /**
+     * Unset the cache manager for models.
+     *
+     * @return void
+     */
+    public static function unsetCacheManager()
+    {
+        static::$cache = null;
     }
 
     /**

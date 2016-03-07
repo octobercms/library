@@ -17,6 +17,8 @@ class HalcyonServiceProvider extends ServiceProvider
         Model::setThemeResolver($this->app['halcyon']);
 
         Model::setEventDispatcher($this->app['events']);
+
+        Model::setCacheManager($this->app['cache']);
     }
 
     /**

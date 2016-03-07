@@ -10,6 +10,7 @@ interface ThemeInterface
      *
      * @param  string  $dirName
      * @param  string  $fileName
+     * @param  string  $extension
      * @return mixed
      */
     public function selectOne($dirName, $fileName, $extension);
@@ -18,6 +19,7 @@ interface ThemeInterface
      * Returns all templates.
      *
      * @param  string  $dirName
+     * @param  array   $options
      * @return array
      */
     public function select($dirName, array $options = []);
@@ -27,6 +29,7 @@ interface ThemeInterface
      *
      * @param  string  $dirName
      * @param  string  $fileName
+     * @param  string  $extension
      * @param  array   $content
      * @return bool
      */
@@ -37,6 +40,7 @@ interface ThemeInterface
      *
      * @param  string  $dirName
      * @param  string  $fileName
+     * @param  string  $extension
      * @param  array   $content
      * @return int
      */
@@ -47,8 +51,19 @@ interface ThemeInterface
      *
      * @param  string  $dirName
      * @param  string  $fileName
+     * @param  string  $extension
      * @return int
      */
     public function delete($dirName, $fileName, $extension);
+
+    /**
+     * Return the last modified date of an object
+     *
+     * @param  string  $dirName
+     * @param  string  $fileName
+     * @param  string  $extension
+     * @return int
+     */
+    public function lastModified($dirName, $fileName, $extension);
 
 }

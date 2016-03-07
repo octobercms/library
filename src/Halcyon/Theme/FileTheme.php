@@ -9,7 +9,7 @@ use Exception;
 /**
  * File based theme.
  */
-class FileTheme implements ThemeInterface
+class FileTheme extends Theme implements ThemeInterface
 {
 
     /**
@@ -18,13 +18,6 @@ class FileTheme implements ThemeInterface
      * @var string
      */
     protected $basePath;
-
-    /**
-     * The query post processor implementation.
-     *
-     * @var \October\Rain\Halcyon\Processors\Processor
-     */
-    protected $postProcessor;
 
     /**
      * The filesystem instance.
@@ -196,18 +189,40 @@ class FileTheme implements ThemeInterface
     }
 
     /**
-     * Get the query post processor used by the connection.
+     * Run a delete statement against the theme.
      *
-     * @return \October\Rain\Halcyon\Processors\Processor
+     * @param  string  $dirName
+     * @param  string  $fileName
+     * @return int
      */
-    public function getPostProcessor()
+    public function lastModified($dirName, $fileName, $extension)
     {
-        return $this->postProcessor;
+        try {
+            $path = $this->makeFilePath($dirName, $fileName, $extension);
+
+            return $this->files->lastModified($path);
+        }
+        catch (Exception $ex) {
+            return null;
+        }
     }
 
+    /**
+     * Helper to make file path.
+     * @return string
+     */
     protected function makeFilePath($dirName, $fileName, $extension)
     {
         return $this->basePath . '/' . $dirName . '/' .$fileName . '.' . $extension;
+    }
+
+    /**
+     * Generate a cache key unique to this theme.
+     * @return string
+     */
+    public function makeCacheKey($name)
+    {
+        return crc32($this->basePath . $name);
     }
 
 }

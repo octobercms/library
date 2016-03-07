@@ -50,6 +50,7 @@ The following attributes are reserved and have baked in functionality:
 - **settings**: Stores the template INI settings.
 - **markup**: Stores the template HTML markup.
 - **code**: Stores the template PHP code (optional).
+- **mtime**: Last modified time.
 
 Now we are free to create a new page:
 
