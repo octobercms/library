@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Halcyon\Query;
+<?php namespace October\Rain\Halcyon;
 
 use October\Rain\Halcyon\Model;
 use October\Rain\Halcyon\Theme\ThemeInterface;

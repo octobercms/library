@@ -1,6 +1,6 @@
 <?php namespace October\Rain\Halcyon\Processors;
 
-use October\Rain\Halcyon\Query\Builder;
+use October\Rain\Halcyon\Builder;
 
 class Processor
 {
@@ -8,7 +8,7 @@ class Processor
     /**
      * Process the results of a singular "select" query.
      *
-     * @param  \October\Rain\Halcyon\Query\Builder  $query
+     * @param  \October\Rain\Halcyon\Builder  $query
      * @param  array  $result
      * @param  string $fileName
      * @return array
@@ -32,7 +32,7 @@ class Processor
     /**
      * Process the results of a "select" query.
      *
-     * @param  \October\Rain\Halcyon\Query\Builder  $query
+     * @param  \October\Rain\Halcyon\Builder  $query
      * @param  array  $results
      * @return array
      */
@@ -50,7 +50,7 @@ class Processor
     /**
      * Process the data in to an insert action.
      *
-     * @param  \October\Rain\Halcyon\Query\Builder  $query
+     * @param  \October\Rain\Halcyon\Builder  $query
      * @param  array  $data
      * @return string
      */
@@ -66,7 +66,7 @@ class Processor
     /**
      * Process the data in to an update action.
      *
-     * @param  \October\Rain\Halcyon\Query\Builder  $query
+     * @param  \October\Rain\Halcyon\Builder  $query
      * @param  array  $data
      * @return string
      */

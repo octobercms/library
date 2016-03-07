@@ -3,7 +3,7 @@
 use October\Rain\Support\Arr;
 use October\Rain\Support\Str;
 use October\Rain\Extension\Extendable;
-use October\Rain\Halcyon\Query\Builder;
+use October\Rain\Halcyon\Builder;
 use October\Rain\Halcyon\Theme\ThemeResolverInterface as Resolver;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Support\Arrayable;
@@ -264,7 +264,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Begin querying the model.
      *
-     * @return \October\Rain\Halcyon\Query\Builder
+     * @return \October\Rain\Halcyon\Builder
      */
     public static function query()
     {
@@ -275,7 +275,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      * Begin querying the model on a given theme.
      *
      * @param  string|null  $theme
-     * @return \October\Rain\Halcyon\Query\Builder
+     * @return \October\Rain\Halcyon\Builder
      */
     public static function on($theme = null)
     {
@@ -730,7 +730,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Perform a model update operation.
      *
-     * @param  October\Rain\Halcyon\Query\Builder  $query
+     * @param  October\Rain\Halcyon\Builder  $query
      * @param  array  $options
      * @return bool
      */
@@ -761,7 +761,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Perform a model insert operation.
      *
-     * @param  October\Rain\Halcyon\Query\Builder  $query
+     * @param  October\Rain\Halcyon\Builder  $query
      * @param  array  $options
      * @return bool
      */
