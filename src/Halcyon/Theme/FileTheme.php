@@ -61,7 +61,7 @@ class FileTheme implements ThemeInterface
         try {
             $path = $this->makeFilePath($dirName, $fileName, $extension);
 
-            return $this->files->get($path);
+            return [$this->files->lastModified($path), $this->files->get($path)];
         }
         catch (Exception $ex) {
             return null;
@@ -79,6 +79,7 @@ class FileTheme implements ThemeInterface
         extract(array_merge([
             'extensions' => null,
             'fnMatch'    => null,
+            'orders'     => null, // @todo
             'limit'      => null, // @todo
             'offset'     => null  // @todo
         ], $options));
@@ -122,8 +123,8 @@ class FileTheme implements ThemeInterface
                 continue;
             }
 
-            $filePath = $this->basePath . '/' . $dirName . '/' .$fileName;
-            $result[$filePath] = $this->files->get($filePath);
+            $path = $this->basePath . '/' . $dirName . '/' .$fileName;
+            $result[$fileName] = [$this->files->lastModified($path), $this->files->get($path)];
 
             $it->next();
         }

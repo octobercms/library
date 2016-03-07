@@ -28,13 +28,15 @@ class HalcyonModelTest extends TestCase
         $pages = HalcyonTestPage::all();
 
         $this->assertCount(2, $pages);
+        $this->assertContains('about.htm', $pages->lists('fileName'));
+        $this->assertContains('home.htm', $pages->lists('fileName'));
     }
 
     public function testFindPage()
     {
         $page = HalcyonTestPage::find('home');
         $this->assertNotNull($page);
-        $this->assertCount(5, $page->attributes);
+        $this->assertCount(6, $page->attributes);
         $this->assertArrayHasKey('fileName', $page->attributes);
         $this->assertEquals('home.htm', $page->fileName);
         $this->assertCount(1, $page->settings);
@@ -46,7 +48,7 @@ class HalcyonModelTest extends TestCase
     {
         $page = HalcyonTestPage::on('theme2')->find('home');
         $this->assertNotNull($page);
-        $this->assertCount(5, $page->attributes);
+        $this->assertCount(6, $page->attributes);
         $this->assertArrayHasKey('fileName', $page->attributes);
         $this->assertEquals('home.htm', $page->fileName);
         $this->assertCount(1, $page->settings);

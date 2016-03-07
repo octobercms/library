@@ -56,11 +56,11 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      * @var array List of attribute names which are not considered "settings".
      */
     protected $purgeable = [
-        'id',
         'fileName',
         'components',
         'content',
         'markup',
+        'mtime',
         'code'
     ];
 

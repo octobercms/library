@@ -16,15 +16,16 @@ class Processor
     public function processSelectOne(Builder $query, $result, $fileName)
     {
         if ($result !== null) {
-            $processed = SectionProcessor::parse($result);
+            list($mtime, $content) = $result;
+            $processed = SectionProcessor::parse($content);
             $result = [
-                'content' => $result,
+                'mtime' => $mtime,
+                'fileName' => $fileName,
+                'content' => $content,
                 'markup' => $processed['markup'],
                 'code' => $processed['code']
             ] + $processed['settings'];
         }
-
-        $result['fileName'] = $fileName;
 
         return $result;
     }
