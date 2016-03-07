@@ -13,9 +13,12 @@ class HalcyonModelTest extends TestCase
     {
         include_once __DIR__.'/../fixtures/halcyon/models/Page.php';
 
-        $theme = new FileTheme(__DIR__.'/../fixtures/halcyon/themes/theme1', new Filesystem);
-        $this->resolver = new ThemeResolver(['theme1' => $theme]);
+        $theme1 = new FileTheme(__DIR__.'/../fixtures/halcyon/themes/theme1', new Filesystem);
+        $this->resolver = new ThemeResolver(['theme1' => $theme1]);
         $this->resolver->setDefaultTheme('theme1');
+
+        $theme2 = new FileTheme(__DIR__.'/../fixtures/halcyon/themes/theme2', new Filesystem);
+        $this->resolver->addTheme('theme2', $theme2);
 
         Model::setThemeResolver($this->resolver);
     }
@@ -37,6 +40,18 @@ class HalcyonModelTest extends TestCase
         $this->assertCount(1, $page->settings);
         $this->assertEquals('<h1>World!</h1>', $page->markup);
         $this->assertEquals('hello', $page->title);
+    }
+
+    public function testOtherThemePage()
+    {
+        $page = HalcyonTestPage::on('theme2')->find('home');
+        $this->assertNotNull($page);
+        $this->assertCount(5, $page->attributes);
+        $this->assertArrayHasKey('fileName', $page->attributes);
+        $this->assertEquals('home.htm', $page->fileName);
+        $this->assertCount(1, $page->settings);
+        $this->assertEquals('<h1>Chisel</h1>', $page->markup);
+        $this->assertEquals('Cold', $page->title);
     }
 
     public function testCreatePage()
@@ -117,5 +132,4 @@ ESC;
 
         $this->assertFileNotExists($targetFile);
     }
-
 }

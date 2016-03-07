@@ -9,9 +9,9 @@ class ThemeResolverTest extends TestCase
 
     public function testConstruct()
     {
-        $theme1 = new FileTheme('themes/', 'theme1', new Filesystem);
-        $theme2 = new FileTheme('themes/', 'theme2', new Filesystem);
-        $theme3 = new FileTheme('themes/', 'theme3', new Filesystem);
+        $theme1 = new FileTheme('themes/theme1', new Filesystem);
+        $theme2 = new FileTheme('themes/theme2', new Filesystem);
+        $theme3 = new FileTheme('themes/theme3', new Filesystem);
 
         $resolver = new ThemeResolver([
             'theme1' => $theme1,

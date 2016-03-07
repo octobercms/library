@@ -5,8 +5,10 @@ use October\Rain\Support\Str;
 use October\Rain\Extension\Extendable;
 use October\Rain\Halcyon\Query\Builder;
 use October\Rain\Halcyon\Theme\ThemeResolverInterface as Resolver;
+use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Events\Dispatcher;
+use JsonSerializable;
 use ArrayAccess;
 use Exception;
 
@@ -16,7 +18,7 @@ use Exception;
  * @package october\parse
  * @author Alexey Bobkov, Samuel Georges
  */
-class Model extends Extendable implements ArrayAccess
+class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
 {
     /**
      * @var string The data source for the model, a directory path.
@@ -228,7 +230,7 @@ class Model extends Extendable implements ArrayAccess
      *
      * @param  array  $items
      * @param  string|null  $theme
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Halcyon\Collection
      */
     public static function hydrate(array $items, $theme = null)
     {
@@ -254,6 +256,33 @@ class Model extends Extendable implements ArrayAccess
         $model->save();
 
         return $model;
+    }
+
+    /**
+     * Begin querying the model.
+     *
+     * @return \October\Rain\Halcyon\Query\Builder
+     */
+    public static function query()
+    {
+        return (new static)->newQuery();
+    }
+
+    /**
+     * Begin querying the model on a given theme.
+     *
+     * @param  string|null  $theme
+     * @return \October\Rain\Halcyon\Query\Builder
+     */
+    public static function on($theme = null)
+    {
+        // First we will just create a fresh instance of this model, and then we can
+        // set the theme on the model so that it is be used for the queries.
+        $instance = new static;
+
+        $instance->setTheme($theme);
+
+        return $instance->newQuery();
     }
 
     /**
@@ -788,7 +817,7 @@ class Model extends Extendable implements ArrayAccess
      * Create a new Eloquent Collection instance.
      *
      * @param  array  $models
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Halcyon\Collection
      */
     public function newCollection(array $models = [])
     {
