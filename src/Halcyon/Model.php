@@ -6,6 +6,7 @@ use October\Rain\Extension\Extendable;
 use October\Rain\Halcyon\Query\Builder;
 use October\Rain\Halcyon\Theme\ThemeResolverInterface as Resolver;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Events\Dispatcher;
 use ArrayAccess;
 use Exception;
 
