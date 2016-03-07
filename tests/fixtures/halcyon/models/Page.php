@@ -13,8 +13,7 @@ class HalcyonTestPage extends Model
     protected $fillable = [
         'title',
         'markup',
-        'code',
-        'fileName'
+        'code'
     ];
 
     /**

@@ -1,6 +1,6 @@
 ## Rain Halcyon
 
-Halcyon is the cousin of Eloquent, a file based ORM. The goal of this library is to create a solution for file based object storage that shares the same API as database stored models.
+Halcyon is a file based ORM, and the cousin of Eloquent. The goal of this library is to create a solution for file based object storage that shares the same API as database stored models.
 
 ### Registering themes
 
@@ -32,7 +32,6 @@ Inherit the `October\Rain\Halcyon\Model` to create a new model:
          * @var array The attributes that are mass assignable.
          */
         protected $fillable = [
-            'fileName', // Required
             'markup',
             'title',
         ];
