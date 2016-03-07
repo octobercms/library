@@ -81,21 +81,37 @@ class Builder
     {
         $useCache = $this->cacheMinutes !== null;
 
-        $result = $useCache
-            ? $this->findCached($fileName)
-            : $this->findFresh($fileName);
+        if ($useCache) {
+            if (!$this->cacheKey) {
+                $this->cacheKey = $this->makeCacheKey($fileName);
+            }
 
-        if ($useCache && $this->isCacheBusted($fileName, array_get($result, 'mtime'))) {
-            $result = $this->findCached($fileName, true);
+            if (array_key_exists($this->cacheKey, MemoryCache::$cache)) {
+                return MemoryCache::$cache[$this->cacheKey];
+            }
+
+            $result = $this->findCached($fileName);
+
+            if ($this->isCacheBusted($fileName, array_get($result, 'mtime'))) {
+                $result = $this->findCached($fileName, true);
+            }
+        }
+        else {
+            $result = $this->findFresh($fileName);
         }
 
         if ($result === null) {
             return null;
         }
 
-        $results = $this->getModels([$result]);
+        $models = $this->getModels([$result]);
+        $model = count($models) > 0 ? reset($models) : null;
 
-        return count($results) > 0 ? reset($results) : null;
+        if ($useCache) {
+            MemoryCache::$cache[$this->cacheKey] = $model;
+        }
+
+        return $model;
     }
 
     /**
@@ -360,7 +376,7 @@ class Builder
      */
     public function getCacheKey($fileName)
     {
-        return $this->cacheKey ?: $this->generateCacheKey($fileName);
+        return $this->cacheKey ?: $this->makeCacheKey($fileName);
     }
 
     /**
@@ -368,7 +384,7 @@ class Builder
      *
      * @return string
      */
-    public function generateCacheKey($fileName)
+    public function makeCacheKey($fileName)
     {
         $name = $this->model->getObjectTypeDirName();
 

@@ -6,7 +6,7 @@
  * @package october\parse
  * @author Alexey Bobkov, Samuel Georges
  */
-class ObjectMemoryCache
+class MemoryCache
 {
     public static $cache = [];
 }
