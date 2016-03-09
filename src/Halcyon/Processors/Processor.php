@@ -15,19 +15,11 @@ class Processor
      */
     public function processSelectOne(Builder $query, $result, $fileName)
     {
-        if ($result !== null) {
-            list($mtime, $content) = $result;
-            $processed = SectionProcessor::parse($content);
-            $result = [
-                'mtime' => $mtime,
-                'fileName' => $fileName,
-                'content' => $content,
-                'markup' => $processed['markup'],
-                'code' => $processed['code']
-            ] + $processed['settings'];
+        if ($result === null) {
+            return null;
         }
 
-        return $result;
+        return [$fileName => $this->parseTemplateContent($result, $fileName)];
     }
 
     /**
@@ -41,11 +33,32 @@ class Processor
     {
         if (count($results)) {
             foreach ($results as $fileName => &$result) {
-                $result = $this->processSelectOne($query, $result, $fileName);
+                $result = $this->parseTemplateContent($result, $fileName);
             }
         }
 
         return $results;
+    }
+
+    /**
+     * Helper to break down template content in to a useful array.
+     * @param  int     $mtime
+     * @param  string  $content
+     * @return array
+     */
+    protected function parseTemplateContent($result, $fileName)
+    {
+        list($mtime, $content) = $result;
+
+        $processed = SectionParser::parse($content);
+
+        return [
+            'mtime' => $mtime,
+            'fileName' => $fileName,
+            'content' => $content,
+            'markup' => $processed['markup'],
+            'code' => $processed['code']
+        ] + $processed['settings'];
     }
 
     /**
@@ -61,7 +74,7 @@ class Processor
             'wrapCodeInPhpTags' => $query->getModel()->getWrapCode()
         ];
 
-        return SectionProcessor::render($data, $options);
+        return SectionParser::render($data, $options);
     }
 
     /**
@@ -79,7 +92,7 @@ class Processor
 
         $existingData = $query->getModel()->attributesToArray();
 
-        return SectionProcessor::render($data + $existingData, $options);
+        return SectionParser::render($data + $existingData, $options);
     }
 
 }

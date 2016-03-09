@@ -10,7 +10,7 @@ use October\Rain\Support\Str;
  * @package october\halcyon
  * @author Alexey Bobkov, Samuel Georges
  */
-class SectionProcessor
+class SectionParser
 {
     const SECTION_SEPARATOR = '==';
 
