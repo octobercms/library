@@ -2,6 +2,10 @@
 
 use Illuminate\Filesystem\Filesystem;
 use October\Rain\Halcyon\Processors\Processor;
+use October\Rain\Halcyon\Exception\CreateFileException;
+use October\Rain\Halcyon\Exception\DeleteFileException;
+use October\Rain\Halcyon\Exception\FileExistsException;
+use October\Rain\Halcyon\Exception\CreateDirectoryException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Exception;
@@ -71,7 +75,7 @@ class FileTheme extends Theme implements ThemeInterface
     {
         extract(array_merge([
             'extensions' => null,
-            'fnMatch'    => null,
+            'fileMatch'  => null,
             'orders'     => null, // @todo
             'limit'      => null, // @todo
             'offset'     => null  // @todo
@@ -111,7 +115,7 @@ class FileTheme extends Theme implements ThemeInterface
             /*
              * Filter by file name match
              */
-            if ($fnMatch !== null && !fnmatch($fileName, $fnMatch)) {
+            if ($fileMatch !== null && !fnmatch($fileName, $fileMatch)) {
                 $it->next();
                 continue;
             }
@@ -135,13 +139,19 @@ class FileTheme extends Theme implements ThemeInterface
      */
     public function insert($dirName, $fileName, $extension, $content)
     {
-        try {
-            $path = $this->makeFilePath($dirName, $fileName, $extension);
+        $this->validateDirectoryForSave($dirName, $fileName, $extension);
 
+        $path = $this->makeFilePath($dirName, $fileName, $extension);
+
+        if ($this->files->isFile($path)) {
+            throw (new FileExistsException)->setInvalidPath($path);
+        }
+
+        try {
             return $this->files->put($path, $content);
         }
         catch (Exception $ex) {
-            return null;
+            throw (new CreateFileException)->setInvalidPath($path);
         }
     }
 
@@ -155,17 +165,26 @@ class FileTheme extends Theme implements ThemeInterface
      */
     public function update($dirName, $fileName, $extension, $content, $oldFileName = null, $oldExtension = null)
     {
+        $this->validateDirectoryForSave($dirName, $fileName, $extension);
+
+        $path = $this->makeFilePath($dirName, $fileName, $extension);
+
+        /*
+         * File to be renamed, as delete and recreate
+         */
         if ($oldFileName !== null && $oldFileName !== $fileName) {
+            if ($this->files->isFile($path)) {
+                throw (new FileExistsException)->setInvalidPath($path);
+            }
+
             $this->delete($dirName, $oldFileName, $oldExtension);
         }
 
         try {
-            $path = $this->makeFilePath($dirName, $fileName, $extension);
-
             return $this->files->put($path, $content);
         }
         catch (Exception $ex) {
-            return null;
+            throw (new CreateFileException)->setInvalidPath($path);
         }
     }
 
@@ -178,13 +197,13 @@ class FileTheme extends Theme implements ThemeInterface
      */
     public function delete($dirName, $fileName, $extension)
     {
-        try {
-            $path = $this->makeFilePath($dirName, $fileName, $extension);
+        $path = $this->makeFilePath($dirName, $fileName, $extension);
 
+        try {
             return $this->files->delete($path);
         }
         catch (Exception $ex) {
-            return null;
+            throw (new DeleteFileException)->setInvalidPath($path);
         }
     }
 
@@ -204,6 +223,40 @@ class FileTheme extends Theme implements ThemeInterface
         }
         catch (Exception $ex) {
             return null;
+        }
+    }
+
+    /**
+     * Ensure the requested file can be created in the requested directory.
+     * @return void
+     */
+    protected function validateDirectoryForSave($dirName, $fileName, $extension)
+    {
+        $path = $this->makeFilePath($dirName, $fileName, $extension);
+        $dirPath = $this->basePath . '/' . $dirName;
+
+        /*
+         * Create base directory
+         */
+        if (
+            (!$this->files->exists($dirPath) || !$this->files->isDirectory($dirPath)) &&
+            !$this->files->makeDirectory($dirPath, 0777, true, true)
+        ) {
+            throw (new CreateDirectoryException)->setInvalidPath($dirPath);
+        }
+
+        /*
+         * Create base file directory
+         */
+        if (($pos = strpos($fileName, '/')) !== false) {
+            $fileDirPath = dirname($path);
+
+            if (
+                !$this->files->isDirectory($fileDirPath) &&
+                !$this->files->makeDirectory($fileDirPath, 0777, true, true)
+            ) {
+                throw (new CreateDirectoryException)->setInvalidPath($fileDirPath);
+            }
         }
     }
 
