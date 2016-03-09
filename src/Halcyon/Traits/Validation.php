@@ -1,9 +1,9 @@
-<?php namespace October\Rain\Database\Traits;
+<?php namespace October\Rain\Halcyon\Traits;
 
 use Input;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Facades\Validator;
-use October\Rain\Database\ModelException;
+use October\Rain\Halcyon\Exception\ModelException;
 use Exception;
 
 trait Validation
@@ -93,9 +93,8 @@ trait Validation
      * Force save the model even if validation fails.
      * @return bool
      */
-    public function forceSave($options = null, $sessionKey = null)
+    public function forceSave($options = null)
     {
-        $this->sessionKey = $sessionKey;
         return $this->saveInternal(['force' => true] + (array) $options);
     }
 
@@ -138,44 +137,6 @@ trait Validation
             $data = $this->getAttributes();
 
             $lang = static::getModelValidator()->getTranslator();
-
-            /*
-             * Decode jsonable attribute values
-             */
-            foreach ($this->getJsonable() as $jsonable) {
-                $data[$jsonable] = $this->getAttribute($jsonable);
-            }
-
-            /*
-             * Add relation values, if specified.
-             */
-            foreach ($rules as $attribute => $rule) {
-                if (!$this->hasRelation($attribute)) continue;
-                if (array_key_exists($attribute, $data)) continue;
-                $data[$attribute] = $this->getRelationValue($attribute);
-            }
-
-            /*
-             * Compatability with Hashable trait:
-             * Remove all hashable values regardless, add the original values back
-             * only if they are part of the data being validated.
-             */
-            if (method_exists($this, 'getHashableAttributes')) {
-                $cleanAttributes = array_diff_key($data, array_flip($this->getHashableAttributes()));
-                $hashedAttributes = array_intersect_key($this->getOriginalHashValues(), $data);
-                $data = array_merge($cleanAttributes, $hashedAttributes);
-            }
-
-            /*
-             * Compatability with Encryptable trait:
-             * Remove all encryptable values regardless, add the original values back
-             * only if they are part of the data being validated.
-             */
-            if (method_exists($this, 'getEncryptableAttributes')) {
-                $cleanAttributes = array_diff_key($data, array_flip($this->getEncryptableAttributes()));
-                $encryptedAttributes = array_intersect_key($this->getOriginalEncryptableValues(), $data);
-                $data = array_merge($cleanAttributes, $encryptedAttributes);
-            }
 
             /*
              * Custom messages, translate internal references
@@ -224,7 +185,7 @@ trait Validation
             /*
              * Hand over to the validator
              */
-            $validator = self::makeValidator($data, $rules, $customMessages, $attributeNames);
+            $validator = static::makeValidator($data, $rules, $customMessages, $attributeNames);
 
             $success = $validator->passes();
 
@@ -281,15 +242,9 @@ trait Validation
              */
             foreach ($ruleParts as $key => $rulePart) {
                 /*
-                 * Remove primary key unique validation rule if the model already exists
-                 */
-                if (starts_with($rulePart, 'unique') && $this->exists) {
-                    $ruleParts[$key] = $this->processValidationUniqueRule($rulePart, $field);
-                }
-                /*
                  * Look for required:create and required:update rules
                  */
-                else if (starts_with($rulePart, 'required:create') && $this->exists) {
+                if (starts_with($rulePart, 'required:create') && $this->exists) {
                     unset($ruleParts[$key]);
                 }
                 else if (starts_with($rulePart, 'required:update') && !$this->exists) {
@@ -301,41 +256,6 @@ trait Validation
         }
 
         return $rules;
-    }
-
-    /**
-     * Rebuilds the unique validation rule to force for the existing ID
-     * @param string $definition
-     * @param string $fieldName
-     * @return string
-     */
-    protected function processValidationUniqueRule($definition, $fieldName)
-    {
-        list(
-            $table,
-            $column,
-            $key,
-            $keyName,
-            $whereColumn,
-            $whereValue
-        ) = array_pad(explode(',', $definition), 6, null);
-
-        $table = 'unique:' . $this->getTable();
-        $column = $column ?: $fieldName;
-        $key = $keyName ? $this->$keyName : $this->getKey();
-        $keyName = $keyName ?: $this->getKeyName();
-
-        $params = [$table, $column, $key, $keyName];
-
-        if ($whereColumn) {
-            $params[] = $whereColumn;
-        }
-
-        if ($whereValue) {
-            $params[] = $whereValue;
-        }
-
-        return implode(',', $params);
     }
 
     /**

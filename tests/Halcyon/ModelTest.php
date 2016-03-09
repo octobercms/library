@@ -13,14 +13,9 @@ class HalcyonModelTest extends TestCase
     {
         include_once __DIR__.'/../fixtures/halcyon/models/Page.php';
 
-        $theme1 = new FileTheme(__DIR__.'/../fixtures/halcyon/themes/theme1', new Filesystem);
-        $this->resolver = new ThemeResolver(['theme1' => $theme1]);
-        $this->resolver->setDefaultTheme('theme1');
+        $this->setThemeResolver();
 
-        $theme2 = new FileTheme(__DIR__.'/../fixtures/halcyon/themes/theme2', new Filesystem);
-        $this->resolver->addTheme('theme2', $theme2);
-
-        Model::setThemeResolver($this->resolver);
+        $this->setValidatorOnModel();
     }
 
     public function testFindAll()
@@ -61,6 +56,7 @@ class HalcyonModelTest extends TestCase
         HalcyonTestPage::create([
             'fileName' => 'testfile.htm',
             'title' => 'Test page',
+            'viewBag' => ['foo' => 'bar'],
             'markup' => '<p>Hello world!</p>',
             'code' => 'function onStart() { }'
         ]);
@@ -71,6 +67,9 @@ class HalcyonModelTest extends TestCase
 
         $content = <<<ESC
 title = "Test page"
+
+[viewBag]
+foo = "bar"
 ==
 <?php
 function onStart() { }
@@ -119,6 +118,31 @@ ESC;
         @unlink($newTargetFile);
     }
 
+    /**
+     * @expectedException        October\Rain\Halcyon\Exception\FileExistsException
+     * @expectedExceptionMessage A file already exists
+     */
+    public function testUpdatePageFileExists()
+    {
+        $page = HalcyonTestPage::create([
+            'fileName' => 'testfile2a',
+            'title' => 'Another test',
+            'markup' => '<p>Foo bar!</p>'
+        ]);
+
+        $targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/testfile2a.htm';
+
+        $this->assertFileExists($targetFile);
+        $this->assertEquals('Another test', $page->title);
+
+        $page = HalcyonTestPage::find('testfile2a');
+        $page->fileName = 'about';
+
+        @unlink($targetFile);
+
+        $page->save();
+    }
+
     public function testDeletePage()
     {
         $page = HalcyonTestPage::create([
@@ -133,5 +157,81 @@ ESC;
         $page->delete();
 
         $this->assertFileNotExists($targetFile);
+    }
+
+    /**
+     * @expectedException        October\Rain\Halcyon\Exception\ModelException
+     * @expectedExceptionMessage The title field is required.
+     */
+    public function testPageWithValidation()
+    {
+        $page = new HalcyonTestPageWithValidation;
+        $page->fileName = 'with-validation';
+        $page->save();
+
+        $page->delete();
+    }
+
+    /**
+     * @expectedException        October\Rain\Halcyon\Exception\ModelException
+     * @expectedExceptionMessage The meta title field is required.
+     */
+    public function testPageWithNestedValidationFail()
+    {
+        $page = new HalcyonTestPageWithValidation;
+        $page->fileName = 'with-validation';
+        $page->title = "Pass";
+        $page->save();
+
+        $page->delete();
+    }
+
+    public function testPageWithNestedValidationPass()
+    {
+        $page = new HalcyonTestPageWithValidation;
+        $page->fileName = 'with-validation';
+        $page->title = "Pass";
+        $page->viewBag = ['meta_title' => 'Oh yeah'];
+        $page->save();
+
+        $page->delete();
+    }
+
+    public function testCreatePageInDirectory()
+    {
+
+    }
+
+    //
+    // House keeping
+    //
+
+    protected function setThemeResolver()
+    {
+        $theme1 = new FileTheme(__DIR__.'/../fixtures/halcyon/themes/theme1', new Filesystem);
+        $this->resolver = new ThemeResolver(['theme1' => $theme1]);
+        $this->resolver->setDefaultTheme('theme1');
+
+        $theme2 = new FileTheme(__DIR__.'/../fixtures/halcyon/themes/theme2', new Filesystem);
+        $this->resolver->addTheme('theme2', $theme2);
+
+        Model::setThemeResolver($this->resolver);
+    }
+
+    protected function setValidatorOnModel()
+    {
+        $translator = $this->getMockBuilder('Symfony\Component\Translation\TranslatorInterface')->setMethods([
+            'get',
+            'trans',
+            'transChoice',
+            'setLocale',
+            'getLocale'
+        ])->getMock();
+
+        $translator->expects($this->any())->method('get')->will($this->returnArgument(0));
+
+        $factory = new \Illuminate\Validation\Factory($translator);
+
+        HalcyonTestPageWithValidation::setModelValidator($factory);
     }
 }

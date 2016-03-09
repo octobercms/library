@@ -29,6 +29,55 @@ class Builder
     protected $processor;
 
     /**
+     * Filter the query by these file extensions.
+     *
+     * @var array
+     */
+    public $extensions;
+
+    /**
+     * The directory name which the query is targeting.
+     *
+     * @var string
+     */
+    public $from;
+
+    /**
+     * Query should pluck a single record.
+     *
+     * @var bool
+     */
+    public $selectSingle;
+
+    /**
+     * Match files using the specified pattern.
+     *
+     * @var string
+     */
+    public $fileMatch;
+
+    /**
+     * The orderings for the query.
+     *
+     * @var array
+     */
+    public $orders;
+
+    /**
+     * The maximum number of records to return.
+     *
+     * @var int
+     */
+    public $limit;
+
+    /**
+     * The number of records to skip.
+     *
+     * @var int
+     */
+    public $offset;
+
+    /**
      * The key that should be used when caching the query.
      *
      * @var string
@@ -60,15 +109,89 @@ class Builder
      * Create a new query builder instance.
      *
      * @param  \October\Rain\Halcyon\Theme\ThemeInterface  $theme
-     * @param  \October\Rain\Halcyon\Model  $model
      * @param  \October\Rain\Halcyon\Processors\Processor  $processor
      * @return void
      */
-    public function __construct(ThemeInterface $theme, Model $model, Processor $processor)
+    public function __construct(ThemeInterface $theme, Processor $processor)
     {
         $this->theme = $theme;
-        $this->model = $model;
         $this->processor = $processor;
+    }
+
+    /**
+     * Switches mode to select a single template by its name.
+     *
+     * @param  string  $fileName
+     * @return $this
+     */
+    public function whereFileName($fileName)
+    {
+        $this->selectSingle = $this->model->getFileNameParts($fileName);
+
+        return $this;
+    }
+
+    /**
+     * Set the directory name which the query is targeting.
+     *
+     * @param  string  $dirName
+     * @return $this
+     */
+    public function from($dirName)
+    {
+        $this->from = $dirName;
+
+        return $this;
+    }
+
+    /**
+     * Set the "offset" value of the query.
+     *
+     * @param  int  $value
+     * @return $this
+     */
+    public function offset($value)
+    {
+        $this->offset = max(0, $value);
+
+        return $this;
+    }
+
+    /**
+     * Alias to set the "offset" value of the query.
+     *
+     * @param  int  $value
+     * @return \October\Rain\Halcyon\Builder|static
+     */
+    public function skip($value)
+    {
+        return $this->offset($value);
+    }
+
+    /**
+     * Set the "limit" value of the query.
+     *
+     * @param  int  $value
+     * @return $this
+     */
+    public function limit($value)
+    {
+        if ($value >= 0) {
+            $this->limit = $value;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Alias to set the "limit" value of the query.
+     *
+     * @param  int  $value
+     * @return \October\Rain\Halcyon\Builder|static
+     */
+    public function take($value)
+    {
+        return $this->limit($value);
     }
 
     /**
@@ -79,59 +202,17 @@ class Builder
      */
     public function find($fileName)
     {
-        $useCache = $this->cacheMinutes !== null;
-
-        if ($useCache) {
-            if (!$this->cacheKey) {
-                $this->cacheKey = $this->makeCacheKey($fileName);
-            }
-
-            if (array_key_exists($this->cacheKey, MemoryCache::$cache)) {
-                return MemoryCache::$cache[$this->cacheKey];
-            }
-
-            $result = $this->findCached($fileName);
-
-            if ($this->isCacheBusted($fileName, array_get($result, 'mtime'))) {
-                $result = $this->findCached($fileName, true);
-            }
-        }
-        else {
-            $result = $this->findFresh($fileName);
-        }
-
-        if ($result === null) {
-            return null;
-        }
-
-        $models = $this->getModels([$result]);
-        $model = count($models) > 0 ? reset($models) : null;
-
-        if ($useCache) {
-            MemoryCache::$cache[$this->cacheKey] = $model;
-        }
-
-        return $model;
+        return $this->whereFileName($fileName)->first();
     }
 
     /**
-     * Find a single template by its file name, as a fresh statement.
+     * Execute the query and get the first result.
      *
-     * @param  string $fileName
      * @return mixed|static
      */
-    public function findFresh($fileName)
+    public function first()
     {
-        list($name, $extension) = $this->model->getFileNameParts($fileName);
-        $fileName = $name . '.' . $extension; // Normalize file name
-
-        $result = $this->theme->selectOne(
-            $this->model->getObjectTypeDirName(),
-            $name,
-            $extension
-        );
-
-        return $this->processor->processSelectOne($this, $result, $fileName);
+        return $this->limit(1)->get()->first();
     }
 
     /**
@@ -139,18 +220,70 @@ class Builder
      *
      * @return \October\Rain\Halcyon\Collection|static[]
      */
-    public function get()
-    {
-        $results = $this->theme->select(
-            $this->model->getObjectTypeDirName(),
-            $this->model->getAllowedExtensions()
-        );
+     public function get()
+     {
+        if (!is_null($this->cacheMinutes)) {
+            $results = $this->getCached();
+        }
+        else {
+            $results = $this->getFresh();
+        }
 
-        $results = $this->processor->processSelect($this, $results);
-
-        $models = $this->getModels($results);
+        $models = $this->getModels($results ?: []);
 
         return $this->model->newCollection($models);
+    }
+
+    /**
+     * Execute the query as a fresh "select" statement.
+     *
+     * @return \October\Rain\Halcyon\Collection|static[]
+     */
+    public function getFresh()
+    {
+        if ($this->selectSingle) {
+            return $this->processor->processSelectOne(
+                $this,
+                $this->runSelect(),
+                implode('.', $this->selectSingle)
+            );
+        }
+        else {
+            return $this->processor->processSelect($this, $this->runSelect());
+        }
+    }
+
+    /**
+     * Run the query as a "select" statement against the theme.
+     *
+     * @return array
+     */
+    protected function runSelect()
+    {
+        if ($this->selectSingle) {
+            list($name, $extension) = $this->selectSingle;
+            return $this->theme->selectOne($this->from, $name, $extension);
+        }
+        else {
+            return $this->theme->select($this->from, $this->extensions);
+        }
+    }
+
+    /**
+     * Set a model instance for the model being queried.
+     *
+     * @param  \October\Rain\Halcyon\Model  $model
+     * @return $this
+     */
+    public function setModel(Model $model)
+    {
+        $this->model = $model;
+
+        $this->extensions = $this->model->getAllowedExtensions();
+
+        $this->from($this->model->getObjectTypeDirName());
+
+        return $this;
     }
 
     /**
@@ -165,11 +298,9 @@ class Builder
             return true;
         }
 
-        if (!$fileName = $this->model->fileName) {
-            throw (new MissingFileNameException)->setModel($this->model);
-        }
+        $this->validateModelFileName();
 
-        list($name, $extension) = $this->model->getFileNameParts($fileName);
+        list($name, $extension) = $this->model->getFileNameParts($this->model->fileName);
 
         $result = $this->processor->processInsert($this, $values);
 
@@ -189,11 +320,9 @@ class Builder
      */
     public function update(array $values)
     {
-        if (!$fileName = $this->model->fileName) {
-            throw (new MissingFileNameException)->setModel($this->model);
-        }
+        $this->validateModelFileName();
 
-        list($name, $extension) = $this->model->getFileNameParts($fileName);
+        list($name, $extension) = $this->model->getFileNameParts($this->model->fileName);
 
         $result = $this->processor->processUpdate($this, $values);
 
@@ -223,11 +352,9 @@ class Builder
      */
     public function delete($fileName = null)
     {
-        if ($fileName === null && (!$fileName = $this->model->fileName)) {
-            throw (new MissingFileNameException)->setModel($this->model);
-        }
+        $this->validateModelFileName();
 
-        list($name, $extension) = $this->model->getFileNameParts($fileName);
+        list($name, $extension) = $this->model->getFileNameParts($this->model->fileName);
 
         return $this->theme->delete(
             $this->model->getObjectTypeDirName(),
@@ -257,6 +384,22 @@ class Builder
     public function getModel()
     {
         return $this->model;
+    }
+
+    protected function validateModelFileName($fileName = null)
+    {
+        if ($fileName === null) {
+            $fileName = $this->model->fileName;
+        }
+
+        if (!strlen($fileName)) {
+            throw (new MissingFileNameException)->setModel($this->model);
+        }
+
+        // @todo
+        // if (!FileHelper::validateExtension($fileName, static::$allowedExtensions)) {
+        //     throw (new InvalidExtensionException)->setInvalidExtension(...);
+        // }
     }
 
     //
@@ -319,37 +462,58 @@ class Builder
      * @param  string  $forget
      * @return array
      */
-    public function findCached($fileName, $forget = false)
+    public function getCached()
     {
-        $key = $this->getCacheKey($fileName);
+        $key = $this->getCacheKey();
+
+        if (array_key_exists($key, MemoryCache::$cache)) {
+            return MemoryCache::$cache[$key];
+        }
+
         $minutes = $this->cacheMinutes;
         $cache = $this->getCache();
-
-        $callback = $this->getCacheCallback($fileName);
-
-        if ($forget) {
-            $cache->forget($key);
-        }
+        $callback = $this->getCacheCallback();
+        $isNewCache = !$cache->has($key);
 
         // If the "minutes" value is less than zero, we will use that as the indicator
         // that the value should be remembered values should be stored indefinitely
         // and if we have minutes we will use the typical remember function here.
         if ($minutes < 0) {
-            return $cache->rememberForever($key, $callback);
+            $result = $cache->rememberForever($key, $callback);
+        }
+        else {
+            $result = $cache->remember($key, $minutes, $callback);
         }
 
-        return $cache->remember($key, $minutes, $callback);
+        // If this is an old cache record, we can check if the cache has been busted
+        // by comparing the modification times. If this is the case, forget the
+        // cache and then prompt a recycle of the results.
+        if (!$isNewCache && $this->isCacheBusted($result)) {
+            $cache->forget($key);
+            $result = $callback();
+        }
+
+        return MemoryCache::$cache[$key] = $result;
     }
 
     /**
-     * Returns true if the cache for the file is busted.
+     * Returns true if the cache for the file is busted. This only applies
+     * to single record selection.
+     * @param  array  $result
+     * @return bool
      */
-    protected function isCacheBusted($fileName, $mtime)
+    protected function isCacheBusted($result)
     {
-        list($name, $extension) = $this->model->getFileNameParts($fileName);
+        if (!$this->selectSingle) {
+            return false;
+        }
+
+        $mtime = $result ? array_get(reset($result), 'mtime') : null;
+
+        list($name, $extension) = $this->selectSingle;
 
         $currentMtime = $this->theme->lastModified(
-            $this->model->getObjectTypeDirName(),
+            $this->from,
             $name,
             $extension
         );
@@ -374,9 +538,9 @@ class Builder
      *
      * @return string
      */
-    public function getCacheKey($fileName)
+    public function getCacheKey()
     {
-        return $this->cacheKey ?: $this->makeCacheKey($fileName);
+        return $this->cacheKey ?: $this->generateCacheKey();
     }
 
     /**
@@ -384,11 +548,16 @@ class Builder
      *
      * @return string
      */
-    public function makeCacheKey($fileName)
+    public function generateCacheKey()
     {
-        $name = $this->model->getObjectTypeDirName();
+        $payload = [];
+        $payload[] = $this->selectSingle ? serialize($this->selectSingle) : 'multi';
+        $payload[] = $this->orders ? serialize($this->orders) : 'unsorted';
+        $payload[] = $this->fileMatch;
+        $payload[] = $this->limit;
+        $payload[] = $this->offset;
 
-        return $name . $this->theme->makeCacheKey($fileName);
+        return $this->from . $this->theme->makeCacheKey(implode('-', $payload));
     }
 
     /**
@@ -397,8 +566,8 @@ class Builder
      * @param  string  $fileName
      * @return \Closure
      */
-    protected function getCacheCallback($fileName)
+    protected function getCacheCallback()
     {
-        return function() use ($fileName) { return $this->findFresh($fileName); };
+        return function() { return $this->getFresh(); };
     }
 }
