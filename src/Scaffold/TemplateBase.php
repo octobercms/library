@@ -41,13 +41,16 @@ abstract class TemplateBase
 
     /**
      * Constructor
+     * @param string|null $path
+     * @param array $vars
      */
     public function __construct($path = null, $vars = [])
     {
         $this->files = new Filesystem;
 
-        if ($path !== null && !$this->files->isWritable($path))
+        if ($path !== null && !$this->files->isWritable($path)) {
             throw new Exception(sprintf('Path "%s" is not writable', $path));
+        }
 
         $this->targetPath = $path;
         $this->vars = $this->processVars($vars);
@@ -57,14 +60,16 @@ abstract class TemplateBase
      * Static helper
      * @param string $path Root path to output generated files
      * @param array $vars Variables to pass to the stub templates
+     * @param bool $force
      * @return void
      */
     public static function make($path, $vars = [], $force = false)
     {
         $self = new static($path, $vars);
 
-        if ($force)
+        if ($force) {
             $self->setOverwrite(true);
+        }
 
         return $self->makeAll();
     }
@@ -91,20 +96,21 @@ abstract class TemplateBase
 
     /**
      * Make a single stub
-     * @param $stubName The source filename for the stub.
+     * @param string $stubName The source filename for the stub.
      * @return void
      */
     public function makeStub($stubName)
     {
-        if (!isset($this->fileMap[$stubName]))
+        if (!isset($this->fileMap[$stubName])) {
             return;
+        }
 
         $sourceFile = __DIR__ . '/Templates/' . $stubName;
         $destinationFile = $this->targetPath . '/' . $this->fileMap[$stubName];
         $destinationContent = $this->files->get($sourceFile);
 
         /*
-         * Parse each variable in to the desintation content and path
+         * Parse each variable in to the destination content and path
          */
         foreach ($this->vars as $key => $var) {
             $destinationContent = str_replace('{{'.$key.'}}', $var, $destinationContent);
@@ -115,14 +121,16 @@ abstract class TemplateBase
          * Destination directory must exist
          */
         $destinationDirectory = dirname($destinationFile);
-        if (!$this->files->exists($destinationDirectory))
+        if (!$this->files->exists($destinationDirectory)) {
             $this->files->makeDirectory($destinationDirectory, 0777, true); // @todo 777 not supported everywhere
+        }
 
         /*
          * Make sure this file does not already exist
          */
-        if ($this->files->exists($destinationFile) && !$this->overwriteFiles)
-            throw new \Exception('Stop everything!!! This file already exists: ' . $destinationFile);
+        if ($this->files->exists($destinationFile) && !$this->overwriteFiles) {
+            throw new Exception('Stop everything!!! This file already exists: ' . $destinationFile);
+        }
 
         $this->files->put($destinationFile, $destinationContent);
     }
@@ -131,7 +139,7 @@ abstract class TemplateBase
      * Converts all variables to available modifier and case formats.
      * Syntax is CASE_MODIFIER_KEY, eg: lower_plural_xxx
      *
-     * @param array The collection of original variables
+     * @param array $vars The collection of original variables
      * @return array A collection of variables with modifiers added
      */
     protected function processVars($vars)
