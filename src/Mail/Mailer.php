@@ -25,7 +25,7 @@ class Mailer extends MailerBase
     public function send($view, array $data, $callback)
     {
         /*
-         * Extensbility
+         * Extensibility
          */
         if (
             ($this->fireEvent('mailer.beforeSend', [$view, $data, $callback], true) === false) ||
@@ -50,7 +50,7 @@ class Mailer extends MailerBase
         }
 
         /*
-         * Extensbility
+         * Extensibility
          * $view    - View code as a string
          * $message - Illuminate\Mail\Message object,
          *            check Swift_Mime_SimpleMessage for useful functions.
@@ -69,7 +69,7 @@ class Mailer extends MailerBase
         $response = $this->sendSwiftMessage($_message);
 
         /*
-         * Extensbility
+         * Extensibility
          */
         $this->fireEvent('mailer.send', [$view, $message, $response]);
         Event::fire('mailer.send', [$this, $view, $message, $response]);
@@ -116,7 +116,7 @@ class Mailer extends MailerBase
     /**
      * Helper for raw() method, send a new message when only a raw text part.
      * @param  array $recipients
-     * @param  string  $text
+     * @param  string  $view
      * @param  mixed   $callback
      * @param  boolean $queue
      * @return int
@@ -196,7 +196,7 @@ class Mailer extends MailerBase
     protected function addContent($message, $view, $plain, $raw, $data)
     {
         /*
-         * Extensbility
+         * Extensibility
          */
         if (
             ($this->fireEvent('mailer.beforeAddContent', [$message, $view, $data], true) === false) ||
@@ -240,7 +240,7 @@ class Mailer extends MailerBase
         $this->addContentRaw($message, $html, $text);
 
         /*
-         * Extensbility
+         * Extensibility
          */
         $this->fireEvent('mailer.addContent', [$message, $view, $data]);
         Event::fire('mailer.addContent', [$this, $message, $view, $data]);
