@@ -21,7 +21,7 @@ class InvalidFileNameException extends RuntimeException
     {
         $this->invalidFileName = $invalidFileName;
 
-        $this->message = "No file name attribute (invalidFileName) specified for name [{$invalidFileName}].";
+        $this->message = "The specified file name [{$invalidFileName}] is invalid.";
 
         return $this;
     }

@@ -83,6 +83,35 @@ ESC;
         @unlink($targetFile);
     }
 
+    public function testCreatePageInDirectoryPass()
+    {
+        HalcyonTestPage::create([
+            'fileName' => 'walking/on-sunshine.htm',
+            'title' => 'Katrina & The Waves',
+            'markup' => '<p>Woo!</p>',
+        ]);
+
+        $targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/walking/on-sunshine.htm';
+
+        $this->assertFileExists($targetFile);
+
+        @unlink($targetFile);
+        @rmdir(dirname($targetFile));
+    }
+
+    /**
+     * @expectedException        October\Rain\Halcyon\Exception\InvalidFileNameException
+     * @expectedExceptionMessage The specified file name [one/small/step/for-man.htm] is invalid.
+     */
+    public function testCreatePageInDirectoryFail()
+    {
+        HalcyonTestPage::create([
+            'fileName' => 'one/small/step/for-man.htm',
+            'title' => 'One Giant Leap',
+            'markup' => '<p>For man-kind</p>',
+        ]);
+    }
+
     public function testUpdatePage()
     {
         $page = HalcyonTestPage::create([
@@ -195,11 +224,6 @@ ESC;
         $page->save();
 
         $page->delete();
-    }
-
-    public function testCreatePageInDirectory()
-    {
-
     }
 
     //

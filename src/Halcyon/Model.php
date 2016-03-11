@@ -311,6 +311,15 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
+     * Returns the maximum directory nesting allowed by this template.
+     * @return int
+     */
+    public function getMaxNesting()
+    {
+        return $this->maxNesting;
+    }
+
+    /**
      * Fill the model with an array of attributes.
      *
      * @param  array  $attributes
@@ -1223,13 +1232,22 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Returns the base file name and extension. Applies a default extension, if none found.
      */
-    public function getFileNameParts($fileName)
+    public function getFileNameParts($fileName = null)
     {
-        if (!strlen($extension = pathinfo($fileName, PATHINFO_EXTENSION))) {
-            $extension = $this->defaultExtension;
+        if ($fileName === null) {
+            $fileName = $this->fileName;
         }
 
-        return [basename($fileName, '.'.$extension), $extension];
+        if (!strlen($extension = pathinfo($fileName, PATHINFO_EXTENSION))) {
+            $extension = $this->defaultExtension;
+            $baseFile = $fileName;
+        }
+        else {
+            $pos = strrpos($fileName, '.');
+            $baseFile = substr($fileName, 0, $pos);
+        }
+
+        return [$baseFile, $extension];
     }
 
     /**

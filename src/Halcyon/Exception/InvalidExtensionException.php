@@ -12,6 +12,13 @@ class InvalidExtensionException extends RuntimeException
     protected $invalidExtension;
 
     /**
+     * A list of allowable extensions.
+     *
+     * @var array
+     */
+    protected $allowedExtensions;
+
+    /**
      * Set the affected file extension.
      *
      * @param  string   $invalidExtension
@@ -21,7 +28,7 @@ class InvalidExtensionException extends RuntimeException
     {
         $this->invalidExtension = $invalidExtension;
 
-        $this->message = "No file name attribute (invalidExtension) specified for name [{$invalidExtension}].";
+        $this->message = "The specified file extension [{$invalidExtension}] is invalid.";
 
         return $this;
     }
@@ -34,5 +41,28 @@ class InvalidExtensionException extends RuntimeException
     public function getInvalidExtension()
     {
         return $this->invalidExtension;
+    }
+
+    /**
+     * Set the list of allowed extensions.
+     *
+     * @param  array   $allowedExtensions
+     * @return $this
+     */
+    public function setAllowedExtensions($allowedExtensions)
+    {
+        $this->allowedExtensions = $allowedExtensions;
+
+        return $this;
+    }
+
+    /**
+     * Get the list of allowed extensions.
+     *
+     * @return string
+     */
+    public function getAllowedExtensions()
+    {
+        return $this->allowedExtensions;
     }
 }

@@ -4,6 +4,8 @@ use October\Rain\Halcyon\Model;
 use October\Rain\Halcyon\Theme\ThemeInterface;
 use October\Rain\Halcyon\Processors\Processor;
 use October\Rain\Halcyon\Exception\MissingFileNameException;
+use October\Rain\Halcyon\Exception\InvalidFileNameException;
+use October\Rain\Halcyon\Exception\InvalidExtensionException;
 
 class Builder
 {
@@ -298,9 +300,9 @@ class Builder
             return true;
         }
 
-        $this->validateModelFileName();
+        $this->validateFileName();
 
-        list($name, $extension) = $this->model->getFileNameParts($this->model->fileName);
+        list($name, $extension) = $this->model->getFileNameParts();
 
         $result = $this->processor->processInsert($this, $values);
 
@@ -320,9 +322,9 @@ class Builder
      */
     public function update(array $values)
     {
-        $this->validateModelFileName();
+        $this->validateFileName();
 
-        list($name, $extension) = $this->model->getFileNameParts($this->model->fileName);
+        list($name, $extension) = $this->model->getFileNameParts();
 
         $result = $this->processor->processUpdate($this, $values);
 
@@ -352,9 +354,9 @@ class Builder
      */
     public function delete($fileName = null)
     {
-        $this->validateModelFileName();
+        $this->validateFileName();
 
-        list($name, $extension) = $this->model->getFileNameParts($this->model->fileName);
+        list($name, $extension) = $this->model->getFileNameParts();
 
         return $this->theme->delete(
             $this->model->getObjectTypeDirName(),
@@ -386,7 +388,15 @@ class Builder
         return $this->model;
     }
 
-    protected function validateModelFileName($fileName = null)
+    //
+    // Validation (Hard)
+    //
+
+    /**
+     * Validate the supplied filename, extension and path.
+     * @param string $fileName
+     */
+    protected function validateFileName($fileName = null)
     {
         if ($fileName === null) {
             $fileName = $this->model->fileName;
@@ -396,10 +406,73 @@ class Builder
             throw (new MissingFileNameException)->setModel($this->model);
         }
 
-        // @todo
-        // if (!FileHelper::validateExtension($fileName, static::$allowedExtensions)) {
-        //     throw (new InvalidExtensionException)->setInvalidExtension(...);
-        // }
+        if (!$this->validateFileNamePath($fileName, $this->model->getMaxNesting())) {
+            throw (new InvalidFileNameException)->setInvalidFileName($fileName);
+        }
+
+        $this->validateFileNameExtension($fileName, $this->model->getAllowedExtensions());
+
+        return true;
+    }
+
+    /**
+     * Validates whether a file has an allowed extension.
+     * @param string $fileName Specifies a path to validate
+     * @param array $allowedExtensions A list of allowed file extensions
+     * @return void
+     */
+    protected function validateFileNameExtension($fileName, $allowedExtensions)
+    {
+        $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+        if (strlen($extension) && !in_array($extension, $allowedExtensions)) {
+            throw (new InvalidExtensionException)
+                ->setInvalidExtension($extension)
+                ->setAllowedExtensions($allowedExtensions)
+            ;
+        }
+    }
+
+    /**
+     * Validates a template path.
+     * Template directory and file names can contain only alphanumeric symbols, dashes and dots.
+     * @param string $filePath Specifies a path to validate
+     * @param integer $maxNesting Specifies the maximum allowed nesting level
+     * @return void
+     */
+    protected function validateFileNamePath($filePath, $maxNesting = 2)
+    {
+        if (strpos($filePath, '..') !== false) {
+            return false;
+        }
+
+        if (strpos($filePath, './') !== false || strpos($filePath, '//') !== false) {
+            return false;
+        }
+
+        $segments = explode('/', $filePath);
+        if ($maxNesting !== null && count($segments) > $maxNesting) {
+            return false;
+        }
+
+        foreach ($segments as $segment) {
+            if (!$this->validateFileNamePattern($segment)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Validates a template file or directory name.
+     * template file names can contain only alphanumeric symbols, dashes, underscores and dots.
+     * @param string $fileName Specifies a path to validate
+     * @return boolean Returns true if the file name is valid. Otherwise returns false.
+     */
+    protected function validateFileNamePattern($fileName)
+    {
+        return preg_match('/^[a-z0-9\_\-\.\/]+$/i', $fileName) ? true : false;
     }
 
     //
