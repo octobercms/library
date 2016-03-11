@@ -77,6 +77,11 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     protected $defaultExtension = 'htm';
 
     /**
+     * @var bool Model supports code and settings sections.
+     */
+    protected $isCompoundObject = true;
+
+    /**
      * @var bool Wrap code section in PHP tags.
      */
     protected $wrapCode = true;
@@ -299,6 +304,15 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     public function getAllowedExtensions()
     {
         return $this->allowedExtensions;
+    }
+
+    /**
+     * Returns true if this template supports code and settings sections.
+     * @return bool
+     */
+    public function isCompoundObject()
+    {
+        return $this->isCompoundObject;
     }
 
     /**

@@ -21,8 +21,13 @@ class SectionParser
     public static function render($data, $options = [])
     {
         extract(array_merge([
-            'wrapCodeInPhpTags' => true
+            'wrapCodeInPhpTags' => true,
+            'isCompoundObject'  => true
         ], $options));
+
+        if (!$isCompoundObject) {
+            return array_get($data, 'content');
+        }
 
         $iniParser = new Ini;
         $code = trim(array_get($data, 'code'));
@@ -89,20 +94,28 @@ class SectionParser
      * parsed INI file as array. If the content string doesn't contain a section, the corresponding
      * result element has null value.
      */
-    public static function parse($content)
+    public static function parse($content, $options = [])
     {
-        $iniParser = new Ini;
-        $sections = preg_split('/^={2,}\s*/m', $content, -1);
-        $count = count($sections);
-        foreach ($sections as &$section) {
-            $section = trim($section);
-        }
+        extract(array_merge([
+            'isCompoundObject' => true
+        ], $options));
 
         $result = [
             'settings' => [],
             'code'     => null,
             'markup'   => null
         ];
+
+        if (!$isCompoundObject) {
+            return $result;
+        }
+
+        $iniParser = new Ini;
+        $sections = preg_split('/^={2,}\s*/m', $content, -1);
+        $count = count($sections);
+        foreach ($sections as &$section) {
+            $section = trim($section);
+        }
 
         if ($count >= 3) {
             $result['settings'] = $iniParser->parse($sections[0], true);

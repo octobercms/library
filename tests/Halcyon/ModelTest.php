@@ -12,6 +12,7 @@ class HalcyonModelTest extends TestCase
     public function setUp()
     {
         include_once __DIR__.'/../fixtures/halcyon/models/Page.php';
+        include_once __DIR__.'/../fixtures/halcyon/models/Menu.php';
 
         $this->setThemeResolver();
 
@@ -39,6 +40,13 @@ class HalcyonModelTest extends TestCase
         $this->assertEquals('hello', $page->title);
     }
 
+    public function testFindMenu()
+    {
+        $menu = HalcyonTestMenu::find('mainmenu');
+        $this->assertNotNull($menu);
+        $this->assertEquals('<ul><li>Home</li></ul>', $menu->content);
+    }
+
     public function testOtherThemePage()
     {
         $page = HalcyonTestPage::on('theme2')->find('home');
@@ -53,6 +61,8 @@ class HalcyonModelTest extends TestCase
 
     public function testCreatePage()
     {
+        @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/testfile.htm');
+
         HalcyonTestPage::create([
             'fileName' => 'testfile.htm',
             'title' => 'Test page',
@@ -60,8 +70,6 @@ class HalcyonModelTest extends TestCase
             'markup' => '<p>Hello world!</p>',
             'code' => 'function onStart() { }'
         ]);
-
-        $targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/testfile.htm';
 
         $this->assertFileExists($targetFile);
 
@@ -83,15 +91,36 @@ ESC;
         @unlink($targetFile);
     }
 
+    public function testCreateMenu()
+    {
+        @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/menus/testfile.htm');
+
+        HalcyonTestMenu::create([
+            'fileName' => 'testfile',
+            'content' => '<p>Hello world!</p>'
+        ]);
+
+
+        $this->assertFileExists($targetFile);
+
+        $content = <<<ESC
+<p>Hello world!</p>
+ESC;
+
+        $this->assertEquals($content, file_get_contents($targetFile));
+
+        @unlink($targetFile);
+    }
+
     public function testCreatePageInDirectoryPass()
     {
+        @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/walking/on-sunshine.htm');
+
         HalcyonTestPage::create([
             'fileName' => 'walking/on-sunshine.htm',
             'title' => 'Katrina & The Waves',
             'markup' => '<p>Woo!</p>',
         ]);
-
-        $targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/walking/on-sunshine.htm';
 
         $this->assertFileExists($targetFile);
 
@@ -114,13 +143,13 @@ ESC;
 
     public function testUpdatePage()
     {
+        @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/testfile2.htm');
+
         $page = HalcyonTestPage::create([
             'fileName' => 'testfile2',
             'title' => 'Another test',
             'markup' => '<p>Foo bar!</p>'
         ]);
-
-        $targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/testfile2.htm';
 
         $this->assertFileExists($targetFile);
         $this->assertEquals('Another test', $page->title);
@@ -153,13 +182,13 @@ ESC;
      */
     public function testUpdatePageFileExists()
     {
+        @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/testfile2a.htm');
+
         $page = HalcyonTestPage::create([
             'fileName' => 'testfile2a',
             'title' => 'Another test',
             'markup' => '<p>Foo bar!</p>'
         ]);
-
-        $targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/testfile2a.htm';
 
         $this->assertFileExists($targetFile);
         $this->assertEquals('Another test', $page->title);
@@ -174,12 +203,12 @@ ESC;
 
     public function testDeletePage()
     {
+        @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/testfile3.htm');
+
         $page = HalcyonTestPage::create([
             'fileName' => 'testfile3',
             'title' => 'To be deleted',
         ]);
-
-        $targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/testfile3.htm';
 
         $this->assertFileExists($targetFile);
 

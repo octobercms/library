@@ -19,7 +19,7 @@ class Processor
             return null;
         }
 
-        return [$fileName => $this->parseTemplateContent($result, $fileName)];
+        return [$fileName => $this->parseTemplateContent($query, $result, $fileName)];
     }
 
     /**
@@ -33,7 +33,7 @@ class Processor
     {
         if (count($results)) {
             foreach ($results as $fileName => &$result) {
-                $result = $this->parseTemplateContent($result, $fileName);
+                $result = $this->parseTemplateContent($query, $result, $fileName);
             }
         }
 
@@ -46,11 +46,15 @@ class Processor
      * @param  string  $content
      * @return array
      */
-    protected function parseTemplateContent($result, $fileName)
+    protected function parseTemplateContent($query, $result, $fileName)
     {
         list($mtime, $content) = $result;
 
-        $processed = SectionParser::parse($content);
+        $options = [
+            'isCompoundObject' => $query->getModel()->isCompoundObject()
+        ];
+
+        $processed = SectionParser::parse($content, $options);
 
         return [
             'mtime' => $mtime,
@@ -71,7 +75,8 @@ class Processor
     public function processInsert(Builder $query, $data)
     {
         $options = [
-            'wrapCodeInPhpTags' => $query->getModel()->getWrapCode()
+            'wrapCodeInPhpTags' => $query->getModel()->getWrapCode(),
+            'isCompoundObject' => $query->getModel()->isCompoundObject()
         ];
 
         return SectionParser::render($data, $options);
@@ -87,7 +92,8 @@ class Processor
     public function processUpdate(Builder $query, $data)
     {
         $options = [
-            'wrapCodeInPhpTags' => $query->getModel()->getWrapCode()
+            'wrapCodeInPhpTags' => $query->getModel()->getWrapCode(),
+            'isCompoundObject' => $query->getModel()->isCompoundObject()
         ];
 
         $existingData = $query->getModel()->attributesToArray();
