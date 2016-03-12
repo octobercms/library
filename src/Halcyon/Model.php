@@ -314,6 +314,22 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
+     * File name should always contain an extension.
+     * @param mixed $value
+     * @return $this
+     */
+    public function setFileNameAttribute($value)
+    {
+        if (!strlen(pathinfo($value, PATHINFO_EXTENSION))) {
+            $value .= '.'.$this->defaultExtension;
+        }
+
+        $this->attributes['fileName'] = $value;
+
+        return $this;
+    }
+
+    /**
      * Returns the directory name corresponding to the object type.
      * For pages the directory name is "pages", for layouts - "layouts", etc.
      * @return string
@@ -423,7 +439,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     {
         // This method just provides a convenient way for us to generate fresh model
         // instances of this current model. It is particularly useful during the
-        // hydration of new objects via the Eloquent query builder instances.
+        // hydration of new objects via the Halcyon query builder instances.
         $model = new static((array) $attributes);
 
         $model->exists = $exists;
@@ -1285,7 +1301,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Create a new Eloquent Collection instance.
+     * Create a new Halcyon Collection instance.
      *
      * @param  array  $models
      * @return \October\Rain\Halcyon\Collection
