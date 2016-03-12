@@ -94,6 +94,11 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     protected $maxNesting = 2;
 
     /**
+     * @var boolean Indicated whether the object was loaded from the cache.
+     */
+    protected $loadedFromCache = false;
+
+    /**
      * User exposed observable events.
      *
      * @var array
@@ -338,6 +343,24 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     public function getMaxNesting()
     {
         return $this->maxNesting;
+    }
+
+    /**
+     * Returns true if the object was loaded from the cache.
+     * @return boolean
+     */
+    public function isLoadedFromCache()
+    {
+        return $this->loadedFromCache;
+    }
+
+    /**
+     * Returns true if the object was loaded from the cache.
+     * @return boolean
+     */
+    public function setLoadedFromCache($value)
+    {
+        $this->loadedFromCache = (bool) $value;
     }
 
     /**

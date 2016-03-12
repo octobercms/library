@@ -108,6 +108,13 @@ class Builder
     protected $cacheDriver;
 
     /**
+     * Internal variable to specify if the record was loaded from cache.
+     *
+     * @var bool
+     */
+    protected $loadedFromCache = false;
+
+    /**
      * Create a new query builder instance.
      *
      * @param  \October\Rain\Halcyon\Theme\ThemeInterface  $theme
@@ -375,7 +382,20 @@ class Builder
     {
         $theme = $this->model->getThemeName();
 
-        return $this->model->hydrate($results, $theme)->all();
+        $models = $this->model->hydrate($results, $theme);
+
+        /*
+         * Flag the models as loaded from cache, then reset the internal property.
+         */
+        if ($this->loadedFromCache) {
+            $models->each(function($model) {
+                $model->setLoadedFromCache($this->loadedFromCache);
+            });
+
+            $this->loadedFromCache = false;
+        }
+
+        return $models->all();
     }
 
     /**
@@ -563,6 +583,7 @@ class Builder
         // cache and then prompt a recycle of the results.
         if (!$isNewCache && $this->isCacheBusted($result)) {
             $cache->forget($key);
+            $isNewCache = true;
 
             if ($minutes < 0) {
                 $result = $cache->rememberForever($key, $callback);
@@ -571,6 +592,8 @@ class Builder
                 $result = $cache->remember($key, $minutes, $callback);
             }
         }
+
+        $this->loadedFromCache = !$isNewCache;
 
         return MemoryCache::$cache[$key] = $result;
     }
@@ -648,5 +671,13 @@ class Builder
     protected function getCacheCallback()
     {
         return function() { return $this->getFresh(); };
+    }
+
+    /**
+     * Clears the internal request-level object cache.
+     */
+    public static function clearInternalCache()
+    {
+        MemoryCache::$cache = [];
     }
 }
