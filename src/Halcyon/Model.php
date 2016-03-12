@@ -94,6 +94,13 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     protected $maxNesting = 2;
 
     /**
+     * User exposed observable events.
+     *
+     * @var array
+     */
+    protected $observables = [];
+
+    /**
      * @var bool Indicates if the model exists.
      */
     public $exists = false;
@@ -396,13 +403,19 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function newFromBuilder($attributes = [], $theme = null)
     {
-        $model = $this->newInstance([], true);
+        $instance = $this->newInstance([], true);
 
-        $model->setRawAttributes((array) $attributes, true);
+        if ($instance->fireModelEvent('fetching') === false) {
+            return $instance;
+        }
 
-        $model->setTheme($theme ?: $this->theme);
+        $instance->setRawAttributes((array) $attributes, true);
 
-        return $model;
+        $instance->fireModelEvent('fetched', false);
+
+        $instance->setTheme($theme ?: $this->theme);
+
+        return $instance;
     }
 
     /**
@@ -978,7 +991,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public static function flushEventListeners()
     {
-        if (! isset(static::$dispatcher)) {
+        if (!isset(static::$dispatcher)) {
             return;
         }
 
@@ -987,6 +1000,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         foreach ($instance->getObservableEvents() as $event) {
             static::$dispatcher->forget("halcyon.{$event}: ".get_called_class());
         }
+
+        static::$eventsBooted = [];
     }
 
     /**

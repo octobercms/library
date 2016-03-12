@@ -278,4 +278,13 @@ class FileTheme extends Theme implements ThemeInterface
         return crc32($this->basePath . $name);
     }
 
+    /**
+     * Returns the base path for this theme.
+     * @return string
+     */
+    public function getBasePath()
+    {
+        return $this->basePath;
+    }
+
 }

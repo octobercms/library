@@ -563,7 +563,13 @@ class Builder
         // cache and then prompt a recycle of the results.
         if (!$isNewCache && $this->isCacheBusted($result)) {
             $cache->forget($key);
-            $result = $callback();
+
+            if ($minutes < 0) {
+                $result = $cache->rememberForever($key, $callback);
+            }
+            else {
+                $result = $cache->remember($key, $minutes, $callback);
+            }
         }
 
         return MemoryCache::$cache[$key] = $result;
