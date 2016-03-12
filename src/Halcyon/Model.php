@@ -462,7 +462,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
         $instance->setTheme($theme);
 
-        return $instance->newQuery();
+        return $instance;
     }
 
     /**
