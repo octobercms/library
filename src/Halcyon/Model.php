@@ -300,6 +300,20 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
+     * Filling the settings should merge it with attributes.
+     * @param mixed $value
+     * @return $this
+     */
+    public function setSettingsAttribute($value)
+    {
+        if (is_array($value)) {
+            $this->attributes = array_merge($this->attributes, $value);
+        }
+
+        return $this;
+    }
+
+    /**
      * Returns the directory name corresponding to the object type.
      * For pages the directory name is "pages", for layouts - "layouts", etc.
      * @return string
