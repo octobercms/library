@@ -320,11 +320,13 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function setFileNameAttribute($value)
     {
-        if (!strlen(pathinfo($value, PATHINFO_EXTENSION))) {
-            $value .= '.'.$this->defaultExtension;
+        $fileName = trim($value);
+
+        if (strlen($fileName) && !strlen(pathinfo($value, PATHINFO_EXTENSION))) {
+            $fileName .= '.'.$this->defaultExtension;
         }
 
-        $this->attributes['fileName'] = $value;
+        $this->attributes['fileName'] = $fileName;
 
         return $this;
     }

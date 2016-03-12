@@ -49,7 +49,7 @@ class InvalidExtensionException extends RuntimeException
      * @param  array   $allowedExtensions
      * @return $this
      */
-    public function setAllowedExtensions($allowedExtensions)
+    public function setAllowedExtensions(array $allowedExtensions)
     {
         $this->allowedExtensions = $allowedExtensions;
 
