@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Scaffold;
 
+use ReflectionClass;
 use October\Rain\Support\Str;
 use Illuminate\Console\Command;
 use October\Rain\Filesystem\Filesystem;
@@ -40,14 +41,13 @@ abstract class GeneratorCommand extends Command
     /**
      * Create a new controller creator command instance.
      *
-     * @param  \October\Rain\Filesystem\Filesystem  $files
      * @return void
      */
-    public function __construct(Filesystem $files)
+    public function __construct()
     {
         parent::__construct();
 
-        $this->files = $files;
+        $this->files = new Filesystem;
     }
 
     /**
@@ -221,7 +221,10 @@ abstract class GeneratorCommand extends Command
      */
     protected function getSourcePath()
     {
-        return dirname($this->files->fromClass(get_class($this)));
+        $className = get_class($this);
+        $class = new ReflectionClass($className);
+
+        return dirname($class->getFileName());
     }
 
     /**
