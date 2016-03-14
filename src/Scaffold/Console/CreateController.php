@@ -34,7 +34,7 @@ class CreateController extends GeneratorCommand
      *
      * @var array
      */
-    protected $fileMap = [
+    protected $stubs = [
         'controller/_list_toolbar.stub' => 'controllers/{{lower_name}}/_list_toolbar.htm',
         'controller/config_form.stub'   => 'controllers/{{lower_name}}/config_form.yaml',
         'controller/config_list.stub'   => 'controllers/{{lower_name}}/config_list.yaml',

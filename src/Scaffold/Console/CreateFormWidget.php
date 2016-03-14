@@ -33,7 +33,7 @@ class CreateFormWidget extends GeneratorCommand
      *
      * @var array
      */
-    protected $fileMap = [
+    protected $stubs = [
         'formwidget/formwidget.stub'      => 'formwidgets/{{studly_name}}.php',
         'formwidget/partial.stub'         => 'formwidgets/{{lower_name}}/partials/_{{lower_name}}.htm',
         'formwidget/stylesheet.stub'      => 'formwidgets/{{lower_name}}/assets/css/{{lower_name}}.css',

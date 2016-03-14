@@ -33,7 +33,7 @@ class CreateModel extends GeneratorCommand
      *
      * @var array
      */
-    protected $fileMap = [
+    protected $stubs = [
         'model/model.stub'        => 'models/{{studly_name}}.php',
         'model/fields.stub'       => 'models/{{lower_name}}/fields.yaml',
         'model/columns.stub'      => 'models/{{lower_name}}/columns.yaml',
