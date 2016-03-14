@@ -128,8 +128,12 @@ class Rule
                 /*
                  * Static segment
                  */
-                if (!array_key_exists($index, $urlSegments) || $patternSegmentLower != mb_strtolower($urlSegments[$index]))
+                if (
+                    !array_key_exists($index, $urlSegments) ||
+                    $patternSegmentLower != mb_strtolower($urlSegments[$index])
+                ) {
                     return false;
+                }
             }
             else {
 
@@ -184,7 +188,8 @@ class Rule
                         if (!preg_match($regexp, $urlSegments[$index])) {
                             return false;
                         }
-                    } catch (\Exception $ex) {}
+                    }
+                    catch (\Exception $ex) {}
                 }
 
                 /*
@@ -193,7 +198,7 @@ class Rule
                 $parameters[$paramName] = $urlSegments[$index];
 
                 /*
-                 * Determine if wildcard and add stored paramters as a suffix
+                 * Determine if wildcard and add stored parameters as a suffix
                  */
                 if (Helper::segmentIsWildcard($patternSegment) && count($wildSegments)) {
                     $parameters[$paramName] .= Helper::rebuildUrl($wildSegments);
@@ -288,7 +293,9 @@ class Rule
         if ($callback !== null) {
 
             if (!is_callable($callback)) {
-                throw new InvalidArgumentException(sprintf("Condition provided is not a valid callback. Given (%s)", gettype($callback)));
+                throw new InvalidArgumentException(sprintf(
+                    "Condition provided is not a valid callback. Given (%s)", gettype($callback)
+                ));
             }
 
             $this->conditionCallback = $callback;
@@ -311,7 +318,9 @@ class Rule
         if ($callback !== null) {
 
             if (!is_callable($callback)) {
-                throw new InvalidArgumentException(sprintf("The after match callback provided is not valid. Given (%s)", gettype($callback)));
+                throw new InvalidArgumentException(sprintf(
+                    "The after match callback provided is not valid. Given (%s)", gettype($callback)
+                ));
             }
 
             $this->afterMatchCallback = $callback;
