@@ -47,7 +47,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      *
      * @var array
      */
-    protected $appends = ['settings'];
+    protected $appends = [];
 
     /**
      * @var array The attributes that are mass assignable.
@@ -57,14 +57,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * @var array List of attribute names which are not considered "settings".
      */
-    protected $purgeable = [
-        'fileName',
-        'components',
-        'content',
-        'markup',
-        'mtime',
-        'code'
-    ];
+    protected $purgeable = [];
 
     /**
      * @var array Allowable file extensions.
@@ -296,7 +289,19 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function getSettingsAttribute()
     {
-        return array_diff_key($this->attributes, array_flip($this->purgeable));
+        $defaults = [
+            'fileName',
+            'components',
+            'content',
+            'markup',
+            'mtime',
+            'code'
+        ];
+
+        return array_diff_key(
+            $this->attributes,
+            array_flip(array_merge($defaults, $this->purgeable))
+        );
     }
 
     /**
@@ -420,10 +425,12 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     protected function fillableFromArray(array $attributes)
     {
+        $defaults = ['fileName'];
+
         if (count($this->fillable) > 0) {
             return array_intersect_key(
                 $attributes,
-                array_flip(array_merge(['fileName'], $this->fillable))
+                array_flip(array_merge($defaults, $this->fillable))
             );
         }
 
@@ -640,11 +647,13 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     protected function getArrayableAppends()
     {
+        $defaults = ['settings'];
+
         if (!count($this->appends)) {
-            return [];
+            return $defaults;
         }
 
-        return array_combine($this->appends, $this->appends);
+        return array_merge($defaults, $this->appends);
     }
 
     /**
@@ -1470,6 +1479,13 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     {
         static::$cache = null;
     }
+
+    /**
+     * Initializes the object properties from the cached data. The extra data
+     * set here becomes available as attributes set on the model after fetch.
+     * @param array $cached The cached data array.
+     */
+    public static function initCacheItem(&$item) { }
 
     /**
      * Get the mutated attributes for a given instance.

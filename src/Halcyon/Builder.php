@@ -670,7 +670,25 @@ class Builder
      */
     protected function getCacheCallback()
     {
-        return function() { return $this->getFresh(); };
+        return function() { return $this->processInitCacheData($this->getFresh()); };
+    }
+
+    /**
+     * Initialize the cache data of each record.
+     * @param  array  $data
+     * @return array
+     */
+    protected function processInitCacheData($data)
+    {
+        if ($data) {
+            $model = get_class($this->model);
+
+            foreach ($data as &$record) {
+                $model::initCacheItem($record);
+            }
+        }
+
+        return $data;
     }
 
     /**
