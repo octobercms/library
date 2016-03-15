@@ -382,7 +382,11 @@ class File extends Model
      */
     protected function getThumbFilename($width, $height, $options)
     {
-        return 'thumb_' . $this->id . '_' . $width . 'x' . $height . '_' . $options['offset'][0] . '_' . $options['offset'][1] . '_' . $options['mode'] . '.' . $options['extension'];
+        $name = $options['name']
+            ? Str::slug($options['name'])
+            : 'thumb';
+
+        return $name . '_' . $this->id . '_' . $width . 'x' . $height . '_' . $options['offset'][0] . '_' . $options['offset'][1] . '_' . $options['mode'] . '.' . $options['extension'];
     }
 
     /**
@@ -396,6 +400,7 @@ class File extends Model
             'offset'    => [0, 0],
             'quality'   => 95,
             'extension' => 'jpg',
+            'name'      => 'thumb',
         ];
 
         if (!is_array($overrideOptions)) {
