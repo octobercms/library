@@ -39,11 +39,11 @@ class CreatePlugin extends GeneratorCommand
     ];
 
     /**
-     * Prepare names, paths and namespaces for stubs.
+     * Prepare variables for stubs.
      *
      * return @array
      */
-    protected function prepareVariablesForStubs()
+    protected function prepareVars()
     {
         /*
          * Extract the author and name from the plugin code

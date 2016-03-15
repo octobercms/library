@@ -57,8 +57,7 @@ abstract class GeneratorCommand extends Command
      */
     public function fire()
     {
-        $vars = $this->prepareVariablesForStubs();
-        $this->vars = $this->processVars($vars);
+        $this->vars = $this->processVars($this->prepareVars());
 
         $this->makeStubs();
 
@@ -66,11 +65,11 @@ abstract class GeneratorCommand extends Command
     }
 
     /**
-     * Prepare names, paths and namespaces for stubs.
+     * Prepare variables for stubs.
      *
      * return @array
      */
-    abstract protected function prepareVariablesForStubs();
+    abstract protected function prepareVars();
 
     /**
      * Make all stubs.

@@ -39,11 +39,11 @@ class CreateComponent extends GeneratorCommand
     ];
 
     /**
-     * Prepare names, paths and namespaces for stubs.
+     * Prepare variables for stubs.
      *
      * return @array
      */
-    protected function prepareVariablesForStubs()
+    protected function prepareVars()
     {
         $pluginCode = $this->argument('plugin');
 
