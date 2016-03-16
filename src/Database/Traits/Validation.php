@@ -1,9 +1,10 @@
 <?php namespace October\Rain\Database\Traits;
 
+use Lang;
 use Input;
+use October\Rain\Database\ModelException;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Facades\Validator;
-use October\Rain\Database\ModelException;
 use Exception;
 
 trait Validation
@@ -37,13 +38,6 @@ trait Validation
      * @var \Illuminate\Support\MessageBag The message bag instance containing validation error messages
      */
     protected $validationErrors;
-
-    /**
-     * The validator instance.
-     *
-     * @var \Illuminate\Validation\Validator
-     */
-    protected static $validator;
 
     /**
      * Boot the validation trait for this model.
@@ -86,7 +80,7 @@ trait Validation
      */
     protected static function makeValidator($data, $rules, $customMessages, $attributeNames)
     {
-        return static::getModelValidator()->make($data, $rules, $customMessages, $attributeNames);
+        return Validator::make($data, $rules, $customMessages, $attributeNames);
     }
 
     /**
@@ -136,8 +130,6 @@ trait Validation
         if (!empty($rules)) {
 
             $data = $this->getAttributes();
-
-            $lang = static::getModelValidator()->getTranslator();
 
             /*
              * Decode jsonable attribute values
@@ -190,7 +182,7 @@ trait Validation
 
             $translatedCustomMessages = [];
             foreach ($customMessages as $rule => $customMessage){
-                $translatedCustomMessages[$rule] = $lang->get($customMessage);
+                $translatedCustomMessages[$rule] = Lang::get($customMessage);
             }
 
             $customMessages = $translatedCustomMessages;
@@ -208,7 +200,7 @@ trait Validation
 
             $translatedAttributeNames = [];
             foreach ($attributeNames as $attribute => $attributeName){
-                $translatedAttributeNames[$attribute] = $lang->get($attributeName);
+                $translatedAttributeNames[$attribute] = Lang::get($attributeName);
             }
 
             $attributeNames = $translatedAttributeNames;
@@ -216,7 +208,7 @@ trait Validation
             /*
              * Translate any externally defined attribute names
              */
-            $translations = $lang->get('validation.attributes');
+            $translations = Lang::get('validation.attributes');
             if (is_array($translations)) {
                 $attributeNames = array_merge($translations, $attributeNames);
             }
@@ -229,15 +221,12 @@ trait Validation
             $success = $validator->passes();
 
             if ($success) {
-                if ($this->validationErrors->count() > 0) {
+                if ($this->validationErrors->count() > 0)
                     $this->validationErrors = new MessageBag;
-                }
             }
             else {
                 $this->validationErrors = $validator->messages();
-                if (class_exists('Input') && Input::hasSession()) {
-                    Input::flash();
-                }
+                if (Input::hasSession()) Input::flash();
             }
         }
 
@@ -399,41 +388,6 @@ trait Validation
     public static function validated($callback)
     {
         static::registerModelEvent('validated', $callback);
-    }
-
-    /**
-     * Get the validator instance.
-     *
-     * @return \Illuminate\Validation\Validator
-     */
-    public static function getModelValidator()
-    {
-        if (static::$validator === null) {
-            static::$validator = new Validator;
-        }
-
-        return static::$validator;
-    }
-
-    /**
-     * Set the validator instance.
-     *
-     * @param  \Illuminate\Validation\Validator
-     * @return void
-     */
-    public static function setModelValidator($validator)
-    {
-        static::$validator = $validator;
-    }
-
-    /**
-     * Unset the validator for models.
-     *
-     * @return void
-     */
-    public static function unsetModelValidator()
-    {
-        static::$validator = null;
     }
 
 }
