@@ -1,8 +1,8 @@
 <?php
 
 use October\Rain\Halcyon\Model;
-use October\Rain\Halcyon\Theme\FileTheme;
-use October\Rain\Halcyon\Theme\ThemeResolver;
+use October\Rain\Halcyon\Datasource\Resolver;
+use October\Rain\Halcyon\Datasource\FileDatasource;
 use October\Rain\Filesystem\Filesystem;
 
 class HalcyonModelTest extends TestCase
@@ -14,7 +14,7 @@ class HalcyonModelTest extends TestCase
         include_once __DIR__.'/../fixtures/halcyon/models/Page.php';
         include_once __DIR__.'/../fixtures/halcyon/models/Menu.php';
 
-        $this->setThemeResolver();
+        $this->setDatasourceResolver();
 
         $this->setValidatorOnModel();
     }
@@ -47,7 +47,7 @@ class HalcyonModelTest extends TestCase
         $this->assertEquals('<ul><li>Home</li></ul>', $menu->content);
     }
 
-    public function testOtherThemePage()
+    public function testOtherDatasourcePage()
     {
         $page = HalcyonTestPage::on('theme2')->find('home');
         $this->assertNotNull($page);
@@ -259,16 +259,16 @@ ESC;
     // House keeping
     //
 
-    protected function setThemeResolver()
+    protected function setDatasourceResolver()
     {
-        $theme1 = new FileTheme(__DIR__.'/../fixtures/halcyon/themes/theme1', new Filesystem);
-        $this->resolver = new ThemeResolver(['theme1' => $theme1]);
-        $this->resolver->setDefaultTheme('theme1');
+        $theme1 = new FileDatasource(__DIR__.'/../fixtures/halcyon/themes/theme1', new Filesystem);
+        $this->resolver = new Resolver(['theme1' => $theme1]);
+        $this->resolver->setDefaultDatasource('theme1');
 
-        $theme2 = new FileTheme(__DIR__.'/../fixtures/halcyon/themes/theme2', new Filesystem);
-        $this->resolver->addTheme('theme2', $theme2);
+        $theme2 = new FileDatasource(__DIR__.'/../fixtures/halcyon/themes/theme2', new Filesystem);
+        $this->resolver->addDatasource('theme2', $theme2);
 
-        Model::setThemeResolver($this->resolver);
+        Model::setDatasourceResolver($this->resolver);
     }
 
     protected function setValidatorOnModel()

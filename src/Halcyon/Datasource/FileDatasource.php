@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Halcyon\Theme;
+<?php namespace October\Rain\Halcyon\Datasource;
 
 use Illuminate\Filesystem\Filesystem;
 use October\Rain\Halcyon\Processors\Processor;
@@ -11,13 +11,13 @@ use RecursiveIteratorIterator;
 use Exception;
 
 /**
- * File based theme.
+ * File based datasource.
  */
-class FileTheme extends Theme implements ThemeInterface
+class FileDatasource extends Datasource implements DatasourceInterface
 {
 
     /**
-     * The local path where the theme can be found.
+     * The local path where the datasource can be found.
      *
      * @var string
      */
@@ -31,7 +31,7 @@ class FileTheme extends Theme implements ThemeInterface
     protected $files;
 
     /**
-     * Create a new theme instance.
+     * Create a new datasource instance.
      *
      * @param  string   $container
      * @param  array    $config
@@ -189,7 +189,7 @@ class FileTheme extends Theme implements ThemeInterface
     }
 
     /**
-     * Run a delete statement against the theme.
+     * Run a delete statement against the datasource.
      *
      * @param  string  $dirName
      * @param  string  $fileName
@@ -208,7 +208,7 @@ class FileTheme extends Theme implements ThemeInterface
     }
 
     /**
-     * Run a delete statement against the theme.
+     * Run a delete statement against the datasource.
      *
      * @param  string  $dirName
      * @param  string  $fileName
@@ -270,16 +270,16 @@ class FileTheme extends Theme implements ThemeInterface
     }
 
     /**
-     * Generate a cache key unique to this theme.
+     * Generate a cache key unique to this datasource.
      * @return string
      */
-    public function makeCacheKey($name)
+    public function makeCacheKey($name = '')
     {
         return crc32($this->basePath . $name);
     }
 
     /**
-     * Returns the base path for this theme.
+     * Returns the base path for this datasource.
      * @return string
      */
     public function getBasePath()

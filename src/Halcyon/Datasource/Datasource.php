@@ -1,9 +1,9 @@
-<?php namespace October\Rain\Halcyon\Theme;
+<?php namespace October\Rain\Halcyon\Datasource;
 
 /**
- * File based theme.
+ * Datasource base class.
  */
-class Theme
+class Datasource
 {
 
     /**
@@ -24,9 +24,9 @@ class Theme
     }
 
     /**
-     * Generate a cache key unique to this theme.
+     * Generate a cache key unique to this datasource.
      */
-    public function makeCacheKey($name)
+    public function makeCacheKey($name = '')
     {
         return crc32($name);
     }

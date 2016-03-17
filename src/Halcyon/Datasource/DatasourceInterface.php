@@ -1,8 +1,8 @@
-<?php namespace October\Rain\Halcyon\Theme;
+<?php namespace October\Rain\Halcyon\Datasource;
 
 use Closure;
 
-interface ThemeInterface
+interface DatasourceInterface
 {
 
     /**
@@ -47,7 +47,7 @@ interface ThemeInterface
     public function update($dirName, $fileName, $extension, $content);
 
     /**
-     * Run a delete statement against the theme.
+     * Run a delete statement against the datasource.
      *
      * @param  string  $dirName
      * @param  string  $fileName
@@ -65,5 +65,13 @@ interface ThemeInterface
      * @return int
      */
     public function lastModified($dirName, $fileName, $extension);
+
+    /**
+     * Generate a cache key unique to this datasource.
+     *
+     * @param  string  $name
+     * @return string
+     */
+    public function makeCacheKey($name = '');
 
 }

@@ -2,22 +2,22 @@
 
 Halcyon is a file based ORM, and the cousin of Eloquent. The goal of this library is to create a solution for file based object storage that shares the same API as database stored models.
 
-### Registering themes
+### Registering a data source
 
-Themes reside inside a resolving container called `October\Rain\Halcyon\Theme\ThemeResolver`. The following theme datasources are supported:
+Datasources reside inside a resolving container called `October\Rain\Halcyon\Datasource\Resolver`. The following datasources are supported:
 
-- `October\Rain\Halcyon\Theme\FileTheme`: File based theme datasource.
+- `October\Rain\Halcyon\Datasource\FileDatasource`: File based datasource.
 
-Here is an example of registering a theme called `theme1`, then binding the resolver to all models.
+Here is an example of registering a datasource called `theme1`, then binding the resolver to all models.
 
     use October\Rain\Halcyon\Model;
     use October\Rain\Filesystem\Filesystem;
-    use October\Rain\Halcyon\Theme\FileTheme;
-    use October\Rain\Halcyon\Theme\ThemeResolver;
+    use October\Rain\Halcyon\Datasource\FileDatasource;
+    use October\Rain\Halcyon\Datasource\Resolver;
 
-    $theme = new FileTheme('/path/to/theme', new Filesystem);
-    $resolver = new ThemeResolver(['theme1' => $theme1]);
-    Model::setThemeResolver($resolver);
+    $datasource = new FileDatasource('/path/to/theme', new Filesystem);
+    $resolver = new DatasourceResolver(['theme1' => $datasource1]);
+    Model::setDatasourceResolver($resolver);
 
 ### Model example
 

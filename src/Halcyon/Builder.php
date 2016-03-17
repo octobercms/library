@@ -1,20 +1,21 @@
 <?php namespace October\Rain\Halcyon;
 
 use October\Rain\Halcyon\Model;
-use October\Rain\Halcyon\Theme\ThemeInterface;
+use October\Rain\Halcyon\Datasource\DatasourceInterface;
 use October\Rain\Halcyon\Processors\Processor;
 use October\Rain\Halcyon\Exception\MissingFileNameException;
 use October\Rain\Halcyon\Exception\InvalidFileNameException;
 use October\Rain\Halcyon\Exception\InvalidExtensionException;
+use BadMethodCallException;
 
 class Builder
 {
     /**
-     * The theme instance.
+     * The datasource instance.
      *
-     * @var \October\Rain\Halcyon\Theme\ThemeInterface
+     * @var \October\Rain\Halcyon\Datasource\DatasourceInterface
      */
-    protected $theme;
+    protected $datasource;
 
     /**
      * The model being queried.
@@ -117,13 +118,13 @@ class Builder
     /**
      * Create a new query builder instance.
      *
-     * @param  \October\Rain\Halcyon\Theme\ThemeInterface  $theme
+     * @param  \October\Rain\Halcyon\Datasource\DatasourceInterface  $datasource
      * @param  \October\Rain\Halcyon\Processors\Processor  $processor
      * @return void
      */
-    public function __construct(ThemeInterface $theme, Processor $processor)
+    public function __construct(DatasourceInterface $datasource, Processor $processor)
     {
-        $this->theme = $theme;
+        $this->datasource = $datasource;
         $this->processor = $processor;
     }
 
@@ -263,7 +264,7 @@ class Builder
     }
 
     /**
-     * Run the query as a "select" statement against the theme.
+     * Run the query as a "select" statement against the datasource.
      *
      * @return array
      */
@@ -271,10 +272,10 @@ class Builder
     {
         if ($this->selectSingle) {
             list($name, $extension) = $this->selectSingle;
-            return $this->theme->selectOne($this->from, $name, $extension);
+            return $this->datasource->selectOne($this->from, $name, $extension);
         }
         else {
-            return $this->theme->select($this->from, $this->extensions);
+            return $this->datasource->select($this->from, $this->extensions);
         }
     }
 
@@ -313,7 +314,7 @@ class Builder
 
         $result = $this->processor->processInsert($this, $values);
 
-        return $this->theme->insert(
+        return $this->datasource->insert(
             $this->model->getObjectTypeDirName(),
             $name,
             $extension,
@@ -343,7 +344,7 @@ class Builder
             );
         }
 
-        return $this->theme->update(
+        return $this->datasource->update(
             $this->model->getObjectTypeDirName(),
             $name,
             $extension,
@@ -365,7 +366,25 @@ class Builder
 
         list($name, $extension) = $this->model->getFileNameParts();
 
-        return $this->theme->delete(
+        return $this->datasource->delete(
+            $this->model->getObjectTypeDirName(),
+            $name,
+            $extension
+        );
+    }
+
+    /**
+     * Returns the last modified time of the object.
+     *
+     * @return int
+     */
+    public function lastModified()
+    {
+        $this->validateFileName();
+
+        list($name, $extension) = $this->model->getFileNameParts();
+
+        return $this->datasource->lastModified(
             $this->model->getObjectTypeDirName(),
             $name,
             $extension
@@ -380,9 +399,9 @@ class Builder
      */
     public function getModels(array $results)
     {
-        $theme = $this->model->getThemeName();
+        $datasource = $this->model->getDatasourceName();
 
-        $models = $this->model->hydrate($results, $theme);
+        $models = $this->model->hydrate($results, $datasource);
 
         /*
          * Flag the models as loaded from cache, then reset the internal property.
@@ -614,7 +633,7 @@ class Builder
 
         list($name, $extension) = $this->selectSingle;
 
-        $currentMtime = $this->theme->lastModified(
+        $currentMtime = $this->datasource->lastModified(
             $this->from,
             $name,
             $extension
@@ -659,7 +678,7 @@ class Builder
         $payload[] = $this->limit;
         $payload[] = $this->offset;
 
-        return $this->from . $this->theme->makeCacheKey(implode('-', $payload));
+        return $this->from . $this->datasource->makeCacheKey(implode('-', $payload));
     }
 
     /**
@@ -697,5 +716,21 @@ class Builder
     public static function clearInternalCache()
     {
         MemoryCache::$cache = [];
+    }
+
+    /**
+     * Handle dynamic method calls into the method.
+     *
+     * @param  string  $method
+     * @param  array   $parameters
+     * @return mixed
+     *
+     * @throws \BadMethodCallException
+     */
+    public function __call($method, $parameters)
+    {
+        $className = get_class($this);
+
+        throw new BadMethodCallException("Call to undefined method {$className}::{$method}()");
     }
 }

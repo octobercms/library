@@ -4,10 +4,11 @@ use October\Rain\Support\Arr;
 use October\Rain\Support\Str;
 use October\Rain\Extension\Extendable;
 use October\Rain\Halcyon\Builder;
-use October\Rain\Halcyon\Theme\ThemeResolverInterface as Resolver;
+use October\Rain\Halcyon\Datasource\ResolverInterface as Resolver;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Events\Dispatcher;
+use BadMethodCallException;
 use JsonSerializable;
 use ArrayAccess;
 use Exception;
@@ -25,7 +26,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * @var string The data source for the model, a directory path.
      */
-    protected $theme;
+    protected $datasource;
 
     /**
      * @var string The container name associated with the model, eg: pages.
@@ -111,9 +112,9 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     protected static $cache;
 
     /**
-     * The theme resolver instance.
+     * The datasource resolver instance.
      *
-     * @var \October\Rain\Halcyon\Theme\ThemeResolverInterface
+     * @var \October\Rain\Halcyon\Datasource\ResolverInterface
      */
     protected static $resolver;
 
@@ -460,10 +461,10 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      * Create a new model instance that is existing.
      *
      * @param  array  $attributes
-     * @param  string|null  $theme
+     * @param  string|null  $datasource
      * @return static
      */
-    public function newFromBuilder($attributes = [], $theme = null)
+    public function newFromBuilder($attributes = [], $datasource = null)
     {
         $instance = $this->newInstance([], true);
 
@@ -475,7 +476,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
         $instance->fireModelEvent('fetched', false);
 
-        $instance->setTheme($theme ?: $this->theme);
+        $instance->setDatasource($datasource ?: $this->datasource);
 
         return $instance;
     }
@@ -484,12 +485,12 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      * Create a collection of models from plain arrays.
      *
      * @param  array  $items
-     * @param  string|null  $theme
+     * @param  string|null  $datasource
      * @return \October\Rain\Halcyon\Collection
      */
-    public static function hydrate(array $items, $theme = null)
+    public static function hydrate(array $items, $datasource = null)
     {
-        $instance = (new static)->setTheme($theme);
+        $instance = (new static)->setDatasource($datasource);
 
         $items = array_map(function ($item) use ($instance) {
             return $instance->newFromBuilder($item);
@@ -524,18 +525,18 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Begin querying the model on a given theme.
+     * Begin querying the model on a given datasource.
      *
-     * @param  string|null  $theme
+     * @param  string|null  $datasource
      * @return \October\Rain\Halcyon\Builder
      */
-    public static function on($theme = null)
+    public static function on($datasource = null)
     {
         // First we will just create a fresh instance of this model, and then we can
-        // set the theme on the model so that it is be used for the queries.
+        // set the datasource on the model so that it is be used for the queries.
         $instance = new static;
 
-        $instance->setTheme($theme);
+        $instance->setDatasource($datasource);
 
         return $instance;
     }
@@ -657,7 +658,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Get a plain attribute (not a relationship).
+     * Get a plain attribute.
      *
      * @param  string  $key
      * @return mixed
@@ -697,7 +698,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function hasGetMutator($key)
     {
-        return method_exists($this, 'get'.Str::studly($key).'Attribute');
+        return $this->methodExists('get'.Str::studly($key).'Attribute');
     }
 
     /**
@@ -1157,7 +1158,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Save the model to the theme.
+     * Save the model to the datasource.
      *
      * @param  array  $options
      * @return bool
@@ -1211,6 +1212,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     protected function finishSave(array $options)
     {
         $this->fireModelEvent('saved', false);
+
+        $this->mtime = $this->newQuery()->lastModified();
 
         $this->syncOriginal();
     }
@@ -1304,9 +1307,9 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function newQuery()
     {
-        $theme = $this->getTheme();
+        $datasource = $this->getDatasource();
 
-        $query = new Builder($theme, $theme->getPostProcessor());
+        $query = new Builder($datasource, $datasource->getPostProcessor());
 
         return $query->setModel($this);
     }
@@ -1344,76 +1347,76 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Get the theme theme for the model.
+     * Get the datasource for the model.
      *
-     * @return \October\Rain\Halcyon\Theme
+     * @return \October\Rain\Halcyon\Datasource
      */
-    public function getTheme()
+    public function getDatasource()
     {
-        return static::resolveTheme($this->theme);
+        return static::resolveDatasource($this->datasource);
     }
 
     /**
-     * Get the current theme name for the model.
+     * Get the current datasource name for the model.
      *
      * @return string
      */
-    public function getThemeName()
+    public function getDatasourceName()
     {
-        return $this->theme;
+        return $this->datasource;
     }
 
     /**
-     * Set the theme associated with the model.
+     * Set the datasource associated with the model.
      *
      * @param  string  $name
      * @return $this
      */
-    public function setTheme($name)
+    public function setDatasource($name)
     {
-        $this->theme = $name;
+        $this->datasource = $name;
 
         return $this;
     }
 
     /**
-     * Resolve a theme instance.
+     * Resolve a datasource instance.
      *
-     * @param  string|null  $theme
-     * @return \October\Rain\Halcyon\Theme
+     * @param  string|null  $datasource
+     * @return \October\Rain\Halcyon\Datasource
      */
-    public static function resolveTheme($theme = null)
+    public static function resolveDatasource($datasource = null)
     {
-        return static::$resolver->theme($theme);
+        return static::$resolver->datasource($datasource);
     }
 
     /**
-     * Get the theme resolver instance.
+     * Get the datasource resolver instance.
      *
-     * @return \October\Rain\Halcyon\ThemeResolverInterface
+     * @return \October\Rain\Halcyon\DatasourceResolverInterface
      */
-    public static function getThemeResolver()
+    public static function getDatasourceResolver()
     {
         return static::$resolver;
     }
 
     /**
-     * Set the theme resolver instance.
+     * Set the datasource resolver instance.
      *
-     * @param  \October\Rain\Halcyon\ThemeResolverInterface  $resolver
+     * @param  \October\Rain\Halcyon\DatasourceResolverInterface  $resolver
      * @return void
      */
-    public static function setThemeResolver(Resolver $resolver)
+    public static function setDatasourceResolver(Resolver $resolver)
     {
         static::$resolver = $resolver;
     }
 
     /**
-     * Unset the theme resolver for models.
+     * Unset the datasource resolver for models.
      *
      * @return void
      */
-    public static function unsetThemeResolver()
+    public static function unsetDatasourceResolver()
     {
         static::$resolver = null;
     }
@@ -1628,9 +1631,13 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function __call($method, $parameters)
     {
-        $query = $this->newQuery();
-
-        return call_user_func_array([$query, $method], $parameters);
+        try {
+            return parent::__call($method, $parameters);
+        }
+        catch (BadMethodCallException $ex) {
+            $query = $this->newQuery();
+            return call_user_func_array([$query, $method], $parameters);
+        }
     }
 
     /**
@@ -1656,5 +1663,4 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     {
         return $this->toJson();
     }
-
 }
