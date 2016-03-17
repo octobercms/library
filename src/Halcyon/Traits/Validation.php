@@ -80,6 +80,15 @@ trait Validation
     }
 
     /**
+     * Returns the model data used for validation.
+     * @return array
+     */
+    protected function getValidationAttributes()
+    {
+        return $this->getAttributes();
+    }
+
+    /**
      * Instantiates the validator used by the validation process, depending if the class is being used inside or
      * outside of Laravel.
      * @return \Illuminate\Validation\Validator
@@ -134,7 +143,7 @@ trait Validation
 
         if (!empty($rules)) {
 
-            $data = $this->getAttributes();
+            $data = $this->getValidationAttributes();
 
             $lang = static::getModelValidator()->getTranslator();
 
@@ -329,7 +338,7 @@ trait Validation
     public static function getModelValidator()
     {
         if (static::$validator === null) {
-            static::$validator = new Validator;
+            static::$validator = Validator::getFacadeRoot();
         }
 
         return static::$validator;
