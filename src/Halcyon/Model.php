@@ -665,6 +665,11 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function getAttribute($key)
     {
+        // Before Event
+        if (($attr = $this->fireEvent('model.beforeGetAttribute', [$key], true)) !== null) {
+            return $attr;
+        }
+
         $value = $this->getAttributeFromArray($key);
 
         // If the attribute has a get mutator, we will call that then return what
@@ -672,6 +677,11 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         // retrieval from the model to a form that is more useful for usage.
         if ($this->hasGetMutator($key)) {
             return $this->mutateAttribute($key, $value);
+        }
+
+        // After Event
+        if (($_attr = $this->fireEvent('model.getAttribute', [$key, $attr], true)) !== null) {
+            return $_attr;
         }
 
         return $value;
