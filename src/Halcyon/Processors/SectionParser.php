@@ -14,6 +14,8 @@ class SectionParser
 {
     const SECTION_SEPARATOR = '==';
 
+    const ERROR_INI = '_PARSER_ERROR_INI';
+
     /**
      * Renders a CMS object as file content.
      * @return string
@@ -118,9 +120,10 @@ class SectionParser
         }
 
         if ($count >= 3) {
-            $result['settings'] = $iniParser->parse($sections[0], true);
-            $result['code'] = $sections[1];
+            $result['settings'] = @$iniParser->parse($sections[0], true)
+                ?: [self::ERROR_INI => $sections[0]];
 
+            $result['code'] = $sections[1];
             $result['code'] = preg_replace('/^\s*\<\?php/', '', $result['code']);
             $result['code'] = preg_replace('/^\s*\<\?/', '', $result['code']);
             $result['code'] = preg_replace('/\?\>\s*$/', '', $result['code']);
@@ -128,7 +131,9 @@ class SectionParser
             $result['markup'] = $sections[2];
         }
         elseif ($count == 2) {
-            $result['settings'] = $iniParser->parse($sections[0], true);
+            $result['settings'] = @$iniParser->parse($sections[0], true)
+                ?: [self::ERROR_INI => $sections[0]];
+
             $result['markup'] = $sections[1];
         }
         elseif ($count == 1) {
