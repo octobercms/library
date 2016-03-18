@@ -16,7 +16,8 @@ Here is an example of registering a datasource called `theme1`, then binding the
     use October\Rain\Halcyon\Datasource\Resolver;
 
     $datasource = new FileDatasource('/path/to/theme', new Filesystem);
-    $resolver = new DatasourceResolver(['theme1' => $datasource1]);
+    $resolver = new DatasourceResolver(['theme1' => $datasource]);
+    $resolver->setDefaultDatasource('theme1');
     Model::setDatasourceResolver($resolver);
 
 ### Model example
