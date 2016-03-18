@@ -82,16 +82,22 @@ if (!function_exists('trace_log'))
      * @param string $level Specifies a level to use. If this parameter is omitted, the default listener will be used (info).
      * @return void
      */
-    function trace_log($message, $level = 'info')
+    function trace_log($messages)
     {
-        if ($message instanceof Exception) {
-            $level = 'error';
-        }
-        elseif (is_array($message) || is_object($message)) {
-            $message = print_r($message, true);
-        }
+        if (is_string($messages)) $messages = func_get_args();
 
-        Log::$level($message);
+        foreach ($messages as $message) {
+            $level = 'info';
+
+            if ($message instanceof Exception) {
+                $level = 'error';
+            }
+            elseif (is_array($message) || is_object($message)) {
+                $message = print_r($message, true);
+            }
+
+            Log::$level($message);
+        }
     }
 }
 
@@ -101,9 +107,11 @@ if (!function_exists('traceLog'))
      * Alias for trace_log()
      * @return void
      */
-    function traceLog($message, $level = 'info')
+    function traceLog($messages)
     {
-        trace_log($message, $level);
+        if (is_string($messages)) $messages = func_get_args();
+
+        trace_log($messages);
     }
 }
 
