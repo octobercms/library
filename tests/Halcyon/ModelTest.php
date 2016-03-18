@@ -86,7 +86,10 @@ function onStart() { }
 <p>Hello world!</p>
 ESC;
 
-        $this->assertEquals($content, file_get_contents($targetFile));
+        $expected = file_get_contents($targetFile);
+        $expected = preg_replace('~\R~u', PHP_EOL, $expected); // Normalize EOL
+        $content = preg_replace('~\R~u', PHP_EOL, $content); // Normalize EOL
+        $this->assertEquals($content, $expected);
 
         @unlink($targetFile);
     }
