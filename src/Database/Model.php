@@ -2,6 +2,8 @@
 
 use Input;
 use Closure;
+use October\Rain\Support\Arr;
+use October\Rain\Support\Str;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Collection as CollectionBase;
 use October\Rain\Database\Relations\BelongsTo;
@@ -1159,7 +1161,7 @@ class Model extends EloquentModel
      */
     public function push($options = null, $sessionKey = null)
     {
-        $always = array_get($options, 'always', false);
+        $always = Arr::get($options, 'always', false);
 
         if (!$this->save(null, $sessionKey) && !$always) {
             return false;
@@ -1228,7 +1230,7 @@ class Model extends EloquentModel
              * Hard 'delete' definintion
              */
             foreach ($relations as $name => $options) {
-                if (!array_get($options, 'delete', false)) {
+                if (!Arr::get($options, 'delete', false)) {
                     continue;
                 }
 
@@ -1350,7 +1352,7 @@ class Model extends EloquentModel
      */
     public function hasGetMutator($key)
     {
-        return $this->methodExists('get'.studly_case($key).'Attribute');
+        return $this->methodExists('get'.Str::studly($key).'Attribute');
     }
 
     //
@@ -1404,7 +1406,7 @@ class Model extends EloquentModel
      */
     public function hasSetMutator($key)
     {
-        return $this->methodExists('set'.studly_case($key).'Attribute');
+        return $this->methodExists('set'.Str::studly($key).'Attribute');
     }
 
 }
