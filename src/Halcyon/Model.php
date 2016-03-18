@@ -16,7 +16,7 @@ use Exception;
 /**
  * This is a base template object. Equivalent to a Model in ORM.
  *
- * @package october\parse
+ * @package october\halcyon
  * @author Alexey Bobkov, Samuel Georges
  */
 class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, JsonSerializable

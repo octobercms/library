@@ -1,9 +1,9 @@
 <?php namespace October\Rain\Halcyon;
 
 /**
- * Provides a simple request-level cache for CMS objects.
+ * Provides a simple request-level cache for models.
  *
- * @package october\parse
+ * @package october\halcyon
  * @author Alexey Bobkov, Samuel Georges
  */
 class MemoryCache

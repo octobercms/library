@@ -8,6 +8,12 @@ use October\Rain\Halcyon\Exception\InvalidFileNameException;
 use October\Rain\Halcyon\Exception\InvalidExtensionException;
 use BadMethodCallException;
 
+/**
+ * Query builder
+ *
+ * @package october\halcyon
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class Builder
 {
     /**

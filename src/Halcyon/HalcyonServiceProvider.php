@@ -4,6 +4,12 @@ use October\Rain\Halcyon\Model;
 use October\Rain\Halcyon\Datasource\Resolver;
 use October\Rain\Support\ServiceProvider;
 
+/**
+ * Service provider
+ *
+ * @package october\halcyon
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class HalcyonServiceProvider extends ServiceProvider
 {
 

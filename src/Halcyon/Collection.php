@@ -3,7 +3,7 @@
 use October\Rain\Support\Collection as CollectionBase;
 
 /**
- * This class represents a collection of Cms Objects.
+ * This class represents a collection of Halcyon models.
  *
  * @package october\halcyon
  * @author Alexey Bobkov, Samuel Georges
