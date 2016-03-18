@@ -47,7 +47,7 @@ class CreateFormWidget extends GeneratorCommand
      */
     protected function prepareVars()
     {
-        $pluginCode = $this->argument('pluginCode');
+        $pluginCode = $this->argument('plugin');
 
         $parts = explode('.', $pluginCode);
         $plugin = array_pop($parts);
