@@ -82,9 +82,9 @@ if (!function_exists('trace_log'))
      * @param string $level Specifies a level to use. If this parameter is omitted, the default listener will be used (info).
      * @return void
      */
-    function trace_log($messages)
+    function trace_log()
     {
-        if (is_string($messages)) $messages = func_get_args();
+        $messages = func_get_args();
 
         foreach ($messages as $message) {
             $level = 'info';
@@ -107,11 +107,9 @@ if (!function_exists('traceLog'))
      * Alias for trace_log()
      * @return void
      */
-    function traceLog($messages)
+    function traceLog()
     {
-        if (is_string($messages)) $messages = func_get_args();
-
-        trace_log($messages);
+        call_user_func_array('trace_log', func_get_args());
     }
 }
 
