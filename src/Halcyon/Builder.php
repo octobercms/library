@@ -59,6 +59,13 @@ class Builder
     public $selectSingle;
 
     /**
+     * Query should ignore content, for performance with directory lookups.
+     *
+     * @var bool
+     */
+    public $skipContent;
+
+    /**
      * Match files using the specified pattern.
      *
      * @var string
@@ -251,6 +258,24 @@ class Builder
     }
 
     /**
+     * Get an array with the values of a given column.
+     *
+     * @param  string  $column
+     * @param  string  $key
+     * @return array
+     */
+    public function lists($column, $key = null)
+    {
+        if ($column != 'content' && $key != 'content') {
+            $this->skipContent = true;
+        }
+
+        $results = new Collection($this->get());
+
+        return $results->lists($column, $key);
+    }
+
+    /**
      * Execute the query as a fresh "select" statement.
      *
      * @return \October\Rain\Halcyon\Collection|static[]
@@ -281,7 +306,9 @@ class Builder
             return $this->datasource->selectOne($this->from, $name, $extension);
         }
         else {
-            return $this->datasource->select($this->from, $this->extensions);
+            return $this->datasource->select($this->from, $this->extensions, [
+                'skipContent' => $this->skipContent
+            ]);
         }
     }
 

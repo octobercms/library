@@ -108,7 +108,7 @@ class SectionParser
             'markup'   => null
         ];
 
-        if (!$isCompoundObject) {
+        if (!$isCompoundObject || !strlen($content)) {
             return $result;
         }
 

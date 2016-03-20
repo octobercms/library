@@ -74,11 +74,12 @@ class FileDatasource extends Datasource implements DatasourceInterface
     public function select($dirName, array $options = [])
     {
         extract(array_merge([
-            'extensions' => null,
-            'fileMatch'  => null,
-            'orders'     => null, // @todo
-            'limit'      => null, // @todo
-            'offset'     => null  // @todo
+            'extensions'  => null,  // Match specified extensions
+            'fileMatch'   => null,  // Match the file using fmatch()
+            'skipContent' => false, // For performance reasons
+            'orders'      => null,  // @todo
+            'limit'       => null,  // @todo
+            'offset'      => null   // @todo
         ], $options));
 
         $result = [];
@@ -121,7 +122,10 @@ class FileDatasource extends Datasource implements DatasourceInterface
             }
 
             $path = $this->basePath . '/' . $dirName . '/' .$fileName;
-            $result[$fileName] = [$this->files->lastModified($path), $this->files->get($path)];
+
+            $content = $skipContent ? '' : $this->files->get($path);
+
+            $result[$fileName] = [$this->files->lastModified($path), $content];
 
             $it->next();
         }
