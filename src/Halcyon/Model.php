@@ -308,21 +308,17 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Filling the settings should merge it with attributes.
      * @param mixed $value
-     * @return $this
      */
     public function setSettingsAttribute($value)
     {
         if (is_array($value)) {
             $this->attributes = array_merge($this->attributes, $value);
         }
-
-        return $this;
     }
 
     /**
      * File name should always contain an extension.
      * @param mixed $value
-     * @return $this
      */
     public function setFileNameAttribute($value)
     {
@@ -333,8 +329,6 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         }
 
         $this->attributes['fileName'] = $fileName;
-
-        return $this;
     }
 
     /**
