@@ -258,6 +258,15 @@ ESC;
         $page->delete();
     }
 
+    public function testPageQueryListFileName()
+    {
+        $page = new HalcyonTestPageWithValidation;
+        $files = $page->newQuery()->lists('fileName');
+
+        $this->assertCount(2, $files);
+        $this->assertEquals(['about.htm', 'home.htm'], $files);
+    }
+
     //
     // House keeping
     //

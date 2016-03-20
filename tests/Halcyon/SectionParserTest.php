@@ -62,7 +62,7 @@ class SectionParserTest extends TestCase
         $this->assertArrayHasKey("code", $result);
         $this->assertArrayHasKey("markup", $result);
         $this->assertEmpty($result["settings"]);
-        $this->assertNotNull($result["markup"]);
+        $this->assertNull($result["markup"]);
         $this->assertNull($result["code"]);
         $this->assertEquals("", $result["markup"]);
     }

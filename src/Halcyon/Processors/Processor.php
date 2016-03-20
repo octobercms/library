@@ -13,11 +13,13 @@ class Processor
      * @param  string $fileName
      * @return array
      */
-    public function processSelectOne(Builder $query, $result, $fileName)
+    public function processSelectOne(Builder $query, $result)
     {
         if ($result === null) {
             return null;
         }
+
+        $fileName = array_get($result, 'fileName');
 
         return [$fileName => $this->parseTemplateContent($query, $result, $fileName)];
     }
@@ -31,13 +33,18 @@ class Processor
      */
     public function processSelect(Builder $query, $results)
     {
-        if (count($results)) {
-            foreach ($results as $fileName => &$result) {
-                $result = $this->parseTemplateContent($query, $result, $fileName);
-            }
+        if (!count($results)) {
+            return [];
         }
 
-        return $results;
+        $items = [];
+
+        foreach ($results as $result) {
+            $fileName = array_get($result, 'fileName');
+            $items[$fileName] = $this->parseTemplateContent($query, $result, $fileName);
+        }
+
+        return $items;
     }
 
     /**
@@ -48,18 +55,18 @@ class Processor
      */
     protected function parseTemplateContent($query, $result, $fileName)
     {
-        list($mtime, $content) = $result;
-
         $options = [
             'isCompoundObject' => $query->getModel()->isCompoundObject()
         ];
 
+        $content = array_get($result, 'content');
+
         $processed = SectionParser::parse($content, $options);
 
         return [
-            'mtime' => $mtime,
             'fileName' => $fileName,
             'content' => $content,
+            'mtime' => array_get($result, 'mtime'),
             'markup' => $processed['markup'],
             'code' => $processed['code']
         ] + $processed['settings'];

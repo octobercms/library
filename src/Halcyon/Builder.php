@@ -38,6 +38,13 @@ class Builder
     protected $processor;
 
     /**
+     * The columns that should be returned.
+     *
+     * @var array
+     */
+    public $columns;
+
+    /**
      * Filter the query by these file extensions.
      *
      * @var array
@@ -57,13 +64,6 @@ class Builder
      * @var bool
      */
     public $selectSingle;
-
-    /**
-     * Query should ignore content, for performance with directory lookups.
-     *
-     * @var bool
-     */
-    public $skipContent;
 
     /**
      * Match files using the specified pattern.
@@ -241,15 +241,16 @@ class Builder
     /**
      * Execute the query as a "select" statement.
      *
+     * @param  array  $columns
      * @return \October\Rain\Halcyon\Collection|static[]
      */
-     public function get()
+     public function get($columns = ['*'])
      {
         if (!is_null($this->cacheMinutes)) {
-            $results = $this->getCached();
+            $results = $this->getCached($columns);
         }
         else {
-            $results = $this->getFresh();
+            $results = $this->getFresh($columns);
         }
 
         $models = $this->getModels($results ?: []);
@@ -266,11 +267,9 @@ class Builder
      */
     public function lists($column, $key = null)
     {
-        if ($column != 'content' && $key != 'content') {
-            $this->skipContent = true;
-        }
+        $select = is_null($key) ? [$column] : [$column, $key];
 
-        $results = new Collection($this->get());
+        $results = new Collection($this->get($select));
 
         return $results->lists($column, $key);
     }
@@ -278,20 +277,18 @@ class Builder
     /**
      * Execute the query as a fresh "select" statement.
      *
+     * @param  array  $columns
      * @return \October\Rain\Halcyon\Collection|static[]
      */
-    public function getFresh()
+    public function getFresh($columns = ['*'])
     {
-        if ($this->selectSingle) {
-            return $this->processor->processSelectOne(
-                $this,
-                $this->runSelect(),
-                implode('.', $this->selectSingle)
-            );
+        if (is_null($this->columns)) {
+            $this->columns = $columns;
         }
-        else {
-            return $this->processor->processSelect($this, $this->runSelect());
-        }
+
+        $processCmd = $this->selectSingle ? 'processSelectOne' : 'processSelect';
+
+        return $this->processor->{$processCmd}($this, $this->runSelect());
     }
 
     /**
@@ -306,8 +303,9 @@ class Builder
             return $this->datasource->selectOne($this->from, $name, $extension);
         }
         else {
-            return $this->datasource->select($this->from, $this->extensions, [
-                'skipContent' => $this->skipContent
+            return $this->datasource->select($this->from, [
+                'columns' => $this->columns,
+                'extensions' => $this->extensions
             ]);
         }
     }
@@ -603,12 +601,15 @@ class Builder
     /**
      * Execute the query as a cached "select" statement.
      *
-     * @param  string  $fileName
-     * @param  string  $forget
+     * @param  array  $columns
      * @return array
      */
-    public function getCached()
+    public function getCached($columns = ['*'])
     {
+        if (is_null($this->columns)) {
+            $this->columns = $columns;
+        }
+
         $key = $this->getCacheKey();
 
         if (array_key_exists($key, MemoryCache::$cache)) {
@@ -617,7 +618,7 @@ class Builder
 
         $minutes = $this->cacheMinutes;
         $cache = $this->getCache();
-        $callback = $this->getCacheCallback();
+        $callback = $this->getCacheCallback($columns);
         $isNewCache = !$cache->has($key);
 
         // If the "minutes" value is less than zero, we will use that as the indicator
@@ -705,8 +706,9 @@ class Builder
     public function generateCacheKey()
     {
         $payload = [];
-        $payload[] = $this->selectSingle ? serialize($this->selectSingle) : 'multi';
-        $payload[] = $this->orders ? serialize($this->orders) : 'unsorted';
+        $payload[] = $this->selectSingle ? serialize($this->selectSingle) : '*';
+        $payload[] = $this->orders ? serialize($this->orders) : '*';
+        $payload[] = $this->columns ? serialize($this->columns) : '*';
         $payload[] = $this->fileMatch;
         $payload[] = $this->limit;
         $payload[] = $this->offset;
@@ -720,9 +722,9 @@ class Builder
      * @param  string  $fileName
      * @return \Closure
      */
-    protected function getCacheCallback()
+    protected function getCacheCallback($columns)
     {
-        return function() { return $this->processInitCacheData($this->getFresh()); };
+        return function() use ($columns) { return $this->processInitCacheData($this->getFresh($columns)); };
     }
 
     /**

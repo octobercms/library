@@ -58,7 +58,11 @@ class FileDatasource extends Datasource implements DatasourceInterface
         try {
             $path = $this->makeFilePath($dirName, $fileName, $extension);
 
-            return [$this->files->lastModified($path), $this->files->get($path)];
+            return [
+                'fileName' => $fileName . '.' . $extension,
+                'content'  => $this->files->get($path),
+                'mtime'    => $this->files->lastModified($path)
+            ];
         }
         catch (Exception $ex) {
             return null;
@@ -74,9 +78,9 @@ class FileDatasource extends Datasource implements DatasourceInterface
     public function select($dirName, array $options = [])
     {
         extract(array_merge([
+            'columns'     => null,  // Only return specific columns (fileName, mtime, content)
             'extensions'  => null,  // Match specified extensions
             'fileMatch'   => null,  // Match the file using fmatch()
-            'skipContent' => false, // For performance reasons
             'orders'      => null,  // @todo
             'limit'       => null,  // @todo
             'offset'      => null   // @todo
@@ -87,6 +91,13 @@ class FileDatasource extends Datasource implements DatasourceInterface
 
         if (!$this->files->isDirectory($dirPath)) {
             return $result;
+        }
+
+        if ($columns === ['*'] || !is_array($columns)) {
+            $columns = null;
+        }
+        else {
+            $columns = array_flip($columns);
         }
 
         $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dirPath));
@@ -121,11 +132,21 @@ class FileDatasource extends Datasource implements DatasourceInterface
                 continue;
             }
 
+            $item = [];
+
             $path = $this->basePath . '/' . $dirName . '/' .$fileName;
 
-            $content = $skipContent ? '' : $this->files->get($path);
+            $item['fileName'] = $fileName;
 
-            $result[$fileName] = [$this->files->lastModified($path), $content];
+            if (!$columns || array_key_exists('content', $columns)) {
+                $item['content'] = $this->files->get($path);
+            }
+
+            if (!$columns || array_key_exists('mtime', $columns)) {
+                $item['mtime'] = $this->files->lastModified($path);
+            }
+
+            $result[] = $item;
 
             $it->next();
         }
