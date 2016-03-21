@@ -80,7 +80,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
         extract(array_merge([
             'columns'     => null,  // Only return specific columns (fileName, mtime, content)
             'extensions'  => null,  // Match specified extensions
-            'fileMatch'   => null,  // Match the file using fmatch()
+            'fileMatch'   => null,  // Match the file name using fnmatch()
             'orders'      => null,  // @todo
             'limit'       => null,  // @todo
             'offset'      => null   // @todo
