@@ -98,7 +98,7 @@ class Resizer
      * @param int $newHeight The height of the image
      * @param string $mode Either exact, portrait, landscape, auto or crop.
      * @param array $offset The offset of the crop = [ left, top ]
-     * @return Self
+     * @return self
      */
     public function resize($newWidth, $newHeight, $mode = 'auto', $offset = [])
     {
@@ -110,7 +110,7 @@ class Resizer
 
         if (!$newWidth && !$newHeight) {
             $newWidth = $this->width;
-            $newWidth = $this->height;
+            $newHeight = $this->height;
         }
         elseif (!$newWidth) {
             $newWidth = $this->getSizeByFixedHeight($newHeight);
@@ -155,7 +155,7 @@ class Resizer
      * @param int $newHeight The height of the image
      * @param int $srcW Source area width.
      * @param int $srcH Source area height.
-     * @return Self
+     * @return self
      */
     public function resample($srcX, $srcY, $newWidth, $newHeight, $srcW, $srcH)
     {
