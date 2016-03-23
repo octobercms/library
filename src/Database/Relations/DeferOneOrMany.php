@@ -37,6 +37,9 @@ trait DeferOneOrMany
 
             // Bind (Add)
             $query = $query->orWhereExists(function($query) use ($sessionKey) {
+                if(DbDongle::getDriver() == 'sqlsrv') {
+                    $query = $query->select('*');
+                }
                 $query->from('deferred_bindings')
                     ->whereRaw(DbDongle::cast('slave_id', 'INTEGER').' = '.DbDongle::getTablePrefix().$this->related->getQualifiedKeyName())
                     ->where('master_field', $this->relationName)
@@ -48,13 +51,16 @@ trait DeferOneOrMany
 
         // Unbind (Remove)
         $newQuery->whereNotExists(function($query) use ($sessionKey) {
+            if(DbDongle::getDriver() == 'sqlsrv') {
+				$query = $query->select('*');
+			}
             $query->from('deferred_bindings')
                 ->whereRaw(DbDongle::cast('slave_id', 'INTEGER').' = '.DbDongle::getTablePrefix().$this->related->getQualifiedKeyName())
                 ->where('master_field', $this->relationName)
                 ->where('master_type', get_class($this->parent))
                 ->where('session_key', $sessionKey)
                 ->where('is_bind', false)
-                ->whereRaw(DbDongle::parse('id > ifnull((select max(id) from '.DbDongle::getTablePrefix().'deferred_bindings where
+                ->whereRaw(DbDongle::parse('id > i'.(DbDongle::getDriver() == 'sqlsrv' ? 's' : 'f').'null((select max(id) from '.DbDongle::getTablePrefix().'deferred_bindings where
                         '.DbDongle::cast('slave_id', 'INTEGER').' = '.DbDongle::getTablePrefix().$this->related->getQualifiedKeyName().' and
                         master_field = ? and
                         master_type = ? and

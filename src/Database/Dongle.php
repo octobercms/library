@@ -142,7 +142,10 @@ class Dongle
             return $sql;
         }
 
-        return str_ireplace('ifnull(', 'coalesce(', $sql);
+        return ( $this->getDriver() == 'sqlsrv'
+		         ? str_ireplace('isnull(', 'coalesce(', $sql)
+				 : str_ireplace('ifnull(', 'coalesce(', $sql)
+			   );
     }
 
     /**
