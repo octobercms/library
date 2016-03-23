@@ -1,7 +1,6 @@
 <?php namespace October\Rain\Translation;
 
 use Illuminate\Support\Collection;
-use Illuminate\Support\NamespacedItemResolver;
 use Symfony\Component\Translation\MessageSelector;
 use Symfony\Component\Translation\TranslatorInterface;
 
@@ -18,7 +17,7 @@ class Translator implements TranslatorInterface
     /**
      * The loader implementation.
      *
-     * @var \Illuminate\Translation\LoaderInterface
+     * @var \October\Rain\Translation\LoaderInterface
      */
     protected $loader;
 
@@ -46,7 +45,7 @@ class Translator implements TranslatorInterface
     /**
      * Create a new translator instance.
      *
-     * @param  \Illuminate\Translation\LoaderInterface  $loader
+     * @param  \October\Rain\Translation\LoaderInterface  $loader
      * @param  string  $locale
      * @return void
      */
@@ -324,7 +323,7 @@ class Translator implements TranslatorInterface
     /**
      * Get the language line loader implementation.
      *
-     * @return \Illuminate\Translation\LoaderInterface
+     * @return \October\Rain\Translation\LoaderInterface
      */
     public function getLoader()
     {

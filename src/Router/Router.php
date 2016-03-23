@@ -99,8 +99,9 @@ class Router
      */
     public function url($name, $parameters = [])
     {
-        if (!isset($this->routeMap[$name]))
+        if (!isset($this->routeMap[$name])) {
             return null;
+        }
 
         $routeRule = $this->routeMap[$name];
         $pattern = $routeRule->pattern();
@@ -227,15 +228,16 @@ class Router
      */
     public function matchedRoute()
     {
-        if (!$this->matchedRouteRule)
+        if (!$this->matchedRouteRule) {
             return false;
+        }
 
         return $this->matchedRouteRule->name();
     }
 
     /**
      * Clears all existing routes
-     * @return Self
+     * @return $this
      */
     public function reset()
     {

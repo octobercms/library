@@ -14,7 +14,7 @@ class Twig
     /**
      * Parses supplied Twig contents, with supplied variables.
      * @param string $contents Twig contents to parse.
-     * @param string $vars Context variables.
+     * @param array $vars Context variables.
      * @return string
      */
     public function parse($contents, $vars = [])

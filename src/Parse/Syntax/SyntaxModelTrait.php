@@ -7,7 +7,7 @@ trait SyntaxModelTrait
 
     public static function bootSyntaxModelTrait()
     {
-        static::fetched(function($model){
+        static::fetched(function($model) {
             $model->defineSyntaxRelations();
         });
     }

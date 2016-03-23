@@ -1,70 +1,84 @@
 <?php namespace October\Rain\Scaffold\Console;
 
-use Illuminate\Console\Command;
+use October\Rain\Scaffold\GeneratorCommand;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use October\Rain\Scaffold\Templates\Model;
 
-class CreateModel extends Command
+class CreateModel extends GeneratorCommand
 {
 
     /**
      * The console command name.
+     *
+     * @var string
      */
     protected $name = 'create:model';
 
     /**
      * The console command description.
+     *
+     * @var string
      */
     protected $description = 'Creates a new model.';
 
     /**
-     * Create a new command instance.
+     * The type of class being generated.
+     *
+     * @var string
      */
-    public function __construct()
-    {
-        parent::__construct();
-    }
+    protected $type = 'Model';
 
     /**
-     * Execute the console command.
+     * A mapping of stub to generated file.
+     *
+     * @var array
      */
-    public function fire()
+    protected $stubs = [
+        'model/model.stub'        => 'models/{{studly_name}}.php',
+        'model/fields.stub'       => 'models/{{lower_name}}/fields.yaml',
+        'model/columns.stub'      => 'models/{{lower_name}}/columns.yaml',
+        'model/create_table.stub' => 'updates/create_{{snake_plural_name}}_table.php',
+    ];
+
+    /**
+     * Prepare variables for stubs.
+     *
+     * return @array
+     */
+    protected function prepareVars()
     {
-        /*
-         * Extract the author and name from the plugin code
-         */
-        $pluginCode = $this->argument('pluginCode');
+        $pluginCode = $this->argument('plugin');
+
         $parts = explode('.', $pluginCode);
-        $pluginName = array_pop($parts);
-        $authorName = array_pop($parts);
+        $plugin = array_pop($parts);
+        $author = array_pop($parts);
 
-        $destinationPath = base_path() . '/plugins/' . strtolower($authorName) . '/' . strtolower($pluginName);
-        $modelName = $this->argument('modelName');
-        $vars = [
-            'name' => $modelName,
-            'author' => $authorName,
-            'plugin' => $pluginName
+        $model = $this->argument('model');
+
+        return [
+            'name' => $model,
+            'author' => $author,
+            'plugin' => $plugin
         ];
-
-        Model::make($destinationPath, $vars, $this->option('force'));
-
-        $this->info(sprintf('Successfully generated Model named "%s"', $modelName));
     }
 
     /**
      * Get the console command arguments.
+     *
+     * @return array
      */
     protected function getArguments()
     {
         return [
-            ['pluginCode', InputArgument::REQUIRED, 'The name of the plugin. Eg: RainLab.Blog'],
-            ['modelName', InputArgument::REQUIRED, 'The name of the model. Eg: Post'],
+            ['plugin', InputArgument::REQUIRED, 'The name of the plugin. Eg: RainLab.Blog'],
+            ['model', InputArgument::REQUIRED, 'The name of the model. Eg: Post'],
         ];
     }
 
     /**
      * Get the console command options.
+     *
+     * @return array
      */
     protected function getOptions()
     {
