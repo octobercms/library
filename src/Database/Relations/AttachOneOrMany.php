@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Database\Relations;
 
-use Illuminate\Support\Facades\Db;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -9,12 +8,23 @@ trait AttachOneOrMany
     use DeferOneOrMany;
 
     /**
+     * @var string The "name" of the relationship.
+     */
+    protected $relationName;
+
+    /**
+     * @var boolean Default value for file public or protected state.
+     */
+    protected $public;
+
+    /**
      * Determines if the file should be flagged "public" or not.
      */
     public function isPublic()
     {
-        if (isset($this->public) && $this->public !== null)
+        if (isset($this->public) && $this->public !== null) {
             return $this->public;
+        }
 
         return true;
     }
@@ -65,11 +75,13 @@ trait AttachOneOrMany
     public function save(Model $model, $sessionKey = null)
     {
         // Delete siblings for single attachments
-        if ($sessionKey === null && $this instanceof AttachOne)
+        if ($sessionKey === null && $this instanceof AttachOne) {
             $this->delete();
+        }
 
-        if (!array_key_exists('is_public', $model->attributes))
+        if (!array_key_exists('is_public', $model->attributes)) {
             $model->setAttribute('is_public', $this->isPublic());
+        }
 
         $model->setAttribute('field', $this->relationName);
 

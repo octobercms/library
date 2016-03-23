@@ -38,7 +38,9 @@ trait Revisionable
     public static function bootRevisionable()
     {
         if (!property_exists(get_called_class(), 'revisionable')) {
-            throw new Exception(sprintf('You must define a $revisionable property in %s to use the Revisionable trait.', get_called_class()));
+            throw new Exception(sprintf(
+                'You must define a $revisionable property in %s to use the Revisionable trait.', get_called_class()
+            ));
         }
 
         static::extend(function($model) {

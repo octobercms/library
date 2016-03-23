@@ -11,16 +11,6 @@ class AttachMany extends MorphManyBase
     use AttachOneOrMany;
 
     /**
-     * @var string The "name" of the relationship.
-     */
-    protected $relationName;
-
-    /**
-     * @var boolean Default value for file public or protected state
-     */
-    protected $public;
-
-    /**
      * Create a new has many relationship instance.
      * @return void
      */

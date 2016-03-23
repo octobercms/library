@@ -98,7 +98,10 @@ trait ExtendableTrait
     public static function extendableExtendCallback($callback)
     {
         $class = get_called_class();
-        if (!isset(self::$extendableCallbacks[$class]) || !is_array(self::$extendableCallbacks[$class])) {
+        if (
+            !isset(self::$extendableCallbacks[$class]) ||
+            !is_array(self::$extendableCallbacks[$class])
+        ) {
             self::$extendableCallbacks[$class] = [];
         }
 
