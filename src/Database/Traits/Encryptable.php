@@ -23,7 +23,9 @@ trait Encryptable {
     public static function bootEncryptable()
     {
         if (!property_exists(get_called_class(), 'encryptable')) {
-            throw new Exception(sprintf('You must define a $encryptable property in %s to use the Encryptable trait.', get_called_class()));
+            throw new Exception(sprintf(
+                'You must define a $encryptable property in %s to use the Encryptable trait.', get_called_class()
+            ));
         }
 
         /*
@@ -32,12 +34,14 @@ trait Encryptable {
         static::extend(function($model) {
             $encryptable = $model->getEncryptableAttributes();
             $model->bindEvent('model.beforeSetAttribute', function($key, $value) use ($model, $encryptable) {
-                if (in_array($key, $encryptable) && !empty($value))
+                if (in_array($key, $encryptable) && !empty($value)) {
                     return $model->makeEncryptableValue($key, $value);
+                }
             });
             $model->bindEvent('model.beforeGetAttribute', function($key) use ($model, $encryptable) {
-                if (in_array($key, $encryptable) && array_get($model->attributes, $key) != null)
+                if (in_array($key, $encryptable) && array_get($model->attributes, $key) != null) {
                     return $model->getEncryptableValue($key);
+                }
             });
         });
     }

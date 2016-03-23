@@ -5,7 +5,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class BelongsToMany extends BelongsToManyBase
 {
-
     use DeferOneOrMany;
 
     /**

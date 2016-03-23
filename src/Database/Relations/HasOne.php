@@ -9,11 +9,6 @@ class HasOne extends HasOneBase
     use HasOneOrMany;
 
     /**
-     * @var string The "name" of the relationship.
-     */
-    protected $relationName;
-
-    /**
      * Create a new has many relationship instance.
      * @return void
      */

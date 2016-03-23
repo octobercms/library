@@ -1407,7 +1407,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Set the datasource resolver instance.
      *
-     * @param  \October\Rain\Halcyon\DatasourceResolverInterface  $resolver
+     * @param  \October\Rain\Halcyon\Datasource\ResolverInterface  $resolver
      * @return void
      */
     public static function setDatasourceResolver(Resolver $resolver)

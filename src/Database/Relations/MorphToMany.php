@@ -1,11 +1,14 @@
 <?php namespace October\Rain\Database\Relations;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphToMany as MorphToManyBase;
 
 class MorphToMany extends MorphToManyBase
 {
+    /**
+     * @var string The "name" of the relationship.
+     */
+    protected $relationName;
 
     /**
      * Adds a model to this relationship type.

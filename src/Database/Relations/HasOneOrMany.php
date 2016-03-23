@@ -1,11 +1,15 @@
 <?php namespace October\Rain\Database\Relations;
 
-use Illuminate\Support\Facades\Db;
 use Illuminate\Database\Eloquent\Model;
 
 trait HasOneOrMany
 {
     use DeferOneOrMany;
+
+    /**
+     * @var string The "name" of the relationship.
+     */
+    protected $relationName;
 
     /**
      * Save the supplied related model with deferred binding support.

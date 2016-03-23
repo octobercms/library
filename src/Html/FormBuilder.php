@@ -11,7 +11,6 @@ use Illuminate\Routing\UrlGenerator as UrlGeneratorBase;
  */
 class FormBuilder
 {
-
     use \Illuminate\Support\Traits\Macroable;
 
     /**

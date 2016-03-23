@@ -571,10 +571,14 @@ class Model extends EloquentModel
         $relation = $this->getRelationDefinition($relationName);
 
         if (!isset($relation[0]) && $relationType != 'morphTo')
-            throw new InvalidArgumentException(sprintf("Relation '%s' on model '%s' should have at least a classname.", $relationName, get_called_class()));
+            throw new InvalidArgumentException(sprintf(
+                "Relation '%s' on model '%s' should have at least a classname.", $relationName, get_called_class()
+            ));
 
         if (isset($relation[0]) && $relationType == 'morphTo')
-            throw new InvalidArgumentException(sprintf("Relation '%s' on model '%s' is a morphTo relation and should not contain additional arguments.", $relationName, get_called_class()));
+            throw new InvalidArgumentException(sprintf(
+                "Relation '%s' on model '%s' is a morphTo relation and should not contain additional arguments.", $relationName, get_called_class()
+            ));
 
         switch ($relationType) {
             case 'hasOne':
@@ -1227,7 +1231,7 @@ class Model extends EloquentModel
         $definitions = $this->getRelationDefinitions();
         foreach ($definitions as $type => $relations) {
             /*
-             * Hard 'delete' definintion
+             * Hard 'delete' definition
              */
             foreach ($relations as $name => $options) {
                 if (!Arr::get($options, 'delete', false)) {

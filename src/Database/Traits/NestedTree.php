@@ -207,7 +207,7 @@ trait NestedTree
 
     /**
      * Make this model a root node.
-     * @return \Model
+     * @return \October\Rain\Database\Model
      */
     public function makeRoot()
     {
@@ -216,7 +216,7 @@ trait NestedTree
 
     /**
      * Make model node a child of specified node.
-     * @return \Model
+     * @return \October\Rain\Database\Model
      */
     public function makeChildOf($node)
     {
@@ -225,7 +225,7 @@ trait NestedTree
 
     /**
      * Find the left sibling and move to left of it.
-     * @return \Model
+     * @return \October\Rain\Database\Model
      */
     public function moveLeft()
     {
@@ -234,7 +234,7 @@ trait NestedTree
 
     /**
      * Find the right sibling and move to the right of it.
-     * @return \Model
+     * @return \October\Rain\Database\Model
      */
     public function moveRight()
     {
@@ -243,7 +243,7 @@ trait NestedTree
 
     /**
      * Move to the model to before (left) specified node.
-     * @return \Model
+     * @return \October\Rain\Database\Model
      */
     public function moveBefore($node)
     {
@@ -252,7 +252,7 @@ trait NestedTree
 
     /**
      * Move to the model to after (right) a specified node.
-     * @return \Model
+     * @return \October\Rain\Database\Model
      */
     public function moveAfter($node)
     {
@@ -408,7 +408,7 @@ trait NestedTree
 
     /**
      * Returns a list of all root nodes, without eager loading
-     * @return\October\Rain\Database\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function scopeGetAllRoot($query)
     {
@@ -481,7 +481,7 @@ trait NestedTree
 
     /**
      * Returns the root node starting from the current node.
-     * @return \Model
+     * @return \October\Rain\Database\Model
      */
     public function getRoot()
     {
@@ -642,7 +642,7 @@ trait NestedTree
 
     /**
      * Sets the depth attribute
-     * @return \Model
+     * @return \October\Rain\Database\Model
      */
     public function setDepth()
     {
@@ -804,24 +804,25 @@ trait NestedTree
      * Handler for all node alignments.
      * @param mixed  $target
      * @param string $position
-     * @return \Model
+     * @return \October\Rain\Database\Model
      */
     protected function moveTo($target, $position)
     {
         /*
          * Validate target
          */
-        if ($target instanceof \October\Rain\Database\Model)
+        if ($target instanceof \October\Rain\Database\Model) {
             $target->reload();
-        else
+        }
+        else {
             $target = $this->newQuery()->find($target);
-
+        }
         /*
          * Validate move
          */
-        if (!$this->validateMove($this, $target, $position))
+        if (!$this->validateMove($this, $target, $position)) {
             return $this;
-
+        }
         /*
          * Perform move
          */
@@ -911,21 +912,29 @@ trait NestedTree
         if (!$node->exists)
             throw new Exception('A new node cannot be moved.');
 
-        if (!in_array($position, ['child', 'left', 'right']))
-            throw new Exception(sprintf('Position should be either child, left, right. Supplied position is "%s".', $position));
-
+        if (!in_array($position, ['child', 'left', 'right'])) {
+            throw new Exception(sprintf(
+                'Position should be either child, left, right. Supplied position is "%s".', $position
+            ));
+        }
         if ($target === null) {
-            if ($position == 'left' || $position == 'right')
-                throw new Exception(sprintf('Cannot resolve target node. This node cannot move any further to the %s.', $position));
-            else
+            if ($position == 'left' || $position == 'right') {
+                throw new Exception(sprintf(
+                    'Cannot resolve target node. This node cannot move any further to the %s.', $position
+                ));
+            }
+            else {
                 throw new Exception('Cannot resolve target node.');
+            }
         }
 
-        if ($node == $target)
+        if ($node == $target) {
             throw new Exception('A node cannot be moved to itself.');
+        }
 
-        if ($target->isInsideSubtree($node))
+        if ($target->isInsideSubtree($node)) {
             throw new Exception('A node cannot be moved to a descendant of itself.');
+        }
 
         return !(
             $this->getPrimaryBoundary($node, $target, $position) == $node->getRight() ||
