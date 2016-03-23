@@ -46,9 +46,11 @@
         "october/database": "self.version",
         "october/extension": "self.version",
         "october/filesystem": "self.version",
+        "october/halcyon": "self.version",
         "october/html": "self.version",
         "october/mail": "self.version",
         "october/network": "self.version",
+        "october/parse": "self.version",
         "october/router": "self.version",
         "october/support": "self.version",
         "october/translation": "self.version"
