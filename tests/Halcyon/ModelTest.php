@@ -13,6 +13,7 @@ class HalcyonModelTest extends TestCase
     {
         include_once __DIR__.'/../fixtures/halcyon/models/Page.php';
         include_once __DIR__.'/../fixtures/halcyon/models/Menu.php';
+        include_once __DIR__.'/../fixtures/halcyon/models/Content.php';
 
         $this->setDatasourceResolver();
 
@@ -168,6 +169,19 @@ ESC;
         $page->update(['title' => 'Try this']);
         $page = HalcyonTestPage::find('testfile2');
         $this->assertEquals('Try this', $page->title);
+    }
+
+    public function testUpdatePageRenameFile()
+    {
+        @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/testfile2.htm');
+
+        $page = HalcyonTestPage::create([
+            'fileName' => 'testfile2',
+            'title' => 'Another test',
+            'markup' => '<p>Foo bar!</p>'
+        ]);
+
+        $this->assertFileExists($targetFile);
 
         $page->fileName = 'renamedtest1';
         $page->save();
@@ -177,6 +191,33 @@ ESC;
         $this->assertFileExists($newTargetFile);
 
         @unlink($newTargetFile);
+    }
+
+    public function testUpdateContentRenameExtension()
+    {
+        $content = HalcyonTestContent::find('welcome.htm');
+        $this->assertNotNull($content);
+        $this->assertCount(5, $content->attributes);
+        $this->assertArrayHasKey('fileName', $content->attributes);
+        $this->assertEquals('welcome.htm', $content->fileName);
+        $this->assertEquals('<p>Hi friend</p>', $content->markup);
+
+        $targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/content/welcome.htm';
+        $newTargetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/content/welcome.txt';
+
+        $this->assertFileExists($targetFile);
+
+        $content->fileName = 'welcome.txt';
+        $content->save();
+
+        $this->assertFileExists($newTargetFile);
+        $this->assertFileNotExists($targetFile);
+
+        $content->fileName = 'welcome.htm';
+        $content->save();
+
+        $this->assertFileNotExists($newTargetFile);
+        $this->assertFileExists($targetFile);
     }
 
     /**

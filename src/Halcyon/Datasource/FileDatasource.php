@@ -197,7 +197,10 @@ class FileDatasource extends Datasource implements DatasourceInterface
         /*
          * File to be renamed, as delete and recreate
          */
-        if ($oldFileName !== null && $oldFileName !== $fileName) {
+        if (
+            ($oldFileName !== null && $oldFileName !== $fileName) ||
+            ($oldExtension !== null && $oldExtension !== $extension)
+        ){
             if ($this->files->isFile($path)) {
                 throw (new FileExistsException)->setInvalidPath($path);
             }
