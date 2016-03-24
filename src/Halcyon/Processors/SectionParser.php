@@ -63,6 +63,7 @@ class SectionParser
                 $code = preg_replace('/^\<\?php/', '', $code);
                 $code = preg_replace('/^\<\?/', '', $code);
                 $code = preg_replace('/\?>$/', '', $code);
+                $code = trim($code, PHP_EOL);
 
                 $content[] = '<?php'.PHP_EOL.$code.PHP_EOL.'?>';
             }
@@ -127,6 +128,7 @@ class SectionParser
             $result['code'] = preg_replace('/^\s*\<\?php/', '', $result['code']);
             $result['code'] = preg_replace('/^\s*\<\?/', '', $result['code']);
             $result['code'] = preg_replace('/\?\>\s*$/', '', $result['code']);
+            $result['code'] = trim($result['code'], PHP_EOL);
 
             $result['markup'] = $sections[2];
         }
