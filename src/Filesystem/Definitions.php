@@ -90,7 +90,9 @@ class Definitions
             'mp4',
             'mpeg',
             'webm',
-            'mkv'
+            'mkv',
+            'rar',
+            'zip'
         ];
     }
 
