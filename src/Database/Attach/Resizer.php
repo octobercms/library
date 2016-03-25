@@ -9,17 +9,17 @@ use Exception;
  *
  * Usage:
  *      Resizer::open(mixed $file)
- *          ->resize(int $width , int $height , string 'exact, portrait, landscape, auto or crop')
- *          ->save(string 'path/to/file.jpg' , int $quality);
+ *          ->resize(int $width , int $height, string 'exact, portrait, landscape, auto or crop')
+ *          ->save(string 'path/to/file.jpg', int $quality);
  *
  *      // Resize and save an image.
  *      Resizer::open(Input::file('field_name'))
- *          ->resize(800 , 600 , 'crop')
- *          ->save('path/to/file.jpg' , 100);
+ *          ->resize(800, 600, 'crop')
+ *          ->save('path/to/file.jpg', 100);
  *
  *      // Recompress an image.
  *      Resizer::open('path/to/image.jpg')
- *          ->save('path/to/new_image.jpg' , 60);
+ *          ->save('path/to/new_image.jpg', 60);
  *
  * @package october\database
  * @author Alexey Bobkov, Samuel Georges
@@ -42,6 +42,11 @@ class Resizer
     protected $image;
 
     /**
+     * @var Resource The cached, original image.
+     */
+    protected $originalImage;
+
+    /**
      * @var int Original width of the image being resized.
      */
     protected $width;
@@ -52,9 +57,9 @@ class Resizer
     protected $height;
 
     /**
-     * @var Resource The cached, resized image.
+     * @var array Array of options used for resizing.
      */
-    protected $imageResized;
+    protected $options = [];
 
     /**
      * Instantiates the Resizer and receives the path to an image we're working with
@@ -67,18 +72,22 @@ class Resizer
             exit(1);
         }
 
-        if (is_string($file))
+        if (is_string($file)) {
             $file = new FileObj($file);
+        }
 
         // Get the file extension
         $this->extension = $file->guessExtension();
 
         // Open up the file
-        $this->image = $this->openImage($file);
+        $this->image = $this->originalImage = $this->openImage($file);
 
         // Get width and height of our image
         $this->width  = imagesx($this->image);
         $this->height = imagesy($this->image);
+
+        // Set default options
+        $this->setOptions([]);
     }
 
     /**
@@ -93,15 +102,67 @@ class Resizer
     }
 
     /**
+     * Resets the image back to the original.
+     * @return self
+     */
+    public function reset()
+    {
+        $this->image = $this->originalImage;
+
+        return $this;
+    }
+
+    /**
+     * Sets resizer options. Available options are:
+     *  - mode: Either exact, portrait, landscape, auto or crop.
+     *  - offset: The offset of the crop = [ left, top ]
+     *  - sharpen: Sharpen image, from 0 - 100 (default: 0)
+     *  - quality: Image quality, from 0 - 100 (default: 95)
+     * @return self
+     */
+    public function setOptions($options)
+    {
+        $this->options = array_merge($options, [
+            'mode'    => 'auto',
+            'offset'  => [],
+            'sharpen' => 0,
+            'quality' => 95
+        ]);
+
+        return $this;
+    }
+
+    /**
+     * Sets an individual resizer option.
+     * @return self
+     */
+    protected function setOption($option, $value)
+    {
+        $this->options[$option] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Gets an individual resizer option.
+     * @return self
+     */
+    protected function getOption($option)
+    {
+        return array_get($this->options, $option);
+    }
+
+    /**
      * Resizes and/or crops an image
      * @param int $newWidth The width of the image
      * @param int $newHeight The height of the image
-     * @param string $mode Either exact, portrait, landscape, auto or crop.
-     * @param array $offset The offset of the crop = [ left, top ]
+     * @param array $options A set of resizing options, supported values:
      * @return self
      */
-    public function resize($newWidth, $newHeight, $mode = 'auto', $offset = [], $sharpen = false)
+    public function resize($newWidth, $newHeight, $options = [])
     {
+        $this->setOptions($options);
+
         /*
          * Sanitize input
          */
@@ -120,10 +181,7 @@ class Resizer
         }
 
         // Get optimal width and height - based on supplied mode.
-        $optionsArray = $this->getDimensions($newWidth, $newHeight, $mode);
-
-        $optimalWidth = $optionsArray['optimalWidth'];
-        $optimalHeight = $optionsArray['optimalHeight'];
+        list($optimalWidth, $optimalHeight) = $this->getDimensions($newWidth, $newHeight);
 
         // Resample - create image canvas of x, y size
         $imageResized = imagecreatetruecolor($optimalWidth, $optimalHeight);
@@ -136,45 +194,80 @@ class Resizer
         // Create the new image
         imagecopyresampled($imageResized, $this->image, 0, 0, 0, 0, $optimalWidth, $optimalHeight, $this->width, $this->height);
 
-        // Sharpen image
-        if ($sharpen !== false) {
-            // normalize sharpening value
-            $convolutionKernelCenter = exp((80-floatval($sharpen))/18)+9;
-            $matrix = array(
-                array(-1, -1, -1),
-                array(-1, $convolutionKernelCenter, -1),
-                array(-1, -1, -1),
-            );
-        
-            $divisor = array_sum(array_map('array_sum', $matrix));
-            $offset = 0;
-            imageconvolution($imageResized, $matrix, $divisor, $offset);
+        $this->image = $imageResized;
+
+        /*
+         * Apply sharpness
+         */
+        if ($sharpen = $this->getOption('sharpen')) {
+            $this->sharpen($sharpen);
         }
 
-        $this->imageResized = $imageResized;
-
-        if ($mode == 'crop') {
-            $this->crop($optimalWidth, $optimalHeight, $newWidth, $newHeight, $offset);
+        /*
+         * If mode is crop: find center and use for the cropping.
+         */
+        if ($this->getOption('mode') == 'crop') {
+            $cropStartX = ($optimalWidth  / 2) - ($newWidth  / 2) - $offset[0];
+            $cropStartY = ($optimalHeight / 2) - ($newHeight / 2) - $offset[1];
+            $this->crop($cropStartX, $cropStartY, $newWidth, $newHeight);
         }
 
         return $this;
     }
 
     /**
-     * Resamples the original image.
-     * This method works exactly like PHP imagecopyresampled() GD function with a minor difference -
-     * the destination X and Y coordinates are fixed and always 0, 0.
-     * @param int $srcX X-coordinate of source point.
-     * @param int $srcY Y-coordinate of source point.
-     * @param int $newWidth The width of the image
-     * @param int $newHeight The height of the image
-     * @param int $srcW Source area width.
-     * @param int $srcH Source area height.
+     * Sharpen the image across a scale of 0 - 100
+     * @param int $sharpness
      * @return self
      */
-    public function resample($srcX, $srcY, $newWidth, $newHeight, $srcW, $srcH)
+    public function sharpen($sharpness)
     {
-        // Resample - create image canvas of x, y size
+        if ($sharpness <= 0 || $sharpness > 100) {
+            return $this;
+        }
+
+        $image = $this->image;
+
+        // Normalize sharpening value
+        $kernelCenter = exp((80 - floatval($sharpen)) / 18) + 9;
+
+        $matrix = array(
+            [-1, -1, -1],
+            [-1, $kernelCenter, -1],
+            [-1, -1, -1],
+        );
+
+        $divisor = array_sum(array_map('array_sum', $matrix));
+
+        imageconvolution($image, $matrix, $divisor, 0);
+
+        $this->image = $image;
+
+        return $this;
+    }
+
+    /**
+     * Crops an image from its center
+     * @param int $cropStartX Start on X axis
+     * @param int $cropStartY Start on Y axis
+     * @param int $newWidth The new width
+     * @param int $newHeight The new height
+     * @param int $srcWidth Source area width.
+     * @param int $srcHeight Source area height.
+     * @return self
+     */
+    public function crop($cropStartX, $cropStartY, $newWidth, $newHeight, $srcWidth = null, $srcHeight = null)
+    {
+        $image = $this->image;
+
+        if ($srcWidth === null) {
+            $srcWidth = $newWidth;
+        }
+        if ($srcHeight === null) {
+            $srcHeight = $newHeight;
+        }
+
+        // Create a new canvas
         $imageResized = imagecreatetruecolor($newWidth, $newHeight);
 
         // Retain transparency for PNG and GIF files
@@ -182,24 +275,24 @@ class Resizer
         imagealphablending($imageResized, false);
         imagesavealpha($imageResized, true);
 
-        // Create the new image
-        imagecopyresampled($imageResized, $this->image, 0, 0, $srcX, $srcY, $newWidth, $newHeight, $srcW, $srcH);
+        // Crop the  image to the requested size
+        imagecopyresampled($imageResized, $image, 0, 0, $cropStartX, $cropStartY, $newWidth, $newHeight, $srcWidth, $srcHeight);
 
-        $this->imageResized = $imageResized;
+        $this->image = $imageResized;
+
+        return $this;
     }
 
     /**
      * Save the image based on its file type.
      * @param string $savePath Where to save the image
-     * @param int $imageQuality The output quality of the image
      * @return boolean
      */
-    public function save($savePath, $imageQuality = 95)
+    public function save($savePath)
     {
-        // If the image wasn't resized, fetch original image.
-        if (!$this->imageResized) {
-            $this->imageResized = $this->image;
-        }
+        $image = $this->image;
+
+        $imageQuality = $this->getOption('quality');
 
         // Determine the image type from the destination file
         $extension = FileHelper::extension($savePath) ?: $this->extension;
@@ -210,27 +303,27 @@ class Resizer
             case 'jpeg':
                 // Check JPG support is enabled
                 if (imagetypes() & IMG_JPG) {
-                    imagejpeg($this->imageResized, $savePath, $imageQuality);
+                    imagejpeg($image, $savePath, $imageQuality);
                 }
                 break;
 
             case 'gif':
                 // Check GIF support is enabled
                 if (imagetypes() & IMG_GIF) {
-                    imagegif($this->imageResized, $savePath);
+                    imagegif($image, $savePath);
                 }
                 break;
 
             case 'png':
                 // Scale quality from 0-100 to 0-9
-                $scaleQuality = round(($imageQuality/100) * 9);
+                $scaleQuality = round(($imageQuality / 100) * 9);
 
                 // Invert quality setting as 0 is best, not 9
                 $invertScaleQuality = 9 - $scaleQuality;
 
                 // Check PNG support is enabled
                 if (imagetypes() & IMG_PNG) {
-                    imagepng($this->imageResized, $savePath, $invertScaleQuality);
+                    imagepng($image, $savePath, $invertScaleQuality);
                 }
                 break;
 
@@ -240,7 +333,7 @@ class Resizer
         }
 
         // Remove the resource for the resized image
-        imagedestroy($this->imageResized);
+        imagedestroy($image);
     }
 
     /**
@@ -273,40 +366,29 @@ class Resizer
      * @param string $option Either exact, portrait, landscape, auto or crop.
      * @return array
      */
-    protected function getDimensions($newWidth, $newHeight, $option)
+    protected function getDimensions($newWidth, $newHeight)
     {
-        switch ($option) {
+        $mode = $this->getOption('mode');
+
+        switch ($mode) {
             case 'exact':
-                $optimalWidth   = $newWidth;
-                $optimalHeight  = $newHeight;
-                break;
+                return [$newWidth, $newHeight];
+
             case 'portrait':
-                $optimalWidth   = $this->getSizeByFixedHeight($newHeight);
-                $optimalHeight  = $newHeight;
-                break;
+                return [$this->getSizeByFixedHeight($newHeight), $newHeight];
+
             case 'landscape':
-                $optimalWidth   = $newWidth;
-                $optimalHeight  = $this->getSizeByFixedWidth($newWidth);
-                break;
+                return [$newWidth, $this->getSizeByFixedWidth($newWidth)];
+
             case 'auto':
-                $optionsArray   = $this->getSizeByAuto($newWidth, $newHeight);
-                $optimalWidth   = $optionsArray['optimalWidth'];
-                $optimalHeight  = $optionsArray['optimalHeight'];
-                break;
+                return $this->getSizeByAuto($newWidth, $newHeight);
+
             case 'crop':
-                $optionsArray   = $this->getOptimalCrop($newWidth, $newHeight);
-                $optimalWidth   = $optionsArray['optimalWidth'];
-                $optimalHeight  = $optionsArray['optimalHeight'];
-                break;
+                return $this->getOptimalCrop($newWidth, $newHeight);
+
             default:
                 throw new Exception('Invalid dimension type. Accepted types: exact, portrait, landscape, auto, crop.');
-                break;
         }
-
-        return [
-            'optimalWidth' => $optimalWidth,
-            'optimalHeight' => $optimalHeight
-        ];
     }
 
     /**
@@ -343,7 +425,7 @@ class Resizer
      */
     protected function getSizeByAuto($newWidth, $newHeight)
     {
-         // Less than 1 pixel height and width? (revert to original)
+        // Less than 1 pixel height and width? (revert to original)
         if ($newWidth <= 1 && $newHeight <= 1) {
             $newWidth = $this->width;
             $newHeight = $this->height;
@@ -351,7 +433,7 @@ class Resizer
         elseif ($newWidth <= 1) {
             $newWidth = $this->getSizeByFixedHeight($newHeight);
         }
-         // Less than 1 pixel height? (portrait)
+        // Less than 1 pixel height? (portrait)
         elseif ($newHeight <= 1) {
             $newHeight = $this->getSizeByFixedWidth($newWidth);
         }
@@ -383,10 +465,7 @@ class Resizer
             }
         }
 
-        return [
-            'optimalWidth' => $optimalWidth,
-            'optimalHeight' => $optimalHeight
-        ];
+        return [$optimalWidth, $optimalHeight];
     }
 
     /**
@@ -411,42 +490,6 @@ class Resizer
         $optimalHeight = $this->height / $optimalRatio;
         $optimalWidth  = $this->width  / $optimalRatio;
 
-        return [
-            'optimalWidth' => $optimalWidth,
-            'optimalHeight' => $optimalHeight
-        ];
-    }
-
-    /**
-     * Crops an image from its center
-     * @param int $optimalWidth The width of the image
-     * @param int $optimalHeight The height of the image
-     * @param int $newWidth The new width
-     * @param int $newHeight The new height
-     * @param array $offset The offset of the crop = [ left, top ]
-     * @return true
-     */
-    protected function crop($optimalWidth, $optimalHeight, $newWidth, $newHeight, $offset)
-    {
-        // Find center - this will be used for the crop
-        $cropStartX = ($optimalWidth  / 2) - ($newWidth  / 2) - $offset[0];
-        $cropStartY = ($optimalHeight / 2) - ($newHeight / 2) - $offset[1];
-
-        $crop = $this->imageResized;
-
-        // Create a new canvas
-        $imageResized = imagecreatetruecolor($newWidth, $newHeight);
-
-        // Retain transparency for PNG and GIF files
-        imagecolortransparent($imageResized, imagecolorallocatealpha($imageResized, 0, 0, 0, 127));
-        imagealphablending($imageResized, false);
-        imagesavealpha($imageResized, true);
-
-        // Now crop from center to exact requested size
-        imagecopyresampled($imageResized, $crop, 0, 0, $cropStartX, $cropStartY, $newWidth, $newHeight, $newWidth, $newHeight);
-
-        $this->imageResized = $imageResized;
-
-        return true;
+        return [$optimalWidth, $optimalHeight];
     }
 }

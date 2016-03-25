@@ -395,6 +395,7 @@ class File extends Model
             'mode'      => 'auto',
             'offset'    => [0, 0],
             'quality'   => 95,
+            'sharpen'   => 0,
             'extension' => 'auto',
         ];
 
@@ -435,9 +436,10 @@ class File extends Model
          */
         else {
             try {
-                $resizer = Resizer::open($filePath);
-                $resizer->resize($width, $height, $options['mode'], $options['offset']);
-                $resizer->save($thumbPath, $options['quality']);
+                Resizer::open($filePath)
+                    ->resize($width, $height, $options)
+                    ->save($thumbPath)
+                ;
             }
             catch (Exception $ex) {
                 BrokenImage::copyTo($thumbPath);
@@ -466,14 +468,17 @@ class File extends Model
          */
         else {
             $this->copyStorageToLocal($this->getDiskPath(), $tempFile);
+
             try {
-                $resizer = Resizer::open($tempFile);
-                $resizer->resize($width, $height, $options['mode'], $options['offset']);
-                $resizer->save($tempThumb, $options['quality']);
+                Resizer::open($tempFile)
+                    ->resize($width, $height, $options)
+                    ->save($tempThumb)
+                ;
             }
             catch (Exception $ex) {
                 BrokenImage::copyTo($tempThumb);
             }
+
             FileHelper::delete($tempFile);
         }
 
