@@ -1,7 +1,16 @@
 <?php
 
-use October\Rain\Scaffold\Base;
-use October\Rain\Scaffold\Templates\Model;
+use October\Rain\Scaffold\GeneratorCommand;
+
+class ScaffoldBaseTestCommand extends GeneratorCommand
+{
+    public function __construct() { }
+
+    protected function prepareVars()
+    {
+        return [];
+    }
+}
 
 class ScaffoldBaseTest extends TestCase
 {
@@ -42,7 +51,8 @@ class ScaffoldBaseTest extends TestCase
 
     public function testProcessVars()
     {
-        $obj = new Model();
+        $obj = new ScaffoldBaseTestCommand;
+
         $testVars = [
             'name' => 'duffMan',
             'author' => 'Moe',
