@@ -53,6 +53,7 @@ class Parser
     /**
      * Static helper for new instances of this class.
      * @param  string $template
+     * @param  array $options
      * @return self
      */
     public static function parse($template, $options = [])

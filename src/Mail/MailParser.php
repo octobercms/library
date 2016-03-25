@@ -33,8 +33,9 @@ class MailParser
     {
         $sections = preg_split('/^={2,}\s*/m', $content, -1);
         $count = count($sections);
-        foreach ($sections as &$section)
+        foreach ($sections as &$section) {
             $section = trim($section);
+        }
 
         $result = [
             'settings' => [],
@@ -51,8 +52,9 @@ class MailParser
             $result['settings'] = parse_ini_string($sections[0], true);
             $result['html'] = $sections[1];
         }
-        elseif ($count == 1)
+        elseif ($count == 1) {
             $result['html'] = $sections[0];
+        }
 
         return $result;
     }

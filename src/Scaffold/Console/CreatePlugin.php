@@ -1,40 +1,54 @@
 <?php namespace October\Rain\Scaffold\Console;
 
-use Illuminate\Console\Command;
+use October\Rain\Scaffold\GeneratorCommand;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use October\Rain\Scaffold\Templates\Plugin;
 
-class CreatePlugin extends Command
+class CreatePlugin extends GeneratorCommand
 {
 
     /**
      * The console command name.
+     *
+     * @var string
      */
     protected $name = 'create:plugin';
 
     /**
      * The console command description.
+     *
+     * @var string
      */
     protected $description = 'Creates a new plugin.';
 
     /**
-     * Create a new command instance.
+     * The type of class being generated.
+     *
+     * @var string
      */
-    public function __construct()
-    {
-        parent::__construct();
-    }
+    protected $type = 'Plugin';
 
     /**
-     * Execute the console command.
+     * A mapping of stub to generated file.
+     *
+     * @var array
      */
-    public function fire()
+    protected $stubs = [
+        'plugin/plugin.stub'  => '{{lower_author}}/{{lower_name}}/Plugin.php',
+        'plugin/version.stub' => '{{lower_author}}/{{lower_name}}/updates/version.yaml',
+    ];
+
+    /**
+     * Prepare variables for stubs.
+     *
+     * return @array
+     */
+    protected function prepareVars()
     {
         /*
          * Extract the author and name from the plugin code
          */
-        $pluginCode = $this->argument('pluginCode');
+        $pluginCode = $this->argument('plugin');
         $parts = explode('.', $pluginCode);
 
         if (count($parts) != 2) {
@@ -47,29 +61,28 @@ class CreatePlugin extends Command
         $pluginName = array_pop($parts);
         $authorName = array_pop($parts);
 
-        $destinationPath = base_path() . '/plugins';
-        $vars = [
+        return [
             'name'   => $pluginName,
             'author' => $authorName,
         ];
-
-        Plugin::make($destinationPath, $vars, $this->option('force'));
-
-        $this->info(sprintf('Successfully generated Plugin named "%s"', $pluginCode));
     }
 
     /**
      * Get the console command arguments.
+     *
+     * @return array
      */
     protected function getArguments()
     {
         return [
-            ['pluginCode', InputArgument::REQUIRED, 'The name of the plugin to create. Eg: RainLab.Blog'],
+            ['plugin', InputArgument::REQUIRED, 'The name of the plugin to create. Eg: RainLab.Blog'],
         ];
     }
 
     /**
      * Get the console command options.
+     *
+     * @return array
      */
     protected function getOptions()
     {

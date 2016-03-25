@@ -1,70 +1,84 @@
 <?php namespace October\Rain\Scaffold\Console;
 
-use Illuminate\Console\Command;
+use October\Rain\Scaffold\GeneratorCommand;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use October\Rain\Scaffold\Templates\FormWidget;
 
-class CreateFormWidget extends Command
+class CreateFormWidget extends GeneratorCommand
 {
 
     /**
      * The console command name.
+     *
+     * @var string
      */
     protected $name = 'create:formwidget';
 
     /**
      * The console command description.
+     *
+     * @var string
      */
     protected $description = 'Creates a new form widget.';
 
     /**
-     * Create a new command instance.
+     * The type of class being generated.
+     *
+     * @var string
      */
-    public function __construct()
-    {
-        parent::__construct();
-    }
+    protected $type = 'FormWidget';
 
     /**
-     * Execute the console command.
+     * A mapping of stub to generated file.
+     *
+     * @var array
      */
-    public function fire()
+    protected $stubs = [
+        'formwidget/formwidget.stub'      => 'formwidgets/{{studly_name}}.php',
+        'formwidget/partial.stub'         => 'formwidgets/{{lower_name}}/partials/_{{lower_name}}.htm',
+        'formwidget/stylesheet.stub'      => 'formwidgets/{{lower_name}}/assets/css/{{lower_name}}.css',
+        'formwidget/javascript.stub'      => 'formwidgets/{{lower_name}}/assets/js/{{lower_name}}.js',
+    ];
+
+    /**
+     * Prepare variables for stubs.
+     *
+     * return @array
+     */
+    protected function prepareVars()
     {
-        /*
-         * Extract the author and name from the plugin code
-         */
-        $pluginCode = $this->argument('pluginCode');
+        $pluginCode = $this->argument('plugin');
+
         $parts = explode('.', $pluginCode);
-        $pluginName = array_pop($parts);
-        $authorName = array_pop($parts);
+        $plugin = array_pop($parts);
+        $author = array_pop($parts);
 
-        $destinationPath = plugins_path() . '/' . strtolower($authorName) . '/' . strtolower($pluginName);
-        $widgetName = $this->argument('widgetName');
-        $vars = [
-            'name' => $widgetName,
-            'author' => $authorName,
-            'plugin' => $pluginName
+        $widget = $this->argument('widget');
+
+        return [
+            'name' => $widget,
+            'author' => $author,
+            'plugin' => $plugin
         ];
-
-        FormWidget::make($destinationPath, $vars, $this->option('force'));
-
-        $this->info(sprintf('Successfully generated Form Widget named "%s"', $widgetName));
     }
 
     /**
      * Get the console command arguments.
+     *
+     * @return array
      */
     protected function getArguments()
     {
         return [
-            ['pluginCode', InputArgument::REQUIRED, 'The name of the plugin. Eg: RainLab.Blog'],
-            ['widgetName', InputArgument::REQUIRED, 'The name of the form widget. Eg: PostList'],
+            ['plugin', InputArgument::REQUIRED, 'The name of the plugin. Eg: RainLab.Blog'],
+            ['widget', InputArgument::REQUIRED, 'The name of the form widget. Eg: PostList'],
         ];
     }
 
     /**
      * Get the console command options.
+     *
+     * @return array
      */
     protected function getOptions()
     {

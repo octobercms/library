@@ -1,73 +1,81 @@
 <?php namespace October\Rain\Scaffold\Console;
 
-use Illuminate\Console\Command;
+use October\Rain\Scaffold\GeneratorCommand;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use October\Rain\Support\Str;
-use October\Rain\Scaffold\Templates\Component;
 
-class CreateComponent extends Command
+class CreateComponent extends GeneratorCommand
 {
 
     /**
      * The console command name.
+     *
+     * @var string
      */
     protected $name = 'create:component';
 
     /**
      * The console command description.
+     *
+     * @var string
      */
     protected $description = 'Creates a new plugin component.';
 
     /**
-     * Create a new command instance.
+     * The type of class being generated.
+     *
+     * @var string
      */
-    public function __construct()
-    {
-        parent::__construct();
-    }
+    protected $type = 'Component';
 
     /**
-     * Execute the console command.
+     * A mapping of stub to generated file.
+     *
+     * @var array
      */
-    public function fire()
+    protected $stubs = [
+        'component/component.stub'  => 'components/{{studly_name}}.php',
+        'component/default.stub' => 'components/{{lower_name}}/default.htm',
+    ];
+
+    /**
+     * Prepare variables for stubs.
+     *
+     * return @array
+     */
+    protected function prepareVars()
     {
-        /*
-         * Extract the author and name from the plugin code
-         */
-        $pluginCode = $this->argument('pluginCode');
+        $pluginCode = $this->argument('plugin');
 
         $parts = explode('.', $pluginCode);
-        $pluginName = array_pop($parts);
-        $authorName = array_pop($parts);
+        $plugin = array_pop($parts);
+        $author = array_pop($parts);
+        $component = $this->argument('component');
 
-        $destinationPath = base_path() . '/plugins/' . strtolower($authorName) . '/' . strtolower($pluginName);
-        $componentName = $this->argument('componentName');
-
-        $vars = [
-            'name' => $componentName,
-            'author' => $authorName,
-            'plugin' => $pluginName
+        return [
+            'name' => $component,
+            'author' => $author,
+            'plugin' => $plugin
         ];
-
-        Component::make($destinationPath, $vars, $this->option('force'));
-
-        $this->info(sprintf('Successfully generated Component for "%s"', $componentName));
     }
 
     /**
      * Get the console command arguments.
+     *
+     * @return array
      */
     protected function getArguments()
     {
         return [
-            ['pluginCode', InputArgument::REQUIRED, 'The name of the plugin to create. Eg: RainLab.Blog'],
-            ['componentName', InputArgument::REQUIRED, 'The name of the component. Eg: Posts'],
+            ['plugin', InputArgument::REQUIRED, 'The name of the plugin to create. Eg: RainLab.Blog'],
+            ['component', InputArgument::REQUIRED, 'The name of the component. Eg: Posts'],
         ];
     }
 
     /**
      * Get the console command options.
+     *
+     * @return array
      */
     protected function getOptions()
     {
