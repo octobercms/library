@@ -223,3 +223,22 @@ if (!function_exists('trans'))
         return app('translator')->trans($id, $parameters, $domain, $locale);
     }
 }
+
+if (!function_exists('activate_gzip'))
+{
+    /**
+     * Activate gzip compression if server supports
+     *
+     * @return void
+     */
+    function activate_gzip()
+    {
+        if (
+            !headers_sent() && 
+            strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== false
+        ) {
+            header('Content-Encoding: gzip');
+            ob_start('ob_gzhandler');
+        }
+    }
+}
