@@ -995,6 +995,7 @@ class Model extends EloquentModel
             case 'hasOne':
             case 'hasMany':
             case 'morphTo':
+            case 'morphOne':
             case 'attachOne':
             case 'attachMany':
                 $value = $relationObj->getSimpleValue();
@@ -1024,6 +1025,7 @@ class Model extends EloquentModel
             case 'hasOne':
             case 'hasMany':
             case 'morphTo':
+            case 'morphOne':
             case 'attachOne':
             case 'attachMany':
                 $relationObj->setSimpleValue($value);

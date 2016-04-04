@@ -48,6 +48,16 @@ trait MorphOneOrMany
             $model->setAttribute($this->getPlainForeignKey(), $this->parent->getKey());
             $model->setAttribute($this->getPlainMorphType(), $this->morphClass);
             $model->save();
+
+            /*
+             * Use the opportunity to set the relation in memory
+             */
+            if ($this instanceof MorphOne) {
+                $this->parent->setRelation($this->relationName, $model);
+            }
+            else {
+                $this->parent->reloadRelations($this->relationName);
+            }
         }
         else {
             $this->parent->bindDeferred($this->relationName, $model, $sessionKey);
@@ -67,12 +77,23 @@ trait MorphOneOrMany
                 $model->delete();
             }
             else {
-                // Make this model an orphan ;~(
+                /*
+                 * Make this model an orphan ;~(
+                 */
                 $model->setAttribute($this->getPlainForeignKey(), null);
                 $model->setAttribute($this->getPlainMorphType(), null);
                 $model->save();
-            }
 
+                /*
+                 * Use the opportunity to set the relation in memory
+                 */
+                if ($this instanceof MorphOne) {
+                    $this->parent->setRelation($this->relationName, null);
+                }
+                else {
+                    $this->parent->reloadRelations($this->relationName);
+                }
+            }
         }
         else {
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);
