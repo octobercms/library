@@ -230,7 +230,7 @@ class File extends Model
             $fileName = $this->disk_name;
         }
 
-        return Storage::get($this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName);
+        return $this->storageCmd('get', $this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName);
     }
 
     /**
@@ -497,7 +497,7 @@ class File extends Model
         $pattern = 'thumb_'.$this->id.'_';
 
         $directory = $this->getStorageDirectory() . $this->getPartitionDirectory();
-        $allFiles = Storage::files($directory);
+        $allFiles = $this->storageCmd('files', $directory);
         $collection = [];
         foreach ($allFiles as $file) {
             if (starts_with(basename($file), $pattern)) {
@@ -505,8 +505,16 @@ class File extends Model
             }
         }
 
+        /*
+         * Delete the collection of files
+         */
         if (!empty($collection)) {
-            Storage::delete($collection);
+            if ($this->isLocalStorage()) {
+                FileHelper::delete($collection);
+            }
+            else {
+                Storage::delete($collection);
+            }
         }
     }
 
@@ -538,22 +546,6 @@ class File extends Model
         }
 
         return $this->getTempPath() . '/' . $path;
-    }
-
-    /**
-     * Copy the Storage to local file
-     */
-    protected function copyStorageToLocal($storagePath, $localPath)
-    {
-        return FileHelper::put($localPath, Storage::get($storagePath));
-    }
-
-    /**
-     * Copy the local file to Storage
-     */
-    protected function copyLocalToStorage($localPath, $storagePath)
-    {
-        return Storage::put($storagePath, FileHelper::get($localPath), ($this->isPublic()) ? 'public' : null);
     }
 
     /**
@@ -597,6 +589,7 @@ class File extends Model
 
     /**
      * Delete file contents from storage device.
+     * @return void
      */
     protected function deleteFile($fileName = null)
     {
@@ -606,8 +599,8 @@ class File extends Model
         $directory = $this->getStorageDirectory() . $this->getPartitionDirectory();
         $filePath = $directory . $fileName;
 
-        if (Storage::exists($filePath)) {
-            Storage::delete($filePath);
+        if ($this->storageCmd('exists', $filePath)) {
+            $this->storageCmd('delete', $filePath);
         }
 
         $this->deleteEmptyDirectory($directory);
@@ -615,45 +608,100 @@ class File extends Model
 
     /**
      * Check file exists on storage device.
+     * @return void
      */
     protected function hasFile($fileName = null)
     {
         $filePath = $this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName;
-        return Storage::exists($filePath);
+        return $this->storageCmd('exists', $filePath);
     }
 
     /**
      * Checks if directory is empty then deletes it,
      * three levels up to match the partition directory.
+     * @return void
      */
     protected function deleteEmptyDirectory($dir = null)
     {
-        if (!$this->isDirectoryEmpty($dir))
+        if (!$this->isDirectoryEmpty($dir)) {
             return;
+        }
 
-        Storage::deleteDirectory($dir);
+        $this->storageCmd('deleteDirectory', $dir);
 
         $dir = dirname($dir);
-        if (!$this->isDirectoryEmpty($dir))
+        if (!$this->isDirectoryEmpty($dir)) {
             return;
+        }
 
-        Storage::deleteDirectory($dir);
+        $this->storageCmd('deleteDirectory', $dir);
 
         $dir = dirname($dir);
-        if (!$this->isDirectoryEmpty($dir))
+        if (!$this->isDirectoryEmpty($dir)) {
             return;
+        }
 
-        Storage::deleteDirectory($dir);
+        $this->storageCmd('deleteDirectory', $dir);
     }
 
     /**
      * Returns true if a directory contains no files.
+     * @return void
      */
     protected function isDirectoryEmpty($dir)
     {
-        if (!$dir) return null;
+        if (!$dir) {
+            return null;
+        }
 
-        return count(Storage::allFiles($dir)) === 0;
+        return count($this->storageCmd('allFiles', $dir)) === 0;
+    }
+
+    //
+    // Storage interface
+    //
+
+    /**
+     * Calls a method against File or Storage depending on local storage.
+     * This allows local storage outside the storage/app folder and is
+     * also good for performance. For local storage, *every* argument
+     * is prefixed with the local root path. Props to Laravel for
+     * the unified interface.
+     * @return mixed
+     */
+    protected function storageCmd()
+    {
+        $args = func_get_args();
+        $command = array_shift($args);
+
+        if ($this->isLocalStorage()) {
+            $interface = 'File';
+            $path = $this->getLocalRootPath();
+            $args = array_map(function($value) use ($path) {
+                return $path . '/' . $value;
+            }, $args);
+        }
+        else {
+            $interface = 'Storage';
+        }
+
+        return forward_static_call_array([$interface, $command], $args);
+    }
+
+    /**
+     * Copy the Storage to local file
+     */
+    protected function copyStorageToLocal($storagePath, $localPath)
+    {
+        return FileHelper::put($localPath, Storage::get($storagePath));
+    }
+
+    /**
+     * Copy the local file to Storage
+     */
+    protected function copyLocalToStorage($localPath, $storagePath)
+    {
+        return Storage::put($storagePath, FileHelper::get($localPath), ($this->isPublic()) ? 'public' : null);
     }
 
     //
