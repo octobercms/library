@@ -34,8 +34,8 @@ class CreatePlugin extends GeneratorCommand
      * @var array
      */
     protected $stubs = [
-        'plugin/plugin.stub'  => '{{lower_author}}/{{lower_name}}/Plugin.php',
-        'plugin/version.stub' => '{{lower_author}}/{{lower_name}}/updates/version.yaml',
+        'plugin/plugin.stub'  => 'Plugin.php',
+        'plugin/version.stub' => 'updates/version.yaml',
     ];
 
     /**
