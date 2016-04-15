@@ -3,6 +3,7 @@
 use Closure;
 use Illuminate\Foundation\Application as ApplicationBase;
 use \Symfony\Component\Debug\Exception\FatalErrorException;
+use Exception;
 
 class Application extends ApplicationBase
 {
@@ -182,6 +183,22 @@ class Application extends ApplicationBase
     public function setExecutionContext($context)
     {
         $this->executionContext = $context;
+    }
+
+    /**
+     * Returns true if a database connection is present.
+     * @return boolean
+     */
+    public function hasDatabase()
+    {
+        try {
+            $this['db.connection']->getDatabaseName();
+        }
+        catch (Exception $ex) {
+            return false;
+        }
+
+        return true;
     }
 
     //

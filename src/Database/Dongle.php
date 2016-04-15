@@ -30,19 +30,12 @@ class Dongle
     }
 
     /**
-     * Helper method, softly checks if a database is present.
-     * @return boolean
+     * @deprecated use App::hasDatabase()
+     * Remove this method if year >= 2017
      */
     public function hasDatabase()
     {
-        try {
-            $this->db->connection()->getDatabaseName();
-        }
-        catch (Exception $ex) {
-            return false;
-        }
-
-        return true;
+        return \App::hasDatabase();
     }
 
     /**
