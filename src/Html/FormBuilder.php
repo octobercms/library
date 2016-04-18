@@ -1053,7 +1053,11 @@ class FormBuilder
     {
         $attrValue = $this->getValueAttribute($name);
 
-        return $attrValue && $attrValue != 0 ?: input($name, $value);
+        if ($attrValue == 0) {
+            return $attrValue;
+        }
+
+        return $attrValue ?: input($name, $value);
     }
 
     /**
