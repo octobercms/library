@@ -41,40 +41,72 @@ class Builder extends BuilderModel
      * Perform a search on this query for term found in columns.
      * @param  string $term  Search query
      * @param  array $columns Table columns to search
+     * @param  string $mode  Search mode: all, any, exact.
      * @return self
      */
-    public function searchWhere($term, $columns = [], $boolean = 'and')
+    public function searchWhere($term, $columns = [], $mode = 'all')
     {
-        if (!is_array($columns)) {
-            $columns = [$columns];
-        }
-
-        $words = explode(' ', $term);
-        $this->where(function($query) use ($columns, $words) {
-            foreach ($columns as $field) {
-                $query->orWhere(function($query) use ($field, $words) {
-                    foreach ($words as $word) {
-                        if (!strlen($word)) continue;
-                        $fieldSql = $this->query->raw(sprintf("lower(%s)", $field));
-                        $wordSql = '%'.trim(mb_strtolower($word)).'%';
-                        $query->where($fieldSql, 'LIKE', $wordSql);
-                    }
-                });
-            }
-        }, null, null, $boolean);
-
-        return $this;
+        return $this->searchWhereInternal($term, $columns, $mode, 'and');
     }
 
     /**
      * Add an "or search where" clause to the query.
      * @param  string $term  Search query
      * @param  array $columns Table columns to search
+     * @param  string $mode  Search mode: all, any, exact.
      * @return self
      */
-    public function orSearchWhere($term, $columns = [])
+    public function orSearchWhere($term, $columns = [], $mode = 'all')
     {
-        return $this->searchWhere($term, $columns, 'or');
+        return $this->searchWhereInternal($term, $columns, $mode, 'or');
+    }
+
+    /**
+     * Internal method to apply a search constraint to the query.
+     * Mode can be any of these options:
+     * - all: result must contain all words
+     * - any: result can contain any word
+     * - exact: result must contain the exact phrase
+     */
+    protected function searchWhereInternal($term, $columns = [], $mode, $boolean)
+    {
+        if (!is_array($columns)) {
+            $columns = [$columns];
+        }
+
+        if (!$mode) {
+            $mode = 'all';
+        }
+
+        if ($mode === 'exact') {
+            $this->where(function($query) use ($columns, $term) {
+                foreach ($columns as $field) {
+                    if (!strlen($term)) continue;
+                    $fieldSql = $this->query->raw(sprintf("lower(%s)", $field));
+                    $termSql = '%'.trim(mb_strtolower($term)).'%';
+                    $query->orWhere($fieldSql, 'LIKE', $termSql);
+                }
+            }, null, null, $boolean);
+        }
+        else {
+            $words = explode(' ', $term);
+            $wordBoolean = $mode === 'any' ? 'or' : 'and';
+
+            $this->where(function($query) use ($columns, $words, $wordBoolean) {
+                foreach ($columns as $field) {
+                    $query->orWhere(function($query) use ($field, $words, $wordBoolean) {
+                        foreach ($words as $word) {
+                            if (!strlen($word)) continue;
+                            $fieldSql = $this->query->raw(sprintf("lower(%s)", $field));
+                            $wordSql = '%'.trim(mb_strtolower($word)).'%';
+                            $query->where($fieldSql, 'LIKE', $wordSql, $wordBoolean);
+                        }
+                    });
+                }
+            }, null, null, $boolean);
+        }
+
+        return $this;
     }
 
     /**
