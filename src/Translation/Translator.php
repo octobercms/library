@@ -14,6 +14,8 @@ class Translator implements TranslatorInterface
 {
     use \October\Rain\Support\Traits\KeyParser;
 
+    const CORE_LOCALE = 'en';
+
     /**
      * The loader implementation.
      *
@@ -293,10 +295,10 @@ class Translator implements TranslatorInterface
     protected function parseLocale($locale)
     {
         if (!is_null($locale)) {
-            return array_filter([$locale, $this->fallback]);
+            return array_filter([$locale, $this->fallback, static::CORE_LOCALE]);
         }
 
-        return array_filter([$this->locale, $this->fallback]);
+        return array_filter([$this->locale, $this->fallback, static::CORE_LOCALE]);
     }
 
     /**
