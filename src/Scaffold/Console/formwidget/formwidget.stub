@@ -7,7 +7,6 @@ use Backend\Classes\FormWidgetBase;
  */
 class {{studly_name}} extends FormWidgetBase
 {
-
     /**
      * {@inheritDoc}
      */
@@ -55,5 +54,4 @@ class {{studly_name}} extends FormWidgetBase
     {
         return $value;
     }
-
 }
