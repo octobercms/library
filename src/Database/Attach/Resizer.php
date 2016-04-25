@@ -122,12 +122,12 @@ class Resizer
      */
     public function setOptions($options)
     {
-        $this->options = array_merge($options, [
+        $this->options = array_merge([
             'mode'    => 'auto',
             'offset'  => [],
             'sharpen' => 0,
             'quality' => 95
-        ]);
+        ], $options);
 
         return $this;
     }
