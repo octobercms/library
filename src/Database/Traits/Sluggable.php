@@ -19,7 +19,9 @@ trait Sluggable
     public static function bootSluggable()
     {
         if (!property_exists(get_called_class(), 'slugs')) {
-            throw new Exception(sprintf('You must define a $slugs property in %s to use the Sluggable trait.', get_called_class()));
+            throw new Exception(sprintf(
+                'You must define a $slugs property in %s to use the Sluggable trait.', get_called_class()
+            ));
         }
 
         /*
@@ -88,16 +90,25 @@ trait Sluggable
     {
         $counter = 1;
         $separator = $this->getSluggableSeparator();
+        $_value = $value;
 
-        // Remove any existing suffixes
-        $_value = preg_replace('/'.preg_quote($separator).'[0-9]+$/', '', trim($value));
-
-        while ($this->newQuery()->where($name, $_value)->count() > 0) {
+        while ($this->newSluggableQuery()->where($name, $_value)->count() > 0) {
             $counter++;
             $_value = $value . $separator . $counter;
         }
 
         return $_value;
+    }
+
+    /**
+     * Returns a query that excludes the current record if it exists
+     * @return Builder
+     */
+    protected function newSluggableQuery()
+    {
+        return $this->exists
+            ? $this->newQuery()->where($this->getKeyName(), '<>', $this->getKey())
+            : $this->newQuery();
     }
 
     /**
@@ -107,8 +118,9 @@ trait Sluggable
      */
     protected function getSluggableSourceAttributeValue($key)
     {
-        if (strpos($key, '.') === false)
+        if (strpos($key, '.') === false) {
             return $this->getAttribute($key);
+        }
 
         $keyParts = explode('.', $key);
         $value = $this;

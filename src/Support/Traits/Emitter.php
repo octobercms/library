@@ -25,7 +25,7 @@ trait Emitter
 
     /**
      * Create a new event binding.
-     * @return Self
+     * @return self
      */
     public function bindEvent($event, $callback, $priority = 0)
     {
@@ -36,7 +36,7 @@ trait Emitter
 
     /**
      * Create a new event binding that fires once only
-     * @return Self
+     * @return self
      */
     public function bindEventOnce($event, $callback)
     {
@@ -64,7 +64,7 @@ trait Emitter
     /**
      * Destroys an event binding.
      * @param string $event Event to destroy
-     * @return Self
+     * @return self
      */
     public function unbindEvent($event = null)
     {

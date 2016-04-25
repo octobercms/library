@@ -1,7 +1,5 @@
 <?php namespace October\Rain\Database;
 
-use Illuminate\Database\Eloquent\Collection as CollectionBase;
-
 /**
  * Custom collection used by NestedTree trait.
  *
@@ -10,14 +8,14 @@ use Illuminate\Database\Eloquent\Collection as CollectionBase;
  *   $collection->toNested(); // Converts collection to an eager loaded one.
  *
  */
-class TreeCollection extends CollectionBase
+class TreeCollection extends Collection
 {
 
     /**
      * Converts a flat collection of nested set models to an set where
      * children is eager loaded
      * @param bool $removeOrphans Remove nodes that exist without their parents.
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function toNested($removeOrphans = true)
     {
@@ -26,7 +24,7 @@ class TreeCollection extends CollectionBase
          */
         $collection = $this->getDictionary();
         foreach ($collection as $key => $model) {
-            $model->setRelation('children', new CollectionBase);
+            $model->setRelation('children', new Collection);
         }
 
         /*
@@ -53,7 +51,7 @@ class TreeCollection extends CollectionBase
             unset($collection[$key]);
         }
 
-        return new CollectionBase($collection);
+        return new Collection($collection);
     }
 
     /**

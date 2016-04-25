@@ -2,11 +2,9 @@
 
 use Hash;
 use October\Rain\Database\Model;
-use October\Rain\Auth\Hash\HasherBase;
 use InvalidArgumentException;
 use RuntimeException;
 use Exception;
-use DateTime;
 
 /**
  * User model
@@ -374,8 +372,9 @@ class User extends Model
     public function inGroup($group)
     {
         foreach ($this->getGroups() as $_group) {
-            if ($_group->getKey() == $group->getKey())
+            if ($_group->getKey() == $group->getKey()) {
                 return true;
+            }
         }
 
         return false;
@@ -391,14 +390,16 @@ class User extends Model
             $permissions = [];
 
             foreach ($this->getGroups() as $group) {
-                if (!is_array($group->permissions))
+                if (!is_array($group->permissions)) {
                     continue;
+                }
 
                 $permissions = array_merge($permissions, $group->permissions);
             }
 
-            if (is_array($this->permissions))
+            if (is_array($this->permissions)) {
                 $permissions = array_merge($permissions, $this->permissions);
+            }
 
             $this->mergedPermissions = $permissions;
         }
@@ -423,8 +424,9 @@ class User extends Model
      */
     public function hasAccess($permissions, $all = true)
     {
-        if ($this->isSuperUser())
+        if ($this->isSuperUser()) {
             return true;
+        }
 
         return $this->hasPermission($permissions, $all);
     }
@@ -556,7 +558,9 @@ class User extends Model
         $permissions = json_decode($permissions, true);
         foreach ($permissions as $permission => &$value) {
             if (!in_array($value = (int) $value, $this->allowedPermissionsValues)) {
-                throw new InvalidArgumentException(sprintf('Invalid value "%s" for permission "%s" given.', $value, $permission));
+                throw new InvalidArgumentException(sprintf(
+                    'Invalid value "%s" for permission "%s" given.', $value, $permission
+                ));
             }
 
             if ($value === 0) {
@@ -642,8 +646,9 @@ class User extends Model
         if (function_exists('openssl_random_pseudo_bytes')) {
             $bytes = openssl_random_pseudo_bytes($length * 2);
 
-            if ($bytes === false)
+            if ($bytes === false) {
                 throw new RuntimeException('Unable to generate a random string');
+            }
 
             return substr(str_replace(['/', '+', '='], '', base64_encode($bytes)), 0, $length);
         }

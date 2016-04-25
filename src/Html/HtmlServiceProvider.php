@@ -29,7 +29,7 @@ class HtmlServiceProvider extends ServiceProvider
      */
     protected function registerHtmlBuilder()
     {
-        $this->app->bindShared('html', function($app) {
+        $this->app->singleton('html', function($app) {
             return new HtmlBuilder($app['url']);
         });
     }
@@ -40,7 +40,7 @@ class HtmlServiceProvider extends ServiceProvider
      */
     protected function registerFormBuilder()
     {
-        $this->app->bindShared('form', function($app) {
+        $this->app->singleton('form', function($app) {
             $form = new FormBuilder($app['html'], $app['url'], $app['session.store']->getToken(), str_random(40));
             return $form->setSessionStore($app['session.store']);
         });
@@ -52,7 +52,7 @@ class HtmlServiceProvider extends ServiceProvider
      */
     protected function registerBlockBuilder()
     {
-        $this->app->bindShared('block', function($app) {
+        $this->app->singleton('block', function($app) {
             return new BlockBuilder;
         });
     }

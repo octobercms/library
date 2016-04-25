@@ -31,7 +31,7 @@ class FlashBag extends MessageBag
      */
     protected $session;
 
-    public function __construct(array $messages = array())
+    public function __construct(array $messages = [])
     {
         parent::__construct($messages);
 
@@ -54,7 +54,7 @@ class FlashBag extends MessageBag
 
     /**
      * Get first message for every key in the bag.
-     * @param $format
+     * @param string|null $format
      * @return array
      */
     public function all($format = null)
@@ -71,8 +71,8 @@ class FlashBag extends MessageBag
 
     /**
      * Gets all the flash messages of a given type.
-     * @param $key
-     * @param $format
+     * @param string $key
+     * @param string|null $format
      * @return array
      */
     public function get($key, $format = null)
@@ -86,6 +86,8 @@ class FlashBag extends MessageBag
 
     /**
      * Gets / Sets an error message
+     * @param string|null $message
+     * @return array|FlashBag
      */
     public function error($message = null)
     {
@@ -97,6 +99,8 @@ class FlashBag extends MessageBag
 
     /**
      * Sets Gets / a success message
+     * @param string|null $message
+     * @return array|FlashBag
      */
     public function success($message = null)
     {
@@ -108,6 +112,8 @@ class FlashBag extends MessageBag
 
     /**
      * Gets / Sets a warning message
+     * @param string|null $message
+     * @return array|FlashBag
      */
     public function warning($message = null)
     {
@@ -119,6 +125,8 @@ class FlashBag extends MessageBag
 
     /**
      * Gets / Sets a information message
+     * @param string|null $message
+     * @return array|FlashBag
      */
     public function info($message = null)
     {
@@ -133,7 +141,7 @@ class FlashBag extends MessageBag
      *
      * @param  string  $key
      * @param  string  $message
-     * @return \October\Rain\Support\FlashBag
+     * @return \October\Rain\Flash\FlashBag
      */
     public function add($key, $message)
     {

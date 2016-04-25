@@ -35,7 +35,8 @@ class QueryBuilder extends QueryBuilderBase
      */
     public function remember($minutes, $key = null)
     {
-        list($this->cacheMinutes, $this->cacheKey) = [$minutes, $key];
+        $this->cacheMinutes = $minutes;
+        $this->cacheKey = $key;
 
         return $this;
     }
@@ -81,7 +82,7 @@ class QueryBuilder extends QueryBuilderBase
      * @param  array  $columns
      * @return array
      */
-    public function getCached($columns =['*'])
+    public function getCached($columns = ['*'])
     {
         if (is_null($this->columns)) {
             $this->columns = $columns;
@@ -125,7 +126,7 @@ class QueryBuilder extends QueryBuilderBase
      */
     protected function getCacheInfo()
     {
-        return array($this->getCacheKey(), $this->cacheMinutes);
+        return [$this->getCacheKey(), $this->cacheMinutes];
     }
 
     /**
@@ -158,7 +159,7 @@ class QueryBuilder extends QueryBuilderBase
      */
     protected function getCacheCallback($columns)
     {
-        return function() use ($columns) { return $this->getFresh($columns); };
+        return function() use ($columns) { return parent::get($columns); };
     }
 
     /**

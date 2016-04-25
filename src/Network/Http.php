@@ -351,7 +351,8 @@ class Http
                 $key = substr($singleHeader, 0, $delimiter);
                 $val = substr($singleHeader, $delimiter + 2);
                 $headers[$key] = $val;
-            } else {
+            }
+            else {
                 $delimiter = strpos($singleHeader, ' ');
                 if ($delimiter !== false) {
                     $key = substr($singleHeader, 0, $delimiter);
@@ -366,6 +367,7 @@ class Http
     /**
      * Add a data to the request.
      * @param string $value
+     * @return self
      */
     public function data($key, $value = null)
     {
@@ -383,6 +385,7 @@ class Http
     /**
      * Add a header to the request.
      * @param string $value
+     * @return self
      */
     public function header($key, $value = null)
     {
@@ -421,6 +424,7 @@ class Http
      * Adds authentication to the comms.
      * @param string $user
      * @param string $pass
+     * @return self
      */
     public function auth($user, $pass = null)
     {
@@ -454,6 +458,7 @@ class Http
     /**
      * Sets the request timeout.
      * @param string $timeout
+     * @return self
      */
     public function timeout($timeout)
     {
@@ -482,6 +487,7 @@ class Http
      * Add a single option to the request.
      * @param string $option
      * @param string $value
+     * @return self
      */
     public function setOption($option, $value = null)
     {

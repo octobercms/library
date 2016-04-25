@@ -26,7 +26,7 @@ class Preferences extends Model
     protected $jsonable = ['value'];
 
     /**
-     * @var October\Rain\Auth\Models\User A user who owns the preferences
+     * @var \October\Rain\Auth\Models\User A user who owns the preferences
      */
     public $userContext;
 
@@ -37,7 +37,7 @@ class Preferences extends Model
      */
     public function resolveUser($user)
     {
-        $user = Manager::getUser();
+        $user = Manager::instance()->getUser();
         if (!$user) {
             throw new AuthException('User is not logged in');
         }

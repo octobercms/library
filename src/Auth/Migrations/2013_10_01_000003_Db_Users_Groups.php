@@ -13,7 +13,7 @@ class DbUsersGroups extends Migration
             $table->engine = 'InnoDB';
             $table->integer('user_id')->unsigned();
             $table->integer('group_id')->unsigned();
-            $table->primary(array('user_id', 'group_id'));
+            $table->primary(['user_id', 'group_id']);
         });
     }
 

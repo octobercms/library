@@ -69,8 +69,9 @@ class Zip extends ZipArchive
             'mask' => 0777
         ], $options));
 
-        if (!file_exists($destination))
+        if (!file_exists($destination)) {
             mkdir($destination, $mask, true);
+        }
 
         $zip = new ZipArchive;
         if ($zip->open($source) === true) {
@@ -93,12 +94,12 @@ class Zip extends ZipArchive
         $zip = new self;
         $zip->open($destination, ZIPARCHIVE::CREATE | ZipArchive::OVERWRITE);
 
-        if (is_string($source))
+        if (is_string($source)) {
             $zip->add($source);
-
-        elseif (is_callable($source))
+        }
+        elseif (is_callable($source)) {
             $source($zip);
-
+        }
         elseif (is_array($source)) {
             foreach ($source as $_source) {
                 $zip->add($_source);
@@ -113,12 +114,14 @@ class Zip extends ZipArchive
      * Includes a source to the Zip
      * @param mixed $source
      * @param array $options
+     * @return self
      */
     public function add($source, $options = [])
     {
         // A directory has been supplied, convert it to a useful glob
-        if (is_dir($source))
+        if (is_dir($source)) {
             $source = implode('/', [dirname($source), basename($source), '*']);
+        }
 
         extract(array_merge([
             'recursive' => true,
@@ -143,8 +146,9 @@ class Zip extends ZipArchive
             $this->addFile($file, $localfile);
         }
 
-        if (!$recursive)
+        if (!$recursive) {
             return $this;
+        }
 
         foreach ($folders as $folder) {
             if (!is_dir($folder)) continue;
@@ -167,17 +171,18 @@ class Zip extends ZipArchive
     {
         $prefix = $this->folderPrefix;
         $this->addEmptyDir($prefix . $name);
-        if ($source === null)
+        if ($source === null) {
             return $this;
+        }
 
         $this->folderPrefix = $prefix . $name . '/';
 
-        if (is_string($source))
+        if (is_string($source)) {
             $this->add($source);
-
-        elseif (is_callable($source))
+        }
+        elseif (is_callable($source)) {
             $source($this);
-
+        }
         elseif (is_array($source)) {
             foreach ($source as $_source) {
                 $this->add($_source);
@@ -197,20 +202,24 @@ class Zip extends ZipArchive
     public function remove($source)
     {
         if (is_array($source)) {
-            foreach ($source as $_source)
+            foreach ($source as $_source) {
                 $this->remove($_source);
+            }
         }
 
-        if (!is_string($source))
+        if (!is_string($source)) {
             return $this;
+        }
 
-        if (substr($source, 0, 1) == '/')
+        if (substr($source, 0, 1) == '/') {
             $source = substr($source, 1);
+        }
 
         for ($i = 0; $i < $this->numFiles; $i++) {
             $stats = $this->statIndex($i);
-            if (substr($stats['name'], 0, strlen($source)) == $source)
+            if (substr($stats['name'], 0, strlen($source)) == $source) {
                 $this->deleteIndex($i);
+            }
         }
 
         return $this;

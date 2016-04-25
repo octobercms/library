@@ -17,7 +17,7 @@ use October\Rain\Exception\ApplicationException;
 class ErrorHandler
 {
     /**
-     * @var System\Classes\ExceptionBase A prepared mask exception used to mask any exception fired.
+     * @var \System\Classes\ExceptionBase A prepared mask exception used to mask any exception fired.
      */
     protected static $activeMask;
 

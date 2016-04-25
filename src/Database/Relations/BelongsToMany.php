@@ -5,7 +5,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class BelongsToMany extends BelongsToManyBase
 {
-
     use DeferOneOrMany;
 
     /**
@@ -45,7 +44,7 @@ class BelongsToMany extends BelongsToManyBase
     /**
      * Create a new instance of this related model with deferred binding support.
      */
-    public function create(array $attributes, array $pivotData = [], $sessionKey = null)
+    public function create(array $attributes = [], array $pivotData = [], $sessionKey = null)
     {
         $model = $this->related->create($attributes);
 
@@ -103,17 +102,16 @@ class BelongsToMany extends BelongsToManyBase
      * Get a paginator for the "select" statement. Complies with October Rain.
      *
      * @param  int    $perPage
+     * @param  int    $currentPage
      * @param  array  $columns
-     * @return \Illuminate\Pagination\Paginator
+     * @param  string  $pageName
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate($perPage = null, $currentPage = null, $columns = ['*'])
+    public function paginate($perPage = 15, $currentPage = null, $columns = ['*'], $pageName = 'page')
     {
         $this->query->addSelect($this->getSelectColumns($columns));
-
         $paginator = $this->query->paginate($perPage, $currentPage, $columns);
-
         $this->hydratePivotRelation($paginator->items());
-
         return $paginator;
     }
 
@@ -124,7 +122,7 @@ class BelongsToMany extends BelongsToManyBase
      * @param  bool   $exists
      * @return \Illuminate\Database\Eloquent\Relations\Pivot
      */
-    public function newPivot(array $attributes = array(), $exists = false)
+    public function newPivot(array $attributes = [], $exists = false)
     {
         /*
          * October looks to the relationship parent

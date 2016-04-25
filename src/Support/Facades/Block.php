@@ -14,7 +14,7 @@ class Block extends Facade
      * Get the registered name of the component.
      * 
      * Resolves to:
-     * - October\Rain\Http\BlockBuilder
+     * - October\Rain\Html\BlockBuilder
      * 
      * @return string
      */

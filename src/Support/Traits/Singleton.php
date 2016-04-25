@@ -1,7 +1,5 @@
 <?php namespace October\Rain\Support\Traits;
 
-use InvalidArgumentException;
-
 /**
  * Singleton trait.
  *

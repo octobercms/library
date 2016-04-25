@@ -30,19 +30,12 @@ class Dongle
     }
 
     /**
-     * Helper method, softly checks if a database is present.
-     * @return boolean
+     * @deprecated use App::hasDatabase()
+     * Remove this method if year >= 2017
      */
     public function hasDatabase()
     {
-        try {
-            $this->db->connection()->getDatabaseName();
-        }
-        catch (Exception $ex) {
-            return false;
-        }
-
-        return true;
+        return \App::hasDatabase();
     }
 
     /**
@@ -65,6 +58,7 @@ class Dongle
         $sql = $this->parseGroupConcat($sql);
         $sql = $this->parseConcat($sql);
         $sql = $this->parseIfNull($sql);
+        $sql = $this->parseBooleanExpression($sql);
         return $sql;
     }
 
@@ -143,6 +137,25 @@ class Dongle
         }
 
         return str_ireplace('ifnull(', 'coalesce(', $sql);
+    }
+
+    /**
+     * Transforms true|false expressions in a statement.
+     * @param  string $sql
+     * @return string
+     */
+    public function parseBooleanExpression($sql)
+    {
+        if ($this->driver != 'sqlite') {
+            return $sql;
+        }
+
+        return preg_replace_callback('/(\w+)\s*(=|<>)\s*(true|false)($|\s)/i', function ($matches) {
+            array_shift($matches);
+            $space = array_pop($matches);
+            $matches[2] = $matches[2] == 'true' ? 1 : 0;
+            return implode(' ', $matches) . $space;
+        }, $sql);
     }
 
     /**

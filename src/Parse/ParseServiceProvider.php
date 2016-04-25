@@ -31,11 +31,6 @@ class ParseServiceProvider extends ServiceProvider
         $this->app['parse.ini'] = $this->app->share(function($app) {
             return new Ini;
         });
-
-        // $this->app['twig.environment'] = $this->app->share(function($app) {
-        //     $emptyLoader = new \Twig_Loader_Array([]);
-        //     return new \Twig_Environment($emptyLoader);
-        // });
     }
 
     /**

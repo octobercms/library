@@ -2,7 +2,7 @@
 
 use Exception;
 
-trait Nullable 
+trait Nullable
 {
 
     /**
@@ -13,7 +13,9 @@ trait Nullable
     public static function bootNullable()
     {
         if (!property_exists(get_called_class(), 'nullable')) {
-            throw new Exception(sprintf('You must define a $nullable property in %s to use the Nullable trait.', get_called_class()));
+            throw new Exception(sprintf(
+                'You must define a $nullable property in %s to use the Nullable trait.', get_called_class()
+            ));
         }
 
         static::extend(function($model) {
@@ -31,9 +33,15 @@ trait Nullable
     public function nullableBeforeSave()
     {
         foreach ($this->nullable as $field) {
-            if (empty($this->$field)) {
-                $this->$field = null;
+            if (empty($this->{$field})) {
+                if ($this->exists) {
+                    $this->attributes[$field] = null;
+                }
+                else {
+                    unset($this->attributes[$field]);
+                }
             }
         }
     }
+
 }

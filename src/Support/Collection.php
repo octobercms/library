@@ -7,4 +7,15 @@ use Illuminate\Support\Collection as CollectionBase;
  */
 class Collection extends CollectionBase
 {
+    /**
+     * Get an array with the values of a given key.
+     *
+     * @param  string  $value
+     * @param  string  $key
+     * @return array
+     */
+    public function lists($value, $key = null)
+    {
+        return array_pluck($this->items, $value, $key);
+    }
 }

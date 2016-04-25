@@ -98,11 +98,23 @@ trait ExtendableTrait
     public static function extendableExtendCallback($callback)
     {
         $class = get_called_class();
-        if (!isset(self::$extendableCallbacks[$class]) || !is_array(self::$extendableCallbacks[$class])) {
+        if (
+            !isset(self::$extendableCallbacks[$class]) ||
+            !is_array(self::$extendableCallbacks[$class])
+        ) {
             self::$extendableCallbacks[$class] = [];
         }
 
         self::$extendableCallbacks[$class][] = $callback;
+    }
+
+    /**
+     * Clear the list of extended classes so they will be re-extended.
+     * @return void
+     */
+    public static function clearExtendedClasses()
+    {
+        self::$extendableCallbacks = [];
     }
 
     /**
@@ -130,7 +142,7 @@ trait ExtendableTrait
     /**
      * Programatically adds a method to the extendable class
      * @param string   $dynamicName
-     * @param callable $methodName
+     * @param callable $method
      * @param string   $extension
      */
     public function addDynamicMethod($dynamicName, $method, $extension = null)
@@ -140,7 +152,7 @@ trait ExtendableTrait
             $extension &&
             ($extensionObj = $this->getClassExtension($extension))
         ) {
-            $method = array($extensionObj, $method);
+            $method = [$extensionObj, $method];
         }
 
         $this->extensionData['dynamicMethods'][$dynamicName] = $method;
@@ -351,7 +363,7 @@ trait ExtendableTrait
             $extensionObject = $this->extensionData['extensions'][$extension];
 
             if (method_exists($extension, $name) && is_callable([$extension, $name])) {
-                return call_user_func_array(array($extensionObject, $name), $params);
+                return call_user_func_array([$extensionObject, $name], $params);
             }
         }
 
@@ -391,9 +403,13 @@ trait ExtendableTrait
 
             $class = new ReflectionClass($className);
             $defaultProperties = $class->getDefaultProperties();
-            if (array_key_exists('implement', $defaultProperties)) {
-                $implement = $defaultProperties['implement'];
-
+            if (
+                array_key_exists('implement', $defaultProperties) &&
+                ($implement = $defaultProperties['implement'])
+            ) {
+                /*
+                 * Apply extensions
+                 */
                 if (is_string($implement)) {
                     $uses = explode(',', $implement);
                 }

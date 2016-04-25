@@ -15,10 +15,10 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0",
+        "php": ">=5.5.9",
         "october/support": "~1.0",
         "october/filesystem": "~1.0",
-        "symfony/translation": "2.5.*"
+        "symfony/translation": "2.7.*"
     },
     "autoload": {
         "psr-4": {

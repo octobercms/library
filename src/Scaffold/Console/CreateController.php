@@ -1,82 +1,99 @@
 <?php namespace October\Rain\Scaffold\Console;
 
-use Illuminate\Console\Command;
+use October\Rain\Scaffold\GeneratorCommand;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use October\Rain\Support\Str;
-use October\Rain\Scaffold\Templates\Controller;
 
-class CreateController extends Command
+class CreateController extends GeneratorCommand
 {
 
     /**
      * The console command name.
+     *
+     * @var string
      */
     protected $name = 'create:controller';
 
     /**
      * The console command description.
+     *
+     * @var string
      */
     protected $description = 'Creates a new controller.';
 
     /**
-     * Create a new command instance.
+     * The type of class being generated.
+     *
+     * @var string
      */
-    public function __construct()
-    {
-        parent::__construct();
-    }
+    protected $type = 'Controller';
 
     /**
-     * Execute the console command.
+     * A mapping of stub to generated file.
+     *
+     * @var array
      */
-    public function fire()
+    protected $stubs = [
+        'controller/_list_toolbar.stub' => 'controllers/{{lower_name}}/_list_toolbar.htm',
+        'controller/config_form.stub'   => 'controllers/{{lower_name}}/config_form.yaml',
+        'controller/config_list.stub'   => 'controllers/{{lower_name}}/config_list.yaml',
+        'controller/create.stub'        => 'controllers/{{lower_name}}/create.htm',
+        'controller/index.stub'         => 'controllers/{{lower_name}}/index.htm',
+        'controller/preview.stub'       => 'controllers/{{lower_name}}/preview.htm',
+        'controller/update.stub'        => 'controllers/{{lower_name}}/update.htm',
+        'controller/controller.stub'    => 'controllers/{{studly_name}}.php',
+    ];
+
+    /**
+     * Prepare variables for stubs.
+     *
+     * return @array
+     */
+    protected function prepareVars()
     {
-        /*
-         * Extract the author and name from the plugin code
-         */
-        $pluginCode = $this->argument('pluginCode');
+        $pluginCode = $this->argument('plugin');
 
         $parts = explode('.', $pluginCode);
-        $pluginName = array_pop($parts);
-        $authorName = array_pop($parts);
+        $plugin = array_pop($parts);
+        $author = array_pop($parts);
 
-        $destinationPath = base_path() . '/plugins/' . strtolower($authorName) . '/' . strtolower($pluginName);
-        $controllerName = $this->argument('controllerName');
+        $controller = $this->argument('controller');
 
         /*
          * Determine the model name to use,
          * either supplied or singular from the controller name.
          */
-        $modelName = $this->option('model');
-        if (!$modelName)
-            $modelName = Str::singular($controllerName);
+        $model = $this->option('model');
+        if (!$model) {
+            $model = Str::singular($controller);
+        }
 
-        $vars = [
-            'name' => $controllerName,
-            'model' => $modelName,
-            'author' => $authorName,
-            'plugin' => $pluginName
+        return [
+            'name' => $controller,
+            'model' => $model,
+            'author' => $author,
+            'plugin' => $plugin
         ];
-
-        Controller::make($destinationPath, $vars, $this->option('force'));
-
-        $this->info(sprintf('Successfully generated Controller and views for "%s"', $controllerName));
     }
 
     /**
      * Get the console command arguments.
+     *
+     * @return array
      */
     protected function getArguments()
     {
         return [
-            ['pluginCode', InputArgument::REQUIRED, 'The name of the plugin to create. Eg: RainLab.Blog'],
-            ['controllerName', InputArgument::REQUIRED, 'The name of the controller. Eg: Posts'],
+            ['plugin', InputArgument::REQUIRED, 'The name of the plugin to create. Eg: RainLab.Blog'],
+            ['controller', InputArgument::REQUIRED, 'The name of the controller. Eg: Posts'],
         ];
     }
 
     /**
      * Get the console command options.
+     *
+     * @return array
      */
     protected function getOptions()
     {

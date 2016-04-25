@@ -3,7 +3,6 @@
 use Carbon\Carbon;
 use October\Rain\Auth\AuthException;
 use October\Rain\Database\Model;
-use DateTime;
 
 /**
  * Throttle model
@@ -64,8 +63,9 @@ class Throttle extends Model
      */
     public function getLoginAttempts()
     {
-        if ($this->attempts > 0 and $this->last_attempt_at)
+        if ($this->attempts > 0 and $this->last_attempt_at) {
             $this->clearLoginAttemptsIfAllowed();
+        }
 
         return $this->attempts;
     }
@@ -79,10 +79,12 @@ class Throttle extends Model
         $this->attempts++;
         $this->last_attempt_at = $this->freshTimestamp();
 
-        if ($this->getLoginAttempts() >= static::$attemptLimit)
+        if ($this->getLoginAttempts() >= static::$attemptLimit) {
             $this->suspend();
-        else
+        }
+        else {
             $this->save();
+        }
     }
 
     /**
@@ -97,8 +99,9 @@ class Throttle extends Model
         // anything either as clearing login attempts
         // makes us unsuspended. We need to manually
         // call unsuspend() in order to unsuspend.
-        if ($this->getLoginAttempts() == 0 or $this->is_suspended)
+        if ($this->getLoginAttempts() == 0 or $this->is_suspended) {
             return;
+        }
 
         $this->attempts = 0;
         $this->last_attempt_at = null;
@@ -183,11 +186,15 @@ class Throttle extends Model
     public function check()
     {
         if ($this->is_banned) {
-            throw new AuthException(sprintf('User [%s] has been banned.', $this->user->getLogin()));
+            throw new AuthException(sprintf(
+                'User [%s] has been banned.', $this->user->getLogin()
+            ));
         }
 
         if ($this->checkSuspended()) {
-            throw new AuthException(sprintf('User [%s] has been suspended.', $this->user->getLogin()));
+            throw new AuthException(sprintf(
+                'User [%s] has been suspended.', $this->user->getLogin()
+            ));
         }
 
         return true;
@@ -234,8 +241,9 @@ class Throttle extends Model
         $unsuspendAt = $suspended->modify("+{$suspensionTime} minutes");
         $now = new Carbon;
 
-        if ($unsuspendAt <= $now)
+        if ($unsuspendAt <= $now) {
             $this->unsuspend();
+        }
 
         unset($suspended);
         unset($unsuspendAt);

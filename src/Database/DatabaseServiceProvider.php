@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database;
 
+use October\Rain\Database\Model;
 use Illuminate\Database\DatabaseServiceProvider as DatabaseServiceProviderBase;
 
 class DatabaseServiceProvider extends DatabaseServiceProviderBase
@@ -23,8 +24,9 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
     {
         parent::register();
 
-        $this->app->bindShared('db.dongle', function($app)
-        {
+        Model::clearExtendedClasses();
+
+        $this->app->singleton('db.dongle', function($app) {
             return new Dongle($this->getDefaultDatabaseDriver(), $app['db']);
         });
     }

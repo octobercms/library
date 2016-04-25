@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database\Traits;
 
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
+use October\Rain\Database\Collection;
 use October\Rain\Database\TreeCollection;
 
 /**
@@ -63,7 +63,7 @@ trait SimpleTree
 
     /**
      * Returns all nodes and children.
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getAll()
     {
@@ -77,17 +77,8 @@ trait SimpleTree
     }
 
     /**
-     * Returns a list of all root nodes, eager loaded.
-     * @return Illuminate\Database\Eloquent\Collection
-     */
-    public function getAllRoot()
-    {
-        return $this->get()->toNested();
-    }
-
-    /**
      * Get a list of children records, with their children (recursive)
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getAllChildren()
     {
@@ -108,7 +99,7 @@ trait SimpleTree
 
     /**
      * Returns direct child nodes.
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getChildren()
     {
@@ -122,6 +113,29 @@ trait SimpleTree
     public function getChildCount()
     {
         return count($this->getAllChildren());
+    }
+
+    //
+    // Scopes
+    //
+
+    /**
+     * Returns a list of all root nodes, without eager loading.
+     * @return \October\Rain\Database\Collection
+     */
+    public function scopeGetAllRoot($query)
+    {
+        return $query->where($this->getParentColumnName(), null)->get();
+    }
+
+    /**
+     * Non chaining scope, returns an eager loaded hierarchy tree. Children are
+     * eager loaded inside the $model->children relation.
+     * @return Collection A collection
+     */
+    public function scopeGetNested($query)
+    {
+        return $query->get()->toNested();
     }
 
     /**

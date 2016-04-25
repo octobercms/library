@@ -47,7 +47,9 @@ trait Validation
     public static function bootValidation()
     {
         if (!property_exists(get_called_class(), 'rules')) {
-            throw new Exception(sprintf('You must define a $rules property in %s to use the Validation trait.', get_called_class()));
+            throw new Exception(sprintf(
+                'You must define a $rules property in %s to use the Validation trait.', get_called_class()
+            ));
         }
 
         static::extend(function($model) {
@@ -71,6 +73,15 @@ trait Validation
 
             }, 500);
         });
+    }
+
+    /**
+     * Returns the model data used for validation.
+     * @return array
+     */
+    protected function getValidationAttributes()
+    {
+        return $this->getAttributes();
     }
 
     /**
@@ -129,7 +140,7 @@ trait Validation
 
         if (!empty($rules)) {
 
-            $data = $this->getAttributes();
+            $data = $this->getValidationAttributes();
 
             /*
              * Decode jsonable attribute values
@@ -148,7 +159,7 @@ trait Validation
             }
 
             /*
-             * Compatability with Hashable trait:
+             * Compatibility with Hashable trait:
              * Remove all hashable values regardless, add the original values back
              * only if they are part of the data being validated.
              */
@@ -159,7 +170,7 @@ trait Validation
             }
 
             /*
-             * Compatability with Encryptable trait:
+             * Compatibility with Encryptable trait:
              * Remove all encryptable values regardless, add the original values back
              * only if they are part of the data being validated.
              */

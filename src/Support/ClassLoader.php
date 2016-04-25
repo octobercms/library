@@ -13,7 +13,7 @@ class ClassLoader
      *
      * @var array
      */
-    protected static $directories = array();
+    protected static $directories = [];
 
     /**
      * Indicates if a ClassLoader has been registered.
@@ -33,7 +33,7 @@ class ClassLoader
         $class = static::normalizeClass($class);
 
         foreach (static::$directories as $directory) {
-            if (is_file($path = $directory.DIRECTORY_SEPARATOR.$class)) {
+            if (is_file($path = realpath($directory.DIRECTORY_SEPARATOR.$class))) {
                 require_once $path;
 
                 return true;
@@ -59,7 +59,7 @@ class ClassLoader
         // Strip first slash
         if ($class[0] == '\\') $class = substr($class, 1);
 
-        return str_replace(array('\\', '_'), DIRECTORY_SEPARATOR, $class).'.php';
+        return str_replace(['\\', '_'], DIRECTORY_SEPARATOR, $class).'.php';
     }
 
     /**
@@ -70,7 +70,7 @@ class ClassLoader
     public static function register()
     {
         if (!static::$registered) {
-            static::$registered = spl_autoload_register(array('\October\Rain\Support\ClassLoader', 'load'));
+            static::$registered = spl_autoload_register(['\October\Rain\Support\ClassLoader', 'load']);
         }
     }
 
@@ -96,7 +96,7 @@ class ClassLoader
     public static function removeDirectories($directories = null)
     {
         if (is_null($directories)) {
-            static::$directories = array();
+            static::$directories = [];
         }
         else {
             $directories = (array) $directories;

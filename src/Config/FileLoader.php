@@ -72,8 +72,7 @@ class FileLoader implements LoaderInterface
         // merged on top of the main arrays to make the environments cascade.
         $file = "{$path}/{$group}.php";
 
-        if ($this->files->exists($file))
-        {
+        if ($this->files->exists($file)) {
             $items = $this->getRequire($file);
         }
 
@@ -82,8 +81,7 @@ class FileLoader implements LoaderInterface
         // precedence over them if we are currently in an environments setup.
         $file = "{$path}/{$environment}/{$group}.php";
 
-        if ($this->files->exists($file))
-        {
+        if ($this->files->exists($file)) {
             $items = $this->mergeEnvironment($items, $file);
         }
 
@@ -202,12 +200,10 @@ class FileLoader implements LoaderInterface
      */
     protected function getPath($namespace)
     {
-        if (is_null($namespace))
-        {
+        if (is_null($namespace)) {
             return $this->defaultPath;
         }
-        elseif (isset($this->hints[$namespace]))
-        {
+        elseif (isset($this->hints[$namespace])) {
             return $this->hints[$namespace];
         }
     }

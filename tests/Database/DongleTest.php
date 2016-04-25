@@ -28,4 +28,21 @@ class DongleTest extends TestCase
         $result = $dongle->parseGroupConcat("group_concat(sometable.first_name SEPARATOR ', ')");
         $this->assertEquals("group_concat(sometable.first_name, ', ')", $result);
     }
+
+    public function testSqliteParseBooleanExpression()
+    {
+        $dongle = new Dongle('sqlite');
+
+        $result = $dongle->parseBooleanExpression("select * from table where is_true = true");
+        $this->assertEquals("select * from table where is_true = 1", $result);
+
+        $result = $dongle->parseBooleanExpression("is_true = true and is_false <> true");
+        $this->assertEquals("is_true = 1 and is_false <> 1", $result);
+
+        $result = $dongle->parseBooleanExpression("is_true = true and is_false = false or is_whatever = 2");
+        $this->assertEquals("is_true = 1 and is_false = 0 or is_whatever = 2", $result);
+
+        $result = $dongle->parseBooleanExpression("select * from table where is_true = true");
+        $this->assertEquals("select * from table where is_true = 1", $result);
+    }
 }

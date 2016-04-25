@@ -11,7 +11,7 @@ trait DeferredBinding
     public $sessionKey;
 
     /**
-     * @var October\Rain\Database\Collection Deferred binding lookup cache.
+     * @var \October\Rain\Database\Collection Deferred binding lookup cache.
      */
     protected $deferredBindingCache = null;
 
@@ -162,7 +162,7 @@ trait DeferredBinding
 
     /**
      * Returns any outstanding binding records for this model.
-     * @return October\Rain\Database\Collection
+     * @return \October\Rain\Database\Collection
      */
     protected function getDeferredBindingRecords($sessionKey, $force = false)
     {

@@ -1,7 +1,6 @@
 <?php namespace October\Rain\Translation;
 
 use Illuminate\Support\Collection;
-use Illuminate\Support\NamespacedItemResolver;
 use Symfony\Component\Translation\MessageSelector;
 use Symfony\Component\Translation\TranslatorInterface;
 
@@ -15,10 +14,12 @@ class Translator implements TranslatorInterface
 {
     use \October\Rain\Support\Traits\KeyParser;
 
+    const CORE_LOCALE = 'en';
+
     /**
      * The loader implementation.
      *
-     * @var \Illuminate\Translation\LoaderInterface
+     * @var \October\Rain\Translation\LoaderInterface
      */
     protected $loader;
 
@@ -46,7 +47,7 @@ class Translator implements TranslatorInterface
     /**
      * Create a new translator instance.
      *
-     * @param  \Illuminate\Translation\LoaderInterface  $loader
+     * @param  \October\Rain\Translation\LoaderInterface  $loader
      * @param  string  $locale
      * @return void
      */
@@ -98,15 +99,17 @@ class Translator implements TranslatorInterface
                 $namespace, $group, $locale, $item, $replace
             );
 
-            if (!is_null($line))
+            if (!is_null($line)) {
                 break;
+            }
         }
 
         // If the line doesn't exist, we will return back the key which was requested as
         // that will be quick to spot in the UI if language keys are wrong or missing
         // from the application's language files. Otherwise we can return the line.
-        if (!isset($line))
+        if (!isset($line)) {
             return $key;
+        }
 
         return $line;
     }
@@ -246,7 +249,9 @@ class Translator implements TranslatorInterface
      */
     public function load($namespace, $group, $locale)
     {
-        if ($this->isLoaded($namespace, $group, $locale)) return;
+        if ($this->isLoaded($namespace, $group, $locale)) {
+            return;
+        }
 
         // The loader is responsible for returning the array of language lines for the
         // given namespace, group, and locale. We'll set the lines in this array of
@@ -290,10 +295,10 @@ class Translator implements TranslatorInterface
     protected function parseLocale($locale)
     {
         if (!is_null($locale)) {
-            return array_filter(array($locale, $this->fallback));
+            return array_filter([$locale, $this->fallback, static::CORE_LOCALE]);
         }
 
-        return array_filter(array($this->locale, $this->fallback));
+        return array_filter([$this->locale, $this->fallback, static::CORE_LOCALE]);
     }
 
     /**
@@ -324,7 +329,7 @@ class Translator implements TranslatorInterface
     /**
      * Get the language line loader implementation.
      *
-     * @return \Illuminate\Translation\LoaderInterface
+     * @return \October\Rain\Translation\LoaderInterface
      */
     public function getLoader()
     {

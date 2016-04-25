@@ -266,8 +266,7 @@ class Filesystem extends FilesystemBase
     /**
      * Modify file/folder permissions
      * @param  string $path
-     * @param  octal $fileMask
-     * @param  octal $directoryMask
+     * @param  octal $mask
      * @return void
      */
     public function chmod($path, $mask = null)
@@ -343,6 +342,23 @@ class Filesystem extends FilesystemBase
         return $this->folderPermissions
             ? octdec($this->folderPermissions)
             : null;
+    }
+
+    /**
+     * Match filename against a pattern.
+     * @param  string|array $fileName
+     * @param  string $pattern
+     * @return bool
+     */
+    public function fileNameMatch($fileName, $pattern)
+    {
+        if ($pattern === $fileName) {
+            return true;
+        }
+
+        $regex = strtr(preg_quote($pattern, '#'), ['\*' => '.*', '\?' => '.']);
+
+        return (bool) preg_match('#^' . $regex . '$#i', $fileName);
     }
 
 }

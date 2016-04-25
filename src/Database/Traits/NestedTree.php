@@ -1,6 +1,6 @@
 <?php namespace October\Rain\Database\Traits;
 
-use Illuminate\Database\Eloquent\Collection;
+use October\Rain\Database\Collection;
 use October\Rain\Database\TreeCollection;
 use October\Rain\Database\NestedTreeScope;
 use Exception;
@@ -207,7 +207,7 @@ trait NestedTree
 
     /**
      * Make this model a root node.
-     * @return \Model
+     * @return \October\Rain\Database\Model
      */
     public function makeRoot()
     {
@@ -216,7 +216,7 @@ trait NestedTree
 
     /**
      * Make model node a child of specified node.
-     * @return \Model
+     * @return \October\Rain\Database\Model
      */
     public function makeChildOf($node)
     {
@@ -225,7 +225,7 @@ trait NestedTree
 
     /**
      * Find the left sibling and move to left of it.
-     * @return \Model
+     * @return \October\Rain\Database\Model
      */
     public function moveLeft()
     {
@@ -234,7 +234,7 @@ trait NestedTree
 
     /**
      * Find the right sibling and move to the right of it.
-     * @return \Model
+     * @return \October\Rain\Database\Model
      */
     public function moveRight()
     {
@@ -243,7 +243,7 @@ trait NestedTree
 
     /**
      * Move to the model to before (left) specified node.
-     * @return \Model
+     * @return \October\Rain\Database\Model
      */
     public function moveBefore($node)
     {
@@ -252,7 +252,7 @@ trait NestedTree
 
     /**
      * Move to the model to after (right) a specified node.
-     * @return \Model
+     * @return \October\Rain\Database\Model
      */
     public function moveAfter($node)
     {
@@ -407,6 +407,21 @@ trait NestedTree
     }
 
     /**
+     * Returns a list of all root nodes, without eager loading
+     * @return \October\Rain\Database\Collection
+     */
+    public function scopeGetAllRoot($query)
+    {
+        return $query
+            ->where(function($query){
+                $query->whereNull($this->getParentColumnName());
+                $query->orWhere($this->getParentColumnName(), 0);
+            })
+            ->get()
+        ;
+    }
+
+    /**
      * Non chaining scope, returns an eager loaded hierarchy tree. Children are
      * eager loaded inside the $model->children relation.
      * @return Collection A collection
@@ -431,8 +446,8 @@ trait NestedTree
         }
 
         $results = new Collection($query->getQuery()->get($columns));
-        $values = $results->fetch($columns[1])->all();
-        $indentation = $results->fetch($columns[0])->all();
+        $values = $results->pluck($columns[1])->all();
+        $indentation = $results->pluck($columns[0])->all();
 
         if (count($values) !== count($indentation)) {
             throw new Exception('Column mismatch in listsNested method. Are you sure the columns exist?');
@@ -443,7 +458,7 @@ trait NestedTree
         }
 
         if ($key !== null && count($results) > 0) {
-            $keys = $results->fetch($key)->all();
+            $keys = $results->pluck($key)->all();
 
             return array_combine($keys, $values);
         }
@@ -457,7 +472,7 @@ trait NestedTree
 
     /**
      * Returns all nodes and children.
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getAll($columns = ['*'])
     {
@@ -466,7 +481,7 @@ trait NestedTree
 
     /**
      * Returns the root node starting from the current node.
-     * @return \Model
+     * @return \October\Rain\Database\Model
      */
     public function getRoot()
     {
@@ -492,23 +507,8 @@ trait NestedTree
     }
 
     /**
-     * Returns a list of all root nodes, without eager loading
-     * @return Illuminate\Database\Eloquent\Collection
-     */
-    public function getAllRoot()
-    {
-        return $this->newQuery()
-            ->where(function($query){
-                $query->whereNull($this->getParentColumnName());
-                $query->orWhere($this->getParentColumnName(), 0);
-            })
-            ->get()
-        ;
-    }
-
-    /**
      * Returns a list of all root nodes, with children eager loaded.
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getEagerRoot()
     {
@@ -526,7 +526,7 @@ trait NestedTree
 
     /**
      * The direct parent node.
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getParent()
     {
@@ -535,7 +535,7 @@ trait NestedTree
 
     /**
      * Returns all parents up the tree.
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getParents()
     {
@@ -544,7 +544,7 @@ trait NestedTree
 
     /**
      * Returns all parents up the tree and self.
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getParentsAndSelf()
     {
@@ -553,7 +553,7 @@ trait NestedTree
 
     /**
      * Returns direct child nodes.
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getChildren()
     {
@@ -562,7 +562,7 @@ trait NestedTree
 
     /**
      * Returns direct child nodes, with ->children eager loaded.
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getEagerChildren()
     {
@@ -571,7 +571,7 @@ trait NestedTree
 
     /**
      * Returns all children down the tree.
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getAllChildren()
     {
@@ -580,7 +580,7 @@ trait NestedTree
 
     /**
      * Returns all children and self.
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getAllChildrenAndSelf()
     {
@@ -589,7 +589,7 @@ trait NestedTree
 
     /**
      * Return all siblings (parent's children).
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getSiblings()
     {
@@ -598,7 +598,7 @@ trait NestedTree
 
     /**
      * Return all siblings and self.
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getSiblingsAndSelf()
     {
@@ -607,7 +607,7 @@ trait NestedTree
 
     /**
      * Returns all final nodes without children.
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \October\Rain\Database\Collection
      */
     public function getLeaves()
     {
@@ -642,7 +642,7 @@ trait NestedTree
 
     /**
      * Sets the depth attribute
-     * @return \Model
+     * @return \October\Rain\Database\Model
      */
     public function setDepth()
     {
@@ -804,24 +804,25 @@ trait NestedTree
      * Handler for all node alignments.
      * @param mixed  $target
      * @param string $position
-     * @return \Model
+     * @return \October\Rain\Database\Model
      */
     protected function moveTo($target, $position)
     {
         /*
          * Validate target
          */
-        if ($target instanceof \October\Rain\Database\Model)
+        if ($target instanceof \October\Rain\Database\Model) {
             $target->reload();
-        else
+        }
+        else {
             $target = $this->newQuery()->find($target);
-
+        }
         /*
          * Validate move
          */
-        if (!$this->validateMove($this, $target, $position))
+        if (!$this->validateMove($this, $target, $position)) {
             return $this;
-
+        }
         /*
          * Perform move
          */
@@ -911,21 +912,29 @@ trait NestedTree
         if (!$node->exists)
             throw new Exception('A new node cannot be moved.');
 
-        if (!in_array($position, ['child', 'left', 'right']))
-            throw new Exception(sprintf('Position should be either child, left, right. Supplied position is "%s".', $position));
-
+        if (!in_array($position, ['child', 'left', 'right'])) {
+            throw new Exception(sprintf(
+                'Position should be either child, left, right. Supplied position is "%s".', $position
+            ));
+        }
         if ($target === null) {
-            if ($position == 'left' || $position == 'right')
-                throw new Exception(sprintf('Cannot resolve target node. This node cannot move any further to the %s.', $position));
-            else
+            if ($position == 'left' || $position == 'right') {
+                throw new Exception(sprintf(
+                    'Cannot resolve target node. This node cannot move any further to the %s.', $position
+                ));
+            }
+            else {
                 throw new Exception('Cannot resolve target node.');
+            }
         }
 
-        if ($node == $target)
+        if ($node == $target) {
             throw new Exception('A node cannot be moved to itself.');
+        }
 
-        if ($target->isInsideSubtree($node))
+        if ($target->isInsideSubtree($node)) {
             throw new Exception('A node cannot be moved to a descendant of itself.');
+        }
 
         return !(
             $this->getPrimaryBoundary($node, $target, $position) == $node->getRight() ||

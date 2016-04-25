@@ -63,7 +63,7 @@ class FieldParser
     }
 
     /**
-     * Processes repeating tags first, then reigstered tags and assigns
+     * Processes repeating tags first, then registered tags and assigns
      * the results to local object properties.
      * @return void
      */
@@ -92,8 +92,9 @@ class FieldParser
 
     /**
      * Static helper for new instances of this class.
-     * @param  string $template
-     * @return self
+     * @param string $template
+     * @param array $options
+     * @return FieldParser
      */
     public static function parse($template, $options = [])
     {
@@ -111,6 +112,7 @@ class FieldParser
 
     /**
      * Returns tag strings for a specific field
+     * @param  string $field
      * @return array
      */
     public function getFieldTags($field)
@@ -322,7 +324,7 @@ class FieldParser
      *  2 - The default text inside the tag (optional), eg: Foobar
      * 
      * @param  string $string
-     * @param  string $tag
+     * @param  string $tags
      * @return array
      */
     protected function processTagsRegex($string, $tags)

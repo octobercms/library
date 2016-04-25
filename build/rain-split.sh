@@ -14,6 +14,8 @@
 ./git-subsplit.sh publish --no-tags src/Database:git@github.com:octoberrain/database.git
 ./git-subsplit.sh publish --no-tags src/Config:git@github.com:octoberrain/config.git
 ./git-subsplit.sh publish --no-tags src/Auth:git@github.com:octoberrain/auth.git
+./git-subsplit.sh publish --no-tags src/Parse:git@github.com:octoberrain/parse.git
+./git-subsplit.sh publish --no-tags src/Halcyon:git@github.com:octoberrain/halcyon.git
 rm -rf .subsplit/
 
 #

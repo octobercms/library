@@ -58,4 +58,3 @@ class Markdown
         return $data->text;
     }
 }
-

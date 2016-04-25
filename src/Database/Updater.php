@@ -27,10 +27,12 @@ class Updater
 
         $this->isValidScript($object);
 
-        if ($object instanceof Updates\Migration)
+        if ($object instanceof Updates\Migration) {
             $object->up();
-        elseif ($object instanceof Updates\Seeder)
+        }
+        elseif ($object instanceof Updates\Seeder) {
             $object->run();
+        }
 
         Eloquent::reguard();
         return true;
@@ -42,15 +44,17 @@ class Updater
     public function packDown($file)
     {
         $object = $this->resolve($file);
-        if ($object === null)
+        if ($object === null) {
             return false;
+        }
 
         Eloquent::unguard();
 
         $this->isValidScript($object);
 
-        if ($object instanceof Updates\Migration)
+        if ($object instanceof Updates\Migration) {
             $object->down();
+        }
 
         Eloquent::reguard();
         return true;
@@ -67,8 +71,9 @@ class Updater
             return;
 
         require_once $file;
-        if ($class = $this->getClassFromFile($file))
+        if ($class = $this->getClassFromFile($file)) {
             return new $class;
+        }
     }
 
     /**
@@ -76,10 +81,12 @@ class Updater
      */
     protected function isValidScript($object)
     {
-        if ($object instanceof Updates\Migration)
+        if ($object instanceof Updates\Migration) {
             return true;
-        elseif ($object instanceof Updates\Seeder)
+        }
+        elseif ($object instanceof Updates\Seeder) {
             return true;
+        }
 
         throw new \Exception('Database script ' . get_class($object) . ' must inherit October\Rain\Database\Updates\Migration or October\Rain\Database\Updates\Seeder classes');
     }
