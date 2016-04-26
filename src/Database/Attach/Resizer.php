@@ -124,7 +124,7 @@ class Resizer
     {
         $this->options = array_merge([
             'mode'    => 'auto',
-            'offset'  => [],
+            'offset'  => [0, 0],
             'sharpen' => 0,
             'quality' => 95
         ], $options);
@@ -207,6 +207,7 @@ class Resizer
          * If mode is crop: find center and use for the cropping.
          */
         if ($this->getOption('mode') == 'crop') {
+            $offset = $this->getOption('offset');
             $cropStartX = ($optimalWidth  / 2) - ($newWidth  / 2) - $offset[0];
             $cropStartY = ($optimalHeight / 2) - ($newHeight / 2) - $offset[1];
             $this->crop($cropStartX, $cropStartY, $newWidth, $newHeight);
