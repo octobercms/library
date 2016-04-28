@@ -21,13 +21,20 @@ class ArgonServiceProvider extends ServiceProvider
     {
         $locale = $this->app['translator']->getLocale();
 
-        Argon::setFallbackLocale($this->getFallbackLocale($locale));
-        Argon::setLocale($locale);
+        $this->setArgonLocale($locale);
 
         $this->app['events']->listen('locale.changed', function($locale) {
-            Argon::setFallbackLocale($this->getFallbackLocale($locale));
-            Argon::setLocale($locale);
+            $this->setArgonLocale($locale);
         });
+    }
+
+    /**
+     * Sets the locale using the correct load order.
+     */
+    protected function setArgonLocale($locale)
+    {
+        Argon::setFallbackLocale($this->getFallbackLocale($locale));
+        Argon::setLocale($locale);
     }
 
     /**
