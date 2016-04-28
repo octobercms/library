@@ -8,7 +8,6 @@ use System\Classes\PluginBase;
  */
 class Plugin extends PluginBase
 {
-
     /**
      * Returns information about this plugin.
      *
@@ -94,5 +93,4 @@ class Plugin extends PluginBase
             ],
         ];
     }
-
 }
