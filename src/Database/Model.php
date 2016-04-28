@@ -5,6 +5,7 @@ use Input;
 use Closure;
 use October\Rain\Support\Arr;
 use October\Rain\Support\Str;
+use October\Rain\Argon\Argon;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Collection as CollectionBase;
 use October\Rain\Database\Relations\BelongsTo;
@@ -20,6 +21,7 @@ use October\Rain\Database\Relations\AttachOne;
 use October\Rain\Database\Relations\HasManyThrough;
 use InvalidArgumentException;
 use Exception;
+use DateTime;
 
 /**
  * Active Record base class.
@@ -365,6 +367,43 @@ class Model extends EloquentModel
             ],
             $this->observables
         );
+    }
+
+    /**
+     * Get a fresh timestamp for the model.
+     *
+     * @return \October\Rain\Argon\Argon
+     */
+    public function freshTimestamp()
+    {
+        return new Argon;
+    }
+
+    /**
+     * Return a timestamp as DateTime object.
+     *
+     * @param  mixed  $value
+     * @return \Carbon\Carbon
+     */
+    protected function asDateTime($value)
+    {
+        if ($value instanceof Argon) {
+            return $value;
+        }
+
+        if ($value instanceof DateTime) {
+            return Argon::instance($value);
+        }
+
+        if (is_numeric($value)) {
+            return Argon::createFromTimestamp($value);
+        }
+
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value)) {
+            return Argon::createFromFormat('Y-m-d', $value)->startOfDay();
+        }
+
+        return Argon::createFromFormat($this->getDateFormat(), $value);
     }
 
     /**
