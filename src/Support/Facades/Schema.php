@@ -1,7 +1,6 @@
 <?php namespace October\Rain\Support\Facades;
 
 use October\Rain\Support\Facade;
-use October\Rain\Database\Schema\Blueprint;
 
 class Schema extends Facade
 {
@@ -13,7 +12,11 @@ class Schema extends Facade
      */
     public static function connection($name)
     {
-        return static::getBuilder($name);
+        $builder = static::$app['db']->connection($name)->getSchemaBuilder();
+
+        static::$app['events']->fire('db.schema.getBuilder', [$builder]);
+
+        return $builder;
     }
 
     /**
@@ -23,16 +26,9 @@ class Schema extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return static::getBuilder();
-    }
+        $builder = static::$app['db']->connection()->getSchemaBuilder();
 
-    protected static function getBuilder($connection = null)
-    {
-        $builder = static::$app['db']->connection($connection)->getSchemaBuilder();
-
-        $builder->blueprintResolver(function($table, $callback) {
-            return new Blueprint($table, $callback);
-        });
+        static::$app['events']->fire('db.schema.getBuilder', [$builder]);
 
         return $builder;
     }

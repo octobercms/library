@@ -197,8 +197,8 @@ class Dongle
         }
 
         foreach ($columns as $column) {
-            Db::statement("ALTER TABLE {$table} MODIFY `{$column}` TIMESTAMP NULL DEFAULT NULL");
-            Db::update("UPDATE {$table} SET {$column} = null WHERE {$column} = 0");
+            $this->db->statement("ALTER TABLE {$table} MODIFY `{$column}` TIMESTAMP NULL DEFAULT NULL");
+            $this->db->update("UPDATE {$table} SET {$column} = null WHERE {$column} = 0");
         }
     }
 
