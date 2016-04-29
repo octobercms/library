@@ -184,11 +184,10 @@ class Dongle
      *
      * @param string        $table
      * @param string|array  $columns Column name(s). Defaults to ['created_at', 'updated_at']
-     * @param bool          $force   Run conversion regardless of DB driver being used
      */
-    public function convertTimestamps($table, $columns = null, $force = false)
+    public function convertTimestamps($table, $columns = null)
     {
-        if (!$force && $this->driver != 'mysql') {
+        if ($this->driver != 'mysql') {
             return;
         }
 
@@ -207,6 +206,10 @@ class Dongle
      */
     public function disableStrictMode()
     {
+        if ($this->driver != 'mysql') {
+            return;
+        }
+
         $db = $this->db->connection();
 
         if (!$this->strictModeDisabled && !$db->getConfig('strict')) {
