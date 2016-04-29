@@ -20,6 +20,11 @@ class Dongle
     protected $driver;
 
     /**
+     * @var bool Used to determine whether strict mode has been disabled.
+     */
+    protected $strictModeDisabled;
+
+    /**
      * Constructor.
      */
     public function __construct($driver = 'mysql', $db = null)
@@ -195,6 +200,20 @@ class Dongle
             Db::statement("ALTER TABLE {$table} MODIFY `{$column}` TIMESTAMP NULL DEFAULT NULL");
             Db::update("UPDATE {$table} SET {$column} = null WHERE {$column} = 0");
         }
+    }
+
+    /**
+     * Used to disable strict mode during migrations
+     */
+    public function disableStrictMode()
+    {
+        $db = $this->db->connection();
+
+        if (!$this->strictModeDisabled && !$db->getConfig('strict')) {
+            return;
+        }
+
+        $this->strictModeDisabled = $db->statement("SET @@SQL_MODE=''");
     }
 
     /**
