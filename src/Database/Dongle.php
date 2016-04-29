@@ -9,7 +9,6 @@ use Exception;
  */
 class Dongle
 {
-
     /**
      * @var DB Database helper object
      */
@@ -19,6 +18,11 @@ class Dongle
      * @var string Driver to convert to: mysql, sqlite, pgsql, sqlsrv, postgis.
      */
     protected $driver;
+
+    /**
+     * @var bool Used to determine whether strict mode has been disabled.
+     */
+    protected $strictModeDisabled;
 
     /**
      * Constructor.
@@ -173,6 +177,46 @@ class Dongle
     }
 
     /**
+     * Alters a table's TIMESTAMP field(s) to be nullable and converts existing values.
+     *
+     * This is needed to transition from older Laravel code that set DEFAULT 0, which is an
+     * invalid date in newer MySQL versions where NO_ZERO_DATE is included in strict mode.
+     *
+     * @param string        $table
+     * @param string|array  $columns Column name(s). Defaults to ['created_at', 'updated_at']
+     * @param bool          $force   Run conversion regardless of DB driver being used
+     */
+    public function convertTimestamps($table, $columns = null, $force = false)
+    {
+        if (!$force && $this->driver != 'mysql') {
+            return;
+        }
+
+        if (!is_array($columns)) {
+            $columns = is_null($columns) ? ['created_at', 'updated_at'] : [$columns];
+        }
+
+        foreach ($columns as $column) {
+            Db::statement("ALTER TABLE {$table} MODIFY `{$column}` TIMESTAMP NULL DEFAULT NULL");
+            Db::update("UPDATE {$table} SET {$column} = null WHERE {$column} = 0");
+        }
+    }
+
+    /**
+     * Used to disable strict mode during migrations
+     */
+    public function disableStrictMode()
+    {
+        $db = $this->db->connection();
+
+        if (!$this->strictModeDisabled && !$db->getConfig('strict')) {
+            return;
+        }
+
+        $this->strictModeDisabled = $db->statement("SET @@SQL_MODE=''");
+    }
+
+    /**
      * Returns the driver name as a string, eg: pgsql
      * @return string
      */
@@ -189,5 +233,4 @@ class Dongle
     {
         return $this->db->getTablePrefix();
     }
-
 }
