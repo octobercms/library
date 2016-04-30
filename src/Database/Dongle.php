@@ -210,13 +210,12 @@ class Dongle
             return;
         }
 
-        $db = $this->db->connection();
-
-        if (!$this->strictModeDisabled && !$db->getConfig('strict')) {
+        if ($this->strictModeDisabled || $this->db->getConfig('strict') === false) {
             return;
         }
 
-        $this->strictModeDisabled = $db->statement("SET @@SQL_MODE=''");
+        $this->db->statement("SET @@SQL_MODE=''");
+        $this->strictModeDisabled = true;
     }
 
     /**
