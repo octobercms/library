@@ -1037,10 +1037,10 @@ class Model extends EloquentModel
             case 'morphOne':
             case 'attachOne':
             case 'attachMany':
+            case 'belongsToMany':
                 $value = $relationObj->getSimpleValue();
                 break;
 
-            case 'belongsToMany':
             case 'morphToMany':
             case 'morphedByMany':
                 $value = $relationObj->getRelatedIds();
@@ -1067,10 +1067,10 @@ class Model extends EloquentModel
             case 'morphOne':
             case 'attachOne':
             case 'attachMany':
+            case 'belongsToMany':
                 $relationObj->setSimpleValue($value);
                 break;
 
-            case 'belongsToMany':
             case 'morphToMany':
             case 'morphedByMany':
                 // Nulling the relationship
