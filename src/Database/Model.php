@@ -1025,29 +1025,7 @@ class Model extends EloquentModel
      */
     public function getRelationValue($relationName)
     {
-        $relationType = $this->getRelationType($relationName);
-        $relationObj = $this->$relationName();
-        $value = null;
-
-        switch ($relationType) {
-            case 'belongsTo':
-            case 'hasOne':
-            case 'hasMany':
-            case 'morphTo':
-            case 'morphOne':
-            case 'attachOne':
-            case 'attachMany':
-            case 'belongsToMany':
-                $value = $relationObj->getSimpleValue();
-                break;
-
-            case 'morphToMany':
-            case 'morphedByMany':
-                $value = $relationObj->getRelatedIds();
-                break;
-        }
-
-        return $value;
+        return $this->$relationName()->getSimpleValue();
     }
 
     /**
@@ -1055,45 +1033,7 @@ class Model extends EloquentModel
      */
     protected function setRelationValue($relationName, $value)
     {
-        $relationType = $this->getRelationType($relationName);
-        $relationObj = $this->$relationName();
-        $relationModel = $relationObj->getRelated();
-
-        switch ($relationType) {
-            case 'belongsTo':
-            case 'hasOne':
-            case 'hasMany':
-            case 'morphTo':
-            case 'morphOne':
-            case 'attachOne':
-            case 'attachMany':
-            case 'belongsToMany':
-                $relationObj->setSimpleValue($value);
-                break;
-
-            case 'morphToMany':
-            case 'morphedByMany':
-                // Nulling the relationship
-                if (!$value) {
-                    if ($this->exists) $relationObj->detach();
-                    break;
-                }
-
-                if (is_string($value)) $value = [$value];
-
-                // Do not sync until the model is saved
-                $this->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
-                    $relationObj->sync($value);
-                });
-
-                $relationCollection = $value instanceof CollectionBase
-                    ? $value
-                    : $relationModel->whereIn($relationModel->getKeyName(), $value)->get();
-
-                // Associate
-                $this->setRelation($relationName, $relationCollection);
-                break;
-        }
+        $this->$relationName()->setSimpleValue($value);
     }
 
     //
