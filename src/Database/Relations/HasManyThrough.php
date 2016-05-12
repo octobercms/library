@@ -15,11 +15,11 @@ class HasManyThrough extends HasManyThroughBase
      * Create a new has many relationship instance.
      * @return void
      */
-    public function __construct(Builder $query, Model $farParent, Model $parent, $firstKey, $secondKey, $relationName = null)
+    public function __construct(Builder $query, Model $farParent, Model $parent, $firstKey, $secondKey, $localKey, $relationName = null)
     {
         $this->relationName = $relationName;
 
-        parent::__construct($query, $farParent, $parent, $firstKey, $secondKey);
+        parent::__construct($query, $farParent, $parent, $firstKey, $secondKey, $localKey);
     }
 
     /**
