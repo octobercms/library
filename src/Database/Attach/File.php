@@ -86,8 +86,11 @@ class File extends Model
         $this->file_size = $uploadedFile->getClientSize();
         $this->content_type = $uploadedFile->getMimeType();
         $this->disk_name = $this->getDiskName();
-
-        $this->putFile($uploadedFile->getRealPath(), $this->disk_name);
+        $realpath = ( empty(trim($uploadedFile->getRealPath())) 
+                      ? $uploadedFile->getPath() . DIRECTORY_SEPARATOR . $uploadedFile->getFileName()
+                      : $uploadedFile->getRealPath()
+                    );
+        $this->putFile($realpath, $this->disk_name);
 
         return $this;
     }
@@ -105,7 +108,10 @@ class File extends Model
         $this->file_size = $file->getSize();
         $this->content_type = $file->getMimeType();
         $this->disk_name = $this->getDiskName();
-
+        $realpath = ( empty(trim($file->getRealPath())) 
+                      ? $file->getPath() . DIRECTORY_SEPARATOR . $file->getFileName()
+                      : $file->getRealPath()
+                    );
         $this->putFile($file->getRealPath(), $this->disk_name);
 
         return $this;
