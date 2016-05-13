@@ -14,6 +14,11 @@ class BelongsToMany extends BelongsToManyBase
     public $countMode = false;
 
     /**
+     * @var boolean When a join is not used, don't select aliased columns.
+     */
+    public $orphanMode = false;
+
+    /**
      * Set the select clause for the relation query.
      *
      * @param  array  $columns
@@ -27,6 +32,10 @@ class BelongsToMany extends BelongsToManyBase
 
         if ($columns == ['*']) {
             $columns = [$this->related->getTable().'.*'];
+        }
+
+        if ($this->orphanMode) {
+            return $columns;
         }
 
         return array_merge($columns, $this->getAliasedPivotColumns());
@@ -80,25 +89,6 @@ class BelongsToMany extends BelongsToManyBase
         else {
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);
         }
-    }
-
-    /**
-     * Set the left join clause for the relation query, used by DeferOneOrMany.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder|null
-     * @return $this
-     */
-    protected function setLeftJoin($query = null)
-    {
-        $query = $query ?: $this->query;
-
-        $baseTable = $this->related->getTable();
-
-        $key = $baseTable.'.'.$this->related->getKeyName();
-
-        $query->leftJoin($this->table, $key, '=', $this->getOtherKey());
-
-        return $this;
     }
 
     /**
