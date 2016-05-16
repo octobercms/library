@@ -1,12 +1,14 @@
 <?php namespace October\Rain\Database\Relations;
 
-use Illuminate\Database\Eloquent\Relations\BelongsToMany as BelongsToManyBase;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as CollectionBase;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany as BelongsToManyBase;
 
 class BelongsToMany extends BelongsToManyBase
 {
     use DeferOneOrMany;
+    use DefinedConstraints;
 
     /**
      * @var boolean This relation object is a 'count' helper.
@@ -17,6 +19,24 @@ class BelongsToMany extends BelongsToManyBase
      * @var boolean When a join is not used, don't select aliased columns.
      */
     public $orphanMode = false;
+
+    /**
+     * Create a new belongs to many relationship instance.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  \Illuminate\Database\Eloquent\Model  $parent
+     * @param  string  $table
+     * @param  string  $foreignKey
+     * @param  string  $otherKey
+     * @param  string  $relationName
+     * @return void
+     */
+    public function __construct(Builder $query, Model $parent, $table, $foreignKey, $otherKey, $relationName = null)
+    {
+        parent::__construct($query, $parent, $table, $foreignKey, $otherKey, $relationName);
+
+        $this->addDefinedConstraints();
+    }
 
     /**
      * Set the select clause for the relation query.

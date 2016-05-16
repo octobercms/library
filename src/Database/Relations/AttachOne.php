@@ -9,6 +9,7 @@ use October\Rain\Database\Attach\File as FileModel;
 class AttachOne extends MorphOneBase
 {
     use AttachOneOrMany;
+    use DefinedConstraints;
 
     /**
      * Create a new has many relationship instance.
@@ -17,9 +18,12 @@ class AttachOne extends MorphOneBase
     public function __construct(Builder $query, Model $parent, $type, $id, $isPublic, $localKey, $relationName = null)
     {
         $this->relationName = $relationName;
+
         $this->public = $isPublic;
 
         parent::__construct($query, $parent, $type, $id, $localKey);
+
+        $this->addDefinedConstraints();
     }
 
     /**

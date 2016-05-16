@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo as MorphToBase;
 
 class MorphTo extends MorphToBase
 {
+    use DefinedConstraints;
+
     /**
      * @var string The "name" of the relationship.
      */
@@ -16,6 +18,8 @@ class MorphTo extends MorphToBase
         $this->relationName = $relationName;
 
         parent::__construct($query, $parent, $foreignKey, $otherKey, $type, $relationName);
+
+        $this->addDefinedConstraints();
     }
 
     /**

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough as HasManyThroughBase;
 
 class HasManyThrough extends HasManyThroughBase
 {
+    use DefinedConstraints;
+
     /**
      * @var string The "name" of the relationship.
      */
@@ -20,6 +22,8 @@ class HasManyThrough extends HasManyThroughBase
         $this->relationName = $relationName;
 
         parent::__construct($query, $farParent, $parent, $firstKey, $secondKey, $localKey);
+
+        $this->addDefinedConstraints();
     }
 
     /**

@@ -673,7 +673,7 @@ class Model extends EloquentModel
                 throw new InvalidArgumentException(sprintf("There is no such relation type known as '%s' on model '%s'.", $relationType, get_called_class()));
         }
 
-        return $this->applyRelationFilters($relation, $relationObj);
+        return $relationObj;
     }
 
     /**
@@ -699,77 +699,12 @@ class Model extends EloquentModel
             }
         }
 
-        if ($missingRequired)
-            throw new InvalidArgumentException("Relation '".$relationName."' on model '".get_called_class().' should contain the following key(s): '.join(', ', $missingRequired));
-
-        return $relation;
-    }
-
-    /**
-     * Apply filters to relationship objects as supplied by arguments.
-     * @param $args Captured relationship arguments
-     * @param $relation Relationship object
-     * @return Relationship object
-     */
-    protected function applyRelationFilters($args, $relation)
-    {
-        /*
-         * Pivot data (belongsToMany, morphToMany, morphByMany)
-         */
-        if ($pivotData = $args['pivot']) {
-            $relation->withPivot($pivotData);
-        }
-
-        /*
-         * Pivot timestamps (belongsToMany, morphToMany, morphByMany)
-         */
-        if ($args['timestamps']) {
-            $relation->withTimestamps();
-        }
-
-        /*
-         * Count "helper" relation
-         */
-        if ($count = $args['count']) {
-            if ($relation instanceof BelongsToMany) {
-                $relation->countMode = true;
-            }
-
-            $relation->select($relation->getForeignKey(), Db::raw('count(*) as count'))
-                ->groupBy($relation->getForeignKey());
-        }
-
-        /*
-         * Conditions
-         */
-        if ($conditions = $args['conditions']) {
-            $relation->whereRaw($conditions);
-        }
-
-        /*
-         * Sort order
-         */
-        if ($orderBy = $args['order']) {
-            if (!is_array($orderBy))
-                $orderBy = [$orderBy];
-
-            foreach ($orderBy as $order) {
-                $column = $order;
-                $direction = 'asc';
-
-                $parts = explode(' ', $order);
-                if (count($parts) > 1)
-                    list($column, $direction) = $parts;
-
-                $relation->orderBy($column, $direction);
-            }
-        }
-
-        /*
-         * Scope
-         */
-        if ($scope = $args['scope']) {
-            $relation->$scope();
+        if ($missingRequired) {
+            throw new InvalidArgumentException(sprintf('Relation "%s" on model "%s" should contain the following key(s): %s',
+                $relationName,
+                get_called_class(),
+                join(', ', $missingRequired)
+            ));
         }
 
         return $relation;

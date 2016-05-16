@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class MorphToMany extends BelongsToMany
 {
+    use DefinedConstraints;
+
     /**
      * The type of the polymorphic relation.
      *
@@ -50,10 +52,14 @@ class MorphToMany extends BelongsToMany
     public function __construct(Builder $query, Model $parent, $name, $table, $foreignKey, $otherKey, $relationName = null, $inverse = false)
     {
         $this->inverse = $inverse;
+
         $this->morphType = $name.'_type';
+
         $this->morphClass = $inverse ? $query->getModel()->getMorphClass() : $parent->getMorphClass();
 
         parent::__construct($query, $parent, $table, $foreignKey, $otherKey, $relationName);
+
+        $this->addDefinedConstraints();
     }
 
     /**

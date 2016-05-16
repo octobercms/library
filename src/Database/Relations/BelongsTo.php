@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo as BelongsToBase;
 class BelongsTo extends BelongsToBase
 {
     use DeferOneOrMany;
+    use DefinedConstraints;
 
     /**
      * @var string The "name" of the relationship.
@@ -18,6 +19,8 @@ class BelongsTo extends BelongsToBase
         $this->relationName = $relationName;
 
         parent::__construct($query, $parent, $foreignKey, $otherKey, $relationName);
+
+        $this->addDefinedConstraints();
     }
 
     /**

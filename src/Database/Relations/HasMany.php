@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany as HasManyBase;
 class HasMany extends HasManyBase
 {
     use HasOneOrMany;
+    use DefinedConstraints;
 
     /**
      * Create a new has many relationship instance.
@@ -19,6 +20,8 @@ class HasMany extends HasManyBase
         $this->relationName = $relationName;
 
         parent::__construct($query, $parent, $foreignKey, $localKey);
+
+        $this->addDefinedConstraints();
     }
 
     /**
