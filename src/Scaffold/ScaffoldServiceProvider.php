@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Scaffold;
 
 use Illuminate\Support\ServiceProvider;
+use October\Rain\Scaffold\Console\CreateCommand;
 use October\Rain\Scaffold\Console\CreatePlugin;
 use October\Rain\Scaffold\Console\CreateModel;
 use October\Rain\Scaffold\Console\CreateController;
@@ -35,11 +36,16 @@ class ScaffoldServiceProvider extends ServiceProvider
             return new CreateFormWidget;
         });
 
+        $this->app->singleton('command.create.command', function() {
+            return new CreateCommand;
+        });
+
         $this->commands('command.create.plugin');
         $this->commands('command.create.model');
         $this->commands('command.create.controller');
         $this->commands('command.create.component');
         $this->commands('command.create.formwidget');
+        $this->commands('command.create.command');
     }
 
     /**
@@ -54,6 +60,7 @@ class ScaffoldServiceProvider extends ServiceProvider
             'command.create.controller',
             'command.create.component',
             'command.create.formwidget',
+            'command.create.command'
         ];
     }
 }
