@@ -69,15 +69,13 @@ class Zip extends ZipArchive
             'mask' => 0777
         ], $options));
 
-        if (!file_exists($destination)) {
-            mkdir($destination, $mask, true);
-        }
-
-        $zip = new ZipArchive;
-        if ($zip->open($source) === true) {
-            $zip->extractTo($destination);
-            $zip->close();
-            return true;
+        if (file_exists($destination) || mkdir($destination, $mask, true)) {
+            $zip = new ZipArchive;
+            if ($zip->open($source) === true) {
+                $zip->extractTo($destination);
+                $zip->close();
+                return true;
+            }
         }
 
         return false;
@@ -237,5 +235,4 @@ class Zip extends ZipArchive
             ? substr($path, strlen($prefix))
             : $path;
     }
-
 }
