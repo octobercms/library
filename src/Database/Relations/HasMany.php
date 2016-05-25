@@ -81,7 +81,8 @@ class HasMany extends HasManyBase
         $relationName = $this->relationName;
 
         if ($this->parent->$relationName) {
-            $value = $this->parent->$relationName[$this->localKey];
+            $relation = $this->parent->$relationName;
+            $value = $relation[$this->localKey];
         }
 
         return $value;
