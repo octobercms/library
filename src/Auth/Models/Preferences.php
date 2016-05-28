@@ -114,6 +114,30 @@ class Preferences extends Model
     }
 
     /**
+     * Resets a setting value by deleting the record.
+     * @param string $key Specifies the setting key value.
+     * @return bool
+     */
+    public function reset($key)
+    {
+        if (!$user = $this->userContext) {
+            return false;
+        }
+
+        $record = static::findRecord($key, $user);
+        if (!$record) {
+            return false;
+        }
+
+        $record->delete();
+
+        $cacheKey = $this->getCacheKey($key, $user);
+        unset(static::$cache[$cacheKey]);
+
+        return true;
+    }
+
+    /**
      * Returns a record
      * @return self
      */
