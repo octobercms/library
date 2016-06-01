@@ -13,6 +13,12 @@ use Assetic\Filter\FilterInterface;
  */
 class LessCompiler implements FilterInterface
 {
+    protected $presets = [];
+
+    public function setPresets(array $presets)
+    {
+        $this->presets = $presets;
+    }
 
     public function filterLoad(AssetInterface $asset)
     {
@@ -22,6 +28,10 @@ class LessCompiler implements FilterInterface
         $parser->SetOption('relativeUrls', false);
 
         $parser->parseFile($asset->getSourceRoot() . '/' . $asset->getSourcePath());
+
+        // Set the LESS variables after parsing to override them
+        $parser->ModifyVars($this->presets);
+
         $asset->setContent($parser->getCss());
     }
 
