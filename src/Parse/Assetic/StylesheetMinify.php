@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Support\Filters;
+<?php namespace October\Rain\Parse\Assetic;
 
 use Assetic\Asset\AssetInterface;
 use Assetic\Filter\FilterInterface;
@@ -7,12 +7,11 @@ use Assetic\Filter\FilterInterface;
  * Minify CSS Filter
  * Class used to compress stylesheet css files.
  *
- * @package october/support
+ * @package october/parse
  * @author Alexey Bobkov, Samuel Georges
  */
 class StylesheetMinify implements FilterInterface
 {
-
     public function filterLoad(AssetInterface $asset) {}
 
     public function filterDump(AssetInterface $asset)

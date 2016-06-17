@@ -113,7 +113,6 @@ class Definitions
             'cfm',
             'go',
             'gsp',
-            'php',
             'hs',
             'jsp',
             'ssjs',

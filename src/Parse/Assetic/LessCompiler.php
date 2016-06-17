@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Support\Filters;
+<?php namespace October\Rain\Parse\Assetic;
 
 use Less_Parser;
 use Assetic\Asset\AssetInterface;
@@ -8,7 +8,7 @@ use Assetic\Filter\FilterInterface;
  * Less.php Compiler Filter
  * Class used to compiled stylesheet less files, not using leafo!
  *
- * @package october/support
+ * @package october/parse
  * @author Alexey Bobkov, Samuel Georges
  */
 class LessCompiler implements FilterInterface
