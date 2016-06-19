@@ -119,6 +119,12 @@ if (!function_exists('trace_sql'))
             define('OCTOBER_NO_EVENT_LOGGING', 1);
         }
 
+        if (!defined('OCTOBER_TRACING_SQL')) {
+            define('OCTOBER_TRACING_SQL', 1);
+        } else {
+            return;
+        }
+
         Event::listen('illuminate.query', function($query, $bindings, $time, $name) {
             $data = compact('bindings', 'time', 'name');
 
