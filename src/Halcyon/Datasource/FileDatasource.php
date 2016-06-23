@@ -195,16 +195,23 @@ class FileDatasource extends Datasource implements DatasourceInterface
         $path = $this->makeFilePath($dirName, $fileName, $extension);
 
         /*
+         * The same file is safe to rename when the case is changed
+         * eg: FooBar -> foobar
+         */
+        $iFileChanged = ($oldFileName !== null && strcasecmp($oldFileName, $fileName) !== 0) ||
+            ($oldExtension !== null && strcasecmp($oldExtension, $extension) !== 0);
+
+        if ($iFileChanged && $this->files->isFile($path)) {
+            throw (new FileExistsException)->setInvalidPath($path);
+        }
+
+        /*
          * File to be renamed, as delete and recreate
          */
-        if (
-            ($oldFileName !== null && $oldFileName !== $fileName) ||
-            ($oldExtension !== null && $oldExtension !== $extension)
-        ){
-            if ($this->files->isFile($path)) {
-                throw (new FileExistsException)->setInvalidPath($path);
-            }
+        $fileChanged = ($oldFileName !== null && strcmp($oldFileName, $fileName) !== 0) ||
+            ($oldExtension !== null && strcmp($oldExtension, $extension) !== 0);
 
+        if ($fileChanged) {
             $this->delete($dirName, $oldFileName, $oldExtension);
         }
 

@@ -193,6 +193,29 @@ ESC;
         @unlink($newTargetFile);
     }
 
+    public function testUpdatePageRenameFileCase()
+    {
+        $fileHelper = new Filesystem;
+
+        @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/test.htm');
+
+        $page = HalcyonTestPage::create([
+            'fileName' => 'Test',
+            'title' => 'Upper case file',
+            'markup' => '<p>I have an upper case, it should be lower</p>'
+        ]);
+
+        $this->assertFileExists($targetFile);
+
+        $page->fileName = 'test';
+        $page->save();
+
+        $newTargetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/test.htm';
+        $this->assertFileExists($newTargetFile);
+
+        @unlink($newTargetFile);
+    }
+
     public function testUpdateContentRenameExtension()
     {
         $content = HalcyonTestContent::find('welcome.htm');
