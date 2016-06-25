@@ -197,7 +197,7 @@ ESC;
     {
         $fileHelper = new Filesystem;
 
-        @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/test.htm');
+        @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/Test.htm');
 
         $page = HalcyonTestPage::create([
             'fileName' => 'Test',
