@@ -112,26 +112,33 @@ class Repository implements ArrayAccess, ConfigContract
     /**
      * Set a given configuration value.
      *
-     * @param  string  $key
+     * @param  array|string  $key
      * @param  mixed   $value
      * @return void
      */
     public function set($key, $value = null)
     {
-        list($namespace, $group, $item) = $this->parseConfigKey($key);
-
-        $collection = $this->getCollection($group, $namespace);
-
-        // We'll need to go ahead and lazy load each configuration groups even when
-        // we're just setting a configuration item so that the set item does not
-        // get overwritten if a different item in the group is requested later.
-        $this->load($group, $namespace, $collection);
-
-        if (is_null($item)) {
-            $this->items[$collection] = $value;
+        if (is_array($key)) {
+            foreach ($key as $innerKey => $innerValue) {
+                $this->set($innerKey, $innerValue);
+            }
         }
         else {
-            array_set($this->items[$collection], $item, $value);
+            list($namespace, $group, $item) = $this->parseConfigKey($key);
+
+            $collection = $this->getCollection($group, $namespace);
+
+            // We'll need to go ahead and lazy load each configuration groups even when
+            // we're just setting a configuration item so that the set item does not
+            // get overwritten if a different item in the group is requested later.
+            $this->load($group, $namespace, $collection);
+
+            if (is_null($item)) {
+                $this->items[$collection] = $value;
+            }
+            else {
+                array_set($this->items[$collection], $item, $value);
+            }
         }
     }
 
