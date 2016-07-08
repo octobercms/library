@@ -194,10 +194,12 @@ class Dongle
         if (!is_array($columns)) {
             $columns = is_null($columns) ? ['created_at', 'updated_at'] : [$columns];
         }
+        
+        $prefixedTable = $this->getTablePrefix() . $table;
 
         foreach ($columns as $column) {
-            $this->db->statement("ALTER TABLE {$table} MODIFY `{$column}` TIMESTAMP NULL DEFAULT NULL");
-            $this->db->update("UPDATE {$table} SET {$column} = null WHERE {$column} = 0");
+            $this->db->statement("ALTER TABLE {$prefixedTable} MODIFY `{$column}` TIMESTAMP NULL DEFAULT NULL");
+            $this->db->update("UPDATE {$prefixedTable} SET {$column} = null WHERE {$column} = 0");
         }
     }
 
