@@ -81,6 +81,43 @@ class SyntaxFieldParserTest extends TestCase
         $this->assertEquals('oc:text', $fields['field2']['type']);
     }
 
+    public function testParseDropdownAndRadio()
+    {
+        $content = '';
+        $content .= '{dropdown name="field1" label="Field 1" options="one|two"}{/dropdown}'.PHP_EOL;
+        $content .= '{radio name="field2" label="Field 2" options="y:Yes|n:No|m:Maybe"}{/radio}'.PHP_EOL;
+        $content .= '{variable type="dropdown" name="dropdown" label="Pick one" options="One|Two"}{/variable}';
+        $content .= '{variable type="radio" name="radio" label="Thoughts?" options="y:Yeah|n:Nah|m:Mebbe"}{/variable}';
+
+        $result = FieldParser::parse($content);
+        $fields = $result->getFields();
+
+        $this->assertArrayHasKey('field1', $fields);
+        $this->assertArrayHasKey('field2', $fields);
+        $this->assertArrayHasKey('dropdown', $fields);
+        $this->assertArrayHasKey('radio', $fields);
+
+        $this->assertArrayHasKey('options', $fields['field1']);
+        $this->assertArrayHasKey('options', $fields['field2']);
+        $this->assertCount(2, $fields['field1']['options']);
+        $this->assertCount(3, $fields['field2']['options']);
+
+        $this->assertEquals(['one', 'two'], $fields['field1']['options']);
+        $this->assertEquals(['One', 'Two'], $fields['dropdown']['options']);
+
+        $this->assertEquals([
+            'y' => 'Yes',
+            'n' => 'No',
+            'm' => 'Maybe',
+        ], $fields['field2']['options']);
+
+        $this->assertEquals([
+            'y' => 'Yeah',
+            'n' => 'Nah',
+            'm' => 'Mebbe',
+        ], $fields['radio']['options']);
+    }
+
     public function testParseRepeater()
     {
         $content = '';
