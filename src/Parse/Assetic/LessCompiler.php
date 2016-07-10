@@ -1,8 +1,12 @@
 <?php namespace October\Rain\Parse\Assetic;
 
-use Less_Parser;
+use Event;
 use Assetic\Asset\AssetInterface;
+use Assetic\Factory\AssetFactory;
+use Assetic\Filter\LessphpFilter;
+use Assetic\Filter\HashableInterface;
 use Assetic\Filter\FilterInterface;
+use Cms\Classes\Theme;
 
 /**
  * Less.php Compiler Filter
@@ -11,32 +15,56 @@ use Assetic\Filter\FilterInterface;
  * @package october/parse
  * @author Alexey Bobkov, Samuel Georges
  */
-class LessCompiler implements FilterInterface
+class LessCompiler extends LessphpFilter implements HashableInterface
 {
-    protected $presets = [];
+    protected $currentFiles = [];
 
-    public function setPresets(array $presets)
-    {
-        $this->presets = $presets;
+    public function __construct(){
+        Event::listen('cms.combiner.beforePrepare', function($compiler, $assets) {
+            foreach ($assets as $asset) {
+                if(pathinfo($asset)['extension'] == 'less'){
+                    $this->currentFiles[] = $asset;
+                }
+            }
+        });
     }
 
-    public function filterLoad(AssetInterface $asset)
-    {
-        $parser = new Less_Parser();
+    /**
+     * Generates a hash for the object
+     *
+     * @return string Object hash
+     */
+    public function hash(){
+        $themePath = themes_path(Theme::getActiveTheme()->getDirName());
+        $factory = new AssetFactory($themePath);
 
-        // CSS Rewriter will take care of this
-        $parser->SetOption('relativeUrls', false);
+        $allFiles = [];
 
-        $parser->parseFile($asset->getSourceRoot() . '/' . $asset->getSourcePath());
+        foreach ($this->currentFiles as $file) {
+           $children = $this->getChildren($factory, file_get_contents($themePath.'/'.$file), $themePath.'/'.dirname($file));
+           foreach ($children as $child) {
+               $allFiles[] = $child;
+           }
+        }
 
-        // Set the LESS variables after parsing to override them
-        $parser->ModifyVars($this->presets);
+        $modifieds = [];
 
-        $asset->setContent($parser->getCss());
+        foreach ($allFiles as $file) {
+           $modifieds[] = $file->getLastModified();
+        }
+
+        return md5(implode('|', $modifieds));
     }
 
-    public function filterDump(AssetInterface $asset)
-    {
-    }
+    //load children recusive
+    public function getChildren(AssetFactory $factory, $content, $loadPath = null){
+        $children = parent::getChildren($factory, $content, $loadPath);
 
+        foreach ($children as $child) {
+            $childContent = file_get_contents($child->getSourceRoot().'/'.$child->getSourcePath());
+            $children= array_merge($children, parent::getChildren($factory, $childContent, $loadPath.'/'.dirname($child->getSourcePath())));
+        }
+
+        return $children;
+    }
 }
