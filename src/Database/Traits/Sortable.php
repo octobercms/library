@@ -56,7 +56,10 @@ trait Sortable
 
         foreach ($itemIds as $index => $id) {
             $order = $itemOrders[$index];
-            $this->newQuery()->where('id', $id)->update([$this->getSortOrderColumn() => $order]);
+            $order_column = $this->getSortOrderColumn();
+            $instance = $this->find($id);
+            $instance->$order_column = $order;
+            $instance->save();
         }
     }
 
