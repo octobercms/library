@@ -1045,10 +1045,19 @@ class FormBuilder
     /**
      * Helper for getting form values. Tries to find the "old" value (Laravel),
      * then looks at the form model values, then uses a postback value.
+     * @param string $name
+     * @param string $value
+     * @return string
      */
     public function value($name, $value = null)
     {
-        return $this->getValueAttribute($name) ?: input($name, $value);
+        $attrValue = $this->getValueAttribute($name);
+
+        if ($attrValue == 0) {
+            return $attrValue;
+        }
+
+        return $attrValue ?: input($name, $value);
     }
 
     /**
