@@ -21,4 +21,21 @@ class MorphMany extends MorphManyBase
 
         $this->addDefinedConstraints();
     }
+    
+    /**
+     * Helper for getting this relationship simple value,
+     * generally useful with form values.
+     */
+    public function getSimpleValue()
+    {
+        $value = null;
+        $relationName = $this->relationName;
+
+        if ($this->parent->$relationName) {
+            $key = $this->localKey;
+            $value = $this->parent->$relationName->lists($this->localKey);
+        }
+
+        return $value;
+    }
 }
