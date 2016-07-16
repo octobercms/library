@@ -175,16 +175,16 @@ trait AttachOneOrMany
                 $model->setAttribute($this->getPlainMorphType(), null);
                 $model->setAttribute('field', null);
                 $model->save();
+            }
 
-                /*
-                 * Use the opportunity to set the relation in memory
-                 */
-                if ($this instanceof AttachOne) {
-                    $this->parent->setRelation($this->relationName, null);
-                }
-                else {
-                    $this->parent->reloadRelations($this->relationName);
-                }
+            /*
+             * Use the opportunity to set the relation in memory
+             */
+            if ($this instanceof AttachOne) {
+                $this->parent->setRelation($this->relationName, null);
+            }
+            else {
+                $this->parent->reloadRelations($this->relationName);
             }
         }
         else {
