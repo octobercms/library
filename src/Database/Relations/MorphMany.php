@@ -88,9 +88,8 @@ class MorphMany extends MorphManyBase
         $value = null;
         $relationName = $this->relationName;
 
-        if ($this->parent->$relationName) {
-            $key = $this->localKey;
-            $value = $this->parent->$relationName->lists($this->localKey);
+        if ($relation = $this->parent->$relationName) {
+            $value = $relation->lists($this->localKey);
         }
 
         return $value;
