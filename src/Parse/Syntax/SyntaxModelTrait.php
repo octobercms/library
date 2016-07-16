@@ -83,7 +83,7 @@ trait SyntaxModelTrait
             $path = $image->getPath();
         }
 
-        return Request::getSchemeAndHttpHost()  . $path;
+        return $path;
     }
 
     /**
