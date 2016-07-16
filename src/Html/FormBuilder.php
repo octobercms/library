@@ -1059,7 +1059,7 @@ class FormBuilder
             return $this->old($name);
         }
 
-        if (!is_null(input($name, null)) {
+        if (!is_null(input($name, null))) {
             return input($name);
         }
 
