@@ -83,7 +83,11 @@ trait SyntaxModelTrait
             $path = $image->getPath();
         }
 
-        return Request::getSchemeAndHttpHost()  . $path;
+        if (!starts_with($path, ['//', 'http://', 'https://'])) {
+            $path = Request::getSchemeAndHttpHost() . $path;
+        }
+
+        return $path;
     }
 
     /**
