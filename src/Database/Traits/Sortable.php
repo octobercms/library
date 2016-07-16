@@ -54,9 +54,13 @@ trait Sortable
             throw new Exception('Invalid setSortableOrder call - count of itemIds do not match count of itemOrders');
         }
 
+        $order_column = $this->getSortOrderColumn();
+
         foreach ($itemIds as $index => $id) {
             $order = $itemOrders[$index];
-            $this->newQuery()->where('id', $id)->update([$this->getSortOrderColumn() => $order]);
+            $instance = $this->find($id);
+            $instance->$order_column = $order;
+            $instance->save();
         }
     }
 
