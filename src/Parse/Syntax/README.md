@@ -54,6 +54,18 @@ Renders a multiple line editor field for larger blocks of text. The view value i
 
     {textarea name="websiteDescription" label="Website Description"}This is our vision for things to come{/textarea}
 
+### Dropdown
+
+Renders a dropdown form field.
+
+    {dropdown name="dropdown" label="Pick one" options="One|Two"}{/dropdown}
+
+### Radio
+
+Renders a radio form field.
+
+    {radio name="radio" label="Thoughts?" options="y:Yes|n:No|m:Maybe"}{/radio}
+
 ### Rich editor
 
 Renders a WYSIWYG content editor.

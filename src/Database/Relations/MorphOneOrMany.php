@@ -83,16 +83,16 @@ trait MorphOneOrMany
                 $model->setAttribute($this->getPlainForeignKey(), null);
                 $model->setAttribute($this->getPlainMorphType(), null);
                 $model->save();
+            }
 
-                /*
-                 * Use the opportunity to set the relation in memory
-                 */
-                if ($this instanceof MorphOne) {
-                    $this->parent->setRelation($this->relationName, null);
-                }
-                else {
-                    $this->parent->reloadRelations($this->relationName);
-                }
+            /*
+             * Use the opportunity to set the relation in memory
+             */
+            if ($this instanceof MorphOne) {
+                $this->parent->setRelation($this->relationName, null);
+            }
+            else {
+                $this->parent->reloadRelations($this->relationName);
             }
         }
         else {

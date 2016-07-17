@@ -127,7 +127,8 @@ if (!function_exists('trace_sql'))
 
         if (!defined('OCTOBER_TRACING_SQL')) {
             define('OCTOBER_TRACING_SQL', 1);
-        } else {
+        }
+        else {
             return;
         }
 

@@ -1,5 +1,7 @@
 <?php namespace October\Rain\Parse\Syntax;
 
+use Exception;
+
 /**
  * Dynamic Syntax parser
  */
@@ -45,6 +47,8 @@ class FieldParser
         'markdown',
         'fileupload',
         'mediafinder',
+        'dropdown',
+        'radio',
         'repeater',
         'variable'
     ];
@@ -228,6 +232,7 @@ class FieldParser
 
         foreach ($tagStrings as $key => $tagString) {
             $params = $this->processParams($paramStrings[$key]);
+            $tagName = $tagNames[$key];
 
             if (isset($params['name'])) {
                 $name = $params['name'];
@@ -237,11 +242,16 @@ class FieldParser
                 $name = md5($tagString);
             }
 
-            if ($tagNames[$key] == 'variable') {
+            if ($tagName == 'variable') {
                 $params['X_OCTOBER_IS_VARIABLE'] = true;
+                $tagName = array_get($params, 'type', 'text');
             }
             else {
-                $params['type'] = $tagNames[$key];
+                $params['type'] = $tagName;
+            }
+
+            if (in_array($tagName, ['dropdown', 'radio']) && isset($params['options'])) {
+                $params['options'] = $this->processOptionsToArray($params['options']);
             }
 
             $tags[$name] = $tagString;
@@ -347,6 +357,45 @@ class FieldParser
         preg_match_all($regex, $string, $match);
 
         return $match;
+    }
+
+    /**
+     * Splits an option string to an array.
+     *
+     * one|two           -> [one, two]
+     * one:One|two:Two   -> [one => 'One', two => 'Two']
+     *
+     * @param  string $optionsString
+     * @return array
+     */
+    protected function processOptionsToArray($optionsString)
+    {
+        $options = explode('|', $optionsString);
+
+        $result = [];
+        foreach ($options as $index => $optionStr) {
+            $parts = explode(':', $optionStr, 2);
+
+            if (count($parts) > 1 ) {
+                $key = trim($parts[0]);
+
+                if (strlen($key)) {
+                    if (!preg_match('/^[0-9a-z-_]+$/i', $key)) {
+                        throw new Exception(sprintf('Invalid drop-down option key: %s. Option keys can contain only digits, Latin letters and characters _ and -', $key));
+                    }
+
+                    $result[$key] = trim($parts[1]);
+                }
+                else {
+                    $result[$index] = trim($optionStr);
+                }
+            }
+            else {
+                $result[$index] = trim($optionStr);
+            }
+        }
+
+        return $result;
     }
 
 }
