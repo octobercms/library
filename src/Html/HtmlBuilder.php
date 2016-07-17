@@ -418,7 +418,7 @@ class HtmlBuilder
         $position = 0;
         $tags = [];
 
-        $re = '{</?([a-z]+)[^>]*>|&#?[a-zA-Z0-9]+;|[\x80-\xFF][\x80-\xBF]*}';
+        $re = '{</?([a-z]+)[^>]*>|&#?[a-zA-Z0-9]+;|[\x80-\xFF][\x80-\xBF]*/u}';
 
         $result = '';
 
