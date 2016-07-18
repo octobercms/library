@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Parse\Assetic;
 
 use Event;
+use Less_Parser;
 use Assetic\Asset\AssetInterface;
 use Assetic\Factory\AssetFactory;
 use Assetic\Filter\LessphpFilter;
@@ -15,9 +16,10 @@ use Cms\Classes\Theme;
  * @package october/parse
  * @author Alexey Bobkov, Samuel Georges
  */
-class LessCompiler extends LessphpFilter implements HashableInterface
+class LessCompiler implements FilterInterface,HashableInterface
 {
     protected $currentFiles = [];
+    protected $presets = [];
 
     public function __construct(){
         Event::listen('cms.combiner.beforePrepare', function($compiler, $assets) {
@@ -27,6 +29,30 @@ class LessCompiler extends LessphpFilter implements HashableInterface
                 }
             }
         });
+    }
+
+    public function setPresets(array $presets)
+    {
+        $this->presets = $presets;
+    }
+
+    public function filterLoad(AssetInterface $asset)
+    {
+        $parser = new Less_Parser();
+
+        // CSS Rewriter will take care of this
+        $parser->SetOption('relativeUrls', false);
+
+        $parser->parseFile($asset->getSourceRoot() . '/' . $asset->getSourcePath());
+
+        // Set the LESS variables after parsing to override them
+        $parser->ModifyVars($this->presets);
+
+        $asset->setContent($parser->getCss());
+    }
+
+    public function filterDump(AssetInterface $asset)
+    {
     }
 
     /**
@@ -58,11 +84,11 @@ class LessCompiler extends LessphpFilter implements HashableInterface
 
     //load children recusive
     public function getChildren(AssetFactory $factory, $content, $loadPath = null){
-        $children = parent::getChildren($factory, $content, $loadPath);
+        $children = LessphpFilter::getChildren($factory, $content, $loadPath);
 
         foreach ($children as $child) {
             $childContent = file_get_contents($child->getSourceRoot().'/'.$child->getSourcePath());
-            $children= array_merge($children, parent::getChildren($factory, $childContent, $loadPath.'/'.dirname($child->getSourcePath())));
+            $children= array_merge($children, LessphpFilter::getChildren($factory, $childContent, $loadPath.'/'.dirname($child->getSourcePath())));
         }
 
         return $children;
