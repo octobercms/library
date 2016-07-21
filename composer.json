@@ -25,7 +25,6 @@
         "twig/twig": "~1.23|~2.0",
         "league/csv": "~8.0",
         "jenssegers/date": "~3.0",
-        "leafo/lessphp": "^0.3.7",
         "leafo/scssphp": "~0.1"
     },
     "require-dev": {
