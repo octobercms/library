@@ -85,6 +85,7 @@ class Dongle
                 case 'pgsql':
                 case 'postgis':
                 case 'sqlite':
+                case 'sqlsrv':
                     return str_ireplace(' separator ', ', ', $matches[0]);
             }
         }, $sql);
@@ -92,6 +93,13 @@ class Dongle
         if ($this->driver == 'pgsql' || $this->driver == 'postgis') {
             $result = preg_replace("/\\(([]a-zA-Z\\-\\_]+)\\,/i", "($1::VARCHAR,", $result);
             $result = str_ireplace('group_concat(', 'string_agg(', $result);
+        }
+
+        /*
+         * Requires https://groupconcat.codeplex.com/
+         */
+        if ($this->driver == 'sqlsrv') {
+            $result = str_ireplace('group_concat(', 'dbo.GROUP_CONCAT_D(', $result);
         }
 
         return $result;

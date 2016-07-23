@@ -29,6 +29,17 @@ class DongleTest extends TestCase
         $this->assertEquals("group_concat(sometable.first_name, ', ')", $result);
     }
 
+    public function testSqlSrvParseGroupConcat()
+    {
+        $dongle = new Dongle('sqlsrv');
+
+        $result = $dongle->parseGroupConcat("group_concat(first_name separator ', ')");
+        $this->assertEquals("dbo.GROUP_CONCAT_D(first_name, ', ')", $result);
+
+        $result = $dongle->parseGroupConcat("group_concat(sometable.first_name SEPARATOR ', ')");
+        $this->assertEquals("dbo.GROUP_CONCAT_D(sometable.first_name, ', ')", $result);
+    }
+
     public function testSqliteParseBooleanExpression()
     {
         $dongle = new Dongle('sqlite');
@@ -44,5 +55,27 @@ class DongleTest extends TestCase
 
         $result = $dongle->parseBooleanExpression("select * from table where is_true = true");
         $this->assertEquals("select * from table where is_true = 1", $result);
+    }
+
+    public function testSqlSrvParseIfNull()
+    {
+        $dongle = new Dongle('sqlsrv');
+
+        $result = $dongle->parseIfNull("select ifnull(1,0) from table");
+        $this->assertEquals("select isnull(1,0) from table", $result);
+
+        $result = $dongle->parseIfNull("select IFNULL(1,0) from table");
+        $this->assertEquals("select isnull(1,0) from table", $result);
+    }
+
+    public function testPgSrvParseIfNull()
+    {
+        $dongle = new Dongle('pgsql');
+
+        $result = $dongle->parseIfNull("select ifnull(1,0) from table");
+        $this->assertEquals("select coalesce(1,0) from table", $result);
+
+        $result = $dongle->parseIfNull("select IFNULL(1,0) from table");
+        $this->assertEquals("select coalesce(1,0) from table", $result);
     }
 }
