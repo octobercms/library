@@ -31,7 +31,9 @@ trait DeferOneOrMany
                      * Custom query for BelongsToManyBase since a "join" cannot be used
                      */
                     $query->whereExists(function($query) {
-                        $query->from($this->table)
+                        $query
+                            ->select($this->parent->getConnection()->raw(1))
+                            ->from($this->table)
                             ->whereRaw(DbDongle::cast($this->getOtherKey(), 'INTEGER').' = '.DbDongle::getTablePrefix().$this->related->getQualifiedKeyName())
                             ->where($this->getForeignKey(), $this->parent->getKey());
                     });
@@ -49,7 +51,9 @@ trait DeferOneOrMany
              * Bind (Add)
              */
             $query = $query->orWhereExists(function($query) use ($sessionKey) {
-                $query->from('deferred_bindings')
+                $query
+                    ->select($this->parent->getConnection()->raw(1))
+                    ->from('deferred_bindings')
                     ->whereRaw(DbDongle::cast('slave_id', 'INTEGER').' = '.DbDongle::getTablePrefix().$this->related->getQualifiedKeyName())
                     ->where('master_field', $this->relationName)
                     ->where('master_type', get_class($this->parent))
@@ -62,7 +66,9 @@ trait DeferOneOrMany
          * Unbind (Remove)
          */
         $newQuery->whereNotExists(function($query) use ($sessionKey) {
-            $query->from('deferred_bindings')
+            $query
+                ->select($this->parent->getConnection()->raw(1))
+                ->from('deferred_bindings')
                 ->whereRaw(DbDongle::cast('slave_id', 'INTEGER').' = '.DbDongle::getTablePrefix().$this->related->getQualifiedKeyName())
                 ->where('master_field', $this->relationName)
                 ->where('master_type', get_class($this->parent))

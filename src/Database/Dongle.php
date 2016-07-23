@@ -136,11 +136,15 @@ class Dongle
      */
     public function parseIfNull($sql)
     {
-        if ($this->driver != 'pgsql' && $this->driver != 'postgis') {
-            return $sql;
+        if ($this->driver == 'pgsql' || $this->driver == 'postgis') {
+            return str_ireplace('ifnull(', 'coalesce(', $sql);
         }
 
-        return str_ireplace('ifnull(', 'coalesce(', $sql);
+        if ($this->driver == 'sqlsrv') {
+            return str_ireplace('ifnull(', 'isnull(', $sql);
+        }
+
+        return $sql;
     }
 
     /**
