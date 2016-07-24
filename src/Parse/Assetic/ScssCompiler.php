@@ -19,6 +19,8 @@ class ScssCompiler extends ScssphpFilter implements HashableInterface
 {
     protected $currentFiles = [];
 
+    protected $variables = [];
+
     public function __construct(){
         Event::listen('cms.combiner.beforePrepare', function($compiler, $assets) {
             foreach ($assets as $asset) {
@@ -27,6 +29,26 @@ class ScssCompiler extends ScssphpFilter implements HashableInterface
                 }
             }
         });
+    }
+
+    public function setPresets(array $presets)
+    {
+        $this->variables = array_merge($this->variables, $presets);
+    }
+
+    public function setVariables(array $variables)
+    {
+        $this->variables = array_merge($this->variables, $variables);
+    }
+
+    public function addVariable($variable)
+    {
+        $this->variables[] = $variable;
+    }
+
+    public function filterLoad(AssetInterface $asset){
+        parent::setVariables($this->variables);
+        parent::filterLoad($asset);
     }
 
     /**
