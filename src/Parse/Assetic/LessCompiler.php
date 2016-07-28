@@ -84,11 +84,11 @@ class LessCompiler implements FilterInterface,HashableInterface
 
     //load children recusive
     public function getChildren(AssetFactory $factory, $content, $loadPath = null){
-        $children = LessphpFilter::getChildren($factory, $content, $loadPath);
+        $children = (new LessphpFilter)->getChildren($factory, $content, $loadPath);
 
         foreach ($children as $child) {
             $childContent = file_get_contents($child->getSourceRoot().'/'.$child->getSourcePath());
-            $children= array_merge($children, LessphpFilter::getChildren($factory, $childContent, $loadPath.'/'.dirname($child->getSourcePath())));
+            $children= array_merge($children, (new LessphpFilter)->getChildren($factory, $childContent, $loadPath.'/'.dirname($child->getSourcePath())));
         }
 
         return $children;
