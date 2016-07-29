@@ -428,7 +428,7 @@ class Http
      */
     public function auth($user, $pass = null)
     {
-        if (strpos($user, ':') !== null && !$pass)
+        if (strpos($user, ':') !== false && !$pass)
             list($user, $pass) = explode(':', $user);
 
         $this->setOption(CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
