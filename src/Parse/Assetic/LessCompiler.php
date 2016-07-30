@@ -46,21 +46,17 @@ class LessCompiler implements FilterInterface, HashableInterface, DependencyExtr
     {
     }
 
-    public function hashFromAssets($assets, $localPath)
+    public function hashAsset($asset, $localPath)
     {
-        $allFiles = [];
         $factory = new AssetFactory($localPath);
+        $children = $this->getChildren($factory, file_get_contents($asset), dirname($asset));
 
-        foreach ($assets as $file) {
-           $children = $this->getChildren($factory, file_get_contents($file), dirname($file));
-
-           foreach ($children as $child) {
-               $allFiles[] = $child;
-           }
+        $allFiles = [];
+        foreach ($children as $child) {
+            $allFiles[] = $child;
         }
 
         $modifieds = [];
-
         foreach ($allFiles as $file) {
            $modifieds[] = $file->getLastModified();
         }
