@@ -158,12 +158,19 @@ class BelongsToMany extends BelongsToManyBase
      */
     public function setSimpleValue($value)
     {
-        // Nulling the relationship
+        $relationModel = $this->getRelated();
+
+        /*
+         * Nulling the relationship
+         */
         if (!$value) {
-            if ($this->parent->exists) {
+            // Disassociate in memory immediately
+            $this->parent->setRelation($this->relationName, $relationModel->newCollection());
+
+            // Perform sync when the model is saved
+            $this->parent->bindEventOnce('model.afterSave', function() use ($value) {
                 $this->detach();
-                $this->parent->reloadRelations($this->relationName);
-            }
+            });
             return;
         }
 
@@ -185,18 +192,20 @@ class BelongsToMany extends BelongsToManyBase
             $value = [$value];
         }
 
-        // Do not sync until the model is saved
-        $this->parent->bindEventOnce('model.afterSave', function() use ($value){
-            $this->sync($value);
-        });
-
-        $relationModel = $this->getRelated();
+        /*
+         * Setting the relationship
+         */
         $relationCollection = $value instanceof CollectionBase
             ? $value
             : $relationModel->whereIn($relationModel->getKeyName(), $value)->get();
 
-        // Associate
+        // Associate in memory immediately
         $this->parent->setRelation($this->relationName, $relationCollection);
+
+        // Perform sync when the model is saved
+        $this->parent->bindEventOnce('model.afterSave', function() use ($value) {
+            $this->sync($value);
+        });
     }
 
     /**
