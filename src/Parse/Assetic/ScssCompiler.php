@@ -5,8 +5,8 @@ use Assetic\Asset\AssetInterface;
 use Assetic\Factory\AssetFactory;
 use Assetic\Filter\ScssphpFilter;
 use Assetic\Filter\HashableInterface;
+use Assetic\Filter\DependencyExtractorInterface;
 use Assetic\Filter\FilterInterface;
-use Cms\Classes\Theme;
 
 /**
  * Less.php Compiler Filter
@@ -15,11 +15,13 @@ use Cms\Classes\Theme;
  * @package october/parse
  * @author Alexey Bobkov, Samuel Georges
  */
-class ScssCompiler extends ScssphpFilter implements HashableInterface
+class ScssCompiler extends ScssphpFilter implements HashableInterface, DependencyExtractorInterface
 {
     protected $currentFiles = [];
 
     protected $variables = [];
+
+    protected $lastHash;
 
     public function __construct(){
         Event::listen('cms.combiner.beforePrepare', function($compiler, $assets) {
@@ -46,24 +48,34 @@ class ScssCompiler extends ScssphpFilter implements HashableInterface
         $this->variables[] = $variable;
     }
 
-    public function filterLoad(AssetInterface $asset){
+    public function filterLoad(AssetInterface $asset)
+    {
         parent::setVariables($this->variables);
         parent::filterLoad($asset);
     }
 
+    public function setHash($hash)
+    {
+        $this->lastHash = $hash;
+    }
+
     /**
      * Generates a hash for the object
-     *
-     * @return string Object hash
+     * @return string
      */
-    public function hash(){
-        $themePath = themes_path(Theme::getActiveTheme()->getDirName());
-        $factory = new AssetFactory($themePath);
+    public function hash()
+    {
+        return $this->lastHash ?: serialize($this);
+    }
 
+    public function hashFromAssets($assets, $localPath)
+    {
         $allFiles = [];
+        $factory = new AssetFactory($localPath);
 
-        foreach ($this->currentFiles as $file) {
-           $children = $this->getChildren($factory, file_get_contents($themePath.'/'.$file), $themePath.'/'.dirname($file));
+        foreach ($assets as $file) {
+           $children = $this->getChildren($factory, file_get_contents($file), dirname($file));
+
            foreach ($children as $child) {
                $allFiles[] = $child;
            }

@@ -6,8 +6,8 @@ use Assetic\Asset\AssetInterface;
 use Assetic\Factory\AssetFactory;
 use Assetic\Filter\LessphpFilter;
 use Assetic\Filter\HashableInterface;
+use Assetic\Filter\DependencyExtractorInterface;
 use Assetic\Filter\FilterInterface;
-use Cms\Classes\Theme;
 
 /**
  * Less.php Compiler Filter
@@ -16,20 +16,11 @@ use Cms\Classes\Theme;
  * @package october/parse
  * @author Alexey Bobkov, Samuel Georges
  */
-class LessCompiler implements FilterInterface,HashableInterface
+class LessCompiler implements FilterInterface, HashableInterface, DependencyExtractorInterface
 {
-    protected $currentFiles = [];
     protected $presets = [];
 
-    public function __construct(){
-        Event::listen('cms.combiner.beforePrepare', function($compiler, $assets) {
-            foreach ($assets as $asset) {
-                if(pathinfo($asset)['extension'] == 'less'){
-                    $this->currentFiles[] = $asset;
-                }
-            }
-        });
-    }
+    protected $lastHash;
 
     public function setPresets(array $presets)
     {
@@ -55,19 +46,14 @@ class LessCompiler implements FilterInterface,HashableInterface
     {
     }
 
-    /**
-     * Generates a hash for the object
-     *
-     * @return string Object hash
-     */
-    public function hash(){
-        $themePath = themes_path(Theme::getActiveTheme()->getDirName());
-        $factory = new AssetFactory($themePath);
-
+    public function hashFromAssets($assets, $localPath)
+    {
         $allFiles = [];
+        $factory = new AssetFactory($localPath);
 
-        foreach ($this->currentFiles as $file) {
-           $children = $this->getChildren($factory, file_get_contents($themePath.'/'.$file), $themePath.'/'.dirname($file));
+        foreach ($assets as $file) {
+           $children = $this->getChildren($factory, file_get_contents($file), dirname($file));
+
            foreach ($children as $child) {
                $allFiles[] = $child;
            }
@@ -82,13 +68,30 @@ class LessCompiler implements FilterInterface,HashableInterface
         return md5(implode('|', $modifieds));
     }
 
-    //load children recusive
-    public function getChildren(AssetFactory $factory, $content, $loadPath = null){
+    public function setHash($hash)
+    {
+        $this->lastHash = $hash;
+    }
+
+    /**
+     * Generates a hash for the object
+     * @return string
+     */
+    public function hash()
+    {
+        return $this->lastHash ?: serialize($this);
+    }
+
+    /**
+     * Load children recusive
+     */
+    public function getChildren(AssetFactory $factory, $content, $loadPath = null)
+    {
         $children = (new LessphpFilter)->getChildren($factory, $content, $loadPath);
 
         foreach ($children as $child) {
             $childContent = file_get_contents($child->getSourceRoot().'/'.$child->getSourcePath());
-            $children= array_merge($children, (new LessphpFilter)->getChildren($factory, $childContent, $loadPath.'/'.dirname($child->getSourcePath())));
+            $children = array_merge($children, (new LessphpFilter)->getChildren($factory, $childContent, $loadPath.'/'.dirname($child->getSourcePath())));
         }
 
         return $children;
