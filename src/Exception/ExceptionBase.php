@@ -160,7 +160,7 @@ class ExceptionBase extends Exception
         }
 
         if (!$this->fileContent && File::exists($this->file) && is_readable($this->file)) {
-            $this->fileContent = @file($this->file);
+            $this->fileContent = @file($this->file) ?: [];
         }
 
         $errorLine = $this->line - 1;
