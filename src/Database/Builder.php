@@ -3,6 +3,7 @@
 use Illuminate\Pagination\Paginator;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder as BuilderModel;
+use October\Rain\Support\Facades\DbDongle;
 
 /**
  * Query builder class.
@@ -82,7 +83,7 @@ class Builder extends BuilderModel
             $this->where(function($query) use ($columns, $term) {
                 foreach ($columns as $field) {
                     if (!strlen($term)) continue;
-                    $fieldSql = $this->query->raw(sprintf("lower(%s)", $field));
+                    $fieldSql = $this->query->raw(sprintf("lower(%s)", DbDongle::cast($field, 'text')));
                     $termSql = '%'.trim(mb_strtolower($term)).'%';
                     $query->orWhere($fieldSql, 'LIKE', $termSql);
                 }
@@ -97,7 +98,7 @@ class Builder extends BuilderModel
                     $query->orWhere(function($query) use ($field, $words, $wordBoolean) {
                         foreach ($words as $word) {
                             if (!strlen($word)) continue;
-                            $fieldSql = $this->query->raw(sprintf("lower(%s)", $field));
+                            $fieldSql = $this->query->raw(sprintf("lower(%s)", DbDongle::cast($field, 'text')));
                             $wordSql = '%'.trim(mb_strtolower($word)).'%';
                             $query->where($fieldSql, 'LIKE', $wordSql, $wordBoolean);
                         }
