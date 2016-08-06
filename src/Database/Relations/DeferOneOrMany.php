@@ -104,7 +104,7 @@ trait DeferOneOrMany
     {
         return DbDongle::cast(
             DbDongle::getTablePrefix() . $this->related->getQualifiedKeyName(),
-            'STRING'
+            'TEXT'
         );
     }
 }
