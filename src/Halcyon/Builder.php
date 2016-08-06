@@ -269,9 +269,16 @@ class Builder
     {
         $select = is_null($key) ? [$column] : [$column, $key];
 
-        $results = new Collection($this->get($select));
+        if (!is_null($this->cacheMinutes)) {
+            $results = $this->getCached($select);
+        }
+        else {
+            $results = $this->getFresh($select);
+        }
 
-        return $results->lists($column, $key);
+        $collection = new Collection($results);
+
+        return $collection->lists($column, $key);
     }
 
     /**
