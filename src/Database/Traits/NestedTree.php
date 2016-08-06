@@ -860,10 +860,13 @@ trait NestedTree
             ? $target->getKey()
             : $target->getParentId();
 
-        if ($parentId === null)
+        if ($parentId === null) {
             $parentId = 'NULL';
+        } else {
+            $parentId = "'$parentId'";
+        }
 
-        $currentId = $node->getKey();
+        $currentId = "'{$node->getKey()}'";
         $leftColumn = $node->getLeftColumnName();
         $rightColumn = $node->getRightColumnName();
         $parentColumn = $node->getParentColumnName();
