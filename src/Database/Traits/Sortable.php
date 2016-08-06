@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Database\Traits;
 
 use Exception;
+use October\Rain\Database\SortableScope;
 
 /**
  * Sortable model trait
@@ -36,6 +37,8 @@ trait Sortable
         static::created(function($model) {
             $model->setSortableOrder($model->id);
         });
+
+        static::addGlobalScope(new SortableScope);
     }
 
     /**
