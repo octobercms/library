@@ -2,6 +2,8 @@
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Expression;
+use October\Rain\Support\Facades\DbDongle;
 
 trait AttachOneOrMany
 {
@@ -36,9 +38,13 @@ trait AttachOneOrMany
     public function addConstraints()
     {
         if (static::$constraints) {
-            parent::addConstraints();
+            $this->query->where($this->morphType, $this->morphClass);
+
+            $this->query->where($this->foreignKey, '=', $this->getParentKey());
 
             $this->query->where('field', $this->relationName);
+
+            $this->query->whereNotNull($this->foreignKey);
         }
     }
 
@@ -51,9 +57,40 @@ trait AttachOneOrMany
      */
     public function getRelationCountQuery(Builder $query, Builder $parent)
     {
-        $query = parent::getRelationCountQuery($query, $parent);
+        if ($parent->getQuery()->from == $query->getQuery()->from) {
+            $query = $this->getRelationCountQueryForSelfRelation($query, $parent);
+        }
+        else {
+            $query->select(new Expression('count(*)'));
+
+            $key = DbDongle::cast($this->wrap($this->getQualifiedParentKeyName()), 'TEXT');
+
+            $query = $query->where($this->getHasCompareKey(), '=', new Expression($key));
+        }
+
+        $query = $query->where($this->morphType, $this->morphClass);
 
         return $query->where('field', $this->relationName);
+    }
+
+    /**
+     * Add the constraints for a relationship count query on the same table.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $parent
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function getRelationCountQueryForSelfRelation(Builder $query, Builder $parent)
+    {
+        $query->select(new Expression('count(*)'));
+
+        $query->from($query->getModel()->getTable().' as '.$hash = $this->getRelationCountHash());
+
+        $query->getModel()->setTable($hash);
+
+        $key = DbDongle::cast($this->wrap($this->getQualifiedParentKeyName()), 'TEXT');
+
+        return $query->where($hash.'.'.$this->getPlainForeignKey(), '=', new Expression($key));
     }
 
     /**
