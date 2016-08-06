@@ -7,6 +7,7 @@ trait DeferOneOrMany
 {
     /**
      * Returns the model query with deferred bindings added
+     * @return \Illuminate\Database\Query\Builder
      */
     public function withDeferred($sessionKey)
     {
@@ -34,7 +35,7 @@ trait DeferOneOrMany
                         $query
                             ->select($this->parent->getConnection()->raw(1))
                             ->from($this->table)
-                            ->whereRaw(DbDongle::cast($this->getOtherKey(), 'INTEGER').' = '.DbDongle::getTablePrefix().$this->related->getQualifiedKeyName())
+                            ->whereRaw($this->getOtherKey().' = '.$this->getWithDeferredQualifiedKeyName())
                             ->where($this->getForeignKey(), $this->parent->getKey());
                     });
                 }
@@ -54,7 +55,7 @@ trait DeferOneOrMany
                 $query
                     ->select($this->parent->getConnection()->raw(1))
                     ->from('deferred_bindings')
-                    ->whereRaw(DbDongle::cast('slave_id', 'INTEGER').' = '.DbDongle::getTablePrefix().$this->related->getQualifiedKeyName())
+                    ->whereRaw('slave_id = '.$this->getWithDeferredQualifiedKeyName())
                     ->where('master_field', $this->relationName)
                     ->where('master_type', get_class($this->parent))
                     ->where('session_key', $sessionKey)
@@ -69,13 +70,13 @@ trait DeferOneOrMany
             $query
                 ->select($this->parent->getConnection()->raw(1))
                 ->from('deferred_bindings')
-                ->whereRaw(DbDongle::cast('slave_id', 'INTEGER').' = '.DbDongle::getTablePrefix().$this->related->getQualifiedKeyName())
+                ->whereRaw('slave_id = '.$this->getWithDeferredQualifiedKeyName())
                 ->where('master_field', $this->relationName)
                 ->where('master_type', get_class($this->parent))
                 ->where('session_key', $sessionKey)
                 ->where('is_bind', 0)
                 ->whereRaw(DbDongle::parse('id > ifnull((select max(id) from '.DbDongle::getTablePrefix().'deferred_bindings where
-                        '.DbDongle::cast('slave_id', 'INTEGER').' = '.DbDongle::getTablePrefix().$this->related->getQualifiedKeyName().' and
+                        slave_id = '.$this->getWithDeferredQualifiedKeyName().' and
                         master_field = ? and
                         master_type = ? and
                         session_key = ? and
@@ -93,5 +94,17 @@ trait DeferOneOrMany
         $modelQuery = $this->related->applyGlobalScopes($modelQuery);
 
         return $this->query = $modelQuery;
+    }
+
+    /**
+     * Returns the related "slave id" key in a database friendly format.
+     * @return string
+     */
+    protected function getWithDeferredQualifiedKeyName()
+    {
+        return DbDongle::cast(
+            DbDongle::getTablePrefix() . $this->related->getQualifiedKeyName(),
+            'STRING'
+        );
     }
 }
