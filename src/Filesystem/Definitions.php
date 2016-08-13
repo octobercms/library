@@ -47,7 +47,8 @@ class Definitions
         return [
             '.svn',
             '.git',
-            '.DS_Store'
+            '.DS_Store',
+            '.AppleDouble'
         ];
     }
 
