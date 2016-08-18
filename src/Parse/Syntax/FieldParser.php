@@ -73,25 +73,11 @@ class FieldParser
      */
     protected function processTemplate($template)
     {
-        // Process repeaters
-        list($template, $repeatTags, $repeatfields) = $this->processRepeaterTags($template);
+        // Process all tags
+        list($tags, $fields) = $this->processAllTags($template);
 
-        // Process registered tags
-        list($tags, $fields) = $this->processTags($template);
         $this->tags = $this->tags + $tags;
         $this->fields = $this->fields + $fields;
-
-        /*
-         * Layer the repeater tags over the standard ones to retain 
-         * the original sort order
-         */
-        foreach ($repeatfields as $field => $params) {
-            $this->fields[$field] = $params;
-        }
-
-        foreach ($repeatTags as $field => $params) {
-            $this->tags[$field] = $params;
-        }
     }
 
     /**
@@ -173,36 +159,51 @@ class FieldParser
     }
 
     /**
-     * Processes all repeating tags against a template, this will strip
-     * any repeaters from the template for further processing.
+     * Processes all tags against a template.
      * @param  string $template
      * @return void
      */
-    protected function processRepeaterTags($template)
+    protected function processAllTags($template)
     {
-        list($tags, $fields) = $this->processTags($template, ['repeater']);
+        list($repeatTags, $repeatFields) = $this->processTags($template, ['repeater']);
 
-        foreach ($fields as $name => &$field) {
-            $outerTemplate = $tags[$name];
+        foreach ($repeatFields as $name => $field) {
+            $outerTemplate = $repeatTags[$name];
             $innerTemplate = $field['default'];
             unset($field['default']);
-            list($innerTags, $innerFields) = $this->processTags($innerTemplate);
-            list($openTag, $closeTag) = explode($innerTemplate, $outerTemplate);
 
+            list($innerTags, $innerFields) = $this->processAllTags($innerTemplate);
+
+            list($openTag, $closeTag) = explode($innerTemplate, $outerTemplate);
             $field['fields'] = $innerFields;
-            $tags[$name] = [
+            $repeatTags[$name] = [
                 'tags'     => $innerTags,
                 'template' => $outerTemplate,
                 'open'     => $openTag,
                 'close'    => $closeTag
             ];
 
-            // Remove the inner content of the repeater 
+            // Remove the inner content of the repeater
             // tag to prevent further parsing
             $template = str_replace($outerTemplate, $openTag.$closeTag, $template);
+            $repeatFields[$name] = $field;
         }
 
-        return [$template, $tags, $fields];
+        list($tags, $fields) = $this->processTags($template);
+
+        /*
+         * Layer the repeater tags over the standard ones to retain
+         * the original sort order
+         */
+        foreach ($repeatFields as $field => $params) {
+            $fields[$field] = $params;
+        }
+
+        foreach ($repeatTags as $field => $params) {
+            $tags[$field] = $params;
+        }
+
+        return [$tags, $fields];
     }
 
     /**
@@ -348,17 +349,23 @@ class FieldParser
         $close = preg_quote(Parser::CHAR_CLOSE);
         $tags = implode('|', $tags);
 
-        $regex = '#';
-        $regex .= $open.'('.$tags.')\s'; // Group 1
-        $regex .= '([\S\s]+?)'; // Group 2 (Non greedy)
-        $regex .= $open.'/(?:\1)'.$close; // Group X (Not captured)
-        $regex .= '#';
+        $re_opentag = $open.'('.$tags.')\s';
+        $re_closetag = $open.'/(?:\1)'.$close;
+
+        $regex = '#
+                  ' . $re_opentag . '
+                     ((?>
+                          (?>  (?!' . $re_opentag . '|' . $re_closetag . ') .  )+
+                       |  (?R)
+                     )*)
+                  ' . $re_closetag . '
+               #sxi';
 
         preg_match_all($regex, $string, $match);
 
         return $match;
     }
-
+    
     /**
      * Splits an option string to an array.
      *
