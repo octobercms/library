@@ -11,6 +11,32 @@ use Illuminate\Support\Str as StrHelper;
 class Str extends StrHelper
 {
     /**
+     * Converts number to its ordinal English form.
+     *
+     * This method converts 13 to 13th, 2 to 2nd ...
+     *
+     * @param integer $number Number to get its ordinal value
+     * @return string Ordinal representation of given string.
+     */
+    public static function ordinal($number)
+    {
+        if (in_array(($number % 100), range(11,13))) {
+            return $number.'th';
+        }
+
+        switch (($number % 10)) {
+            case 1:
+                return $number.'st';
+            case 2:
+                return $number.'nd';
+            case 3:
+                return $number.'rd';
+            default:
+                return $number.'th';
+        }
+    }
+
+    /**
      * Converts line breaks to a standard \r\n pattern.
      */
     public static function normalizeEol($string)
@@ -52,5 +78,4 @@ class Str extends StrHelper
         $name = static::normalizeClassName($name);
         return substr($name, 0, strrpos($name, "\\"));
     }
-
 }
