@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Builder as BuilderBase;
 
 class SortableScope implements ScopeInterface
 {
-    protected $scopeApplied;
-
     /**
      * Apply the scope to a given Eloquent query builder.
      *
@@ -17,9 +15,9 @@ class SortableScope implements ScopeInterface
      */
     public function apply(BuilderBase $builder, ModelBase $model)
     {
-        $this->scopeApplied = true;
-
         $builder->getQuery()->orderBy($model->getSortOrderColumn());
+
+        $builder->flag('sortable_scope_applied');
 
         $this->extend($builder);
     }
@@ -45,7 +43,7 @@ class SortableScope implements ScopeInterface
             unset($query->orders[$key]);
             $query->orders = array_values($query->orders) ?: null;
 
-            $this->scopeApplied = false;
+            $builder->unflag('sortable_scope_applied');
         }
     }
 
@@ -59,7 +57,7 @@ class SortableScope implements ScopeInterface
     {
         $builder->macro('orderBy', function($builder, $column, $direction = 'asc') {
 
-            if($this->scopeApplied) {
+            if($builder->hasFlag('sortable_scope_applied')) {
                 $this->remove($builder, $builder->getModel());
             }
 
