@@ -14,6 +14,12 @@ use Illuminate\Database\Eloquent\Builder as BuilderModel;
  */
 class Builder extends BuilderModel
 {
+    /**
+     * An array of flags.
+     *
+     * @var array
+     */
+    protected $flags = [];
 
     /**
      * Get an array with the values of a given column.
@@ -170,6 +176,43 @@ class Builder extends BuilderModel
         return new Paginator($this->get($columns), $perPage, $currentPage, [
             'path' => Paginator::resolveCurrentPath()
         ]);
+    }
+
+    /**
+     * Set a flag on the current Builder instance.
+     *
+     * @param  string $name
+     * @return self
+     */
+    public function flag($name)
+    {
+        $this->flags[$name] = true;
+
+        return $this;
+    }
+
+    /**
+     * Remove a flag from the current Builder instance.
+     *
+     * @param  string $name
+     * @return self
+     */
+    public function unflag($name)
+    {
+        unset($this->flags[$name]);
+
+        return $this;
+    }
+
+    /**
+     * Check for the provided flag on the current Builder instance.
+     *
+     * @param  string $name
+     * @return self
+     */
+    public function hasFlag($name)
+    {
+        return isset($this->flags[$name]);
     }
 
     /**
