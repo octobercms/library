@@ -60,7 +60,7 @@ trait HasOneOrMany
     public function add(Model $model, $sessionKey = null)
     {
         if ($sessionKey === null) {
-            $model->setAttribute($this->getPlainForeignKey(), $this->parent->getKey());
+            $model->setAttribute($this->getPlainForeignKey(), $this->getParentKey());
             $model->save();
 
             /*

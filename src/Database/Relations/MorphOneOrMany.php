@@ -45,7 +45,7 @@ trait MorphOneOrMany
     public function add(Model $model, $sessionKey = null)
     {
         if ($sessionKey === null) {
-            $model->setAttribute($this->getPlainForeignKey(), $this->parent->getKey());
+            $model->setAttribute($this->getPlainForeignKey(), $this->getParentKey());
             $model->setAttribute($this->getPlainMorphType(), $this->morphClass);
             $model->save();
 
