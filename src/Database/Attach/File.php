@@ -492,7 +492,7 @@ class File extends Model
     /*
      * Delete all thumbnails for this file.
      */
-    protected function deleteThumbs()
+    public function deleteThumbs()
     {
         $pattern = 'thumb_'.$this->id.'_';
 
