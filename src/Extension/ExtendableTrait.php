@@ -75,6 +75,8 @@ trait ExtendableTrait
             throw new Exception(sprintf('Class %s contains an invalid $implement value', get_class($this)));
         }
 
+        $uses = array_unique($uses);// remove the repeat custom extension
+
         foreach ($uses as $use) {
             $useClass = str_replace('.', '\\', trim($use));
 
