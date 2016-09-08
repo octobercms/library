@@ -49,6 +49,17 @@ class Manager
     }
 
     /**
+     * Prepares a query derived from the user model.
+     */
+    protected function createUserModelQuery()
+    {
+        $model = $this->createUserModel();
+        $query = $model->newQuery();
+        $this->extendUserQuery($query);
+        return $query;
+    }
+
+    /**
      * Extend the query used for finding the user.
      * @param \October\Rain\Database\Builder $query
      * @return void
@@ -108,9 +119,7 @@ class Manager
      */
     public function findUserById($id)
     {
-        $model = $this->createUserModel();
-        $query = $model->newQuery();
-        $this->extendUserQuery($query);
+        $query = $this->createUserModelQuery();
         $user = $query->find($id);
         return $user ?: null;
     }
@@ -122,8 +131,7 @@ class Manager
     public function findUserByLogin($login)
     {
         $model = $this->createUserModel();
-        $query = $model->newQuery();
-        $this->extendUserQuery($query);
+        $query = $this->createUserModelQuery();
         $user = $query->where($model->getLoginName(), $login)->first();
         return $user ?: null;
     }
@@ -140,8 +148,7 @@ class Manager
             throw new AuthException(sprintf('Login attribute "%s" was not provided.', $loginName));
         }
 
-        $query = $model->newQuery();
-        $this->extendUserQuery($query);
+        $query = $this->createUserModelQuery();
         $hashableAttributes = $model->getHashableAttributes();
         $hashedCredentials = [];
 
@@ -387,6 +394,14 @@ class Manager
      */
     public function login($user, $remember = true)
     {
+        /*
+         * Fire the 'beforeLogin' event
+         */
+        $user->beforeLogin();
+
+        /*
+         * Activation is required, user not activated
+         */
         if ($this->requireActivation && !$user->is_activated) {
             $login = $user->getLogin();
             throw new AuthException(sprintf(

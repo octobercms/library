@@ -127,17 +127,17 @@ class User extends Model
      */
     public function isSuperUser()
     {
-        // This comment and line below should be removed if year >= 2017
-        // It is kept here to fix an issue in Build 309+ where the user sees
-        // an access denied screen after updating and they need to relog to fix
-        if ($this->hasPermission('superuser')) return true;
-
         return (bool) $this->is_superuser;
     }
 
     //
     // Events
     //
+
+    public function beforeLogin()
+    {
+
+    }
 
     public function afterLogin()
     {
