@@ -57,10 +57,9 @@ trait Sortable
             throw new Exception('Invalid setSortableOrder call - count of itemIds do not match count of itemOrders');
         }
 
-        $primaryKey = (!empty($this->primaryKey) ? $this->primaryKey : 'id');
         foreach ($itemIds as $index => $id) {
             $order = $itemOrders[$index];
-            $this->newQuery()->where($primaryKey, $id)->update([$this->getSortOrderColumn() => $order]);
+            $this->newQuery()->where($this->getKeyName(), $id)->update([$this->getSortOrderColumn() => $order]);
         }
     }
 
