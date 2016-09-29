@@ -49,6 +49,7 @@ class FieldParser
         'mediafinder',
         'dropdown',
         'radio',
+        'checkbox',
         'repeater',
         'variable'
     ];
@@ -231,8 +232,8 @@ class FieldParser
         $paramStrings = $result[2];
 
         foreach ($tagStrings as $key => $tagString) {
-            $params = $this->processParams($paramStrings[$key]);
             $tagName = $tagNames[$key];
+            $params = $this->processParams($paramStrings[$key], $tagName);
 
             if (isset($params['name'])) {
                 $name = $params['name'];
@@ -265,9 +266,10 @@ class FieldParser
      * Processes group 2 from the Tag regex and returns
      * an array of captured parameters.
      * @param  string $value
+     * @param  string $tagName
      * @return array
      */
-    protected function processParams($value)
+    protected function processParams($value, $tagName)
     {
         $close = Parser::CHAR_CLOSE;
         $closePos = strpos($value, $close);
@@ -287,7 +289,12 @@ class FieldParser
         $paramNames = $result[1];
         $paramValues = $result[2];
         $params = array_combine($paramNames, $paramValues);
-        $params['default'] = $defaultValue;
+
+        if($tagName == 'checkbox') {
+            $params['_content'] = $defaultValue;
+        } else {
+            $params['default'] = $defaultValue;
+        }
 
         return $params;
     }
