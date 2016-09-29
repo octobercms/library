@@ -57,6 +57,11 @@ class Resizer
     protected $height;
 
     /**
+     * @var int|null Exif orientation of image
+     */
+    protected $orientation;
+
+    /**
      * @var array Array of options used for resizing.
      */
     protected $options = [];
@@ -83,8 +88,11 @@ class Resizer
         $this->image = $this->originalImage = $this->openImage($file);
 
         // Get width and height of our image
-        $this->width  = imagesx($this->image);
-        $this->height = imagesy($this->image);
+        $this->orientation  = $this->getOrientation($file);
+
+        // Get width and height of our image
+        $this->width  = $this->getWidth();
+        $this->height = $this->getHeight();
 
         // Set default options
         $this->setOptions([]);
@@ -153,6 +161,114 @@ class Resizer
     }
 
     /**
+     * Receives the image's exif orientation
+     * @return int|null
+     */
+    protected function getOrientation($file)
+    {
+
+        $mime = $file->getMimeType();
+        $filePath = $file->getPathname();
+
+        if ($mime != 'image/jpeg' || !function_exists('exif_read_data')) {
+            return null;
+        }
+
+        // lot of bad exif data
+        try {
+
+            $exif = exif_read_data($filePath);
+
+        } catch (\Exception $e) {
+
+            return null;
+
+        }
+
+        if (!isset($exif['Orientation']))
+            return null;
+
+        // only take care of spin orientations, no mirrored
+        if (!in_array($exif['Orientation'],[1,3,6,8],true))
+            return null;
+            
+        return $exif['Orientation'];
+
+    }
+
+    /**
+     * Receives the image's width while respecting
+     * the exif orientation
+     * @return int
+     */
+    protected function getWidth()
+    {
+        switch ($this->orientation) {
+            case 6:
+            case 8:
+                return imagesy($this->image);
+                break;
+            case 1:
+            case 3:
+            default:
+                // includes the null case for no exif
+                return imagesx($this->image);
+                break;
+        }
+    }
+
+    /**
+     * Receives the image's height while respecting
+     * the exif orientation
+     * @return int
+     */
+    protected function getHeight()
+    {
+        switch ($this->orientation) {
+            case 6:
+            case 8:
+                return imagesx($this->image);
+                break;
+            case 1:
+            case 3:
+            default:
+                // includes the null case for no exif
+                return imagesy($this->image);
+                break;
+        }
+    }
+
+    /**
+     * Receives the original but rotated image
+     * according to exif orientation
+     * @return resource (gd)
+     */
+    protected function getRotatedOriginal()
+    {
+        switch ($this->orientation) {
+            case 6:
+                $angle = 270.0;
+                break;
+            case 8:
+                $angle = 90.0;
+                break;
+            case 3:
+                $angle = 180.0;
+                break;
+            case 1:
+            default:
+                // includes the null case for no exif
+                return $this->image;
+        }
+
+        $bgcolor = imagecolorallocate($this->image, 0, 0, 0);
+        $rotatedOriginal = imagerotate($this->image,$angle,$bgcolor);
+
+        return $rotatedOriginal;
+    }
+    
+
+    /**
      * Resizes and/or crops an image
      * @param int $newWidth The width of the image
      * @param int $newHeight The height of the image
@@ -191,8 +307,11 @@ class Resizer
         imagealphablending($imageResized, false);
         imagesavealpha($imageResized, true);
 
+        // get the rotated the original image according to exif orientation
+        $rotatedOriginal = $this->getRotatedOriginal();
+
         // Create the new image
-        imagecopyresampled($imageResized, $this->image, 0, 0, 0, 0, $optimalWidth, $optimalHeight, $this->width, $this->height);
+        imagecopyresampled($imageResized, $rotatedOriginal, 0, 0, 0, 0, $optimalWidth, $optimalHeight, $this->width, $this->height);
 
         $this->image = $imageResized;
 
