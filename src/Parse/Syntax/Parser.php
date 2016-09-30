@@ -215,7 +215,7 @@ class Parser
                 $result = '{{ ' . $field . '|media }}';
                 break;
             case 'checkbox':
-                $result = '{% if ' . $field . '%}' . $params['_content'] . '{% endif %}';
+                $result = '{% if ' . $field . ' %}' . $params['_content'] . '{% endif %}';
                 break;
         }
 
