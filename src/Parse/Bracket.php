@@ -62,6 +62,7 @@ class Bracket
             else {
                 $string = $this->parseKey($key, $value, $string);
                 $string = $this->parseKeyFilters($key, $value, $string);
+                $string = $this->parseKeyBooleans($key, $value, $string);
             }
         }
 
@@ -111,6 +112,26 @@ class Bracket
             if (is_callable($func) && strpos($string, $charKey) !== false) {
                 $returnStr = str_replace($charKey, $func($value), $returnStr);
             }
+        }
+
+        return $returnStr;
+    }
+
+    /**
+     * This is an internally used method, the syntax is experimental and may change.
+     */
+    protected function parseKeyBooleans($key, $value, $string)
+    {
+        $openKey = static::CHAR_OPEN.'?'.$key.static::CHAR_CLOSE;
+        $closeKey = static::CHAR_OPEN.'/'.$key.static::CHAR_CLOSE;
+
+        if ($value) {
+            $returnStr = str_replace([$openKey, $closeKey], '', $string);
+        }
+        else {
+            $open = preg_quote($openKey);
+            $close = preg_quote($closeKey);
+            $returnStr = preg_replace('|'.$open.'[\s\S]+?'.$close.'|s', '', $string);
         }
 
         return $returnStr;

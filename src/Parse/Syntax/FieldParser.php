@@ -290,9 +290,10 @@ class FieldParser
         $paramValues = $result[2];
         $params = array_combine($paramNames, $paramValues);
 
-        if($tagName == 'checkbox') {
+        if ($tagName == 'checkbox') {
             $params['_content'] = $defaultValue;
-        } else {
+        }
+        else {
             $params['default'] = $defaultValue;
         }
 
