@@ -214,6 +214,9 @@ class Parser
             case 'mediafinder':
                 $result = '{{ ' . $field . '|media }}';
                 break;
+            case 'checkbox':
+                $result = '{% if ' . $field . ' %}' . $params['_content'] . '{% endif %}';
+                break;
         }
 
         return $result;
