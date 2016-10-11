@@ -166,7 +166,6 @@ class Resizer
      */
     protected function getOrientation($file)
     {
-
         $mime = $file->getMimeType();
         $filePath = $file->getPathname();
 
@@ -174,26 +173,26 @@ class Resizer
             return null;
         }
 
-        // lot of bad exif data
+        /*
+         * Reading the exif data is prone to fail due to bad data
+         */
         try {
-
             $exif = exif_read_data($filePath);
-
-        } catch (\Exception $e) {
-
+        }
+        catch (Exception $e) {
             return null;
-
         }
 
-        if (!isset($exif['Orientation']))
+        if (!isset($exif['Orientation'])) {
             return null;
+        }
 
-        // only take care of spin orientations, no mirrored
-        if (!in_array($exif['Orientation'],[1,3,6,8],true))
+        // Only take care of spin orientations, no mirrored
+        if (!in_array($exif['Orientation'], [1, 3, 6, 8], true)) {
             return null;
-            
+        }
+
         return $exif['Orientation'];
-
     }
 
     /**
@@ -207,13 +206,11 @@ class Resizer
             case 6:
             case 8:
                 return imagesy($this->image);
-                break;
+
             case 1:
             case 3:
             default:
-                // includes the null case for no exif
                 return imagesx($this->image);
-                break;
         }
     }
 
@@ -228,13 +225,11 @@ class Resizer
             case 6:
             case 8:
                 return imagesx($this->image);
-                break;
+
             case 1:
             case 3:
             default:
-                // includes the null case for no exif
                 return imagesy($this->image);
-                break;
         }
     }
 
@@ -249,15 +244,17 @@ class Resizer
             case 6:
                 $angle = 270.0;
                 break;
+
             case 8:
                 $angle = 90.0;
                 break;
+
             case 3:
                 $angle = 180.0;
                 break;
+
             case 1:
             default:
-                // includes the null case for no exif
                 return $this->image;
         }
 
@@ -266,7 +263,6 @@ class Resizer
 
         return $rotatedOriginal;
     }
-    
 
     /**
      * Resizes and/or crops an image
