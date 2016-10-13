@@ -43,7 +43,11 @@ class ArgonServiceProvider extends ServiceProvider
     protected function getFallbackLocale($locale)
     {
         if ($position = strpos($locale, '-')) {
-            return substr($locale, 0, $position);
+            $target = substr($locale, 0, $position);
+            $resource = __DIR__ . '/../../../../jenssegers/date/src/Lang/'.$target.'.php';
+            if (file_exists($resource)) {
+                return $target;
+            }
         }
 
         return $this->app['config']->get('app.fallback_locale');
