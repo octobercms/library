@@ -6,9 +6,7 @@
 <?php Block::endPut() ?>
 
 <?php if (!$this->fatalError): ?>
-
     <?= Form::open(['class' => 'layout']) ?>
-
         <div class="layout-row">
             <?= $this->formRender() ?>
         </div>
@@ -20,29 +18,23 @@
                     data-request="onSave"
                     data-hotkey="ctrl+s, cmd+s"
                     data-load-indicator="Creating {{singular_name}}..."
-                    class="btn btn-primary">
-                    Create
-                </button>
+                    class="btn btn-primary"
+                ><?= e(trans('backend::lang.form.create')) ?></button>
                 <button
                     type="button"
                     data-request="onSave"
                     data-request-data="close:1"
                     data-hotkey="ctrl+enter, cmd+enter"
                     data-load-indicator="Creating {{singular_name}}..."
-                    class="btn btn-default">
-                    Create and Close
-                </button>
+                    class="btn btn-default"
+                ><?= e(trans('backend::lang.form.create_and_close')) ?></button>
                 <span class="btn-text">
-                    or <a href="<?= Backend::url('{{lower_author}}/{{lower_plugin}}/{{lower_name}}') ?>">Cancel</a>
+                    <?= e(trans('backend::lang.form.or')) ?> <a href="<?= Backend::url('{{lower_author}}/{{lower_plugin}}/{{lower_name}}') ?>"><?= e(trans('backend::lang.form.cancel')) ?></a>
                 </span>
             </div>
         </div>
-
     <?= Form::close() ?>
-
 <?php else: ?>
-
     <p class="flash-message static error"><?= e($this->fatalError) ?></p>
     <p><a href="<?= Backend::url('{{lower_author}}/{{lower_plugin}}/{{lower_name}}') ?>" class="btn btn-default">Return to {{lower_title_name}} list</a></p>
-
 <?php endif ?>
