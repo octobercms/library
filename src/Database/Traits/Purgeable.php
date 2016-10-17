@@ -37,25 +37,43 @@ trait Purgeable
     }
 
     /**
+     * Adds an attribute to the purgeable attributes list
+     * @param  array|string|null  $attributes
+     * @return $this
+     */
+    public function addPurgeableAttribute($attributes = null)
+    {
+        $attributes = is_array($attributes) ? $attributes : func_get_args();
+
+        $this->purgeable = array_merge($this->purgeable, $attributes);
+
+        return $this;
+    }
+
+    /**
      * Removes purged attributes from the dataset, used before saving.
      * @param $attributes mixed Attribute(s) to purge, if unspecified, $purgable property is used
      * @return array Current attribute set
      */
     public function purgeAttributes($attributesToPurge = null)
     {
-        if ($attributesToPurge !== null)
+        if ($attributesToPurge !== null) {
             $purgeable = is_array($attributesToPurge) ? $attributesToPurge : [$attributesToPurge];
-        else
+        }
+        else {
             $purgeable = $this->getPurgeableAttributes();
+        }
 
         $attributes = $this->getAttributes();
         $cleanAttributes = array_diff_key($attributes, array_flip($purgeable));
         $originalAttributes = array_diff_key($attributes, $cleanAttributes);
 
-        if (is_array($this->originalPurgeableValues))
+        if (is_array($this->originalPurgeableValues)) {
             $this->originalPurgeableValues = array_merge($this->originalPurgeableValues, $originalAttributes);
-        else
+        }
+        else {
             $this->originalPurgeableValues = $originalAttributes;
+        }
 
         return $this->attributes = $cleanAttributes;
     }

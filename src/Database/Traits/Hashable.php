@@ -42,14 +42,15 @@ trait Hashable
 
     /**
      * Adds an attribute to the hashable attributes list
-     * @param string $attribute Attribute
+     * @param  array|string|null  $attributes
      * @return $this
      */
-    public function addHashableAttribute($attribute)
+    public function addHashableAttribute($attributes = null)
     {
-        if (in_array($attribute, $this->hashable)) return;
+        $attributes = is_array($attributes) ? $attributes : func_get_args();
 
-        $this->hashable[] = $attribute;
+        $this->hashable = array_merge($this->hashable, $attributes);
+
         return $this;
     }
 
