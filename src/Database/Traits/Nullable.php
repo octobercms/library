@@ -4,6 +4,11 @@ use Exception;
 
 trait Nullable
 {
+    /**
+     * @var array List of attribute names which should be set to null when empty.
+     *
+     * protected $nullable = [];
+     */
 
     /**
      * Boot the nullable trait for a model
@@ -26,8 +31,21 @@ trait Nullable
     }
 
     /**
+     * Adds an attribute to the nullable attributes list
+     * @param  array|string|null  $attributes
+     * @return $this
+     */
+    public function addNullable($attributes = null)
+    {
+        $attributes = is_array($attributes) ? $attributes : func_get_args();
+
+        $this->nullable = array_merge($this->nullable, $attributes);
+
+        return $this;
+    }
+
+    /**
      * Nullify empty fields
-     *
      * @return void
      */
     public function nullableBeforeSave()
@@ -43,5 +61,4 @@ trait Nullable
             }
         }
     }
-
 }

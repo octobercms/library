@@ -41,7 +41,7 @@ trait Purgeable
      * @param  array|string|null  $attributes
      * @return $this
      */
-    public function addPurgeableAttribute($attributes = null)
+    public function addPurgeable($attributes = null)
     {
         $attributes = is_array($attributes) ? $attributes : func_get_args();
 
