@@ -740,6 +740,11 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function setAttribute($key, $value)
     {
+        // Before Event
+        if (($_value = $this->fireEvent('model.beforeSetAttribute', [$key, $value], true)) !== null) {
+            $value = $_value;
+        }
+
         // First we will check for the presence of a mutator for the set operation
         // which simply lets the developers tweak the attribute as it is set on
         // the model, such as "json_encoding" an listing of data for storage.
@@ -750,6 +755,9 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         }
 
         $this->attributes[$key] = $value;
+
+        // After Event
+        $this->fireEvent('model.setAttribute', [$key, $value]);
 
         return $this;
     }
