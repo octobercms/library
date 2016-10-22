@@ -327,6 +327,16 @@ class Model extends EloquentModel
     }
 
     /**
+     * Checks if an attribute is jsonable or not.
+     *
+     * @return array
+     */
+    public function isJsonable($key)
+    {
+        return in_array($key, $this->jsonable);
+    }
+
+    /**
      * Get the jsonable attributes name
      *
      * @return array
@@ -1257,7 +1267,7 @@ class Model extends EloquentModel
          * Return valid json (boolean, array) if valid, otherwise
          * jsonable fields will return a string for invalid data.
          */
-        if (in_array($key, $this->jsonable) && !empty($attr)) {
+        if ($this->isJsonable($key) && !empty($attr)) {
             $_attr = json_decode($attr, true);
             if (json_last_error() === JSON_ERROR_NONE) {
                 $attr = $_attr;
@@ -1294,7 +1304,7 @@ class Model extends EloquentModel
             $value = $_value;
 
         // Handle jsonable
-        if (in_array($key, $this->jsonable) && (!empty($value) || is_array($value))) {
+        if ($this->isJsonable($key) && (!empty($value) || is_array($value))) {
             $value = json_encode($value);
         }
 
