@@ -1303,6 +1303,11 @@ class Model extends EloquentModel
         if (($_value = $this->fireEvent('model.beforeSetAttribute', [$key, $value], true)) !== null)
             $value = $_value;
 
+        // Check if Jsonable attribute is String and try to json decode it
+        if ($this->isJsonable($key) && is_string($value)) {
+            $value = json_decode($value);
+        }
+        
         // Handle jsonable
         if ($this->isJsonable($key) && (!empty($value) || is_array($value))) {
             $value = json_encode($value);
