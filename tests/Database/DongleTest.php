@@ -14,6 +14,9 @@ class DongleTest extends TestCase
         $result = $dongle->parseConcat("CONCAT(  first_name   , ' ',    last_name  )");
         $this->assertEquals("first_name || ' ' || last_name", $result);
 
+        $result = $dongle->parseConcat('concat("#", id, " - ", amount, "(", currency_code, ")")');
+        $this->assertEquals('"#" || id || " - " || amount || "(" || currency_code || ")"', $result);
+
         $result = $dongle->parseConcat("group_concat(first_name, ' ', last_name)");
         $this->assertEquals("group_concat(first_name, ' ', last_name)", $result);
     }
@@ -27,6 +30,23 @@ class DongleTest extends TestCase
 
         $result = $dongle->parseGroupConcat("group_concat(sometable.first_name SEPARATOR ', ')");
         $this->assertEquals("group_concat(sometable.first_name, ', ')", $result);
+
+        $result = $dongle->parseGroupConcat("group_concat(id separator ')')");
+        $this->assertEquals("group_concat(id, ')')", $result);
+    }
+
+    public function testPgsqlParseGroupConcat()
+    {
+        $dongle = new Dongle('pgsql');
+
+        $result = $dongle->parseGroupConcat("group_concat(first_name separator ', ')");
+        $this->assertEquals("string_agg(first_name::VARCHAR, ', ')", $result);
+
+        $result = $dongle->parseGroupConcat("group_concat(sometable.first_name SEPARATOR ', ')");
+        $this->assertEquals("string_agg(sometable.first_name::VARCHAR, ', ')", $result);
+
+        $result = $dongle->parseGroupConcat("group_concat(id separator ')')");
+        $this->assertEquals("string_agg(id::VARCHAR, ')')", $result);
     }
 
     public function testSqlSrvParseGroupConcat()
@@ -38,6 +58,9 @@ class DongleTest extends TestCase
 
         $result = $dongle->parseGroupConcat("group_concat(sometable.first_name SEPARATOR ', ')");
         $this->assertEquals("dbo.GROUP_CONCAT_D(sometable.first_name, ', ')", $result);
+
+        $result = $dongle->parseGroupConcat("group_concat(id separator ')')");
+        $this->assertEquals("dbo.GROUP_CONCAT_D(id, ')')", $result);
     }
 
     public function testSqliteParseBooleanExpression()
