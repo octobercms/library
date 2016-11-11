@@ -124,6 +124,7 @@ class Model extends EloquentModel
      * ];
      */
     public $morphToMany = [];
+
     public $morphedByMany = [];
 
     /**
@@ -163,8 +164,11 @@ class Model extends EloquentModel
     public function __construct(array $attributes = [])
     {
         parent::__construct();
+
         $this->bootNicerEvents();
+
         $this->extendableConstruct();
+
         $this->fill($attributes);
     }
 
@@ -187,7 +191,9 @@ class Model extends EloquentModel
     public static function create(array $attributes = [], $sessionKey = null)
     {
         $model = new static($attributes);
+
         $model->save(null, $sessionKey);
+
         return $model;
     }
 
@@ -246,16 +252,19 @@ class Model extends EloquentModel
 
         foreach ($radicals as $radical) {
             foreach ($hooks as $hook => $event) {
-
                 $eventMethod = $radical . $event; // saving / saved
                 $method = $hook . ucfirst($radical); // beforeSave / afterSave
-                if ($radical != 'fetch') $method .= 'e';
+
+                if ($radical != 'fetch') {
+                    $method .= 'e';
+                }
 
                 self::$eventMethod(function($model) use ($method) {
                     $model->fireEvent('model.' . $method);
 
-                    if ($model->methodExists($method))
+                    if ($model->methodExists($method)) {
                         return $model->$method();
+                    }
                 });
             }
         }
@@ -265,8 +274,10 @@ class Model extends EloquentModel
          */
         static::registerModelEvent('booted', function($model){
             $model->fireEvent('model.afterBoot');
-            if ($model->methodExists('afterBoot'))
+
+            if ($model->methodExists('afterBoot')) {
                 return $model->afterBoot();
+            }
         });
 
         static::$eventsBooted[$class] = true;
@@ -294,8 +305,10 @@ class Model extends EloquentModel
     public function newFromBuilder($attributes = [], $connection = null)
     {
         $instance = $this->newInstance([], true);
-        if ($instance->fireModelEvent('fetching') === false)
+
+        if ($instance->fireModelEvent('fetching') === false) {
             return $instance;
+        }
 
         $instance->setRawAttributes((array) $attributes, true);
 
@@ -472,8 +485,9 @@ class Model extends EloquentModel
          * Never call handleRelation() anywhere else as it could
          * break getRelationCaller(), use $this->{$name}() instead
          */
-        if ($this->hasRelation($name))
+        if ($this->hasRelation($name)) {
             return $this->handleRelation($name);
+        }
 
         return $this->extendableCall($name, $params);
     }
@@ -488,8 +502,9 @@ class Model extends EloquentModel
      */
     public function offsetExists($offset)
     {
-        if ($result = isset($this->$offset))
+        if ($result = isset($this->$offset)) {
             return $result;
+        }
 
         return $this->hasRelation($offset);
     }
@@ -620,15 +635,17 @@ class Model extends EloquentModel
         $relationType = $this->getRelationType($relationName);
         $relation = $this->getRelationDefinition($relationName);
 
-        if (!isset($relation[0]) && $relationType != 'morphTo')
+        if (!isset($relation[0]) && $relationType != 'morphTo') {
             throw new InvalidArgumentException(sprintf(
                 "Relation '%s' on model '%s' should have at least a classname.", $relationName, get_called_class()
             ));
+        }
 
-        if (isset($relation[0]) && $relationType == 'morphTo')
+        if (isset($relation[0]) && $relationType == 'morphTo') {
             throw new InvalidArgumentException(sprintf(
                 "Relation '%s' on model '%s' is a morphTo relation and should not contain additional arguments.", $relationName, get_called_class()
             ));
+        }
 
         switch ($relationType) {
             case 'hasOne':
@@ -727,8 +744,9 @@ class Model extends EloquentModel
      */
     public function morphTo($name = null, $type = null, $id = null)
     {
-        if (is_null($name))
+        if (is_null($name)) {
             $name = snake_case($this->getRelationCaller());
+        }
 
         list($type, $id) = $this->getMorphs($name, $type, $id);
 
@@ -759,11 +777,14 @@ class Model extends EloquentModel
      */
     public function hasOne($related, $primaryKey = null, $localKey = null, $relationName = null)
     {
-        if (is_null($relationName))
+        if (is_null($relationName)) {
             $relationName = $this->getRelationCaller();
+        }
 
         $primaryKey = $primaryKey ?: $this->getForeignKey();
+
         $localKey = $localKey ?: $this->getKeyName();
+
         $instance = new $related;
 
         return new HasOne($instance->newQuery(), $this, $instance->getTable().'.'.$primaryKey, $localKey, $relationName);
@@ -776,12 +797,16 @@ class Model extends EloquentModel
      */
     public function morphOne($related, $name, $type = null, $id = null, $localKey = null, $relationName = null)
     {
-        if (is_null($relationName))
+        if (is_null($relationName)) {
             $relationName = $this->getRelationCaller();
+        }
 
         $instance = new $related;
+
         list($type, $id) = $this->getMorphs($name, $type, $id);
+
         $table = $instance->getTable();
+
         $localKey = $localKey ?: $this->getKeyName();
 
         return new MorphOne($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $localKey, $relationName);
@@ -795,14 +820,18 @@ class Model extends EloquentModel
      */
     public function belongsTo($related, $foreignKey = null, $parentKey = null, $relationName = null)
     {
-        if (is_null($relationName))
+        if (is_null($relationName)) {
             $relationName = $this->getRelationCaller();
+        }
 
-        if (is_null($foreignKey))
+        if (is_null($foreignKey)) {
             $foreignKey = snake_case($relationName).'_id';
+        }
 
         $instance = new $related;
+
         $query = $instance->newQuery();
+
         $parentKey = $parentKey ?: $instance->getKeyName();
 
         return new BelongsTo($query, $this, $foreignKey, $parentKey, $relationName);
@@ -815,11 +844,14 @@ class Model extends EloquentModel
      */
     public function hasMany($related, $primaryKey = null, $localKey = null, $relationName = null)
     {
-        if (is_null($relationName))
+        if (is_null($relationName)) {
             $relationName = $this->getRelationCaller();
+        }
 
         $primaryKey = $primaryKey ?: $this->getForeignKey();
+
         $localKey = $localKey ?: $this->getKeyName();
+
         $instance = new $related;
 
         return new HasMany($instance->newQuery(), $this, $instance->getTable().'.'.$primaryKey, $localKey, $relationName);
@@ -832,13 +864,18 @@ class Model extends EloquentModel
      */
     public function hasManyThrough($related, $through, $primaryKey = null, $throughKey = null, $localKey = null, $relationName = null)
     {
-        if (is_null($relationName))
+        if (is_null($relationName)) {
             $relationName = $this->getRelationCaller();
+        }
 
         $instance = new $related;
+
         $throughInstance = new $through;
+
         $primaryKey = $primaryKey ?: $this->getForeignKey();
+
         $throughKey = $throughKey ?: $throughInstance->getForeignKey();
+
         $localKey = $localKey ?: $this->getKeyName();
 
         return new HasManyThrough($instance->newQuery(), $this, $throughInstance, $primaryKey, $throughKey, $localKey);
@@ -851,12 +888,16 @@ class Model extends EloquentModel
      */
     public function morphMany($related, $name, $type = null, $id = null, $localKey = null, $relationName = null)
     {
-        if (is_null($relationName))
+        if (is_null($relationName)) {
             $relationName = $this->getRelationCaller();
+        }
 
         $instance = new $related;
+
         list($type, $id) = $this->getMorphs($name, $type, $id);
+
         $table = $instance->getTable();
+
         $localKey = $localKey ?: $this->getKeyName();
 
         return new MorphMany($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $localKey, $relationName);
@@ -869,17 +910,22 @@ class Model extends EloquentModel
      */
     public function belongsToMany($related, $table = null, $primaryKey = null, $foreignKey = null, $relationName = null)
     {
-        if (is_null($relationName))
+        if (is_null($relationName)) {
             $relationName = $this->getRelationCaller();
+        }
 
         $primaryKey = $primaryKey ?: $this->getForeignKey();
+
         $instance = new $related;
+
         $foreignKey = $foreignKey ?: $instance->getForeignKey();
 
-        if (is_null($table))
+        if (is_null($table)) {
             $table = $this->joiningTable($related);
+        }
 
         $query = $instance->newQuery();
+
         return new BelongsToMany($query, $this, $table, $primaryKey, $foreignKey, $relationName);
     }
 
@@ -890,17 +936,22 @@ class Model extends EloquentModel
      */
     public function morphToMany($related, $name, $table = null, $primaryKey = null, $foreignKey = null, $inverse = false, $relationName = null)
     {
-        if (is_null($relationName))
+        if (is_null($relationName)) {
             $relationName = $this->getRelationCaller();
+        }
 
         $primaryKey = $primaryKey ?: $name.'_id';
+
         $instance = new $related;
+
         $foreignKey = $foreignKey ?: $instance->getForeignKey();
 
-        if (is_null($table))
+        if (is_null($table)) {
             $table = $this->joiningTable($related);
+        }
 
         $query = $instance->newQuery();
+
         return new MorphToMany($query, $this, $name, $table, $primaryKey, $foreignKey, $relationName, $inverse);
     }
 
@@ -911,10 +962,12 @@ class Model extends EloquentModel
      */
     public function morphedByMany($related, $name, $table = null, $primaryKey = null, $foreignKey = null, $relationName = null)
     {
-        if (is_null($relationName))
+        if (is_null($relationName)) {
             $relationName = $this->getRelationCaller();
+        }
 
         $primaryKey = $primaryKey ?: $this->getForeignKey();
+
         $foreignKey = $foreignKey ?: $name.'_id';
 
         return $this->morphToMany($related, $name, $table, $primaryKey, $foreignKey, true, $relationName);
@@ -927,12 +980,16 @@ class Model extends EloquentModel
      */
     public function attachMany($related, $isPublic = null, $localKey = null, $relationName = null)
     {
-        if (is_null($relationName))
+        if (is_null($relationName)) {
             $relationName = $this->getRelationCaller();
+        }
 
         $instance = new $related;
+
         list($type, $id) = $this->getMorphs('attachment', null, null);
+
         $table = $instance->getTable();
+
         $localKey = $localKey ?: $this->getKeyName();
 
         return new AttachMany($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $isPublic, $localKey, $relationName);
@@ -945,12 +1002,16 @@ class Model extends EloquentModel
      */
     public function attachOne($related, $isPublic = true, $localKey = null, $relationName = null)
     {
-        if (is_null($relationName))
+        if (is_null($relationName)) {
             $relationName = $this->getRelationCaller();
+        }
 
         $instance = new $related;
+
         list($type, $id) = $this->getMorphs('attachment', null, null);
+
         $table = $instance->getTable();
+
         $localKey = $localKey ?: $this->getKeyName();
 
         return new AttachOne($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $isPublic, $localKey, $relationName);
@@ -1202,7 +1263,9 @@ class Model extends EloquentModel
      */
     public function addDateAttribute($attribute)
     {
-        if (in_array($attribute, $this->dates)) return;
+        if (in_array($attribute, $this->dates)) {
+            return;
+        }
 
         $this->dates[] = $attribute;
     }
@@ -1231,27 +1294,17 @@ class Model extends EloquentModel
      */
     public function getAttribute($key)
     {
-        // Before Event
-        if (($attr = $this->fireEvent('model.beforeGetAttribute', [$key], true)) !== null) {
-            return $attr;
-        }
-
         if (array_key_exists($key, $this->attributes) || $this->hasGetMutator($key)) {
-            $attr = $this->getAttributeValue($key);
-        }
-        elseif ($this->relationLoaded($key)) {
-            $attr = $this->relations[$key];
-        }
-        elseif ($this->hasRelation($key)) {
-            $attr = $this->getRelationshipFromMethod($key);
+            return $this->getAttributeValue($key);
         }
 
-        // After Event
-        if (($_attr = $this->fireEvent('model.getAttribute', [$key, $attr], true)) !== null) {
-            return $_attr;
+        if ($this->relationLoaded($key)) {
+            return $this->relations[$key];
         }
 
-        return $attr;
+        if ($this->hasRelation($key)) {
+            return $this->getRelationshipFromMethod($key);
+        }
     }
 
     /**
@@ -1261,6 +1314,13 @@ class Model extends EloquentModel
      */
     public function getAttributeValue($key)
     {
+        /*
+         * Before Event
+         */
+        if (($attr = $this->fireEvent('model.beforeGetAttribute', [$key], true)) !== null) {
+            return $attr;
+        }
+
         $attr = parent::getAttributeValue($key);
 
         /*
@@ -1272,6 +1332,13 @@ class Model extends EloquentModel
             if (json_last_error() === JSON_ERROR_NONE) {
                 $attr = $_attr;
             }
+        }
+
+        /*
+         * After Event
+         */
+        if (($_attr = $this->fireEvent('model.getAttribute', [$key, $attr], true)) !== null) {
+            return $_attr;
         }
 
         return $attr;
@@ -1287,6 +1354,103 @@ class Model extends EloquentModel
         return $this->methodExists('get'.Str::studly($key).'Attribute');
     }
 
+    /**
+     * Convert the model's attributes to an array.
+     * @return array
+     */
+    public function attributesToArray()
+    {
+        $attributes = $this->getArrayableAttributes();
+
+        /*
+         * Before Event
+         */
+        foreach ($attributes as $key => $value) {
+            if (($eventValue = $this->fireEvent('model.beforeGetAttribute', [$key], true)) !== null) {
+                $attributes[$key] = $eventValue;
+            }
+        }
+
+        /*
+         * Dates
+         */
+        foreach ($this->getDates() as $key) {
+            if (!isset($attributes[$key])) {
+                continue;
+            }
+
+            $attributes[$key] = $this->serializeDate(
+                $this->asDateTime($attributes[$key])
+            );
+        }
+
+        /*
+         * Mutate
+         */
+        $mutatedAttributes = $this->getMutatedAttributes();
+
+        foreach ($mutatedAttributes as $key) {
+            if (!array_key_exists($key, $attributes)) {
+                continue;
+            }
+
+            $attributes[$key] = $this->mutateAttributeForArray(
+                $key, $attributes[$key]
+            );
+        }
+
+        /*
+         * Casts
+         */
+        foreach ($this->casts as $key => $value) {
+            if (
+                !array_key_exists($key, $attributes) ||
+                in_array($key, $mutatedAttributes)
+            ) {
+                continue;
+            }
+
+            $attributes[$key] = $this->castAttribute(
+                $key, $attributes[$key]
+            );
+        }
+
+        /*
+         * Appends
+         */
+        foreach ($this->getArrayableAppends() as $key) {
+            $attributes[$key] = $this->mutateAttributeForArray($key, null);
+        }
+
+        /*
+         * Jsonable
+         */
+        foreach ($this->jsonable as $key) {
+            if (
+                !array_key_exists($key, $attributes) ||
+                in_array($key, $mutatedAttributes)
+            ) {
+                continue;
+            }
+
+            $jsonValue = json_decode($attributes[$key], true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $attributes[$key] = $jsonValue;
+            }
+        }
+
+        /*
+         * After Event
+         */
+        foreach ($attributes as $key => $value) {
+            if (($eventValue = $this->fireEvent('model.getAttribute', [$key, $value], true)) !== null) {
+                $attributes[$key] = $eventValue;
+            }
+        }
+
+        return $attributes;
+    }
+
     //
     // Setters
     //
@@ -1299,33 +1463,44 @@ class Model extends EloquentModel
      */
     public function setAttribute($key, $value)
     {
-        // Before Event
-        if (($_value = $this->fireEvent('model.beforeSetAttribute', [$key, $value], true)) !== null)
-            $value = $_value;
+        /*
+         * Handle direct relation setting
+         */
+        if ($this->hasRelation($key)) {
+            return $this->setRelationValue($key, $value);
+        }
 
-        // Handle jsonable
+        /*
+         * Before Event
+         */
+        if (($_value = $this->fireEvent('model.beforeSetAttribute', [$key, $value], true)) !== null) {
+            $value = $_value;
+        }
+
+        /*
+         * Jsonable
+         */
         if ($this->isJsonable($key) && (!empty($value) || is_array($value))) {
             $value = json_encode($value);
         }
 
-        // Handle direct relation setting
-        if ($this->hasRelation($key)) {
-            $result = $this->setRelationValue($key, $value);
-        }
-        else {
-            if (
-                !is_object($value) &&
-                !is_array($value) &&
-                !is_null($value) &&
-                !is_bool($value)
-            ) {
-                $value = trim($value);
-            }
-
-            $result = parent::setAttribute($key, $value);
+        /*
+         * Trim scalars
+         */
+        if (
+            !is_object($value) &&
+            !is_array($value) &&
+            !is_null($value) &&
+            !is_bool($value)
+        ) {
+            $value = trim($value);
         }
 
-        // After Event
+        $result = parent::setAttribute($key, $value);
+
+        /*
+         * After Event
+         */
         $this->fireEvent('model.setAttribute', [$key, $value]);
 
         return $result;
@@ -1340,5 +1515,4 @@ class Model extends EloquentModel
     {
         return $this->methodExists('set'.Str::studly($key).'Attribute');
     }
-
 }
