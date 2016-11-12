@@ -86,19 +86,21 @@ trait Validation
     }
 
     /**
-     * Instantiates the validator used by the validation process, depending if the class is being used inside or
-     * outside of Laravel. Optional connection string to make the validator use a different database connection
-     * than the default connection.
+     * Instantiates the validator used by the validation process, depending if the class
+     * is being used inside or outside of Laravel. Optional connection string to make
+     * the validator use a different database connection than the default connection.
      * @return \Illuminate\Validation\Validator
      */
-    protected static function makeValidator($data, $rules, $customMessages, $attributeNames,$connection = null)
+    protected static function makeValidator($data, $rules, $customMessages, $attributeNames, $connection = null)
     {
         $validator = Validator::make($data, $rules, $customMessages, $attributeNames);
+
         if ($connection !== null) {
            $verifier = App::make('validation.presence');
            $verifier->setConnection($connection);
            $validator->setPresenceVerifier($verifier);
         }
+
         return $validator;
     }
 
@@ -235,7 +237,13 @@ trait Validation
             /*
              * Hand over to the validator
              */
-            $validator = self::makeValidator($data, $rules, $customMessages, $attributeNames,$this->getConnectionName());
+            $validator = self::makeValidator(
+                $data,
+                $rules,
+                $customMessages,
+                $attributeNames,
+                $this->getConnectionName()
+            );
 
             $success = $validator->passes();
 
