@@ -22,20 +22,20 @@ System users can override localization strings without altering the modules' and
 ````
 app
   lang
-    vendorname
-      pluginname
-        en
+    en
+      vendorname
+        pluginname
           file.php
 ````
-Example: lang/october/blog/en/errors.php
+Example: lang/en/october/blog/errors.php
 
 To override a module's localization:
 
 ````
 app
   lang
-    modulename
-      en
+    en
+      modulename
         file.php
 ````
-Example: lang/cms/en/errors.php
+Example: lang/en/cms/errors.php
