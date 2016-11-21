@@ -70,6 +70,13 @@ class HasOne extends HasOneBase
         if ($instance) {
             $this->parent->setRelation($this->relationName, $instance);
 
+            // Relation is already set, do nothing. This prevents the relationship
+            // from being nulled below and left unset because the save will ignore
+            // attribute values that are numerically equivalent (not dirty).
+            if ($instance->getOriginal($this->getPlainForeignKey()) === $this->getParentKey()) {
+                return;
+            }
+
             $this->parent->bindEventOnce('model.afterSave', function() use ($instance){
                 $this->update([$this->getPlainForeignKey() => null]);
                 $instance->setAttribute($this->getPlainForeignKey(), $this->getParentKey());
