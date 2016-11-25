@@ -88,6 +88,11 @@ class BelongsToMany extends BelongsToManyBase
      */
     public function add(Model $model, $sessionKey = null, $pivotData = [])
     {
+        if (is_array($sessionKey)) {
+            $pivotData = $sessionKey;
+            $sessionKey = null;
+        }
+
         if ($sessionKey === null) {
             $this->attach($model->getKey(), $pivotData);
             $this->parent->reloadRelations($this->relationName);
