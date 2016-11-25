@@ -108,7 +108,7 @@ trait DefinedConstraints
          * Scope
          */
         if ($scope = array_get($args, 'scope')) {
-            $query->$scope();
+            $query->$scope($this->parent);
         }
     }
 
