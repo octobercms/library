@@ -111,4 +111,12 @@ trait HasOneOrMany
         }
     }
 
+    /**
+     * Get the associated "other" key of the relationship.
+     * @return string
+     */
+    public function getOtherKey()
+    {
+        return $this->localKey;
+    }
 }
