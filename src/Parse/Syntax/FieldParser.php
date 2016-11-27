@@ -150,6 +150,7 @@ class FieldParser
 
     /**
      * Returns default values for all fields.
+     * @param  array $fields
      * @return array
      */
     public function getDefaultParams($fields = null)
@@ -209,6 +210,7 @@ class FieldParser
     /**
      * Processes all registered tags against a template.
      * @param  string $template
+     * @param  bool $usingTags
      * @return void
      */
     protected function processTags($template, $usingTags = null)
@@ -389,7 +391,9 @@ class FieldParser
 
                 if (strlen($key)) {
                     if (!preg_match('/^[0-9a-z-_]+$/i', $key)) {
-                        throw new Exception(sprintf('Invalid drop-down option key: %s. Option keys can contain only digits, Latin letters and characters _ and -', $key));
+                        throw new Exception(sprintf(
+                            'Invalid drop-down option key: %s. Option keys can contain only digits, Latin letters and characters _ and -', $key
+                        ));
                     }
 
                     $result[$key] = trim($parts[1]);

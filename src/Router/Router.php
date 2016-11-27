@@ -22,7 +22,7 @@ class Router
     protected $routeMap = [];
 
     /**
-     * @var \October\Rain\Router\Rule A refered to the matched router rule
+     * @var \October\Rain\Router\Rule A referred to the matched router rule
      */
     protected $matchedRouteRule;
 

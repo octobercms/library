@@ -2,7 +2,7 @@
 
 use Closure;
 use Illuminate\Foundation\Application as ApplicationBase;
-use \Symfony\Component\Debug\Exception\FatalErrorException;
+use Symfony\Component\Debug\Exception\FatalErrorException;
 use Exception;
 
 class Application extends ApplicationBase
