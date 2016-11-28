@@ -11,7 +11,6 @@ use Illuminate\Support\MessageBag;
  */
 class FlashBag extends MessageBag
 {
-
     const INFO = 'info';
     const ERROR = 'error';
     const SUCCESS = 'success';
@@ -37,8 +36,9 @@ class FlashBag extends MessageBag
 
         $this->session = App::make('session');
 
-        if ($this->session->has(self::SESSION_KEY))
+        if ($this->session->has(self::SESSION_KEY)) {
             $this->messages = $this->session->get(self::SESSION_KEY);
+        }
 
         $this->purge();
     }
@@ -60,6 +60,7 @@ class FlashBag extends MessageBag
     public function all($format = null)
     {
         $all = [];
+
         foreach ($this->messages as $key => $messages) {
             $all[$key] = reset($messages);
         }
@@ -91,10 +92,12 @@ class FlashBag extends MessageBag
      */
     public function error($message = null)
     {
-        if ($message === null)
+        if ($message === null) {
             return $this->get(FlashBag::ERROR);
-        else
+        }
+        else {
             return $this->add(FlashBag::ERROR, $message);
+        }
     }
 
     /**
@@ -104,10 +107,12 @@ class FlashBag extends MessageBag
      */
     public function success($message = null)
     {
-        if ($message === null)
+        if ($message === null) {
             return $this->get(FlashBag::SUCCESS);
-        else
+        }
+        else {
             return $this->add(FlashBag::SUCCESS, $message);
+        }
     }
 
     /**
@@ -117,10 +122,12 @@ class FlashBag extends MessageBag
      */
     public function warning($message = null)
     {
-        if ($message === null)
+        if ($message === null) {
             return $this->get(FlashBag::WARNING);
-        else
+        }
+        else {
             return $this->add(FlashBag::WARNING, $message);
+        }
     }
 
     /**
@@ -130,10 +137,12 @@ class FlashBag extends MessageBag
      */
     public function info($message = null)
     {
-        if ($message === null)
+        if ($message === null) {
             return $this->get(FlashBag::INFO);
-        else
+        }
+        else {
             return $this->add(FlashBag::INFO, $message);
+        }
     }
 
     /**
@@ -146,6 +155,7 @@ class FlashBag extends MessageBag
     public function add($key, $message)
     {
         $this->newMessages[$key][] = $message;
+
         $this->store();
 
         return parent::add($key, $message);
@@ -170,11 +180,13 @@ class FlashBag extends MessageBag
             $this->purge();
         }
         else {
-            if (isset($this->messages[$key]))
+            if (isset($this->messages[$key])) {
                 unset($this->messages[$key]);
+            }
 
-            if (isset($this->newMessages[$key]))
+            if (isset($this->newMessages[$key])) {
                 unset($this->newMessages[$key]);
+            }
 
             $this->store();
         }
@@ -187,5 +199,4 @@ class FlashBag extends MessageBag
     {
         $this->session->remove(self::SESSION_KEY);
     }
-
 }

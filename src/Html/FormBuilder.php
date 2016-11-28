@@ -65,7 +65,7 @@ class FormBuilder
      * The reserved form open attributes.
      * @var array
      */
-    protected $reservedAjax = ['request', 'success', 'error', 'complete', 'confirm', 'redirect', 'update', 'data'];
+    protected $reservedAjax = ['request', 'success', 'error', 'complete', 'confirm', 'redirect', 'update', 'data', 'validate', 'flash'];
 
     /**
      * The form methods that should be spoofed, in uppercase.
@@ -168,14 +168,13 @@ class FormBuilder
      */
     public function ajax($handler, array $options = [])
     {
-        if (is_array($handler))
+        if (is_array($handler)) {
             $handler = implode('::', $handler);
+        }
 
         $attributes = array_merge(
-
             ['data-request' => $handler],
             array_except($options, $this->reservedAjax)
-
         );
 
         $ajaxAttributes = array_diff_key($options, $attributes);
@@ -1102,5 +1101,4 @@ class FormBuilder
     {
         return $this->sessionKey;
     }
-
 }
