@@ -183,7 +183,7 @@ class User extends Model
      */
     public function checkPersistCode($persistCode)
     {
-        if (!$persistCode) {
+        if (!$persistCode || !$this->persist_code) {
             return false;
         }
 

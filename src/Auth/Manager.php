@@ -432,6 +432,11 @@ class Manager
      */
     public function logout()
     {
+        if ($this->user) {
+            $this->user->setRememberToken(null);
+            $this->user->forceSave();
+        }
+
         $this->user = null;
 
         Session::forget($this->sessionKey);
