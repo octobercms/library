@@ -144,7 +144,7 @@ trait Revisionable
             : 500;
 
         $toDelete = $relationObject
-            ->orderBy('id')
+            ->orderBy('id', 'desc')
             ->skip($revisionLimit)
             ->limit(64)
             ->get();
