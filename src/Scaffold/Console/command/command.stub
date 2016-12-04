@@ -42,5 +42,4 @@ class {{studly_name}} extends Command
     {
         return [];
     }
-
 }
