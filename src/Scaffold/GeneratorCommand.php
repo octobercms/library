@@ -259,5 +259,4 @@ abstract class GeneratorCommand extends Command
             ['force', null, InputOption::VALUE_NONE, 'Overwrite existing files with generated ones.'],
         ];
     }
-
 }

@@ -6,7 +6,6 @@ use Symfony\Component\Console\Input\InputArgument;
 
 class CreateCommand extends GeneratorCommand
 {
-
     /**
      * The console command name.
      *

@@ -7,7 +7,6 @@ use October\Rain\Support\Str;
 
 class CreateController extends GeneratorCommand
 {
-
     /**
      * The console command name.
      *
@@ -102,5 +101,4 @@ class CreateController extends GeneratorCommand
             ['model', null, InputOption::VALUE_OPTIONAL, 'Define which model name to use, otherwise the singular controller name is used.'],
         ];
     }
-
 }
