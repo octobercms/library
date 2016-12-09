@@ -326,6 +326,7 @@ ESC;
     {
         $page = new HalcyonTestPageWithValidation;
         $files = $page->newQuery()->lists('fileName');
+        sort($files);
 
         $this->assertCount(2, $files);
         $this->assertEquals(['about.htm', 'home.htm'], $files);
