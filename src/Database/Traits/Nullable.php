@@ -51,7 +51,7 @@ trait Nullable
     public function nullableBeforeSave()
     {
         foreach ($this->nullable as $field) {
-            if (empty($this->{$field})) {
+            if (is_string($this->{$field}) && empty($this->{$field})) {
                 if ($this->exists) {
                     $this->attributes[$field] = null;
                 }
