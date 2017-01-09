@@ -23,6 +23,8 @@ return [
 
     'aNumber' => 55,
 
+    'default' => 'mysql',
+
     /*
     |--------------------------------------------------------------------------
     | Application URL
@@ -86,6 +88,15 @@ return [
             'prefix'    => '',
         ],
 
+        'sqlsrv' => [
+            'driver'   => 'sqlsrv',
+            'host'     => 'localhost',
+            'database' => 'database',
+            'username' => 'root',
+            'password' => '',
+            'prefix'   => '',
+        ],
+
         'pgsql' => [
             'driver'   => 'pgsql',
             'host'     => 'localhost',
@@ -96,16 +107,6 @@ return [
             'prefix'   => '',
             'schema'   => 'public',
         ],
-
-        'sqlsrv' => [
-            'driver'   => 'sqlsrv',
-            'host'     => 'localhost',
-            'database' => 'database',
-            'username' => 'root',
-            'password' => '',
-            'prefix'   => '',
-        ],
-
     ],
 
     /*
@@ -120,4 +121,28 @@ return [
     */
 
     'memcached' => ['host' => '127.0.0.1', 'port' => 11211, 'weight' => true],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Redis Databases
+    |--------------------------------------------------------------------------
+    |
+    | Redis is an open source, fast, and advanced key-value store that also
+    | provides a richer set of commands than a typical key-value systems
+    | such as APC or Memcached. Laravel makes it easy to dig right in.
+    |
+    */
+
+    'redis' => [
+
+        'cluster' => false,
+
+        'default' => [
+            'host'     => '127.0.0.1',
+            'password' => null,
+            'port'     => 6379,
+            'database' => 0,
+        ],
+
+    ],
 ];

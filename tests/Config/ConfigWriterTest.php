@@ -94,11 +94,12 @@ class ConfigWriterTest extends TestCase
         $this->assertArrayHasKey('memcached', $result);
         $this->assertArrayHasKey('weight', $result['memcached']);
         $this->assertFalse($result['memcached']['weight']);
-        
+
         $this->assertArrayHasKey('connections', $result);
         $this->assertArrayHasKey('pgsql', $result['connections']);
         $this->assertArrayHasKey('password', $result['connections']['pgsql']);
         $this->assertTrue($result['connections']['pgsql']['password']);
+        $this->assertEquals('', $result['connections']['sqlsrv']['password']);
 
         /*
          * Rewrite an integer
@@ -108,5 +109,25 @@ class ConfigWriterTest extends TestCase
 
         $this->assertArrayHasKey('aNumber', $result);
         $this->assertEquals(69, $result['aNumber']);
+
+        /*
+         * Only first match should be replaced
+         */
+        $contents = $writer->toContent($contents, ['default' => 'pgsql']);
+        $result = eval('?>'.$contents);
+
+        $this->assertArrayHasKey('default', $result);
+        $this->assertEquals('pgsql', $result['default']);
+        $this->assertInternalType('array', $result);
+        $this->assertArrayHasKey('redis', $result);
+        $this->assertInternalType('array', $result['redis']);
+        $this->assertArrayHasKey('default', $result['redis']);
+        $this->assertInternalType('array', $result['redis']['default']);
+        $this->assertArrayHasKey('host', $result['redis']['default']);
+        $this->assertArrayHasKey('password', $result['redis']['default']);
+        $this->assertArrayHasKey('port', $result['redis']['default']);
+        $this->assertArrayHasKey('database', $result['redis']['default']);
+        $this->assertEquals('127.0.0.1', $result['redis']['default']['host']);
+        $this->assertEquals(null, $result['redis']['default']['password']);
     }
 }
