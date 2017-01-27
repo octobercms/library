@@ -79,8 +79,9 @@ class File extends Model
      */
     public function fromPost($uploadedFile)
     {
-        if ($uploadedFile === null)
+        if ($uploadedFile === null) {
             return;
+        }
 
         $this->file_name = $uploadedFile->getClientOriginalName();
         $this->file_size = $uploadedFile->getClientSize();
@@ -97,8 +98,9 @@ class File extends Model
      */
     public function fromFile($filePath)
     {
-        if ($filePath === null)
+        if ($filePath === null) {
             return;
+        }
 
         $file = new FileObj($filePath);
         $this->file_name = $file->getFilename();
@@ -205,6 +207,19 @@ class File extends Model
     }
 
     /**
+     * Returns the last modification date as a UNIX timestamp.
+     * @return int
+     */
+    public function getLastModified($fileName = null)
+    {
+        if (!$fileName) {
+            $fileName = $this->disk_name;
+        }
+
+        return $this->storageCmd('lastModified', $this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName);
+    }
+
+    /**
      * Returns the file content type.
      */
     public function getContentType()
@@ -251,14 +266,15 @@ class File extends Model
             return $this->getLocalRootPath() . '/' . $this->getDiskPath();
         }
         else {
-            //
-            // @todo The CDN portion of this method is not complete.
-            // Things to consider:
-            // - Generating the temp [cache] file only once
-            // - Cleaning up the temporary file somehow
-            // - See media manager process as a reference
-            //
-            return -1;
+            $itemSignature = md5($this->getPath()) . $this->getLastModified();
+
+            $cachePath = $this->getLocalTempPath($itemSignature . '.' . $this->getExtension());
+
+            if (!FileHelper::exists($cachePath)) {
+                $this->copyStorageToLocal($this->getDiskPath(), $cachePath);
+            }
+
+            return $cachePath;
         }
     }
 
@@ -276,11 +292,13 @@ class File extends Model
      */
     public function isPublic()
     {
-        if (array_key_exists('is_public', $this->attributes))
+        if (array_key_exists('is_public', $this->attributes)) {
             return $this->attributes['is_public'];
+        }
 
-        if (isset($this->is_public))
+        if (isset($this->is_public)) {
             return $this->is_public;
+        }
 
         return true;
     }
@@ -593,8 +611,9 @@ class File extends Model
      */
     protected function deleteFile($fileName = null)
     {
-        if (!$fileName)
+        if (!$fileName) {
             $fileName = $this->disk_name;
+        }
 
         $directory = $this->getStorageDirectory() . $this->getPartitionDirectory();
         $filePath = $directory . $fileName;
