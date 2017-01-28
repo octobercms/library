@@ -6,7 +6,6 @@ use Illuminate\Console\Command;
 use October\Rain\Filesystem\Filesystem;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
-use Exception;
 
 abstract class GeneratorCommand extends Command
 {
@@ -114,7 +113,7 @@ abstract class GeneratorCommand extends Command
          * Make sure this file does not already exist
          */
         if ($this->files->exists($destinationFile) && !$this->option('force')) {
-            throw new Exception('Stop everything!!! This file already exists: ' . $destinationFile);
+            return;
         }
 
         $this->files->put($destinationFile, $destinationContent);
