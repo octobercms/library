@@ -45,13 +45,27 @@ trait Nullable
     }
 
     /**
+     * Checks if the supplied value is empty, excluding zero.
+     * @param  string $value Value to check
+     * @return bool
+     */
+    public function checkNullableValue($value)
+    {
+        if ($value === 0 || $value === '0' || $value === false) {
+            return false;
+        }
+
+        return empty($value);
+    }
+
+    /**
      * Nullify empty fields
      * @return void
      */
     public function nullableBeforeSave()
     {
         foreach ($this->nullable as $field) {
-            if (empty($this->{$field})) {
+            if ($this->checkNullableValue($this->{$field})) {
                 if ($this->exists) {
                     $this->attributes[$field] = null;
                 }
