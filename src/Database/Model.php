@@ -1283,6 +1283,19 @@ class Model extends EloquentModel
         $this->fillable = array_merge($this->fillable, $attributes);
     }
 
+    /**
+     * Add jsonable attributes for the model.
+     *
+     * @param  array|string|null  $attributes
+     * @return void
+     */
+    public function addJsonable($attributes = null)
+    {
+        $attributes = is_array($attributes) ? $attributes : func_get_args();
+
+        $this->jsonable = array_merge($this->jsonable, $attributes);
+    }
+
     //
     // Getters
     //
