@@ -852,7 +852,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
             return count($dirty) > 0;
         }
 
-        if (! is_array($attributes)) {
+        if (!is_array($attributes)) {
             $attributes = func_get_args();
         }
 

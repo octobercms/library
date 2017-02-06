@@ -4,7 +4,6 @@ use October\Rain\Halcyon\Builder;
 
 class Processor
 {
-
     /**
      * Process the results of a singular "select" query.
      *
@@ -107,5 +106,4 @@ class Processor
 
         return SectionParser::render($data + $existingData, $options);
     }
-
 }
