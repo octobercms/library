@@ -134,7 +134,7 @@ class Resizer
             'mode'    => 'auto',
             'offset'  => [0, 0],
             'sharpen' => 0,
-            'quality' => 95
+            'quality' => 90
         ], $options);
 
         return $this;
