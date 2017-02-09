@@ -65,15 +65,42 @@ class QueryBuilder extends QueryBuilderBase
     }
 
     /**
-      * {@inheritDoc}
-      */
-     public function get($columns = ['*'])
-     {
+     * {@inheritDoc}
+     */
+    public function get($columns = ['*'])
+    {
+        if (MemoryCache::instance()->enabled()) {
+            return $this->getMemoryCached($columns);
+        }
+
         if (!is_null($this->cacheMinutes)) {
             return $this->getCached($columns);
         }
 
         return parent::get($columns);
+    }
+
+    /**
+     * Check the memory cache before executing the query
+     *
+     * @param  array  $columns
+     * @return array
+     */
+    protected function getMemoryCached($columns = ['*'])
+    {
+        if (is_null($this->columns)) {
+            $this->columns = $columns;
+        }
+
+        $cache = MemoryCache::instance();
+
+        if ($cache->has($this)) {
+            return $cache->get($this);
+        }
+
+        return $cache->put(
+            $this, !is_null($this->cacheMinutes) ? $this->getCached($columns) : parent::get($columns)
+        );
     }
 
     /**
@@ -180,5 +207,73 @@ class QueryBuilder extends QueryBuilderBase
         $this->orders = $previousOrders;
 
         return $result;
+    }
+
+    /**
+     * Update a record in the database.
+     *
+     * @param  array $values
+     * @return int
+     */
+    public function update(array $values)
+    {
+        $this->clearMemoryCache($this->from);
+
+        return parent::update($values);
+    }
+
+    /**
+     * Delete a record from the database.
+     *
+     * @param  mixed $id
+     * @return int
+     */
+    public function delete($id = null)
+    {
+        $this->clearMemoryCache($this->from);
+
+        return parent::delete($id);
+    }
+
+    /**
+     * Insert a new record into the database.
+     *
+     * @param  array  $values
+     * @return bool
+     */
+    public function insert(array $values)
+    {
+        $this->clearMemoryCache($this->from);
+
+        return parent::insert($values);
+    }
+
+    /**
+     * Run a truncate statement on the table.
+     *
+     * @return void
+     */
+    public function truncate()
+    {
+        $this->clearMemoryCache($this->from);
+
+        parent::truncate();
+    }
+
+    /**
+     * Clear the memory cache.
+     *
+     * @param  string|null  $table
+     * @return \Illuminate\Database\Query\Builder|static
+     */
+    public function clearMemoryCache($table = null)
+    {
+        $cache = MemoryCache::instance();
+
+        if ($cache->enabled()) {
+            $table ? $cache->forget($table) : $cache->flush();
+        }
+
+        return $this;
     }
 }
