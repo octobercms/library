@@ -1,7 +1,5 @@
 <?php namespace October\Rain\Database;
 
-use October\Rain\Support\Traits\Singleton;
-
 /**
  * Query memory cache class.
  *
@@ -12,7 +10,7 @@ use October\Rain\Support\Traits\Singleton;
  */
 class MemoryCache
 {
-    use Singleton;
+    use \October\Rain\Support\Traits\Singleton;
 
     /**
      * Cached results.
@@ -29,13 +27,22 @@ class MemoryCache
     protected $tableMap = [];
 
     /**
+     * @var bool Store enabled state.
+     */
+    protected $enabled = true;
+
+    /**
      * Check if the memory cache is enabled.
      *
      * @return bool
      */
-    public function enabled()
+    public function enabled($switch = null)
     {
-        return true; // TODO: Add a config option
+        if ($switch !== null && is_bool($switch)) {
+            $this->enabled = $switch;
+        }
+
+        return $this->enabled;
     }
 
     /**

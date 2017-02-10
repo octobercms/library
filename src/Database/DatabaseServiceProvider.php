@@ -5,6 +5,7 @@ use October\Rain\Database\Schema\Blueprint;
 use October\Rain\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\DatabaseServiceProvider as DatabaseServiceProviderBase;
 use Illuminate\Database\DatabaseManager;
+use October\Rain\Database\MemoryCache;
 
 class DatabaseServiceProvider extends DatabaseServiceProviderBase
 {
@@ -58,6 +59,10 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
         $this->app->singleton('db.dongle', function($app) {
             return new Dongle($this->getDefaultDatabaseDriver(), $app['db']);
         });
+
+        if (!$this->app['config']->get('cms.enableDuplicateQueryCache', true)) {
+            MemoryCache::instance()->enabled(false);
+        }
     }
 
     /**

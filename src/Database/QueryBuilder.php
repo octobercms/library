@@ -27,6 +27,13 @@ class QueryBuilder extends QueryBuilderBase
     protected $cacheTags;
 
     /**
+     * Indicates whether duplicate queries are being cached in memory.
+     *
+     * @var bool
+     */
+    protected $cachingDuplicateQueries;
+
+    /**
      * Indicate that the query results should be cached.
      *
      * @param  \DateTime|int  $minutes
@@ -69,7 +76,7 @@ class QueryBuilder extends QueryBuilderBase
      */
     public function get($columns = ['*'])
     {
-        if (MemoryCache::instance()->enabled()) {
+        if ($this->cachingDuplicates()) {
             return $this->getMemoryCached($columns);
         }
 
@@ -268,10 +275,8 @@ class QueryBuilder extends QueryBuilderBase
      */
     public function clearMemoryCache($table = null)
     {
-        $cache = MemoryCache::instance();
-
-        if ($cache->enabled()) {
-            $cache->forget($table ?: $this->from);
+        if ($this->cachingDuplicates()) {
+            MemoryCache::instance()->forget($table ?: $this->from);
         }
 
         return $this;
@@ -284,12 +289,48 @@ class QueryBuilder extends QueryBuilderBase
      */
     public function flushMemoryCache()
     {
-        $cache = MemoryCache::instance();
-
-        if ($cache->enabled()) {
-            $cache->flush();
+        if ($this->cachingDuplicates()) {
+            MemoryCache::instance()->flush();
         }
 
         return $this;
+    }
+
+    /**
+     * Enable the memory cache on the query.
+     *
+     * @return \Illuminate\Database\Query\Builder|static
+     */
+    public function enableMemoryCache()
+    {
+        $this->cachingDuplicateQueries = true;
+
+        return $this;
+    }
+
+    /**
+     * Disable the memory cache on the query.
+     *
+     * @return \Illuminate\Database\Query\Builder|static
+     */
+    public function disableMemoryCache()
+    {
+        $this->cachingDuplicateQueries = false;
+
+        return $this;
+    }
+
+    /**
+     * Determine whether we're caching duplicate queries.
+     *
+     * @return bool
+     */
+    public function cachingDuplicates()
+    {
+        if ($this->cachingDuplicateQueries === null) {
+            $this->cachingDuplicateQueries = MemoryCache::instance()->enabled();
+        }
+
+        return $this->cachingDuplicateQueries;
     }
 }
