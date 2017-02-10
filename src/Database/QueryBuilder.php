@@ -217,7 +217,7 @@ class QueryBuilder extends QueryBuilderBase
      */
     public function update(array $values)
     {
-        $this->clearMemoryCache($this->from);
+        $this->clearMemoryCache();
 
         return parent::update($values);
     }
@@ -230,7 +230,7 @@ class QueryBuilder extends QueryBuilderBase
      */
     public function delete($id = null)
     {
-        $this->clearMemoryCache($this->from);
+        $this->clearMemoryCache();
 
         return parent::delete($id);
     }
@@ -243,7 +243,7 @@ class QueryBuilder extends QueryBuilderBase
      */
     public function insert(array $values)
     {
-        $this->clearMemoryCache($this->from);
+        $this->clearMemoryCache();
 
         return parent::insert($values);
     }
@@ -255,13 +255,13 @@ class QueryBuilder extends QueryBuilderBase
      */
     public function truncate()
     {
-        $this->clearMemoryCache($this->from);
+        $this->clearMemoryCache();
 
         parent::truncate();
     }
 
     /**
-     * Clear the memory cache.
+     * Clear memory cache for the given table.
      *
      * @param  string|null  $table
      * @return \Illuminate\Database\Query\Builder|static
@@ -271,7 +271,23 @@ class QueryBuilder extends QueryBuilderBase
         $cache = MemoryCache::instance();
 
         if ($cache->enabled()) {
-            $table ? $cache->forget($table) : $cache->flush();
+            $cache->forget($table ?: $this->from);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Flush the memory cache.
+     *
+     * @return \Illuminate\Database\Query\Builder|static
+     */
+    public function flushMemoryCache()
+    {
+        $cache = MemoryCache::instance();
+
+        if ($cache->enabled()) {
+            $cache->flush();
         }
 
         return $this;
