@@ -11,6 +11,7 @@ if (!function_exists('input'))
      * $name = input('contact[location][city]');
      * </pre>
      * Booleans are converted from strings
+     *
      * @param string $name
      * @param string $default
      * @return string
@@ -35,6 +36,10 @@ if (!function_exists('post'))
 {
     /**
      * Identical function to input(), however restricted to $_POST values.
+     *
+     * @param string $name
+     * @param string $default
+     * @return string
      */
     function post($name = null, $default = null)
     {
@@ -57,6 +62,10 @@ if (!function_exists('get'))
 {
     /**
      * Identical function to input(), however restricted to $_GET values.
+     *
+     * @param string $name
+     * @param string $default
+     * @return string
      */
     function get($name = null, $default = null)
     {
@@ -74,10 +83,30 @@ if (!function_exists('get'))
     }
 }
 
+if (!function_exists('flash'))
+{
+    /**
+     * Arrange for a flash message.
+     *
+     * @param  string|null $message
+     */
+    function flash($message = null)
+    {
+        $flash = app('flash');
+
+        if (is_null($flash)) {
+            return $flash;
+        }
+
+        return $flash->success($message);
+    }
+}
+
 if (!function_exists('trace_log'))
 {
     /**
      * Writes a trace message to a log file.
+     *
      * @param mixed $message Specifies a message to log. The message can be an object, array or string.
      * @param string $level Specifies a level to use. If this parameter is omitted, the default listener will be used (info).
      * @return void
@@ -104,7 +133,8 @@ if (!function_exists('trace_log'))
 if (!function_exists('traceLog'))
 {
     /**
-     * Alias for trace_log()
+     * Alias for trace_log().
+     *
      * @return void
      */
     function traceLog()
@@ -117,6 +147,7 @@ if (!function_exists('trace_sql'))
 {
     /**
      * Begins to monitor all SQL output.
+     *
      * @return void
      */
     function trace_sql()
@@ -137,11 +168,12 @@ if (!function_exists('trace_sql'))
 
             foreach ($bindings as $i => $binding){
 
-                if ($binding instanceof \DateTime)
+                if ($binding instanceof \DateTime) {
                     $bindings[$i] = $binding->format('\'Y-m-d H:i:s\'');
-
-                else if (is_string($binding))
+                }
+                else if (is_string($binding)) {
                     $bindings[$i] = "'$binding'";
+                }
             }
 
             $query = str_replace(['%', '?'], ['%%', '%s'], $query);
@@ -155,7 +187,8 @@ if (!function_exists('trace_sql'))
 if (!function_exists('traceSql'))
 {
     /**
-     * Alias for trace_sql()
+     * Alias for trace_sql().
+     *
      * @return void
      */
     function traceSql()
