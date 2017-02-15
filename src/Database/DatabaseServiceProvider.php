@@ -34,6 +34,8 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
 
         Model::clearExtendedClasses();
 
+        Model::flushDuplicateCache();
+
         $this->registerEloquentFactory();
 
         $this->registerQueueableEntityResolver();

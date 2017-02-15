@@ -208,14 +208,14 @@ class Model extends EloquentModel
      */
     public function reload()
     {
+        static::flushDuplicateCache();
+
         if (!$this->exists) {
             $this->syncOriginal();
         }
         elseif ($fresh = static::find($this->getKey())) {
             $this->setRawAttributes($fresh->getAttributes(), true);
         }
-
-        static::flushDuplicateCache();
 
         return $this;
     }
@@ -227,14 +227,14 @@ class Model extends EloquentModel
      */
     public function reloadRelations($relationName = null)
     {
+        static::flushDuplicateCache();
+
         if (!$relationName) {
             $this->setRelations([]);
         }
         else {
             unset($this->relations[$relationName]);
         }
-
-        static::flushDuplicateCache();
     }
 
     /**
