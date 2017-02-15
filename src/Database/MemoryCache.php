@@ -27,25 +27,6 @@ class MemoryCache
     protected $tableMap = [];
 
     /**
-     * @var bool Store enabled state.
-     */
-    protected $enabled = true;
-
-    /**
-     * Check if the memory cache is enabled.
-     *
-     * @return bool
-     */
-    public function enabled($switch = null)
-    {
-        if ($switch !== null && is_bool($switch)) {
-            $this->enabled = $switch;
-        }
-
-        return $this->enabled;
-    }
-
-    /**
      * Check if the given query is cached.
      *
      * @param  QueryBuilder  $query
@@ -64,7 +45,7 @@ class MemoryCache
      */
     public function get(QueryBuilder $query)
     {
-        if($this->has($query)) {
+        if ($this->has($query)) {
             return $this->cache[$this->hash($query)];
         }
 
@@ -95,7 +76,7 @@ class MemoryCache
      */
     public function forget($table)
     {
-        if(!isset($this->tableMap[$table])) {
+        if (!isset($this->tableMap[$table])) {
             return;
         }
 

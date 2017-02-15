@@ -18,6 +18,11 @@ class DeferredBinding extends Model
     public $table = 'deferred_bindings';
 
     /**
+     * @var bool Indicates if duplicate queries from this model should be cached in memory.
+     */
+    public $duplicateCache = false;
+
+    /**
      * Prevents duplicates and conflicting binds.
      */
     public function beforeCreate()

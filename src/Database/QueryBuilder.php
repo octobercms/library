@@ -31,7 +31,7 @@ class QueryBuilder extends QueryBuilderBase
      *
      * @var bool
      */
-    protected $cachingDuplicateQueries;
+    protected $cachingDuplicateQueries = false;
 
     /**
      * Indicate that the query results should be cached.
@@ -77,7 +77,7 @@ class QueryBuilder extends QueryBuilderBase
     public function get($columns = ['*'])
     {
         if ($this->cachingDuplicates()) {
-            return $this->getMemoryCached($columns);
+            return $this->getDuplicateCached($columns);
         }
 
         if (!is_null($this->cacheMinutes)) {
@@ -93,7 +93,7 @@ class QueryBuilder extends QueryBuilderBase
      * @param  array  $columns
      * @return array
      */
-    protected function getMemoryCached($columns = ['*'])
+    protected function getDuplicateCached($columns = ['*'])
     {
         if (is_null($this->columns)) {
             $this->columns = $columns;
@@ -224,7 +224,7 @@ class QueryBuilder extends QueryBuilderBase
      */
     public function update(array $values)
     {
-        $this->clearMemoryCache();
+        $this->clearDuplicateCache();
 
         return parent::update($values);
     }
@@ -237,9 +237,23 @@ class QueryBuilder extends QueryBuilderBase
      */
     public function delete($id = null)
     {
-        $this->clearMemoryCache();
+        $this->clearDuplicateCache();
 
         return parent::delete($id);
+    }
+
+    /**
+     * Insert a new record and get the value of the primary key.
+     *
+     * @param  array   $values
+     * @param  string  $sequence
+     * @return int
+     */
+    public function insertGetId(array $values, $sequence = null)
+    {
+        $this->clearDuplicateCache();
+
+        return parent::insertGetId($values, $sequence);
     }
 
     /**
@@ -250,7 +264,7 @@ class QueryBuilder extends QueryBuilderBase
      */
     public function insert(array $values)
     {
-        $this->clearMemoryCache();
+        $this->clearDuplicateCache();
 
         return parent::insert($values);
     }
@@ -262,7 +276,7 @@ class QueryBuilder extends QueryBuilderBase
      */
     public function truncate()
     {
-        $this->clearMemoryCache();
+        $this->clearDuplicateCache();
 
         parent::truncate();
     }
@@ -273,11 +287,9 @@ class QueryBuilder extends QueryBuilderBase
      * @param  string|null  $table
      * @return \Illuminate\Database\Query\Builder|static
      */
-    public function clearMemoryCache($table = null)
+    public function clearDuplicateCache($table = null)
     {
-        if ($this->cachingDuplicates()) {
-            MemoryCache::instance()->forget($table ?: $this->from);
-        }
+        MemoryCache::instance()->forget($table ?: $this->from);
 
         return $this;
     }
@@ -287,11 +299,9 @@ class QueryBuilder extends QueryBuilderBase
      *
      * @return \Illuminate\Database\Query\Builder|static
      */
-    public function flushMemoryCache()
+    public function flushDuplicateCache()
     {
-        if ($this->cachingDuplicates()) {
-            MemoryCache::instance()->flush();
-        }
+        MemoryCache::instance()->flush();
 
         return $this;
     }
@@ -301,7 +311,7 @@ class QueryBuilder extends QueryBuilderBase
      *
      * @return \Illuminate\Database\Query\Builder|static
      */
-    public function enableMemoryCache()
+    public function enableDuplicateCache()
     {
         $this->cachingDuplicateQueries = true;
 
@@ -313,7 +323,7 @@ class QueryBuilder extends QueryBuilderBase
      *
      * @return \Illuminate\Database\Query\Builder|static
      */
-    public function disableMemoryCache()
+    public function disableDuplicateCache()
     {
         $this->cachingDuplicateQueries = false;
 
@@ -327,10 +337,6 @@ class QueryBuilder extends QueryBuilderBase
      */
     public function cachingDuplicates()
     {
-        if ($this->cachingDuplicateQueries === null) {
-            $this->cachingDuplicateQueries = MemoryCache::instance()->enabled();
-        }
-
         return $this->cachingDuplicateQueries;
     }
 }

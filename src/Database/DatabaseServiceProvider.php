@@ -59,10 +59,6 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
         $this->app->singleton('db.dongle', function($app) {
             return new Dongle($this->getDefaultDatabaseDriver(), $app['db']);
         });
-
-        if (!$this->app['config']->get('cms.enableDuplicateQueryCache', true)) {
-            MemoryCache::instance()->enabled(false);
-        }
     }
 
     /**

@@ -58,6 +58,11 @@ class Model extends EloquentModel
     protected $dates = [];
 
     /**
+     * @var bool Indicates if duplicate queries from this model should be cached in memory.
+     */
+    public $duplicateCache = true;
+
+    /**
      * Cleaner declaration of relationships.
      * Uses a similar approach to the relation methods used by Eloquent, but as separate properties
      * that make the class file less cluttered.
@@ -210,6 +215,8 @@ class Model extends EloquentModel
             $this->setRawAttributes($fresh->getAttributes(), true);
         }
 
+        static::flushDuplicateCache();
+
         return $this;
     }
 
@@ -226,6 +233,8 @@ class Model extends EloquentModel
         else {
             unset($this->relations[$relationName]);
         }
+
+        static::flushDuplicateCache();
     }
 
     /**
@@ -295,6 +304,15 @@ class Model extends EloquentModel
     {
         parent::flushEventListeners();
         static::$eventsBooted = [];
+    }
+
+    /**
+     * Flush the memory cache.
+     * @return void
+     */
+    public static function flushDuplicateCache()
+    {
+        MemoryCache::instance()->flush();
     }
 
     /**
@@ -432,7 +450,7 @@ class Model extends EloquentModel
     /**
      * Create a new Eloquent query builder for the model.
      *
-     * @param  \Illuminate\Database\Query\Builder $query
+     * @param  \October\Rain\Database\QueryBuilder $query
      * @return \October\Rain\Database\Builder|static
      */
     public function newEloquentBuilder($query)
@@ -443,7 +461,7 @@ class Model extends EloquentModel
     /**
      * Get a new query builder instance for the connection.
      *
-     * @return \Illuminate\Database\Query\Builder
+     * @return \October\Rain\Database\QueryBuilder
      */
     protected function newBaseQueryBuilder()
     {
@@ -451,7 +469,13 @@ class Model extends EloquentModel
 
         $grammar = $conn->getQueryGrammar();
 
-        return new QueryBuilder($conn, $grammar, $conn->getPostProcessor());
+        $builder = new QueryBuilder($conn, $grammar, $conn->getPostProcessor());
+
+        if ($this->duplicateCache) {
+            $builder->enableDuplicateCache();
+        }
+
+        return $builder;
     }
 
     /**
@@ -1208,6 +1232,7 @@ class Model extends EloquentModel
     protected function performDeleteOnModel()
     {
         $this->performDeleteOnRelations();
+
         $this->setKeysForSaveQuery($this->newQueryWithoutScopes())->delete();
     }
 
