@@ -8,7 +8,7 @@ class Connection extends ConnectionBase
     /**
      * Get a new query builder instance.
      *
-     * @return \Illuminate\Database\Query\Builder
+     * @return \October\Rain\Database\QueryBuilder
      */
     public function query()
     {
