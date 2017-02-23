@@ -335,6 +335,16 @@ class Builder
     }
 
     /**
+     * Get the compiled file content representation of the query.
+     *
+     * @return string
+     */
+    public function toCompiled()
+    {
+        return $this->processor->processUpdate($this, []);
+    }
+
+    /**
      * Insert a new record into the datasource.
      *
      * @param  array  $values
