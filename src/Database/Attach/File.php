@@ -400,7 +400,7 @@ class File extends Model
      */
     protected function getThumbFilename($width, $height, $options)
     {
-        return 'thumb_' . $this->id . '_' . $width . 'x' . $height . '_' . $options['offset'][0] . '_' . $options['offset'][1] . '_' . $options['mode'] . '.' . $options['extension'];
+        return 'thumb_' . $this->id . '_' . $width . $height . '_' . $options['offset'][0] . '_' . $options['offset'][1] . '_' . $options['mode'] . '.' . $options['extension'];
     }
 
     /**
