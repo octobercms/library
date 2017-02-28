@@ -3,7 +3,6 @@
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphMany as MorphManyBase;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use October\Rain\Database\Attach\File as FileModel;
 
 class AttachMany extends MorphManyBase
@@ -35,7 +34,7 @@ class AttachMany extends MorphManyBase
         /*
          * Newly uploaded file(s)
          */
-        if ($value instanceof UploadedFile) {
+        if ($this->isValidFileData($value)) {
             $this->parent->bindEventOnce('model.afterSave', function() use ($value) {
                 $this->create(['data' => $value]);
             });
@@ -43,7 +42,7 @@ class AttachMany extends MorphManyBase
         elseif (is_array($value)) {
             $files = [];
             foreach ($value as $_value) {
-                if ($_value instanceof UploadedFile) {
+                if ($this->isValidFileData($_value)) {
                     $files[] = $_value;
                 }
             }

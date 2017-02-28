@@ -4,6 +4,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Expression;
 use October\Rain\Support\Facades\DbDongle;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 trait AttachOneOrMany
 {
@@ -229,4 +230,19 @@ trait AttachOneOrMany
         }
     }
 
+    /**
+     * Returns true if the specified value can be used as the data attribute.
+     */
+    protected function isValidFileData($value)
+    {
+        if ($value instanceof UploadedFile) {
+            return true;
+        }
+
+        if (is_string($value) && file_exists($value)) {
+            return true;
+        }
+
+        return false;
+    }
 }

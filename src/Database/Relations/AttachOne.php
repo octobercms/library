@@ -3,7 +3,6 @@
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphOne as MorphOneBase;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use October\Rain\Database\Attach\File as FileModel;
 
 class AttachOne extends MorphOneBase
@@ -32,13 +31,14 @@ class AttachOne extends MorphOneBase
      */
     public function setSimpleValue($value)
     {
-        if (is_array($value))
+        if (is_array($value)) {
             $value = reset($value);
+        }
 
         /*
          * Newly uploaded file
          */
-        if ($value instanceof UploadedFile) {
+        if ($this->isValidFileData($value)) {
             $this->parent->bindEventOnce('model.afterSave', function() use ($value) {
                 $this->create(['data' => $value]);
             });
