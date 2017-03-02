@@ -394,13 +394,27 @@ class File extends Model
         return $thumbPublic;
     }
 
+    /*
+     * Generates a slug based upon the uploaded filename
+     * @return string
+     */
+    protected function getFilenameSlug() 
+    {
+        $extension = '.' . $this->getExtension();
+        $baseName = basename($this->file_name, $extension);
+        
+        return str_slug($baseName) . '-';    
+    }
+    
     /**
      * Generates a thumbnail filename.
      * @return string
      */
     protected function getThumbFilename($width, $height, $options)
     {
-        return 'thumb_' . $this->id . '_' . $width . 'x' . $height . '_' . $options['offset'][0] . '_' . $options['offset'][1] . '_' . $options['mode'] . '.' . $options['extension'];
+        $name = $this->getFilenameSlug();
+        
+        return 'thumb_' . $name . $this->id . '_' . $width . 'x' . $height . '_' . $options['offset'][0] . '_' . $options['offset'][1] . '_' . $options['mode'] . '.' . $options['extension'];
     }
 
     /**
@@ -512,7 +526,8 @@ class File extends Model
      */
     public function deleteThumbs()
     {
-        $pattern = 'thumb_'.$this->id.'_';
+        $name = $this->getFilenameSlug();
+        $pattern = 'thumb_' . $name . $this->id . '_';
 
         $directory = $this->getStorageDirectory() . $this->getPartitionDirectory();
         $allFiles = $this->storageCmd('files', $directory);
