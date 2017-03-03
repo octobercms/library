@@ -64,7 +64,7 @@ class MemoryCache
         $hash = $this->hash($query);
 
         $this->cache[$hash] = $results;
-        $this->tableMap[$query->from][] = $hash;
+        $this->tableMap[(string) $query->from][] = $hash;
 
         return $results;
     }
