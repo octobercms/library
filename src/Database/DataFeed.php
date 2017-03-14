@@ -4,7 +4,6 @@ use Db;
 use Str;
 use Closure;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
-use Illuminate\Database\Eloquent\Collection;
 use Exception;
 
 /**
