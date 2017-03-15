@@ -72,7 +72,7 @@ class QueryBuilder extends QueryBuilderBase
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function get($columns = ['*'])
     {

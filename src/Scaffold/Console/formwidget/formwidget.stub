@@ -8,19 +8,19 @@ use Backend\Classes\FormWidgetBase;
 class {{studly_name}} extends FormWidgetBase
 {
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     protected $defaultAlias = '{{lower_author}}_{{lower_plugin}}_{{snake_name}}';
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function init()
     {
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function render()
     {
@@ -39,7 +39,7 @@ class {{studly_name}} extends FormWidgetBase
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function loadAssets()
     {
@@ -48,7 +48,7 @@ class {{studly_name}} extends FormWidgetBase
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getSaveValue($value)
     {
