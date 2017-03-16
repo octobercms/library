@@ -80,10 +80,11 @@ class Manager
     {
         $user = $this->createUserModel();
         $user->fill($credentials);
+        $user->getActivationCode();
         $user->save();
 
         if ($activate) {
-            $user->attemptActivation($user->getActivationCode());
+            $user->attemptActivation($user->activation_code);
         }
 
         // Prevents revalidation of the password field
