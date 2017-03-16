@@ -6,8 +6,10 @@ use BadMethodCallException;
 use Exception;
 
 /**
- * Extension trait
- * Allows for "Private traits"
+ * This extension trait is used when access to the underlying base class
+ * is not available, such as classes that belong to the foundation
+ * framework (Laravel). It is currently used by the Controller and
+ * Model classes.
  *
  * @package october\extension
  * @author Alexey Bobkov, Samuel Georges
@@ -15,7 +17,6 @@ use Exception;
 
 trait ExtendableTrait
 {
-
     /**
      * @var array Class reflection information, including behaviors.
      */
@@ -26,8 +27,10 @@ trait ExtendableTrait
     ];
 
     /**
-     * @var array Used to extend the constructor of an extendable class.
-     * Eg: Class::extend(function($obj) { })
+     * @var array Used to extend the constructor of an extendable class. Eg:
+     *
+     *     Class::extend(function($obj) { })
+     *
      */
     protected static $extendableCallbacks = [];
 
@@ -42,7 +45,7 @@ trait ExtendableTrait
     protected static $extendableGuardProperties = true;
 
     /**
-     * Constructor.
+     * This method should be called as part of the constructor.
      */
     public function extendableConstruct()
     {
@@ -91,7 +94,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Helper method for ::extend() static method
+     * Helper method for `::extend()` static method
      * @param  callable $callback
      * @return void
      */
@@ -211,7 +214,7 @@ trait ExtendableTrait
     /**
      * Returns a behavior object from an extendable class, example:
      *
-     *   $this->getClassExtension('Backend.Behaviors.FormController')
+     *     $this->getClassExtension('Backend.Behaviors.FormController')
      *
      * @param  string $name Fully qualified behavior name
      * @return mixed
@@ -225,10 +228,10 @@ trait ExtendableTrait
     }
 
     /**
-     * Short hand for getClassExtension() method, except takes the short
+     * Short hand for `getClassExtension()` method, except takes the short
      * extension name, example:
      *
-     *   $this->asExtension('FormController')
+     *     $this->asExtension('FormController')
      *
      * @param  string $shortName
      * @return mixed
@@ -261,7 +264,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Checks if a property exists, extension equivalent of property_exists()
+     * Checks if a property exists, extension equivalent of `property_exists()`
      * @param  string $name
      * @return boolean
      */
@@ -284,7 +287,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Checks if a property is accessible, property equivalent of is_callabe()
+     * Checks if a property is accessible, property equivalent of `is_callabe()`
      * @param  mixed  $class
      * @param  string $propertyName
      * @return boolean
@@ -297,7 +300,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Magic method for __get()
+     * Magic method for `__get()`
      * @param  string $name
      * @return string
      */
@@ -319,7 +322,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Magic method for __set()
+     * Magic method for `__set()`
      * @param  string $name
      * @param  string $value
      * @return string
@@ -351,7 +354,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Magic method for __call()
+     * Magic method for `__call()`
      * @param  string $name
      * @param  array  $params
      * @return mixed
@@ -388,7 +391,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Magic method for __callStatic()
+     * Magic method for `__callStatic()`
      * @param  string $name
      * @param  array  $params
      * @return mixed
@@ -455,5 +458,4 @@ trait ExtendableTrait
             $name
         ));
     }
-
 }
