@@ -61,6 +61,13 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
         $this->app->singleton('db.dongle', function($app) {
             return new Dongle($this->getDefaultDatabaseDriver(), $app['db']);
         });
+
+        // Disable memory cache when running in console environment. This should
+        // prevent daemon processes from handling stale data in memory, however
+        // it should be kept active for the purpose of accurate unit testing.
+        if ($this->app->runningInConsole() && !$this->app->runningUnitTests()) {
+            MemoryCache::instance()->enabled(false);
+        }
     }
 
     /**

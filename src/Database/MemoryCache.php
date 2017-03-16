@@ -27,6 +27,25 @@ class MemoryCache
     protected $tableMap = [];
 
     /**
+     * @var bool Store enabled state.
+     */
+    protected $enabled = true;
+
+    /**
+     * Check if the memory cache is enabled.
+     *
+     * @return bool
+     */
+    public function enabled($switch = null)
+    {
+        if ($switch !== null) {
+            $this->enabled = $switch;
+        }
+
+        return $this->enabled;
+    }
+
+    /**
      * Check if the given query is cached.
      *
      * @param  QueryBuilder  $query
@@ -34,7 +53,7 @@ class MemoryCache
      */
     public function has(QueryBuilder $query)
     {
-        return isset($this->cache[$this->hash($query)]);
+        return $this->enabled && isset($this->cache[$this->hash($query)]);
     }
 
     /**
@@ -57,16 +76,19 @@ class MemoryCache
      *
      * @param  QueryBuilder  $query
      * @param  array  $results
-     * @return array
+     * @return void
      */
     public function put(QueryBuilder $query, array $results)
     {
+        if (!$this->enabled) {
+            return;
+        }
+
         $hash = $this->hash($query);
 
         $this->cache[$hash] = $results;
-        $this->tableMap[(string) $query->from][] = $hash;
 
-        return $results;
+        $this->tableMap[(string) $query->from][] = $hash;
     }
 
     /**

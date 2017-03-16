@@ -105,9 +105,13 @@ class QueryBuilder extends QueryBuilderBase
             return $cache->get($this);
         }
 
-        return $cache->put(
-            $this, !is_null($this->cacheMinutes) ? $this->getCached($columns) : parent::get($columns)
-        );
+        $results = !is_null($this->cacheMinutes)
+            ? $this->getCached($columns)
+            : parent::get($columns);
+
+        $cache->put($this, $results);
+
+        return $results;
     }
 
     /**
