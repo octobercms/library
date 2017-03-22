@@ -414,26 +414,29 @@ class HtmlBuilder
      */
     public static function limit($html, $maxLength = 100, $end = '...')
     {
+        $isUtf8 = true;
         $printedLength = 0;
         $position = 0;
         $tags = [];
 
-        $re = '{</?([a-z]+)[^>]*>|&#?[a-zA-Z0-9]+;|[\x80-\xFF][\x80-\xBF]*/u}';
+        $regex = $isUtf8
+            ? '{</?([a-z]+)[^>]*>|&#?[a-zA-Z0-9]+;|[\x80-\xFF][\x80-\xBF]*}'
+            : '{</?([a-z]+)[^>]*>|&#?[a-zA-Z0-9]+;}';
 
         $result = '';
 
-        while ($printedLength < $maxLength && preg_match($re, $html, $match, PREG_OFFSET_CAPTURE, $position)) {
+        while ($printedLength < $maxLength && preg_match($regex, $html, $match, PREG_OFFSET_CAPTURE, $position)) {
             list($tag, $tagPosition) = $match[0];
 
-            $str = mb_substr($html, $position, $tagPosition - $position);
-            if ($printedLength + StrHelper::length($str) > $maxLength) {
-                $result .= mb_substr($str, 0, $maxLength - $printedLength) . $end;
+            $str = substr($html, $position, $tagPosition - $position);
+            if ($printedLength + strlen($str) > $maxLength) {
+                $result .= substr($str, 0, $maxLength - $printedLength) . $end;
                 $printedLength = $maxLength;
                 break;
             }
 
             $result .= $str;
-            $printedLength += StrHelper::length($str);
+            $printedLength += strlen($str);
             if ($printedLength >= $maxLength) {
                 $result .= $end;
                 break;
@@ -449,7 +452,7 @@ class HtmlBuilder
                     $openingTag = array_pop($tags);
                     $result .= $tag;
                 }
-                else if ($tag[StrHelper::length($tag) - 2] == '/') {
+                else if ($tag[strlen($tag) - 2] == '/') {
                     $result .= $tag;
                 }
                 else {
@@ -458,10 +461,10 @@ class HtmlBuilder
                 }
             }
 
-            $position = $tagPosition + StrHelper::length($tag);
+            $position = $tagPosition + strlen($tag);
         }
 
-        if ($printedLength < $maxLength && $position < StrHelper::length($html)) {
+        if ($printedLength < $maxLength && $position < strlen($html)) {
             $result .= substr($html, $position, $maxLength - $printedLength);
         }
 
