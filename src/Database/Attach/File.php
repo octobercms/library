@@ -88,7 +88,14 @@ class File extends Model
         $this->content_type = $uploadedFile->getMimeType();
         $this->disk_name = $this->getDiskName();
 
-        $this->putFile($uploadedFile->getRealPath(), $this->disk_name);
+        /*
+         * getRealPath() can be empty for some environments (IIS)
+         */
+        $realPath = empty(trim($uploadedFile->getRealPath()))
+            ? $uploadedFile->getPath() . DIRECTORY_SEPARATOR . $uploadedFile->getFileName()
+            : $uploadedFile->getRealPath();
+
+        $this->putFile($realPath, $this->disk_name);
 
         return $this;
     }
