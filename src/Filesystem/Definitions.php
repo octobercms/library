@@ -98,53 +98,6 @@ class Definitions
     }
 
     /**
-     * Extensions that may execute as scripts. Sourced from:
-     * https://en.wikipedia.org/wiki/Server-side_scripting
-     *
-     * This list can be customized with config:
-     * - cms.fileDefinitions.blockedExtensions
-     */
-    protected function blockedExtensions()
-    {
-        return [
-            'asp',
-            'avfp',
-            'aspx',
-            'cshtml',
-            'cfm',
-            'go',
-            'gsp',
-            'hs',
-            'jsp',
-            'ssjs',
-            'js',
-            'lasso',
-            'lp',
-            'op',
-            'lua',
-            'p',
-            'cgi',
-            'ipl',
-            'pl',
-            'php',
-            'php3',
-            'php4',
-            'phtml',
-            'py',
-            'rhtml',
-            'rb',
-            'rbw',
-            'smx',
-            'tcl',
-            'dna',
-            'tpl',
-            'r',
-            'w',
-            'wig'
-        ];
-    }
-
-    /**
      * Extensions seen as public assets.
      * This list can be customized with config:
      * - cms.fileDefinitions.assetExtensions
