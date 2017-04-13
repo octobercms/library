@@ -35,7 +35,11 @@ trait Sortable
     public static function bootSortable()
     {
         static::created(function($model) {
-            $model->setSortableOrder($model->getKey());
+            $sortOrderColumn = $model->getSortOrderColumn();
+
+            if(is_null($model->$sortOrderColumn)) {
+                $model->setSortableOrder($model->getKey());
+            }
         });
 
         static::addGlobalScope(new SortableScope);
