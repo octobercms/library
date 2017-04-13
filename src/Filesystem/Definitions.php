@@ -110,6 +110,7 @@ class Definitions
             'bmp',
             'png',
             'gif',
+            'ico',
             'css',
             'js',
             'woff',
