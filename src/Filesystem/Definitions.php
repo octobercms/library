@@ -114,6 +114,7 @@ class Definitions
             'css',
             'js',
             'woff',
+            'woff2',
             'svg',
             'ttf',
             'eot',
