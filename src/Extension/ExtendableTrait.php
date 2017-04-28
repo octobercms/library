@@ -247,6 +247,8 @@ trait ExtendableTrait
                 return $obj;
             }
         }
+
+        return $this->getClassExtension($shortName);
     }
 
     /**
