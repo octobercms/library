@@ -3,6 +3,9 @@
 use Closure;
 use Illuminate\Foundation\Application as ApplicationBase;
 use Symfony\Component\Debug\Exception\FatalErrorException;
+use October\Rain\Foundation\Providers\LogServiceProvider;
+use Illuminate\Events\EventServiceProvider;
+use Illuminate\Routing\RoutingServiceProvider;
 use Exception;
 
 class Application extends ApplicationBase
@@ -49,6 +52,20 @@ class Application extends ApplicationBase
     }
 
     /**
+     * Register all of the base service providers.
+     *
+     * @return void
+     */
+    protected function registerBaseServiceProviders()
+    {
+        $this->register(new EventServiceProvider($this));
+
+        $this->register(new LogServiceProvider($this));
+
+        $this->register(new RoutingServiceProvider($this));
+    }
+
+    /**
      * Bind all of the application paths in the container.
      *
      * @return void
@@ -57,9 +74,9 @@ class Application extends ApplicationBase
     {
         parent::bindPathsInContainer();
 
-        foreach (['plugins', 'themes', 'temp'] as $path) {
-            $this->instance('path.'.$path, $this->{$path.'Path'}());
-        }
+        $this->instance('path.plugins', $this->pluginsPath());
+        $this->instance('path.themes', $this->themesPath());
+        $this->instance('path.temp', $this->tempPath());
     }
 
     /**
