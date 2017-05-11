@@ -51,7 +51,7 @@ class MorphToMany extends BelongsToMany
      * @param  bool  $inverse
      * @return void
      */
-    public function __construct(Builder $query, Model $parent, $name, $table, $foreignKey, $otherKey, $relationName = null, $inverse = false)
+    public function __construct(Builder $query, Model $parent, $name, $table, $foreignKey, $otherKey, $parentKey, $relatedKey, $relationName = null, $inverse = false)
     {
         $this->inverse = $inverse;
 
@@ -59,7 +59,7 @@ class MorphToMany extends BelongsToMany
 
         $this->morphClass = $inverse ? $query->getModel()->getMorphClass() : $parent->getMorphClass();
 
-        parent::__construct($query, $parent, $table, $foreignKey, $otherKey, $relationName);
+        parent::__construct($query, $parent, $table, $foreignKey, $otherKey, $parentKey, $relatedKey, $relationName);
 
         $this->addDefinedConstraints();
     }

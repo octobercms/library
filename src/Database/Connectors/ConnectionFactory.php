@@ -5,7 +5,6 @@ use October\Rain\Database\Connections\MySqlConnection;
 use October\Rain\Database\Connections\SQLiteConnection;
 use October\Rain\Database\Connections\PostgresConnection;
 use October\Rain\Database\Connections\SqlServerConnection;
-use PDO;
 
 class ConnectionFactory extends ConnectionFactoryBase
 {
@@ -21,7 +20,7 @@ class ConnectionFactory extends ConnectionFactoryBase
      *
      * @throws \InvalidArgumentException
      */
-    protected function createConnection($driver, PDO $connection, $database, $prefix = '', array $config = [])
+    protected function createConnection($driver, $connection, $database, $prefix = '', array $config = [])
     {
         if ($this->container->bound($key = "db.connection.{$driver}")) {
             return $this->container->make($key, [$connection, $database, $prefix, $config]);

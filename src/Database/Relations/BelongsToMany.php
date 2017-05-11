@@ -21,6 +21,20 @@ class BelongsToMany extends BelongsToManyBase
     public $orphanMode = false;
 
     /**
+     * The foreign key of the parent model.
+     *
+     * @var string
+     */
+    protected $foreignKey;
+
+    /**
+     * The associated key of the relation.
+     *
+     * @var string
+     */
+    protected $otherKey;
+
+    /**
      * Create a new belongs to many relationship instance.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
@@ -31,20 +45,23 @@ class BelongsToMany extends BelongsToManyBase
      * @param  string  $relationName
      * @return void
      */
-    public function __construct(Builder $query, Model $parent, $table, $foreignKey, $otherKey, $relationName = null)
+    public function __construct(Builder $query, Model $parent, $table, $foreignKey, $otherKey, $parentKey, $relatedKey, $relationName = null)
     {
-        parent::__construct($query, $parent, $table, $foreignKey, $otherKey, $relationName);
+        $this->otherKey = $otherKey;
+        $this->foreignKey = $foreignKey;
+
+        parent::__construct($query, $parent, $table, $foreignKey, $otherKey, $parentKey, $relatedKey, $relationName);
 
         $this->addDefinedConstraints();
     }
 
     /**
-     * Set the select clause for the relation query.
+     * Get the select columns for the relation query.
      *
      * @param  array  $columns
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    protected function getSelectColumns(array $columns = ['*'])
+    protected function shouldSelect(array $columns = ['*'])
     {
         if ($this->countMode) {
             return $this->table.'.'.$this->foreignKey.' as pivot_'.$this->foreignKey;
@@ -58,7 +75,7 @@ class BelongsToMany extends BelongsToManyBase
             return $columns;
         }
 
-        return array_merge($columns, $this->getAliasedPivotColumns());
+        return array_merge($columns, $this->aliasedPivotColumns());
     }
 
     /**
@@ -193,7 +210,7 @@ class BelongsToMany extends BelongsToManyBase
             }
         }
 
-        if (is_string($value)) {
+        if (!is_array($value)) {
             $value = [$value];
         }
 
@@ -254,4 +271,23 @@ class BelongsToMany extends BelongsToManyBase
         return $query->getQuery()->select($fullKey)->lists($related->getKeyName());
     }
 
+    /**
+     * Get the fully qualified foreign key for the relation.
+     *
+     * @return string
+     */
+    public function getForeignKey()
+    {
+        return $this->table.'.'.$this->foreignKey;
+    }
+
+    /**
+     * Get the fully qualified "other key" for the relation.
+     *
+     * @return string
+     */
+    public function getOtherKey()
+    {
+        return $this->table.'.'.$this->otherKey;
+    }
 }

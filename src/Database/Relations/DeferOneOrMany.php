@@ -91,7 +91,12 @@ trait DeferOneOrMany
 
         $modelQuery->setQuery($newQuery);
 
-        $modelQuery = $this->related->applyGlobalScopes($modelQuery);
+        /*
+         * Apply global scopes
+         */
+        foreach ($this->related->getGlobalScopes() as $identifier => $scope) {
+            $modelQuery->withGlobalScope($identifier, $scope);
+        }
 
         return $this->query = $modelQuery;
     }

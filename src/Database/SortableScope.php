@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database;
 
-use Illuminate\Database\Eloquent\ScopeInterface;
 use Illuminate\Database\Eloquent\Model as ModelBase;
+use Illuminate\Database\Eloquent\Scope as ScopeInterface;
 use Illuminate\Database\Eloquent\Builder as BuilderBase;
 
 class SortableScope implements ScopeInterface
@@ -20,8 +20,6 @@ class SortableScope implements ScopeInterface
         $this->scopeApplied = true;
 
         $builder->getQuery()->orderBy($model->getSortOrderColumn());
-
-        $this->extend($builder);
     }
 
     /**
@@ -55,11 +53,11 @@ class SortableScope implements ScopeInterface
      * @param  \Illuminate\Database\Eloquent\Builder  $builder
      * @return void
      */
-    protected function extend(BuilderBase $builder)
+    public function extend(BuilderBase $builder)
     {
         $builder->macro('orderBy', function($builder, $column, $direction = 'asc') {
 
-            if($this->scopeApplied) {
+            if ($this->scopeApplied) {
                 $this->remove($builder, $builder->getModel());
             }
 

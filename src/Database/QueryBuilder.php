@@ -34,6 +34,18 @@ class QueryBuilder extends QueryBuilderBase
     protected $cachingDuplicateQueries = false;
 
     /**
+     * Get an array with the values of a given column.
+     *
+     * @param  string  $column
+     * @param  string|null  $key
+     * @return \Illuminate\Support\Collection
+     */
+    public function lists($column, $key = null)
+    {
+        return $this->pluck($column, $key)->all();
+    }
+
+    /**
      * Indicate that the query results should be cached.
      *
      * @param  \DateTime|int  $minutes
@@ -109,7 +121,7 @@ class QueryBuilder extends QueryBuilderBase
             ? $this->getCached($columns)
             : parent::get($columns);
 
-        $cache->put($this, $results);
+        $cache->put($this, (array) $results);
 
         return $results;
     }
