@@ -22,7 +22,7 @@ class Mailer extends MailerBase
      * @param  \Closure|string $callback
      * @return mixed
      */
-    public function send($view, array $data, $callback)
+    public function send($view, array $data = [], $callback = null)
     {
         /*
          * Extensibility

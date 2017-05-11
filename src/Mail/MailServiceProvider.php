@@ -5,48 +5,26 @@ use Illuminate\Mail\MailServiceProvider as MailServiceProviderBase;
 class MailServiceProvider extends MailServiceProviderBase
 {
     /**
-     * @var bool Indicates if loading of the provider is deferred.
-     */
-    protected $defer = true;
-
-    /**
      * Register the service provider.
+     *
      * @return void
      */
     public function register()
     {
+        /*
+         * Extensibility
+         */
+        $this->app['events']->fire('mailer.beforeRegister', [$this]);
 
-        $this->app->singleton('mailer', function($app) {
+        $this->registerSwiftMailer();
 
-            /*
-             * Extensibility
-             */
-            $this->app['events']->fire('mailer.beforeRegister', [$this]);
+        $this->registerIlluminateMailer();
 
-            /*
-             * Inherit logic from Illuminate\Mail\MailServiceProvider
-             */
-            $this->registerSwiftMailer();
+        $this->registerMarkdownRenderer();
 
-            $mailer = new Mailer($app['view'], $app['swift.mailer'], $app['events']);
-
-            $this->setMailerDependencies($mailer, $app);
-
-            $from = $app['config']['mail.from'];
-            if (is_array($from) && isset($from['address'])) {
-                $mailer->alwaysFrom($from['address'], $from['name']);
-            }
-
-            $pretend = $app['config']->get('mail.pretend', false);
-            $mailer->pretend($pretend);
-
-            /*
-             * Extensibility
-             */
-            $this->app['events']->fire('mailer.register', [$this, $mailer]);
-
-            return $mailer;
-        });
-
+        /*
+         * Extensibility
+         */
+        $this->app['events']->fire('mailer.register', [$this, $this->app['mailer']]);
     }
 }
