@@ -4,7 +4,6 @@ use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
 {
-
     /**
      * The bootstrap classes for the application.
      *
@@ -13,7 +12,8 @@ class Kernel extends HttpKernel
     protected $bootstrappers = [
         'October\Rain\Foundation\Bootstrap\RegisterClassLoader',
         \Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables::class,
-        \Illuminate\Foundation\Bootstrap\LoadConfiguration::class,
+        'October\Rain\Foundation\Bootstrap\DetectEnvironment',
+        \October\Rain\Foundation\Bootstrap\LoadConfiguration::class,
         'October\Rain\Foundation\Bootstrap\LoadTranslation',
         \Illuminate\Foundation\Bootstrap\HandleExceptions::class,
         \Illuminate\Foundation\Bootstrap\RegisterFacades::class,
@@ -29,12 +29,6 @@ class Kernel extends HttpKernel
      */
     protected $middleware = [
         'Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode',
-        // 'Illuminate\Cookie\Middleware\EncryptCookies',
-        // 'Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse',
-        // 'Illuminate\Session\Middleware\StartSession',
-        // 'Illuminate\View\Middleware\ShareErrorsFromSession',
-
-        // 'App\Http\Middleware\VerifyCsrfToken',
     ];
 
     /**
@@ -43,9 +37,32 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
-        // 'auth' => 'App\Http\Middleware\Authenticate',
-        // 'auth.basic' => 'Illuminate\Auth\Middleware\AuthenticateWithBasicAuth',
-        // 'guest' => 'App\Http\Middleware\RedirectIfAuthenticated',
+        // 'auth' => \Illuminate\Auth\Middleware\Authenticate::class,
+        // 'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        // 'can' => \Illuminate\Auth\Middleware\Authorize::class,
+        // 'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+    ];
+
+    /**
+     * The application's route middleware groups.
+     *
+     * @var array
+     */
+    protected $middlewareGroups = [
+        'web' => [
+            \Illuminate\Cookie\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            // \App\Http\Middleware\VerifyCsrfToken::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ],
+        'api' => [
+            'throttle:60,1',
+            'bindings',
+        ],
     ];
 
     /**
@@ -63,6 +80,4 @@ class Kernel extends HttpKernel
         \Illuminate\Routing\Middleware\SubstituteBindings::class,
         \Illuminate\Auth\Middleware\Authorize::class,
     ];
-
-
 }

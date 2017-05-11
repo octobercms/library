@@ -5,7 +5,6 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
-
     /**
      * The bootstrap classes for the application.
      *
@@ -13,16 +12,16 @@ class Kernel extends ConsoleKernel
      */
     protected $bootstrappers = [
         'October\Rain\Foundation\Bootstrap\RegisterClassLoader',
-        'Illuminate\Foundation\Bootstrap\DetectEnvironment',
+        \Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables::class,
+        'October\Rain\Foundation\Bootstrap\DetectEnvironment',
         'October\Rain\Foundation\Bootstrap\LoadConfiguration',
         'October\Rain\Foundation\Bootstrap\LoadTranslation',
-        'October\Rain\Foundation\Bootstrap\ConfigureLogging',
-        'Illuminate\Foundation\Bootstrap\HandleExceptions',
-        'Illuminate\Foundation\Bootstrap\RegisterFacades',
-        'Illuminate\Foundation\Bootstrap\SetRequestForConsole',
+        \Illuminate\Foundation\Bootstrap\HandleExceptions::class,
+        \Illuminate\Foundation\Bootstrap\RegisterFacades::class,
+        \Illuminate\Foundation\Bootstrap\SetRequestForConsole::class,
         'October\Rain\Foundation\Bootstrap\RegisterOctober',
-        'Illuminate\Foundation\Bootstrap\RegisterProviders',
-        'Illuminate\Foundation\Bootstrap\BootProviders',
+        \Illuminate\Foundation\Bootstrap\RegisterProviders::class,
+        \Illuminate\Foundation\Bootstrap\BootProviders::class,
     ];
 
     /**
@@ -43,5 +42,4 @@ class Kernel extends ConsoleKernel
         $this->bootstrap();
         $this->app['events']->fire('console.schedule', [$schedule]);
     }
-
 }

@@ -58,6 +58,10 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        if (!class_exists('Event')) {
+            return parent::render($request, $exception);
+        }
+
         $statusCode = $this->getStatusCode($exception);
         $response = $this->callCustomHandlers($exception);
 
@@ -91,6 +95,16 @@ class Handler extends ExceptionHandler
         }
 
         return $code;
+    }
+
+    /**
+     * Get the default context variables for logging.
+     *
+     * @return array
+     */
+    protected function context()
+    {
+        return [];
     }
 
     //
