@@ -7,6 +7,7 @@ use October\Rain\Events\EventServiceProvider;
 use October\Rain\Router\RoutingServiceProvider;
 use October\Rain\Foundation\Providers\LogServiceProvider;
 use October\Rain\Foundation\Providers\MakerServiceProvider;
+use Throwable;
 use Exception;
 
 class Application extends ApplicationBase
@@ -235,7 +236,10 @@ class Application extends ApplicationBase
     public function hasDatabase()
     {
         try {
-            $this['db.connection']->getPdo();
+            $this['db.connection']->getConnectionName();
+        }
+        catch (Throwable $ex) {
+            return false;
         }
         catch (Exception $ex) {
             return false;
