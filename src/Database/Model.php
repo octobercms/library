@@ -411,6 +411,17 @@ class Model extends EloquentModel
     }
 
     /**
+     * Determine if an attribute or relation exists on the model.
+     *
+     * @param  string  $key
+     * @return bool
+     */
+    public function __isset($key)
+    {
+        return !is_null($this->getAttribute($key));
+    }
+
+    /**
      * This a custom piece of logic specifically to satisfy Twig's
      * desire to return a relation object instead of loading the
      * related model.
