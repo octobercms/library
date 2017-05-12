@@ -25,7 +25,8 @@
         "twig/twig": "~1.30",
         "league/csv": "~8.0",
         "jenssegers/date": "~3.0",
-        "leafo/scssphp": "~0.6"
+        "leafo/scssphp": "~0.6",
+        "laravel/tinker": "^1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.0",
