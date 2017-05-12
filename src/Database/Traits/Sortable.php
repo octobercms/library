@@ -26,7 +26,6 @@ use October\Rain\Database\SortableScope;
 
 trait Sortable
 {
-
     /**
      * Boot the sortable trait for this model.
      *
@@ -47,11 +46,13 @@ trait Sortable
      */
     public function setSortableOrder($itemIds, $itemOrders = null)
     {
-        if (!is_array($itemIds))
+        if (!is_array($itemIds)) {
             $itemIds = [$itemIds];
+        }
 
-        if ($itemOrders === null)
+        if ($itemOrders === null) {
             $itemOrders = $itemIds;
+        }
 
         if (count($itemIds) != count($itemOrders)) {
             throw new Exception('Invalid setSortableOrder call - count of itemIds do not match count of itemOrders');
@@ -72,5 +73,4 @@ trait Sortable
     {
         return defined('static::SORT_ORDER') ? static::SORT_ORDER : 'sort_order';
     }
-
 }
