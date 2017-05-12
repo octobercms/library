@@ -21,36 +21,37 @@ class BelongsToMany extends BelongsToManyBase
     public $orphanMode = false;
 
     /**
-     * The foreign key of the parent model.
-     *
-     * @var string
-     */
-    protected $foreignKey;
-
-    /**
-     * The associated key of the relation.
-     *
-     * @var string
-     */
-    protected $otherKey;
-
-    /**
      * Create a new belongs to many relationship instance.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @param  \Illuminate\Database\Eloquent\Model  $parent
      * @param  string  $table
-     * @param  string  $foreignKey
-     * @param  string  $otherKey
+     * @param  string  $foreignPivotKey
+     * @param  string  $relatedPivotKey
      * @param  string  $relationName
      * @return void
      */
-    public function __construct(Builder $query, Model $parent, $table, $foreignKey, $otherKey, $parentKey, $relatedKey, $relationName = null)
+    public function __construct(
+        Builder $query,
+        Model $parent,
+        $table,
+        $foreignPivotKey,
+        $relatedPivotKey,
+        $parentKey,
+        $relatedKey,
+        $relationName = null
+    )
     {
-        $this->otherKey = $otherKey;
-        $this->foreignKey = $foreignKey;
-
-        parent::__construct($query, $parent, $table, $foreignKey, $otherKey, $parentKey, $relatedKey, $relationName);
+        parent::__construct(
+            $query,
+            $parent,
+            $table,
+            $foreignPivotKey,
+            $relatedPivotKey,
+            $parentKey,
+            $relatedKey,
+            $relationName
+        );
 
         $this->addDefinedConstraints();
     }
@@ -64,7 +65,7 @@ class BelongsToMany extends BelongsToManyBase
     protected function shouldSelect(array $columns = ['*'])
     {
         if ($this->countMode) {
-            return $this->table.'.'.$this->foreignKey.' as pivot_'.$this->foreignKey;
+            return $this->table.'.'.$this->foreignPivotKey.' as pivot_'.$this->foreignPivotKey;
         }
 
         if ($columns == ['*']) {
@@ -145,8 +146,11 @@ class BelongsToMany extends BelongsToManyBase
     public function paginate($perPage = 15, $currentPage = null, $columns = ['*'], $pageName = 'page')
     {
         $this->query->addSelect($this->getSelectColumns($columns));
+
         $paginator = $this->query->paginate($perPage, $currentPage, $columns);
+
         $this->hydratePivotRelation($paginator->items());
+
         return $paginator;
     }
 
@@ -171,7 +175,7 @@ class BelongsToMany extends BelongsToManyBase
             $pivot = $this->related->newPivot($this->parent, $attributes, $this->table, $exists);
         }
 
-        return $pivot->setPivotKeys($this->foreignKey, $this->otherKey);
+        return $pivot->setPivotKeys($this->foreignPivotKey, $this->relatedPivotKey);
     }
 
     /**
@@ -248,7 +252,7 @@ class BelongsToMany extends BelongsToManyBase
             $value = $this->parent->getRelation($relationName)->lists($related->getKeyName());
         }
         else {
-            $value = $this->getRelatedIds($sessionKey);
+            $value = $this->allRelatedIds($sessionKey)->all();
         }
 
         return $value;
@@ -260,7 +264,7 @@ class BelongsToMany extends BelongsToManyBase
      * @param string $sessionKey
      * @return \October\Rain\Support\Collection
      */
-    public function getRelatedIds($sessionKey = null)
+    public function allRelatedIds($sessionKey = null)
     {
         $related = $this->getRelated();
 
@@ -268,7 +272,7 @@ class BelongsToMany extends BelongsToManyBase
 
         $query = $sessionKey ? $this->withDeferred($sessionKey) : $this;
 
-        return $query->getQuery()->select($fullKey)->lists($related->getKeyName());
+        return $query->getQuery()->select($fullKey)->pluck($related->getKeyName());
     }
 
     /**
@@ -278,7 +282,7 @@ class BelongsToMany extends BelongsToManyBase
      */
     public function getForeignKey()
     {
-        return $this->table.'.'.$this->foreignKey;
+        return $this->table.'.'.$this->foreignPivotKey;
     }
 
     /**
@@ -288,6 +292,6 @@ class BelongsToMany extends BelongsToManyBase
      */
     public function getOtherKey()
     {
-        return $this->table.'.'.$this->otherKey;
+        return $this->table.'.'.$this->relatedPivotKey;
     }
 }

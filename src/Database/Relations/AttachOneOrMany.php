@@ -91,7 +91,7 @@ trait AttachOneOrMany
 
         $key = DbDongle::cast($this->wrap($this->getQualifiedParentKeyName()), 'TEXT');
 
-        return $query->where($hash.'.'.$this->getPlainForeignKey(), '=', new Expression($key));
+        return $query->where($hash.'.'.$this->getForeignKeyName(), '=', new Expression($key));
     }
 
     /**
@@ -173,8 +173,8 @@ trait AttachOneOrMany
                 $this->delete();
             }
 
-            $model->setAttribute($this->getPlainForeignKey(), $this->parent->getKey());
-            $model->setAttribute($this->getPlainMorphType(), $this->morphClass);
+            $model->setAttribute($this->getForeignKeyName(), $this->parent->getKey());
+            $model->setAttribute($this->getMorphType(), $this->morphClass);
             $model->setAttribute('field', $this->relationName);
             $model->save();
 
@@ -209,8 +209,8 @@ trait AttachOneOrMany
                 /*
                  * Make this model an orphan ;~(
                  */
-                $model->setAttribute($this->getPlainForeignKey(), null);
-                $model->setAttribute($this->getPlainMorphType(), null);
+                $model->setAttribute($this->getForeignKeyName(), null);
+                $model->setAttribute($this->getMorphType(), null);
                 $model->setAttribute('field', null);
                 $model->save();
             }
