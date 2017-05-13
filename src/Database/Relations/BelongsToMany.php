@@ -294,4 +294,13 @@ class BelongsToMany extends BelongsToManyBase
     {
         return $this->table.'.'.$this->relatedPivotKey;
     }
+
+    /**
+     * @deprecated Use allRelatedIds instead. Remove if year >= 2018.
+     */
+    public function getRelatedIds($sessionKey = null)
+    {
+        traceLog('Method BelongsToMany::allRelatedIds has been deprecated, use BelongsToMany::allRelatedIds instead.');
+        return $this->allRelatedIds($sessionKey)->all();
+    }
 }
