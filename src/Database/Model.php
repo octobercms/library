@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Collection as CollectionBase;
 use InvalidArgumentException;
 use Exception;
-use DateTime;
+use DateTimeInterface;
 
 /**
  * Active Record base class.
@@ -326,19 +326,38 @@ class Model extends EloquentModel
             return $value;
         }
 
-        if ($value instanceof DateTime) {
-            return Argon::instance($value);
+        if ($value instanceof DateTimeInterface) {
+            return new Argon(
+                $value->format('Y-m-d H:i:s.u'), $value->getTimezone()
+            );
         }
 
         if (is_numeric($value)) {
             return Argon::createFromTimestamp($value);
         }
 
-        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value)) {
+        if ($this->isStandardDateFormat($value)) {
             return Argon::createFromFormat('Y-m-d', $value)->startOfDay();
         }
 
-        return Argon::createFromFormat($this->getDateFormat(), $value);
+        return Argon::createFromFormat(
+            $this->getDateFormat(), $value
+        );
+    }
+
+    /**
+     * Convert a DateTime to a storable string.
+     *
+     * @param  \DateTime|int  $value
+     * @return string
+     */
+    public function fromDateTime($value)
+    {
+        if (is_null($value)) {
+            return $value;
+        }
+
+        return parent::fromDateTime($value);
     }
 
     /**
