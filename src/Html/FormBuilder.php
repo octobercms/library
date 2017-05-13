@@ -233,7 +233,7 @@ class FormBuilder
     {
         $token = !empty($this->csrfToken)
             ? $this->csrfToken
-            : $this->session->getToken();
+            : $this->session->token();
 
         return $this->hidden('_token', $token);
     }

@@ -236,7 +236,7 @@ class Application extends ApplicationBase
     public function hasDatabase()
     {
         try {
-            $this['db.connection']->getConnectionName();
+            $this['db.connection']->getPdo();
         }
         catch (Throwable $ex) {
             return false;
