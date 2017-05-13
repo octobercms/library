@@ -5,26 +5,40 @@ use Illuminate\Mail\MailServiceProvider as MailServiceProviderBase;
 class MailServiceProvider extends MailServiceProviderBase
 {
     /**
-     * Register the service provider.
-     *
+     * Register the Illuminate mailer instance. Carbon copy of Illuminate method.
      * @return void
      */
-    public function register()
+    protected function registerIlluminateMailer()
     {
-        /*
-         * Extensibility
-         */
-        $this->app['events']->fire('mailer.beforeRegister', [$this]);
+        $this->app->singleton('mailer', function ($app) {
+            /*
+             * Extensibility
+             */
+            $this->app['events']->fire('mailer.beforeRegister', [$this]);
 
-        $this->registerSwiftMailer();
+            $config = $app->make('config')->get('mail');
 
-        $this->registerIlluminateMailer();
+            /*
+             * October mailer
+             */
+            $mailer = new Mailer(
+                $app['view'], $app['swift.mailer'], $app['events']
+            );
 
-        $this->registerMarkdownRenderer();
+            if ($app->bound('queue')) {
+                $mailer->setQueue($app['queue']);
+            }
 
-        /*
-         * Extensibility
-         */
-        $this->app['events']->fire('mailer.register', [$this, $this->app['mailer']]);
+            foreach (['from', 'reply_to', 'to'] as $type) {
+                $this->setGlobalAddress($mailer, $config, $type);
+            }
+
+            /*
+             * Extensibility
+             */
+            $this->app['events']->fire('mailer.register', [$this, $mailer]);
+
+            return $mailer;
+        });
     }
 }

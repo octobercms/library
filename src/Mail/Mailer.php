@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Mail;
 
 use Event;
+use Config;
 use Illuminate\Mail\Mailer as MailerBase;
 
 /**
@@ -11,8 +12,12 @@ use Illuminate\Mail\Mailer as MailerBase;
  */
 class Mailer extends MailerBase
 {
-
     use \October\Rain\Support\Traits\Emitter;
+
+    /**
+     * @var string Original driver before pretending.
+     */
+    protected $pretendingOriginal;
 
     /**
      * Send a new message using a view.
@@ -265,4 +270,21 @@ class Mailer extends MailerBase
         }
     }
 
+    /**
+     * Tell the mailer to not really send messages.
+     *
+     * @param  bool  $value
+     * @return void
+     */
+    public function pretend($value = true)
+    {
+        if ($value) {
+            $this->pretendingOriginal = Config::get('mail.driver');
+
+            Config::set('mail.driver', 'log');
+        }
+        else {
+            Config::set('mail.driver', $this->pretendingOriginal);
+        }
+    }
 }
