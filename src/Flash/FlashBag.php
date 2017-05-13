@@ -16,7 +16,7 @@ class FlashBag extends MessageBag
     const SUCCESS = 'success';
     const WARNING = 'warning';
 
-    const SESSION_KEY = '_flash';
+    const SESSION_KEY = '_flash_oc';
 
     /**
      * All of the newly registered messages.
