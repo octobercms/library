@@ -53,6 +53,18 @@ class Definitions
     }
 
     /**
+     * File patterns that can be safely ignored.
+     * This list can be customized with config:
+     * - cms.fileDefinitions.ignorePatterns
+     */
+    protected function ignorePatterns()
+    {
+        return [
+            '^\..*'
+        ];
+    }
+
+    /**
      * Extensions that are particularly benign.
      * This list can be customized with config:
      * - cms.fileDefinitions.defaultExtensions
