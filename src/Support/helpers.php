@@ -236,3 +236,17 @@ if (!function_exists('trans'))
         return app('translator')->trans($id, $parameters, $domain, $locale);
     }
 }
+
+if (! function_exists('array_build')) {
+    /**
+     * Build a new array using a callback.
+     *
+     * @param  array  $array
+     * @param  callable  $callback
+     * @return array
+     */
+    function array_build($array, callable $callback)
+    {
+        return \October\Rain\Support\Arr::build($array, $callback);
+    }
+}
