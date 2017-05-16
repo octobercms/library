@@ -40,8 +40,7 @@ class BelongsToMany extends BelongsToManyBase
         $parentKey,
         $relatedKey,
         $relationName = null
-    )
-    {
+    ) {
         parent::__construct(
             $query,
             $parent,

@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Query\Expression;
 use October\Rain\Support\Facades\DbDongle;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -50,23 +49,22 @@ trait AttachOneOrMany
     }
 
     /**
-     * Add the field constraint for a relationship count query.
+     * Add the constraints for a relationship count query.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Builder  $parent
+     * @param  \Illuminate\Database\Eloquent\Builder  $parentQuery
+     * @param  array|mixed  $columns
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function getRelationCountQuery(Builder $query, Builder $parent)
+    public function getRelationExistenceQuery(Builder $query, Builder $parentQuery, $columns = ['*'])
     {
         if ($parent->getQuery()->from == $query->getQuery()->from) {
-            $query = $this->getRelationCountQueryForSelfRelation($query, $parent);
+            $query = $this->getRelationExistenceQueryForSelfJoin($query, $parent);
         }
         else {
-            $query->select(new Expression('count(*)'));
-
             $key = DbDongle::cast($this->wrap($this->getQualifiedParentKeyName()), 'TEXT');
 
-            $query = $query->where($this->getHasCompareKey(), '=', new Expression($key));
+            $query = $query->select($columns)->whereColumn($this->getHasCompareKey(), '=', $key);
         }
 
         $query = $query->where($this->morphType, $this->morphClass);
@@ -75,23 +73,24 @@ trait AttachOneOrMany
     }
 
     /**
-     * Add the constraints for a relationship count query on the same table.
+     * Add the constraints for a relationship query on the same table.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Builder  $parent
+     * @param  \Illuminate\Database\Eloquent\Builder  $parentQuery
+     * @param  array|mixed  $columns
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function getRelationCountQueryForSelfRelation(Builder $query, Builder $parent)
+    public function getRelationExistenceQueryForSelfRelation(Builder $query, Builder $parentQuery, $columns = ['*'])
     {
-        $query->select(new Expression('count(*)'));
-
-        $query->from($query->getModel()->getTable().' as '.$hash = $this->getRelationCountHash());
+        $query->select($columns)->from(
+            $query->getModel()->getTable().' as '.$hash = $this->getRelationCountHash()
+        );
 
         $query->getModel()->setTable($hash);
 
         $key = DbDongle::cast($this->wrap($this->getQualifiedParentKeyName()), 'TEXT');
 
-        return $query->where($hash.'.'.$this->getForeignKeyName(), '=', new Expression($key));
+        return $query->whereColumn($hash.'.'.$this->getForeignKeyName(), '=', $key);
     }
 
     /**

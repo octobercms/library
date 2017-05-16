@@ -88,4 +88,13 @@ class BelongsTo extends BelongsToBase
     {
         return $this->child->getAttribute($this->getForeignKey());
     }
+
+    /**
+     * Get the associated key of the relationship.
+     * @return string
+     */
+    public function getOtherKey()
+    {
+        return $this->ownerKey;
+    }
 }

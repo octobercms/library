@@ -112,6 +112,15 @@ trait HasOneOrMany
     }
 
     /**
+     * Get the foreign key for the relationship.
+     * @return string
+     */
+    public function getForeignKey()
+    {
+        return $this->foreignKey;
+    }
+
+    /**
      * Get the associated "other" key of the relationship.
      * @return string
      */

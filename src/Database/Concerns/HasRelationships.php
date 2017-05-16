@@ -566,9 +566,9 @@ trait HasRelationships
             $table,
             $primaryKey,
             $foreignKey,
-            $relationName,
             $parentKey ?: $this->getKeyName(),
             $relatedKey ?: $instance->getKeyName(),
+            $relationName,
             $inverse
         );
     }
