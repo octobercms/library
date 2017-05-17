@@ -138,8 +138,8 @@ class File extends Model
         FileHelper::put($tempPath, $data);
 
         $file = $this->fromFile($tempPath);
-        unset($tempPath);
-        
+        FileHelper::delete($tempPath);
+
         return $file;
     }
 
