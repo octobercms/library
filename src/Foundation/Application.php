@@ -173,6 +173,15 @@ class Application extends ApplicationBase
     {
         return $this->executionContext == 'back-end';
     }
+    
+    /**
+     * Determine if we are running in the console.
+     *
+     * @return bool
+     */
+    public function runningInConsole() {
+        return (!isset($_SERVER['SERVER_SOFTWARE']) && (php_sapi_name() == 'cli' || (is_numeric($_SERVER['argc']) && $_SERVER['argc'] > 0)));
+    }
 
     /**
      * Sets the execution context
