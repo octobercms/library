@@ -119,6 +119,29 @@ class File extends Model
 
         return $this;
     }
+    
+    /**
+     * Creates a file object from raw data.
+     *
+     * @param $data string Raw data
+     * @param $filename string Filename
+     *
+     * @return $this
+     */
+    public function fromData($data, $filename)
+    {
+        if ($data === null) {
+            return;
+        }
+
+        $tempPath = temp_path($filename);
+        FileHelper::put($tempPath, $data);
+
+        $file = $this->fromFile($tempPath);
+        FileHelper::delete($tempPath);
+
+        return $file;
+    }
 
     //
     // Attribute mutators
