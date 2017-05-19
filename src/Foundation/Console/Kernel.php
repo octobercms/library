@@ -12,8 +12,7 @@ class Kernel extends ConsoleKernel
      */
     protected $bootstrappers = [
         '\October\Rain\Foundation\Bootstrap\RegisterClassLoader',
-        \Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables::class,
-        '\October\Rain\Foundation\Bootstrap\DetectEnvironment',
+        '\October\Rain\Foundation\Bootstrap\LoadEnvironmentVariables',
         '\October\Rain\Foundation\Bootstrap\LoadConfiguration',
         '\October\Rain\Foundation\Bootstrap\LoadTranslation',
         \Illuminate\Foundation\Bootstrap\HandleExceptions::class,
