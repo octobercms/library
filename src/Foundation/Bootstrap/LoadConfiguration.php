@@ -10,15 +10,16 @@ class LoadConfiguration
 {
     /**
      * Bootstrap the given application.
-     *
      * @param  \Illuminate\Contracts\Foundation\Application  $app
      * @return void
      */
     public function bootstrap(Application $app)
     {
-        $fileLoader = new FileLoader($files = new Filesystem, base_path().'/config');
+        $fileLoader = new FileLoader(new Filesystem, base_path().'/config');
 
-        $this->loadEnvironmentConfiguration($app, $files);
+        $app->detectEnvironment(function () use ($app) {
+            return $this->getEnvironmentFromHost($app);
+        });
 
         $app->instance('config', $config = new Repository($fileLoader, $app['env']));
 
@@ -31,44 +32,50 @@ class LoadConfiguration
     }
 
     /**
-     * Load the environment configuration.
-     *
-     * @param  \Illuminate\Contracts\Foundation\Application  $app
-     * @param  \Illuminate\Filesystem\Filesystem  $files
+     * Returns the environment based on hostname.
+     * @param  array  $config
      * @return void
      */
-    protected function loadEnvironmentConfiguration(Application $app, Filesystem $files)
+    protected function getEnvironmentFromHost(Application $app)
+    {
+        $config = $this->getEnvironmentConfiguration();
+
+        $hostname = $_SERVER['HTTP_HOST'] ?? null;
+
+        if ($hostname && isset($config['hosts'][$hostname])) {
+            return $config['hosts'][$hostname];
+        }
+
+        return env('APP_ENV', array_get($config, 'default', 'production'));
+    }
+
+    /**
+     * Load the environment configuration.
+     * @return array
+     */
+    protected function getEnvironmentConfiguration()
     {
         $config = [];
 
-        if (file_exists($configPath = base_path().'/config/environment.php')) {
+        $environment = env('APP_ENV');
+
+        if ($environment && file_exists($configPath = base_path().'/config/'.$environment.'/environment.php')) {
             try {
-                $config = $files->getRequire($configPath);
+                $config = require $configPath;
+            }
+            catch (Exception $ex) {
+                //
+            }
+        }
+        elseif (file_exists($configPath = base_path().'/config/environment.php')) {
+            try {
+                $config = require $configPath;
             }
             catch (Exception $ex) {
                 //
             }
         }
 
-        $app->detectEnvironment(function () use ($config) {
-            return $this->detectEnvironmentFromHost($config);
-        });
-    }
-
-    /**
-     * Returns the environment based on hostname.
-     *
-     * @param  array  $config
-     * @return void
-     */
-    protected function detectEnvironmentFromHost(array $config)
-    {
-        $hostname = $_SERVER['HTTP_HOST'] ?? null;
-
-        $default = env('APP_ENV', array_get($config, 'default', 'production'));
-
-        return $hostname !== null
-            ? array_get($config, 'hosts.' . $hostname, $default)
-            : $default;
+        return $config;
     }
 }
