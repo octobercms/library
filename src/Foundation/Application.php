@@ -340,7 +340,6 @@ class Application extends ApplicationBase
      */
     public function getCachedServicesPath()
     {
-        return $this->storagePath().'/framework/services.json';
+        return $this->storagePath().'/framework/services.php';
     }
-
 }
