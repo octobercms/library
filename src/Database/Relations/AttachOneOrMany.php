@@ -58,8 +58,8 @@ trait AttachOneOrMany
      */
     public function getRelationExistenceQuery(Builder $query, Builder $parentQuery, $columns = ['*'])
     {
-        if ($parent->getQuery()->from == $query->getQuery()->from) {
-            $query = $this->getRelationExistenceQueryForSelfJoin($query, $parent);
+        if ($parentQuery->getQuery()->from == $query->getQuery()->from) {
+            $query = $this->getRelationExistenceQueryForSelfJoin($query, $parentQuery, $columns);
         }
         else {
             $key = DbDongle::cast($this->wrap($this->getQualifiedParentKeyName()), 'TEXT');
