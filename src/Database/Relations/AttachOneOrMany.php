@@ -62,7 +62,7 @@ trait AttachOneOrMany
             $query = $this->getRelationExistenceQueryForSelfJoin($query, $parentQuery, $columns);
         }
         else {
-            $key = DbDongle::cast($this->wrap($this->getQualifiedParentKeyName()), 'TEXT');
+            $key = DbDongle::cast($this->getQualifiedParentKeyName(), 'TEXT');
 
             $query = $query->select($columns)->whereColumn($this->getHasCompareKey(), '=', $key);
         }
@@ -88,7 +88,7 @@ trait AttachOneOrMany
 
         $query->getModel()->setTable($hash);
 
-        $key = DbDongle::cast($this->wrap($this->getQualifiedParentKeyName()), 'TEXT');
+        $key = DbDongle::cast($this->getQualifiedParentKeyName(), 'TEXT');
 
         return $query->whereColumn($hash.'.'.$this->getForeignKeyName(), '=', $key);
     }
