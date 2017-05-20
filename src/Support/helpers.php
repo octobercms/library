@@ -250,3 +250,16 @@ if (! function_exists('array_build')) {
         return \October\Rain\Support\Arr::build($array, $callback);
     }
 }
+
+if (! function_exists('collect')) {
+    /**
+     * Create a collection from the given value.
+     *
+     * @param  mixed  $value
+     * @return \October\Rain\Support\Collection
+     */
+    function collect($value = null)
+    {
+        return new \October\Rain\Support\Collection($value);
+    }
+}
