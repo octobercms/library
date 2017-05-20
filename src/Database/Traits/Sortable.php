@@ -23,13 +23,10 @@ use October\Rain\Database\SortableScope;
  *   const SORT_ORDER = 'my_sort_order';
  *
  */
-
 trait Sortable
 {
-
     /**
      * Boot the sortable trait for this model.
-     *
      * @return void
      */
     public static function bootSortable()
@@ -37,7 +34,7 @@ trait Sortable
         static::created(function($model) {
             $sortOrderColumn = $model->getSortOrderColumn();
 
-            if(is_null($model->$sortOrderColumn)) {
+            if (is_null($model->$sortOrderColumn)) {
                 $model->setSortableOrder($model->getKey());
             }
         });
@@ -48,14 +45,19 @@ trait Sortable
     /**
      * Sets the sort order of records to the specified orders. If the orders is
      * undefined, the record identifier is used.
+     * @param  mixed $itemIds
+     * @param  array $itemOrders
+     * @return void
      */
     public function setSortableOrder($itemIds, $itemOrders = null)
     {
-        if (!is_array($itemIds))
+        if (!is_array($itemIds)) {
             $itemIds = [$itemIds];
+        }
 
-        if ($itemOrders === null)
+        if ($itemOrders === null) {
             $itemOrders = $itemIds;
+        }
 
         if (count($itemIds) != count($itemOrders)) {
             throw new Exception('Invalid setSortableOrder call - count of itemIds do not match count of itemOrders');
@@ -69,12 +71,10 @@ trait Sortable
 
     /**
      * Get the name of the "sort order" column.
-     *
      * @return string
      */
     public function getSortOrderColumn()
     {
         return defined('static::SORT_ORDER') ? static::SORT_ORDER : 'sort_order';
     }
-
 }
