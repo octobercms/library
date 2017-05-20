@@ -64,7 +64,7 @@ trait AttachOneOrMany
         else {
             $key = DbDongle::cast($this->getQualifiedParentKeyName(), 'TEXT');
 
-            $query = $query->select($columns)->whereColumn($this->getHasCompareKey(), '=', $key);
+            $query = $query->select($columns)->whereColumn($this->getExistenceCompareKey(), '=', $key);
         }
 
         $query = $query->where($this->morphType, $this->morphClass);
