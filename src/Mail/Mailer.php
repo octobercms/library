@@ -3,6 +3,7 @@
 use Event;
 use Config;
 use Illuminate\Mail\Mailer as MailerBase;
+use Illuminate\Contracts\Mail\Mailable as MailableContract;
 
 /**
  * Mailer class for sending mail.
@@ -39,19 +40,28 @@ class Mailer extends MailerBase
             return;
         }
 
+        if ($view instanceof MailableContract) {
+            return $this->sendMailable($view);
+        }
+
         /*
          * Inherit logic from Illuminate\Mail\Mailer
          */
         list($view, $plain, $raw) = $this->parseView($view);
 
         $data['message'] = $message = $this->createMessage();
-        $this->callMessageBuilder($callback, $message);
 
         if (is_bool($raw) && $raw === true) {
             $this->addContentRaw($message, $view, $plain);
         }
         else {
             $this->addContent($message, $view, $plain, $raw, $data);
+        }
+
+        call_user_func($callback, $message);
+
+        if (isset($this->to['address'])) {
+            $this->setGlobalTo($message);
         }
 
         /*
@@ -70,16 +80,14 @@ class Mailer extends MailerBase
         /*
          * Send the message
          */
-        $_message = $message->getSwiftMessage();
-        $response = $this->sendSwiftMessage($_message);
+        $this->sendSwiftMessage($message->getSwiftMessage());
+        $this->dispatchSentEvent($message);
 
         /*
          * Extensibility
          */
-        $this->fireEvent('mailer.send', [$view, $message, $response]);
-        Event::fire('mailer.send', [$this, $view, $message, $response]);
-
-        return $response;
+        $this->fireEvent('mailer.send', [$view, $message]);
+        Event::fire('mailer.send', [$this, $view, $message]);
     }
 
     /**
