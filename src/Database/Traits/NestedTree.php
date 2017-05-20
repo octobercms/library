@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Traits;
 
+use DbDongle;
 use October\Rain\Database\Collection;
 use October\Rain\Database\TreeCollection;
 use October\Rain\Database\NestedTreeScope;
@@ -52,14 +53,14 @@ use Exception;
  *   $query->leaves(); // Filters as all final nodes without children.
  *   $query->getNested(); // Returns an eager loaded collection of results.
  *   $query->listsNested(); // Returns an indented array of key and value columns.
- * 
+ *
  * Flat result access methods:
  *
  *   $model->getAll(); // Returns everything in correct order.
  *   $model->getAllRoot(); // Returns all root nodes.
  *   $model->getAllChildren(); // Returns all children down the tree.
  *   $model->getAllChildrenAndSelf(); // Returns all children and self.
- * 
+ *
  * Eager loaded access methods:
  *
  *   $model->getEagerRoot(); // Returns a list of all root nodes, with ->children eager loaded.
@@ -855,22 +856,26 @@ trait NestedTree
 
         $connection = $node->getConnection();
         $grammar = $connection->getQueryGrammar();
+        $pdo = $connection->getPdo();
 
         $parentId = ($position == 'child')
             ? $target->getKey()
             : $target->getParentId();
 
-        if ($parentId === null)
+        if ($parentId === null) {
             $parentId = 'NULL';
+        } else {
+            $parentId = $pdo->quote($parentId);
+        }
 
-        $currentId = $node->getKey();
+        $currentId = $pdo->quote($node->getKey());
         $leftColumn = $node->getLeftColumnName();
         $rightColumn = $node->getRightColumnName();
         $parentColumn = $node->getParentColumnName();
         $wrappedLeft = $grammar->wrap($leftColumn);
         $wrappedRight = $grammar->wrap($rightColumn);
         $wrappedParent = $grammar->wrap($parentColumn);
-        $wrappedId = $grammar->wrap($node->getKeyName());
+        $wrappedId = DbDongle::cast($grammar->wrap($node->getKeyName()), 'TEXT');
 
         $leftSql = "CASE
             WHEN $wrappedLeft BETWEEN $a AND $b THEN $wrappedLeft + $d - $b
