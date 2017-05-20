@@ -359,8 +359,7 @@ trait NestedTree
             ->where($this->getLeftColumnName(), '<', $this->getRight())
         ;
 
-        if ($includeSelf) return $query;
-        else return $query->withoutSelf();
+        return $includeSelf ? $query : $query->withoutSelf();
     }
 
     /**
@@ -374,8 +373,7 @@ trait NestedTree
             ->where($this->getRightColumnName(), '>=', $this->getRight())
         ;
 
-        if ($includeSelf) return $query;
-        else return $query->withoutSelf();
+        return $includeSelf ? $query : $query->withoutSelf();
     }
 
     /**
@@ -386,8 +384,7 @@ trait NestedTree
     {
         $query->where($this->getParentColumnName(), $this->getParentId());
 
-        if ($includeSelf) return $query;
-        else return $query->withoutSelf();
+        return $includeSelf ? $query : $query->withoutSelf();
     }
 
     /**
@@ -864,7 +861,8 @@ trait NestedTree
 
         if ($parentId === null) {
             $parentId = 'NULL';
-        } else {
+        }
+        else {
             $parentId = $pdo->quote($parentId);
         }
 
@@ -914,14 +912,16 @@ trait NestedTree
      */
     protected function validateMove($node, $target, $position)
     {
-        if (!$node->exists)
+        if (!$node->exists) {
             throw new Exception('A new node cannot be moved.');
+        }
 
         if (!in_array($position, ['child', 'left', 'right'])) {
             throw new Exception(sprintf(
                 'Position should be either child, left, right. Supplied position is "%s".', $position
             ));
         }
+
         if ($target === null) {
             if ($position == 'left' || $position == 'right') {
                 throw new Exception(sprintf(
@@ -998,6 +998,7 @@ trait NestedTree
         ];
 
         sort($boundaries);
+
         return $boundaries;
     }
 
@@ -1008,5 +1009,4 @@ trait NestedTree
     {
         return new TreeCollection($models);
     }
-
 }
