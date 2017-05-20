@@ -144,7 +144,7 @@ class BelongsToMany extends BelongsToManyBase
      */
     public function paginate($perPage = 15, $currentPage = null, $columns = ['*'], $pageName = 'page')
     {
-        $this->query->addSelect($this->getSelectColumns($columns));
+        $this->query->addSelect($this->shouldSelect($columns));
 
         $paginator = $this->query->paginate($perPage, $currentPage, $columns);
 
