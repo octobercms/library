@@ -342,39 +342,6 @@ trait HasRelationships
     }
 
     /**
-     * Define an polymorphic, inverse one-to-one or many relationship.
-     * Overridden from {@link Eloquent\Model} to allow the usage of the intermediary methods to handle the relation.
-     * @return \October\Rain\Database\Relations\BelongsTo
-     */
-    public function morphTo($name = null, $type = null, $id = null)
-    {
-        if (is_null($name)) {
-            $name = snake_case($this->getRelationCaller());
-        }
-
-        list($type, $id) = $this->getMorphs($name, $type, $id);
-
-        // If the type value is null it is probably safe to assume we're eager loading
-        // the relationship. When that is the case we will pass in a dummy query as
-        // there are multiple types in the morph and we can't use single queries.
-        if (is_null($class = $this->$type)) {
-            return new MorphTo(
-                $this->newQuery(), $this, $id, null, $type, $name
-            );
-        }
-        // If we are not eager loading the relationship we will essentially treat this
-        // as a belongs-to style relationship since morph-to extends that class and
-        // we will pass in the appropriate values so that it behaves as expected.
-        else {
-            $instance = new $class;
-
-            return new MorphTo(
-                $instance->newQuery(), $this, $id, $instance->getKeyName(), $type, $name
-            );
-        }
-    }
-
-    /**
      * Define a one-to-one relationship.
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\HasOne
@@ -385,11 +352,11 @@ trait HasRelationships
             $relationName = $this->getRelationCaller();
         }
 
+        $instance = $this->newRelatedInstance($related);
+
         $primaryKey = $primaryKey ?: $this->getForeignKey();
 
         $localKey = $localKey ?: $this->getKeyName();
-
-        $instance = new $related;
 
         return new HasOne($instance->newQuery(), $this, $instance->getTable().'.'.$primaryKey, $localKey, $relationName);
     }
@@ -405,7 +372,7 @@ trait HasRelationships
             $relationName = $this->getRelationCaller();
         }
 
-        $instance = new $related;
+        $instance = $this->newRelatedInstance($related);
 
         list($type, $id) = $this->getMorphs($name, $type, $id);
 
@@ -428,17 +395,68 @@ trait HasRelationships
             $relationName = $this->getRelationCaller();
         }
 
+        $instance = $this->newRelatedInstance($related);
+
         if (is_null($foreignKey)) {
             $foreignKey = snake_case($relationName).'_id';
         }
 
-        $instance = new $related;
-
-        $query = $instance->newQuery();
-
         $parentKey = $parentKey ?: $instance->getKeyName();
 
-        return new BelongsTo($query, $this, $foreignKey, $parentKey, $relationName);
+        return new BelongsTo($instance->newQuery(), $this, $foreignKey, $parentKey, $relationName);
+    }
+
+    /**
+     * Define an polymorphic, inverse one-to-one or many relationship.
+     * Overridden from {@link Eloquent\Model} to allow the usage of the intermediary methods to handle the relation.
+     * @return \October\Rain\Database\Relations\BelongsTo
+     */
+    public function morphTo($name = null, $type = null, $id = null)
+    {
+        if (is_null($name)) {
+            $name = $this->getRelationCaller();
+        }
+
+        list($type, $id) = $this->getMorphs(Str::snake($name), $type, $id);
+
+        return empty($class = $this->{$type})
+                    ? $this->morphEagerTo($name, $type, $id)
+                    : $this->morphInstanceTo($class, $name, $type, $id);
+    }
+
+    /**
+     * Define a polymorphic, inverse one-to-one or many relationship.
+     *
+     * @param  string  $name
+     * @param  string  $type
+     * @param  string  $id
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    protected function morphEagerTo($name, $type, $id)
+    {
+        return new MorphTo(
+            $this->newQuery()->setEagerLoads([]), $this, $id, null, $type, $name
+        );
+    }
+
+    /**
+     * Define a polymorphic, inverse one-to-one or many relationship.
+     *
+     * @param  string  $target
+     * @param  string  $name
+     * @param  string  $type
+     * @param  string  $id
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    protected function morphInstanceTo($target, $name, $type, $id)
+    {
+        $instance = $this->newRelatedInstance(
+            static::getActualClassNameForMorph($target)
+        );
+
+        return new MorphTo(
+            $instance->newQuery(), $this, $id, $instance->getKeyName(), $type, $name
+        );
     }
 
     /**
@@ -452,11 +470,11 @@ trait HasRelationships
             $relationName = $this->getRelationCaller();
         }
 
+        $instance = $this->newRelatedInstance($related);
+
         $primaryKey = $primaryKey ?: $this->getForeignKey();
 
         $localKey = $localKey ?: $this->getKeyName();
-
-        $instance = new $related;
 
         return new HasMany($instance->newQuery(), $this, $instance->getTable().'.'.$primaryKey, $localKey, $relationName);
     }
@@ -472,8 +490,6 @@ trait HasRelationships
             $relationName = $this->getRelationCaller();
         }
 
-        $instance = new $related;
-
         $throughInstance = new $through;
 
         $primaryKey = $primaryKey ?: $this->getForeignKey();
@@ -481,6 +497,8 @@ trait HasRelationships
         $throughKey = $throughKey ?: $throughInstance->getForeignKey();
 
         $localKey = $localKey ?: $this->getKeyName();
+
+        $instance = $this->newRelatedInstance($related);
 
         return new HasManyThrough($instance->newQuery(), $this, $throughInstance, $primaryKey, $throughKey, $localKey);
     }
@@ -496,7 +514,7 @@ trait HasRelationships
             $relationName = $this->getRelationCaller();
         }
 
-        $instance = new $related;
+        $instance = $this->newRelatedInstance($related);
 
         list($type, $id) = $this->getMorphs($name, $type, $id);
 
@@ -602,28 +620,6 @@ trait HasRelationships
     }
 
     /**
-     * Define an attachment one-to-many relationship.
-     * This code is a duplicate of Eloquent but uses a Rain relation class.
-     * @return \October\Rain\Database\Relations\MorphMany
-     */
-    public function attachMany($related, $isPublic = null, $localKey = null, $relationName = null)
-    {
-        if (is_null($relationName)) {
-            $relationName = $this->getRelationCaller();
-        }
-
-        $instance = new $related;
-
-        list($type, $id) = $this->getMorphs('attachment', null, null);
-
-        $table = $instance->getTable();
-
-        $localKey = $localKey ?: $this->getKeyName();
-
-        return new AttachMany($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $isPublic, $localKey, $relationName);
-    }
-
-    /**
      * Define an attachment one-to-one relationship.
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\MorphOne
@@ -634,7 +630,7 @@ trait HasRelationships
             $relationName = $this->getRelationCaller();
         }
 
-        $instance = new $related;
+        $instance = $this->newRelatedInstance($related);
 
         list($type, $id) = $this->getMorphs('attachment', null, null);
 
@@ -643,6 +639,28 @@ trait HasRelationships
         $localKey = $localKey ?: $this->getKeyName();
 
         return new AttachOne($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $isPublic, $localKey, $relationName);
+    }
+
+    /**
+     * Define an attachment one-to-many relationship.
+     * This code is a duplicate of Eloquent but uses a Rain relation class.
+     * @return \October\Rain\Database\Relations\MorphMany
+     */
+    public function attachMany($related, $isPublic = null, $localKey = null, $relationName = null)
+    {
+        if (is_null($relationName)) {
+            $relationName = $this->getRelationCaller();
+        }
+
+        $instance = $this->newRelatedInstance($related);
+
+        list($type, $id) = $this->getMorphs('attachment', null, null);
+
+        $table = $instance->getTable();
+
+        $localKey = $localKey ?: $this->getKeyName();
+
+        return new AttachMany($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $isPublic, $localKey, $relationName);
     }
 
     /**
