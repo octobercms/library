@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database;
 
+use Db;
 use File;
 use Eloquent;
 
@@ -13,28 +14,32 @@ use Eloquent;
  */
 class Updater
 {
-
     /**
      * Sets up a migration or seed file.
      */
     public function setUp($file)
     {
         $object = $this->resolve($file);
-        if ($object === null)
-            return false;
 
-        Eloquent::unguard();
+        if ($object === null) {
+            return false;
+        }
 
         $this->isValidScript($object);
 
-        if ($object instanceof Updates\Migration) {
-            $object->up();
-        }
-        elseif ($object instanceof Updates\Seeder) {
-            $object->run();
-        }
+        Eloquent::unguard();
+
+        Db::transaction(function() use ($object) {
+            if ($object instanceof Updates\Migration) {
+                $object->up();
+            }
+            elseif ($object instanceof Updates\Seeder) {
+                $object->run();
+            }
+        });
 
         Eloquent::reguard();
+
         return true;
     }
 
@@ -48,15 +53,18 @@ class Updater
             return false;
         }
 
-        Eloquent::unguard();
-
         $this->isValidScript($object);
 
-        if ($object instanceof Updates\Migration) {
-            $object->down();
-        }
+        Eloquent::unguard();
+
+        Db::transaction(function() use ($object) {
+            if ($object instanceof Updates\Migration) {
+                $object->down();
+            }
+        });
 
         Eloquent::reguard();
+
         return true;
     }
 
@@ -67,10 +75,12 @@ class Updater
      */
     public function resolve($file)
     {
-        if (!File::isFile($file))
+        if (!File::isFile($file)) {
             return;
+        }
 
         require_once $file;
+
         if ($class = $this->getClassFromFile($file)) {
             return new $class;
         }
@@ -150,5 +160,4 @@ class Updater
 
         return trim($namespace) . '\\' . trim($class);
     }
-
 }
