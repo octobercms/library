@@ -62,6 +62,7 @@ trait DefinedConstraints
             $relation
                 ->select($relation->getForeignKey(), $countSql)
                 ->groupBy($relation->getForeignKey())
+                ->orderBy($relation->getForeignKey())
             ;
         }
     }
@@ -88,7 +89,8 @@ trait DefinedConstraints
         /*
          * Sort order
          */
-        if ($orderBy = array_get($args, 'order')) {
+        $hasCountArg = array_get($args, 'count') !== null;
+        if (($orderBy = array_get($args, 'order')) && !$hasCountArg) {
             if (!is_array($orderBy))
                 $orderBy = [$orderBy];
 
