@@ -342,4 +342,24 @@ class Application extends ApplicationBase
     {
         return $this->storagePath().'/framework/services.php';
     }
+
+    /**
+     * Get the path to the cached packages.php file.
+     *
+     * @return string
+     */
+    public function getCachedPackagesPath()
+    {
+        return $this->storagePath().'/framework/packages.php';
+    }
+
+    /**
+     * Get the path to the cached packages.php file.
+     *
+     * @return string
+     */
+    public function getCachedClassesPath()
+    {
+        return $this->storagePath().'/framework/classes.php';
+    }
 }
