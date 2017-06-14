@@ -233,8 +233,8 @@ class ClassLoader
         /*
          * Provide both alternatives
          */
-        $lowerClass = strtolower($directory) . '\\' . $file . '.php';
-        $upperClass = $directory . '\\' . $file . '.php';
+        $lowerClass = strtolower($directory) . '/' . $file . '.php';
+        $upperClass = $directory . '/' . $file . '.php';
 
         return [$lowerClass, $upperClass];
     }
