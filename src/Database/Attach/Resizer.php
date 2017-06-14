@@ -125,6 +125,7 @@ class Resizer
      *  - mode: Either exact, portrait, landscape, auto or crop.
      *  - offset: The offset of the crop = [ left, top ]
      *  - sharpen: Sharpen image, from 0 - 100 (default: 0)
+     *  - interlace: Interlace image, 0 (false - default) 1 (true)
      *  - quality: Image quality, from 0 - 100 (default: 95)
      * @return self
      */
