@@ -131,10 +131,11 @@ class Resizer
     public function setOptions($options)
     {
         $this->options = array_merge([
-            'mode'    => 'auto',
-            'offset'  => [0, 0],
-            'sharpen' => 0,
-            'quality' => 90
+            'mode'      => 'auto',
+            'offset'    => [0, 0],
+            'sharpen'   => 0,
+            'interlace' => 0,
+            'quality'   => 90
         ], $options);
 
         return $this;
@@ -409,6 +410,8 @@ class Resizer
         $image = $this->image;
 
         $imageQuality = $this->getOption('quality');
+        
+        $interlace = $this->getOption('interlace');
 
         // Determine the image type from the destination file
         $extension = FileHelper::extension($savePath) ?: $this->extension;
@@ -419,6 +422,7 @@ class Resizer
             case 'jpeg':
                 // Check JPG support is enabled
                 if (imagetypes() & IMG_JPG) {
+                    imageinterlace($image, $interlace);
                     imagejpeg($image, $savePath, $imageQuality);
                 }
                 break;
@@ -426,6 +430,7 @@ class Resizer
             case 'gif':
                 // Check GIF support is enabled
                 if (imagetypes() & IMG_GIF) {
+                    imageinterlace($image, $interlace);
                     imagegif($image, $savePath);
                 }
                 break;
@@ -439,6 +444,7 @@ class Resizer
 
                 // Check PNG support is enabled
                 if (imagetypes() & IMG_PNG) {
+                    imageinterlace($image, $interlace);
                     imagepng($image, $savePath, $invertScaleQuality);
                 }
                 break;
