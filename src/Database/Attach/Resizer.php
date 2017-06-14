@@ -442,9 +442,16 @@ class Resizer
                     imagepng($image, $savePath, $invertScaleQuality);
                 }
                 break;
-
+                
+            case 'webp':
+                // Check WEBP support is enabled
+                if (imagetypes() & IMG_WEBP) {
+                    imagewebp($image, $savePath, $imageQuality);
+                }
+                break;
+                
             default:
-                throw new Exception(sprintf('Invalid image type: %s. Accepted types: jpg, gif, png.', $extension));
+                throw new Exception(sprintf('Invalid image type: %s. Accepted types: jpg, gif, png, webp.', $extension));
                 break;
         }
 
@@ -466,9 +473,10 @@ class Resizer
             case 'image/jpeg': $img = @imagecreatefromjpeg($filePath); break;
             case 'image/gif':  $img = @imagecreatefromgif($filePath);  break;
             case 'image/png':  $img = @imagecreatefrompng($filePath);  break;
+            case 'image/webp': $img = @imagecreatefromwebp($filePath); break;
 
             default:
-                throw new Exception(sprintf('Invalid mime type: %s. Accepted types: image/jpeg, image/gif, image/png.', $mime));
+                throw new Exception(sprintf('Invalid mime type: %s. Accepted types: image/jpeg, image/gif, image/png, image/webp.', $mime));
                 break;
         }
 
