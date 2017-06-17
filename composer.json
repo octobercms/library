@@ -22,7 +22,7 @@
         "linkorb/jsmin-php": "~1.0",
         "oyejorge/less.php": "~1.7",
         "symfony/yaml": "2.8.*|3.0.*",
-        "twig/twig": "~1.30",
+        "twig/twig": "1.33.*",
         "league/csv": "~8.0",
         "jenssegers/date": "~3.0",
         "leafo/scssphp": "~0.6"
