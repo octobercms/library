@@ -46,6 +46,8 @@ trait DeferOneOrMany
                     $this->query = $query;
                     $this->addConstraints();
                 }
+
+                $this->addDefinedConstraintsToQuery($this);
             }
 
             /*
