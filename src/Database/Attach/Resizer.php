@@ -125,7 +125,7 @@ class Resizer
      *  - mode: Either exact, portrait, landscape, auto or crop.
      *  - offset: The offset of the crop = [ left, top ]
      *  - sharpen: Sharpen image, from 0 - 100 (default: 0)
-     *  - interlace: Interlace image, 0 (false - default) 1 (true)
+     *  - interlace: Interlace image,  Boolean: false (disabled: default), true (enabled)
      *  - quality: Image quality, from 0 - 100 (default: 95)
      * @return self
      */
@@ -135,7 +135,7 @@ class Resizer
             'mode'      => 'auto',
             'offset'    => [0, 0],
             'sharpen'   => 0,
-            'interlace' => 0,
+            'interlace' => false,
             'quality'   => 90
         ], $options);
 
