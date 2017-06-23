@@ -444,6 +444,7 @@ class File extends Model
             'offset'    => [0, 0],
             'quality'   => 90,
             'sharpen'   => 0,
+            'interlace' => 0,
             'extension' => 'auto',
         ];
 
