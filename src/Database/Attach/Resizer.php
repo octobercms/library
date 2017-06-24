@@ -412,10 +412,8 @@ class Resizer
 
         $imageQuality = $this->getOption('quality');
         
-        $interlace = $this->getOption('interlace');
-        
-        if($interlace) {
-            imageinterlace($image, $interlace);
+        if($this->getOption('interlace')) {
+            imageinterlace($image, true);
         }
 
         // Determine the image type from the destination file
