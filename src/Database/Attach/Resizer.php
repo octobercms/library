@@ -412,7 +412,7 @@ class Resizer
 
         $imageQuality = $this->getOption('quality');
         
-        if($this->getOption('interlace')) {
+        if ($this->getOption('interlace')) {
             imageinterlace($image, true);
         }
 
