@@ -125,16 +125,18 @@ class Resizer
      *  - mode: Either exact, portrait, landscape, auto or crop.
      *  - offset: The offset of the crop = [ left, top ]
      *  - sharpen: Sharpen image, from 0 - 100 (default: 0)
+     *  - interlace: Interlace image,  Boolean: false (disabled: default), true (enabled)
      *  - quality: Image quality, from 0 - 100 (default: 95)
      * @return self
      */
     public function setOptions($options)
     {
         $this->options = array_merge([
-            'mode'    => 'auto',
-            'offset'  => [0, 0],
-            'sharpen' => 0,
-            'quality' => 90
+            'mode'      => 'auto',
+            'offset'    => [0, 0],
+            'sharpen'   => 0,
+            'interlace' => false,
+            'quality'   => 90
         ], $options);
 
         return $this;
@@ -409,6 +411,10 @@ class Resizer
         $image = $this->image;
 
         $imageQuality = $this->getOption('quality');
+        
+        if ($this->getOption('interlace')) {
+            imageinterlace($image, true);
+        }
 
         // Determine the image type from the destination file
         $extension = FileHelper::extension($savePath) ?: $this->extension;
