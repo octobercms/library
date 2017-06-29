@@ -205,6 +205,7 @@ trait ExtendableTrait
 
         $this->extensionData['extensions'][$extensionName] = $extensionObject = new $extensionName($this);
         $this->extensionExtractMethods($extensionName, $extensionObject);
+        $extensionObject->extensionApplyInitCallbacks();
     }
 
     /**
