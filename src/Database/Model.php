@@ -8,9 +8,8 @@ use October\Rain\Support\Str;
 use October\Rain\Argon\Argon;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Collection as CollectionBase;
-use InvalidArgumentException;
-use Exception;
 use DateTimeInterface;
+use Exception;
 
 /**
  * Active Record base class.

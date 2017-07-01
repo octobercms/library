@@ -13,6 +13,7 @@ use October\Rain\Database\Relations\MorphOne;
 use October\Rain\Database\Relations\AttachMany;
 use October\Rain\Database\Relations\AttachOne;
 use October\Rain\Database\Relations\HasManyThrough;
+use InvalidArgumentException;
 
 trait HasRelationships
 {
