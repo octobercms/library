@@ -15,7 +15,6 @@ use Exception;
  */
 class FileDatasource extends Datasource implements DatasourceInterface
 {
-
     /**
      * The local path where the datasource can be found.
      *
@@ -57,6 +56,10 @@ class FileDatasource extends Datasource implements DatasourceInterface
     {
         try {
             $path = $this->makeFilePath($dirName, $fileName, $extension);
+
+            if (!$path = $this->files->existsInsensitive($path)) {
+                return null;
+            }
 
             return [
                 'fileName' => $fileName . '.' . $extension,
@@ -321,5 +324,4 @@ class FileDatasource extends Datasource implements DatasourceInterface
     {
         return $this->basePath;
     }
-
 }
