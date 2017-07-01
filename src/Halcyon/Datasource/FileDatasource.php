@@ -1,6 +1,6 @@
 <?php namespace October\Rain\Halcyon\Datasource;
 
-use Illuminate\Filesystem\Filesystem;
+use October\Rain\Filesystem\Filesystem;
 use October\Rain\Halcyon\Processors\Processor;
 use October\Rain\Halcyon\Exception\CreateFileException;
 use October\Rain\Halcyon\Exception\DeleteFileException;
@@ -25,7 +25,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
     /**
      * The filesystem instance.
      *
-     * @var \Illuminate\Filesystem\Filesystem
+     * @var \October\Rain\Filesystem\Filesystem
      */
     protected $files;
 
@@ -56,10 +56,6 @@ class FileDatasource extends Datasource implements DatasourceInterface
     {
         try {
             $path = $this->makeFilePath($dirName, $fileName, $extension);
-
-            if (!$path = $this->files->existsInsensitive($path)) {
-                return null;
-            }
 
             return [
                 'fileName' => $fileName . '.' . $extension,
