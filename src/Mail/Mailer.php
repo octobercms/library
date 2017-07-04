@@ -109,8 +109,9 @@ class Mailer extends MailerBase
      */
     public function sendTo($recipients, $view, array $data = [], $callback = null, $queue = false)
     {
-        if (is_bool($callback))
+        if (is_bool($callback)) {
             $queue = $callback;
+        }
 
         $method = $queue === true ? 'queue' : 'send';
         $recipients = $this->processRecipients($recipients);
@@ -141,6 +142,7 @@ class Mailer extends MailerBase
         }
 
         $view['raw'] = true;
+
         return $this->sendTo($recipients, $view, [], $callback, $queue);
     }
 

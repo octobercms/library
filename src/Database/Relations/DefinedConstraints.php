@@ -36,6 +36,13 @@ trait DefinedConstraints
         }
 
         /*
+         * Default models (belongsTo)
+         */
+        if ($defaultData = array_get($args, 'default')) {
+            $relation->withDefault($defaultData === true ? null : $defaultData);
+        }
+
+        /*
          * Pivot data (belongsToMany, morphToMany, morphByMany)
          */
         if ($pivotData = array_get($args, 'pivot')) {

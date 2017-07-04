@@ -316,7 +316,7 @@ trait HasRelationships
         $relation = $this->getRelationDefinition($relationName);
 
         // Query filter arguments
-        $filters = ['scope', 'conditions', 'order', 'pivot', 'timestamps', 'push', 'count'];
+        $filters = ['scope', 'conditions', 'order', 'pivot', 'timestamps', 'push', 'count', 'default'];
 
         foreach (array_merge($optional, $filters) as $key) {
             if (!array_key_exists($key, $relation)) {
