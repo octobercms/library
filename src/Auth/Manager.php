@@ -338,7 +338,7 @@ class Manager
             }
 
             /*
-             * Check supplied session/cookie is an array (username, persist code)
+             * Check supplied session/cookie is an array (user id, persist code)
              */
             if (!is_array($userArray) || count($userArray) !== 2) {
                 return false;
@@ -432,6 +432,12 @@ class Manager
      */
     public function logout()
     {
+        if ($this->isImpersonator()) {
+            $this->user = $this->getImpersonator();
+            $this->stopImpersonate();
+            return;
+        }
+
         if ($this->user) {
             $this->user->setRememberToken(null);
             $this->user->forceSave();
@@ -441,5 +447,50 @@ class Manager
 
         Session::forget($this->sessionKey);
         Cookie::queue(Cookie::forget($this->sessionKey));
+    }
+
+    //
+    // Impersonation
+    //
+
+    /**
+     * Impersonates the given user and sets properties
+     * in the session but not the cookie.
+     */
+    public function impersonate($user)
+    {
+        $oldSession = Session::get($this->sessionKey);
+
+        $this->login($user, false);
+
+        Session::put($this->sessionKey.'_impersonate', $oldSession);
+    }
+
+    public function stopImpersonate()
+    {
+        $oldSession = Session::pull($this->sessionKey.'_impersonate');
+
+        Session::put($this->sessionKey, $oldSession);
+    }
+
+    public function isImpersonator()
+    {
+        return Session::has($this->sessionKey.'_impersonate');
+    }
+
+    public function getImpersonator()
+    {
+        $impersonateArray = Session::get($this->sessionKey.'_impersonate');
+
+        /*
+         * Check supplied session/cookie is an array (user id, persist code)
+         */
+        if (!is_array($impersonateArray) || count($impersonateArray) !== 2) {
+            return false;
+        }
+
+        $id = reset($impersonateArray);
+
+        return $this->createUserModel()->find($id);
     }
 }
