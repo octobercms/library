@@ -23,7 +23,7 @@ class Throttle extends Model
      * @var array Relations
      */
     public $belongsTo = [
-        'user' => ['October\Rain\Auth\User', 'key' => 'user_id']
+        'user' => [User::class, 'key' => 'user_id']
     ];
 
     /**

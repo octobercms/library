@@ -33,7 +33,11 @@ class User extends Model
      * @var array Relations
      */
     public $belongsToMany = [
-        'groups' => ['October\Rain\Auth\Models\Group', 'table' => 'users_groups']
+        'groups' => [Group::class, 'table' => 'users_groups']
+    ];
+
+    public $belongsTo = [
+        'role' => Role::class
     ];
 
     /**
