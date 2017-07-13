@@ -332,7 +332,7 @@ class User extends Model
 
     /**
      * Returns the role assigned to this user.
-     * @return October\RainAuth\Models\Role
+     * @return October\Rain\Auth\Models\Role
      */
     public function getRole()
     {

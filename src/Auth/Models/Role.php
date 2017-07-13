@@ -13,7 +13,7 @@ class Role extends Model
     /**
      * @var string The table associated with the model.
      */
-    protected $table = 'role';
+    protected $table = 'roles';
 
     /**
      * @var array Validation rules
