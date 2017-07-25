@@ -894,6 +894,13 @@ class Model extends EloquentModel
     public function setAttribute($key, $value)
     {
         /*
+         * Attempting to set attribute [null] on model.
+         */
+        if (empty($key)) {
+            throw new Exception('Cannot access empty model attribute.');
+        }
+
+        /*
          * Handle direct relation setting
          */
         if ($this->hasRelation($key)) {
