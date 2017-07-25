@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "php": ">=5.5.9",
+        "php": ">=7.0",
         "illuminate/database": "5.1.*",
         "illuminate/pagination": "5.1.*",
         "october/support": "~1.0",

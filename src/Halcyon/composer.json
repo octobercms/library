@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "php": ">=5.5.9",
+        "php": ">=7.0",
         "october/extension": "~1.0",
         "october/filesystem": "~1.0",
         "october/parse": "~1.0",
