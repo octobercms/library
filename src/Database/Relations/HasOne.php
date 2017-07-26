@@ -30,8 +30,9 @@ class HasOne extends HasOneBase
     {
         // New models have no possibility of having a relationship here
         // so prevent the first orphaned relation from being used.
-        if (!$this->parent->exists)
+        if (!$this->parent->exists) {
             return null;
+        }
 
         return parent::getResults();
     }
@@ -50,7 +51,7 @@ class HasOne extends HasOneBase
         if (!$value) {
             if ($this->parent->exists) {
                 $this->parent->bindEventOnce('model.afterSave', function() {
-                    $this->update([$this->getPlainForeignKey() => null]);
+                    $this->update([$this->getForeignKeyName() => null]);
                 });
             }
             return;
@@ -60,7 +61,7 @@ class HasOne extends HasOneBase
             $instance = $value;
 
             if ($this->parent->exists) {
-                $instance->setAttribute($this->getPlainForeignKey(), $this->getParentKey());
+                $instance->setAttribute($this->getForeignKeyName(), $this->getParentKey());
             }
         }
         else {
@@ -73,13 +74,13 @@ class HasOne extends HasOneBase
             // Relation is already set, do nothing. This prevents the relationship
             // from being nulled below and left unset because the save will ignore
             // attribute values that are numerically equivalent (not dirty).
-            if ($instance->getOriginal($this->getPlainForeignKey()) === $this->getParentKey()) {
+            if ($instance->getOriginal($this->getForeignKeyName()) == $this->getParentKey()) {
                 return;
             }
 
-            $this->parent->bindEventOnce('model.afterSave', function() use ($instance){
-                $this->update([$this->getPlainForeignKey() => null]);
-                $instance->setAttribute($this->getPlainForeignKey(), $this->getParentKey());
+            $this->parent->bindEventOnce('model.afterSave', function() use ($instance) {
+                $this->update([$this->getForeignKeyName() => null]);
+                $instance->setAttribute($this->getForeignKeyName(), $this->getParentKey());
                 $instance->save(['timestamps' => false]);
             });
         }
@@ -94,9 +95,9 @@ class HasOne extends HasOneBase
         $value = null;
         $relationName = $this->relationName;
 
-        if ($this->parent->$relationName) {
-            $key = $this->getPlainForeignKey();
-            $value = $this->parent->$relationName->$key;
+        if ($this->parent->{$relationName}) {
+            $key = $this->getForeignKeyName();
+            $value = $this->parent->{$relationName}->{$key};
         }
 
         return $value;

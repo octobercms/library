@@ -1,6 +1,6 @@
 <?php namespace October\Rain\Halcyon\Datasource;
 
-use Illuminate\Filesystem\Filesystem;
+use October\Rain\Filesystem\Filesystem;
 use October\Rain\Halcyon\Processors\Processor;
 use October\Rain\Halcyon\Exception\CreateFileException;
 use October\Rain\Halcyon\Exception\DeleteFileException;
@@ -15,7 +15,6 @@ use Exception;
  */
 class FileDatasource extends Datasource implements DatasourceInterface
 {
-
     /**
      * The local path where the datasource can be found.
      *
@@ -26,7 +25,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
     /**
      * The filesystem instance.
      *
-     * @var \Illuminate\Filesystem\Filesystem
+     * @var \October\Rain\Filesystem\Filesystem
      */
     protected $files;
 
@@ -321,5 +320,4 @@ class FileDatasource extends Datasource implements DatasourceInterface
     {
         return $this->basePath;
     }
-
 }

@@ -3,6 +3,11 @@
 use Closure;
 use Illuminate\Foundation\Application as ApplicationBase;
 use Symfony\Component\Debug\Exception\FatalErrorException;
+use October\Rain\Events\EventServiceProvider;
+use October\Rain\Router\RoutingServiceProvider;
+use October\Rain\Foundation\Providers\LogServiceProvider;
+use October\Rain\Foundation\Providers\MakerServiceProvider;
+use Throwable;
 use Exception;
 
 class Application extends ApplicationBase
@@ -49,6 +54,22 @@ class Application extends ApplicationBase
     }
 
     /**
+     * Register all of the base service providers.
+     *
+     * @return void
+     */
+    protected function registerBaseServiceProviders()
+    {
+        $this->register(new EventServiceProvider($this));
+
+        $this->register(new LogServiceProvider($this));
+
+        $this->register(new RoutingServiceProvider($this));
+
+        $this->register(new MakerServiceProvider($this));
+    }
+
+    /**
      * Bind all of the application paths in the container.
      *
      * @return void
@@ -57,9 +78,9 @@ class Application extends ApplicationBase
     {
         parent::bindPathsInContainer();
 
-        foreach (['plugins', 'themes', 'temp'] as $path) {
-            $this->instance('path.'.$path, $this->{$path.'Path'}());
-        }
+        $this->instance('path.plugins', $this->pluginsPath());
+        $this->instance('path.themes', $this->themesPath());
+        $this->instance('path.temp', $this->tempPath());
     }
 
     /**
@@ -116,6 +137,29 @@ class Application extends ApplicationBase
     public function tempPath()
     {
         return $this->basePath.'/storage/temp';
+    }
+
+    /**
+     * Resolve the given type from the container.
+     *
+     * (Overriding Container::make)
+     *
+     * @param  string  $abstract
+     * @return mixed
+     */
+    public function make($abstract, array $parameters = [])
+    {
+        $abstract = $this->getAlias($abstract);
+
+        if (isset($this->deferredServices[$abstract])) {
+            $this->loadDeferredProvider($abstract);
+        }
+
+        if ($parameters) {
+            return $this->make(Maker::class)->make($abstract, $parameters);
+        }
+
+        return parent::make($abstract);
     }
 
     /**
@@ -192,13 +236,67 @@ class Application extends ApplicationBase
     public function hasDatabase()
     {
         try {
-            $this['db.connection']->getDatabaseName();
+            $this['db.connection']->getPdo();
+        }
+        catch (Throwable $ex) {
+            return false;
         }
         catch (Exception $ex) {
             return false;
         }
 
         return true;
+    }
+
+    //
+    // Core aliases
+    //
+
+    /**
+     * Register the core class aliases in the container.
+     *
+     * @return void
+     */
+    public function registerCoreContainerAliases()
+    {
+        $aliases = [
+            'app'                  => [\October\Rain\Foundation\Application::class, \Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class],
+            'blade.compiler'       => [\Illuminate\View\Compilers\BladeCompiler::class],
+            'cache'                => [\Illuminate\Cache\CacheManager::class, \Illuminate\Contracts\Cache\Factory::class],
+            'cache.store'          => [\Illuminate\Cache\Repository::class, \Illuminate\Contracts\Cache\Repository::class],
+            'config'               => [\Illuminate\Config\Repository::class, \Illuminate\Contracts\Config\Repository::class],
+            'cookie'               => [\Illuminate\Cookie\CookieJar::class, \Illuminate\Contracts\Cookie\Factory::class, \Illuminate\Contracts\Cookie\QueueingFactory::class],
+            'encrypter'            => [\Illuminate\Encryption\Encrypter::class, \Illuminate\Contracts\Encryption\Encrypter::class],
+            'db'                   => [\October\Rain\Database\DatabaseManager::class],
+            'db.connection'        => [\Illuminate\Database\Connection::class, \Illuminate\Database\ConnectionInterface::class],
+            'events'               => [\Illuminate\Events\Dispatcher::class, \Illuminate\Contracts\Events\Dispatcher::class],
+            'files'                => [\Illuminate\Filesystem\Filesystem::class],
+            'filesystem'           => [\Illuminate\Filesystem\FilesystemManager::class, \Illuminate\Contracts\Filesystem\Factory::class],
+            'filesystem.disk'      => [\Illuminate\Contracts\Filesystem\Filesystem::class],
+            'filesystem.cloud'     => [\Illuminate\Contracts\Filesystem\Cloud::class],
+            'hash'                 => [\Illuminate\Contracts\Hashing\Hasher::class],
+            'translator'           => [\Illuminate\Translation\Translator::class, \Illuminate\Contracts\Translation\Translator::class],
+            'log'                  => [\Illuminate\Log\Writer::class, \Illuminate\Contracts\Logging\Log::class, \Psr\Log\LoggerInterface::class],
+            'mailer'               => [\Illuminate\Mail\Mailer::class, \Illuminate\Contracts\Mail\Mailer::class, \Illuminate\Contracts\Mail\MailQueue::class],
+            'queue'                => [\Illuminate\Queue\QueueManager::class, \Illuminate\Contracts\Queue\Factory::class, \Illuminate\Contracts\Queue\Monitor::class],
+            'queue.connection'     => [\Illuminate\Contracts\Queue\Queue::class],
+            'queue.failer'         => [\Illuminate\Queue\Failed\FailedJobProviderInterface::class],
+            'redirect'             => [\Illuminate\Routing\Redirector::class],
+            'redis'                => [\Illuminate\Redis\RedisManager::class, \Illuminate\Contracts\Redis\Factory::class],
+            'request'              => [\Illuminate\Http\Request::class, \Symfony\Component\HttpFoundation\Request::class],
+            'router'               => [\Illuminate\Routing\Router::class, \Illuminate\Contracts\Routing\Registrar::class, \Illuminate\Contracts\Routing\BindingRegistrar::class],
+            'session'              => [\Illuminate\Session\SessionManager::class],
+            'session.store'        => [\Illuminate\Session\Store::class, \Illuminate\Contracts\Session\Session::class],
+            'url'                  => [\Illuminate\Routing\UrlGenerator::class, \Illuminate\Contracts\Routing\UrlGenerator::class],
+            'validator'            => [\Illuminate\Validation\Factory::class, \Illuminate\Contracts\Validation\Factory::class],
+            'view'                 => [\Illuminate\View\Factory::class, \Illuminate\Contracts\View\Factory::class],
+        ];
+
+        foreach ($aliases as $key => $aliases) {
+            foreach ($aliases as $alias) {
+                $this->alias($key, $alias);
+            }
+        }
     }
 
     //
@@ -242,7 +340,26 @@ class Application extends ApplicationBase
      */
     public function getCachedServicesPath()
     {
-        return $this->storagePath().'/framework/services.json';
+        return $this->storagePath().'/framework/services.php';
     }
 
+    /**
+     * Get the path to the cached packages.php file.
+     *
+     * @return string
+     */
+    public function getCachedPackagesPath()
+    {
+        return $this->storagePath().'/framework/packages.php';
+    }
+
+    /**
+     * Get the path to the cached packages.php file.
+     *
+     * @return string
+     */
+    public function getCachedClassesPath()
+    {
+        return $this->storagePath().'/framework/classes.php';
+    }
 }

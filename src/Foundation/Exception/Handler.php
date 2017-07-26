@@ -18,10 +18,11 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        'October\Rain\Exception\AjaxException',
-        'October\Rain\Exception\ValidationException',
-        'October\Rain\Exception\ApplicationException',
-        'Symfony\Component\HttpKernel\Exception\HttpException',
+        \October\Rain\Exception\AjaxException::class,
+        \October\Rain\Exception\ValidationException::class,
+        \October\Rain\Exception\ApplicationException::class,
+        \Illuminate\Database\Eloquent\ModelNotFoundException::class,
+        \Symfony\Component\HttpKernel\Exception\HttpException::class,
     ];
 
     /**
@@ -41,8 +42,9 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $exception)
     {
-        if ($this->shouldntReport($exception))
+        if ($this->shouldntReport($exception)) {
             return;
+        }
 
         if (class_exists('Log')) {
             Log::error($exception);
@@ -58,6 +60,10 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        if (!class_exists('Event')) {
+            return parent::render($request, $exception);
+        }
+
         $statusCode = $this->getStatusCode($exception);
         $response = $this->callCustomHandlers($exception);
 
@@ -91,6 +97,16 @@ class Handler extends ExceptionHandler
         }
 
         return $code;
+    }
+
+    /**
+     * Get the default context variables for logging.
+     *
+     * @return array
+     */
+    protected function context()
+    {
+        return [];
     }
 
     //

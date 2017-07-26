@@ -15,9 +15,9 @@
         }
     ],
     "require": {
-        "php": ">=5.5.9",
-        "illuminate/mail": "5.1.*",
-        "illuminate/events": "5.1.*",
+        "php": ">=7.0",
+        "illuminate/mail": "5.5.*@dev",
+        "illuminate/events": "5.5.*@dev",
         "october/filesystem": "~1.0",
         "october/support": "~1.0"
     },

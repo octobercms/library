@@ -4,7 +4,6 @@ use Illuminate\Contracts\Foundation\Application;
 
 class RegisterOctober
 {
-
     /**
      * Specific features for OctoberCMS.
      *
@@ -67,5 +66,4 @@ class RegisterOctober
 
         return $url;
     }
-
 }

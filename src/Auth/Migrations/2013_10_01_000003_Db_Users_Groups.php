@@ -5,7 +5,6 @@ use Illuminate\Database\Migrations\Migration;
 
 class DbUsersGroups extends Migration
 {
-
     public function up()
     {
         Schema::create('users_groups', function($table)
@@ -21,5 +20,4 @@ class DbUsersGroups extends Migration
     {
         Schema::drop('users_groups');
     }
-
 }

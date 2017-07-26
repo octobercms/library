@@ -34,7 +34,7 @@ class HasMany extends HasManyBase
         if (!$value) {
             if ($this->parent->exists) {
                 $this->parent->bindEventOnce('model.afterSave', function() {
-                    $this->update([$this->getPlainForeignKey() => null]);
+                    $this->update([$this->getForeignKeyName() => null]);
                 });
             }
             return;
@@ -49,7 +49,7 @@ class HasMany extends HasManyBase
 
             if ($this->parent->exists) {
                 $collection->each(function($instance) {
-                    $instance->setAttribute($this->getPlainForeignKey(), $this->getParentKey());
+                    $instance->setAttribute($this->getForeignKeyName(), $this->getParentKey());
                 });
             }
         }
@@ -62,9 +62,9 @@ class HasMany extends HasManyBase
 
             $this->parent->bindEventOnce('model.afterSave', function() use ($collection) {
                 $existingIds = $collection->lists($this->localKey);
-                $this->whereNotIn($this->localKey, $existingIds)->update([$this->getPlainForeignKey() => null]);
+                $this->whereNotIn($this->localKey, $existingIds)->update([$this->getForeignKeyName() => null]);
                 $collection->each(function($instance) {
-                    $instance->setAttribute($this->getPlainForeignKey(), $this->getParentKey());
+                    $instance->setAttribute($this->getForeignKeyName(), $this->getParentKey());
                     $instance->save(['timestamps' => false]);
                 });
             });

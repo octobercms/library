@@ -1,7 +1,9 @@
 <?php namespace October\Rain\Mail;
 
 use Event;
+use Config;
 use Illuminate\Mail\Mailer as MailerBase;
+use Illuminate\Contracts\Mail\Mailable as MailableContract;
 
 /**
  * Mailer class for sending mail.
@@ -11,8 +13,12 @@ use Illuminate\Mail\Mailer as MailerBase;
  */
 class Mailer extends MailerBase
 {
-
     use \October\Rain\Support\Traits\Emitter;
+
+    /**
+     * @var string Original driver before pretending.
+     */
+    protected $pretendingOriginal;
 
     /**
      * Send a new message using a view.
@@ -22,7 +28,7 @@ class Mailer extends MailerBase
      * @param  \Closure|string $callback
      * @return mixed
      */
-    public function send($view, array $data, $callback)
+    public function send($view, array $data = [], $callback = null)
     {
         /*
          * Extensibility
@@ -34,19 +40,28 @@ class Mailer extends MailerBase
             return;
         }
 
+        if ($view instanceof MailableContract) {
+            return $this->sendMailable($view);
+        }
+
         /*
          * Inherit logic from Illuminate\Mail\Mailer
          */
         list($view, $plain, $raw) = $this->parseView($view);
 
         $data['message'] = $message = $this->createMessage();
-        $this->callMessageBuilder($callback, $message);
 
         if (is_bool($raw) && $raw === true) {
             $this->addContentRaw($message, $view, $plain);
         }
         else {
             $this->addContent($message, $view, $plain, $raw, $data);
+        }
+
+        call_user_func($callback, $message);
+
+        if (isset($this->to['address'])) {
+            $this->setGlobalTo($message);
         }
 
         /*
@@ -65,16 +80,14 @@ class Mailer extends MailerBase
         /*
          * Send the message
          */
-        $_message = $message->getSwiftMessage();
-        $response = $this->sendSwiftMessage($_message);
+        $this->sendSwiftMessage($message->getSwiftMessage());
+        $this->dispatchSentEvent($message);
 
         /*
          * Extensibility
          */
-        $this->fireEvent('mailer.send', [$view, $message, $response]);
-        Event::fire('mailer.send', [$this, $view, $message, $response]);
-
-        return $response;
+        $this->fireEvent('mailer.send', [$view, $message]);
+        Event::fire('mailer.send', [$this, $view, $message]);
     }
 
     /**
@@ -96,8 +109,9 @@ class Mailer extends MailerBase
      */
     public function sendTo($recipients, $view, array $data = [], $callback = null, $queue = false)
     {
-        if (is_bool($callback))
+        if (is_bool($callback)) {
             $queue = $callback;
+        }
 
         $method = $queue === true ? 'queue' : 'send';
         $recipients = $this->processRecipients($recipients);
@@ -128,6 +142,7 @@ class Mailer extends MailerBase
         }
 
         $view['raw'] = true;
+
         return $this->sendTo($recipients, $view, [], $callback, $queue);
     }
 
@@ -265,4 +280,21 @@ class Mailer extends MailerBase
         }
     }
 
+    /**
+     * Tell the mailer to not really send messages.
+     *
+     * @param  bool  $value
+     * @return void
+     */
+    public function pretend($value = true)
+    {
+        if ($value) {
+            $this->pretendingOriginal = Config::get('mail.driver');
+
+            Config::set('mail.driver', 'log');
+        }
+        else {
+            Config::set('mail.driver', $this->pretendingOriginal);
+        }
+    }
 }

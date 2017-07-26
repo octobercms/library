@@ -138,8 +138,9 @@ trait DeferredBinding
              * Find the slave model
              */
             $slaveClass = $binding->slave_type;
-            $slaveModel = new $slaveClass();
+            $slaveModel = new $slaveClass;
             $slaveModel = $slaveModel->find($binding->slave_id);
+
             if (!$slaveModel) {
                 continue;
             }
@@ -181,7 +182,6 @@ trait DeferredBinding
             ->get()
         ;
     }
-
 
     /**
      * Returns all possible relation types that can be deferred.

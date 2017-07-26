@@ -125,16 +125,18 @@ class Resizer
      *  - mode: Either exact, portrait, landscape, auto or crop.
      *  - offset: The offset of the crop = [ left, top ]
      *  - sharpen: Sharpen image, from 0 - 100 (default: 0)
+     *  - interlace: Interlace image,  Boolean: false (disabled: default), true (enabled)
      *  - quality: Image quality, from 0 - 100 (default: 95)
      * @return self
      */
     public function setOptions($options)
     {
         $this->options = array_merge([
-            'mode'    => 'auto',
-            'offset'  => [0, 0],
-            'sharpen' => 0,
-            'quality' => 90
+            'mode'      => 'auto',
+            'offset'    => [0, 0],
+            'sharpen'   => 0,
+            'interlace' => false,
+            'quality'   => 90
         ], $options);
 
         return $this;
@@ -409,6 +411,10 @@ class Resizer
         $image = $this->image;
 
         $imageQuality = $this->getOption('quality');
+        
+        if ($this->getOption('interlace')) {
+            imageinterlace($image, true);
+        }
 
         // Determine the image type from the destination file
         $extension = FileHelper::extension($savePath) ?: $this->extension;
@@ -442,9 +448,16 @@ class Resizer
                     imagepng($image, $savePath, $invertScaleQuality);
                 }
                 break;
-
+                
+            case 'webp':
+                // Check WEBP support is enabled
+                if (imagetypes() & IMG_WEBP) {
+                    imagewebp($image, $savePath, $imageQuality);
+                }
+                break;
+                
             default:
-                throw new Exception(sprintf('Invalid image type: %s. Accepted types: jpg, gif, png.', $extension));
+                throw new Exception(sprintf('Invalid image type: %s. Accepted types: jpg, gif, png, webp.', $extension));
                 break;
         }
 
@@ -466,9 +479,10 @@ class Resizer
             case 'image/jpeg': $img = @imagecreatefromjpeg($filePath); break;
             case 'image/gif':  $img = @imagecreatefromgif($filePath);  break;
             case 'image/png':  $img = @imagecreatefrompng($filePath);  break;
+            case 'image/webp': $img = @imagecreatefromwebp($filePath); break;
 
             default:
-                throw new Exception(sprintf('Invalid mime type: %s. Accepted types: image/jpeg, image/gif, image/png.', $mime));
+                throw new Exception(sprintf('Invalid mime type: %s. Accepted types: image/jpeg, image/gif, image/png, image/webp.', $mime));
                 break;
         }
 

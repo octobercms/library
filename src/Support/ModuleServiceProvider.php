@@ -68,7 +68,8 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
     public function registerConsoleCommand($key, $class)
     {
         $key = 'command.'.$key;
-        $this->app[$key] = $this->app->share(function($app) use ($class) {
+
+        $this->app->singleton($key, function($app) use ($class) {
             return new $class;
         });
 

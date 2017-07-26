@@ -15,9 +15,9 @@
         }
     ],
     "require": {
-        "php": ">=5.5.9",
-        "illuminate/html": "5.1.*",
-        "illuminate/routing": "5.1.*",
+        "php": ">=7.0",
+        "illuminate/html": "5.5.*@dev",
+        "illuminate/routing": "5.5.*@dev",
         "october/support": "~1.0"
     },
     "autoload": {
