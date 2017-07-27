@@ -182,6 +182,13 @@ class FormBuilder
             $attributes['data-request-' . $property] = $value;
         }
 
+        /*
+         * The `files` option is a hybrid
+         */
+        if (isset($options['files'])) {
+            $attributes['data-request-files'] = $options['files'];
+        }
+
         return $this->open($attributes);
     }
 
