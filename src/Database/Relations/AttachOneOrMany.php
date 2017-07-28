@@ -3,6 +3,7 @@
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use October\Rain\Support\Facades\DbDongle;
+use October\Rain\Database\Attach\File as FileModel;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 trait AttachOneOrMany
@@ -243,6 +244,34 @@ trait AttachOneOrMany
         }
 
         return false;
+    }
+
+    /**
+     * Creates a file object suitable for validation, called from
+     * the `getValidationValue` method. Value can be a file model,
+     * UploadedFile object (expected) or potentially a string.
+     *
+     * @param mixed $value
+     * @return UploadedFile
+     */
+    public function makeValidationFile($value)
+    {
+        if ($value instanceof FileModel) {
+            return new UploadedFile(
+                $value->getLocalPath(),
+                $value->file_name,
+                $value->content_type,
+                $value->file_size,
+                null,
+                true
+            );
+        }
+
+        /*
+         * @todo `$value` might be a string, may not validate
+         */
+
+        return $value;
     }
 
     /**

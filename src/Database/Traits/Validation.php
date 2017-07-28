@@ -86,6 +86,21 @@ trait Validation
     }
 
     /**
+     * Attachments validate differently to their simple values.
+     */
+    protected function getRelationValidationValue($relationName)
+    {
+        $relationType = $this->getRelationType($relationName);
+
+        if ($relationType == 'attachOne') {
+            return $this->$relationName()->getValidationValue();
+        }
+        else {
+            return $this->getRelationValue($relationName);
+        }
+    }
+
+    /**
      * Instantiates the validator used by the validation process, depending if the class
      * is being used inside or outside of Laravel. Optional connection string to make
      * the validator use a different database connection than the default connection.
@@ -163,9 +178,14 @@ trait Validation
              * Add relation values, if specified.
              */
             foreach ($rules as $attribute => $rule) {
-                if (!$this->hasRelation($attribute)) continue;
-                if (array_key_exists($attribute, $data)) continue;
-                $data[$attribute] = $this->getRelationValue($attribute);
+                if (
+                    !$this->hasRelation($attribute) ||
+                    array_key_exists($attribute, $data)
+                ) {
+                    continue;
+                }
+
+                $data[$attribute] = $this->getRelationValidationValue($attribute);
             }
 
             /*
@@ -418,5 +438,4 @@ trait Validation
     {
         static::registerModelEvent('validated', $callback);
     }
-
 }
