@@ -224,7 +224,7 @@ class Mailer extends MailerBase
         $text = null;
 
         if (isset($view)) {
-            $viewContent = $this->getView($view, $data);
+            $viewContent = $this->renderView($view, $data);
             $result = MailParser::parse($viewContent);
             $html = $result['html'];
 
@@ -245,7 +245,7 @@ class Mailer extends MailerBase
         }
 
         if (isset($plain)) {
-            $text = $this->getView($plain, $data);
+            $text = $this->renderView($plain, $data);
         }
 
         if (isset($raw)) {
