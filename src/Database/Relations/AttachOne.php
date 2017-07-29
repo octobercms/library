@@ -40,7 +40,8 @@ class AttachOne extends MorphOneBase
          */
         if ($this->isValidFileData($value)) {
             $this->parent->bindEventOnce('model.afterSave', function() use ($value) {
-                $this->create(['data' => $value]);
+                $file = $this->create(['data' => $value]);
+                $this->parent->setRelation($this->relationName, $file);
             });
         }
         /*
@@ -86,7 +87,7 @@ class AttachOne extends MorphOneBase
     /**
      * Internal method used by `getSimpleValue` and `getValidationValue`
      */
-    public function getSimpleValueInternal()
+    protected function getSimpleValueInternal()
     {
         $value = null;
 
