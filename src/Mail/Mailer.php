@@ -128,6 +128,25 @@ class Mailer extends MailerBase
     }
 
     /**
+     * Send a new message when only a raw text part.
+     *
+     * @param  string  $text
+     * @param  mixed  $callback
+     * @return int
+     */
+    public function raw($view, $callback)
+    {
+        if (!is_array($view)) {
+            $view = ['raw' => $view];
+        }
+        elseif (!array_key_exists('raw', $view)) {
+            $view['raw'] = true;
+        }
+
+        return $this->send($view, [], $callback);
+    }
+
+    /**
      * Helper for raw() method, send a new message when only a raw text part.
      * @param  array $recipients
      * @param  string  $view
@@ -138,10 +157,11 @@ class Mailer extends MailerBase
     public function rawTo($recipients, $view, $callback = null, $queue = false)
     {
         if (!is_array($view)) {
-            $view = ['text' => $view];
+            $view = ['raw' => $view];
         }
-
-        $view['raw'] = true;
+        elseif (!array_key_exists('raw', $view)) {
+            $view['raw'] = true;
+        }
 
         return $this->sendTo($recipients, $view, [], $callback, $queue);
     }
