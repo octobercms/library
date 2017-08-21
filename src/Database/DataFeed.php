@@ -172,7 +172,9 @@ class DataFeed
 
         $query->orderBy($this->sortVar, $this->sortDirection);
 
-        return new LengthAwarePaginator($this->createCollection($query->get()), $total, $perPage, $page);
+        return new LengthAwarePaginator($this->createCollection($query->get()), $total, $perPage, $page, [
+            'path' => Paginator::resolveCurrentPath()
+        ]);
     }
 
     /**
