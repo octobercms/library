@@ -1,6 +1,8 @@
 <?php namespace October\Rain\Database;
 
 use Db;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Str;
 use Closure;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
@@ -156,6 +158,21 @@ class DataFeed
         }
 
         return new Collection($dataArray);
+    }
+
+    public function paginate($perPage = 10){
+        $total = $this->count();
+
+        $query = $this->processCollection();
+
+        $query->forPage(
+            $page = Paginator::resolveCurrentPage(),
+            $perPage
+        );
+
+        $query->orderBy($this->sortVar, $this->sortDirection);
+
+        return new LengthAwarePaginator($this->createCollection($query->get()), $total, $perPage, $page);
     }
 
     /**
