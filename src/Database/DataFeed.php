@@ -92,7 +92,7 @@ class DataFeed
     public function count()
     {
         $query = $this->processCollection();
-        $result = Db::table(Db::raw("(".$query->toSql().") as records"))->select(Db::raw("COUNT(*) as total"))->first();
+        $result = Db::table(Db::raw("(".$query->toSql().") as records"))->select(Db::raw("COUNT(*) as total"))->mergeBindings($query)->first();
         return $result->total;
     }
 
