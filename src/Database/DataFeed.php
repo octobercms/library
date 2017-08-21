@@ -116,6 +116,13 @@ class DataFeed
 
         $records = $query->get();
 
+        return $this->createCollection($records);
+    }
+
+    /**
+     * Gets the actual data from an array of records and returns a Collection
+     */
+    protected function createCollection($records = []){
         /*
          * Build a collection of class names and IDs needed
          */
