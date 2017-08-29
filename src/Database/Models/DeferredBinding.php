@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Database\Models;
 
 use Db;
+use Carbon\Carbon;
 use October\Rain\Database\Model;
 use Exception;
 
@@ -86,7 +87,7 @@ class DeferredBinding extends Model
      */
     public static function cleanUp($days = 5)
     {
-        $records = self::whereRaw('ADDDATE(created_at, INTERVAL :days DAY) < NOW()', ['days' => $days])->get();
+        $records = self::where('created_at', '<',  Carbon::now()->subDays($days)->toDateTimeString())->get();
 
         foreach ($records as $record) {
             $record->deleteCancel();
