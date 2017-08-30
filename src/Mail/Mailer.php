@@ -2,6 +2,7 @@
 
 use Event;
 use Illuminate\Mail\Mailer as MailerBase;
+use Illuminate\Support\Collection;
 
 /**
  * Mailer class for sending mail.
@@ -147,7 +148,7 @@ class Mailer extends MailerBase
         if (is_string($recipients)) {
             $result[$recipients] = null;
         }
-        elseif (is_object($recipients)) {
+        elseif (is_object($recipients) && !($recipients instanceof Collection)) {
             if (!empty($recipients->email) || !empty($recipients->address)) {
                 $address = !empty($recipients->email) ? $recipients->email : $recipients->address;
                 $name = !empty($recipients->name) ? $recipients->name : null;
