@@ -4,7 +4,6 @@ use October\Rain\Database\Models\DeferredBinding as DeferredBindingModel;
 
 trait DeferredBinding
 {
-
     /**
      * @var string A unique session key used for deferred binding.
      */
@@ -35,7 +34,8 @@ trait DeferredBinding
      */
     public function bindDeferred($relation, $record, $sessionKey)
     {
-        $binding = DeferredBindingModel::make();
+        $binding = new DeferredBindingModel;
+        $binding->setConnection($this->getConnectionName());
         $binding->master_type = get_class($this);
         $binding->master_field = $relation;
         $binding->slave_type = get_class($record);
@@ -51,7 +51,8 @@ trait DeferredBinding
      */
     public function unbindDeferred($relation, $record, $sessionKey)
     {
-        $binding = DeferredBindingModel::make();
+        $binding = new DeferredBindingModel;
+        $binding->setConnection($this->getConnectionName());
         $binding->master_type = get_class($this);
         $binding->master_field = $relation;
         $binding->slave_type = get_class($record);
@@ -137,8 +138,9 @@ trait DeferredBinding
              * Find the slave model
              */
             $slaveClass = $binding->slave_type;
-            $slaveModel = new $slaveClass();
+            $slaveModel = new $slaveClass;
             $slaveModel = $slaveModel->find($binding->slave_id);
+
             if (!$slaveModel) {
                 continue;
             }
@@ -170,12 +172,16 @@ trait DeferredBinding
             return $this->deferredBindingCache;
         }
 
-        return $this->deferredBindingCache = DeferredBindingModel::make()
+        $binding = new DeferredBindingModel;
+
+        $binding->setConnection($this->getConnectionName());
+
+        return $this->deferredBindingCache = $binding
             ->where('master_type', get_class($this))
             ->where('session_key', $sessionKey)
-            ->get();
+            ->get()
+        ;
     }
-
 
     /**
      * Returns all possible relation types that can be deferred.
@@ -196,5 +202,4 @@ trait DeferredBinding
             'belongsTo'
         ];
     }
-
 }

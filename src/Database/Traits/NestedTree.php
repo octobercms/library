@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Traits;
 
+use DbDongle;
 use October\Rain\Database\Collection;
 use October\Rain\Database\TreeCollection;
 use October\Rain\Database\NestedTreeScope;
@@ -52,14 +53,14 @@ use Exception;
  *   $query->leaves(); // Filters as all final nodes without children.
  *   $query->getNested(); // Returns an eager loaded collection of results.
  *   $query->listsNested(); // Returns an indented array of key and value columns.
- * 
+ *
  * Flat result access methods:
  *
  *   $model->getAll(); // Returns everything in correct order.
  *   $model->getAllRoot(); // Returns all root nodes.
  *   $model->getAllChildren(); // Returns all children down the tree.
  *   $model->getAllChildrenAndSelf(); // Returns all children and self.
- * 
+ *
  * Eager loaded access methods:
  *
  *   $model->getEagerRoot(); // Returns a list of all root nodes, with ->children eager loaded.
@@ -358,8 +359,7 @@ trait NestedTree
             ->where($this->getLeftColumnName(), '<', $this->getRight())
         ;
 
-        if ($includeSelf) return $query;
-        else return $query->withoutSelf();
+        return $includeSelf ? $query : $query->withoutSelf();
     }
 
     /**
@@ -373,8 +373,7 @@ trait NestedTree
             ->where($this->getRightColumnName(), '>=', $this->getRight())
         ;
 
-        if ($includeSelf) return $query;
-        else return $query->withoutSelf();
+        return $includeSelf ? $query : $query->withoutSelf();
     }
 
     /**
@@ -385,8 +384,7 @@ trait NestedTree
     {
         $query->where($this->getParentColumnName(), $this->getParentId());
 
-        if ($includeSelf) return $query;
-        else return $query->withoutSelf();
+        return $includeSelf ? $query : $query->withoutSelf();
     }
 
     /**
@@ -855,22 +853,27 @@ trait NestedTree
 
         $connection = $node->getConnection();
         $grammar = $connection->getQueryGrammar();
+        $pdo = $connection->getPdo();
 
         $parentId = ($position == 'child')
             ? $target->getKey()
             : $target->getParentId();
 
-        if ($parentId === null)
+        if ($parentId === null) {
             $parentId = 'NULL';
+        }
+        else {
+            $parentId = $pdo->quote($parentId);
+        }
 
-        $currentId = $node->getKey();
+        $currentId = $pdo->quote($node->getKey());
         $leftColumn = $node->getLeftColumnName();
         $rightColumn = $node->getRightColumnName();
         $parentColumn = $node->getParentColumnName();
         $wrappedLeft = $grammar->wrap($leftColumn);
         $wrappedRight = $grammar->wrap($rightColumn);
         $wrappedParent = $grammar->wrap($parentColumn);
-        $wrappedId = $grammar->wrap($node->getKeyName());
+        $wrappedId = DbDongle::cast($grammar->wrap($node->getKeyName()), 'TEXT');
 
         $leftSql = "CASE
             WHEN $wrappedLeft BETWEEN $a AND $b THEN $wrappedLeft + $d - $b
@@ -909,14 +912,16 @@ trait NestedTree
      */
     protected function validateMove($node, $target, $position)
     {
-        if (!$node->exists)
+        if (!$node->exists) {
             throw new Exception('A new node cannot be moved.');
+        }
 
         if (!in_array($position, ['child', 'left', 'right'])) {
             throw new Exception(sprintf(
                 'Position should be either child, left, right. Supplied position is "%s".', $position
             ));
         }
+
         if ($target === null) {
             if ($position == 'left' || $position == 'right') {
                 throw new Exception(sprintf(
@@ -993,6 +998,7 @@ trait NestedTree
         ];
 
         sort($boundaries);
+
         return $boundaries;
     }
 
@@ -1003,5 +1009,4 @@ trait NestedTree
     {
         return new TreeCollection($models);
     }
-
 }

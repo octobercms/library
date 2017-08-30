@@ -1,8 +1,10 @@
 <?php namespace October\Rain\Mail;
 
 use Event;
+use Config;
 use Illuminate\Mail\Mailer as MailerBase;
 use Illuminate\Support\Collection;
+use Illuminate\Contracts\Mail\Mailable as MailableContract;
 
 /**
  * Mailer class for sending mail.
@@ -12,8 +14,12 @@ use Illuminate\Support\Collection;
  */
 class Mailer extends MailerBase
 {
-
     use \October\Rain\Support\Traits\Emitter;
+
+    /**
+     * @var string Original driver before pretending.
+     */
+    protected $pretendingOriginal;
 
     /**
      * Send a new message using a view.
@@ -23,7 +29,7 @@ class Mailer extends MailerBase
      * @param  \Closure|string $callback
      * @return mixed
      */
-    public function send($view, array $data, $callback)
+    public function send($view, array $data = [], $callback = null)
     {
         /*
          * Extensibility
@@ -35,19 +41,28 @@ class Mailer extends MailerBase
             return;
         }
 
+        if ($view instanceof MailableContract) {
+            return $this->sendMailable($view);
+        }
+
         /*
          * Inherit logic from Illuminate\Mail\Mailer
          */
         list($view, $plain, $raw) = $this->parseView($view);
 
         $data['message'] = $message = $this->createMessage();
-        $this->callMessageBuilder($callback, $message);
 
         if (is_bool($raw) && $raw === true) {
             $this->addContentRaw($message, $view, $plain);
         }
         else {
             $this->addContent($message, $view, $plain, $raw, $data);
+        }
+
+        call_user_func($callback, $message);
+
+        if (isset($this->to['address'])) {
+            $this->setGlobalTo($message);
         }
 
         /*
@@ -66,16 +81,14 @@ class Mailer extends MailerBase
         /*
          * Send the message
          */
-        $_message = $message->getSwiftMessage();
-        $response = $this->sendSwiftMessage($_message);
+        $this->sendSwiftMessage($message->getSwiftMessage());
+        $this->dispatchSentEvent($message);
 
         /*
          * Extensibility
          */
-        $this->fireEvent('mailer.send', [$view, $message, $response]);
-        Event::fire('mailer.send', [$this, $view, $message, $response]);
-
-        return $response;
+        $this->fireEvent('mailer.send', [$view, $message]);
+        Event::fire('mailer.send', [$this, $view, $message]);
     }
 
     /**
@@ -97,8 +110,9 @@ class Mailer extends MailerBase
      */
     public function sendTo($recipients, $view, array $data = [], $callback = null, $queue = false)
     {
-        if (is_bool($callback))
+        if (is_bool($callback)) {
             $queue = $callback;
+        }
 
         $method = $queue === true ? 'queue' : 'send';
         $recipients = $this->processRecipients($recipients);
@@ -115,6 +129,25 @@ class Mailer extends MailerBase
     }
 
     /**
+     * Send a new message when only a raw text part.
+     *
+     * @param  string  $text
+     * @param  mixed  $callback
+     * @return int
+     */
+    public function raw($view, $callback)
+    {
+        if (!is_array($view)) {
+            $view = ['raw' => $view];
+        }
+        elseif (!array_key_exists('raw', $view)) {
+            $view['raw'] = true;
+        }
+
+        return $this->send($view, [], $callback);
+    }
+
+    /**
      * Helper for raw() method, send a new message when only a raw text part.
      * @param  array $recipients
      * @param  string  $view
@@ -125,10 +158,12 @@ class Mailer extends MailerBase
     public function rawTo($recipients, $view, $callback = null, $queue = false)
     {
         if (!is_array($view)) {
-            $view = ['text' => $view];
+            $view = ['raw' => $view];
+        }
+        elseif (!array_key_exists('raw', $view)) {
+            $view['raw'] = true;
         }
 
-        $view['raw'] = true;
         return $this->sendTo($recipients, $view, [], $callback, $queue);
     }
 
@@ -200,8 +235,8 @@ class Mailer extends MailerBase
          * Extensibility
          */
         if (
-            ($this->fireEvent('mailer.beforeAddContent', [$message, $view, $data], true) === false) ||
-            (Event::fire('mailer.beforeAddContent', [$this, $message, $view, $data], true) === false)
+            ($this->fireEvent('mailer.beforeAddContent', [$message, $view, $data, $raw, $plain], true) === false) ||
+            (Event::fire('mailer.beforeAddContent', [$this, $message, $view, $data, $raw, $plain], true) === false)
         ) {
             return;
         }
@@ -210,7 +245,7 @@ class Mailer extends MailerBase
         $text = null;
 
         if (isset($view)) {
-            $viewContent = $this->getView($view, $data);
+            $viewContent = $this->renderView($view, $data);
             $result = MailParser::parse($viewContent);
             $html = $result['html'];
 
@@ -231,7 +266,7 @@ class Mailer extends MailerBase
         }
 
         if (isset($plain)) {
-            $text = $this->getView($plain, $data);
+            $text = $this->renderView($plain, $data);
         }
 
         if (isset($raw)) {
@@ -266,4 +301,21 @@ class Mailer extends MailerBase
         }
     }
 
+    /**
+     * Tell the mailer to not really send messages.
+     *
+     * @param  bool  $value
+     * @return void
+     */
+    public function pretend($value = true)
+    {
+        if ($value) {
+            $this->pretendingOriginal = Config::get('mail.driver');
+
+            Config::set('mail.driver', 'log');
+        }
+        else {
+            Config::set('mail.driver', $this->pretendingOriginal);
+        }
+    }
 }

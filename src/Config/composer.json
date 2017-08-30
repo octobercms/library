@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "php": ">=5.5.9",
+        "php": ">=7.0",
         "october/support": "~1.0",
         "october/filesystem": "~1.0",
         "symfony/config": "2.7.*"

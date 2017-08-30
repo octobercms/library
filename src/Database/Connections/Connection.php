@@ -26,4 +26,36 @@ class Connection extends ConnectionBase
     {
         MemoryCache::instance()->flush();
     }
+
+    /**
+     * Log a query in the connection's query log.
+     *
+     * @param  string  $query
+     * @param  array   $bindings
+     * @param  float|null  $time
+     * @return void
+     */
+    public function logQuery($query, $bindings, $time = null)
+    {
+        if (isset($this->events)) {
+            $this->events->fire('illuminate.query', [$query, $bindings, $time, $this->getName()]);
+        }
+
+        parent::logQuery($query, $bindings, $time);
+    }
+
+    /**
+     * Fire an event for this connection.
+     *
+     * @param  string  $event
+     * @return void
+     */
+    protected function fireConnectionEvent($event)
+    {
+        if (isset($this->events)) {
+            $this->events->fire('connection.'.$this->getName().'.'.$event, $this);
+        }
+
+        parent::fireConnectionEvent($event);
+    }
 }

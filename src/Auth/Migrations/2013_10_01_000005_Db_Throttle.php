@@ -5,7 +5,6 @@ use Illuminate\Database\Migrations\Migration;
 
 class DbThrottle extends Migration
 {
-
     public function up()
     {
         Schema::create('throttle', function($table)
@@ -27,5 +26,4 @@ class DbThrottle extends Migration
     {
         Schema::drop('throttle');
     }
-
 }

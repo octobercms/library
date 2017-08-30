@@ -34,15 +34,17 @@ class UrlServiceProvider extends ServiceProvider
         switch (strtolower($policy)) {
             case 'force':
                 $appUrl = $this->app['config']->get('app.url');
+                $schema = \Str::startsWith($appUrl, 'http://') ? 'http' : 'https';
                 $this->app['url']->forceRootUrl($appUrl);
+                $this->app['url']->forceSchema($schema);
                 break;
 
             case 'insecure':
-                $this->app['url']->forceSchema('http');
+                $this->app['url']->forceScheme('http');
                 break;
 
             case 'secure':
-                $this->app['url']->forceSchema('https');
+                $this->app['url']->forceScheme('https');
                 break;
         }
     }

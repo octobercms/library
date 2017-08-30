@@ -8,20 +8,8 @@ use October\Rain\Support\Str;
 use October\Rain\Argon\Argon;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Collection as CollectionBase;
-use October\Rain\Database\Relations\BelongsTo;
-use October\Rain\Database\Relations\BelongsToMany;
-use October\Rain\Database\Relations\HasMany;
-use October\Rain\Database\Relations\HasOne;
-use October\Rain\Database\Relations\MorphMany;
-use October\Rain\Database\Relations\MorphToMany;
-use October\Rain\Database\Relations\MorphTo;
-use October\Rain\Database\Relations\MorphOne;
-use October\Rain\Database\Relations\AttachMany;
-use October\Rain\Database\Relations\AttachOne;
-use October\Rain\Database\Relations\HasManyThrough;
-use InvalidArgumentException;
+use DateTimeInterface;
 use Exception;
-use DateTime;
 
 /**
  * Active Record base class.
@@ -33,6 +21,7 @@ use DateTime;
  */
 class Model extends EloquentModel
 {
+    use Concerns\HasRelationships;
     use \October\Rain\Support\Traits\Emitter;
     use \October\Rain\Extension\ExtendableTrait;
     use \October\Rain\Database\Traits\DeferredBinding;
@@ -61,102 +50,6 @@ class Model extends EloquentModel
      * @var bool Indicates if duplicate queries from this model should be cached in memory.
      */
     public $duplicateCache = true;
-
-    /**
-     * Cleaner declaration of relationships.
-     * Uses a similar approach to the relation methods used by Eloquent, but as separate properties
-     * that make the class file less cluttered.
-     *
-     * It should be declared with keys as the relation name, and value being a mixed array.
-     * The relation type $morphTo does not include a classname as the first value.
-     *
-     * Example:
-     * class Order extends Model
-     * {
-     *     protected $hasMany = [
-     *         'items' => 'Item'
-     *     ];
-     * }
-     * @var array
-     */
-    public $hasMany = [];
-
-    /**
-     * protected $hasOne = [
-     *     'owner' => ['User', 'key' => 'user_id']
-     * ];
-     */
-    public $hasOne = [];
-
-    /**
-     * protected $belongsTo = [
-     *     'parent' => ['Category', 'key' => 'parent_id']
-     * ];
-     */
-    public $belongsTo = [];
-
-    /**
-     * protected $belongsToMany = [
-     *     'groups' => ['Group', 'table'=> 'join_groups_users']
-     * ];
-     */
-    public $belongsToMany = [];
-
-    /**
-     * protected $morphTo = [
-     *     'pictures' => []
-     * ];
-     */
-    public $morphTo = [];
-
-    /**
-     * protected $morphOne = [
-     *     'log' => ['History', 'name' => 'user']
-     * ];
-     */
-    public $morphOne = [];
-
-    /**
-     * protected $morphMany = [
-     *     'log' => ['History', 'name' => 'user']
-     * ];
-     */
-    public $morphMany = [];
-
-    /**
-     * protected $morphToMany = [
-     *     'tag' => ['Tag', 'table' => 'tagables', 'name' => 'tagable']
-     * ];
-     */
-    public $morphToMany = [];
-
-    public $morphedByMany = [];
-
-    /**
-     * protected $attachOne = [
-     *     'picture' => ['October\Rain\Database\Attach\File', 'public' => false]
-     * ];
-     */
-    public $attachOne = [];
-
-    /**
-     * protected $attachMany = [
-     *     'pictures' => ['October\Rain\Database\Attach\File', 'name'=> 'imageable']
-     * ];
-     */
-    public $attachMany = [];
-
-    /**
-     * protected $attachMany = [
-     *     'pictures' => ['Picture', 'name'=> 'imageable']
-     * ];
-     */
-    public $hasManyThrough = [];
-
-    /**
-     * @var array Excepted relationship types, used to cycle and verify relationships.
-     */
-    protected static $relationTypes = ['hasOne', 'hasMany', 'belongsTo', 'belongsToMany', 'morphTo', 'morphOne', 'morphMany', 'morphToMany', 'morphedByMany', 'attachOne', 'attachMany', 'hasManyThrough'];
 
     /**
      * @var array The array of models booted events.
@@ -432,19 +325,38 @@ class Model extends EloquentModel
             return $value;
         }
 
-        if ($value instanceof DateTime) {
-            return Argon::instance($value);
+        if ($value instanceof DateTimeInterface) {
+            return new Argon(
+                $value->format('Y-m-d H:i:s.u'), $value->getTimezone()
+            );
         }
 
         if (is_numeric($value)) {
             return Argon::createFromTimestamp($value);
         }
 
-        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value)) {
+        if ($this->isStandardDateFormat($value)) {
             return Argon::createFromFormat('Y-m-d', $value)->startOfDay();
         }
 
-        return Argon::createFromFormat($this->getDateFormat(), $value);
+        return Argon::createFromFormat(
+            $this->getDateFormat(), $value
+        );
+    }
+
+    /**
+     * Convert a DateTime to a storable string.
+     *
+     * @param  \DateTime|int  $value
+     * @return string
+     */
+    public function fromDateTime($value)
+    {
+        if (is_null($value)) {
+            return $value;
+        }
+
+        return parent::fromDateTime($value);
     }
 
     /**
@@ -517,6 +429,17 @@ class Model extends EloquentModel
     }
 
     /**
+     * Determine if an attribute or relation exists on the model.
+     *
+     * @param  string  $key
+     * @return bool
+     */
+    public function __isset($key)
+    {
+        return !is_null($this->getAttribute($key));
+    }
+
+    /**
      * This a custom piece of logic specifically to satisfy Twig's
      * desire to return a relation object instead of loading the
      * related model.
@@ -534,554 +457,23 @@ class Model extends EloquentModel
     }
 
     //
-    // Relations
-    //
-
-    /**
-     * Checks if model has a relationship by supplied name.
-     * @param string $name Relation name
-     * @return bool
-     */
-    public function hasRelation($name)
-    {
-        return $this->getRelationDefinition($name) !== null ? true : false;
-    }
-
-    /**
-     * Returns relationship details from a supplied name.
-     * @param string $name Relation name
-     * @return array
-     */
-    public function getRelationDefinition($name)
-    {
-        if (($type = $this->getRelationType($name)) !== null) {
-            return (array) $this->{$type}[$name] + $this->getRelationDefaults($type);
-        }
-    }
-
-    /**
-     * Returns relationship details for all relations defined on this model.
-     * @return array
-     */
-    public function getRelationDefinitions()
-    {
-        $result = [];
-
-        foreach (static::$relationTypes as $type) {
-            $result[$type] = $this->{$type};
-
-            /*
-             * Apply default values for the relation type
-             */
-            if ($defaults = $this->getRelationDefaults($type)) {
-                foreach ($result[$type] as $relation => $options) {
-                    $result[$type][$relation] = (array) $options + $defaults;
-                }
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * Returns a relationship type based on a supplied name.
-     * @param string $name Relation name
-     * @return string
-     */
-    public function getRelationType($name)
-    {
-        foreach (static::$relationTypes as $type) {
-            if (isset($this->{$type}[$name])) {
-                return $type;
-            }
-        }
-    }
-
-    /**
-     * Returns a relation class object
-     * @param string $name Relation name
-     * @return string
-     */
-    public function makeRelation($name)
-    {
-        $relationType = $this->getRelationType($name);
-        $relation = $this->getRelationDefinition($name);
-
-        if ($relationType == 'morphTo' || !isset($relation[0])) {
-            return null;
-        }
-
-        $relationClass = $relation[0];
-        return new $relationClass();
-    }
-
-    /**
-     * Determines whether the specified relation should be saved
-     * when push() is called instead of save() on the model. Default: true.
-     * @param  string  $name Relation name
-     * @return boolean
-     */
-    public function isRelationPushable($name)
-    {
-        $definition = $this->getRelationDefinition($name);
-        if (is_null($definition) || !array_key_exists('push', $definition)) {
-            return true;
-        }
-
-        return (bool) $definition['push'];
-    }
-
-    /**
-     * Returns default relation arguments for a given type.
-     * @param string $type Relation type
-     * @return array
-     */
-    protected function getRelationDefaults($type)
-    {
-        switch ($type) {
-            case 'attachOne':
-            case 'attachMany':
-                return ['order' => 'sort_order', 'delete' => true];
-
-            default:
-                return [];
-        }
-    }
-
-    /**
-     * Looks for the relation and does the correct magic as Eloquent would require
-     * inside relation methods. For more information, read the documentation of the mentioned property.
-     * @param string $relationName the relation key, camel-case version
-     * @return \Illuminate\Database\Eloquent\Relations\Relation
-     */
-    protected function handleRelation($relationName)
-    {
-        $relationType = $this->getRelationType($relationName);
-        $relation = $this->getRelationDefinition($relationName);
-
-        if (!isset($relation[0]) && $relationType != 'morphTo') {
-            throw new InvalidArgumentException(sprintf(
-                "Relation '%s' on model '%s' should have at least a classname.", $relationName, get_called_class()
-            ));
-        }
-
-        if (isset($relation[0]) && $relationType == 'morphTo') {
-            throw new InvalidArgumentException(sprintf(
-                "Relation '%s' on model '%s' is a morphTo relation and should not contain additional arguments.", $relationName, get_called_class()
-            ));
-        }
-
-        switch ($relationType) {
-            case 'hasOne':
-            case 'hasMany':
-                $relation = $this->validateRelationArgs($relationName, ['key', 'otherKey']);
-                $relationObj = $this->$relationType($relation[0], $relation['key'], $relation['otherKey'], $relationName);
-                break;
-
-            case 'belongsTo':
-                $relation = $this->validateRelationArgs($relationName, ['key', 'otherKey']);
-                $relationObj = $this->$relationType($relation[0], $relation['key'], $relation['otherKey'], $relationName);
-                break;
-
-            case 'belongsToMany':
-                $relation = $this->validateRelationArgs($relationName, ['table', 'key', 'otherKey', 'pivot', 'timestamps']);
-                $relationObj = $this->$relationType($relation[0], $relation['table'], $relation['key'], $relation['otherKey'], $relationName);
-                break;
-
-            case 'morphTo':
-                $relation = $this->validateRelationArgs($relationName, ['name', 'type', 'id']);
-                $relationObj = $this->$relationType($relation['name'] ?: $relationName, $relation['type'], $relation['id']);
-                break;
-
-            case 'morphOne':
-            case 'morphMany':
-                $relation = $this->validateRelationArgs($relationName, ['type', 'id', 'key'], ['name']);
-                $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['type'], $relation['id'], $relation['key'], $relationName);
-                break;
-
-            case 'morphToMany':
-                $relation = $this->validateRelationArgs($relationName, ['table', 'key', 'otherKey', 'pivot', 'timestamps'], ['name']);
-                $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['table'], $relation['key'], $relation['otherKey'], false, $relationName);
-                break;
-
-            case 'morphedByMany':
-                $relation = $this->validateRelationArgs($relationName, ['table', 'key', 'otherKey', 'pivot', 'timestamps'], ['name']);
-                $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['table'], $relation['key'], $relation['otherKey'], $relationName);
-                break;
-
-            case 'attachOne':
-            case 'attachMany':
-                $relation = $this->validateRelationArgs($relationName, ['public', 'key']);
-                $relationObj = $this->$relationType($relation[0], $relation['public'], $relation['key'], $relationName);
-                break;
-
-            case 'hasManyThrough':
-                $relation = $this->validateRelationArgs($relationName, ['key', 'throughKey', 'otherKey'], ['through']);
-                $relationObj = $this->$relationType($relation[0], $relation['through'], $relation['key'], $relation['throughKey'], $relation['otherKey']);
-                break;
-
-            default:
-                throw new InvalidArgumentException(sprintf("There is no such relation type known as '%s' on model '%s'.", $relationType, get_called_class()));
-        }
-
-        return $relationObj;
-    }
-
-    /**
-     * Validate relation supplied arguments.
-     */
-    protected function validateRelationArgs($relationName, $optional, $required = [])
-    {
-        $relation = $this->getRelationDefinition($relationName);
-
-        // Query filter arguments
-        $filters = ['scope', 'conditions', 'order', 'pivot', 'timestamps', 'push', 'count'];
-
-        foreach (array_merge($optional, $filters) as $key) {
-            if (!array_key_exists($key, $relation)) {
-                $relation[$key] = null;
-            }
-        }
-
-        $missingRequired = [];
-        foreach ($required as $key) {
-            if (!array_key_exists($key, $relation)) {
-                $missingRequired[] = $key;
-            }
-        }
-
-        if ($missingRequired) {
-            throw new InvalidArgumentException(sprintf('Relation "%s" on model "%s" should contain the following key(s): %s',
-                $relationName,
-                get_called_class(),
-                join(', ', $missingRequired)
-            ));
-        }
-
-        return $relation;
-    }
-
-    /**
-     * Define an polymorphic, inverse one-to-one or many relationship.
-     * Overridden from {@link Eloquent\Model} to allow the usage of the intermediary methods to handle the relation.
-     * @return \October\Rain\Database\Relations\BelongsTo
-     */
-    public function morphTo($name = null, $type = null, $id = null)
-    {
-        if (is_null($name)) {
-            $name = snake_case($this->getRelationCaller());
-        }
-
-        list($type, $id) = $this->getMorphs($name, $type, $id);
-
-        // If the type value is null it is probably safe to assume we're eager loading
-        // the relationship. When that is the case we will pass in a dummy query as
-        // there are multiple types in the morph and we can't use single queries.
-        if (is_null($class = $this->$type)) {
-            return new MorphTo(
-                $this->newQuery(), $this, $id, null, $type, $name
-            );
-        }
-        // If we are not eager loading the relationship we will essentially treat this
-        // as a belongs-to style relationship since morph-to extends that class and
-        // we will pass in the appropriate values so that it behaves as expected.
-        else {
-            $instance = new $class;
-
-            return new MorphTo(
-                $instance->newQuery(), $this, $id, $instance->getKeyName(), $type, $name
-            );
-        }
-    }
-
-    /**
-     * Define a one-to-one relationship.
-     * This code is a duplicate of Eloquent but uses a Rain relation class.
-     * @return \October\Rain\Database\Relations\HasOne
-     */
-    public function hasOne($related, $primaryKey = null, $localKey = null, $relationName = null)
-    {
-        if (is_null($relationName)) {
-            $relationName = $this->getRelationCaller();
-        }
-
-        $primaryKey = $primaryKey ?: $this->getForeignKey();
-
-        $localKey = $localKey ?: $this->getKeyName();
-
-        $instance = new $related;
-
-        return new HasOne($instance->newQuery(), $this, $instance->getTable().'.'.$primaryKey, $localKey, $relationName);
-    }
-
-    /**
-     * Define a polymorphic one-to-one relationship.
-     * This code is a duplicate of Eloquent but uses a Rain relation class.
-     * @return \October\Rain\Database\Relations\MorphOne
-     */
-    public function morphOne($related, $name, $type = null, $id = null, $localKey = null, $relationName = null)
-    {
-        if (is_null($relationName)) {
-            $relationName = $this->getRelationCaller();
-        }
-
-        $instance = new $related;
-
-        list($type, $id) = $this->getMorphs($name, $type, $id);
-
-        $table = $instance->getTable();
-
-        $localKey = $localKey ?: $this->getKeyName();
-
-        return new MorphOne($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $localKey, $relationName);
-    }
-
-    /**
-     * Define an inverse one-to-one or many relationship.
-     * Overridden from {@link Eloquent\Model} to allow the usage of the intermediary methods to handle the {@link
-     * $relationsData} array.
-     * @return \October\Rain\Database\Relations\BelongsTo
-     */
-    public function belongsTo($related, $foreignKey = null, $parentKey = null, $relationName = null)
-    {
-        if (is_null($relationName)) {
-            $relationName = $this->getRelationCaller();
-        }
-
-        if (is_null($foreignKey)) {
-            $foreignKey = snake_case($relationName).'_id';
-        }
-
-        $instance = new $related;
-
-        $query = $instance->newQuery();
-
-        $parentKey = $parentKey ?: $instance->getKeyName();
-
-        return new BelongsTo($query, $this, $foreignKey, $parentKey, $relationName);
-    }
-
-    /**
-     * Define a one-to-many relationship.
-     * This code is a duplicate of Eloquent but uses a Rain relation class.
-     * @return \October\Rain\Database\Relations\HasMany
-     */
-    public function hasMany($related, $primaryKey = null, $localKey = null, $relationName = null)
-    {
-        if (is_null($relationName)) {
-            $relationName = $this->getRelationCaller();
-        }
-
-        $primaryKey = $primaryKey ?: $this->getForeignKey();
-
-        $localKey = $localKey ?: $this->getKeyName();
-
-        $instance = new $related;
-
-        return new HasMany($instance->newQuery(), $this, $instance->getTable().'.'.$primaryKey, $localKey, $relationName);
-    }
-
-    /**
-     * Define a has-many-through relationship.
-     * This code is a duplicate of Eloquent but uses a Rain relation class.
-     * @return \October\Rain\Database\Relations\HasMany
-     */
-    public function hasManyThrough($related, $through, $primaryKey = null, $throughKey = null, $localKey = null, $relationName = null)
-    {
-        if (is_null($relationName)) {
-            $relationName = $this->getRelationCaller();
-        }
-
-        $instance = new $related;
-
-        $throughInstance = new $through;
-
-        $primaryKey = $primaryKey ?: $this->getForeignKey();
-
-        $throughKey = $throughKey ?: $throughInstance->getForeignKey();
-
-        $localKey = $localKey ?: $this->getKeyName();
-
-        return new HasManyThrough($instance->newQuery(), $this, $throughInstance, $primaryKey, $throughKey, $localKey);
-    }
-
-    /**
-     * Define a polymorphic one-to-many relationship.
-     * This code is a duplicate of Eloquent but uses a Rain relation class.
-     * @return \October\Rain\Database\Relations\MorphMany
-     */
-    public function morphMany($related, $name, $type = null, $id = null, $localKey = null, $relationName = null)
-    {
-        if (is_null($relationName)) {
-            $relationName = $this->getRelationCaller();
-        }
-
-        $instance = new $related;
-
-        list($type, $id) = $this->getMorphs($name, $type, $id);
-
-        $table = $instance->getTable();
-
-        $localKey = $localKey ?: $this->getKeyName();
-
-        return new MorphMany($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $localKey, $relationName);
-    }
-
-    /**
-     * Define a many-to-many relationship.
-     * This code is almost a duplicate of Eloquent but uses a Rain relation class.
-     * @return \October\Rain\Database\Relations\BelongsToMany
-     */
-    public function belongsToMany($related, $table = null, $primaryKey = null, $foreignKey = null, $relationName = null)
-    {
-        if (is_null($relationName)) {
-            $relationName = $this->getRelationCaller();
-        }
-
-        $primaryKey = $primaryKey ?: $this->getForeignKey();
-
-        $instance = new $related;
-
-        $foreignKey = $foreignKey ?: $instance->getForeignKey();
-
-        if (is_null($table)) {
-            $table = $this->joiningTable($related);
-        }
-
-        $query = $instance->newQuery();
-
-        return new BelongsToMany($query, $this, $table, $primaryKey, $foreignKey, $relationName);
-    }
-
-    /**
-     * Define a polymorphic many-to-many relationship.
-     * This code is almost a duplicate of Eloquent but uses a Rain relation class.
-     * @return \October\Rain\Database\Relations\MorphToMany
-     */
-    public function morphToMany($related, $name, $table = null, $primaryKey = null, $foreignKey = null, $inverse = false, $relationName = null)
-    {
-        if (is_null($relationName)) {
-            $relationName = $this->getRelationCaller();
-        }
-
-        $primaryKey = $primaryKey ?: $name.'_id';
-
-        $instance = new $related;
-
-        $foreignKey = $foreignKey ?: $instance->getForeignKey();
-
-        if (is_null($table)) {
-            $table = $this->joiningTable($related);
-        }
-
-        $query = $instance->newQuery();
-
-        return new MorphToMany($query, $this, $name, $table, $primaryKey, $foreignKey, $relationName, $inverse);
-    }
-
-    /**
-     * Define a polymorphic many-to-many inverse relationship.
-     * This code is almost a duplicate of Eloquent but uses a Rain relation class.
-     * @return \October\Rain\Database\Relations\MorphToMany
-     */
-    public function morphedByMany($related, $name, $table = null, $primaryKey = null, $foreignKey = null, $relationName = null)
-    {
-        if (is_null($relationName)) {
-            $relationName = $this->getRelationCaller();
-        }
-
-        $primaryKey = $primaryKey ?: $this->getForeignKey();
-
-        $foreignKey = $foreignKey ?: $name.'_id';
-
-        return $this->morphToMany($related, $name, $table, $primaryKey, $foreignKey, true, $relationName);
-    }
-
-    /**
-     * Define an attachment one-to-many relationship.
-     * This code is a duplicate of Eloquent but uses a Rain relation class.
-     * @return \October\Rain\Database\Relations\MorphMany
-     */
-    public function attachMany($related, $isPublic = null, $localKey = null, $relationName = null)
-    {
-        if (is_null($relationName)) {
-            $relationName = $this->getRelationCaller();
-        }
-
-        $instance = new $related;
-
-        list($type, $id) = $this->getMorphs('attachment', null, null);
-
-        $table = $instance->getTable();
-
-        $localKey = $localKey ?: $this->getKeyName();
-
-        return new AttachMany($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $isPublic, $localKey, $relationName);
-    }
-
-    /**
-     * Define an attachment one-to-one relationship.
-     * This code is a duplicate of Eloquent but uses a Rain relation class.
-     * @return \October\Rain\Database\Relations\MorphOne
-     */
-    public function attachOne($related, $isPublic = true, $localKey = null, $relationName = null)
-    {
-        if (is_null($relationName)) {
-            $relationName = $this->getRelationCaller();
-        }
-
-        $instance = new $related;
-
-        list($type, $id) = $this->getMorphs('attachment', null, null);
-
-        $table = $instance->getTable();
-
-        $localKey = $localKey ?: $this->getKeyName();
-
-        return new AttachOne($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $isPublic, $localKey, $relationName);
-    }
-
-    /**
-     * Finds the calling function name from the stack trace.
-     */
-    protected function getRelationCaller()
-    {
-        $backtrace = debug_backtrace(false);
-        $caller = ($backtrace[2]['function'] == 'handleRelation') ? $backtrace[4] : $backtrace[2];
-        return $caller['function'];
-    }
-
-    /**
-     * Returns a relation key value(s), not as an object.
-     */
-    public function getRelationValue($relationName)
-    {
-        return $this->$relationName()->getSimpleValue();
-    }
-
-    /**
-     * Sets a relation value directly from its attribute.
-     */
-    protected function setRelationValue($relationName, $value)
-    {
-        $this->$relationName()->setSimpleValue($value);
-    }
-
-    //
     // Pivot
     //
 
     /**
      * Create a generic pivot model instance.
      * @param  \October\Rain\Database\Model  $parent
-     * @param  array   $attributes
+     * @param  array  $attributes
      * @param  string  $table
-     * @param  bool    $exists
+     * @param  bool  $exists
+     * @param  string|null  $using
      * @return \October\Rain\Database\Pivot
      */
-    public function newPivot(EloquentModel $parent, array $attributes, $table, $exists)
+    public function newPivot(EloquentModel $parent, array $attributes, $table, $exists, $using = null)
     {
-        return new Pivot($parent, $attributes, $table, $exists);
+        return $using
+            ? $using::fromRawAttributes($parent, $attributes, $table, $exists)
+            : new Pivot($parent, $attributes, $table, $exists);
     }
 
     /**
@@ -1501,6 +893,13 @@ class Model extends EloquentModel
      */
     public function setAttribute($key, $value)
     {
+        /*
+         * Attempting to set attribute [null] on model.
+         */
+        if (empty($key)) {
+            throw new Exception('Cannot access empty model attribute.');
+        }
+
         /*
          * Handle direct relation setting
          */
