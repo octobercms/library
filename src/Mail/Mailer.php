@@ -108,7 +108,7 @@ class Mailer extends MailerBase
      * @param  boolean $queue
      * @return void
      */
-    public function sendTo($recipients, $view, array $data = [], $callback = null, $queue = false)
+    public function sendTo($recipients, $view, array $data = [], $callback = null, $queue = false, $bcc = false)
     {
         if (is_bool($callback)) {
             $queue = $callback;
@@ -117,9 +117,12 @@ class Mailer extends MailerBase
         $method = $queue === true ? 'queue' : 'send';
         $recipients = $this->processRecipients($recipients);
 
-        return $this->{$method}($view, $data, function($message) use ($recipients, $callback) {
+        return $this->{$method}($view, $data, function($message) use ($recipients, $callback, $bcc) {
+
+            $method = $bcc === true ? 'bcc' : 'to';
+
             foreach ($recipients as $address => $name) {
-                $message->to($address, $name);
+                $message->{$method}($address, $name);
             }
 
             if (is_callable($callback)) {
@@ -155,7 +158,7 @@ class Mailer extends MailerBase
      * @param  boolean $queue
      * @return int
      */
-    public function rawTo($recipients, $view, $callback = null, $queue = false)
+    public function rawTo($recipients, $view, $callback = null, $queue = false, $bcc = false)
     {
         if (!is_array($view)) {
             $view = ['raw' => $view];
@@ -164,7 +167,7 @@ class Mailer extends MailerBase
             $view['raw'] = true;
         }
 
-        return $this->sendTo($recipients, $view, [], $callback, $queue);
+        return $this->sendTo($recipients, $view, [], $callback, $queue, $bcc);
     }
 
     /**
