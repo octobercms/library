@@ -129,6 +129,13 @@ trait ExtendableTrait
      */
     protected function extensionExtractMethods($extensionName, $extensionObject)
     {
+        if (!method_exists($extensionObject, 'extensionIsHiddenMethod')) {
+            throw new Exception(sprintf(
+                'Extension %s should inherit October\Rain\Extension\ExtensionBase or implement October\Rain\Extension\ExtensionTrait.',
+                $extensionName
+            ));
+        }
+
         $extensionMethods = get_class_methods($extensionName);
         foreach ($extensionMethods as $methodName) {
             if (
@@ -198,6 +205,7 @@ trait ExtendableTrait
 
         $this->extensionData['extensions'][$extensionName] = $extensionObject = new $extensionName($this);
         $this->extensionExtractMethods($extensionName, $extensionObject);
+        $extensionObject->extensionApplyInitCallbacks();
     }
 
     /**

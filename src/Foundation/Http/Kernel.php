@@ -4,23 +4,21 @@ use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
 {
-
     /**
      * The bootstrap classes for the application.
      *
      * @var array
      */
     protected $bootstrappers = [
-        'October\Rain\Foundation\Bootstrap\RegisterClassLoader',
-        'Illuminate\Foundation\Bootstrap\DetectEnvironment',
-        'October\Rain\Foundation\Bootstrap\LoadConfiguration',
-        'October\Rain\Foundation\Bootstrap\LoadTranslation',
-        'October\Rain\Foundation\Bootstrap\ConfigureLogging',
-        'Illuminate\Foundation\Bootstrap\HandleExceptions',
-        'Illuminate\Foundation\Bootstrap\RegisterFacades',
-        'October\Rain\Foundation\Bootstrap\RegisterOctober',
-        'Illuminate\Foundation\Bootstrap\RegisterProviders',
-        'Illuminate\Foundation\Bootstrap\BootProviders',
+        '\October\Rain\Foundation\Bootstrap\RegisterClassLoader',
+        '\October\Rain\Foundation\Bootstrap\LoadEnvironmentVariables',
+        '\October\Rain\Foundation\Bootstrap\LoadConfiguration',
+        '\October\Rain\Foundation\Bootstrap\LoadTranslation',
+        \Illuminate\Foundation\Bootstrap\HandleExceptions::class,
+        \Illuminate\Foundation\Bootstrap\RegisterFacades::class,
+        '\October\Rain\Foundation\Bootstrap\RegisterOctober',
+        \Illuminate\Foundation\Bootstrap\RegisterProviders::class,
+        \Illuminate\Foundation\Bootstrap\BootProviders::class,
     ];
 
     /**
@@ -30,11 +28,6 @@ class Kernel extends HttpKernel
      */
     protected $middleware = [
         'Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode',
-        'Illuminate\Cookie\Middleware\EncryptCookies',
-        'Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse',
-        'Illuminate\Session\Middleware\StartSession',
-        'Illuminate\View\Middleware\ShareErrorsFromSession',
-        // 'App\Http\Middleware\VerifyCsrfToken',
     ];
 
     /**
@@ -43,9 +36,47 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
-        // 'auth' => 'App\Http\Middleware\Authenticate',
-        // 'auth.basic' => 'Illuminate\Auth\Middleware\AuthenticateWithBasicAuth',
-        // 'guest' => 'App\Http\Middleware\RedirectIfAuthenticated',
+        // 'auth' => \Illuminate\Auth\Middleware\Authenticate::class,
+        // 'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        // 'can' => \Illuminate\Auth\Middleware\Authorize::class,
+        // 'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
     ];
 
+    /**
+     * The application's route middleware groups.
+     *
+     * @var array
+     */
+    protected $middlewareGroups = [
+        'web' => [
+            \Illuminate\Cookie\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            // \App\Http\Middleware\VerifyCsrfToken::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ],
+        'api' => [
+            'throttle:60,1',
+            'bindings',
+        ],
+    ];
+
+    /**
+     * The priority-sorted list of middleware.
+     *
+     * Forces the listed middleware to always be in the given order.
+     *
+     * @var array
+     */
+    protected $middlewarePriority = [
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        // \Illuminate\Auth\Middleware\Authenticate::class,
+        // \Illuminate\Session\Middleware\AuthenticateSession::class,
+        \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        // \Illuminate\Auth\Middleware\Authorize::class,
+    ];
 }

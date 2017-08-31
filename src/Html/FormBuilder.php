@@ -182,6 +182,13 @@ class FormBuilder
             $attributes['data-request-' . $property] = $value;
         }
 
+        /*
+         * The `files` option is a hybrid
+         */
+        if (isset($options['files'])) {
+            $attributes['data-request-files'] = $options['files'];
+        }
+
         return $this->open($attributes);
     }
 
@@ -233,7 +240,7 @@ class FormBuilder
     {
         $token = !empty($this->csrfToken)
             ? $this->csrfToken
-            : $this->session->getToken();
+            : $this->session->token();
 
         return $this->hidden('_token', $token);
     }

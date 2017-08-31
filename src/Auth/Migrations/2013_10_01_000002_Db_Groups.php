@@ -5,7 +5,6 @@ use Illuminate\Database\Migrations\Migration;
 
 class DbGroups extends Migration
 {
-
     public function up()
     {
         Schema::create('groups', function($table)
@@ -13,7 +12,6 @@ class DbGroups extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');
             $table->string('name')->unique();
-            $table->text('permissions')->nullable();
             $table->timestamps();
         });
     }
@@ -22,5 +20,4 @@ class DbGroups extends Migration
     {
         Schema::drop('groups');
     }
-
 }

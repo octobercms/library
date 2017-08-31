@@ -128,8 +128,9 @@ class Filesystem extends FilesystemBase
      */
     public function existsInsensitive($path)
     {
-        if (self::exists($path))
+        if (self::exists($path)) {
             return $path;
+        }
 
         $directoryName = dirname($path);
         $pathLower = strtolower($path);

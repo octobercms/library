@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Halcyon\Traits;
 
-use Input;
 use Illuminate\Support\MessageBag;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Validator;
 use October\Rain\Halcyon\Exception\ModelException;
 use Exception;
@@ -137,7 +137,7 @@ trait Validation
         /*
          * Perform validation
          */
-        $rules = (is_null($rules)) ? $this->rules : $rules;
+        $rules = is_null($rules) ? $this->rules : $rules;
         $rules = $this->processValidationRules($rules);
         $success = true;
 
@@ -205,8 +205,16 @@ trait Validation
             }
             else {
                 $this->validationErrors = $validator->messages();
-                if (class_exists('Input') && Input::hasSession()) {
-                    Input::flash();
+
+                /*
+                 * Flash input, if available
+                 */
+                if (
+                    ($input = Input::getFacadeRoot()) &&
+                    method_exists($input, 'hasSession') &&
+                    $input->hasSession()
+                ) {
+                    $input->flash();
                 }
             }
         }
@@ -364,5 +372,4 @@ trait Validation
     {
         static::$validator = null;
     }
-
 }

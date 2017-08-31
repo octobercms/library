@@ -1,5 +1,9 @@
 <?php namespace October\Rain\Support;
 
+use October\Rain\Filesystem\Filesystem;
+use Throwable;
+use Exception;
+
 /**
  * Class loader
  *
@@ -9,18 +13,68 @@
 class ClassLoader
 {
     /**
+     * The filesystem instance.
+     *
+     * @var \October\Rain\Filesystem\Filesystem
+     */
+    public $files;
+
+    /**
+     * The base path.
+     *
+     * @var string
+     */
+    public $basePath;
+
+    /**
+     * The manifest path.
+     *
+     * @var string|null
+     */
+    public $manifestPath;
+
+    /**
+     * The loaded manifest array.
+     *
+     * @var array
+     */
+    public $manifest;
+
+    /**
+     * Determine if the manifest needs to be written.
+     *
+     * @var bool
+     */
+    protected $manifestDirty = false;
+
+    /**
      * The registered directories.
      *
      * @var array
      */
-    protected static $directories = [];
+    protected $directories = [];
 
     /**
      * Indicates if a ClassLoader has been registered.
      *
      * @var bool
      */
-    protected static $registered = false;
+    protected $registered = false;
+
+    /**
+     * Create a new package manifest instance.
+     *
+     * @param  \October\Rain\Filesystem\Filesystem  $files
+     * @param  string  $basePath
+     * @param  string  $manifestPath
+     * @return void
+     */
+    public function __construct(Filesystem $files, $basePath, $manifestPath)
+    {
+        $this->files = $files;
+        $this->basePath = $basePath;
+        $this->manifestPath = $manifestPath;
+    }
 
     /**
      * Load the given class file.
@@ -28,38 +82,56 @@ class ClassLoader
      * @param  string  $class
      * @return void
      */
-    public static function load($class)
+    public function load($class)
     {
-        $class = static::normalizeClass($class);
+        if (
+            isset($this->manifest[$class]) &&
+            $this->isRealFilePath($path = $this->manifest[$class])
+        ) {
+            require_once $this->basePath.DIRECTORY_SEPARATOR.$path;
+            return true;
+        }
 
-        foreach (static::$directories as $directory) {
-            if (is_file($path = realpath($directory.DIRECTORY_SEPARATOR.$class))) {
-                require_once $path;
+        list($lowerClass, $upperClass) = static::normalizeClass($class);
 
+        foreach ($this->directories as $directory) {
+            if ($this->isRealFilePath($path = $directory.DIRECTORY_SEPARATOR.$lowerClass)) {
+                $this->includeClass($class, $path);
+                return true;
+            }
+
+            if ($this->isRealFilePath($path = $directory.DIRECTORY_SEPARATOR.$upperClass)) {
+                $this->includeClass($class, $path);
                 return true;
             }
         }
     }
 
     /**
-     * Get the normal file name for a class.
+     * Determine if a relative path to a file exists and is real
+     *
+     * @param  string  $path
+     * @return bool
+     */
+    protected function isRealFilePath($path)
+    {
+        return is_file(realpath($this->basePath.DIRECTORY_SEPARATOR.$path));
+    }
+
+    /**
+     * Includes a class and adds to the manifest
      *
      * @param  string  $class
-     * @return string
+     * @param  string  $path
+     * @return void
      */
-    public static function normalizeClass($class)
+    protected function includeClass($class, $path)
     {
-        /*
-         * Lowercase folders
-         */
-        $class = explode('\\', $class);
-        $file = array_pop($class);
-        $class = strtolower(implode('\\', $class)) . '\\' . $file;
+        require_once $this->basePath.DIRECTORY_SEPARATOR.$path;
 
-        // Strip first slash
-        if ($class[0] == '\\') $class = substr($class, 1);
+        $this->manifest[$class] = $path;
 
-        return str_replace(['\\', '_'], DIRECTORY_SEPARATOR, $class).'.php';
+        $this->manifestDirty = true;
     }
 
     /**
@@ -67,11 +139,29 @@ class ClassLoader
      *
      * @return void
      */
-    public static function register()
+    public function register()
     {
-        if (!static::$registered) {
-            static::$registered = spl_autoload_register(['\October\Rain\Support\ClassLoader', 'load']);
+        if ($this->registered) {
+            return;
         }
+
+        $this->ensureManifestIsLoaded();
+
+        $this->registered = spl_autoload_register([$this, 'load']);
+    }
+
+    /**
+     * Build the manifest and write it to disk.
+     *
+     * @return void
+     */
+    public function build()
+    {
+        if (!$this->manifestDirty) {
+            return;
+        }
+
+        $this->write($this->manifest);
     }
 
     /**
@@ -80,11 +170,11 @@ class ClassLoader
      * @param  string|array  $directories
      * @return void
      */
-    public static function addDirectories($directories)
+    public function addDirectories($directories)
     {
-        static::$directories = array_merge(static::$directories, (array) $directories);
+        $this->directories = array_merge($this->directories, (array) $directories);
 
-        static::$directories = array_unique(static::$directories);
+        $this->directories = array_unique($this->directories);
     }
 
     /**
@@ -93,15 +183,15 @@ class ClassLoader
      * @param  string|array  $directories
      * @return void
      */
-    public static function removeDirectories($directories = null)
+    public function removeDirectories($directories = null)
     {
         if (is_null($directories)) {
-            static::$directories = [];
+            $this->directories = [];
         }
         else {
             $directories = (array) $directories;
 
-            static::$directories = array_filter(static::$directories, function($directory) use ($directories) {
+            $this->directories = array_filter($this->directories, function($directory) use ($directories) {
                 return !in_array($directory, $directories);
             });
         }
@@ -112,9 +202,89 @@ class ClassLoader
      *
      * @return array
      */
-    public static function getDirectories()
+    public function getDirectories()
     {
-        return static::$directories;
+        return $this->directories;
     }
 
+    /**
+     * Get the normal file name for a class.
+     *
+     * @param  string  $class
+     * @return string
+     */
+    protected function normalizeClass($class)
+    {
+        /*
+         * Strip first slash
+         */
+        if ($class[0] == '\\') {
+            $class = substr($class, 1);
+        }
+
+        /*
+         * Lowercase folders
+         */
+        $parts = explode('\\', $class);
+        $file = array_pop($parts);
+        $namespace = implode('\\', $parts);
+        $directory = str_replace(['\\', '_'], DIRECTORY_SEPARATOR, $namespace);
+
+        /*
+         * Provide both alternatives
+         */
+        $lowerClass = strtolower($directory) . DIRECTORY_SEPARATOR . $file . '.php';
+        $upperClass = $directory . DIRECTORY_SEPARATOR . $file . '.php';
+
+        return [$lowerClass, $upperClass];
+    }
+
+    /**
+     * Ensure the manifest has been loaded into memory.
+     *
+     * @return void
+     */
+    protected function ensureManifestIsLoaded()
+    {
+        if (!is_null($this->manifest)) {
+            return;
+        }
+
+        if (file_exists($this->manifestPath)) {
+            try {
+                $this->manifest = $this->files->getRequire($this->manifestPath);
+
+                if (!is_array($this->manifest)) {
+                    $this->manifest = [];
+                }
+            }
+            catch (Exception $ex) {
+                $this->manifest = [];
+            }
+            catch (Throwable $ex) {
+                $this->manifest = [];
+            }
+        }
+        else {
+            $this->manifest = [];
+        }
+    }
+
+    /**
+     * Write the given manifest array to disk.
+     *
+     * @param  array  $manifest
+     * @return void
+     * @throws \Exception
+     */
+    protected function write(array $manifest)
+    {
+        if (!is_writable(dirname($this->manifestPath))) {
+            throw new Exception('The storage/framework/cache directory must be present and writable.');
+        }
+
+        $this->files->put(
+            $this->manifestPath, '<?php return '.var_export($manifest, true).';'
+        );
+    }
 }
