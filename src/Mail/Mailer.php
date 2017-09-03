@@ -4,7 +4,7 @@ use Event;
 use Config;
 use Illuminate\Mail\Mailer as MailerBase;
 use Illuminate\Contracts\Mail\Mailable as MailableContract;
-use ArrayAccess;
+use Illuminate\Support\Collection;
 
 /**
  * Mailer class for sending mail.
@@ -191,7 +191,7 @@ class Mailer extends MailerBase
         if (is_string($recipients)) {
             $result[$recipients] = null;
         }
-        elseif (is_array($recipients) || $recipients instanceof ArrayAccess) {
+        elseif (is_array($recipients) || $recipients instanceof Collection) {
             foreach ($recipients as $address => $person) {
                 if (is_string($person)) {
                     $result[$address] = $person;
