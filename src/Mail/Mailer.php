@@ -3,8 +3,8 @@
 use Event;
 use Config;
 use Illuminate\Mail\Mailer as MailerBase;
-use Illuminate\Support\Collection;
 use Illuminate\Contracts\Mail\Mailable as MailableContract;
+use ArrayAccess;
 
 /**
  * Mailer class for sending mail.
@@ -94,24 +94,29 @@ class Mailer extends MailerBase
     /**
      * Helper for send() method, the first argument can take a single email or an
      * array of recipients where the key is the address and the value is the name.
-     * The callback argument can be a boolean that when TRUE will use queue() to
-     * send the message instead. The callback argument can also be an array of options
-     * with the following (@todo):
-     *  - queue
-     *  - queueName
-     *  - callback
-     *  - delay
+     *
      * @param  array $recipients
      * @param  string|array $view
      * @param  array $data
-     * @param  \Closure|string $callback
-     * @param  boolean $queue
+     * @param  mixed $callback
+     * @param  array $options
      * @return void
      */
-    public function sendTo($recipients, $view, array $data = [], $callback = null, $queue = false, $bcc = false)
+    public function sendTo($recipients, $view, array $data = [], $callback = null, $options = [])
     {
-        if (is_bool($callback)) {
-            $queue = $callback;
+        if ($callback && !$options && !is_callable($callback)) {
+            $options = $callback;
+        }
+
+        if (is_bool($options)) {
+            $queue = $options;
+            $bcc = false;
+        }
+        else {
+            extract(array_merge([
+                'queue' => false,
+                'bcc'   => false
+            ], $options));
         }
 
         $method = $queue === true ? 'queue' : 'send';
@@ -155,10 +160,10 @@ class Mailer extends MailerBase
      * @param  array $recipients
      * @param  string  $view
      * @param  mixed   $callback
-     * @param  boolean $queue
+     * @param  array   $options
      * @return int
      */
-    public function rawTo($recipients, $view, $callback = null, $queue = false, $bcc = false)
+    public function rawTo($recipients, $view, $callback = null, $options = [])
     {
         if (!is_array($view)) {
             $view = ['raw' => $view];
@@ -167,7 +172,7 @@ class Mailer extends MailerBase
             $view['raw'] = true;
         }
 
-        return $this->sendTo($recipients, $view, [], $callback, $queue, $bcc);
+        return $this->sendTo($recipients, $view, [], $callback, $options);
     }
 
     /**
@@ -186,17 +191,8 @@ class Mailer extends MailerBase
         if (is_string($recipients)) {
             $result[$recipients] = null;
         }
-        elseif (is_object($recipients) && !($recipients instanceof Collection)) {
-            if (!empty($recipients->email) || !empty($recipients->address)) {
-                $address = !empty($recipients->email) ? $recipients->email : $recipients->address;
-                $name = !empty($recipients->name) ? $recipients->name : null;
-                $result[$address] = $name;
-            }
-        }
-        elseif (is_array($recipients) || $recipients instanceof \ArrayAccess) {
-
+        elseif (is_array($recipients) || $recipients instanceof ArrayAccess) {
             foreach ($recipients as $address => $person) {
-
                 if (is_string($person)) {
                     $result[$address] = $person;
                 }
@@ -216,7 +212,13 @@ class Mailer extends MailerBase
 
                     $result[$address] = array_get($person, 'name');
                 }
-
+            }
+        }
+        elseif (is_object($recipients)) {
+            if (!empty($recipients->email) || !empty($recipients->address)) {
+                $address = !empty($recipients->email) ? $recipients->email : $recipients->address;
+                $name = !empty($recipients->name) ? $recipients->name : null;
+                $result[$address] = $name;
             }
         }
 
