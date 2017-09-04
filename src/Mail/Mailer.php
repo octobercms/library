@@ -137,6 +137,68 @@ class Mailer extends MailerBase
     }
 
     /**
+     * Queue a new e-mail message for sending.
+     *
+     * @param  string|array  $view
+     * @param  array  $data
+     * @param  \Closure|string  $callback
+     * @param  string|null  $queue
+     * @return mixed
+     */
+    public function queue($view, $data = null, $callback = null, $queue = null)
+    {
+        if (!$view instanceof MailableContract) {
+            $mailable = $this->buildQueueMailable($view, $data, $callback);
+        }
+        else {
+            $mailable = $view;
+            $queue = $queue !== null ? $queue : $data;
+        }
+
+        return parent::queue($mailable, $queue);
+    }
+
+    /**
+     * Queue a new e-mail message for sending after (n) seconds.
+     *
+     * @param  int  $delay
+     * @param  string|array  $view
+     * @param  array  $data
+     * @param  \Closure|string  $callback
+     * @param  string|null  $queue
+     * @return mixed
+     */
+    public function later($delay, $view, $data = null, $callback = null, $queue = null)
+    {
+        if (!$view instanceof MailableContract) {
+            $mailable = $this->buildQueueMailable($view, $data, $callback);
+        }
+        else {
+            $mailable = $view;
+            $queue = $queue !== null ? $queue : $data;
+        }
+
+        return parent::later($delay, $mailable, $queue);
+    }
+
+    /**
+     * Build the mailable for a queued e-mail job.
+     *
+     * @param  mixed  $callback
+     * @return mixed
+     */
+    protected function buildQueueMailable($view, $data, $callback)
+    {
+        $mailable = new Mailable;
+
+        $mailable->view($view, $data);
+
+        call_user_func($callback, $mailable);
+
+        return $mailable;
+    }
+
+    /**
      * Send a new message when only a raw text part.
      *
      * @param  string  $text
