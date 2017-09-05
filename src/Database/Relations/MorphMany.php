@@ -65,7 +65,7 @@ class MorphMany extends MorphManyBase
             $this->parent->setRelation($this->relationName, $collection);
 
             $this->parent->bindEventOnce('model.afterSave', function() use ($collection) {
-                $existingIds = $collection->pluck($this->localKey);
+                $existingIds = $collection->pluck($this->localKey)->all();
                 $this->whereNotIn($this->localKey, $existingIds)->update([
                     $this->getForeignKeyName() => null,
                     $this->getMorphType() => null
@@ -89,7 +89,7 @@ class MorphMany extends MorphManyBase
         $relationName = $this->relationName;
 
         if ($relation = $this->parent->$relationName) {
-            $value = $relation->pluck($this->localKey);
+            $value = $relation->pluck($this->localKey)->all();
         }
 
         return $value;

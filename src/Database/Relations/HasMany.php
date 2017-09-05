@@ -61,7 +61,7 @@ class HasMany extends HasManyBase
             $this->parent->setRelation($this->relationName, $collection);
 
             $this->parent->bindEventOnce('model.afterSave', function() use ($collection) {
-                $existingIds = $collection->pluck($this->localKey);
+                $existingIds = $collection->pluck($this->localKey)->all();
                 $this->whereNotIn($this->localKey, $existingIds)->update([$this->getForeignKeyName() => null]);
                 $collection->each(function($instance) {
                     $instance->setAttribute($this->getForeignKeyName(), $this->getParentKey());
@@ -81,7 +81,7 @@ class HasMany extends HasManyBase
         $relationName = $this->relationName;
 
         if ($relation = $this->parent->$relationName) {
-            $value = $relation->pluck($this->localKey);
+            $value = $relation->pluck($this->localKey)->all();
         }
 
         return $value;
