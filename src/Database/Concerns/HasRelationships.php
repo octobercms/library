@@ -297,8 +297,8 @@ trait HasRelationships
                 break;
 
             case 'hasManyThrough':
-                $relation = $this->validateRelationArgs($relationName, ['key', 'throughKey', 'otherKey'], ['through']);
-                $relationObj = $this->$relationType($relation[0], $relation['through'], $relation['key'], $relation['throughKey'], $relation['otherKey']);
+                $relation = $this->validateRelationArgs($relationName, ['key', 'throughKey', 'otherKey', 'secondOtherKey'], ['through']);
+                $relationObj = $this->$relationType($relation[0], $relation['through'], $relation['key'], $relation['throughKey'], $relation['otherKey'], $relation['secondOtherKey']);
                 break;
 
             default:
@@ -485,7 +485,7 @@ trait HasRelationships
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\HasMany
      */
-    public function hasManyThrough($related, $through, $primaryKey = null, $throughKey = null, $localKey = null, $relationName = null)
+    public function hasManyThrough($related, $through, $primaryKey = null, $throughKey = null, $localKey = null, $secondLocalKey = null, $relationName = null)
     {
         if (is_null($relationName)) {
             $relationName = $this->getRelationCaller();
@@ -499,9 +499,11 @@ trait HasRelationships
 
         $localKey = $localKey ?: $this->getKeyName();
 
+        $secondLocalKey = $secondLocalKey ?: $through->getKeyName();
+
         $instance = $this->newRelatedInstance($related);
 
-        return new HasManyThrough($instance->newQuery(), $this, $throughInstance, $primaryKey, $throughKey, $localKey);
+        return new HasManyThrough($instance->newQuery(), $this, $throughInstance, $primaryKey, $throughKey, $localKey, $secondLocalKey, $relationName);
     }
 
     /**
