@@ -499,7 +499,7 @@ trait HasRelationships
 
         $localKey = $localKey ?: $this->getKeyName();
 
-        $secondLocalKey = $secondLocalKey ?: $through->getKeyName();
+        $secondLocalKey = $secondLocalKey ?: $throughInstance->getKeyName();
 
         $instance = $this->newRelatedInstance($related);
 
