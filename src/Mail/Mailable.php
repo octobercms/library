@@ -10,6 +10,9 @@ use Illuminate\Mail\Mailable as MailableBase;
  */
 class Mailable extends MailableBase
 {
+    use \Illuminate\Bus\Queueable;
+    use \Illuminate\Queue\SerializesModels;
+
     /**
      * Build the message.
      *
