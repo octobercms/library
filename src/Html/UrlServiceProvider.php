@@ -36,7 +36,7 @@ class UrlServiceProvider extends ServiceProvider
                 $appUrl = $this->app['config']->get('app.url');
                 $schema = \Str::startsWith($appUrl, 'http://') ? 'http' : 'https';
                 $this->app['url']->forceRootUrl($appUrl);
-                $this->app['url']->forceSchema($schema);
+                $this->app['url']->forceScheme($schema);
                 break;
 
             case 'insecure':
