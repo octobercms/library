@@ -159,6 +159,20 @@ class Mailer extends MailerBase
     }
 
     /**
+     * Queue a new e-mail message for sending on the given queue.
+     *
+     * @param  string  $queue
+     * @param  string|array  $view
+     * @param  array  $data
+     * @param  \Closure|string  $callback
+     * @return mixed
+     */
+    public function queueOn($queue, $view, $data = null, $callback = null)
+    {
+        return $this->queue($view, $data, $callback, $queue);
+    }
+
+    /**
      * Queue a new e-mail message for sending after (n) seconds.
      *
      * @param  int  $delay
@@ -179,6 +193,21 @@ class Mailer extends MailerBase
         }
 
         return parent::later($delay, $mailable, $queue);
+    }
+
+    /**
+     * Queue a new e-mail message for sending after (n) seconds on the given queue.
+     *
+     * @param  string  $queue
+     * @param  int  $delay
+     * @param  string|array  $view
+     * @param  array  $data
+     * @param  \Closure|string  $callback
+     * @return mixed
+     */
+    public function laterOn($queue, $delay, $view, array $data = null, $callback = null)
+    {
+        return $this->later($delay, $view, $data, $callback, $queue);
     }
 
     /**
