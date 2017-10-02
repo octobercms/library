@@ -223,8 +223,9 @@ class User extends Model
      */
     public function attemptActivation($activationCode)
     {
-        if ($this->is_activated)
+        if ($this->is_activated) {
             throw new Exception('User is already active!');
+        }
 
         if ($activationCode == $this->activation_code) {
             $this->activation_code = null;
@@ -269,6 +270,10 @@ class User extends Model
      */
     public function checkResetPasswordCode($resetCode)
     {
+        if (!$resetCode || !$this->reset_password_code) {
+            return false;
+        }
+
         return ($this->reset_password_code == $resetCode);
     }
 
