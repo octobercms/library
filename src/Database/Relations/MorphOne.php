@@ -64,6 +64,7 @@ class MorphOne extends MorphOneBase
             // from being nulled below and left unset because the save will ignore
             // attribute values that are numerically equivalent (not dirty).
             if (
+                $this->parent->exists &&
                 $instance->getOriginal($this->getForeignKeyName()) == $this->getParentKey() &&
                 $instance->getOriginal($this->getMorphType()) == $this->morphClass
             ) {
