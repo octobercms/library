@@ -16,7 +16,7 @@
     ],
     "require": {
         "php": ">=7.0",
-        "doctrine/dbal": "2.5.*",
+        "doctrine/dbal": "2.6.*",
         "erusev/parsedown-extra": "~0.7",
         "kriswallsmith/assetic": "~1.3",
         "linkorb/jsmin-php": "~1.0",
