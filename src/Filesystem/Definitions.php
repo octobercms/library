@@ -182,8 +182,7 @@ class Definitions
             'bmp',
             'png',
             'webp',
-            'gif',
-            'svg'
+            'gif'
         ];
     }
 
