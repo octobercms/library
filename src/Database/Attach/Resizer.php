@@ -178,12 +178,7 @@ class Resizer
         /*
          * Reading the exif data is prone to fail due to bad data
          */
-        try {
-            $exif = exif_read_data($filePath);
-        }
-        catch (Exception $e) {
-            return null;
-        }
+        $exif = @exif_read_data($filePath);
 
         if (!isset($exif['Orientation'])) {
             return null;
