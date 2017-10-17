@@ -3,6 +3,7 @@
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasOne as HasOneBase;
+use Illuminate\Database\Eloquent\Collection;
 
 class HasOne extends HasOneBase
 {
@@ -43,7 +44,7 @@ class HasOne extends HasOneBase
      */
     public function setSimpleValue($value)
     {
-        if (is_array($value)) {
+        if (is_array($value) || $value instanceof Collection) {
             return;
         }
 
