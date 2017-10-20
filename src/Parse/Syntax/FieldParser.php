@@ -51,6 +51,7 @@ class FieldParser
         'radio',
         'checkbox',
         'datepicker',
+        'colorpicker',
         'repeater',
         'variable'
     ];
@@ -255,7 +256,11 @@ class FieldParser
             }
 
             if (in_array($tagName, ['dropdown', 'radio']) && isset($params['options'])) {
-                $params['options'] = $this->processOptionsToArray($params['options']);
+                $params['options'] = $this->processOptionsToArray($params['options'], 'options');
+            }
+
+            if (($tagName == 'colorpicker') && isset($params['availableColors'])) {
+                $params['availableColors'] = $this->processOptionsToArray($params['availableColors'], 'availableColors');
             }
 
             $tags[$name] = $tagString;
@@ -379,7 +384,7 @@ class FieldParser
      * @param  string $optionsString
      * @return array
      */
-    protected function processOptionsToArray($optionsString)
+    protected function processOptionsToArray($optionsString, $tagName = NULL)
     {
         $options = explode('|', $optionsString);
 
@@ -391,10 +396,12 @@ class FieldParser
                 $key = trim($parts[0]);
 
                 if (strlen($key)) {
-                    if (!preg_match('/^[0-9a-z-_]+$/i', $key)) {
-                        throw new Exception(sprintf(
-                            'Invalid drop-down option key: %s. Option keys can contain only digits, Latin letters and characters _ and -', $key
-                        ));
+                    if ($tagName == 'options'){
+                        if (!preg_match('/^[0-9a-z-_]+$/i', $key)) {
+                            throw new Exception(sprintf(
+                                'Invalid drop-down option key: %s. Option keys can contain only digits, Latin letters and characters _ and -', $key
+                            ));
+                        }
                     }
 
                     $result[$key] = trim($parts[1]);
@@ -410,5 +417,43 @@ class FieldParser
 
         return $result;
     }
+
+    /**
+     * Splits an option string to an array.
+     *
+     * one|two           -> [one, two]
+     * one:One|two:Two   -> [one => 'One', two => 'Two']
+     *
+     * @param  string $optionsString
+     * @return array
+     */
+    protected function processColorOptionsToArray($optionsString)
+    {
+        $options = explode('|', $optionsString);
+
+        $result = [];
+        foreach ($options as $index => $optionStr) {
+            $parts = explode(':', $optionStr, 2);
+
+            if (count($parts) > 1 ) {
+                $key = trim($parts[0]);
+
+                if (strlen($key)) {
+
+
+                    $result[$key] = trim($parts[1]);
+                }
+                else {
+                    $result[$index] = trim($optionStr);
+                }
+            }
+            else {
+                $result[$index] = trim($optionStr);
+            }
+        }
+
+        return $result;
+    }
+
 
 }
