@@ -218,6 +218,13 @@ class Parser
             case 'checkbox':
                 $result = '{% if ' . $field . ' %}' . $params['_content'] . '{% endif %}';
                 break;
+            case 'datepicker':
+                if ($params['mode'] === 'date'){
+                    $result = '{{ ' . $field . '|date("Y-m-d") }}';
+                } elseif ($params['mode'] === 'time') {
+                    $result = '{{ ' . $field . '|date("H:m:s") }}';
+                }
+                break;
         }
 
         return $result;
