@@ -202,7 +202,7 @@ if (!function_exists('media_path'))
      */
     function media_path($path = '')
     {
-        return Config::get('cms.storage.media.path').($path ? '/'.$path : $path);
+        return app('config')->get('cms.storage.media.path').($path ? '/'.$path : $path);
     }
 }
 
