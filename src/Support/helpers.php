@@ -192,6 +192,20 @@ if (!function_exists('uploads_path'))
     }
 }
 
+if (!function_exists('media_path'))
+{
+    /**
+     * Get the relative path to the media folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function media_path($path = '')
+    {
+        return Config::get('cms.storage.media.path').($path ? '/'.$path : $path);
+    }
+}
+
 if (!function_exists('themes_path'))
 {
     /**
