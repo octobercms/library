@@ -290,6 +290,14 @@ class FieldParser
         $result = $this->processParamsRegex($paramString);
         $paramNames = $result[1];
         $paramValues = $result[2];
+
+        // Convert all 'true' and 'false' string values to boolean values
+        foreach ($paramValues as $key => $value) {
+            if ($value === 'true' || $value === 'false') {
+                $paramValues[$key] = $value === 'true' ? true: false;
+            }
+        }
+
         $params = array_combine($paramNames, $paramValues);
 
         if ($tagName == 'checkbox') {
