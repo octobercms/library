@@ -50,6 +50,7 @@ class FieldParser
         'dropdown',
         'radio',
         'checkbox',
+        'datepicker',
         'repeater',
         'variable'
     ];
