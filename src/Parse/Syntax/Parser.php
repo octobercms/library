@@ -219,10 +219,17 @@ class Parser
                 $result = '{% if ' . $field . ' %}' . $params['_content'] . '{% endif %}';
                 break;
             case 'datepicker':
-                if ($params['mode'] === 'date'){
-                    $result = '{{ ' . $field . '|date("Y-m-d") }}';
-                } elseif ($params['mode'] === 'time') {
-                    $result = '{{ ' . $field . '|date("H:m:s") }}';
+                switch($params['mode']) {
+                    default:
+                    case 'datetime':
+                        $result = '{{ ' . $field . '|date("Y-m-d H:i:s") }}';
+                        break;
+                    case 'date':
+                        $result = '{{ ' . $field . '|date("Y-m-d") }}';
+                        break;
+                    case 'time':
+                        $result = '{{ ' . $field . '|date("H:i:s") }}';
+                        break;
                 }
                 break;
         }
