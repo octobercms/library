@@ -192,6 +192,18 @@ trait AttachOneOrMany
             $this->parent->bindDeferred($this->relationName, $model, $sessionKey);
         }
     }
+    
+    /**
+     * Attach an array of models to the parent instance with deferred binding support.
+     * @param  array  $models
+     * @return void
+     */
+    public function addMany($models, $sessionKey = null)
+    {
+        foreach ($models as $model) {
+            $this->add($model, $sessionKey);
+        }
+    }
 
     /**
      * Removes a model from this relationship type.
