@@ -24,6 +24,14 @@ trait Singleton
     }
 
     /**
+     * Forget this singleton's instance if it exists
+     */
+    final public static function forgetInstance()
+    {
+        static::$instance = null;
+    }
+    
+    /**
      * Constructor.
      */
     final protected function __construct()
