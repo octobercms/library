@@ -23,6 +23,7 @@ class Updater
         $object = $this->resolve($file);
 
         if ($object === null) {
+            throw new Exception('File not found: ' . $file);
             return false;
         }
 
@@ -52,6 +53,7 @@ class Updater
         $object = $this->resolve($file);
 
         if ($object === null) {
+            throw new Exception('File not found: ' . $file);
             return false;
         }
 
