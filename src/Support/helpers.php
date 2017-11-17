@@ -192,6 +192,28 @@ if (!function_exists('uploads_path'))
     }
 }
 
+if (!function_exists('media_path'))
+{
+    /**
+     * Get the relative path to the media folder if running within OctoberCMS.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function media_path($path = '')
+    {
+        /**
+         * In theory, someone can use the October Library without using OctoberCMS fully by
+         * itself, which is why we can't directly reference things like cms.media.path
+         * */
+        if (app('config')->hasGroup('cms')) {
+            return app('config')->get('cms.storage.media.path').($path ? '/'.$path : $path);
+        }
+
+        return $path;
+    }
+}
+
 if (!function_exists('themes_path'))
 {
     /**
