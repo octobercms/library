@@ -612,8 +612,8 @@ class Resizer
             $optimalRatio = $widthRatio;
         }
 
-        $optimalHeight = $this->height / $optimalRatio;
-        $optimalWidth  = $this->width  / $optimalRatio;
+        $optimalHeight = round($this->height / $optimalRatio);
+        $optimalWidth  = round($this->width  / $optimalRatio);
 
         return [$optimalWidth, $optimalHeight];
     }
