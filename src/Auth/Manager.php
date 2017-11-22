@@ -3,11 +3,12 @@
 use Cookie;
 use Session;
 use Request;
+use Illuminate\Contracts\Auth\Authenticatable;
 
 /**
  * Authentication manager
  */
-class Manager
+class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
 {
     use \October\Rain\Support\Traits\Singleton;
 
@@ -27,7 +28,14 @@ class Manager
 
     protected $sessionKey = 'october_auth';
 
+    protected $useSession = true;
+
     public $ipAddress = '0.0.0.0';
+
+    /**
+     * @var bool Indicates if the user was authenticated via a recaller cookie.
+     */
+    protected $viaRemember = false;
 
     protected function init()
     {
@@ -96,7 +104,7 @@ class Manager
     /**
      * Sets the user
      */
-    public function setUser($user)
+    public function setUser(Authenticatable $user)
     {
         $this->user = $user;
     }
@@ -120,7 +128,9 @@ class Manager
     public function findUserById($id)
     {
         $query = $this->createUserModelQuery();
+
         $user = $query->find($id);
+
         return $user ?: null;
     }
 
@@ -131,8 +141,11 @@ class Manager
     public function findUserByLogin($login)
     {
         $model = $this->createUserModel();
+
         $query = $this->createUserModelQuery();
+
         $user = $query->where($model->getLoginName(), $login)->first();
+
         return $user ?: null;
     }
 
@@ -256,12 +269,35 @@ class Manager
     //
 
     /**
-     * Attempts to authenticate the given user according to the passed credentials.
+     * Attempt to authenticate a user using the given credentials.
      *
-     * @param array $credentials The user login details
-     * @param bool $remember Store a non-expire cookie for the user
+     * @param  array  $credentials
+     * @param  bool   $remember
+     * @return bool
      */
-    public function authenticate(array $credentials, $remember = true)
+    public function attempt(array $credentials = [], $remember = false)
+    {
+        return !!$this->authenticate($credentials, $remember);
+    }
+
+    /**
+     * Validate a user's credentials.
+     *
+     * @param  array  $credentials
+     * @return bool
+     */
+    public function validate(array $credentials = [])
+    {
+        return !!$this->validateInternal($credentials);
+    }
+
+    /**
+     * Validate a user's credentials, method used internally.
+     *
+     * @param  array  $credentials
+     * @return User
+     */
+    protected function validateInternal(array $credentials = [])
     {
         /*
          * Default to the login name field or fallback to a hard-coded 'login' value
@@ -312,7 +348,21 @@ class Manager
             $throttle->clearLoginAttempts();
         }
 
+        return $user;
+    }
+
+    /**
+     * Attempts to authenticate the given user according to the passed credentials.
+     *
+     * @param array $credentials The user login details
+     * @param bool $remember Store a non-expire cookie for the user
+     */
+    public function authenticate(array $credentials, $remember = true)
+    {
+        $user = $this->validateInternal($credentials);
+
         $user->clearResetPassword();
+
         $this->login($user, $remember);
 
         return $this->user;
@@ -330,10 +380,14 @@ class Manager
             /*
              * Check session first, follow by cookie
              */
-            if (
-                !($userArray = Session::get($this->sessionKey)) &&
-                !($userArray = Cookie::get($this->sessionKey))
-            ) {
+            if ($sessionArray = Session::get($this->sessionKey)) {
+                $userArray = $sessionArray;
+            }
+            elseif ($cookieArray = Cookie::get($this->sessionKey)) {
+                $this->viaRemember = true;
+                $userArray = $cookieArray;
+            }
+            else {
                 return false;
             }
 
@@ -389,10 +443,78 @@ class Manager
     }
 
     /**
+     * Determine if the current user is a guest.
+     *
+     * @return bool
+     */
+    public function guest()
+    {
+        return false;
+    }
+
+    /**
+     * Get the currently authenticated user.
+     *
+     * @return \Illuminate\Contracts\Auth\Authenticatable|null
+     */
+    public function user()
+    {
+        return $this->getUser();
+    }
+
+    /**
+     * Get the ID for the currently authenticated user.
+     *
+     * @return int|null
+     */
+    public function id()
+    {
+        if ($user == $this->getUser()) {
+            return $user->getAuthIdentifier();
+        }
+
+        return null;
+    }
+
+    /**
+     * Log a user into the application without sessions or cookies.
+     *
+     * @param  array  $credentials
+     * @return bool
+     */
+    public function once(array $credentials = [])
+    {
+        $this->useSession = false;
+
+        $user = $this->authenticate($credentials);
+
+        $this->useSession = true;
+
+        return !!$user;
+    }
+
+    /**
+     * Log the given user ID into the application without sessions or cookies.
+     *
+     * @param  mixed  $id
+     * @return \Illuminate\Contracts\Auth\Authenticatable|false
+     */
+    public function onceUsingId($id)
+    {
+        if (!is_null($user = $this->findUserById($id))) {
+            $this->setUser($user);
+
+            return $user;
+        }
+
+        return false;
+    }
+
+    /**
      * Logs in the given user and sets properties
      * in the session.
      */
-    public function login($user, $remember = true)
+    public function login(Authenticatable $user, $remember = true)
     {
         /*
          * Fire the 'beforeLogin' event
@@ -414,17 +536,47 @@ class Manager
         /*
          * Create session/cookie data to persist the session
          */
-        $toPersist = [$user->getKey(), $user->getPersistCode()];
-        Session::put($this->sessionKey, $toPersist);
+        if ($this->useSession) {
+            $toPersist = [$user->getKey(), $user->getPersistCode()];
+            Session::put($this->sessionKey, $toPersist);
 
-        if ($remember) {
-            Cookie::queue(Cookie::forever($this->sessionKey, $toPersist));
+            if ($remember) {
+                Cookie::queue(Cookie::forever($this->sessionKey, $toPersist));
+            }
         }
 
         /*
          * Fire the 'afterLogin' event
          */
         $user->afterLogin();
+    }
+
+    /**
+     * Log the given user ID into the application.
+     *
+     * @param  mixed  $id
+     * @param  bool   $remember
+     * @return \Illuminate\Contracts\Auth\Authenticatable
+     */
+    public function loginUsingId($id, $remember = false)
+    {
+        if (!is_null($user = $this->findUserById($id))) {
+            $this->login($user, $remember);
+
+            return $user;
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine if the user was authenticated via "remember me" cookie.
+     *
+     * @return bool
+     */
+    public function viaRemember()
+    {
+        return $this->viaRemember;
     }
 
     /**

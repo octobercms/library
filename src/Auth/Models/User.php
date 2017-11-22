@@ -9,7 +9,7 @@ use Exception;
 /**
  * User model
  */
-class User extends Model
+class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
 {
     use \October\Rain\Database\Traits\Hashable;
     use \October\Rain\Database\Traits\Purgeable;
@@ -98,6 +98,11 @@ class User extends Model
      * @var string The login attribute.
      */
     public static $loginAttribute = 'email';
+
+    /**
+     * @var string The column name of the "remember me" token.
+     */
+    protected $rememberTokenName = 'remember_token';
 
     /**
      * @var array The user merged permissions.
@@ -584,12 +589,21 @@ class User extends Model
     //
 
     /**
+     * Get the name of the unique identifier for the user.
+     * @return string
+     */
+    public function getAuthIdentifierName()
+    {
+        return $this->getKeyName();
+    }
+
+    /**
      * Get the unique identifier for the user.
      * @return mixed
      */
     public function getAuthIdentifier()
     {
-        return $this->getKey();
+        return $this->{$this->getAuthIdentifierName()};
     }
 
     /**
@@ -635,7 +649,7 @@ class User extends Model
      */
     public function getRememberTokenName()
     {
-        return 'persist_code';
+        return $this->rememberTokenName;
     }
 
     //
