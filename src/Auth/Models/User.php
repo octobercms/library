@@ -102,7 +102,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     /**
      * @var string The column name of the "remember me" token.
      */
-    protected $rememberTokenName = 'remember_token';
+    protected $rememberTokenName = 'persist_code';
 
     /**
      * @var array The user merged permissions.
