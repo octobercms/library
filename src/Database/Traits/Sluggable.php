@@ -13,6 +13,12 @@ trait Sluggable
      */
 
     /**
+     * @var boolean Make the slug unique even among trashed items.
+     *
+     * public $slugIncludeTrashed = false;
+     */
+
+    /**
      * Boot the sluggable trait for a model.
      * @return void
      */
@@ -106,9 +112,14 @@ trait Sluggable
      */
     protected function newSluggableQuery()
     {
+        $query = $this->newQuery();
+        if ($this->includeTrashed()) {
+            $query->withTrashed();
+        }
+
         return $this->exists
-            ? $this->newQuery()->where($this->getKeyName(), '<>', $this->getKey())
-            : $this->newQuery();
+            ? $query->where($this->getKeyName(), '<>', $this->getKey())
+            : $query;
     }
 
     /**
@@ -142,6 +153,19 @@ trait Sluggable
     public function getSluggableSeparator()
     {
         return defined('static::SLUG_SEPARATOR') ? static::SLUG_SEPARATOR : '-';
+    }
+
+    /**
+     * Check if the slugIncludeTrashed property is
+     * available and set to true.
+     *
+     * @return bool
+     */
+    protected function includeTrashed()
+    {
+        return property_exists(get_called_class(), 'slugIncludeTrashed')
+            && method_exists(get_called_class(), 'withTrashed')
+            && $this->slugIncludeTrashed;
     }
 
 }
