@@ -463,7 +463,9 @@ class Manager
 
         $this->login($user, false);
 
-        Session::put($this->sessionKey.'_impersonate', $oldSession);
+        if (!$this->isImpersonator()) {
+            Session::put($this->sessionKey.'_impersonate', $oldSession);
+        }
     }
 
     public function stopImpersonate()
