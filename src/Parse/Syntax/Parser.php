@@ -89,7 +89,7 @@ class Parser
      */
     public function toEditor()
     {
-        return $this->fieldParser->getFields();
+        return is_null($this->fieldParser) ? [] : $this->fieldParser->getFields();
     }
 
     /**
