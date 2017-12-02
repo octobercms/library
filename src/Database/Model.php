@@ -449,7 +449,7 @@ class Model extends EloquentModel
      */
     public function offsetExists($offset)
     {
-        if ($result = isset($this->$offset)) {
+        if ($result = parent::offsetExists($offset)) {
             return $result;
         }
 
