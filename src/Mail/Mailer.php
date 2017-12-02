@@ -220,7 +220,7 @@ class Mailer extends MailerBase
     {
         $mailable = new Mailable;
 
-        $mailable->view($view, $data);
+        $mailable->view($view)->withSerializedData($data);
 
         call_user_func($callback, $mailable);
 
