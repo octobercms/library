@@ -68,6 +68,7 @@ class BelongsTo extends BelongsToBase
             if (!$value->exists) {
                 $value->bindEventOnce('model.afterSave', function() use ($value){
                     $this->associate($value);
+                    $this->child->save(['timestamps' => false]);
                 });
             }
 
