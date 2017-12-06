@@ -60,18 +60,17 @@ class MorphOne extends MorphOneBase
         if ($instance) {
             $this->parent->setRelation($this->relationName, $instance);
 
-            // Relation is already set, do nothing. This prevents the relationship
-            // from being nulled below and left unset because the save will ignore
-            // attribute values that are numerically equivalent (not dirty).
-            if (
-                $this->parent->exists &&
-                $instance->getOriginal($this->getForeignKeyName()) == $this->getParentKey() &&
-                $instance->getOriginal($this->getMorphType()) == $this->morphClass
-            ) {
-                return;
-            }
-
             $this->parent->bindEventOnce('model.afterSave', function() use ($instance){
+                // Relation is already set, do nothing. This prevents the relationship
+                // from being nulled below and left unset because the save will ignore
+                // attribute values that are numerically equivalent (not dirty).
+                if (
+                    $instance->getOriginal($this->getForeignKeyName()) == $this->getParentKey() &&
+                    $instance->getOriginal($this->getMorphType()) == $this->morphClass
+                ) {
+                    return;
+                }
+
                 $this->update([
                     $this->getForeignKeyName() => null,
                     $this->getMorphType() => null
