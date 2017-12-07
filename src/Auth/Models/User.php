@@ -5,11 +5,12 @@ use October\Rain\Database\Model;
 use InvalidArgumentException;
 use RuntimeException;
 use Exception;
+use Illuminate\Contracts\Auth\Authenticatable;
 
 /**
  * User model
  */
-class User extends Model
+class User extends Model implements Authenticatable
 {
     use \October\Rain\Database\Traits\Hashable;
     use \October\Rain\Database\Traits\Purgeable;
@@ -590,6 +591,15 @@ class User extends Model
     public function getAuthIdentifier()
     {
         return $this->getKey();
+    }
+    
+    /**
+     * Get the name of the unique identifier for the user.
+     * @return string
+     */
+    public function getAuthIdentifierName()
+    {
+        return $this->getKeyName();
     }
 
     /**
