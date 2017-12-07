@@ -6,15 +6,18 @@ use InvalidArgumentException;
 use RuntimeException;
 use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Auth\Access\Authorizable;
+
 
 /**
  * User model
  */
-class User extends Model implements Authenticatable
+class User extends Model implements Authenticatable, Authorizable
 {
     use \October\Rain\Database\Traits\Hashable;
     use \October\Rain\Database\Traits\Purgeable;
     use \October\Rain\Database\Traits\Validation;
+    use \Illuminate\Foundation\Auth\Access\Authorizable;
 
     /**
      * @var string The table associated with the model.
