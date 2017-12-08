@@ -23,27 +23,27 @@ class HtmlHelperTest extends TestCase
     {
         $result = HtmlHelper::nameToArray('field');
         $this->assertInternalType('array', $result);
-        $this->assertEquals(1, count($result));
-        $this->assertTrue(in_array('field', $result));
+        $this->assertCount(1, $result);
+        $this->assertContains('field', $result);
 
         $result = HtmlHelper::nameToArray('field[key1]');
         $this->assertInternalType('array', $result);
-        $this->assertEquals(2, count($result));
-        $this->assertTrue(in_array('field', $result));
-        $this->assertTrue(in_array('key1', $result));
+        $this->assertCount(2, $result);
+        $this->assertContains('field', $result);
+        $this->assertContains('key1', $result);
 
         $result = HtmlHelper::nameToArray('field[][key1]');
         $this->assertInternalType('array', $result);
-        $this->assertEquals(2, count($result));
-        $this->assertTrue(in_array('field', $result));
-        $this->assertTrue(in_array('key1', $result));
+        $this->assertCount(2, $result);
+        $this->assertContains('field', $result);
+        $this->assertContains('key1', $result);
 
         $result = HtmlHelper::nameToArray('field[key1][key2][key3]');
         $this->assertInternalType('array', $result);
-        $this->assertEquals(4, count($result));
-        $this->assertTrue(in_array('field', $result));
-        $this->assertTrue(in_array('key1', $result));
-        $this->assertTrue(in_array('key2', $result));
-        $this->assertTrue(in_array('key3', $result));
+        $this->assertCount(4, $result);
+        $this->assertContains('field', $result);
+        $this->assertContains('key1', $result);
+        $this->assertContains('key2', $result);
+        $this->assertContains('key3', $result);
     }
 }
