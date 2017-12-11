@@ -15,7 +15,7 @@ class FieldParser
 
     /**
      * @var array Extracted fields from the template
-     * The array key should match a unique field name, and the value 
+     * The array key should match a unique field name, and the value
      * is another array with values:
      *
      * - type: the tag name, eg: text
@@ -84,7 +84,7 @@ class FieldParser
         $this->fields = $this->fields + $fields;
 
         /*
-         * Layer the repeater tags over the standard ones to retain 
+         * Layer the repeater tags over the standard ones to retain
          * the original sort order
          */
         foreach ($repeatfields as $field => $params) {
@@ -200,7 +200,7 @@ class FieldParser
                 'close'    => $closeTag
             ];
 
-            // Remove the inner content of the repeater 
+            // Remove the inner content of the repeater
             // tag to prevent further parsing
             $template = str_replace($outerTemplate, $openTag.$closeTag, $template);
         }
@@ -254,8 +254,16 @@ class FieldParser
                 $params['type'] = $tagName;
             }
 
+            // allow options attribute to be converted in to array
+            // so it can be use with dropdown/radio options
             if (in_array($tagName, ['dropdown', 'radio']) && isset($params['options'])) {
                 $params['options'] = $this->processOptionsToArray($params['options']);
+            }
+
+            // allow trigger attribute to be converted in to array
+            // so it can be use with Js Trigger events API
+            if (isset($params['trigger'])) {
+                $params['trigger'] = $this->processOptionsToArray($params['trigger']);
             }
 
             $tags[$name] = $tagString;
@@ -316,7 +324,7 @@ class FieldParser
      *
      *  In: name="test" comment="This is a test"
      *  Out: ['name' => 'test', 'comment' => 'This is a test']
-     * 
+     *
      * @param  [type] $string [description]
      * @return [type]         [description]
      */
@@ -351,7 +359,7 @@ class FieldParser
      *  1 - The opening and closing tag name
      *  2 - The tag parameters as a string, eg: name="test"} and;
      *  2 - The default text inside the tag (optional), eg: Foobar
-     * 
+     *
      * @param  string $string
      * @param  string $tags
      * @return array
