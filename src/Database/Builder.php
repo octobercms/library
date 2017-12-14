@@ -124,7 +124,7 @@ class Builder extends BuilderModel
         }
 
         $total = $this->toBase()->getCountForPagination();
-        $this->query->forPage((int) $currentPage, (int) $perPage);
+        $this->forPage((int) $currentPage, (int) $perPage);
 
         return new LengthAwarePaginator($this->get($columns), $total, $perPage, $currentPage, [
             'path' => Paginator::resolveCurrentPath(),
