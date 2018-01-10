@@ -1,9 +1,9 @@
 <?php namespace October\Rain\Database\Attach;
 
+use Config;
 use Storage;
 use File as FileHelper;
 use October\Rain\Database\Model;
-use October\Rain\Database\Attach\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\File\File as FileObj;
 use Exception;
@@ -57,6 +57,17 @@ class File extends Model
     public $data = null;
 
     /**
+     * @var string The name of the disk where uploaded files are stored.
+     * This is set based on the key returned by getStorageConfigKey().
+     */
+    protected $storageDiskKey = null;
+
+    /**
+     * @var \Illuminate\Filesystem\FilesystemAdapter An instance for storage disk obtained with $storageDiskKey.
+     */
+    protected $storageDisk = null;
+
+    /**
      * @var array Mime types
      */
     protected $autoMimeTypes = [
@@ -73,6 +84,18 @@ class File extends Model
     //
     // Constructors
     //
+
+    /**
+     * Constructor
+     */
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct();
+
+        $this->storageDiskKey = $this->getStorageConfigKey() ?
+            Config::get($this->getStorageConfigKey() . '.disk') : Storage::getDefaultDriver();
+        $this->storageDisk = Storage::disk($this->storageDiskKey);
+    }
 
     /**
      * Creates a file object from a file an uploaded file.
@@ -120,7 +143,7 @@ class File extends Model
 
         return $this;
     }
-    
+
     /**
      * Creates a file object from raw data.
      *
@@ -563,7 +586,7 @@ class File extends Model
                 FileHelper::delete($collection);
             }
             else {
-                Storage::delete($collection);
+                $this->storageDisk->delete($collection);
             }
         }
     }
@@ -726,17 +749,15 @@ class File extends Model
         $command = array_shift($args);
 
         if ($this->isLocalStorage()) {
-            $interface = 'File';
             $path = $this->getLocalRootPath();
             $args = array_map(function($value) use ($path) {
                 return $path . '/' . $value;
             }, $args);
+            return forward_static_call_array(['File', $command], $args);
         }
         else {
-            $interface = 'Storage';
+            return call_user_func_array([$this->storageDisk, $command], $args);
         }
-
-        return forward_static_call_array([$interface, $command], $args);
     }
 
     /**
@@ -744,7 +765,7 @@ class File extends Model
      */
     protected function copyStorageToLocal($storagePath, $localPath)
     {
-        return FileHelper::put($localPath, Storage::get($storagePath));
+        return FileHelper::put($localPath, $this->storageDisk->get($storagePath));
     }
 
     /**
@@ -752,7 +773,7 @@ class File extends Model
      */
     protected function copyLocalToStorage($localPath, $storagePath)
     {
-        return Storage::put($storagePath, FileHelper::get($localPath), ($this->isPublic()) ? 'public' : null);
+        return $this->storageDisk->put($storagePath, FileHelper::get($localPath), ($this->isPublic()) ? 'public' : null);
     }
 
     //
@@ -814,7 +835,7 @@ class File extends Model
      */
     protected function isLocalStorage()
     {
-        return Storage::getDefaultDriver() == 'local';
+        return $this->storageDiskKey == 'local';
     }
 
     /**
@@ -836,5 +857,16 @@ class File extends Model
     protected function getLocalRootPath()
     {
         return storage_path().'/app';
+    }
+
+    /**
+     * Provides the key of the configuration that specifies a disk for the storage.
+     * When null is returned, the default disk in config/filesystems.php is applied.
+     * Override this method to use specific configuration.
+     * @return string|null
+     */
+    protected function getStorageConfigKey()
+    {
+        return null;
     }
 }
