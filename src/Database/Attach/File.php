@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Database\Attach;
 
-use Config;
 use Storage;
 use File as FileHelper;
 use October\Rain\Database\Model;
@@ -57,13 +56,7 @@ class File extends Model
     public $data = null;
 
     /**
-     * @var string The name of the disk where uploaded files are stored.
-     * This is set based on the key returned by getStorageConfigKey().
-     */
-    protected $storageDiskKey = null;
-
-    /**
-     * @var \Illuminate\Filesystem\FilesystemAdapter An instance for storage disk obtained with $storageDiskKey.
+     * @var \Illuminate\Filesystem\FilesystemAdapter An instance for storage disk specified by getStorageDiskKey().
      */
     protected $storageDisk = null;
 
@@ -92,9 +85,7 @@ class File extends Model
     {
         parent::__construct();
 
-        $this->storageDiskKey = $this->getStorageConfigKey() ?
-            Config::get($this->getStorageConfigKey() . '.disk') : Storage::getDefaultDriver();
-        $this->storageDisk = Storage::disk($this->storageDiskKey);
+        $this->storageDisk = Storage::disk($this->getStorageDiskKey());
     }
 
     /**
@@ -835,7 +826,7 @@ class File extends Model
      */
     protected function isLocalStorage()
     {
-        return $this->storageDiskKey == 'local';
+        return $this->getStorageDiskKey() == 'local';
     }
 
     /**
@@ -860,13 +851,11 @@ class File extends Model
     }
 
     /**
-     * Provides the key of the configuration that specifies a disk for the storage.
-     * When null is returned, the default disk in config/filesystems.php is applied.
-     * Override this method to use specific configuration.
-     * @return string|null
+     * Returns the name of the disk defined in config/filesystems.php.
+     * @return string
      */
-    protected function getStorageConfigKey()
+    protected function getStorageDiskKey()
     {
-        return null;
+        return Storage::getDefaultDriver();
     }
 }
