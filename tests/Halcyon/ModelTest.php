@@ -5,12 +5,13 @@ use October\Rain\Halcyon\Datasource\Resolver;
 use October\Rain\Halcyon\Datasource\FileDatasource;
 use October\Rain\Filesystem\Filesystem;
 
-class HalcyonModelTest extends TestCase
+class HalcyonModelTest extends LaravelTestCase
 {
     protected $resolver;
 
     public function setUp()
     {
+        parent::setUp();
         include_once __DIR__.'/../fixtures/halcyon/models/Page.php';
         include_once __DIR__.'/../fixtures/halcyon/models/Menu.php';
         include_once __DIR__.'/../fixtures/halcyon/models/Content.php';
