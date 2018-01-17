@@ -15,7 +15,7 @@ return [
 
     'debug' => true,
 
-    "debugAgain" => FALSE,
+    "debugAgain"  =>  FALSE ,
 
     "bullyIan" => 0,
 
@@ -51,7 +51,7 @@ return [
 
     'timezone' => "October's time",
 
-    "timezoneAgain"                =>                 'Something "else"'               ,
+    "timezoneAgain"               =>         'Something "else"'         ,
 
     /*
     |--------------------------------------------------------------------------
@@ -72,40 +72,40 @@ return [
     'connections' => [
 
         'sqlite' => [
-            'driver' => 'sqlite',
-            'database' => __DIR__ . '/../database/production.sqlite',
-            'prefix' => '',
+            'driver'   => 'sqlite',
+            'database' => __DIR__.'/../database/production.sqlite',
+            'prefix'   => '',
         ],
 
         'mysql' => [
-            'driver' => array('rabble' => 'mysql'),
-            'host' => 'localhost',
-            'database' => 'database',
-            'username' => 'root',
-            'password' => '',
-            'charset' => 'utf8',
+            'driver'    => array('rabble' => 'mysql'),
+            'host'      => 'localhost',
+            'database'  => 'database',
+            'username'  => 'root',
+            'password'  => '',
+            'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
-            'prefix' => '',
+            'prefix'    => '',
         ],
 
         'sqlsrv' => [
-            'driver' => 'sqlsrv',
-            'host' => 'localhost',
+            'driver'   => 'sqlsrv',
+            'host'     => 'localhost',
             'database' => 'database',
             'username' => 'root',
             'password' => '',
-            'prefix' => '',
+            'prefix'   => '',
         ],
 
         'pgsql' => [
-            'driver' => 'pgsql',
-            'host' => 'localhost',
+            'driver'   => 'pgsql',
+            'host'     => 'localhost',
             'database' => 'database',
             'username' => 'root',
             'password' => false,
-            'charset' => 'utf8',
-            'prefix' => '',
-            'schema' => 'public',
+            'charset'  => 'utf8',
+            'prefix'   => '',
+            'schema'   => 'public',
         ],
     ],
 
@@ -138,35 +138,34 @@ return [
         'cluster' => false,
 
         'default' => [
-            'host' => '127.0.0.1',
+            'host'     => '127.0.0.1',
             'password' => null,
-            'port' => 6379,
+            'port'     => 6379,
             'database' => 0,
         ],
 
     ],
 
     // 'key'=>env('KEY'')
-    'envkey' => env('ENV_KEY'),
+    'envkey'    => env('ENV_KEY'),
     'envkeytrue' => env('ENV_KEY_TRUE'),
-    'envkeyfalse' => env('ENV_KEY_FALSE'),
-    'envkeynull' => env('ENV_KEY_NULL'),
+    'envkeyfalse' =>    env('ENV_KEY_FALSE'   ),
+    'envkeynull' => env(     'ENV_KEY_NULL'),
     'envlevels' => [
         'envlevel1' => [
-            'envlevel2' => env('ENV_LEVEL_2'),
+            'envlevel2' => env    ('ENV_LEVEL_2'),
         ],
     ],
 
 
     // key'=>env('KEY','value')
     'envdefaultkeystring' => env('ENV_DEFAULT_KEY_STRING', 'env_default_value_string'),
-    'envdefaultkeytrue' => env('ENV_DEFAULT_KEY_TRUE', true),
-    'envdefaultkeyfalse' => env('ENV_DEFAULT_KEY_FALSE', false),
-    'envdefaultkeynull' => env('ENV_DEFAULT_KEY_NULL', null),
+    'envdefaultkeytrue' => env('ENV_DEFAULT_KEY_TRUE',   true),
+    'envdefaultkeyfalse' => env   ('ENV_DEFAULT_KEY_FALSE', false),
+    'envdefaultkeynull'    => env(    'ENV_DEFAULT_KEY_NULL',     null),
     'envdefaultlevels' => [
         'envdefaultlevel1' => [
-            'envdefaultlevel2' => env('ENV_DEFAULT_LEVEL_2', 'env_default_level_2_value'),
+            'envdefaultlevel2' => env    ('ENV_DEFAULT_LEVEL_2', 'env_default_level_2_value'   ),
         ],
     ],
-
 ];
