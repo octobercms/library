@@ -84,16 +84,27 @@ class ConfigWriter
 
         $count = 0;
         $patterns = array();
+
+        // this should be first
+        $patterns[] = $this->buildEnvExpression($key, $items, false);
+        $patterns[] = $this->buildEnvExpression($key, $items);
+
         $patterns[] = $this->buildStringExpression($key, $items);
         $patterns[] = $this->buildStringExpression($key, $items, '"');
         $patterns[] = $this->buildConstantExpression($key, $items);
         $patterns[] = $this->buildArrayExpression($key, $items);
 
         foreach ($patterns as $pattern) {
-            $result = preg_replace($pattern, '${1}${2}'.$replaceValue, $result, 1, $count);
-
-            if ($count > 0) {
-                break;
+            if ($pattern === $patterns[0]) {
+                $result = preg_replace($pattern, '${1}${2}' . ',' . $replaceValue . ')', $result, 1, $count);
+                if ($count > 0) {
+                    break;
+                }
+            } else {
+                $result = preg_replace($pattern, '${1}${2}' . $replaceValue, $result, 1, $count);
+                if ($count > 0) {
+                    break;
+                }
             }
         }
 
@@ -159,6 +170,43 @@ class ConfigWriter
 
         return '/' . implode('', $expression) . '/';
     }
+
+    /**
+     * default matching  someKey'  => env('someKey', 'someValue')
+     * if $defaultValue is false , it matching 'someKey'  => env('someKey')
+     * @param $targetKey
+     * @param array $arrayItems
+     * @param bool $defaultValue default true
+     * @return string
+     */
+    protected function buildEnvExpression($targetKey, $arrayItems = array(), $defaultValue = true)
+    {
+        $expression = array();
+
+        // Opening expression for array items ($1)
+        $expression[] = $this->buildArrayOpeningExpression($arrayItems);
+
+        if ($defaultValue) {
+            // like 'someKey'  => env('someKey', 'someValue')
+
+            // The target key opening ($2)
+            $expression[] = '([\'|"]' . $targetKey . '[\'|"]\s*=>\s*env\s*\(\s*[\'|"][^"\']*[\'|"]\s*\,\s*)';
+
+            // The target value to be replaced ($3)
+            $expression[] = '(([\'|"][^"\']*[\'|"])|(\d+)|[Nn][Uu][Ll]{2}|[tT][rR][uU][eE]|[fF][aA][lL][sS][eE])';
+        } else {
+            // like 'someKey'  => env('someKey')
+
+            // The target key opening ($2)
+            $expression[] = '([\'|"]' . $targetKey . '[\'|"]\s*=>\s*env\s*\(\s*[\'|"][^"\']*[\'|"]\s*)';
+
+            // The target value to be replaced ($3)
+            $expression[] = '(\))';
+        }
+
+        return '/' . implode('', $expression) . '/';
+    }
+
 
     /**
      * Common constants only (true, false, null, integers)

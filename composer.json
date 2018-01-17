@@ -41,8 +41,8 @@
         "illuminate/routing": "5.5.*",
         "illuminate/validation": "5.5.*",
         "illuminate/view": "5.5.*",
-        "swiftmailer/swiftmailer": "~5.1",
-        "symfony/config": "2.7.*",
+        "swiftmailer/swiftmailer": "~6.0",
+        "symfony/config": "~3.1",
         "symfony/dom-crawler": "~3.1",
         "symfony/css-selector": "~3.1"
     },
