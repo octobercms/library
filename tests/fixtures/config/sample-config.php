@@ -159,7 +159,7 @@ return [
 
     // "key"=>env("KEY")
     "envkeystringdoublequotation" => env("ENV_KEY_STRING_DOUBLE_QUOTATION"),
-    "envkeytruedoublequotation" => env('ENV_KEY_TRUE_DOUBLE_QUOTATION'),
+    "envkeytruedoublequotation" => env("ENV_KEY_TRUE_DOUBLE_QUOTATION"),
 
 
     // 'key'=>env('KEY','value')
@@ -177,6 +177,6 @@ return [
     ],
 
     // "key"=>env("KEY","value")
-    'envdefaultkeystringdoublequotation' => env('ENV_DEFAULT_KEY_STRING_DOUBLE_QUOTATION', 'env_default_value_string_double_quotation'),
-    'envdefaultkeytruedoublequotation' => env('ENV_DEFAULT_KEY_TRUE_DOUBLE_QUOTATION',   true),
+    "envdefaultkeystringdoublequotation" => env("ENV_DEFAULT_KEY_STRING_DOUBLE_QUOTATION", "env_default_value_string_double_quotation"),
+    "envdefaultkeytruedoublequotation" => env("ENV_DEFAULT_KEY_TRUE_DOUBLE_QUOTATION",   true),
 ];
