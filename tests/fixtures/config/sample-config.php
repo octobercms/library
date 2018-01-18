@@ -162,7 +162,7 @@ return [
     "envkeytruedoublequotation" => env('ENV_KEY_TRUE_DOUBLE_QUOTATION'),
 
 
-    // key'=>env('KEY','value')
+    // 'key'=>env('KEY','value')
     'envdefaultkeystring' => env('ENV_DEFAULT_KEY_STRING', 'env_default_value_string'),
     'envdefaultkeytrue' => env('ENV_DEFAULT_KEY_TRUE',   true),
     'envdefaultkeyfalse' => env   ('ENV_DEFAULT_KEY_FALSE', false),
