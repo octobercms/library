@@ -86,6 +86,8 @@ class ConfigWriter
         $patterns = array();
 
         // this should be first
+        // give buildEnvExpression the highest priority to match 'someKey'  => env('someKey', 'someValue')
+        // because the preg_replace match limit one times, sometimes it lead the buildEnvExpression not work
         $patterns[] = $this->buildEnvExpression($key, $items, false);
         $patterns[] = $this->buildEnvExpression($key, $items);
 
@@ -93,6 +95,7 @@ class ConfigWriter
         $patterns[] = $this->buildStringExpression($key, $items, '"');
         $patterns[] = $this->buildConstantExpression($key, $items);
         $patterns[] = $this->buildArrayExpression($key, $items);
+
 
         foreach ($patterns as $pattern) {
             if ($pattern === $patterns[0]) {
@@ -172,7 +175,7 @@ class ConfigWriter
     }
 
     /**
-     * default matching  someKey'  => env('someKey', 'someValue')
+     * default matching 'someKey'  => env('someKey', 'someValue')
      * if $defaultValue is false , it matching 'someKey'  => env('someKey')
      * @param $targetKey
      * @param array $arrayItems
@@ -187,15 +190,16 @@ class ConfigWriter
         $expression[] = $this->buildArrayOpeningExpression($arrayItems);
 
         if ($defaultValue) {
-            // like 'someKey'  => env('someKey', 'someValue')
+            // matching 'someKey'  => env('someKey', 'someValue')
 
             // The target key opening ($2)
             $expression[] = '([\'|"]' . $targetKey . '[\'|"]\s*=>\s*env\s*\(\s*[\'|"][^"\']*[\'|"]\s*\,\s*)';
 
             // The target value to be replaced ($3)
             $expression[] = '(([\'|"][^"\']*[\'|"])|(\d+)|[Nn][Uu][Ll]{2}|[tT][rR][uU][eE]|[fF][aA][lL][sS][eE])';
+
         } else {
-            // like 'someKey'  => env('someKey')
+            // matching 'someKey'  => env('someKey')
 
             // The target key opening ($2)
             $expression[] = '([\'|"]' . $targetKey . '[\'|"]\s*=>\s*env\s*\(\s*[\'|"][^"\']*[\'|"]\s*)';

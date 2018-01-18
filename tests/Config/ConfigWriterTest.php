@@ -14,10 +14,8 @@ class ConfigWriterTest extends TestCase
 
         $contents = $writer->toFile($tmpFile, ['connections.sqlite.driver' => 'sqlbite']);
 
-        $contents = $writer->toFile($tmpFile, ['envkey' => 'env_key_value']);
         $contents = $writer->toFile($tmpFile, ['envlevels.envlevel1.envlevel2' => 'env_level_2_value']);
 
-        $contents = $writer->toFile($tmpFile, ['envdefaultkeystring' => 'env_default_value_string_new']);
         $contents = $writer->toFile($tmpFile, ['envdefaultlevels.envdefaultlevel1.envdefaultlevel2' => 'env_default_level_2_value_new']);
 
         $result = include $tmpFile;
@@ -25,6 +23,11 @@ class ConfigWriterTest extends TestCase
         $this->assertArrayHasKey('sqlite', $result['connections']);
         $this->assertArrayHasKey('driver', $result['connections']['sqlite']);
         $this->assertEquals('sqlbite', $result['connections']['sqlite']['driver']);
+
+        $this->assertArrayHasKey('envlevel2',$result['envlevels']['envlevel1']);
+        $this->assertArrayHasKey('envdefaultlevel2',$result['envdefaultlevels']['envdefaultlevel1']);
+        $this->assertEquals('env_level_2_value', $result['envlevels']['envlevel1']['envlevel2']);
+        $this->assertEquals('env_default_level_2_value_new', $result['envdefaultlevels']['envdefaultlevel1']['envdefaultlevel2']);
 
         unlink($tmpFile);
     }
@@ -140,15 +143,15 @@ class ConfigWriterTest extends TestCase
         /*
          * Test env like 'key'=>env('KEY'')
          */
-        $contents = $writer->toContent($contents, ['envkey' => 'env_value_new']);
+        $contents = $writer->toContent($contents, ['envkeystring' => 'env_string_value_new']);
         $contents = $writer->toContent($contents, ['envkeytrue' => true]);
         $contents = $writer->toContent($contents, ['envkeyfalse' => false]);
         $contents = $writer->toContent($contents, ['envkeynull' => null]);
         $contents = $writer->toContent($contents, ['envlevels.envlevel1.envlevel2' => 'env_level_2_value']);
         $result = eval('?>' . $contents);
 
-        $this->assertArrayHasKey('envkey', $result);
-        $this->assertEquals('env_value_new', $result['envkey']);
+        $this->assertArrayHasKey('envkeystring', $result);
+        $this->assertEquals('env_string_value_new', $result['envkeystring']);
 
         $this->assertArrayHasKey('envkeytrue', $result);
         $this->assertTrue($result['envkeytrue']);
@@ -161,6 +164,21 @@ class ConfigWriterTest extends TestCase
 
         $this->assertArrayHasKey('envlevel2', $result['envlevels']['envlevel1']);
         $this->assertEquals('env_level_2_value', $result['envlevels']['envlevel1']['envlevel2']);
+
+
+        /*
+         *  Test env like "key"=>env("KEY")
+         */
+        $contents = $writer->toContent($contents, ['envkeystringdoublequotation' => 'env_key_string_double_quotation_value_new']);
+        $contents = $writer->toContent($contents, ['envkeytruedoublequotation' => true]);
+        $result = eval('?>' . $contents);
+
+        $this->assertArrayHasKey('envkeystringdoublequotation',$result);
+        $this->assertEquals('env_key_string_double_quotation_value_new',$result['envkeystringdoublequotation']);
+
+        $this->assertArrayHasKey('envkeytruedoublequotation',$result);
+        $this->assertTrue($result['envkeytruedoublequotation']);
+
 
         /*
          *  Test env like 'key'=>env('KEY','value')
@@ -186,6 +204,19 @@ class ConfigWriterTest extends TestCase
 
         $this->assertArrayHasKey('envdefaultlevel2', $result['envdefaultlevels']['envdefaultlevel1']);
         $this->assertEquals('env_default_level_2_value_new', $result['envdefaultlevels']['envdefaultlevel1']['envdefaultlevel2']);
+
+        /*
+         *  Test env like "key"=>env("KEY","value")
+         */
+        $contents = $writer->toContent($contents, ['envdefaultkeystringdoublequotation' => 'env_default_value_string_double_quotation_new']);
+        $contents = $writer->toContent($contents, ['envdefaultkeytruedoublequotation' => true]);
+        $result = eval('?>' . $contents);
+
+        $this->assertArrayHasKey('envdefaultkeystringdoublequotation', $result);
+        $this->assertEquals('env_default_value_string_double_quotation_new', $result['envdefaultkeystringdoublequotation']);
+
+        $this->assertArrayHasKey('envdefaultkeytruedoublequotation', $result);
+        $this->assertTrue($result['envdefaultkeytruedoublequotation']);
 
     }
 }
