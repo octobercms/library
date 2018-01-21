@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Attach;
 
+use Config;
 use Storage;
 use File as FileHelper;
 use October\Rain\Database\Model;
@@ -835,6 +836,7 @@ class File extends Model
      */
     protected function getLocalRootPath()
     {
-        return storage_path().'/app';
+        return Config::get('filesystems.disks.local.root');
+//        return storage_path().'/app';
     }
 }
