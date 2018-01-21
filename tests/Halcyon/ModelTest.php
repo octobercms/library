@@ -4,6 +4,7 @@ use October\Rain\Halcyon\Model;
 use October\Rain\Halcyon\Datasource\Resolver;
 use October\Rain\Halcyon\Datasource\FileDatasource;
 use October\Rain\Filesystem\Filesystem;
+use Orchestra\Testbench\TestCase;
 
 class HalcyonModelTest extends TestCase
 {
@@ -11,6 +12,7 @@ class HalcyonModelTest extends TestCase
 
     public function setUp()
     {
+        parent::setUp();
         include_once __DIR__.'/../fixtures/halcyon/models/Page.php';
         include_once __DIR__.'/../fixtures/halcyon/models/Menu.php';
         include_once __DIR__.'/../fixtures/halcyon/models/Content.php';
