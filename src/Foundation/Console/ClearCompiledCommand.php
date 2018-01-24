@@ -16,6 +16,6 @@ class ClearCompiledCommand extends ClearCompiledCommandBase
             @unlink($servicesPath);
         }
 
-        parent::fire();
+        parent::handle();
     }
 }
