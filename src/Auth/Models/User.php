@@ -223,14 +223,8 @@ class User extends Model
      */
     public function attemptActivation($activationCode)
     {
-        if ($this->is_activated) {
-            throw new Exception('User is already active!');
-        }
-
         if ($activationCode == $this->activation_code) {
-            $this->activation_code = null;
-            $this->is_activated = true;
-            $this->activated_at = $this->freshTimestamp();
+            $this->setActive();
             $this->forceSave();
             return true;
         }
@@ -288,6 +282,9 @@ class User extends Model
         if ($this->checkResetPasswordCode($resetCode)) {
             $this->password = $newPassword;
             $this->reset_password_code = null;
+            if (!$this->is_activated) { // Receiving the password reset code also verifies email address
+                $this->setActive();
+            }
             return $this->forceSave();
         }
 
@@ -664,5 +661,19 @@ class User extends Model
         $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
         return substr(str_shuffle(str_repeat($pool, 5)), 0, $length);
+    }
+
+    /**
+     * Activate user
+     */
+    public function setActive()
+    {
+        if ($this->is_activated) {
+            throw new Exception('User is already active!');
+        }
+
+        $this->activation_code = null;
+        $this->is_activated = true;
+        $this->activated_at = $this->freshTimestamp();
     }
 }
