@@ -248,6 +248,18 @@ class Application extends ApplicationBase
         return true;
     }
 
+    /**
+     * Set the current application locale.
+     * @param  string  $locale
+     * @return void
+     */
+    public function setLocale($locale)
+    {
+        parent::setLocale($locale);
+
+        $this['events']->fire('locale.changed', [$locale]);
+    }
+
     //
     // Core aliases
     //
