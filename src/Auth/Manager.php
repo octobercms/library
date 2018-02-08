@@ -27,6 +27,8 @@ class Manager
 
     protected $sessionKey = 'october_auth';
 
+    protected $cookieExpiration = null;
+
     public $ipAddress = '0.0.0.0';
 
     protected function init()
@@ -418,7 +420,11 @@ class Manager
         Session::put($this->sessionKey, $toPersist);
 
         if ($remember) {
-            Cookie::queue(Cookie::forever($this->sessionKey, $toPersist));
+            if ($this->$cookieExpiration === null) {
+                Cookie::queue(Cookie::forever($this->sessionKey, $toPersist));
+            } else {
+                Cookie::queue($this->sessionKey, $toPersist, $this->$cookieExpiration);
+            }
         }
 
         /*
