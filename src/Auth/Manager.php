@@ -420,10 +420,10 @@ class Manager
         Session::put($this->sessionKey, $toPersist);
 
         if ($remember) {
-            if ($this->$cookieExpiration === null) {
+            if ($this->cookieExpiration === null) {
                 Cookie::queue(Cookie::forever($this->sessionKey, $toPersist));
             } else {
-                Cookie::queue($this->sessionKey, $toPersist, $this->$cookieExpiration);
+                Cookie::queue($this->sessionKey, $toPersist, $this->cookieExpiration);
             }
         }
 
