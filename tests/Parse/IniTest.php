@@ -235,6 +235,32 @@ class IniTest extends TestCase
         $this->assertEquals($content, $result);
     }
 
+    public function testMultilinesValues()
+    {
+        $path = __DIR__.'/../fixtures/parse/multilines-value.ini';
+        $this->assertFileExists($path);
+        $content = $this->getContents($path);
+
+        $vars = [
+            'var' => "\\\\Test\\Path\\",
+            'editorContent' =>
+'<p>Some
+    <br>"Multi-line"
+    <br>text
+</p>',
+        ];
+
+        $parser = new IniParser;
+        $result = $parser->parse($content);
+        $this->assertCount(2, $result);
+        $this->assertArrayHasKey('var', $result);
+        $this->assertArrayHasKey('editorContent', $result);
+        $this->assertEquals($vars, $result);
+
+        $result = $parser->render($vars);
+        $this->assertEquals($content, $result);
+    }
+
     public function testRender()
     {
         $parser = new IniParser;
