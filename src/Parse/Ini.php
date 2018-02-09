@@ -251,7 +251,10 @@ class Ini
         }
 
         // String (default)
-        return '"'.str_replace('"', '\"', $value).'"';
+        $value = str_replace('"', '\"', $value);
+        $value = preg_replace('~\\\"([\r\n])~', '\\\"""$1', $value);
+
+        return '"'.$value.'"';
     }
 
     /**
