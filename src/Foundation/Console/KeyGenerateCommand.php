@@ -43,7 +43,7 @@ class KeyGenerateCommand extends KeyGenerateCommandBase
 
         $oldKey = $this->laravel['config']['app.key'];
 
-        parent::fire();
+        parent::handle();
 
         $newKey = $this->laravel['config']['app.key'];
 
