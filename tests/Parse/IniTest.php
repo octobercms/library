@@ -242,7 +242,7 @@ class IniTest extends TestCase
         $content = $this->getContents($path);
 
         $vars = [
-            'var' => "\\\\Test\\Path\\",
+            'var' => "\\Test\\Path\\",
             'editorContent' =>
 '<p>Some
     <br>"Multi-line"
@@ -256,7 +256,7 @@ class IniTest extends TestCase
         $this->assertArrayHasKey('var', $result);
         $this->assertArrayHasKey('editorContent', $result);
         $this->assertEquals($vars, $result);
-
+		
         $result = $parser->render($vars);
         $this->assertEquals($content, $result);
     }
