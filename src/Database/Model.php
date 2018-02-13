@@ -516,7 +516,7 @@ class Model extends EloquentModel
          */
         foreach ($this->attributes as $attribute => $value) {
             if (is_array($value)) {
-                throw new Exception(sprintf('Unexpected type of array, should attribute "%s" be jsonable? See octobercms.com/docs/backend/forms#widget-repeater-jsonable for more information.', $attribute));
+                throw new Exception(sprintf('Unexpected type of array when attempting to save attribute "%s", try adding it to the $jsonable property.', $attribute));
             }
         }
 
