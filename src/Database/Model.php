@@ -340,7 +340,7 @@ class Model extends EloquentModel
         }
 
         return Argon::createFromFormat(
-            $this->getDateFormat(), $value
+            str_replace('.v', '.u', $this->getDateFormat()), $value
         );
     }
 
