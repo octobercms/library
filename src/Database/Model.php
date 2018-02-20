@@ -676,7 +676,7 @@ class Model extends EloquentModel
     /**
      * Add attribute casts for the model.
      * 
-     * @param  array              $attributes
+     * @param  array $attributes
      * @return void
      */
     public function addCasts($attributes)
