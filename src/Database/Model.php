@@ -672,6 +672,17 @@ class Model extends EloquentModel
     //
     // Adders
     //
+    
+    /**
+     * Add attribute casts for the model.
+     * 
+     * @param  array $attributes
+     * @return void
+     */
+    public function addCasts($attributes)
+    {
+        $this->casts = array_merge($this->casts, $attributes);
+    }
 
     /**
      * Adds a datetime attribute to convert to an instance of Carbon/DateTime object.
