@@ -34,7 +34,7 @@ class ConfigWriterTest extends TestCase
         $contents = $writer->toContent($contents, ['url' => 'http://octobercms.com']);
         $result = eval('?>'.$contents);
 
-        $this->assertTrue(is_array($result));
+        $this->assertInternalType('array', $result);
         $this->assertArrayHasKey('url', $result);
         $this->assertEquals('http://octobercms.com', $result['url']);
 

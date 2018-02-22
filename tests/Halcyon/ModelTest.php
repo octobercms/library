@@ -111,7 +111,7 @@ ESC;
 <p>Hello world!</p>
 ESC;
 
-        $this->assertEquals($content, file_get_contents($targetFile));
+        $this->assertStringEqualsFile($targetFile, $content);
 
         @unlink($targetFile);
     }
