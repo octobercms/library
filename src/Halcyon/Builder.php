@@ -636,31 +636,23 @@ class Builder
         $minutes = $this->cacheMinutes;
         $cache = $this->getCache();
         $callback = $this->getCacheCallback($columns);
-        $isNewCache = !$cache->has($key);
+        $result = $cache->get($key);
+        $isNewCache = is_null($result);
 
         // If the "minutes" value is less than zero, we will use that as the indicator
-        // that the value should be remembered values should be stored indefinitely
-        // and if we have minutes we will use the typical remember function here.
-        if ($minutes < 0) {
-            $result = $cache->rememberForever($key, $callback);
-        }
-        else {
-            $result = $cache->remember($key, $minutes, $callback);
-        }
-
+        // that the value should be stored indefinitely using the forever function,
+        // and if we have minutes we will use the put function here.
         // If this is an old cache record, we can check if the cache has been busted
-        // by comparing the modification times. If this is the case, forget the
-        // cache and then prompt a recycle of the results.
-        if (!$isNewCache && $this->isCacheBusted($result)) {
-            $cache->forget($key);
-            $isNewCache = true;
-
+        // by comparing the modification times. If this is the case, recycle of the results.
+        if($isNewCache || $this->isCacheBusted($result)) {
+            $result = $callback();
             if ($minutes < 0) {
-                $result = $cache->rememberForever($key, $callback);
+                $cache->forever($key, $callback());
             }
             else {
-                $result = $cache->remember($key, $minutes, $callback);
+                $cache->put($key, $callback(), $minutes);
             }
+            $isNewCache = true;
         }
 
         $this->loadedFromCache = !$isNewCache;
