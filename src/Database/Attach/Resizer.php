@@ -50,7 +50,7 @@ class Resizer
      * @var int Original width of the image being resized.
      */
     protected $width;
-    
+
     /**
      * @var int Original height of the image being resized.
      */
@@ -406,7 +406,7 @@ class Resizer
         $image = $this->image;
 
         $imageQuality = $this->getOption('quality');
-        
+
         if ($this->getOption('interlace')) {
             imageinterlace($image, true);
         }
@@ -443,14 +443,14 @@ class Resizer
                     imagepng($image, $savePath, $invertScaleQuality);
                 }
                 break;
-                
+
             case 'webp':
                 // Check WEBP support is enabled
                 if (imagetypes() & IMG_WEBP) {
                     imagewebp($image, $savePath, $imageQuality);
                 }
                 break;
-                
+
             default:
                 throw new Exception(sprintf('Invalid image type: %s. Accepted types: jpg, gif, png, webp.', $extension));
                 break;
@@ -511,8 +511,11 @@ class Resizer
             case 'crop':
                 return $this->getOptimalCrop($newWidth, $newHeight);
 
+            case 'fit':
+                return $this->getSizeByFit($newWidth, $newHeight);
+
             default:
-                throw new Exception('Invalid dimension type. Accepted types: exact, portrait, landscape, auto, crop.');
+                throw new Exception('Invalid dimension type. Accepted types: exact, portrait, landscape, auto, crop, fit.');
         }
     }
 
@@ -614,6 +617,27 @@ class Resizer
 
         $optimalHeight = round($this->height / $optimalRatio);
         $optimalWidth  = round($this->width  / $optimalRatio);
+
+        return [$optimalWidth, $optimalHeight];
+    }
+
+    /**
+     * Fit the image inside a bounding box using width and height constraints.
+     * @param $maxWidth The maximum width of the image
+     * @param $maxHeight The maximum height of the image
+     */
+    protected function getSizeByFit($maxWidth, $maxHeight) {
+
+        // Calculate the scaling ratios in order to get the target width and height
+        $ratioW = $maxWidth / $this->width;
+        $ratioH = $maxHeight / $this->height;
+
+        // Select the ratio which makes the image fit inside the constraints
+        $effectiveRatio = min($ratioW, $ratioH);
+
+        // Calculate the final width and height according to this ratio
+        $optimalWidth = $this->width * $effectiveRatio;
+        $optimalHeight = $this->height * $effectiveRatio;
 
         return [$optimalWidth, $optimalHeight];
     }
