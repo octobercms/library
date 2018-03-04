@@ -45,7 +45,7 @@ trait Purgeable
     {
         $attributes = is_array($attributes) ? $attributes : func_get_args();
 
-        $this->purgeable = array_merge($this->purgeable, $attributes);
+        $this->parent->purgeable = array_merge($this->parent->purgeable, $attributes);
 
         return $this;
     }
