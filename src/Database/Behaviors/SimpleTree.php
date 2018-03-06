@@ -11,9 +11,4 @@ use \October\Rain\Database\ModelTraitBehavior;
 class SimpleTree extends ModelTraitBehavior
 {
     use \October\Rain\Database\Traits\SimpleTree;
-
-    public function __construct($model)
-    {
-        parent::__construct($model);
-    }
 }

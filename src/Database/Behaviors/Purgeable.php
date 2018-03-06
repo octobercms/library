@@ -11,9 +11,4 @@ use \October\Rain\Database\ModelTraitBehavior;
 class Purgeable extends ModelTraitBehavior
 {
     use \October\Rain\Database\Traits\Purgeable;
-
-    public function __construct($model)
-    {
-        parent::__construct($model);
-    }
 }

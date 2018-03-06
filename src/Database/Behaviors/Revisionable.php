@@ -11,9 +11,4 @@ use \October\Rain\Database\ModelTraitBehavior;
 class Revisionable extends ModelTraitBehavior
 {
     use \October\Rain\Database\Traits\Revisionable;
-
-    public function __construct($model)
-    {
-        parent::__construct($model);
-    }
 }

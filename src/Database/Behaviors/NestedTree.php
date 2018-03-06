@@ -11,9 +11,4 @@ use \October\Rain\Database\ModelTraitBehavior;
 class NestedTree extends ModelTraitBehavior
 {
     use \October\Rain\Database\Traits\NestedTree;
-
-    public function __construct($model)
-    {
-        parent::__construct($model);
-    }
 }

@@ -11,9 +11,4 @@ use \October\Rain\Database\ModelTraitBehavior;
 class Sluggable extends ModelTraitBehavior
 {
     use \October\Rain\Database\Traits\Sluggable;
-
-    public function __construct($model)
-    {
-        parent::__construct($model);
-    }
 }

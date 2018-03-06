@@ -11,9 +11,4 @@ use \October\Rain\Database\ModelTraitBehavior;
 class Validation extends ModelTraitBehavior
 {
     use \October\Rain\Database\Traits\Validation;
-
-    public function __construct($model)
-    {
-        parent::__construct($model);
-    }
 }

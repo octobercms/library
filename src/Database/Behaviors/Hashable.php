@@ -11,9 +11,4 @@ use \October\Rain\Database\ModelTraitBehavior;
 class Hashable extends ModelTraitBehavior
 {
     use \October\Rain\Database\Traits\Hashable;
-
-    public function __construct($model)
-    {
-        parent::__construct($model);
-    }
 }

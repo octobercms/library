@@ -11,9 +11,4 @@ use \October\Rain\Database\ModelTraitBehavior;
 class Sortable extends ModelTraitBehavior
 {
     use \October\Rain\Database\Traits\Sortable;
-
-    public function __construct($model)
-    {
-        parent::__construct($model);
-    }
 }

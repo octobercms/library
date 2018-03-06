@@ -11,9 +11,4 @@ use \October\Rain\Database\ModelTraitBehavior;
 class SoftDelete extends ModelTraitBehavior
 {
     use \October\Rain\Database\Traits\SoftDelete;
-
-    public function __construct($model)
-    {
-        parent::__construct($model);
-    }
 }

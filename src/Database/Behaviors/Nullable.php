@@ -11,9 +11,4 @@ use \October\Rain\Database\ModelTraitBehavior;
 class Nullable extends ModelTraitBehavior
 {
     use \October\Rain\Database\Traits\Nullable;
-
-    public function __construct($model)
-    {
-        parent::__construct($model);
-    }
 }
