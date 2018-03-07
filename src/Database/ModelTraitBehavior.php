@@ -13,6 +13,7 @@ class ModelTraitBehavior extends ModelBehavior
     public function __construct($model)
     {
         parent::__construct($model);
+        self::bootTraits();
     }
 
     protected static function bootTraits()

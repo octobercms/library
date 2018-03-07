@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Database;
+<?php namespace October\Rain\Database\Behaviors;
 
 use \October\Rain\Database\ModelTraitBehavior;
 
@@ -11,4 +11,6 @@ use \October\Rain\Database\ModelTraitBehavior;
 class Purgeable extends ModelTraitBehavior
 {
     use \October\Rain\Database\Traits\Purgeable;
+
+    protected $purgeable = [];
 }
