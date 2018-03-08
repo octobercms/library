@@ -224,6 +224,16 @@ class Mailer extends MailerBase
 
         call_user_func($callback, $mailable);
 
+        if (!isset($mailable->subject) && isset($view)) {
+
+            $viewContent = $this->renderView($view, $data);
+            $result = MailParser::parse($viewContent);
+
+            if ($subject = array_get($result['settings'], 'subject')) {
+                $mailable->subject($subject);
+            }
+        }
+        
         return $mailable;
     }
 
