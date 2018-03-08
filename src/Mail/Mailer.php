@@ -5,6 +5,8 @@ use Config;
 use Illuminate\Mail\Mailer as MailerBase;
 use Illuminate\Contracts\Mail\Mailable as MailableContract;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+
 
 /**
  * Mailer class for sending mail.
@@ -63,7 +65,7 @@ class Mailer extends MailerBase
 
         call_user_func($callback, $message);
 
-        if ($message->getSubject() === "Mailable") {
+        if ($message->getSubject() === Str::title(Str::snake(class_basename($this), ' ')) {
             $message->subject($messageSubject);
         }
         
