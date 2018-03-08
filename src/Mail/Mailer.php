@@ -59,8 +59,14 @@ class Mailer extends MailerBase
             $this->addContent($message, $view, $plain, $raw, $data);
         }
 
+        $messageSubject = $message->getSubject();
+
         call_user_func($callback, $message);
 
+        if ($message->getSubject() === "Mailable") {
+            $message->subject($messageSubject);
+        }
+        
         if (isset($this->to['address'])) {
             $this->setGlobalTo($message);
         }
