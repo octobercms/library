@@ -69,6 +69,7 @@ class Resizer
     /**
      * Instantiates the Resizer and receives the path to an image we're working with
      * @param mixed $file The file array provided by Laravel's Input::file('field_name') or a path to a file
+     * @throws Exception
      */
     function __construct($file)
     {
@@ -103,6 +104,7 @@ class Resizer
      * Returns a new Resizer object, allowing for chainable calls
      * @param  mixed $file The file array provided by Laravel's Input::file('field_name') or a path to a file
      * @return Resizer
+     * @throws Exception
      */
     public static function open($file)
     {
@@ -122,11 +124,12 @@ class Resizer
 
     /**
      * Sets resizer options. Available options are:
-     *  - mode: Either exact, portrait, landscape, auto or crop.
+     *  - mode: Either exact, portrait, landscape, auto, fit or crop.
      *  - offset: The offset of the crop = [ left, top ]
      *  - sharpen: Sharpen image, from 0 - 100 (default: 0)
      *  - interlace: Interlace image,  Boolean: false (disabled: default), true (enabled)
      *  - quality: Image quality, from 0 - 100 (default: 95)
+     * @param array $options Set of resizing option
      * @return self
      */
     public function setOptions($options)
@@ -144,6 +147,8 @@ class Resizer
 
     /**
      * Sets an individual resizer option.
+     * @param string $option Option name to set
+     * @param mixed $value Option value to set
      * @return self
      */
     protected function setOption($option, $value)
@@ -155,7 +160,8 @@ class Resizer
 
     /**
      * Gets an individual resizer option.
-     * @return self
+     * @param string $option Option name to get
+     * @return mixed Depends on the option
      */
     protected function getOption($option)
     {
@@ -164,6 +170,7 @@ class Resizer
 
     /**
      * Receives the image's exif orientation
+     * @param \Symfony\Component\HttpFoundation\File\File $file
      * @return int|null
      */
     protected function getOrientation($file)
@@ -267,6 +274,7 @@ class Resizer
      * @param int $newHeight The height of the image
      * @param array $options A set of resizing options, supported values:
      * @return self
+     * @throws Exception
      */
     public function resize($newWidth, $newHeight, $options = [])
     {
@@ -388,7 +396,7 @@ class Resizer
         imagealphablending($imageResized, false);
         imagesavealpha($imageResized, true);
 
-        // Crop the  image to the requested size
+        // Crop the image to the requested size
         imagecopyresampled($imageResized, $image, 0, 0, $cropStartX, $cropStartY, $newWidth, $newHeight, $srcWidth, $srcHeight);
 
         $this->image = $imageResized;
@@ -399,7 +407,7 @@ class Resizer
     /**
      * Save the image based on its file type.
      * @param string $savePath Where to save the image
-     * @return boolean
+     * @throws Exception Thrown for invalid extension
      */
     public function save($savePath)
     {
@@ -462,8 +470,9 @@ class Resizer
 
     /**
      * Open a file, detect its mime-type and create an image resource from it.
-     * @param array $file Attributes of file from the $_FILES array
+     * @param \Symfony\Component\HttpFoundation\File\File $file File instance
      * @return mixed
+     * @throws Exception Thrown for invalid MIME type
      */
     protected function openImage($file)
     {
@@ -488,8 +497,8 @@ class Resizer
      * Return the image dimensions based on the option that was chosen.
      * @param int $newWidth The width of the image
      * @param int $newHeight The height of the image
-     * @param string $option Either exact, portrait, landscape, auto or crop.
      * @return array
+     * @throws Exception Thrown for invalid dimension string
      */
     protected function getDimensions($newWidth, $newHeight)
     {
@@ -622,9 +631,10 @@ class Resizer
     }
 
     /**
-     * Fit the image inside a bounding box using width and height constraints.
-     * @param $maxWidth The maximum width of the image
-     * @param $maxHeight The maximum height of the image
+     * Fit the image inside a bounding box using maximum width and height constraints.
+     * @param int $maxWidth The maximum width of the image
+     * @param int $maxHeight The maximum height of the image
+     * @return array
      */
     protected function getSizeByFit($maxWidth, $maxHeight) {
 
@@ -636,8 +646,8 @@ class Resizer
         $effectiveRatio = min($ratioW, $ratioH);
 
         // Calculate the final width and height according to this ratio
-        $optimalWidth = $this->width * $effectiveRatio;
-        $optimalHeight = $this->height * $effectiveRatio;
+        $optimalWidth = round($this->width * $effectiveRatio);
+        $optimalHeight = round($this->height * $effectiveRatio);
 
         return [$optimalWidth, $optimalHeight];
     }
