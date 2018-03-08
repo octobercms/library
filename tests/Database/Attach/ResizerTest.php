@@ -15,15 +15,11 @@ class ResizerTest extends TestCase
     const SRC_PORTRAIT = 'portrait.jpg';
     const SRC_SQUARE = 'square.jpg';
 
-    protected $resizer;
+    /** @var string */
+    protected $source;
 
-    /**
-     * @return Resizer
-     * @throws Exception
-     */
-    protected static function getLandscapeRotatedFixture() {
-        return new Resizer(self::FIXTURE_SRC_BASE_PATH . self::SRC_LANDSCAPE_ROTATED);
-    }
+    /** @var Resizer */
+    protected $resizer;
 
     public function testReset()
     {
@@ -33,53 +29,25 @@ class ResizerTest extends TestCase
     {
     }
 
-    public function testGetOrientationNonRotated()
-    {
-    }
-
-    public function testGetOrientationRotated()
-    {
-    }
-
-    public function testdGetWidthNonRotated()
-    {
-    }
-
-    public function testGetWidthRotated()
-    {
-    }
-
-    public function testGetHeightNonRotated()
-    {
-    }
-
-    public function testGetHeightRotated()
-    {
-    }
-
-    public function testGetRotatedOriginalNonRotated()
-    {
-    }
-
-    /**
-     * @throws Exception
-     */
     public function testResizeAutoPortrait()
     {
     }
 
-    /**
-     * @throws Exception
-     */
     public function testResizeAutoLandscape()
     {
-        $this->resizer = self::getLandscapeRotatedFixture();
+        $this->source = self::SRC_LANDSCAPE_TRANSPARENT;
+        $this->createFixtureResizer();
+        $this->resizer->resize(25, 50, ['mode' => 'auto']);
         $this->assertImageSameAsFixture(__METHOD__);
     }
 
     public function testResizeAutoSquare()
     {
     }
+
+    /*
+     * TODO add many resize test cases
+     */
 
     public function testSharpen()
     {
@@ -90,12 +58,36 @@ class ResizerTest extends TestCase
     }
 
     /**
-     * @param $name
+     * Create the Resizer instance from the declared source image.
      * @throws Exception
      */
-    protected function assertImageSameAsFixture($name)
+    protected function createFixtureResizer()
+    {
+        $this->resizer = new Resizer(self::FIXTURE_SRC_BASE_PATH . $this->source);
+    }
+
+    /**
+     * Build the full path to the target fixture from a test method name.
+     * @param string $methodName Method name
+     * @return string Full path to target fixture
+     */
+    protected function buildTargetFixturePath(string $methodName)
+    {
+        $extension = pathinfo($this->source, PATHINFO_EXTENSION);
+        $filename = str_replace(__CLASS__ . '::', '', $methodName);
+        return self::FIXTURE_TARGET_PATH . $filename . '.' . $extension;
+    }
+
+    /**
+     * Assert that the current resizer image, once saved, is the same as the fixture which corresponds to the given
+     * method name.
+     * @param string $methodName Method name
+     * @throws Exception
+     */
+    protected function assertImageSameAsFixture(string $methodName)
     {
         // For now, generate target fixture
-        $this->resizer->save(self::FIXTURE_TARGET_PATH, $name);
+        $this->resizer->save($this->buildTargetFixturePath($methodName));
     }
+
 }

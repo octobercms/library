@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Database\Attach;
 
-use File as FileHelper;
 use Symfony\Component\HttpFoundation\File\File as FileObj;
 use Exception;
 
@@ -109,6 +108,17 @@ class Resizer
     public static function open($file)
     {
         return new Resizer($file);
+    }
+
+    /**
+     * Manipulate an image resource in order to keep transparency for PNG and GIF files.
+     * @param $imageResized
+     */
+    protected static function retainImageTransparency($imageResized)
+    {
+        imagecolortransparent($imageResized, imagecolorallocatealpha($imageResized, 0, 0, 0, 127));
+        imagealphablending($imageResized, false);
+        imagesavealpha($imageResized, true);
     }
 
     /**
@@ -272,7 +282,7 @@ class Resizer
      * Resizes and/or crops an image
      * @param int $newWidth The width of the image
      * @param int $newHeight The height of the image
-     * @param array $options A set of resizing options, supported values:
+     * @param array $options A set of resizing options
      * @return self
      * @throws Exception
      */
@@ -302,11 +312,7 @@ class Resizer
 
         // Resample - create image canvas of x, y size
         $imageResized = imagecreatetruecolor($optimalWidth, $optimalHeight);
-
-        // Retain transparency for PNG and GIF files
-        imagecolortransparent($imageResized, imagecolorallocatealpha($imageResized, 0, 0, 0, 127));
-        imagealphablending($imageResized, false);
-        imagesavealpha($imageResized, true);
+        self::retainImageTransparency($imageResized);
 
         // get the rotated the original image according to exif orientation
         $rotatedOriginal = $this->getRotatedOriginal();
@@ -390,11 +396,7 @@ class Resizer
 
         // Create a new canvas
         $imageResized = imagecreatetruecolor($newWidth, $newHeight);
-
-        // Retain transparency for PNG and GIF files
-        imagecolortransparent($imageResized, imagecolorallocatealpha($imageResized, 0, 0, 0, 127));
-        imagealphablending($imageResized, false);
-        imagesavealpha($imageResized, true);
+        self::retainImageTransparency($imageResized);
 
         // Crop the image to the requested size
         imagecopyresampled($imageResized, $image, 0, 0, $cropStartX, $cropStartY, $newWidth, $newHeight, $srcWidth, $srcHeight);
@@ -420,7 +422,7 @@ class Resizer
         }
 
         // Determine the image type from the destination file
-        $extension = FileHelper::extension($savePath) ?: $this->extension;
+        $extension = pathinfo($savePath, PATHINFO_EXTENSION) ?: $this->extension;
 
         // Create and save an image based on it's extension
         switch (strtolower($extension)) {
