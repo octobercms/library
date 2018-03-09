@@ -255,8 +255,13 @@ class IniTest extends TestCase
         $this->assertCount(2, $result);
         $this->assertArrayHasKey('var', $result);
         $this->assertArrayHasKey('editorContent', $result);
+
+        // Ensures we do not care about EOL sequences
+        str_replace('\r\n', '\n', $result['editorContent']);
+        str_replace('\r\n', '\n', $vars['editorContent']);
+
         $this->assertEquals($vars, $result);
-		
+
         $result = $parser->render($vars);
         $this->assertEquals($content, $result);
     }
