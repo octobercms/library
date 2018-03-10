@@ -112,13 +112,13 @@ class Resizer
 
     /**
      * Manipulate an image resource in order to keep transparency for PNG and GIF files.
-     * @param $imageResized
+     * @param $img
      */
-    protected static function retainImageTransparency($imageResized)
+    protected static function retainImageTransparency($img)
     {
-        imagecolortransparent($imageResized, imagecolorallocatealpha($imageResized, 0, 0, 0, 127));
-        imagealphablending($imageResized, false);
-        imagesavealpha($imageResized, true);
+        imagecolortransparent($img, imagecolorallocatealpha($img, 0, 0, 0, 127));
+        imagealphablending($img, false);
+        imagesavealpha($img, true);
     }
 
     /**
@@ -482,10 +482,19 @@ class Resizer
         $filePath = $file->getPathname();
 
         switch ($mime) {
-            case 'image/jpeg': $img = @imagecreatefromjpeg($filePath); break;
-            case 'image/gif':  $img = @imagecreatefromgif($filePath);  break;
-            case 'image/png':  $img = @imagecreatefrompng($filePath);  break;
-            case 'image/webp': $img = @imagecreatefromwebp($filePath); break;
+            case 'image/jpeg':
+                $img = @imagecreatefromjpeg($filePath);
+                break;
+            case 'image/gif':
+                $img = @imagecreatefromgif($filePath);
+                self::retainImageTransparency($img);
+                break;
+            case 'image/png':
+                $img = @imagecreatefrompng($filePath);
+                self::retainImageTransparency($img);
+                break;
+            case 'image/webp':
+                $img = @imagecreatefromwebp($filePath); break;
 
             default:
                 throw new Exception(sprintf('Invalid mime type: %s. Accepted types: image/jpeg, image/gif, image/png, image/webp.', $mime));
