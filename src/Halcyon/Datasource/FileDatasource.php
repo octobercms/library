@@ -100,7 +100,8 @@ class FileDatasource extends Datasource implements DatasourceInterface
         }
 
         $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dirPath));
-        $it->setMaxDepth(1); // Support only a single level of subdirectories
+        $dirName == 'partials' ? $it->setMaxDepth(2) : $it->setMaxDepth(1); // Support only a single level of subdirectories and max two depth level of subdirectories in partials
+
         $it->rewind();
 
         while ($it->valid()) {
@@ -121,6 +122,15 @@ class FileDatasource extends Datasource implements DatasourceInterface
             $fileName = $it->getBasename();
             if ($it->getDepth() > 0) {
                 $fileName = basename($it->getPath()).'/'.$fileName;
+            }
+
+            /**
+             * Supporting max depth over 1
+             */
+            if ($it->getDepth() > 1) {
+                $subDirectoryPath = strstr($it->current()->getPathname(), $dirName);
+                $subDirectoryName = explode('/', $subDirectoryPath);
+                $fileName = $subDirectoryName[1] . '/' . $fileName;
             }
 
             /*
