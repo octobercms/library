@@ -22,11 +22,9 @@ class Purgeable extends ModelTraitBehavior
         /*
          * Remove any purge attributes from the data set
          */
-        $model_class = get_class($this->model);
-        $model_class::extend(function($model){
-            $model->bindEvent('model.saveInternal', function() use ($model) {
-                $model->purgeAttributes();
-            });
+        $this->model->bindEvent('model.saveInternal', function()
+        {
+            $this->model->purgeAttributes();
         });
     }
 }
