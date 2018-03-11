@@ -13,15 +13,15 @@ class ModelTraitBehavior extends ModelBehavior
     public function __construct($model)
     {
         parent::__construct($model);
-        self::bootTraits();
+        $this->bootTraits();
     }
 
-    protected static function bootTraits()
+    protected function bootTraits()
     {
         $class = static::class;
         foreach (class_uses_recursive($class) as $trait) {
             if (method_exists($class, $method = 'boot'.class_basename($trait))) {
-                forward_static_call([$class, $method]);
+                $class::$method();
             }
         }
     }
