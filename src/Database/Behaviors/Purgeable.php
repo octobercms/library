@@ -15,7 +15,7 @@ class Purgeable extends ModelTraitBehavior
 
     public function bootPurgeable()
     {
-        if (!isset($this->model->purgeable))
+        if (!$this->model->propertyExists('purgeable'))
             throw new Exception(sprintf(
                 'You must define a $purgeable property in %s to use the Purgeable trait.', get_class($this->model)
             ));
