@@ -12,7 +12,7 @@ class Sluggable extends ModelTraitBehavior
 {
     use \October\Rain\Database\Traits\Sluggable;
 
-    public static function bootSluggable()
+    public function bootSluggable()
     {
         if (!$this->model->propertyExists('slugs'))
         {
