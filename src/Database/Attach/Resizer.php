@@ -273,7 +273,7 @@ class Resizer
         }
 
         $bgcolor = imagecolorallocate($this->image, 0, 0, 0);
-        $rotatedOriginal = imagerotate($this->image,$angle,$bgcolor);
+        $rotatedOriginal = imagerotate($this->image, $angle, $bgcolor);
 
         return $rotatedOriginal;
     }
