@@ -16,15 +16,19 @@ class Purgeable extends ModelTraitBehavior
     public function bootPurgeable()
     {
         if (!$this->model->propertyExists('purgeable'))
+        {
             throw new Exception(sprintf(
                 'You must define a $purgeable property in %s to use the Purgeable trait.', get_class($this->model)
             ));
+        }
         /*
          * Remove any purge attributes from the data set
          */
-        $this->model->bindEvent('model.saveInternal', function()
+        $model = $this->model;
+
+        $model->bindEvent('model.saveInternal', function() use ($model)
         {
-            $this->model->purgeAttributes();
+            $model->purgeAttributes();
         });
     }
 }
