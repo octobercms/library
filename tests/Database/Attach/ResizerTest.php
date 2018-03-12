@@ -22,6 +22,14 @@ class ResizerTest extends TestCase
     const SRC_PORTRAIT = 'portrait.gif';
     const SRC_SQUARE = 'square.jpg';
 
+    /**
+     * Fixtures that are common to multiple tests (reduce number of images and noise for identical results)
+     */
+    const COMMON_FIXTURES = [
+        'reset' => 'testReset_testResize0x0_testResizeAutoLandscape1x1',
+        'square' => 'testResizeAutoSquare25x50_testResizeAutoSquare50x25_testResizeAutoSquare50x50_testResizeFitSquare50x50'
+    ];
+
     /** @var string The path to the source image */
     protected $source;
 
@@ -58,7 +66,7 @@ class ResizerTest extends TestCase
         $this->createFixtureResizer();
         $this->resizer->resize(5, 5, ['mode' => 'crop']);
         $this->resizer->reset();
-        $this->assertImageSameAsFixture(__METHOD__);
+        $this->assertImageSameAsFixture(self::COMMON_FIXTURES['reset']);
     }
 
     /**
@@ -72,7 +80,7 @@ class ResizerTest extends TestCase
         $this->setSource(self::SRC_LANDSCAPE_TRANSPARENT);
         $this->createFixtureResizer();
         $this->resizer->resize(0, 0);
-        $this->assertImageSameAsFixture(__METHOD__);
+        $this->assertImageSameAsFixture(self::COMMON_FIXTURES['reset']);
     }
 
     /**
@@ -95,7 +103,7 @@ class ResizerTest extends TestCase
      * Then the saved image should have a height of 20 and its width set automatically
      * @throws Exception
      */
-    public function testResize0x50()
+    public function testResize0x20()
     {
         $this->setSource(self::SRC_PORTRAIT);
         $this->createFixtureResizer();
@@ -142,7 +150,7 @@ class ResizerTest extends TestCase
         $this->setSource(self::SRC_SQUARE);
         $this->createFixtureResizer();
         $this->resizer->resize(25, 50, ['mode' => 'auto']);
-        $this->assertImageSameAsFixture(__METHOD__);
+        $this->assertImageSameAsFixture(self::COMMON_FIXTURES['square']);
     }
 
     /**
@@ -156,7 +164,7 @@ class ResizerTest extends TestCase
         $this->setSource(self::SRC_SQUARE);
         $this->createFixtureResizer();
         $this->resizer->resize(50, 25, ['mode' => 'auto']);
-        $this->assertImageSameAsFixture(__METHOD__);
+        $this->assertImageSameAsFixture(self::COMMON_FIXTURES['square']);
     }
 
     /**
@@ -170,7 +178,7 @@ class ResizerTest extends TestCase
         $this->setSource(self::SRC_SQUARE);
         $this->createFixtureResizer();
         $this->resizer->resize(50, 50, ['mode' => 'auto']);
-        $this->assertImageSameAsFixture(__METHOD__);
+        $this->assertImageSameAsFixture(self::COMMON_FIXTURES['square']);
     }
 
     /**
@@ -184,7 +192,7 @@ class ResizerTest extends TestCase
         $this->setSource(self::SRC_LANDSCAPE_TRANSPARENT);
         $this->createFixtureResizer();
         $this->resizer->resize(1, 1);
-        $this->assertImageSameAsFixture(__METHOD__);
+        $this->assertImageSameAsFixture(self::COMMON_FIXTURES['reset']);
     }
 
     /**
@@ -211,7 +219,7 @@ class ResizerTest extends TestCase
     {
         $this->setSource(self::SRC_LANDSCAPE_TRANSPARENT);
         $this->createFixtureResizer();
-        $this->resizer->resize(50, 1);
+        $this->resizer->resize(25, 1);
         $this->assertImageSameAsFixture(__METHOD__);
     }
 
@@ -295,8 +303,8 @@ class ResizerTest extends TestCase
     {
         $this->setSource(self::SRC_SQUARE);
         $this->createFixtureResizer();
-        $this->resizer->resize(30, 30, ['mode' => 'fit']);
-        $this->assertImageSameAsFixture(__METHOD__);
+        $this->resizer->resize(50, 50, ['mode' => 'fit']);
+        $this->assertImageSameAsFixture(self::COMMON_FIXTURES['square']);
     }
 
     /**
