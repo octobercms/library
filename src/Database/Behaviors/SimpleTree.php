@@ -11,4 +11,21 @@ use \October\Rain\Database\ModelTraitBehavior;
 class SimpleTree extends ModelTraitBehavior
 {
     use \October\Rain\Database\Traits\SimpleTree;
+
+    public function bootSimpleTree()
+    {
+        $model = $this->model;
+        /*
+         * Define relationships
+         */
+        $model->hasMany['children'] = [
+            get_class($model),
+            'key' => $model->getParentColumnName()
+        ];
+
+        $model->belongsTo['parent'] = [
+            get_class($model),
+            'key' => $model->getParentColumnName()
+        ];
+    }
 }

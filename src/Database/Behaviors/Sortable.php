@@ -11,4 +11,17 @@ use \October\Rain\Database\ModelTraitBehavior;
 class Sortable extends ModelTraitBehavior
 {
     use \October\Rain\Database\Traits\Sortable;
+
+    public function bootSortable()
+    {
+        $model = $this->model;
+
+        $model->created(function($model) {
+            $sortOrderColumn = $model->getSortOrderColumn();
+            if (is_null($model->$sortOrderColumn)) {
+                $model->setSortableOrder($model->getKey());
+            }
+        });
+        $model->addGlobalScope(new SortableScope);
+    }
 }
