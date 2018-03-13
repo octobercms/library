@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Behaviors;
 
+use Exception;
 use \October\Rain\Database\ModelTraitBehavior;
 
 /**
