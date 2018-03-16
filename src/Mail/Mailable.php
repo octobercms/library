@@ -53,4 +53,22 @@ class Mailable extends MailableBase
 
         return $this;
     }
+    
+    /**
+     * Set the subject for the message.
+     *
+     * @param  \Illuminate\Mail\Message  $message
+     * @return $this
+     */
+    protected function buildSubject($message)
+    {
+        // If a custom subject was set, then set it as the message subject
+        // Otherwise attempt to set the subject if the message doesn't already have one set
+        if ($this->subject) {
+            $message->subject($this->subject);
+        } elseif (empty($message->getSubject())) {
+            parent::buildSubject($message);
+        }
+        return $this;
+    }
 }
