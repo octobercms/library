@@ -92,7 +92,7 @@ trait Validation
     {
         $relationType = $this->getRelationType($relationName);
 
-        if ($relationType == 'attachOne') {
+        if ($relationType === 'attachOne' || $relationType === 'attachMany') {
             return $this->$relationName()->getValidationValue();
         }
         else {
