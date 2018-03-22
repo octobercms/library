@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Auth\Models;
 
+use Str;
 use Hash;
 use October\Rain\Database\Model;
 use InvalidArgumentException;
@@ -648,21 +649,6 @@ class User extends Model
      */
     public function getRandomString($length = 42)
     {
-        /*
-         * Use OpenSSL (if available)
-         */
-        if (function_exists('openssl_random_pseudo_bytes')) {
-            $bytes = openssl_random_pseudo_bytes($length * 2);
-
-            if ($bytes === false) {
-                throw new RuntimeException('Unable to generate a random string');
-            }
-
-            return substr(str_replace(['/', '+', '='], '', base64_encode($bytes)), 0, $length);
-        }
-
-        $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-        return substr(str_shuffle(str_repeat($pool, 5)), 0, $length);
+        return Str::random($length);
     }
 }
