@@ -489,6 +489,11 @@ class Manager
      */
     public function logout()
     {
+        // Initialize the current auth session before trying to remove it
+        if (!$this->check()) {
+            return;
+        }
+
         if ($this->isImpersonator()) {
             $this->user = $this->getImpersonator();
             $this->stopImpersonate();
