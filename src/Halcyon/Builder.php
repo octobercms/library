@@ -244,8 +244,8 @@ class Builder
      * @param  array  $columns
      * @return \October\Rain\Halcyon\Collection|static[]
      */
-     public function get($columns = ['*'])
-     {
+    public function get($columns = ['*'])
+    {
         if (!is_null($this->cacheMinutes)) {
             $results = $this->getCached($columns);
         }
