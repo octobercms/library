@@ -1,8 +1,10 @@
 <?php namespace October\Rain\Halcyon;
 
+use October\Rain\Halcyon\MemoryRepository;
 use October\Rain\Halcyon\Model;
 use October\Rain\Halcyon\Datasource\Resolver;
 use October\Rain\Support\ServiceProvider;
+use Illuminate\Cache\CacheManager;
 
 /**
  * Service provider
@@ -39,6 +41,12 @@ class HalcyonServiceProvider extends ServiceProvider
         $this->app->singleton('halcyon', function ($app) {
             return new Resolver;
         });
+
+        if (MemoryCacheManager::isEnabled()) {
+            $this->app->extend(CacheManager::class, function ($cacheManager, $app) {
+                return new MemoryCacheManager($app);
+            });
+        }
     }
 
 }

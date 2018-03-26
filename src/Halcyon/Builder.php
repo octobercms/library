@@ -629,10 +629,6 @@ class Builder
 
         $key = $this->getCacheKey();
 
-        if (array_key_exists($key, MemoryCache::$cache)) {
-            return MemoryCache::$cache[$key];
-        }
-
         $minutes = $this->cacheMinutes;
         $cache = $this->getCache();
         $callback = $this->getCacheCallback($columns);
@@ -665,7 +661,7 @@ class Builder
 
         $this->loadedFromCache = !$isNewCache;
 
-        return MemoryCache::$cache[$key] = $result;
+        return $result;
     }
 
     /**
@@ -767,7 +763,9 @@ class Builder
      */
     public static function clearInternalCache()
     {
-        MemoryCache::$cache = [];
+        if(MemoryCacheManager::isEnabled()) {
+            Model::getCacheManager()->driver()->flushInternalCache();
+        }
     }
 
     /**
