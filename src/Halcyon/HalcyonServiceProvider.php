@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Halcyon;
 
-use October\Rain\Halcyon\MemoryRepository;
 use October\Rain\Halcyon\Model;
 use October\Rain\Halcyon\Datasource\Resolver;
 use October\Rain\Support\ServiceProvider;
