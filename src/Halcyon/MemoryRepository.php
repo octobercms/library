@@ -119,6 +119,36 @@ class MemoryRepository extends Repository
         parent::flush();
     }
 
+    /**
+     * Retrieve an item from the internal memory cache without trying the external driver.
+     * Used in testing
+     *
+     * @param $key
+     * @param null $default
+     * @return mixed
+     */
+    public function getFromMemoryCache($key)
+    {
+        return isset($this->cache[$key]) ? $this->cache[$key] : null;
+    }
+
+    /**
+     * Puts an item in the memory cache, but not in the external cache.
+     * Used in testing
+     *
+     * @param $key
+     * @param $value
+     */
+    public function putInMemoryCache($key, $value)
+    {
+        $this->cache[$key] = $value;
+    }
+
+    /**
+     * Flushes the memory cache.
+     * Calling this directly is generally only useful in testing.
+     * Use flush() otherwise.
+     */
     public function flushInternalCache()
     {
         $this->cache = [];
