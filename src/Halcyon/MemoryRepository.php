@@ -65,7 +65,7 @@ class MemoryRepository extends Repository
      */
     public function increment($key, $value = 1)
     {
-        $this->cache[$key] += $value;
+        $this->cache[$key] = isset($this->cache[$key]) ? $this->cache[$key] + $value : $value;
         return parent::increment($key, $value);
     }
 
@@ -78,7 +78,7 @@ class MemoryRepository extends Repository
      */
     public function decrement($key, $value = 1)
     {
-        $this->cache[$key] -= $value;
+        $this->cache[$key] = isset($this->cache[$key]) ? $this->cache[$key] - $value : -$value;
         return parent::decrement($key, $value);
     }
 
