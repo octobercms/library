@@ -55,7 +55,7 @@ class MemoryRepositoryTest extends TestCase
     {
         $this->repository->put('foo', 'bar', 10);
         $this->repository->forget('foo');
-        $this->assertNull($this->repository->get('foo'));
+        $this->assertNull($this->repository->getFromMemoryCache('foo'));
         $this->assertNull($this->repository->getStore()->get('foo'));
     }
 
@@ -64,18 +64,18 @@ class MemoryRepositoryTest extends TestCase
         $this->repository->put('foo', 'bar', 10);
         $this->repository->put('baz', 'qux', 10);
         $this->repository->put('quux', 'corge', 10);
-        $this->assertEquals('bar', $this->repository->get('foo'));
+        $this->assertEquals('bar', $this->repository->getFromMemoryCache('foo'));
         $this->assertEquals('bar', $this->repository->getStore()->get('foo'));
-        $this->assertEquals('qux', $this->repository->get('baz'));
+        $this->assertEquals('qux', $this->repository->getFromMemoryCache('baz'));
         $this->assertEquals('qux', $this->repository->getStore()->get('baz'));
-        $this->assertEquals('corge', $this->repository->get('quux'));
+        $this->assertEquals('corge', $this->repository->getFromMemoryCache('quux'));
         $this->assertEquals('corge', $this->repository->getStore()->get('quux'));
         $this->repository->flush();
-        $this->assertNull($this->repository->get('foo'));
+        $this->assertNull($this->repository->getFromMemoryCache('foo'));
         $this->assertNull($this->repository->getStore()->get('foo'));
-        $this->assertNull($this->repository->get('baz'));
+        $this->assertNull($this->repository->getFromMemoryCache('baz'));
         $this->assertNull($this->repository->getStore()->get('bar'));
-        $this->assertNull($this->repository->get('quux'));
+        $this->assertNull($this->repository->getFromMemoryCache('quux'));
         $this->assertNull($this->repository->getStore()->get('quux'));
     }
 }
