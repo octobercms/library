@@ -115,7 +115,7 @@ class MemoryRepository extends Repository
      */
     public function flush()
     {
-        $this->cache = [];
+        $this->flushInternalCache();
         parent::flush();
     }
 
