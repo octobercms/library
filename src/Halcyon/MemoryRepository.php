@@ -29,7 +29,9 @@ class MemoryRepository extends Repository
             return $this->many($key);
         }
 
-        if($value = $this->getFromMemoryCache($key)) {
+        $value = $this->getFromMemoryCache($key);
+
+        if(isset($value)) {
             return $value;
         }
 
