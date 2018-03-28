@@ -41,6 +41,7 @@
         "illuminate/routing": "5.5.*",
         "illuminate/validation": "5.5.*",
         "illuminate/view": "5.5.*",
+        "illuminate/cache": "5.5.*",
         "symfony/dom-crawler": "~3.1",
         "symfony/css-selector": "~3.1"
     },
