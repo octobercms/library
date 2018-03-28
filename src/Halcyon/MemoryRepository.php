@@ -31,7 +31,7 @@ class MemoryRepository extends Repository
 
         $value = $this->getFromMemoryCache($key);
 
-        if(isset($value)) {
+        if(!is_null($value)) {
             return $value;
         }
 
