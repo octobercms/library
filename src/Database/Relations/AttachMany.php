@@ -70,6 +70,42 @@ class AttachMany extends MorphManyBase
     {
         $value = null;
 
+        $files = $this->getSimpleValueInternal();
+
+        if ($files) {
+            $value = [];
+            foreach ($value as $file) {
+                $value[] = $file->getPath();
+            }
+        }
+
+        return $value;
+    }
+
+    /**
+     * Helper for getting this relationship validation value.
+     */
+    public function getValidationValue()
+    {
+        if ($value = $this->getSimpleValueInternal()) {
+            $files = [];
+            foreach ($value as $file) {
+                $files[] = $this->makeValidationFile($file);
+            }
+
+            return $files;
+        }
+
+        return null;
+    }
+
+    /**
+     * Internal method used by `getSimpleValue` and `getValidationValue`
+     */
+    protected function getSimpleValueInternal()
+    {
+        $value = null;
+
         $files = ($sessionKey = $this->parent->sessionKey)
             ? $this->withDeferred($sessionKey)->get()
             : $this->parent->{$this->relationName};
@@ -77,7 +113,7 @@ class AttachMany extends MorphManyBase
         if ($files) {
             $value = [];
             $files->each(function($file) use (&$value){
-                $value[] = $file->getPath();
+                $value[] = $file;
             });
         }
 
