@@ -34,6 +34,12 @@ class MemoryRepositoryTest extends TestCase
         $this->assertEquals('bar', $this->repository->getFromMemoryCache('foo'));
     }
 
+    public function testMemoryCacheCanStoreAndGetFalseyValues()
+    {
+        $this->repository->putInMemoryCache('foo', false, 10);
+        $this->assertFalse($this->repository->get('foo'));
+    }
+
     public function testBothCachesAreIncrementedAndDecrementedCorrectly()
     {
         $this->repository->put('foo', 1, 10);
