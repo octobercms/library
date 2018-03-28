@@ -21,6 +21,7 @@ class MemoryRepository extends Repository
      * Retrieve an item from the cache by key.
      *
      * @param  string|array $key
+     * @param  mixed        $default
      * @return mixed
      */
     public function get($key, $default = null)
