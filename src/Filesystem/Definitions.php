@@ -114,6 +114,8 @@ class Definitions
             'odt',
             'doc',
             'docx',
+            'ppt',
+            'pptx',
             'pdf',
             'swf',
             'txt',
