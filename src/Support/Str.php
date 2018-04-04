@@ -78,4 +78,17 @@ class Str extends StrHelper
         $name = static::normalizeClassName($name);
         return substr($name, 0, strrpos($name, "\\"));
     }
+
+    /**
+     * If $string begins with any number of consecutive symbols,
+     * returns the number, otherwise returns 0
+     *
+     * @param string $string
+     * @param string $symbol
+     * @return int
+     */
+    public static function getPrecedingSymbols($string, $symbol)
+    {
+        return strlen($string) - strlen(ltrim($string, $symbol));
+    }
 }
