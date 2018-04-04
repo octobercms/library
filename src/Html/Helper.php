@@ -8,7 +8,6 @@
  */
 class Helper
 {
-
     /**
      * Converts a HTML array string to an identifier string.
      * HTML: user[location][city]
@@ -48,4 +47,28 @@ class Helper
         return $result;
     }
 
+    /**
+     * Reduces the field name hierarchy depth by $level levels.
+     * country[city][0][street][0] turns into country[city][0] when reduced by 1 level;
+     * country[city][0][street][0] turns into country when reduced by 2 levels;
+     * etc.
+     *
+     * @param string $fieldName
+     * @param int $level
+     * @return string
+     */
+    public static function reduceNameHierarchy($fieldName, $level)
+    {
+        $formName = self::nameToArray($fieldName);
+        $sliceLength = count($formName) - $level * 2;
+
+        if ($sliceLength <= 1) {
+            return $formName[0];
+        }
+
+        $formName = array_slice($formName, 0, $sliceLength);
+        $formNameFirst = array_shift($formName);
+
+        return $formNameFirst.'['.implode('][', $formName).']';
+    }
 }
