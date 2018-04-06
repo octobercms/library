@@ -45,9 +45,17 @@ class KeyGenerateCommand extends KeyGenerateCommandBase
             return $this->line('<comment>'.$key.'</comment>');
         }
 
+        if (!$this->confirmToProceed()) {
+            return;
+        }
+
         // Next, we will replace the application key in the config file so it is
         // automatically setup for this developer. This key gets generated using a
         // secure random byte generator and is later base64 encoded for storage.
+        if (!$this->setKeyInEnvironmentFile($key)) {
+            return;
+        }
+
         if (!$this->setKeyInConfigFile($key)) {
             return;
         }
@@ -58,6 +66,34 @@ class KeyGenerateCommand extends KeyGenerateCommandBase
     }
 
     /**
+     * Set the application key in the environment file.
+     *
+     * @param  string  $key
+     * @return bool
+     */
+    protected function setKeyInEnvironmentFile($key)
+    {
+        if (!$this->files->exists(base_path('.env'))) {
+            return true;
+        }
+
+        $currentKey = $this->laravel['config']['app.key'];
+
+        // This logic is supposed to protect existing encryption keys
+        // from being destroyed, however it requires more thought
+        // on how to address is from the October-way of things.
+        // @todo
+        //
+        // if (strlen($currentKey) !== 0) {
+        //     return false;
+        // }
+
+        $this->writeNewEnvironmentFileWith($key);
+
+        return true;
+    }
+
+    /**
      * Set the application key in the config file.
      *
      * @param  string  $key
@@ -65,10 +101,6 @@ class KeyGenerateCommand extends KeyGenerateCommandBase
      */
     protected function setKeyInConfigFile($key)
     {
-        if (!$this->confirmToProceed()) {
-            return false;
-        }
-
         $currentKey = $this->laravel['config']['app.key'];
 
         list($path, $contents) = $this->getKeyFile();
@@ -89,22 +121,7 @@ class KeyGenerateCommand extends KeyGenerateCommandBase
     {
         $env = $this->option('env') ? $this->option('env').'/' : '';
 
-        $envFilePath = base_path('.env');
-        if (empty($env) && $this->files->exists($envFilePath)) {
-            // Use the .env file
-            $path = $envFilePath;
-        } else {
-            // Use the .env.ENVIRONMENT file
-            $overriddenEnvFile = base_path('.env.'.$this->option('env'));
-            if ($this->files->exists($overriddenEnvFile)) {
-                $path = $overriddenEnvFile;
-            } else {
-                // Default to the config/ENVIRONMENT/app.php file
-                $path = $this->laravel['path.config']."/{$env}app.php";
-            }
-        }
-
-        $contents = $this->files->get($path);
+        $contents = $this->files->get($path = $this->laravel['path.config']."/{$env}app.php");
 
         return [$path, $contents];
     }
