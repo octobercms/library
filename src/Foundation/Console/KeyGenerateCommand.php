@@ -89,7 +89,22 @@ class KeyGenerateCommand extends KeyGenerateCommandBase
     {
         $env = $this->option('env') ? $this->option('env').'/' : '';
 
-        $contents = $this->files->get($path = $this->laravel['path.config']."/{$env}app.php");
+        $envFilePath = base_path('.env');
+        if (empty($env) && $this->files->exists($envFilePath)) {
+            // Use the .env file
+            $path = $envFilePath;
+        } else {
+            // Use the .env.ENVIRONMENT file
+            $overriddenEnvFile = base_path('.env.'.$this->option('env'));
+            if ($this->files->exists($overriddenEnvFile)) {
+                $path = $overriddenEnvFile;
+            } else {
+                // Default to the config/ENVIRONMENT/app.php file
+                $path = $this->laravel['path.config']."/{$env}app.php";
+            }
+        }
+
+        $contents = $this->files->get($path);
 
         return [$path, $contents];
     }
