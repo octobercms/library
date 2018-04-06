@@ -45,10 +45,6 @@ class KeyGenerateCommand extends KeyGenerateCommandBase
             return $this->line('<comment>'.$key.'</comment>');
         }
 
-        if (!$this->confirmToProceed()) {
-            return;
-        }
-
         // Next, we will replace the application key in the config file so it is
         // automatically setup for this developer. This key gets generated using a
         // secure random byte generator and is later base64 encoded for storage.
@@ -69,6 +65,10 @@ class KeyGenerateCommand extends KeyGenerateCommandBase
      */
     protected function setKeyInConfigFile($key)
     {
+        if (!$this->confirmToProceed()) {
+            return false;
+        }
+
         $currentKey = $this->laravel['config']['app.key'];
 
         list($path, $contents) = $this->getKeyFile();
