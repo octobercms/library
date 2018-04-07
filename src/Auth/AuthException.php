@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Auth;
 
 use Config;
+use Lang;
 use October\Rain\Exception\ApplicationException;
 use Exception;
 
@@ -34,7 +35,7 @@ class AuthException extends ApplicationException
         $this->softErrors = !Config::get('app.debug', false);
 
         if ($this->softErrors) {
-            $message = $this->errorMessage;
+            $message = Lang::has('backend::lang.account.details_not_match')  ? Lang::get('backend::lang.account.details_not_match') : $this->errorMessage ;
         }
 
         parent::__construct($message, $code, $previous);
