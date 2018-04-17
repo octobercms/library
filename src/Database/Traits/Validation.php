@@ -403,13 +403,18 @@ trait Validation
 
         if (strpos($ruleset, 'required_with') !== false) {
             $requiredWith = substr($ruleset, strpos($ruleset, 'required_with') + 14);
-            $requiredWith = substr($requiredWith, 0, strpos($requiredWith, '|'));
+            if (strpos($requiredWith, '|') !== false) {
+                $requiredWith = substr($requiredWith, 0, strpos($requiredWith, '|'));
+            }
             return $this->isAttributeRequired($requiredWith);
         }
 
         if (strpos($ruleset, 'required_if') !== false) {
             $data = $this->getValidationAttributes();
             $requiredIf = substr($ruleset, strpos($ruleset, 'required_if') + 12);
+            if (strpos($requiredIf, '|') !== false) {
+                $requiredIf = substr($requiredIf, 0, strpos($requiredIf, '|'));
+            }
             $requiredIf = explode(',', $requiredIf);
             if($data[$requiredIf[0]] == $requiredIf[1]) {
                 return true;
