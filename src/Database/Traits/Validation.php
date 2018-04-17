@@ -407,6 +407,16 @@ trait Validation
             return $this->isAttributeRequired($requiredWith);
         }
 
+        if (strpos($ruleset, 'required_if') !== false) {
+            $data = $this->getValidationAttributes();
+            $requiredIf = substr($ruleset, strpos($ruleset, 'required_if') + 12);
+            $requiredIf = explode(',', $requiredIf);
+            if($data[$requiredIf[0]] == $requiredIf[1]) {
+                return true;
+            }
+            return false;
+        }
+
         return strpos($ruleset, 'required') !== false;
     }
 
