@@ -103,14 +103,15 @@ class Manager
     }
 
     /**
-     * Registers a user by giving the required credentials
-     * and an optional flag for whether to activate the user.
+     * Registers a user with the provided credentials with optional flags
+     * for activating the newly created user and automatically logging them in
      *
      * @param array $credentials
      * @param bool $activate
+     * @param bool $autoLogin
      * @return Models\User
      */
-    public function register(array $credentials, $activate = false)
+    public function register(array $credentials, $activate = false, $autoLogin = true)
     {
         $user = $this->createUserModel();
         $user->fill($credentials);
@@ -124,7 +125,11 @@ class Manager
         // on subsequent saves to this model object
         $user->password = null;
 
-        return $this->user = $user;
+        if ($autoLogin) {
+            $this->user = $user;
+        }
+
+        return $user;
     }
 
     /**
