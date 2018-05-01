@@ -438,7 +438,7 @@ class Manager
          * Throttle check
          */
         if ($this->useThrottle) {
-            $throttle = $this->findThrottleByUserId($user->getKey());
+            $throttle = $this->findThrottleByUserId($user->getKey(), $this->ipAddress);
 
             if ($throttle->is_banned || $throttle->checkSuspended()) {
                 $this->logout();
