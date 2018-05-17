@@ -35,8 +35,8 @@ class Mailer extends MailerBase
          * Extensibility
          */
         if (
-            ($this->fireEvent('mailer.beforeSend', [$view, $data, $callback], true) === false) ||
-            (Event::fire('mailer.beforeSend', [$view, $data, $callback], true) === false)
+            ($this->fireEvent('mailer.beforeSend', [$view, &$data, $callback], true) === false) ||
+            (Event::fire('mailer.beforeSend', [$view, &$data, $callback], true) === false)
         ) {
             return;
         }
