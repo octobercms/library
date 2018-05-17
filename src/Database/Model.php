@@ -963,4 +963,15 @@ class Model extends EloquentModel
     {
         return $this->methodExists('set'.Str::studly($key).'Attribute');
     }
+    
+
+    /**
+     * Determine if an attribute exists in the model.
+     * note: nullable attributes must set raw value of null before this works
+     * @param  string  $key
+     * @return bool
+     */
+	public function hasAttribute($attr) {
+		return array_key_exists($attr, $this->attributes);
+	}
 }
