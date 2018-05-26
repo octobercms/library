@@ -971,7 +971,7 @@ class Model extends EloquentModel
      * @param  string  $key
      * @return bool
      */
-    public function hasAttribute($attr) {
-        return array_key_exists($attr, $this->attributes);
+    public function hasAttribute($key) {
+        return array_key_exists($key, $this->attributes);
     }
 }
