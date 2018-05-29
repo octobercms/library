@@ -495,7 +495,7 @@ class Manager
     public function logout()
     {
         // Initialize the current auth session before trying to remove it
-        if (!$this->check()) {
+        if (is_null($this->user) && !$this->check()) {
             return;
         }
 
