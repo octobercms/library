@@ -278,7 +278,13 @@ trait ExtendableTrait
 
     public function getDynamicProperties()
     {
-        return $this->extensionData['dynamicProperties'];
+        $result = [];
+        $propertyNames = $this->extensionData['dynamicProperties'];
+        foreach($propertyNames as $propName)
+        {
+            $result[$propName] = $this->{$propName};
+        }
+        return $result;
     }
 
     /**

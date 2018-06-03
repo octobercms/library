@@ -74,13 +74,7 @@ class Purgeable extends \October\Rain\Extension\ExtensionBase
             $purgeable = $this->getPurgeableAttributes();
         }
 
-        $dynamicPropertyNames = $this->parent->getDynamicProperties();
-
-        $dynamicProperties = [];
-
-        foreach($dynamicPropertyNames as $dynPropName){
-            $dynamicProperties[$dynPropName] = $this->parent->{$dynPropName};
-        }
+        $dynamicProperties = $this->parent->getDynamicProperties();
 
         $attributes = array_merge($this->parent->getAttributes(), ($dynamicProperties));
         $cleanAttributes = array_diff_key($attributes, array_flip($purgeable));
