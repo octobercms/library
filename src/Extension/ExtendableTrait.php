@@ -276,6 +276,11 @@ trait ExtendableTrait
         );
     }
 
+
+    /**
+     * Returns all dynamic properties
+     * @return array
+     */
     public function getDynamicProperties()
     {
         $result = [];
