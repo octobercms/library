@@ -280,8 +280,7 @@ trait ExtendableTrait
     {
         $result = [];
         $propertyNames = $this->extensionData['dynamicProperties'];
-        foreach($propertyNames as $propName)
-        {
+        foreach($propertyNames as $propName) {
             $result[$propName] = $this->{$propName};
         }
         return $result;
