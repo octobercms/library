@@ -182,7 +182,7 @@ trait ExtendableTrait
             $this->{$dynamicName} = $value;
         }
 
-        $this->extensionData['dynamicProperties'][$dynamicName] = $value;
+        $this->extensionData['dynamicProperties'][] = $dynamicName;
 
         self::$extendableGuardProperties = true;
     }
