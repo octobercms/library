@@ -30,9 +30,11 @@ class Purgeable extends \October\Rain\Extension\ExtensionBase
     public function bootPurgeable()
     {
         if (!$this->parent->propertyExists('purgeable'))
+        {
             throw new Exception(sprintf(
                 'You must define a $purgeable property in %s to use the Purgeable trait.', get_class($this->parent)
             ));
+        }
 
         /*
          * Remove any purge attributes from the data set
