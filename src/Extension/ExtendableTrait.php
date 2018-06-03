@@ -276,9 +276,9 @@ trait ExtendableTrait
         );
     }
 
-    public function getExtensionData()
+    public function getDynamicProperties()
     {
-        return $this->extensionData;
+        return $this->extensionData['dynamicProperties'];
     }
 
     /**
