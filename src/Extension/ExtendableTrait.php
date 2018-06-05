@@ -278,8 +278,8 @@ trait ExtendableTrait
 
 
     /**
-     * Returns all dynamic properties
-     * @return array
+     * Returns all dynamic properties and their values
+     * @return array ['property' => 'value']
      */
     public function getDynamicProperties()
     {
