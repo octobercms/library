@@ -7,7 +7,7 @@ class Purgeable extends \October\Rain\Extension\ExtensionBase
     /**
      * @var array List of attribute names which should not be saved to the database.
      *
-     * protected $purgeable = [];
+     * public $purgeable = [];
      */
 
     protected $parent;
