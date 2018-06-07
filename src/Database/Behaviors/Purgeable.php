@@ -34,7 +34,9 @@ class Purgeable extends \October\Rain\Extension\ExtensionBase
             $this->parent->addDynamicProperty('purgeable', []);
         }
         
-        $this->parent->purgeable = array_merge($this->parent->purgeable, array_keys($this->parent->getDynamicProperties()));
+        $this->parent->purgeable[] = 'purgeable';
+        $dynPropNames = array_keys(array_diff_key($this->parent->getDynamicProperties(), ['purgeable'=> 0]));
+        $this->parent->purgeable = array_merge($this->parent->purgeable, $dynPropNames);
 
         /*
          * Remove any purge attributes from the data set
