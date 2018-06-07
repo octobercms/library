@@ -36,12 +36,6 @@ class Purgeable extends \October\Rain\Extension\ExtensionBase
             ));
         }
 
-        if(!in_array('purgeable', $this->parent->purgeable)) {
-            throw new Exception(sprintf(
-                'The $purgeable property in %s needs a \'purgeable\' entry.', get_class($this->parent)
-            ));
-        }
-
         /*
          * Remove any purge attributes from the data set
          */
@@ -79,8 +73,10 @@ class Purgeable extends \October\Rain\Extension\ExtensionBase
         else {
             $purgeable = $this->getPurgeableAttributes();
         }
+        
+        array_push($purgeable, 'purgeable');
 
-        $attributes = array_merge($this->parent->getAttributes(), $this->parent->getDynamicProperties());
+        $attributes = $this->parent->getAttributes();
         $cleanAttributes = array_diff_key($attributes, array_flip($purgeable));
         $originalAttributes = array_diff_key($attributes, $cleanAttributes);
 
