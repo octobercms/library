@@ -34,7 +34,7 @@ class SectionParserTest extends TestCase
         $this->assertEquals("/blog/post/", $result["settings"]["url"]);
 
         // Test three sections
-        $result = SectionParser::parse("url = \"/blog/post/\"\n[section]\nindex = value \n===\n \$var = 23; \n phpinfo(); \n===\n this is a twig content");
+        $result = SectionParser::parse("url = \"/blog/post/\"\n[section]\nindex = value \n==\n \$var = 23; \n phpinfo(); \n==\n this is a twig content");
         $this->assertInternalType('array', $result);
         $this->assertCount(3, $result);
         $this->assertArrayHasKey("settings", $result);
