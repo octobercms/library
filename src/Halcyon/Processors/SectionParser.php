@@ -114,7 +114,7 @@ class SectionParser
         }
 
         $iniParser = new Ini;
-        $sections = preg_split('/^={2,}\s*/m', $content, -1);
+        $sections = preg_split('/^'.preg_quote(self::SECTION_SEPARATOR).'\s*$/m', $content, -1);
         $count = count($sections);
         foreach ($sections as &$section) {
             $section = trim($section);
@@ -154,7 +154,7 @@ class SectionParser
     public static function parseOffset($content)
     {
         $content = Str::normalizeEol($content);
-        $sections = preg_split('/^={2,}\s*/m', $content, -1);
+        $sections = preg_split('/^'.preg_quote(self::SECTION_SEPARATOR).'\s*$/m', $content, -1);
         $count = count($sections);
 
         $result = [
