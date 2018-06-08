@@ -195,6 +195,8 @@ trait ExtendableTrait
             return $this;
         }
 
+        $extensionName = str_replace('.', '\\', trim($extensionName));
+
         if (isset($this->extensionData['extensions'][$extensionName])) {
             throw new Exception(sprintf(
                 'Class %s has already been extended with %s',
