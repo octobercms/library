@@ -345,5 +345,8 @@ class ExtendableTest_ExampleExtendableClassDotNotation extends Extendable
     }
 }
 
+/*
+ * Add namespaced aliases for dot notation test
+ */
 class_alias('ExtendableTest_ExampleBehaviorClass1', 'ExtendableTest\\ExampleBehaviorClass1');
 class_alias('ExtendableTest_ExampleBehaviorClass2', 'ExtendableTest\\ExampleBehaviorClass2');
