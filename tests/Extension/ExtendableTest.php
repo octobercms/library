@@ -179,6 +179,15 @@ class ExtendableTest extends TestCase
         $this->assertTrue($result->isClassExtendedWith('ExtendableTest_ExampleBehaviorClass2'));
         $this->assertEquals('bar', $result->getFoo()); // ExtendableTest_ExampleBehaviorClass2 takes priority, defined last
     }
+
+    public function testDotNotation()
+    {
+        $subject = new ExtendableTest_ExampleExtendableClassDotNotation();
+        $subject->extendClassWith('ExtendableTest.ExampleBehaviorClass2');
+
+        $this->assertTrue($subject->isClassExtendedWith('ExtendableTest.ExampleBehaviorClass1'));
+        $this->assertTrue($subject->isClassExtendedWith('ExtendableTest.ExampleBehaviorClass2'));
+    }
 }
 
 //
@@ -303,3 +312,41 @@ class ExtendableTest_ExampleExtendableSoftImplementComboClass extends Extendable
         '@RabbleRabbleRabble'
     ];
 }
+
+/*
+ * Example class that has extensions enabled using dot notation
+ */
+class ExtendableTest_ExampleExtendableClassDotNotation extends Extendable
+{
+    public $implement = ['ExtendableTest.ExampleBehaviorClass1'];
+
+    public $classAttribute;
+
+    protected $protectedFoo = 'bar';
+
+    public static function vanillaIceIce()
+    {
+        return 'baby';
+    }
+
+    protected function protectedBar()
+    {
+        return 'foo';
+    }
+
+    protected static function protectedMars()
+    {
+        return 'bar';
+    }
+
+    public function getProtectedFooAttribute()
+    {
+        return $this->protectedFoo;
+    }
+}
+
+/*
+ * Add namespaced aliases for dot notation test
+ */
+class_alias('ExtendableTest_ExampleBehaviorClass1', 'ExtendableTest\\ExampleBehaviorClass1');
+class_alias('ExtendableTest_ExampleBehaviorClass2', 'ExtendableTest\\ExampleBehaviorClass2');
