@@ -10,7 +10,7 @@ class PurgeableTest extends TestCase
         $this->assertEquals(['October.Rain.Database.Behaviors.Purgeable'], $model->implement);
         $this->assertEquals(['purgeable'], $model->purgeable);
     }
-    
+
     public function testDirectImplementationWithoutProperty()
     {
         $model = new TestModelDirectWithoutProperty();
@@ -28,13 +28,13 @@ class PurgeableTest extends TestCase
         $this->assertEquals(['October.Rain.Database.Behaviors.Purgeable'], $model->implement);
         $this->assertEquals(['purgeable'], $model->purgeable);
     }
-    
+
     public function testDynamicImplementationWithoutProperty()
     {
-        $model = new TestModelDynamic();
-        TestModelDynamic::extend(function($model) {
+        TestModelDynamicWithoutProperty::extend(function($model) {
             $model->implement[] = 'October.Rain.Database.Behaviors.Purgeable';
         });
+        $model = new TestModelDynamicWithoutProperty();
         $this->assertEquals(['October.Rain.Database.Behaviors.Purgeable'], $model->implement);
         $this->assertEquals(['purgeable'], $model->purgeable);
     }
@@ -67,6 +67,11 @@ class TestModelDirectWithoutProperty extends Model
  * Class with no implementation that can be extended
  */
 class TestModelDynamic extends Model
+{
+
+}
+
+class TestModelDynamicWithoutProperty extends Model
 {
 
 }
