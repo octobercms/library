@@ -7,28 +7,24 @@ class PurgeableTest extends TestCase
     public function testDirectImplementation()
     {
         $model = new TestModelDirect();
-        
         $this->assertEquals(['October.Rain.Database.Behaviors.Purgeable'], $model->implement);
         $this->assertEquals(['purgeable'], $model->purgeable);
     }
     
     public function testDirectImplementationWithoutProperty()
     {
-        $model = new TestModelWithoutProperty();
-        
+        $model = new TestModelDirectWithoutProperty();
         $this->assertEquals(['October.Rain.Database.Behaviors.Purgeable'], $model->implement);
         $this->assertEquals(['purgeable'], $model->purgeable);
     }
 
     public function testDynamicImplementation()
     {
-        $model = new TestModelDynamic();
-        
         TestModelDynamic::extend(function($model) {
             $model->implement[] = 'October.Rain.Database.Behaviors.Purgeable';
             $model->addDynamicProperty('purgeable', []);
         });
-        
+        $model = new TestModelDynamic();
         $this->assertEquals(['October.Rain.Database.Behaviors.Purgeable'], $model->implement);
         $this->assertEquals(['purgeable'], $model->purgeable);
     }
@@ -36,11 +32,9 @@ class PurgeableTest extends TestCase
     public function testDynamicImplementationWithoutProperty()
     {
         $model = new TestModelDynamic();
-        
         TestModelDynamic::extend(function($model) {
             $model->implement[] = 'October.Rain.Database.Behaviors.Purgeable';
         });
-        
         $this->assertEquals(['October.Rain.Database.Behaviors.Purgeable'], $model->implement);
         $this->assertEquals(['purgeable'], $model->purgeable);
     }
