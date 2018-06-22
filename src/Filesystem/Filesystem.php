@@ -12,7 +12,6 @@ use FilesystemIterator;
  */
 class Filesystem extends FilesystemBase
 {
-
     /**
      * @var string Default file permission mask as a string ("777").
      */
@@ -35,8 +34,9 @@ class Filesystem extends FilesystemBase
      */
     public function isDirectoryEmpty($directory)
     {
-        if (!is_readable($directory))
+        if (!is_readable($directory)) {
             return null;
+        }
 
         $handle = opendir($directory);
         while (false !== ($entry = readdir($handle))) {
@@ -93,7 +93,8 @@ class Filesystem extends FilesystemBase
 
         if (strpos($path, $publicPath) === 0) {
             $result = str_replace("\\", "/", substr($path, strlen($publicPath)));
-        } else {
+        }
+        else {
             // Attempt to support first level symlinks
             if ($directories = self::glob($publicPath . '/*', GLOB_NOSORT | GLOB_ONLYDIR)) {
                 foreach ($directories as $dir) {
@@ -113,11 +114,18 @@ class Filesystem extends FilesystemBase
      * Returns true if the specified path is an absolute/local path
      * to the application.
      * @param  string  $path
+     * @param  boolean $realpath
      * @return boolean
      */
-    public function isLocalPath($path)
+    public function isLocalPath($path, $realpath = true)
     {
-        return strpos($path, base_path()) === 0;
+        $base = base_path();
+
+        if ($realpath) {
+            $path = realpath($path);
+        }
+
+        return !($path === false || strncmp($path, $base, strlen($base)) !== 0);
     }
 
     /**
@@ -237,8 +245,9 @@ class Filesystem extends FilesystemBase
      */
     public function makeDirectory($path, $mode = 0777, $recursive = false, $force = false)
     {
-        if ($mask = $this->getFolderPermissions())
+        if ($mask = $this->getFolderPermissions()) {
             $mode = $mask;
+        }
 
         /*
          * Find the green leaves
@@ -372,5 +381,4 @@ class Filesystem extends FilesystemBase
 
         return (bool) preg_match('#^' . $regex . '$#i', $fileName);
     }
-
 }
