@@ -84,12 +84,12 @@ class SectionParserTest extends TestCase
         $this->assertArrayHasKey("code", $result);
         $this->assertArrayHasKey("markup", $result);
         $this->assertNotNull($result["settings"]);
-        $this->assertArrayHasKey("url", $result["settings"]["url"]);
+        $this->assertArrayHasKey("url", $result["settings"]);
         $this->assertEquals($result["settings"]["url"], "/blog/post");
         $this->assertNull($result["code"]);
         $this->assertNotNull($result["markup"]);
         $this->assertEquals($result["markup"], "This is a header\n================\n\nThis is a paragraph");
-        
+
         // Test doesn't break Markdown three sections
         $result = SectionParser::parse("url = \"/blog/post\"\n==\n\$var = 23; \n phpinfo();\n==\nThis is a header\n================\n\nThis is a paragraph");
         $this->assertCount(3, $result);
@@ -97,7 +97,7 @@ class SectionParserTest extends TestCase
         $this->assertArrayHasKey("code", $result);
         $this->assertArrayHasKey("markup", $result);
         $this->assertNotNull($result["settings"]);
-        $this->assertArrayHasKey("url", $result["settings"]["url"]);
+        $this->assertArrayHasKey("url", $result["settings"]);
         $this->assertEquals($result["settings"]["url"], "/blog/post");
         $this->assertNotNull($result["code"]);
         $this->assertContains("\$var = 23;", $result["code"]);
