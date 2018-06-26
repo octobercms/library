@@ -111,10 +111,9 @@ class Filesystem extends FilesystemBase
     }
 
     /**
-     * Returns true if the specified path is an absolute/local path
-     * to the application.
-     * @param  string  $path
-     * @param  boolean $realpath
+     * Returns true if the specified path is within the path of the application
+     * @param  string  $path The path to
+     * @param  boolean $realpath Default true, uses realpath() to resolve the provided path before checking location. Set to false if you need to check if a potentially non-existent path would be within the application path
      * @return boolean
      */
     public function isLocalPath($path, $realpath = true)
