@@ -332,6 +332,36 @@ ESC;
         $this->assertEquals(['about.htm', 'home.htm'], $files);
     }
 
+    public function testIsDirty()
+    {
+        // Check isDirty() == true after create
+        $page = new HalcyonTestPage([
+            'fileName' => 'dirtyTestFile.htm',
+            'title' => 'Dirty Test File',
+        ]);
+        $this->assertTrue($page->isDirty());
+        
+        // Check isDirty() == false after save
+        $page->save();
+        $this->assertFalse($page->isDirty());
+       
+        // Check isDirty() == true after update
+        $page->markup = '<p>I am dirty!</p>';
+        $this->assertTrue($page->isDirty());
+        
+        // Check isDirty() == false after save
+        $page->save();
+        $this->assertFalse($page->isDirty());
+
+        // Check isDirty() == false when setting a null value to an empty value
+        $this->assertNull($page->code);
+        $page->code = '';
+        $this->assertEquals($page->code, '');
+        $this->assertFalse($page->isDirty());
+        
+        $page->delete();
+    }
+
     //
     // House keeping
     //

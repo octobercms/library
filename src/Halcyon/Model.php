@@ -880,10 +880,13 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
         foreach ($this->attributes as $key => $value) {
             if (!array_key_exists($key, $this->original)) {
-                $dirty[$key] = $value;
+                if (!empty($value)) {
+                    $dirty[$key] = $value;
+                }
             }
             elseif (
                 $value !== $this->original[$key] &&
+                !(empty($value) && empty($this->original[$key])) &&
                 !$this->originalIsNumericallyEquivalent($key)
             ) {
                 $dirty[$key] = $value;
