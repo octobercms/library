@@ -75,7 +75,7 @@ class SectionParserTest extends TestCase
         $this->assertEmpty($result["settings"]);
         $this->assertNull($result["code"]);
         $this->assertNotNull($result["markup"]);
-        $this->assertEquals($result["markup"], "This is a header\n================\n\nThis is a paragraph");
+        $this->assertEquals("This is a header\n================\n\nThis is a paragraph", $result["markup"]);
 
         // Test doesn't break Markdown two sections
         $result = SectionParser::parse("url = \"/blog/post\"\n==\nThis is a header\n================\n\nThis is a paragraph");
@@ -85,10 +85,10 @@ class SectionParserTest extends TestCase
         $this->assertArrayHasKey("markup", $result);
         $this->assertNotNull($result["settings"]);
         $this->assertArrayHasKey("url", $result["settings"]);
-        $this->assertEquals($result["settings"]["url"], "/blog/post");
+        $this->assertEquals("/blog/post", $result["settings"]["url"]);
         $this->assertNull($result["code"]);
         $this->assertNotNull($result["markup"]);
-        $this->assertEquals($result["markup"], "This is a header\n================\n\nThis is a paragraph");
+        $this->assertEquals("This is a header\n================\n\nThis is a paragraph", $result["markup"]);
 
         // Test doesn't break Markdown three sections
         $result = SectionParser::parse("url = \"/blog/post\"\n==\n\$var = 23; \n phpinfo();\n==\nThis is a header\n================\n\nThis is a paragraph");
@@ -98,12 +98,12 @@ class SectionParserTest extends TestCase
         $this->assertArrayHasKey("markup", $result);
         $this->assertNotNull($result["settings"]);
         $this->assertArrayHasKey("url", $result["settings"]);
-        $this->assertEquals($result["settings"]["url"], "/blog/post");
+        $this->assertEquals("/blog/post", $result["settings"]["url"]);
         $this->assertNotNull($result["code"]);
         $this->assertContains("\$var = 23;", $result["code"]);
         $this->assertContains("phpinfo();", $result["code"]);
         $this->assertNotNull($result["markup"]);
-        $this->assertEquals($result["markup"], "This is a header\n================\n\nThis is a paragraph");
+        $this->assertEquals("This is a header\n================\n\nThis is a paragraph", $result["markup"]);
     }
 
     public function testParseOffset()
