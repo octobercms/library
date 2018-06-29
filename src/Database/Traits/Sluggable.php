@@ -25,14 +25,10 @@ trait Sluggable
         }
 
         /*
-         * Set slugged attributes on new records
+         * Set slugged attributes on new records and existing records if slug is missing.
          */
         static::extend(function($model) {
             $model->bindEvent('model.saveInternal', function() use ($model) {
-                if ($model->exists) {
-                    return;
-                }
-
                 $model->slugAttributes();
             });
         });
