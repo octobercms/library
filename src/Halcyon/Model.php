@@ -872,22 +872,44 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Get the attributes that have been changed since last sync.
      *
+     * @param  array|null  $attributes
+     * @param  array|null  $original
      * @return array
      */
-    public function getDirty()
+    public function getDirty($attributes = null, $original = null)
     {
         $dirty = [];
 
-        foreach ($this->attributes as $key => $value) {
-            if (!array_key_exists($key, $this->original)) {
-                if (!empty($value)) {
+        if ($attributes === null) {
+            $attributes = $this->attributes;
+        }
+
+        if ($original === null) {
+            $original = $this->original;
+        }
+
+        $keys = array_unique(array_merge(array_keys($attributes), array_keys($original)));
+
+        foreach ($keys as $key) {
+            $value = $attributes[$key] ?? null;
+
+            if (is_string($value)) {
+                $value = trim($value);
+            }
+
+            if (!array_key_exists($key, $original)) {
+                if ($value !== '' && $value !== null) {
                     $dirty[$key] = $value;
                 }
             }
+            elseif (is_array($value) && is_array($original[$key])) {
+                if (!empty($this->getDirty($value, $original[$key]))) {
+                    $dirty[$key] = $this->getDirty($value, $original[$key]); 
+                }
+            }
             elseif (
-                $value !== $this->original[$key] &&
-                !(empty($value) && empty($this->original[$key])) &&
-                !$this->originalIsNumericallyEquivalent($key)
+                $value !== $original[$key] &&
+                !$this->isNumericallyEquivalent($value, $original[$key])
             ) {
                 $dirty[$key] = $value;
             }
@@ -897,18 +919,15 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Determine if the new and old values for a given key are numerically equivalent.
+     * Determine if two values are numerically equivalent.
      *
-     * @param  string  $key
+     * @param  mixed  $value1
+     * @param  mixed  $value2
      * @return bool
      */
-    protected function originalIsNumericallyEquivalent($key)
+    protected function isNumericallyEquivalent($value1, $value2)
     {
-        $current = $this->attributes[$key];
-
-        $original = $this->original[$key];
-
-        return is_numeric($current) && is_numeric($original) && strcmp((string) $current, (string) $original) === 0;
+        return is_numeric($value1) && is_numeric($value2) && strcmp((string) $value1, (string) $value2) === 0;
     }
 
     /**

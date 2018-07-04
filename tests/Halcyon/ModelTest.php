@@ -339,6 +339,8 @@ ESC;
             'fileName' => 'dirtyTestFile.htm',
             'title' => 'Dirty Test File',
         ]);
+        $page->testString = 'This is a test';
+        $page->testNumber = 12;
         $this->assertTrue($page->isDirty());
         
         // Check isDirty() == false after save
@@ -353,12 +355,23 @@ ESC;
         $page->save();
         $this->assertFalse($page->isDirty());
 
-        // Check isDirty() == false when setting a null value to an empty value
+        // Check isDirty() == false when setting a null value to an empty string
         $this->assertNull($page->code);
         $page->code = '';
         $this->assertEquals($page->code, '');
         $this->assertFalse($page->isDirty());
+
+        // Check isDirty() == false with leading/trailing spaces
+        $this->assertEquals($page->testString, 'This is a test');
+        $page->testString = '     This is a test      ';
+        $this->assertFalse($page->isDirty());
+
+        // Check isDirty() == false when new value is numerically equivalent
+        $this->assertEquals($page->testNumber, 12);
+        $this->testNumber = 12.0;
+        $this->assertFalse($page->isDirty());
         
+        // Clean up
         $page->delete();
     }
 
