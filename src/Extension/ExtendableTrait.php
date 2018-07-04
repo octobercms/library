@@ -21,9 +21,10 @@ trait ExtendableTrait
      * @var array Class reflection information, including behaviors.
      */
     protected $extensionData = [
-        'extensions'     => [],
-        'methods'        => [],
-        'dynamicMethods' => []
+        'extensions'        => [],
+        'methods'           => [],
+        'dynamicMethods'    => [],
+        'dynamicProperties' => []
     ];
 
     /**
@@ -181,6 +182,8 @@ trait ExtendableTrait
             $this->{$dynamicName} = $value;
         }
 
+        $this->extensionData['dynamicProperties'][] = $dynamicName;
+
         self::$extendableGuardProperties = true;
     }
 
@@ -273,6 +276,21 @@ trait ExtendableTrait
             isset($this->extensionData['methods'][$name]) ||
             isset($this->extensionData['dynamicMethods'][$name])
         );
+    }
+
+
+    /**
+     * Returns all dynamic properties and their values
+     * @return array ['property' => 'value']
+     */
+    public function getDynamicProperties()
+    {
+        $result = [];
+        $propertyNames = $this->extensionData['dynamicProperties'];
+        foreach($propertyNames as $propName) {
+            $result[$propName] = $this->{$propName};
+        }
+        return $result;
     }
 
     /**
