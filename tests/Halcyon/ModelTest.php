@@ -332,45 +332,48 @@ ESC;
         $this->assertEquals(['about.htm', 'home.htm'], $files);
     }
 
-    public function testIsDirty()
+    public function testGetDirty()
     {
-        // Check isDirty() == true after create
         $page = new HalcyonTestPage([
             'fileName' => 'dirtyTestFile.htm',
             'title' => 'Dirty Test File',
         ]);
+
+        $dirty = $page->getDirty();
+        $this->assertCount(2, $dirty);
+        $this->assertArrayHasKey('fileName', $dirty);
+        $this->assertEquals($dirty['fileName'], 'dirtyTestFile.htm');  
+        $this->assertArrayHasKey('title', $dirty);
+        $this->assertEquals($dirty['title'], 'Dirty Test File');
+
+        $page->save();
+        $dirty = $page->getDirty();
+        $this->assertEmpty($dirty);
+
+        // Test adding new attributes
         $page->testString = 'This is a test';
-        $page->testNumber = 12;
-        $this->assertTrue($page->isDirty());
-        
-        // Check isDirty() == false after save
+        $page->testNumber = 12;                
+        $page->testArray = [];
+        $dirty = $page->getDirty();
+        $this->assertCount(3, $dirty);        
+        $this->assertArrayHasKey('testString', $dirty);
+        $this->assertEquals($dirty['testString'], 'This is a test');
+        $this->assertArrayHasKey('testNumber', $dirty);
+        $this->assertEquals($dirty['testNumber'], 12);
+        $this->assertArrayHasKey('testArray', $dirty);
+        $this->assertEquals($dirty['testArray'], []);
         $page->save();
-        $this->assertFalse($page->isDirty());
-       
-        // Check isDirty() == true after update
-        $page->markup = '<p>I am dirty!</p>';
-        $this->assertTrue($page->isDirty());
-        
-        // Check isDirty() == false after save
-        $page->save();
-        $this->assertFalse($page->isDirty());
 
-        // Check isDirty() == false when setting a null value to an empty string
-        $this->assertNull($page->code);
-        $page->code = '';
-        $this->assertEquals($page->code, '');
-        $this->assertFalse($page->isDirty());
+        // Test setting equivalent values
+        $page->testString = '    This is a test   ';
+        $page->testNumber = 12.00;
+        $page->testEmpty = '';
+        $page->testArray = [
+            'empty' => ''
+        ];
+        $dirty = $page->getDirty();
+        $this->assertEmpty($dirty);
 
-        // Check isDirty() == false with leading/trailing spaces
-        $this->assertEquals($page->testString, 'This is a test');
-        $page->testString = '     This is a test      ';
-        $this->assertFalse($page->isDirty());
-
-        // Check isDirty() == false when new value is numerically equivalent
-        $this->assertEquals($page->testNumber, 12);
-        $this->testNumber = 12.0;
-        $this->assertFalse($page->isDirty());
-        
         // Clean up
         $page->delete();
     }
