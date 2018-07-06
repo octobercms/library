@@ -879,6 +879,10 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         $dirty = [];
 
         foreach ($this->attributes as $key => $current) {
+            if (in_array($key, $this->purgeable)) {
+                continue;
+            }
+
             $original = $this->original[$key] ?? null;
 
             // The attribute is dirty if its current value is not equivalent to the original
@@ -895,11 +899,14 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         // Check for removed attributes and add a null entry to the dirty array
         $removed = array_diff_key(
             $this->original,
-            $this->attributes
+            $this->attributes,
+            array_flip($this->purgeable)
         );
 
         foreach ($removed as $key => $value) {
-            $dirty[$key] = null;
+            if (!empty($value) || $value === []) {
+                $dirty[$key] = null;
+            }
         }
 
         return $dirty;
