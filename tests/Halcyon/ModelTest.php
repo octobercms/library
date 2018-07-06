@@ -368,11 +368,22 @@ ESC;
         $page->testString = '    This is a test   ';
         $page->testNumber = 12.00;
         $page->testEmpty = '';
-        $page->testArray = [
-            'empty' => ''
-        ];
+        $page->testArray = [];
         $dirty = $page->getDirty();
         $this->assertEmpty($dirty);
+
+        // Test removing attributes
+        unset($page->attributes['testString']);
+        unset($page->attributes['testNumber']);
+        unset($page->attributes['testArray']);
+        $dirty = $page->getDirty();
+        $this->assertCount(3, $dirty);
+        $this->assertArrayHasKey('testString', $dirty);
+        $this->assertNull($dirty['testString']);
+        $this->assertArrayHasKey('testNumber', $dirty);
+        $this->assertNull($dirty['testNumber']);
+        $this->assertArrayHasKey('testArray', $dirty);
+        $this->assertNull($dirty['testArray']);
 
         // Clean up
         $page->delete();

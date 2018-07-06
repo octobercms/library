@@ -878,15 +878,25 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     {
         $dirty = [];
 
-        foreach ($this->attributes as $key => $value) {
+        foreach ($this->attributes as $key => $current) {
             $original = $this->original[$key] ?? null;
 
+            // The attribute is dirty if its current value is not equivalent
+            // to the original or if exactly one is an empty array
+            // to allow for adding/removing empty ini sections
             if (
-                !$this->areValuesEquivalent($value, $original) ||
-                empty($value) && empty($original) && (is_array($value) xor is_array($original))
+                !$this->isEquivalent($current, $original) ||
+                $current === [] xor $original === []
             ) {
-                $dirty[$key] = $value;
+                $dirty[$key] = $current;
             }
+        }
+
+        // Check for removed attributes and add a null entry to the dirty array
+        $removed = array_diff_key($this->original, $this->attributes);
+
+        foreach ($removed as $key => $value) {
+            $dirty[$key] = null;
         }
 
         return $dirty;
@@ -899,7 +909,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      * @param  mixed  $value2
      * @return bool
      */
-    protected function areValuesEquivalent($value1, $value2)
+    protected function isEquivalent($value1, $value2)
     {
         // Trim string values
         $value1 = is_string($value1) ? trim($value1) : $value1;
@@ -916,7 +926,10 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         }
 
         // Return true if the values are numerically equivalent
-        if (is_numeric($value1) && is_numeric($value2) && strcmp((string) $value1, (string) $value2) === 0) {
+        if (
+            is_numeric($value1) && is_numeric($value2) &&
+            strcmp((string) $value1, (string) $value2) === 0
+        ) {
             return true;
         }
 
@@ -927,7 +940,10 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
             // Test each array element's equivalence
             foreach ($keys as $key) {
-                if (!$this->areValuesEquivalent($value1[$key] ?? null, $value2[$key] ?? null)) {
+                $v1 = $value1[$key] ?? null;
+                $v2 = $value2[$key] ?? null;
+
+                if (!$this->isEquivalent($v1, $v2)) {
                     return false;
                 }
             }
