@@ -882,10 +882,11 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
             $original = $this->original[$key] ?? null;
 
             // The attribute is dirty if its current value is not equivalent to the original
-            // or if the current value is an empty array to handle adding empty ini sections
+            // or if one of current or original is an empty array to handle adding/removing empty ini sections
             if (
                 !$this->isEquivalent($current, $original) ||
-                $current === [] && $original !== []
+                $current === [] && $original !== [] ||
+                $original === [] && $current !== []
             ) {
                 $dirty[$key] = $current;
             }
