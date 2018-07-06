@@ -353,7 +353,7 @@ ESC;
         // Test adding new attributes
         $page->testString = 'This is a test';
         $page->testNumber = 12;                
-        $page->testArray = [];
+        $page->testArray = ['string' => 'Hello World!', 'number' => 22];
         $dirty = $page->getDirty();
         $this->assertCount(3, $dirty);        
         $this->assertArrayHasKey('testString', $dirty);
@@ -361,14 +361,14 @@ ESC;
         $this->assertArrayHasKey('testNumber', $dirty);
         $this->assertEquals($dirty['testNumber'], 12);
         $this->assertArrayHasKey('testArray', $dirty);
-        $this->assertEquals($dirty['testArray'], []);
+        $this->assertEquals($dirty['testArray'], ['string' => 'Hello World!', 'number' => 22]);
         $page->save();
 
         // Test setting equivalent values
         $page->testString = '    This is a test   ';
         $page->testNumber = 12.00;
         $page->testEmpty = '';
-        $page->testArray = [];
+        $page->testArray = ['string' => '   Hello World!  ', 'number' => 22.0];
         $dirty = $page->getDirty();
         $this->assertEmpty($dirty);
 

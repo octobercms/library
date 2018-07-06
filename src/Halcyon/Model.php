@@ -881,19 +881,21 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         foreach ($this->attributes as $key => $current) {
             $original = $this->original[$key] ?? null;
 
-            // The attribute is dirty if its current value is not equivalent
-            // to the original or if exactly one is an empty array
-            // to allow for adding/removing empty ini sections
+            // The attribute is dirty if its current value is not equivalent to the original
+            // or if the current value is an empty array to handle adding empty ini sections
             if (
                 !$this->isEquivalent($current, $original) ||
-                $current === [] xor $original === []
+                $current === [] && $original !== []
             ) {
                 $dirty[$key] = $current;
             }
         }
 
         // Check for removed attributes and add a null entry to the dirty array
-        $removed = array_diff_key($this->original, $this->attributes);
+        $removed = array_diff_key(
+            $this->original,
+            $this->attributes
+        );
 
         foreach ($removed as $key => $value) {
             $dirty[$key] = null;
@@ -936,7 +938,10 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         // Arrays are equivalent only if all their elements are equivalent
         if (is_array($value1) && is_array($value2)) {
             // Get the keys of both arrays
-            $keys = array_unique(array_merge(array_keys($value1), array_keys($value2)));
+            $keys = array_unique(array_merge(
+                array_keys($value1),
+                array_keys($value2)
+            ));
 
             // Test each array element's equivalence
             foreach ($keys as $key) {
