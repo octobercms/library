@@ -9,7 +9,7 @@ use Exception;
  *
  * Usage:
  *      Resizer::open(mixed $file)
- *          ->resize(int $width , int $height, string 'exact, portrait, landscape, auto or crop')
+ *          ->resize(int $width , int $height, string 'exact, portrait, landscape, auto, crop or contain')
  *          ->save(string 'path/to/file.jpg', int $quality);
  *
  *      // Resize and save an image.
@@ -293,18 +293,30 @@ class Resizer
         list($optimalWidth, $optimalHeight) = $this->getDimensions($newWidth, $newHeight);
 
         // Resample - create image canvas of x, y size
-        $imageResized = imagecreatetruecolor($optimalWidth, $optimalHeight);
+        if ($this->getOption('mode') == 'contain') {
+            $imageResized = imagecreatetruecolor($newWidth, $newHeight);
+        } else {
+            $imageResized = imagecreatetruecolor($optimalWidth, $optimalHeight);
+        }
 
         // Retain transparency for PNG and GIF files
-        imagecolortransparent($imageResized, imagecolorallocatealpha($imageResized, 0, 0, 0, 127));
+        $transparency = imagecolorallocatealpha($imageResized, 0, 0, 0, 127);
+
+        // fill empty image with transparent color (required for contain mode)
+        imagefill($imageResized, 0, 0, $transparency);
+
+        imagecolortransparent($imageResized, $transparency);
         imagealphablending($imageResized, false);
         imagesavealpha($imageResized, true);
 
         // get the rotated the original image according to exif orientation
         $rotatedOriginal = $this->getRotatedOriginal();
 
+        // get offset to center images for mode 'contain'
+        list($offsetX, $offsetY) = $this->getOffset($optimalWidth, $optimalHeight, $newWidth, $newHeight);
+
         // Create the new image
-        imagecopyresampled($imageResized, $rotatedOriginal, 0, 0, 0, 0, $optimalWidth, $optimalHeight, $this->width, $this->height);
+        imagecopyresampled($imageResized, $rotatedOriginal, $offsetX, $offsetY, 0, 0, $optimalWidth, $optimalHeight, $this->width, $this->height);
 
         $this->image = $imageResized;
 
@@ -326,6 +338,33 @@ class Resizer
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns offset for mode 'contain'
+     *
+     * @return array
+     */
+    public function getOffset($optimalWidth, $optimalHeight, $newWidth, $newHeight)
+    {
+        if ($this->getOption('mode') == 'contain') {
+            // if landscape, center y
+            if ($optimalWidth > $optimalHeight) {
+                $offsetY = round(($newHeight - $optimalHeight) / 2);
+                $offsetX = 0;
+            } else {
+                // if portrait, centry x
+                $offsetY = 0;
+                $offsetX = round(($newWidth - $optimalWidth) / 2);
+            }
+        } else {
+            $offsetY = 0;
+            $offsetX = 0;
+        }
+
+        return [$offsetX, $offsetY];
+
     }
 
     /**
