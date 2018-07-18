@@ -8,7 +8,7 @@ class EncryptCookies extends \Illuminate\Cookie\Middleware\EncryptCookies
     public function __construct(EncrypterContract $encrypter)
     {
         parent::__construct($encrypter);
-        $except = Config::get('cookie.unencrypted_cookies');
+        $except = Config::get('cookie.unecryptedCookies');
         $this->disableFor($except);
     }
 }
