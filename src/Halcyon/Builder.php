@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Halcyon;
 
-use October\Rain\Halcyon\Model;
 use October\Rain\Halcyon\Datasource\DatasourceInterface;
 use October\Rain\Halcyon\Processors\Processor;
 use October\Rain\Halcyon\Exception\MissingFileNameException;

@@ -3,7 +3,6 @@
 use October\Rain\Support\Arr;
 use October\Rain\Support\Str;
 use October\Rain\Extension\Extendable;
-use October\Rain\Halcyon\Builder;
 use October\Rain\Halcyon\Datasource\ResolverInterface as Resolver;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Support\Arrayable;

@@ -4,7 +4,6 @@ use File;
 use Assetic\Asset\AssetInterface;
 use Assetic\Filter\FilterInterface;
 use RuntimeException;
-use Exception;
 
 /**
  * Importer JS Filter

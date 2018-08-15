@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Database\Concerns;
 
-use October\Rain\Support\Arr;
 use October\Rain\Support\Str;
 use October\Rain\Database\Relations\BelongsTo;
 use October\Rain\Database\Relations\BelongsToMany;
