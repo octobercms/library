@@ -457,7 +457,7 @@ class File extends Model
 
         $options['mode'] = strtolower($options['mode']);
 
-        if ((strtolower($options['extension'])) == 'auto') {
+        if (strtolower($options['extension']) == 'auto') {
             $options['extension'] = strtolower($this->getExtension());
         }
 
@@ -752,7 +752,7 @@ class File extends Model
      */
     protected function copyLocalToStorage($localPath, $storagePath)
     {
-        return Storage::put($storagePath, FileHelper::get($localPath), ($this->isPublic()) ? 'public' : null);
+        return Storage::put($storagePath, FileHelper::get($localPath), $this->isPublic() ? 'public' : null);
     }
 
     //
