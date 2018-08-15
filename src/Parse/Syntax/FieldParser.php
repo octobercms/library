@@ -80,8 +80,8 @@ class FieldParser
 
         // Process registered tags
         list($tags, $fields) = $this->processTags($template);
-        $this->tags = $this->tags + $tags;
-        $this->fields = $this->fields + $fields;
+        $this->tags += $tags;
+        $this->fields += $fields;
 
         /*
          * Layer the repeater tags over the standard ones to retain 
