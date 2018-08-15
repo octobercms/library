@@ -296,17 +296,16 @@ class File extends Model
         if ($this->isLocalStorage()) {
             return $this->getLocalRootPath() . '/' . $this->getDiskPath();
         }
-        else {
-            $itemSignature = md5($this->getPath()) . $this->getLastModified();
 
-            $cachePath = $this->getLocalTempPath($itemSignature . '.' . $this->getExtension());
+        $itemSignature = md5($this->getPath()) . $this->getLastModified();
 
-            if (!FileHelper::exists($cachePath)) {
-                $this->copyStorageToLocal($this->getDiskPath(), $cachePath);
-            }
+        $cachePath = $this->getLocalTempPath($itemSignature . '.' . $this->getExtension());
 
-            return $cachePath;
+        if (!FileHelper::exists($cachePath)) {
+            $this->copyStorageToLocal($this->getDiskPath(), $cachePath);
         }
+
+        return $cachePath;
     }
 
     /**
@@ -776,9 +775,8 @@ class File extends Model
         if ($this->isPublic()) {
             return 'uploads/public/';
         }
-        else {
-            return 'uploads/protected/';
-        }
+
+        return 'uploads/protected/';
     }
 
     /**
@@ -789,9 +787,8 @@ class File extends Model
         if ($this->isPublic()) {
             return 'http://localhost/uploads/public/';
         }
-        else {
-            return 'http://localhost/uploads/protected/';
-        }
+
+        return 'http://localhost/uploads/protected/';
     }
 
     /**

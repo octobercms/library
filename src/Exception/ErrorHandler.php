@@ -123,9 +123,8 @@ class ErrorHandler
                 $exception->getFile()
             );
         }
-        else {
-            return $exception->getMessage();
-        }
+
+        return $exception->getMessage();
     }
 
     //
