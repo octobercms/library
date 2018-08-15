@@ -66,7 +66,7 @@ class Filesystem extends FilesystemBase
         }
 
         if ($bytes >= 1024) {
-            return $bytes = number_format($bytes / 1024, 2) . ' KB';
+            return number_format($bytes / 1024, 2) . ' KB';
         }
 
         if ($bytes > 1) {
