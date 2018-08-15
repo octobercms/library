@@ -146,11 +146,7 @@ class Role extends Model
             }
         }
 
-        if ($all === false) {
-            return false;
-        }
-
-        return true;
+        return !($all === false);
     }
 
     /**
