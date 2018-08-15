@@ -70,7 +70,7 @@ class Filesystem extends FilesystemBase
         }
 
         if ($bytes > 1) {
-            return $bytes = $bytes . ' bytes';
+            return $bytes . ' bytes';
         }
 
         if ($bytes == 1) {
