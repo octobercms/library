@@ -125,7 +125,7 @@ trait HasRelationships
      */
     public function hasRelation($name)
     {
-        return $this->getRelationDefinition($name) !== null ? true : false;
+        return $this->getRelationDefinition($name) !== null;
     }
 
     /**

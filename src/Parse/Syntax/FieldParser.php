@@ -295,7 +295,7 @@ class FieldParser
         // Convert all 'true' and 'false' string values to boolean values
         foreach ($paramValues as $key => $value) {
             if ($value === 'true' || $value === 'false') {
-                $paramValues[$key] = $value === 'true' ? true: false;
+                $paramValues[$key] = $value === 'true';
             }
         }
 
