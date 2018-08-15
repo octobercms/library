@@ -335,7 +335,7 @@ trait HasRelationships
             throw new InvalidArgumentException(sprintf('Relation "%s" on model "%s" should contain the following key(s): %s',
                 $relationName,
                 get_called_class(),
-                join(', ', $missingRequired)
+                implode(', ', $missingRequired)
             ));
         }
 
