@@ -256,9 +256,7 @@ class Resizer
         }
 
         $bgcolor = imagecolorallocate($this->image, 0, 0, 0);
-        $rotatedOriginal = imagerotate($this->image,$angle,$bgcolor);
-
-        return $rotatedOriginal;
+        return imagerotate($this->image,$angle,$bgcolor);
     }
 
     /**
@@ -524,9 +522,7 @@ class Resizer
     protected function getSizeByFixedHeight($newHeight)
     {
         $ratio = $this->width / $this->height;
-        $newWidth = $newHeight * $ratio;
-
-        return $newWidth;
+        return $newHeight * $ratio;
     }
 
     /**
@@ -537,9 +533,7 @@ class Resizer
     protected function getSizeByFixedWidth($newWidth)
     {
         $ratio = $this->height / $this->width;
-        $newHeight = $newWidth * $ratio;
-
-        return $newHeight;
+        return $newWidth * $ratio;
     }
 
     /**

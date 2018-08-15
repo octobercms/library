@@ -76,8 +76,7 @@ class Manager
     public function createUserModel()
     {
         $class = '\\'.ltrim($this->userModel, '\\');
-        $user = new $class();
-        return $user;
+        return new $class();
     }
 
     /**
@@ -251,8 +250,7 @@ class Manager
     public function createThrottleModel()
     {
         $class = '\\'.ltrim($this->throttleModel, '\\');
-        $throttle = new $class();
-        return $throttle;
+        return new $class();
     }
 
     /**
