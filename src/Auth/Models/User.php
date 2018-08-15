@@ -400,10 +400,8 @@ class User extends Model
         if (!$this->mergedPermissions) {
             $permissions = [];
 
-            if ($role = $this->getRole()) {
-                if (is_array($role->permissions)) {
-                    $permissions = array_merge($permissions, $role->permissions);
-                }
+            if (($role = $this->getRole()) && is_array($role->permissions)) {
+                $permissions = array_merge($permissions, $role->permissions);
             }
 
             if (is_array($this->permissions)) {
