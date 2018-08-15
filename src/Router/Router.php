@@ -87,7 +87,7 @@ class Router
         }
 
         $this->parameters = $parameters;
-        return ($this->matchedRouteRule) ? true : false;
+        return $this->matchedRouteRule ? true : false;
     }
 
     /**

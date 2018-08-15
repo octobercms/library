@@ -235,7 +235,7 @@ trait ExtendableTrait
     public function getClassExtension($name)
     {
         $name = str_replace('.', '\\', trim($name));
-        return (isset($this->extensionData['extensions'][$name]))
+        return isset($this->extensionData['extensions'][$name])
             ? $this->extensionData['extensions'][$name]
             : null;
     }

@@ -183,6 +183,6 @@ class Role extends Model
             }
         }
 
-        $this->attributes['permissions'] = (!empty($permissions)) ? json_encode($permissions) : '';
+        $this->attributes['permissions'] = !empty($permissions) ? json_encode($permissions) : '';
     }
 }
