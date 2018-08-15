@@ -94,15 +94,13 @@ class Filesystem extends FilesystemBase
         if (strpos($path, $publicPath) === 0) {
             $result = str_replace("\\", "/", substr($path, strlen($publicPath)));
         }
-        else {
-            // Attempt to support first level symlinks
-            if ($directories = self::glob($publicPath . '/*', GLOB_NOSORT | GLOB_ONLYDIR)) {
-                foreach ($directories as $dir) {
-                    if (is_link($dir) && strpos($path, readlink($dir)) === 0) {
-                        // Get the path of the requested path relative to the symlink in the public path
-                        $relativeLinkedPath = substr($path, strlen(readlink($dir)));
-                        return str_replace("\\", "/", substr($dir, strlen($publicPath)) . $relativeLinkedPath);
-                    }
+        // Attempt to support first level symlinks
+        elseif ($directories = self::glob($publicPath . '/*', GLOB_NOSORT | GLOB_ONLYDIR)) {
+            foreach ($directories as $dir) {
+                if (is_link($dir) && strpos($path, readlink($dir)) === 0) {
+                    // Get the path of the requested path relative to the symlink in the public path
+                    $relativeLinkedPath = substr($path, strlen(readlink($dir)));
+                    return str_replace("\\", "/", substr($dir, strlen($publicPath)) . $relativeLinkedPath);
                 }
             }
         }
