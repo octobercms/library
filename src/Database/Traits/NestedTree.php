@@ -560,16 +560,14 @@ trait NestedTree
                 ->first()
             ;
         }
-        else {
-            $parentId = $this->getParentId();
 
-            if ($parentId !== null && ($currentParent = $this->newQuery()->find($parentId))) {
-                return $currentParent->getRoot();
-            }
-            else {
-                return $this;
-            }
+        $parentId = $this->getParentId();
+
+        if ($parentId !== null && ($currentParent = $this->newQuery()->find($parentId))) {
+            return $currentParent->getRoot();
         }
+
+        return $this;
     }
 
     /**
@@ -999,9 +997,8 @@ trait NestedTree
                     'Cannot resolve target node. This node cannot move any further to the %s.', $position
                 ));
             }
-            else {
-                throw new Exception('Cannot resolve target node.');
-            }
+
+            throw new Exception('Cannot resolve target node.');
         }
 
         if ($node == $target) {

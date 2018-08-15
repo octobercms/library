@@ -109,10 +109,9 @@ class JavascriptImporter implements FilterInterface
                 if ($required) {
                     throw new RuntimeException($errorMsg);
                 }
-                else {
-                    $result .= '/* ' . $errorMsg . ' */' . PHP_EOL;
-                    continue;
-                }
+
+                $result .= '/* ' . $errorMsg . ' */' . PHP_EOL;
+                continue;
             }
 
             /*
