@@ -325,7 +325,7 @@ class ExceptionBase extends Exception
                     elseif (is_object($obj)) {
                         $value = 'object('.get_class($obj).')';
                     }
-                    elseif (is_integer($obj)) {
+                    elseif (is_int($obj)) {
                         $value = $obj;
                     }
                     elseif ($obj === null) {
@@ -351,7 +351,7 @@ class ExceptionBase extends Exception
             elseif ($argument === null) {
                 $arg = "null";
             }
-            elseif (is_integer($argument)) {
+            elseif (is_int($argument)) {
                 $arg = $argument;
             }
             else {
