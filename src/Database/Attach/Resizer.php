@@ -70,7 +70,7 @@ class Resizer
      * Instantiates the Resizer and receives the path to an image we're working with
      * @param mixed $file The file array provided by Laravel's Input::file('field_name') or a path to a file
      */
-    function __construct($file)
+    public function __construct($file)
     {
         if (!extension_loaded('gd')) {
             echo 'GD PHP library required.'.PHP_EOL;
