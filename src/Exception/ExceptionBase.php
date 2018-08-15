@@ -232,7 +232,7 @@ class ExceptionBase extends Exception
                 : $event['function'];
 
             $file = isset($event['file']) ? '~'.File::localToPublic($event['file']) : null;
-            $line = isset($event['line']) ? $event['line'] : null;
+            $line = $event['line'] ?? null;
 
             $args = null;
             if (isset($event['args']) && count($event['args'])) {

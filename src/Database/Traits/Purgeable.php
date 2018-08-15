@@ -99,9 +99,7 @@ trait Purgeable
      */
     public function getOriginalPurgeValue($attribute)
     {
-        return isset($this->originalPurgeableValues[$attribute])
-            ? $this->originalPurgeableValues[$attribute]
-            : null;
+        return $this->originalPurgeableValues[$attribute] ?? null;
     }
 
     /**

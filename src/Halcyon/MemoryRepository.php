@@ -136,7 +136,7 @@ class MemoryRepository extends Repository
      */
     public function getFromMemoryCache($key)
     {
-        return isset($this->cache[$key]) ? $this->cache[$key] : null;
+        return $this->cache[$key] ?? null;
     }
 
     /**

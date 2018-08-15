@@ -123,9 +123,7 @@ class FieldParser
      */
     public function getFieldTags($field)
     {
-        return isset($this->tags[$field])
-            ? $this->tags[$field]
-            : [];
+        return $this->tags[$field] ?? [];
     }
 
     /**
@@ -144,9 +142,7 @@ class FieldParser
      */
     public function getFieldParams($field)
     {
-        return isset($this->fields[$field])
-            ? $this->fields[$field]
-            : [];
+        return $this->fields[$field] ?? [];
     }
 
     /**
@@ -168,7 +164,7 @@ class FieldParser
                 $defaults[$field][] = $this->getDefaultParams(array_get($params, 'fields', []));
             }
             else {
-                $defaults[$field] = isset($params['default']) ? $params['default'] : null;
+                $defaults[$field] = $params['default'] ?? null;
             }
         }
 
