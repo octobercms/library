@@ -1,7 +1,6 @@
 <?php namespace October\Rain\Html;
 
 use Illuminate\Routing\UrlGenerator;
-use October\Rain\Support\Str as StrHelper;
 
 /**
  * Html builder

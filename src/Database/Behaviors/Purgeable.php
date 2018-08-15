@@ -1,7 +1,5 @@
 <?php namespace October\Rain\Database\Behaviors;
 
-use Exception;
-
 class Purgeable extends \October\Rain\Extension\ExtensionBase
 {
     /**

@@ -4,7 +4,6 @@ use Str;
 use Hash;
 use October\Rain\Database\Model;
 use InvalidArgumentException;
-use RuntimeException;
 use Exception;
 
 /**
