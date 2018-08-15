@@ -340,7 +340,7 @@ class Resizer
         $image = $this->image;
 
         // Normalize sharpening value
-        $kernelCenter = exp((80 - floatval($sharpness)) / 18) + 9;
+        $kernelCenter = exp((80 - (float)$sharpness) / 18) + 9;
 
         $matrix = array(
             [-1, -1, -1],
