@@ -142,6 +142,18 @@ trait Validation
             ? $this->throwOnValidation
             : true;
 
+        /**
+         * @event model.beforeValidate
+         * Called before the model is validated
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.beforeValidate', function () use (\October\Rain\Database\Model $model) {
+         *         // Prevent anything from validating ever!
+         *         return false;
+         *     });
+         *
+         */
         if (($this->fireModelEvent('validating') === false) || ($this->fireEvent('model.beforeValidate') === false)) {
             if ($throwOnValidation) {
                 throw new ModelException($this);
@@ -277,6 +289,17 @@ trait Validation
             }
         }
 
+        /**
+         * @event model.afterValidate
+         * Called after the model is validated
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.afterValidate', function () use (\October\Rain\Database\Model $model) {
+         *         \Log::info("{$model->name} successfully passed validation");
+         *     });
+         *
+         */
         $this->fireModelEvent('validated', false);
         $this->fireEvent('model.afterValidate');
 
