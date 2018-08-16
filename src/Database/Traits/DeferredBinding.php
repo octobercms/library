@@ -100,7 +100,7 @@ trait DeferredBinding
     }
 
     /**
-     * Internal method for commiting deferred relations.
+     * Internal method for committing deferred relations.
      */
     protected function commitDeferredOfType($sessionKey, $include = null, $exclude = null)
     {
