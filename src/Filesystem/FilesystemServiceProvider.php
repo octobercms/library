@@ -28,7 +28,7 @@ class FilesystemServiceProvider extends FilesystemServiceProviderBase
             $files->filePermissions = $config->get('cms.defaultMask.file', null);
             $files->folderPermissions = $config->get('cms.defaultMask.folder', null);
             $files->pathSymbols = [
-                '$' => base_path() . $config->get('cms.pluginsDir', '/plugins'),
+                '$' => base_path() . $config->get('cms.pluginsPath', '/plugins'),
                 '~' => base_path(),
             ];
             return $files;
