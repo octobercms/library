@@ -267,7 +267,7 @@ class Mailer extends MailerBase
     }
 
     /**
-     * Process a receipients object, which can look like the following:
+     * Process a recipients object, which can look like the following:
      *  - (string) admin@domain.tld
      *  - (object) ['email' => 'admin@domain.tld', 'name' => 'Adam Person']
      *  - (array) ['admin@domain.tld' => 'Adam Person', ...]

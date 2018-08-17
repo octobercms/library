@@ -151,7 +151,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Programatically adds a method to the extendable class
+     * Programmatically adds a method to the extendable class
      * @param string   $dynamicName
      * @param callable $method
      * @param string   $extension
@@ -170,7 +170,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Programatically adds a property to the extendable class
+     * Programmatically adds a property to the extendable class
      * @param string   $dynamicName
      * @param string   $value
      */
@@ -315,7 +315,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Checks if a property is accessible, property equivalent of `is_callabe()`
+     * Checks if a property is accessible, property equivalent of `is_callable()`
      * @param  mixed  $class
      * @param  string $propertyName
      * @return boolean

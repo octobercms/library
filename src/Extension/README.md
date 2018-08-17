@@ -135,7 +135,7 @@ Any class that uses the `Extendable` or `ExtendableTrait` can have its construct
     });
 
 ### Dynamically creating methods
-Methods can be aded to a `Model` through the use of `addDynamicMethod`.
+Methods can be added to a `Model` through the use of `addDynamicMethod`.
 
     Post::extend(function($model) {
         $model->addDynamicMethod('getTagsAttribute', function() use ($model) {

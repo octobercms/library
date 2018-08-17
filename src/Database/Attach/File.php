@@ -309,7 +309,7 @@ class File extends Model
 
     /**
      * Returns the path to the file, relative to the storage disk.
-     * @reutrn string
+     * @return string
      */
     public function getDiskPath()
     {
