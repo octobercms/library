@@ -35,7 +35,7 @@ trait DeferOneOrMany
                         $query
                             ->select($this->parent->getConnection()->raw(1))
                             ->from($this->table)
-                            ->whereRaw($this->getOtherKey().' = '.$this->getWithDeferredQualifiedKeyName())
+                            ->where($this->getOtherKey(), $this->getWithDeferredQualifiedKeyName())
                             ->where($this->getForeignKey(), $this->parent->getKey());
                     });
                 }
@@ -67,11 +67,10 @@ trait DeferOneOrMany
         /*
          * Unbind (Remove)
          */
-        $newQuery->whereNotExists(function($query) use ($sessionKey) {
+        $newQuery->whereNotIn($this->getWithDeferredQualifiedKeyName(), function($query) use ($sessionKey) {
             $query
-                ->select($this->parent->getConnection()->raw(1))
+                ->select('slave_id')
                 ->from('deferred_bindings')
-                ->whereRaw('slave_id = '.$this->getWithDeferredQualifiedKeyName())
                 ->where('master_field', $this->relationName)
                 ->where('master_type', get_class($this->parent))
                 ->where('session_key', $sessionKey)
@@ -104,13 +103,13 @@ trait DeferOneOrMany
 
     /**
      * Returns the related "slave id" key in a database friendly format.
-     * @return string
+     * @return \Illuminate\Database\Query\Expression
      */
     protected function getWithDeferredQualifiedKeyName()
     {
-        return DbDongle::cast(
+        return $this->parent->getConnection()->raw(DbDongle::cast(
             DbDongle::getTablePrefix() . $this->related->getQualifiedKeyName(),
             'TEXT'
-        );
+        ));
     }
 }
