@@ -110,6 +110,20 @@ class BelongsToMany extends BelongsToManyBase
         $insertData = $this->formatAttachRecords($this->parseIds($id), $attributes);
         $elementIDList = array_pluck($insertData, $this->relatedPivotKey);
 
+        /**
+         * @event model.relation.beforeAttach
+         * Called before creating a new relation between models (only for BelongsToMany relation)
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.relation.beforeAttach', function ($relationName, $elementIDList, $insertData) use (\October\Rain\Database\Model $model) {
+         *         if (!$model->isRelationValid($elementIDList)) {
+         *             throw new \Exception("Invalid relation!");
+         *             return false;
+         *         }
+         *     });
+         *
+         */
         $eventDataList = $this->parent->fireEvent('model.relation.beforeAttach', [$this->relationName, $elementIDList, $insertData]);
         if (!empty($eventDataList)) {
             foreach ($eventDataList as $eventData) {
@@ -128,6 +142,17 @@ class BelongsToMany extends BelongsToManyBase
             $this->touchIfTouching();
         }
 
+        /**
+         * @event model.relation.afterAttach
+         * Called after creating a new relation between models (only for BelongsToMany relation)
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.relation.afterAttach', function ($relationName, $elementIDList, $insertData) use (\October\Rain\Database\Model $model) {
+         *         \Log::info("New relation {$relationName} was created", $elementIDList);
+         *     });
+         *
+         */
         $this->parent->fireEvent('model.relation.afterAttach', [$this->relationName, $elementIDList, $insertData]);
     }
 
@@ -140,6 +165,20 @@ class BelongsToMany extends BelongsToManyBase
     {
         $elementIDList = $this->parseIds($ids);
 
+        /**
+         * @event model.relation.beforeDetach
+         * Called before removing a relation between models (only for BelongsToMany relation)
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.relation.beforeDetach', function ($relationName, $elementIDList) use (\October\Rain\Database\Model $model) {
+         *         if (!$model->isRelationValid($elementIDList)) {
+         *             throw new \Exception("Invalid relation!");
+         *             return false;
+         *         }
+         *     });
+         *
+         */
         $eventDataList = $this->parent->fireEvent('model.relation.beforeDetach', [$this->relationName, $elementIDList]);
         if (!empty($eventDataList)) {
             foreach ($eventDataList as $eventData) {
@@ -151,6 +190,17 @@ class BelongsToMany extends BelongsToManyBase
 
         parent::detach($ids, $touch);
 
+        /**
+         * @event model.relation.afterDetach
+         * Called after removing a relation between models (only for BelongsToMany relation)
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.relation.afterDetach', function ($relationName, $elementIDList) use (\October\Rain\Database\Model $model) {
+         *         \Log::info("Relation {$relationName} was removed", $elementIDList);
+         *     });
+         *
+         */
         $this->parent->fireEvent('model.relation.afterDetach', [$this->relationName, $elementIDList]);
     }
 
