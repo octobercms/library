@@ -101,6 +101,39 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
+     * @param mixed $id
+     * @param array $attributes
+     * @param bool  $touch
+     */
+    public function attach($id, array $attributes = [], $touch = true)
+    {
+        $arInsertData = $this->formatAttachRecords($this->parseIds($id), $attributes);
+
+        // Here we will insert the attachment records into the pivot table. Once we have
+        // inserted the records, we will touch the relationships if necessary and the
+        // function will return. We can parse the IDs before inserting the records.
+        $this->newPivotStatement()->insert($arInsertData);
+
+        if ($touch) {
+            $this->touchIfTouching();
+        }
+
+        $this->parent->fireEvent('relation.afterAttach', [$this->relationName, array_pluck($arInsertData, $this->relatedPivotKey), $arInsertData]);
+    }
+
+    /**
+     * @param null $ids
+     * @param bool $touch
+     * @return int|void
+     */
+    public function detach($ids = null, $touch = true)
+    {
+        parent::detach($ids, $touch);
+
+        $this->parent->fireEvent('relation.afterDetach', [$this->relationName, $this->parseIds($ids)]);
+    }
+
+    /**
      * Adds a model to this relationship type.
      */
     public function add(Model $model, $sessionKey = null, $pivotData = [])
