@@ -116,7 +116,7 @@ class BelongsToMany extends BelongsToManyBase
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.beforeAttach', function ($relationName, $elementIDList, $insertData) use (\October\Rain\Database\Model $model) {
+         *     $model->bindEvent('model.relation.beforeAttach', function (string $relationName, array $elementIDList, array $insertData) use (\October\Rain\Database\Model $model) {
          *         if (!$model->isRelationValid($elementIDList)) {
          *             throw new \Exception("Invalid relation!");
          *             return false;
@@ -148,7 +148,7 @@ class BelongsToMany extends BelongsToManyBase
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.afterAttach', function ($relationName, $elementIDList, $insertData) use (\October\Rain\Database\Model $model) {
+         *     $model->bindEvent('model.relation.afterAttach', function (string $relationName, array $elementIDList, array $insertData) use (\October\Rain\Database\Model $model) {
          *         \Log::info("New relation {$relationName} was created", $elementIDList);
          *     });
          *
@@ -171,7 +171,7 @@ class BelongsToMany extends BelongsToManyBase
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.beforeDetach', function ($relationName, $elementIDList) use (\October\Rain\Database\Model $model) {
+         *     $model->bindEvent('model.relation.beforeDetach', function (string $relationName, array $elementIDList) use (\October\Rain\Database\Model $model) {
          *         if (!$model->isRelationValid($elementIDList)) {
          *             throw new \Exception("Invalid relation!");
          *             return false;
@@ -196,7 +196,7 @@ class BelongsToMany extends BelongsToManyBase
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.afterDetach', function ($relationName, $elementIDList) use (\October\Rain\Database\Model $model) {
+         *     $model->bindEvent('model.relation.afterDetach', function (string $relationName, array $elementIDList) use (\October\Rain\Database\Model $model) {
          *         \Log::info("Relation {$relationName} was removed", $elementIDList);
          *     });
          *
