@@ -107,18 +107,28 @@ class BelongsToMany extends BelongsToManyBase
      */
     public function attach($id, array $attributes = [], $touch = true)
     {
-        $arInsertData = $this->formatAttachRecords($this->parseIds($id), $attributes);
+        $insertData = $this->formatAttachRecords($this->parseIds($id), $attributes);
+        $elementIDList = array_pluck($insertData, $this->relatedPivotKey);
+
+        $eventDataList = $this->parent->fireEvent('model.relation.beforeAttach', [$this->relationName, $elementIDList, $insertData]);
+        if (!empty($eventDataList)) {
+            foreach ($eventDataList as $eventData) {
+                if ($eventData === false) {
+                    return;
+                }
+            }
+        }
 
         // Here we will insert the attachment records into the pivot table. Once we have
         // inserted the records, we will touch the relationships if necessary and the
         // function will return. We can parse the IDs before inserting the records.
-        $this->newPivotStatement()->insert($arInsertData);
+        $this->newPivotStatement()->insert($insertData);
 
         if ($touch) {
             $this->touchIfTouching();
         }
 
-        $this->parent->fireEvent('relation.afterAttach', [$this->relationName, array_pluck($arInsertData, $this->relatedPivotKey), $arInsertData]);
+        $this->parent->fireEvent('model.relation.afterAttach', [$this->relationName, $elementIDList, $insertData]);
     }
 
     /**
@@ -128,9 +138,20 @@ class BelongsToMany extends BelongsToManyBase
      */
     public function detach($ids = null, $touch = true)
     {
+        $elementIDList = $this->parseIds($ids);
+
+        $eventDataList = $this->parent->fireEvent('model.relation.beforeDetach', [$this->relationName, $elementIDList]);
+        if (!empty($eventDataList)) {
+            foreach ($eventDataList as $eventData) {
+                if ($eventData === false) {
+                    return;
+                }
+            }
+        }
+
         parent::detach($ids, $touch);
 
-        $this->parent->fireEvent('relation.afterDetach', [$this->relationName, $this->parseIds($ids)]);
+        $this->parent->fireEvent('model.relation.afterDetach', [$this->relationName, $elementIDList]);
     }
 
     /**
