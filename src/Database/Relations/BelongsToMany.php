@@ -108,7 +108,7 @@ class BelongsToMany extends BelongsToManyBase
     public function attach($id, array $attributes = [], $touch = true)
     {
         $insertData = $this->formatAttachRecords($this->parseIds($id), $attributes);
-        $elementIDList = array_pluck($insertData, $this->relatedPivotKey);
+        $attachedIDList = array_pluck($insertData, $this->relatedPivotKey);
 
         /**
          * @event model.relation.beforeAttach
@@ -116,21 +116,16 @@ class BelongsToMany extends BelongsToManyBase
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.beforeAttach', function (string $relationName, array $elementIDList, array $insertData) use (\October\Rain\Database\Model $model) {
-         *         if (!$model->isRelationValid($elementIDList)) {
+         *     $model->bindEvent('model.relation.beforeAttach', function (string $relationName, array $attachedIDList, array $insertData) use (\October\Rain\Database\Model $model) {
+         *         if (!$model->isRelationValid($attachedIDList)) {
          *             throw new \Exception("Invalid relation!");
          *             return false;
          *         }
          *     });
          *
          */
-        $eventDataList = $this->parent->fireEvent('model.relation.beforeAttach', [$this->relationName, $elementIDList, $insertData]);
-        if (!empty($eventDataList)) {
-            foreach ($eventDataList as $eventData) {
-                if ($eventData === false) {
-                    return;
-                }
-            }
+        if ($this->parent->fireEvent('model.relation.beforeAttach', [$this->relationName, $attachedIDList, $insertData], true)) {
+            return;
         }
 
         // Here we will insert the attachment records into the pivot table. Once we have
@@ -148,12 +143,12 @@ class BelongsToMany extends BelongsToManyBase
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.afterAttach', function (string $relationName, array $elementIDList, array $insertData) use (\October\Rain\Database\Model $model) {
-         *         \Log::info("New relation {$relationName} was created", $elementIDList);
+         *     $model->bindEvent('model.relation.afterAttach', function (string $relationName, array $attachedIDList, array $insertData) use (\October\Rain\Database\Model $model) {
+         *         \Log::info("New relation {$relationName} was created", $attachedIDList);
          *     });
          *
          */
-        $this->parent->fireEvent('model.relation.afterAttach', [$this->relationName, $elementIDList, $insertData]);
+        $this->parent->fireEvent('model.relation.afterAttach', [$this->relationName, $attachedIDList, $insertData]);
     }
 
     /**
@@ -163,7 +158,7 @@ class BelongsToMany extends BelongsToManyBase
      */
     public function detach($ids = null, $touch = true)
     {
-        $elementIDList = $this->parseIds($ids);
+        $attachedIDList = $this->parseIds($ids);
 
         /**
          * @event model.relation.beforeDetach
@@ -171,21 +166,16 @@ class BelongsToMany extends BelongsToManyBase
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.beforeDetach', function (string $relationName, array $elementIDList) use (\October\Rain\Database\Model $model) {
-         *         if (!$model->isRelationValid($elementIDList)) {
+         *     $model->bindEvent('model.relation.beforeDetach', function (string $relationName, array $attachedIDList) use (\October\Rain\Database\Model $model) {
+         *         if (!$model->isRelationValid($attachedIDList)) {
          *             throw new \Exception("Invalid relation!");
          *             return false;
          *         }
          *     });
          *
          */
-        $eventDataList = $this->parent->fireEvent('model.relation.beforeDetach', [$this->relationName, $elementIDList]);
-        if (!empty($eventDataList)) {
-            foreach ($eventDataList as $eventData) {
-                if ($eventData === false) {
-                    return;
-                }
-            }
+        if ($this->parent->fireEvent('model.relation.beforeDetach', [$this->relationName, $attachedIDList], true)) {
+            return;
         }
 
         parent::detach($ids, $touch);
@@ -196,12 +186,12 @@ class BelongsToMany extends BelongsToManyBase
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.afterDetach', function (string $relationName, array $elementIDList) use (\October\Rain\Database\Model $model) {
-         *         \Log::info("Relation {$relationName} was removed", $elementIDList);
+         *     $model->bindEvent('model.relation.afterDetach', function (string $relationName, array $attachedIDList) use (\October\Rain\Database\Model $model) {
+         *         \Log::info("Relation {$relationName} was removed", $attachedIDList);
          *     });
          *
          */
-        $this->parent->fireEvent('model.relation.afterDetach', [$this->relationName, $elementIDList]);
+        $this->parent->fireEvent('model.relation.afterDetach', [$this->relationName, $attachedIDList]);
     }
 
     /**
