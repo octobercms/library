@@ -101,6 +101,8 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
+     * Override attach() method of BelongToMany relation.
+     * This is necessary in order to fire 'model.relation.beforeAttach', 'model.relation.afterAttach' events
      * @param mixed $id
      * @param array $attributes
      * @param bool  $touch
@@ -124,7 +126,7 @@ class BelongsToMany extends BelongsToManyBase
          *     });
          *
          */
-        if ($this->parent->fireEvent('model.relation.beforeAttach', [$this->relationName, $attachedIDList, $insertData], true)) {
+        if ($this->parent->fireEvent('model.relation.beforeAttach', [$this->relationName, $attachedIDList, $insertData], true) === false) {
             return;
         }
 
@@ -152,6 +154,8 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
+     * Override detach() method of BelongToMany relation.
+     * This is necessary in order to fire 'model.relation.beforeDetach', 'model.relation.afterDetach' events
      * @param null $ids
      * @param bool $touch
      * @return int|void
@@ -174,7 +178,7 @@ class BelongsToMany extends BelongsToManyBase
          *     });
          *
          */
-        if ($this->parent->fireEvent('model.relation.beforeDetach', [$this->relationName, $attachedIDList], true)) {
+        if ($this->parent->fireEvent('model.relation.beforeDetach', [$this->relationName, $attachedIDList], true) === false) {
             return;
         }
 
