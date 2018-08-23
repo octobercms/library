@@ -217,7 +217,15 @@ trait Validation
              * only if they are part of the data being validated.
              */
             if (method_exists($this, 'getEncryptableAttributes')) {
-                $cleanAttributes = array_diff_key($data, array_flip($this->getEncryptableAttributes()));
+                $encryptableAttributes = $this->getEncryptableAttributes();
+                $cleanAttributes = array_diff_key($data, array_flip($encryptableAttributes));
+
+                foreach ($encryptableAttributes as $attribute) {
+                    if (isset($data[$attribute])) {
+                        $this->makeEncryptableValue($attribute, $this->getEncryptableValue($attribute));
+                    }
+                }
+
                 $encryptedAttributes = array_intersect_key($this->getOriginalEncryptableValues(), $data);
                 $data = array_merge($cleanAttributes, $encryptedAttributes);
             }
