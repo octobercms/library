@@ -144,6 +144,28 @@ class File extends Model
         return $file;
     }
 
+    /**
+     * Creates a file object from url
+     * @param $url string Filename
+     * @return $this
+     */
+    public function fromLink($url)
+    {
+        if ($url === null) {
+            return;
+        }
+
+        $data = Http::get($url);
+
+        if ($data->code != 200) {
+            return;
+        }
+
+        $filename = FileHelper::basename($url);
+
+        return $this->fromData($data, $filename);
+    }
+
     //
     // Attribute mutators
     //
