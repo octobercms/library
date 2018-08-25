@@ -583,7 +583,7 @@ class File extends Model
         $ext = strtolower($this->getExtension());
         $name = str_replace('.', '', uniqid(null, true));
 
-        return $this->disk_name = $ext !== null ? $name.'.'.$ext : $name;
+        return $this->disk_name = !empty($ext) ? $name.'.'.$ext : $name;
     }
 
     /**
