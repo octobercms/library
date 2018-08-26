@@ -2,6 +2,7 @@
 
 use Storage;
 use File as FileHelper;
+use October\Rain\Network\Http;
 use October\Rain\Database\Model;
 use October\Rain\Database\Attach\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -146,10 +147,10 @@ class File extends Model
 
     /**
      * Creates a file object from url
-     * @param $url string Filename
+     * @param $url string URL
      * @return $this
      */
-    public function fromLink($url)
+    public function fromUrl($url)
     {
         if ($url === null) {
             return;
