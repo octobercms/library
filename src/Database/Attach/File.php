@@ -2,6 +2,7 @@
 
 use Storage;
 use File as FileHelper;
+use October\Rain\Network\Http;
 use October\Rain\Database\Model;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\File\File as FileObj;
@@ -143,6 +144,27 @@ class File extends Model
         return $file;
     }
 
+    /**
+     * Creates a file object from url
+     * @param $url string URL
+     * @param $filename string Filename
+     * @return $this
+     */
+    public function fromUrl($url, $filename = null)
+    {
+        $data = Http::get($url);
+
+        if ($data->code != 200) {
+            throw new Exception(sprintf('Error getting file "%s", error code: %d', $data->url, $data->code));
+        }
+
+        if (empty($filename)) {
+            $filename = FileHelper::basename($url);
+        }
+
+        return $this->fromData($data, $filename);
+    }
+
     //
     // Attribute mutators
     //
@@ -172,6 +194,41 @@ class File extends Model
     public function setDataAttribute($value)
     {
         $this->data = $value;
+    }
+    
+    /**
+     * Helper attribute for get image width.
+     * @return string
+     */
+    public function getWidthAttribute()
+    {
+        if ($this->isImage()) {
+            $dimensions = $this->getImageDimensions();
+            
+            return $dimensions[0];
+        }
+    }
+
+    /**
+     * Helper attribute for get image height.
+     * @return string
+     */
+    public function getHeightAttribute()
+    {
+        if ($this->isImage()) {
+            $dimensions = $this->getImageDimensions();
+            
+            return $dimensions[1];
+        }
+    }
+
+    /**
+     * Helper attribute for file size in human format.
+     * @return string
+     */
+    public function getSizeAttribute()
+    {
+        return $this->sizeToString();
     }
 
     //
@@ -392,6 +449,15 @@ class File extends Model
     }
 
     /**
+     * Get image dimensions
+     * @return array|bool
+     */
+    protected function getImageDimensions()
+    {
+        return getimagesize($this->getLocalPath());
+    }
+
+    /**
      * Generates and returns a thumbnail path.
      */
     public function getThumb($width, $height, $options = [])
@@ -581,7 +647,7 @@ class File extends Model
         $ext = strtolower($this->getExtension());
         $name = str_replace('.', '', uniqid(null, true));
 
-        return $this->disk_name = $ext !== null ? $name.'.'.$ext : $name;
+        return $this->disk_name = !empty($ext) ? $name.'.'.$ext : $name;
     }
 
     /**
