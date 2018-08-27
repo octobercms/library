@@ -148,17 +148,20 @@ class File extends Model
     /**
      * Creates a file object from url
      * @param $url string URL
+     * @param $filename string Filename
      * @return $this
      */
-    public function fromUrl($url)
+    public function fromUrl($url, $filename = null)
     {
         $data = Http::get($url);
 
         if ($data->code != 200) {
-            throw new Exception(sprintf('Error getting file "%s", error code %d', $data->url, $data->code));
+            throw new Exception(sprintf('Error getting file "%s", error code: %d', $data->url, $data->code));
         }
 
-        $filename = FileHelper::basename($url);
+        if (empty($filename)) {
+            $filename = FileHelper::basename($url);
+        }
 
         return $this->fromData($data, $filename);
     }
