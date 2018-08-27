@@ -193,6 +193,41 @@ class File extends Model
     {
         $this->data = $value;
     }
+    
+    /**
+     * Helper attribute for get image width.
+     * @return string
+     */
+    public function getWidthAttribute()
+    {
+        if ($this->isImage()) {
+            $dimensions = $this->getImageDimensions();
+            
+            return $dimensions[0];
+        }
+    }
+
+    /**
+     * Helper attribute for get image height.
+     * @return string
+     */
+    public function getHeightAttribute()
+    {
+        if ($this->isImage()) {
+            $dimensions = $this->getImageDimensions();
+            
+            return $dimensions[1];
+        }
+    }
+
+    /**
+     * Helper attribute for file size in human format.
+     * @return string
+     */
+    public function getSizeAttribute()
+    {
+        return $this->sizeToString();
+    }
 
     //
     // Raw output
@@ -410,6 +445,15 @@ class File extends Model
     public function isImage()
     {
         return in_array(strtolower($this->getExtension()), static::$imageExtensions);
+    }
+
+    /**
+     * Get image dimensions
+     * @return array|bool
+     */
+    protected function getImageDimensions()
+    {
+        return getimagesize($this->getLocalPath());
     }
 
     /**
