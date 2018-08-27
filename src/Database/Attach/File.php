@@ -159,7 +159,7 @@ class File extends Model
         $data = Http::get($url);
 
         if ($data->code != 200) {
-            return;
+            throw new Exception(sprintf('Error getting file "%s", error code %d', $data->url, $data->code));
         }
 
         $filename = FileHelper::basename($url);
