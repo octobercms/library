@@ -152,10 +152,6 @@ class File extends Model
      */
     public function fromUrl($url)
     {
-        if ($url === null) {
-            return;
-        }
-
         $data = Http::get($url);
 
         if ($data->code != 200) {
