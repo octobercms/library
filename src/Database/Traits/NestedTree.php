@@ -111,7 +111,6 @@ trait NestedTree
 
             $model->bindEvent('model.afterSave', function() use ($model) {
                 $model->moveToNewParent();
-                $model->setDepth();
             });
 
             $model->bindEvent('model.beforeDelete', function() use ($model) {
@@ -906,7 +905,7 @@ trait NestedTree
         $this->setDepth();
 
         foreach ($this->newQuery()->allChildren()->get() as $descendant) {
-            $descendant->save();
+            $descendant->setDepth();
         }
 
         $this->reload();
