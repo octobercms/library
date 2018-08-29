@@ -511,7 +511,7 @@ trait NestedTree
             $columns[] = $key;
         }
 
-        $results = new Collection($query->getQuery()->get($columns));
+        $results = new Collection($query->getQuery()->orderBy($this->getLeftColumnName())->get($columns));
         $values = $results->pluck($columns[1])->all();
         $indentation = $results->pluck($columns[0])->all();
 
