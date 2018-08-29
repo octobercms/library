@@ -41,6 +41,11 @@ trait Validation
     protected $validationErrors;
 
     /**
+     * @var array Default custom attribute names.
+     */
+    protected $validationDefaultAttrNames = [];
+
+    /**
      * Boot the validation trait for this model.
      *
      * @return void
@@ -74,6 +79,28 @@ trait Validation
 
             }, 500);
         });
+    }
+
+    /**
+     * Programatically sets multiple validation attribute names.
+     * @param array $attributeNames
+     * @return void
+     */
+    public function setValidationAttributeNames($attributeNames)
+    {
+        $this->validationDefaultAttrNames = $attributeNames;
+    }
+
+    /**
+     * Programatically sets the validation attribute names, will take lower priority
+     * to model defined attribute names found in `$attributeNames`.
+     * @param string $attr
+     * @param string $name
+     * @return void
+     */
+    public function setValidationAttributeName($attr, $name)
+    {
+        $this->validationDefaultAttrNames[$attr] = $name;
     }
 
     /**
@@ -244,6 +271,8 @@ trait Validation
             if (is_null($attributeNames)) {
                 $attributeNames = [];
             }
+
+            $attributeNames = array_merge($this->validationDefaultAttrNames, $attributeNames);
 
             if (property_exists($this, 'attributeNames')) {
                 $attributeNames = array_merge($this->attributeNames, $attributeNames);
