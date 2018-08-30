@@ -122,9 +122,8 @@ trait Validation
         if ($relationType === 'attachOne' || $relationType === 'attachMany') {
             return $this->$relationName()->getValidationValue();
         }
-        else {
-            return $this->getRelationValue($relationName);
-        }
+
+        return $this->getRelationValue($relationName);
     }
 
     /**
@@ -186,9 +185,8 @@ trait Validation
             if ($throwOnValidation) {
                 throw new ModelException($this);
             }
-            else {
-                return false;
-            }
+
+            return false;
         }
 
         if ($this->methodExists('beforeValidate')) {

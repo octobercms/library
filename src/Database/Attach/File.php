@@ -4,7 +4,6 @@ use Storage;
 use File as FileHelper;
 use October\Rain\Network\Http;
 use October\Rain\Database\Model;
-use October\Rain\Database\Attach\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\File\File as FileObj;
 use Exception;
@@ -353,17 +352,16 @@ class File extends Model
         if ($this->isLocalStorage()) {
             return $this->getLocalRootPath() . '/' . $this->getDiskPath();
         }
-        else {
-            $itemSignature = md5($this->getPath()) . $this->getLastModified();
 
-            $cachePath = $this->getLocalTempPath($itemSignature . '.' . $this->getExtension());
+        $itemSignature = md5($this->getPath()) . $this->getLastModified();
 
-            if (!FileHelper::exists($cachePath)) {
-                $this->copyStorageToLocal($this->getDiskPath(), $cachePath);
-            }
+        $cachePath = $this->getLocalTempPath($itemSignature . '.' . $this->getExtension());
 
-            return $cachePath;
+        if (!FileHelper::exists($cachePath)) {
+            $this->copyStorageToLocal($this->getDiskPath(), $cachePath);
         }
+
+        return $cachePath;
     }
 
     /**
@@ -523,7 +521,7 @@ class File extends Model
 
         $options['mode'] = strtolower($options['mode']);
 
-        if ((strtolower($options['extension'])) == 'auto') {
+        if (strtolower($options['extension']) == 'auto') {
             $options['extension'] = strtolower($this->getExtension());
         }
 
@@ -818,7 +816,7 @@ class File extends Model
      */
     protected function copyLocalToStorage($localPath, $storagePath)
     {
-        return Storage::put($storagePath, FileHelper::get($localPath), ($this->isPublic()) ? 'public' : null);
+        return Storage::put($storagePath, FileHelper::get($localPath), $this->isPublic() ? 'public' : null);
     }
 
     //
@@ -842,9 +840,8 @@ class File extends Model
         if ($this->isPublic()) {
             return 'uploads/public/';
         }
-        else {
-            return 'uploads/protected/';
-        }
+
+        return 'uploads/protected/';
     }
 
     /**
@@ -855,9 +852,8 @@ class File extends Model
         if ($this->isPublic()) {
             return 'http://localhost/uploads/public/';
         }
-        else {
-            return 'http://localhost/uploads/protected/';
-        }
+
+        return 'http://localhost/uploads/protected/';
     }
 
     /**

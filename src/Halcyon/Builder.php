@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Halcyon;
 
-use October\Rain\Halcyon\Model;
 use October\Rain\Halcyon\Datasource\DatasourceInterface;
 use October\Rain\Halcyon\Processors\Processor;
 use October\Rain\Halcyon\Exception\MissingFileNameException;
@@ -309,12 +308,11 @@ class Builder
             list($name, $extension) = $this->selectSingle;
             return $this->datasource->selectOne($this->from, $name, $extension);
         }
-        else {
-            return $this->datasource->select($this->from, [
-                'columns' => $this->columns,
-                'extensions' => $this->extensions
-            ]);
-        }
+
+        return $this->datasource->select($this->from, [
+            'columns' => $this->columns,
+            'extensions' => $this->extensions
+        ]);
     }
 
     /**

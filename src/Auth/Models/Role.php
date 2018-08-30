@@ -146,11 +146,7 @@ class Role extends Model
             }
         }
 
-        if ($all === false) {
-            return false;
-        }
-
-        return true;
+        return !($all === false);
     }
 
     /**
@@ -183,6 +179,6 @@ class Role extends Model
             }
         }
 
-        $this->attributes['permissions'] = (!empty($permissions)) ? json_encode($permissions) : '';
+        $this->attributes['permissions'] = !empty($permissions) ? json_encode($permissions) : '';
     }
 }

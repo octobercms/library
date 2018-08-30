@@ -20,11 +20,11 @@ class Str extends StrHelper
      */
     public static function ordinal($number)
     {
-        if (in_array(($number % 100), range(11,13))) {
+        if (in_array($number % 100, range(11,13))) {
             return $number.'th';
         }
 
-        switch (($number % 10)) {
+        switch ($number % 10) {
             case 1:
                 return $number.'st';
             case 2:
