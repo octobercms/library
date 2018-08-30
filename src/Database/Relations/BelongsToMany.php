@@ -110,7 +110,7 @@ class BelongsToMany extends BelongsToManyBase
     public function attach($id, array $attributes = [], $touch = true)
     {
         $insertData = $this->formatAttachRecords($this->parseIds($id), $attributes);
-        $attachedIDList = array_pluck($insertData, $this->relatedPivotKey);
+        $attachedIdList = array_pluck($insertData, $this->relatedPivotKey);
 
         /**
          * @event model.relation.beforeAttach
@@ -118,15 +118,15 @@ class BelongsToMany extends BelongsToManyBase
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.beforeAttach', function (string $relationName, array $attachedIDList, array $insertData) use (\October\Rain\Database\Model $model) {
-         *         if (!$model->isRelationValid($attachedIDList)) {
+         *     $model->bindEvent('model.relation.beforeAttach', function (string $relationName, array $attachedIdList, array $insertData) use (\October\Rain\Database\Model $model) {
+         *         if (!$model->isRelationValid($attachedIdList)) {
          *             throw new \Exception("Invalid relation!");
          *             return false;
          *         }
          *     });
          *
          */
-        if ($this->parent->fireEvent('model.relation.beforeAttach', [$this->relationName, $attachedIDList, $insertData], true) === false) {
+        if ($this->parent->fireEvent('model.relation.beforeAttach', [$this->relationName, $attachedIdList, $insertData], true) === false) {
             return;
         }
 
@@ -145,12 +145,12 @@ class BelongsToMany extends BelongsToManyBase
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.afterAttach', function (string $relationName, array $attachedIDList, array $insertData) use (\October\Rain\Database\Model $model) {
-         *         \Log::info("New relation {$relationName} was created", $attachedIDList);
+         *     $model->bindEvent('model.relation.afterAttach', function (string $relationName, array $attachedIdList, array $insertData) use (\October\Rain\Database\Model $model) {
+         *         traceLog("New relation {$relationName} was created", $attachedIdList);
          *     });
          *
          */
-        $this->parent->fireEvent('model.relation.afterAttach', [$this->relationName, $attachedIDList, $insertData]);
+        $this->parent->fireEvent('model.relation.afterAttach', [$this->relationName, $attachedIdList, $insertData]);
     }
 
     /**
@@ -162,7 +162,7 @@ class BelongsToMany extends BelongsToManyBase
      */
     public function detach($ids = null, $touch = true)
     {
-        $attachedIDList = $this->parseIds($ids);
+        $attachedIdList = $this->parseIds($ids);
 
         /**
          * @event model.relation.beforeDetach
@@ -170,18 +170,21 @@ class BelongsToMany extends BelongsToManyBase
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.beforeDetach', function (string $relationName, array $attachedIDList) use (\October\Rain\Database\Model $model) {
-         *         if (!$model->isRelationValid($attachedIDList)) {
+         *     $model->bindEvent('model.relation.beforeDetach', function (string $relationName, array $attachedIdList) use (\October\Rain\Database\Model $model) {
+         *         if (!$model->isRelationValid($attachedIdList)) {
          *             throw new \Exception("Invalid relation!");
          *             return false;
          *         }
          *     });
          *
          */
-        if ($this->parent->fireEvent('model.relation.beforeDetach', [$this->relationName, $attachedIDList], true) === false) {
+        if ($this->parent->fireEvent('model.relation.beforeDetach', [$this->relationName, $attachedIdList], true) === false) {
             return;
         }
 
+        /*
+         * See Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
+         */
         parent::detach($ids, $touch);
 
         /**
@@ -190,12 +193,12 @@ class BelongsToMany extends BelongsToManyBase
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.afterDetach', function (string $relationName, array $attachedIDList) use (\October\Rain\Database\Model $model) {
-         *         \Log::info("Relation {$relationName} was removed", $attachedIDList);
+         *     $model->bindEvent('model.relation.afterDetach', function (string $relationName, array $attachedIdList) use (\October\Rain\Database\Model $model) {
+         *         traceLog("Relation {$relationName} was removed", $attachedIdList);
          *     });
          *
          */
-        $this->parent->fireEvent('model.relation.afterDetach', [$this->relationName, $attachedIDList]);
+        $this->parent->fireEvent('model.relation.afterDetach', [$this->relationName, $attachedIdList]);
     }
 
     /**
