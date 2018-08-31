@@ -670,6 +670,24 @@ trait NestedTree
     }
 
     /**
+     * Return left sibling
+     * @return \October\Rain\Database\Model
+     */
+    public function getLeftSibling()
+    {
+        return $this->siblings()->where($this->getRightColumnName(), '=', $this->getLeft() - 1)->first();
+    }
+
+    /**
+     * Return right sibling
+     * @return \October\Rain\Database\Model
+     */
+    public function getRightSibling()
+    {
+        return $this->siblings()->where($this->getLeftColumnName(), '=', $this->getRight() + 1)->first();
+    }
+    
+    /**
      * Returns all final nodes without children.
      * @return \October\Rain\Database\Collection
      */
