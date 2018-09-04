@@ -1,14 +1,20 @@
-<?php namespace October\Rain\Database\Traits;
+<?php namespace October\Rain\Database\Behaviors;
 
-use Exception;
-
-trait Purgeable
+class Purgeable extends \October\Rain\Extension\ExtensionBase
 {
     /**
      * @var array List of attribute names which should not be saved to the database.
-     * 
-     * protected $purgeable = [];
+     *
+     * public $purgeable = [];
      */
+
+    protected $parent;
+
+    public function __construct($parent)
+    {
+        $this->parent = $parent;
+        $this->bootPurgeable();
+    }
 
     /**
      * @var array List of original attribute values before they were purged.
@@ -19,21 +25,25 @@ trait Purgeable
      * Boot the purgeable trait for a model.
      * @return void
      */
-    public static function bootPurgeable()
+    public function bootPurgeable()
     {
-        if (!property_exists(get_called_class(), 'purgeable'))
-            throw new Exception(sprintf(
-                'You must define a $purgeable property in %s to use the Purgeable trait.', get_called_class()
-            ));
+        if (!$this->parent->propertyExists('purgeable'))
+        {
+            $this->parent->addDynamicProperty('purgeable', []);
+        }
+        
+        $this->parent->purgeable[] = 'purgeable';
+        $dynPropNames = array_keys(array_diff_key($this->parent->getDynamicProperties(), ['purgeable' => 0]));
+        $this->parent->purgeable = array_merge($this->parent->purgeable, $dynPropNames);
 
         /*
          * Remove any purge attributes from the data set
          */
-        static::extend(function($model){
-            $model->bindEvent('model.saveInternal', function() use ($model) {
-                $model->purgeAttributes();
-            });
+        $model = $this->parent;
+        $model->bindEvent('model.saveInternal', function() use ($model) {
+            $model->purgeAttributes();
         });
+
     }
 
     /**
@@ -45,9 +55,9 @@ trait Purgeable
     {
         $attributes = is_array($attributes) ? $attributes : func_get_args();
 
-        $this->purgeable = array_merge($this->purgeable, $attributes);
+        $this->parent->purgeable = array_merge($this->parent->purgeable, $attributes);
 
-        return $this;
+        return $this->parent;
     }
 
     /**
@@ -64,7 +74,7 @@ trait Purgeable
             $purgeable = $this->getPurgeableAttributes();
         }
 
-        $attributes = $this->getAttributes();
+        $attributes = $this->parent->getAttributes();
         $cleanAttributes = array_diff_key($attributes, array_flip($purgeable));
         $originalAttributes = array_diff_key($attributes, $cleanAttributes);
 
@@ -75,7 +85,7 @@ trait Purgeable
             $this->originalPurgeableValues = $originalAttributes;
         }
 
-        return $this->attributes = $cleanAttributes;
+        return $this->parent->attributes = $cleanAttributes;
     }
 
     /**
@@ -83,7 +93,7 @@ trait Purgeable
      */
     public function getPurgeableAttributes()
     {
-        return $this->purgeable;
+        return $this->parent->purgeable;
     }
 
     /**
@@ -107,7 +117,7 @@ trait Purgeable
      */
     public function restorePurgedValues()
     {
-        $this->attributes = array_merge($this->getAttributes(), $this->originalPurgeableValues);
-        return $this;
+        $this->parent->attributes = array_merge($this->parent->getAttributes(), $this->originalPurgeableValues);
+        return $this->parent;
     }
 }

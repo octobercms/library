@@ -12,7 +12,6 @@ use FilesystemIterator;
  */
 class Filesystem extends FilesystemBase
 {
-
     /**
      * @var string Default file permission mask as a string ("777").
      */
@@ -35,8 +34,9 @@ class Filesystem extends FilesystemBase
      */
     public function isDirectoryEmpty($directory)
     {
-        if (!is_readable($directory))
+        if (!is_readable($directory)) {
             return null;
+        }
 
         $handle = opendir($directory);
         while (false !== ($entry = readdir($handle))) {
@@ -66,11 +66,11 @@ class Filesystem extends FilesystemBase
         }
 
         if ($bytes >= 1024) {
-            return $bytes = number_format($bytes / 1024, 2) . ' KB';
+            return number_format($bytes / 1024, 2) . ' KB';
         }
 
         if ($bytes > 1) {
-            return $bytes = $bytes . ' bytes';
+            return $bytes . ' bytes';
         }
 
         if ($bytes == 1) {
@@ -94,19 +94,35 @@ class Filesystem extends FilesystemBase
         if (strpos($path, $publicPath) === 0) {
             $result = str_replace("\\", "/", substr($path, strlen($publicPath)));
         }
+        // Attempt to support first level symlinks
+        elseif ($directories = self::glob($publicPath . '/*', GLOB_NOSORT | GLOB_ONLYDIR)) {
+            foreach ($directories as $dir) {
+                if (is_link($dir) && strpos($path, readlink($dir)) === 0) {
+                    // Get the path of the requested path relative to the symlink in the public path
+                    $relativeLinkedPath = substr($path, strlen(readlink($dir)));
+                    return str_replace("\\", "/", substr($dir, strlen($publicPath)) . $relativeLinkedPath);
+                }
+            }
+        }
 
         return $result;
     }
 
     /**
-     * Returns true if the specified path is an absolute/local path
-     * to the application.
-     * @param  string  $path
+     * Returns true if the specified path is within the path of the application
+     * @param  string  $path The path to
+     * @param  boolean $realpath Default true, uses realpath() to resolve the provided path before checking location. Set to false if you need to check if a potentially non-existent path would be within the application path
      * @return boolean
      */
-    public function isLocalPath($path)
+    public function isLocalPath($path, $realpath = true)
     {
-        return strpos($path, base_path()) === 0;
+        $base = base_path();
+
+        if ($realpath) {
+            $path = realpath($path);
+        }
+
+        return !($path === false || strncmp($path, $base, strlen($base)) !== 0);
     }
 
     /**
@@ -159,7 +175,7 @@ class Filesystem extends FilesystemBase
     }
 
     /**
-     * Converts a path using path symbol. Returns the original path if 
+     * Converts a path using path symbol. Returns the original path if
      * no symbol is used and no default is specified.
      * @param  string $path
      * @param  mixed $default
@@ -226,8 +242,9 @@ class Filesystem extends FilesystemBase
      */
     public function makeDirectory($path, $mode = 0777, $recursive = false, $force = false)
     {
-        if ($mask = $this->getFolderPermissions())
+        if ($mask = $this->getFolderPermissions()) {
             $mode = $mask;
+        }
 
         /*
          * Find the green leaves
@@ -361,5 +378,4 @@ class Filesystem extends FilesystemBase
 
         return (bool) preg_match('#^' . $regex . '$#i', $fileName);
     }
-
 }

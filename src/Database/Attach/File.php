@@ -2,8 +2,8 @@
 
 use Storage;
 use File as FileHelper;
+use October\Rain\Network\Http;
 use October\Rain\Database\Model;
-use October\Rain\Database\Attach\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\File\File as FileObj;
 use Exception;
@@ -144,6 +144,27 @@ class File extends Model
         return $file;
     }
 
+    /**
+     * Creates a file object from url
+     * @param $url string URL
+     * @param $filename string Filename
+     * @return $this
+     */
+    public function fromUrl($url, $filename = null)
+    {
+        $data = Http::get($url);
+
+        if ($data->code != 200) {
+            throw new Exception(sprintf('Error getting file "%s", error code: %d', $data->url, $data->code));
+        }
+
+        if (empty($filename)) {
+            $filename = FileHelper::basename($url);
+        }
+
+        return $this->fromData($data, $filename);
+    }
+
     //
     // Attribute mutators
     //
@@ -173,6 +194,41 @@ class File extends Model
     public function setDataAttribute($value)
     {
         $this->data = $value;
+    }
+    
+    /**
+     * Helper attribute for get image width.
+     * @return string
+     */
+    public function getWidthAttribute()
+    {
+        if ($this->isImage()) {
+            $dimensions = $this->getImageDimensions();
+            
+            return $dimensions[0];
+        }
+    }
+
+    /**
+     * Helper attribute for get image height.
+     * @return string
+     */
+    public function getHeightAttribute()
+    {
+        if ($this->isImage()) {
+            $dimensions = $this->getImageDimensions();
+            
+            return $dimensions[1];
+        }
+    }
+
+    /**
+     * Helper attribute for file size in human format.
+     * @return string
+     */
+    public function getSizeAttribute()
+    {
+        return $this->sizeToString();
     }
 
     //
@@ -296,22 +352,21 @@ class File extends Model
         if ($this->isLocalStorage()) {
             return $this->getLocalRootPath() . '/' . $this->getDiskPath();
         }
-        else {
-            $itemSignature = md5($this->getPath()) . $this->getLastModified();
 
-            $cachePath = $this->getLocalTempPath($itemSignature . '.' . $this->getExtension());
+        $itemSignature = md5($this->getPath()) . $this->getLastModified();
 
-            if (!FileHelper::exists($cachePath)) {
-                $this->copyStorageToLocal($this->getDiskPath(), $cachePath);
-            }
+        $cachePath = $this->getLocalTempPath($itemSignature . '.' . $this->getExtension());
 
-            return $cachePath;
+        if (!FileHelper::exists($cachePath)) {
+            $this->copyStorageToLocal($this->getDiskPath(), $cachePath);
         }
+
+        return $cachePath;
     }
 
     /**
      * Returns the path to the file, relative to the storage disk.
-     * @reutrn string
+     * @return string
      */
     public function getDiskPath()
     {
@@ -394,6 +449,15 @@ class File extends Model
     }
 
     /**
+     * Get image dimensions
+     * @return array|bool
+     */
+    protected function getImageDimensions()
+    {
+        return getimagesize($this->getLocalPath());
+    }
+
+    /**
      * Generates and returns a thumbnail path.
      */
     public function getThumb($width, $height, $options = [])
@@ -457,7 +521,7 @@ class File extends Model
 
         $options['mode'] = strtolower($options['mode']);
 
-        if ((strtolower($options['extension'])) == 'auto') {
+        if (strtolower($options['extension']) == 'auto') {
             $options['extension'] = strtolower($this->getExtension());
         }
 
@@ -583,7 +647,7 @@ class File extends Model
         $ext = strtolower($this->getExtension());
         $name = str_replace('.', '', uniqid(null, true));
 
-        return $this->disk_name = $ext !== null ? $name.'.'.$ext : $name;
+        return $this->disk_name = !empty($ext) ? $name.'.'.$ext : $name;
     }
 
     /**
@@ -752,7 +816,7 @@ class File extends Model
      */
     protected function copyLocalToStorage($localPath, $storagePath)
     {
-        return Storage::put($storagePath, FileHelper::get($localPath), ($this->isPublic()) ? 'public' : null);
+        return Storage::put($storagePath, FileHelper::get($localPath), $this->isPublic() ? 'public' : null);
     }
 
     //
@@ -776,9 +840,8 @@ class File extends Model
         if ($this->isPublic()) {
             return 'uploads/public/';
         }
-        else {
-            return 'uploads/protected/';
-        }
+
+        return 'uploads/protected/';
     }
 
     /**
@@ -789,9 +852,8 @@ class File extends Model
         if ($this->isPublic()) {
             return 'http://localhost/uploads/public/';
         }
-        else {
-            return 'http://localhost/uploads/protected/';
-        }
+
+        return 'http://localhost/uploads/protected/';
     }
 
     /**

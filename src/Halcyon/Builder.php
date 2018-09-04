@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Halcyon;
 
-use October\Rain\Halcyon\Model;
 use October\Rain\Halcyon\Datasource\DatasourceInterface;
 use October\Rain\Halcyon\Processors\Processor;
 use October\Rain\Halcyon\Exception\MissingFileNameException;
@@ -244,8 +243,8 @@ class Builder
      * @param  array  $columns
      * @return \October\Rain\Halcyon\Collection|static[]
      */
-     public function get($columns = ['*'])
-     {
+    public function get($columns = ['*'])
+    {
         if (!is_null($this->cacheMinutes)) {
             $results = $this->getCached($columns);
         }
@@ -309,12 +308,11 @@ class Builder
             list($name, $extension) = $this->selectSingle;
             return $this->datasource->selectOne($this->from, $name, $extension);
         }
-        else {
-            return $this->datasource->select($this->from, [
-                'columns' => $this->columns,
-                'extensions' => $this->extensions
-            ]);
-        }
+
+        return $this->datasource->select($this->from, [
+            'columns' => $this->columns,
+            'extensions' => $this->extensions
+        ]);
     }
 
     /**
@@ -629,10 +627,6 @@ class Builder
 
         $key = $this->getCacheKey();
 
-        if (array_key_exists($key, MemoryCache::$cache)) {
-            return MemoryCache::$cache[$key];
-        }
-
         $minutes = $this->cacheMinutes;
         $cache = $this->getCache();
         $callback = $this->getCacheCallback($columns);
@@ -665,7 +659,7 @@ class Builder
 
         $this->loadedFromCache = !$isNewCache;
 
-        return MemoryCache::$cache[$key] = $result;
+        return $result;
     }
 
     /**
@@ -767,7 +761,9 @@ class Builder
      */
     public static function clearInternalCache()
     {
-        MemoryCache::$cache = [];
+        if(MemoryCacheManager::isEnabled()) {
+            Model::getCacheManager()->driver()->flushInternalCache();
+        }
     }
 
     /**

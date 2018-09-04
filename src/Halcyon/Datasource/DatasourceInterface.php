@@ -1,7 +1,5 @@
 <?php namespace October\Rain\Halcyon\Datasource;
 
-use Closure;
-
 interface DatasourceInterface
 {
 

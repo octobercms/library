@@ -154,9 +154,8 @@ class Helper
             if ($optMarkerPos < $regexMarkerPos) {
                 return mb_substr($name, 0, $optMarkerPos);
             }
-            else {
-                return mb_substr($name, 0, $regexMarkerPos);
-            }
+
+            return mb_substr($name, 0, $regexMarkerPos);
         }
 
         if ($optMarkerPos !== false) {

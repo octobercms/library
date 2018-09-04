@@ -70,7 +70,7 @@ class Resizer
      * @param mixed $file The file array provided by Laravel's Input::file('field_name') or a path to a file
      * @throws Exception
      */
-    function __construct($file)
+    public function __construct($file)
     {
         if (!extension_loaded('gd')) {
             echo 'GD PHP library required.'.PHP_EOL;
@@ -273,9 +273,7 @@ class Resizer
         }
 
         $bgcolor = imagecolorallocate($this->image, 0, 0, 0);
-        $rotatedOriginal = imagerotate($this->image, $angle, $bgcolor);
-
-        return $rotatedOriginal;
+        return imagerotate($this->image, $angle, $bgcolor);
     }
 
     /**
@@ -356,7 +354,7 @@ class Resizer
         $image = $this->image;
 
         // Normalize sharpening value
-        $kernelCenter = exp((80 - floatval($sharpness)) / 18) + 9;
+        $kernelCenter = exp((80 - (float)$sharpness) / 18) + 9;
 
         $matrix = array(
             [-1, -1, -1],
@@ -547,9 +545,7 @@ class Resizer
     protected function getSizeByFixedHeight($newHeight)
     {
         $ratio = $this->width / $this->height;
-        $newWidth = $newHeight * $ratio;
-
-        return $newWidth;
+        return $newHeight * $ratio;
     }
 
     /**
@@ -560,9 +556,7 @@ class Resizer
     protected function getSizeByFixedWidth($newWidth)
     {
         $ratio = $this->height / $this->width;
-        $newHeight = $newWidth * $ratio;
-
-        return $newHeight;
+        return $newWidth * $ratio;
     }
 
     /**

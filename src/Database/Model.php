@@ -175,6 +175,17 @@ class Model extends EloquentModel
          * Hook to boot events
          */
         static::registerModelEvent('booted', function($model){
+            /**
+             * @event model.afterBoot
+             * Called after the model is booted
+             *
+             * Example usage:
+             *
+             *     $model->bindEvent('model.afterBoot', function () use (\October\Rain\Database\Model $model) {
+             *         \Log::info(get_class($model) . ' has booted');
+             *     });
+             *
+             */
             $model->fireEvent('model.afterBoot');
 
             if ($model->methodExists('afterBoot')) {
@@ -197,6 +208,202 @@ class Model extends EloquentModel
     {
         parent::flushEventListeners();
         static::$eventsBooted = [];
+    }
+
+    /**
+     * Handle the "creating" model event
+     */
+    protected function beforeCreate()
+    {
+        /**
+         * @event model.beforeCreate
+         * Called before the model is created
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.beforeCreate', function () use (\October\Rain\Database\Model $model) {
+         *         if (!$model->isValid()) {
+         *             throw new \Exception("Invalid Model!");
+         *         }
+         *     });
+         *
+         */
+    }
+
+    /**
+     * Handle the "created" model event
+     */
+    protected function afterCreate()
+    {
+        /**
+         * @event model.afterCreate
+         * Called after the model is created
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.afterCreate', function () use (\October\Rain\Database\Model $model) {
+         *         \Log::info("{$model->name} was created!");
+         *     });
+         *
+         */
+    }
+
+    /**
+     * Handle the "updating" model event
+     */
+    protected function beforeUpdate()
+    {
+        /**
+         * @event model.beforeUpdate
+         * Called before the model is updated
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.beforeUpdate', function () use (\October\Rain\Database\Model $model) {
+         *         if (!$model->isValid()) {
+         *             throw new \Exception("Invalid Model!");
+         *         }
+         *     });
+         *
+         */
+    }
+
+    /**
+     * Handle the "updated" model event
+     */
+    protected function afterUpdate()
+    {
+        /**
+         * @event model.afterUpdate
+         * Called after the model is updated
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.afterUpdate', function () use (\October\Rain\Database\Model $model) {
+         *         if ($model->title !== $model->original['title']) {
+         *             \Log::info("{$model->name} updated its title!");
+         *         }
+         *     });
+         *
+         */
+    }
+
+    /**
+     * Handle the "saving" model event
+     */
+    protected function beforeSave()
+    {
+        /**
+         * @event model.beforeSave
+         * Called before the model is saved
+         * > **Note:** This is called both when creating and updating
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.beforeSave', function () use (\October\Rain\Database\Model $model) {
+         *         if (!$model->isValid()) {
+         *             throw new \Exception("Invalid Model!");
+         *         }
+         *     });
+         *
+         */
+    }
+
+    /**
+     * Handle the "saved" model event
+     */
+    protected function afterSave()
+    {
+        /**
+         * @event model.afterSave
+         * Called after the model is saved
+         * > **Note:** This is called both when creating and updating
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.afterSave', function () use (\October\Rain\Database\Model $model) {
+         *         if ($model->title !== $model->original['title']) {
+         *             \Log::info("{$model->name} updated its title!");
+         *         }
+         *     });
+         *
+         */
+    }
+
+    /**
+     * Handle the "deleting" model event
+     */
+    protected function beforeDelete()
+    {
+        /**
+         * @event model.beforeDelete
+         * Called before the model is deleted
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.beforeDelete', function () use (\October\Rain\Database\Model $model) {
+         *         if (!$model->isAllowedToBeDeleted()) {
+         *             throw new \Exception("You cannot delete me!");
+         *         }
+         *     });
+         *
+         */
+    }
+
+    /**
+     * Handle the "deleted" model event
+     */
+    protected function afterDelete()
+    {
+        /**
+         * @event model.afterDelete
+         * Called after the model is deleted
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.afterDelete', function () use (\October\Rain\Database\Model $model) {
+         *         \Log::info("{$model->name} was deleted");
+         *     });
+         *
+         */
+    }
+
+    /**
+     * Handle the "fetching" model event
+     */
+    protected function beforeFetch()
+    {
+        /**
+         * @event model.beforeFetch
+         * Called before the model is fetched
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.beforeFetch', function () use (\October\Rain\Database\Model $model) {
+         *         if (!\Auth::getUser()->hasAccess('fetch.this.model')) {
+         *             throw new \Exception("You shall not pass!");
+         *         }
+         *     });
+         *
+         */
+    }
+
+    /**
+     * Handle the "fetched" model event
+     */
+    protected function afterFetch()
+    {
+        /**
+         * @event model.afterFetch
+         * Called after the model is fetched
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.afterFetch', function () use (\October\Rain\Database\Model $model) {
+         *         \Log::info("{$model->name} was retrieved from the database");
+         *     });
+         *
+         */
     }
 
     /**
@@ -506,7 +713,18 @@ class Model extends EloquentModel
      */
     protected function saveInternal($options = [])
     {
-        // Event
+        /**
+         * @event model.saveInternal
+         * Called before the model is saved
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.saveInternal', function ((array) $attributes, (array) $options) use (\October\Rain\Database\Model $model) {
+         *         // Prevent anything from saving ever!
+         *         return false;
+         *     });
+         *
+         */
         if ($this->fireEvent('model.saveInternal', [$this->attributes, $options], true) === false) {
             return false;
         }
@@ -674,6 +892,17 @@ class Model extends EloquentModel
     //
 
     /**
+     * Add attribute casts for the model.
+     *
+     * @param  array $attributes
+     * @return void
+     */
+    public function addCasts($attributes)
+    {
+        $this->casts = array_merge($this->casts, $attributes);
+    }
+
+    /**
      * Adds a datetime attribute to convert to an instance of Carbon/DateTime object.
      * @param string   $attribute
      * @return void
@@ -744,8 +973,18 @@ class Model extends EloquentModel
      */
     public function getAttributeValue($key)
     {
-        /*
-         * Before Event
+        /**
+         * @event model.beforeGetAttribute
+         * Called before the model attribute is retrieved
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.beforeGetAttribute', function ((string) $key) use (\October\Rain\Database\Model $model) {
+         *         if ($key === 'not-for-you-to-look-at') {
+         *             return 'you are not allowed here';
+         *         }
+         *     });
+         *
          */
         if (($attr = $this->fireEvent('model.beforeGetAttribute', [$key], true)) !== null) {
             return $attr;
@@ -764,8 +1003,18 @@ class Model extends EloquentModel
             }
         }
 
-        /*
-         * After Event
+        /**
+         * @event model.getAttribute
+         * Called after the model attribute is retrieved
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.getAttribute', function ((string) $key, $value) use (\October\Rain\Database\Model $model) {
+         *         if ($key === 'not-for-you-to-look-at') {
+         *             return "Totally not $value";
+         *         }
+         *     });
+         *
          */
         if (($_attr = $this->fireEvent('model.getAttribute', [$key, $attr], true)) !== null) {
             return $_attr;
@@ -907,8 +1156,18 @@ class Model extends EloquentModel
             return $this->setRelationValue($key, $value);
         }
 
-        /*
-         * Before Event
+        /**
+         * @event model.beforeSetAttribute
+         * Called before the model attribute is set
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.beforeSetAttribute', function ((string) $key, $value) use (\October\Rain\Database\Model $model) {
+         *         if ($key === 'not-for-you-to-touch') {
+         *             return '$value has been touched! The humanity!';
+         *         }
+         *     });
+         *
          */
         if (($_value = $this->fireEvent('model.beforeSetAttribute', [$key, $value], true)) !== null) {
             $value = $_value;
@@ -935,8 +1194,18 @@ class Model extends EloquentModel
 
         $result = parent::setAttribute($key, $value);
 
-        /*
-         * After Event
+        /**
+         * @event model.setAttribute
+         * Called after the model attribute is set
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.setAttribute', function ((string) $key, $value) use (\October\Rain\Database\Model $model) {
+         *         if ($key === 'not-for-you-to-touch') {
+         *             \Log::info("{$key} has been touched and set to {$value}!")
+         *         }
+         *     });
+         *
          */
         $this->fireEvent('model.setAttribute', [$key, $value]);
 

@@ -31,8 +31,22 @@ class Mailer extends MailerBase
      */
     public function send($view, array $data = [], $callback = null)
     {
-        /*
-         * Extensibility
+        /**
+         * @event mailer.beforeSend
+         * Fires before the mailer processes the sending action
+         *
+         * Example usage (stops the sending process):
+         *
+         *     Event::listen('mailer.beforeSend', function ((string|array) $view, (array) $data, (\Closure|string) $callback) {
+         *         return false;
+         *     });
+         *
+         * Or
+         *
+         *     $mailerInstance->bindEvent('mailer.beforeSend', function ((string|array) $view, (array) $data, (\Closure|string) $callback) {
+         *         return false;
+         *     });
+         *
          */
         if (
             ($this->fireEvent('mailer.beforeSend', [$view, $data, $callback], true) === false) ||
@@ -65,12 +79,27 @@ class Mailer extends MailerBase
             $this->setGlobalTo($message);
         }
 
-        /*
-         * Extensibility
-         * $view    - View code as a string
-         * $message - Illuminate\Mail\Message object,
-         *            check Swift_Mime_SimpleMessage for useful functions.
-         */
+         /**
+          * @event mailer.prepareSend
+          * Fires before the mailer processes the sending action
+          *
+          * Parameters:
+          * - $view: View code as a string
+          * - $message: Illuminate\Mail\Message object, check Swift_Mime_SimpleMessage for useful functions.
+          *
+          * Example usage (stops the sending process):
+          *
+          *     Event::listen('mailer.prepareSend', function ((string) $view, (\Illuminate\Mail\Message) $message) {
+          *         return false;
+          *     });
+          *
+          * Or
+          *
+          *     $mailerInstance->bindEvent('mailer.prepareSend', function ((\October\Rain\Mail\Mailer) $mailerInstance, (string) $view, (\Illuminate\Mail\Message) $message) {
+          *         return false;
+          *     });
+          *
+          */
         if (
             ($this->fireEvent('mailer.prepareSend', [$view, $message], true) === false) ||
             (Event::fire('mailer.prepareSend', [$this, $view, $message], true) === false)
@@ -84,8 +113,22 @@ class Mailer extends MailerBase
         $this->sendSwiftMessage($message->getSwiftMessage());
         $this->dispatchSentEvent($message);
 
-        /*
-         * Extensibility
+        /**
+         * @event mailer.send
+         * Fires after the message has been sent
+         *
+         * Example usage (logs the message):
+         *
+         *     Event::listen('mailer.send', function ((string) $view, (\Illuminate\Mail\Message) $message) {
+         *         \Log::info("Message was rendered with $view and sent");
+         *     });
+         *
+         * Or
+         *
+         *     $mailerInstance->bindEvent('mailer.send', function ((\October\Rain\Mail\Mailer) $mailerInstance, (string) $view, (\Illuminate\Mail\Message) $message) {
+         *         \Log::info("Message was rendered with $view and sent");
+         *     });
+         *
          */
         $this->fireEvent('mailer.send', [$view, $message]);
         Event::fire('mailer.send', [$this, $view, $message]);
@@ -152,7 +195,7 @@ class Mailer extends MailerBase
         }
         else {
             $mailable = $view;
-            $queue = $queue !== null ? $queue : $data;
+            $queue = $queue ?? $data;
         }
 
         return parent::queue($mailable, $queue);
@@ -189,7 +232,7 @@ class Mailer extends MailerBase
         }
         else {
             $mailable = $view;
-            $queue = $queue !== null ? $queue : $data;
+            $queue = $queue ?? $data;
         }
 
         return parent::later($delay, $mailable, $queue);
@@ -267,7 +310,7 @@ class Mailer extends MailerBase
     }
 
     /**
-     * Process a receipients object, which can look like the following:
+     * Process a recipients object, which can look like the following:
      *  - (string) admin@domain.tld
      *  - (object) ['email' => 'admin@domain.tld', 'name' => 'Adam Person']
      *  - (array) ['admin@domain.tld' => 'Adam Person', ...]
@@ -322,13 +365,28 @@ class Mailer extends MailerBase
      * @param  \Illuminate\Mail\Message $message
      * @param  string $view
      * @param  string $plain
+     * @param  string $raw
      * @param  array $data
      * @return void
      */
     protected function addContent($message, $view, $plain, $raw, $data)
     {
-        /*
-         * Extensibility
+        /**
+         * @event mailer.beforeAddContent
+         * Fires before the mailer adds content to the message
+         *
+         * Example usage (stops the content adding process):
+         *
+         *     Event::listen('mailer.beforeAddContent', function ((\Illuminate\Mail\Message) $message, (string) $view, (string) $plain, (string) $raw, (array) $data) {
+         *         return false;
+         *     });
+         *
+         * Or
+         *
+         *     $mailerInstance->bindEvent('mailer.beforeAddContent', function ((\October\Rain\Mail\Mailer) $mailerInstance, (\Illuminate\Mail\Message) $message, (string) $view, (string) $plain, (string) $raw, (array) $data) {
+         *         return false;
+         *     });
+         *
          */
         if (
             ($this->fireEvent('mailer.beforeAddContent', [$message, $view, $data, $raw, $plain], true) === false) ||
@@ -371,8 +429,22 @@ class Mailer extends MailerBase
 
         $this->addContentRaw($message, $html, $text);
 
-        /*
-         * Extensibility
+        /**
+         * @event mailer.addContent
+         * Fires after the mailer has added content to the message
+         *
+         * Example usage (Logs that content has been added):
+         *
+         *     Event::listen('mailer.addContent', function ((\Illuminate\Mail\Message) $message, (string) $view, (array) $data) {
+         *         \Log::info("$view has had content added to the message");
+         *     });
+         *
+         * Or
+         *
+         *     $mailerInstance->bindEvent('mailer.addContent', function ((\October\Rain\Mail\Mailer) $mailerInstance, (\Illuminate\Mail\Message) $message, (string) $view, (array) $data) {
+         *         \Log::info("$view has had content added to the message");
+         *     });
+         *
          */
         $this->fireEvent('mailer.addContent', [$message, $view, $data]);
         Event::fire('mailer.addContent', [$this, $message, $view, $data]);
