@@ -39,7 +39,7 @@ if (!function_exists('post'))
     function post($name = null, $default = null)
     {
         if ($name === null)
-            return $_POST;
+            return request()->post();
 
         /*
          * Array field name, eg: field[key][key2][key3]
@@ -48,7 +48,7 @@ if (!function_exists('post'))
             $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
         }
 
-        return array_get($_POST, $name, $default);
+        return array_get(request()->post(), $name, $default);
     }
 }
 
@@ -61,7 +61,7 @@ if (!function_exists('get'))
     function get($name = null, $default = null)
     {
         if ($name === null)
-            return $_GET;
+            return request()->query();
 
         /*
          * Array field name, eg: field[key][key2][key3]
@@ -70,7 +70,7 @@ if (!function_exists('get'))
             $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
         }
 
-        return array_get($_GET, $name, $default);
+        return array_get(request()->query(), $name, $default);
     }
 }
 
