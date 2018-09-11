@@ -53,6 +53,10 @@ class Str extends StrHelper
             $name = get_class($name);
 
         $name = '\\'.ltrim($name, '\\');
+        if (strpos($name, '-') !== false) {
+            // Correct plugin vendor namespaces with dashes in their name
+            $name = camel_case($name);
+        }
         return $name;
     }
 
