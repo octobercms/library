@@ -163,6 +163,9 @@ class BelongsToMany extends BelongsToManyBase
     public function detach($ids = null, $touch = true)
     {
         $attachedIdList = $this->parseIds($ids);
+        if (empty($attachedIdList)) {
+            $attachedIdList = $this->newPivotQuery()->lists($this->relatedPivotKey);
+        }
 
         /**
          * @event model.relation.beforeDetach
