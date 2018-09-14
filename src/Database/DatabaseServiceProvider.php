@@ -65,9 +65,9 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
          * prevent daemon processes from handling stale data in memory, however
          * it should be kept active for the purpose of accurate unit testing.
          *
-         * Also checking php_sapi_name() in case running in Swoole http server.
+         * Also disable memory cache for Swoole http server.
          */
-        if (($this->app->runningInConsole() || php_sapi_name() == 'cli') && !$this->app->runningUnitTests()) {
+        if (($this->app->runningInConsole() && !$this->app->runningUnitTests()) || $this->app->serverIsSwoole()) {
             MemoryCache::instance()->enabled(false);
         }
     }
