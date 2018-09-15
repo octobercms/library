@@ -64,10 +64,8 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
          * Disable memory cache when running in console environment. This should
          * prevent daemon processes from handling stale data in memory, however
          * it should be kept active for the purpose of accurate unit testing.
-         *
-         * Also disable memory cache for Swoole http server.
          */
-        if (($this->app->runningInConsole() && !$this->app->runningUnitTests()) || $this->app->serverIsSwoole()) {
+        if ($this->app->runningInConsole() && !$this->app->runningUnitTests()) {
             MemoryCache::instance()->enabled(false);
         }
     }
