@@ -211,8 +211,8 @@ if (!function_exists('themes_url'))
     /**
      * Get the public url to the themes folder.
      *
-     * @param  string  $path
-     * @return string
+     * @param  string  $path A relative path to a file in the themes directory
+     * @return string the full public url(http://example.com/themes/theme/file.txt) to the file in the themes directory.
      */
     function themes_url($path = '')
     {
@@ -226,8 +226,8 @@ if (!function_exists('theme_url'))
     /**
      * Get the public url to the active theme folder.
      *
-     * @param  string  $path A relative path a file in the template directory
-     * @return string url to the file in the themes folder
+     * @param  string  $path A relative path to a file in the template directory
+     * @return string the full public url(http://example.com/themes/theme/file.txt) to the file in the active theme directory.
      */
     function theme_url($path = '')
     {
@@ -241,11 +241,11 @@ if (!function_exists('plugin_url'))
 {
     /**
      * Get the public url to a plugin folder.
-     * plugin_url($this, 'assets/js/script.js');
+     * plugin_url('assets/js/script.js'); plugin_url('assets/js/scripts.js', $someComponent);
      * @param  string  $path A relative path a file in the template directory
      * @param object|string $class An object from a plugin namespace or full
      * class name with namespace. When not provided it will try to guess the calling object.
-     * @return string url to the file in the themes folder
+     * @return string the full public url(http://example.com/plugin/author/plugin/file.txt) to the file in the calling plugin folder 
      */
     function plugin_url($path = '', $class = null)
     {
