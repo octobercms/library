@@ -206,6 +206,81 @@ if (!function_exists('themes_path'))
     }
 }
 
+if (!function_exists('themes_url'))
+{
+    /**
+     * Get the public url to the themes folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function themes_url($path = '')
+    {
+        $base = implode('/', [config('app.url'), config('cms.themesPath')]);
+        return url($base . ($path ? '/'.$path : $path));
+    }
+}
+
+if (!function_exists('theme_url'))
+{
+    /**
+     * Get the public url to the active theme folder.
+     *
+     * @param  string  $path A relative path a file in the template directory
+     * @return string url to the file in the themes folder
+     */
+    function theme_url($path = '')
+    {
+        $base = implode('/', [config('app.url'), config('cms.themesPath'), config('cms.activeTheme')]);
+        
+        return url($base . ($path ? '/'.$path : $path));
+    }
+}
+
+if (!function_exists('plugin_url'))
+{
+    /**
+     * Get the public url to a plugin folder.
+     * plugin_url($this, 'assets/js/script.js');
+     * @param  string  $path A relative path a file in the template directory
+     * @param object|string $class An object from a plugin namespace or full
+     * class name with namespace. When not provided it will try to guess the calling object.
+     * @return string url to the file in the themes folder
+     */
+    function plugin_url($path = '', $class = null)
+    {
+        if(is_object($class)) {
+            $class = get_class($class);
+        }
+        
+        if(is_null($class)) {
+            $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+            if(count($backtrace) === 2 && array_key_exists('object', $backtrace[1])) {
+                $class = get_class($backtrace[1]['object']);
+            }
+            else {
+                throw new \InvalidArgumentException('plugin_url() called without a class from plugin namespace');
+            }
+        }
+        
+        if(strpos($class,'\\') === 0) {
+            $class = substr($class, 1);
+        }
+        
+        $sliced = array_slice(explode('\\', strtolower($class)), 0, 2);
+        
+        if(count($sliced) < 2) {
+            throw new InvalidArgumentException('Class '.$class.' is not from a plugin namespace. Please provide a class or object from a plugin namespace');
+        }
+        
+        list($author, $plugin) = $sliced;
+        
+        $base = implode('/', [config('app.url'), config('cms.pluginsPath'), $author, $plugin]);
+        
+        return url($base . ($path ? '/'.$path : $path));
+    }
+}
+
 if (!function_exists('temp_path'))
 {
     /**
