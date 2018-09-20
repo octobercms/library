@@ -237,45 +237,17 @@ if (!function_exists('theme_url'))
     }
 }
 
-if (!function_exists('plugin_url'))
+if (!function_exists('plugins_url'))
 {
     /**
-     * Get the public url to a plugin folder.
-     * plugin_url('assets/js/script.js'); plugin_url('assets/js/scripts.js', $someComponent);
-     * @param  string  $path A relative path a file in the template directory
-     * @param object|string $class An object from a plugin namespace or full
-     * class name with namespace. When not provided it will try to guess the calling object.
-     * @return string the full public url(http://example.com/plugin/author/plugin/file.txt) to the file in the calling plugin folder 
+     * Get the public url to the plugins folder.
+     * plugin_url('assets/js/script.js'); 
+     * @param  string  $path A relative path a file in the plugins directory
+     * @return string the full public url(http://example.com/plugin/path/to/file.txt) to the file in the plugins directory
      */
-    function plugin_url($path = '', $class = null)
+    function plugins_url($path = '')
     {
-        if(is_object($class)) {
-            $class = get_class($class);
-        }
-        
-        if(is_null($class)) {
-            $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-            if(count($backtrace) === 2 && array_key_exists('object', $backtrace[1])) {
-                $class = get_class($backtrace[1]['object']);
-            }
-            else {
-                throw new \InvalidArgumentException('plugin_url() called without a class from plugin namespace');
-            }
-        }
-        
-        if(strpos($class,'\\') === 0) {
-            $class = substr($class, 1);
-        }
-        
-        $sliced = array_slice(explode('\\', strtolower($class)), 0, 2);
-        
-        if(count($sliced) < 2) {
-            throw new InvalidArgumentException('Class '.$class.' is not from a plugin namespace. Please provide a class or object from a plugin namespace');
-        }
-        
-        list($author, $plugin) = $sliced;
-        
-        $base = implode('/', [config('app.url'), config('cms.pluginsPath'), $author, $plugin]);
+        $base = implode('/', [config('app.url'), config('cms.pluginsPath'));
         
         return url($base . ($path ? '/'.$path : $path));
     }
