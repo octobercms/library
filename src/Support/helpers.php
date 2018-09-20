@@ -247,7 +247,7 @@ if (!function_exists('plugins_url'))
      */
     function plugins_url($path = '')
     {
-        $base = implode('/', [config('app.url'), config('cms.pluginsPath'));
+        $base = implode('/', [config('app.url'), config('cms.pluginsPath')]);
         
         return url($base . ($path ? '/'.$path : $path));
     }
