@@ -89,8 +89,7 @@ trait NestedTree
              */
             $model->hasMany['children'] = [
                 get_class($model),
-                'key' => $model->getParentColumnName(),
-                'order' => $model->getLeftColumnName()
+                'key' => $model->getParentColumnName()
             ];
 
             $model->belongsTo['parent'] = [
