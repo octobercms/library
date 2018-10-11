@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Translation;
 
+use Event;
 use Illuminate\Support\Collection;
 use Symfony\Component\Translation\MessageSelector;
 use Illuminate\Contracts\Translation\Translator as TranslatorContract;
@@ -70,27 +71,6 @@ class Translator implements TranslatorContract
     }
 
     /**
-     * Dynamically set the translation for the given key.
-     *
-     * @param  string $key
-     * @param  string $value
-     * @param  string $locale
-     */
-    public function set($key, $value, $locale = null) {
-        // Ensure that the loaded property is initialized
-        $this->get($key, [], $locale);
-
-        // Parse the key & locale
-        list($namespace, $group, $item) = $this->parseKey($key);
-        $locale = $this->parseLocale($locale)[0];
-
-        // Override the specified key with the provided value
-        $loaded = $this->loaded;
-        array_set($loaded, "$namespace.$group.$locale.$item", $value);
-        $this->loaded = $loaded;
-    }
-
-    /**
      * Get the translation for the given key.
      *
      * @param  string  $key
@@ -100,6 +80,23 @@ class Translator implements TranslatorContract
      */
     public function get($key, array $replace = [], $locale = null)
     {
+        /**
+         * @event translator.beforeResolve
+         * Fires before the translator resolves the requested language key
+         *
+         * Example usage (overrides the value returned for a specific language key):
+         *
+         *     Event::listen('translator.beforeResolve', function ((string) $key, (array) $replace, (string|null) $locale) {
+         *         if ($key === 'my.custom.key') {
+         *             return 'My overriding value';
+         *         }
+         *     });
+         *
+         */
+        if ($line = Event::fire('translator.beforeResolve', [$key, $replace, $locale], true)) {
+            return $line;
+        }
+
         if ($line = $this->getValidationSpecific($key, $replace, $locale)) {
             return $line;
         }
