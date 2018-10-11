@@ -43,7 +43,7 @@ class Parser
 
             $textFilters = [
                 'md' => ['Markdown', 'parse'],
-                'media' => ['Cms\Classes\MediaLibrary', 'url']
+                'media' => ['System\Classes\MediaLibrary', 'url']
             ];
 
             $this->textParser = new TextParser(['filters' => $textFilters]);
