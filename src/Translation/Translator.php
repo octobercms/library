@@ -70,6 +70,27 @@ class Translator implements TranslatorContract
     }
 
     /**
+     * Dynamically set the translation for the given key.
+     *
+     * @param  string $key
+     * @param  string $value
+     * @param  string $locale
+     */
+    public function set($key, $value, $locale = null) {
+        // Ensure that the loaded property is initialized
+        $this->get($key, [], $locale);
+
+        // Parse the key & locale
+        list($namespace, $group, $item) = $this->parseKey($key);
+        $locale = $this->parseLocale($locale)[0];
+
+        // Override the specified key with the provided value
+        $loaded = $this->loaded;
+        array_set($loaded, "$namespace.$group.$locale.$item", $value);
+        $this->loaded = $loaded;
+    }
+
+    /**
      * Get the translation for the given key.
      *
      * @param  string  $key
