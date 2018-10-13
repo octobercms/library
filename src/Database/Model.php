@@ -967,11 +967,11 @@ class Model extends EloquentModel
     
     /**
      * Determine if an attribute exists in the model.
-     * note: nullable attributes must set raw value of null before this works
      * @param  string  $key
      * @return bool
      */
-    public function hasAttribute($key) {
-        return array_key_exists($key, $this->attributes);
+    public function hasAttribute($key) 
+    {
+        return array_key_exists($key, $this->attributesToArray());
     }
 }
