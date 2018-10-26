@@ -143,6 +143,5 @@ class CreateTheme extends GeneratorCommand
         $name = $this->argument('theme');
 
         return base_path(Config::get('cms.themesPath', '/themes') . '/' . strtolower($name));
-        
     }
 }
