@@ -3,6 +3,7 @@
 use Illuminate\Support\ServiceProvider;
 use October\Rain\Scaffold\Console\CreateCommand;
 use October\Rain\Scaffold\Console\CreatePlugin;
+use October\Rain\Scaffold\Console\CreateTheme;
 use October\Rain\Scaffold\Console\CreateModel;
 use October\Rain\Scaffold\Console\CreateController;
 use October\Rain\Scaffold\Console\CreateComponent;
@@ -20,6 +21,10 @@ class ScaffoldServiceProvider extends ServiceProvider
             return new CreatePlugin;
         });
 
+        $this->app->singleton('command.create.theme', function() {
+            return new CreateTheme;
+        });
+        
         $this->app->singleton('command.create.model', function() {
             return new CreateModel;
         });
@@ -41,6 +46,7 @@ class ScaffoldServiceProvider extends ServiceProvider
         });
 
         $this->commands('command.create.plugin');
+        $this->commands('command.create.theme');
         $this->commands('command.create.model');
         $this->commands('command.create.controller');
         $this->commands('command.create.component');
@@ -56,6 +62,7 @@ class ScaffoldServiceProvider extends ServiceProvider
     {
         return [
             'command.create.plugin',
+            'command.create.theme',
             'command.create.model',
             'command.create.controller',
             'command.create.component',
