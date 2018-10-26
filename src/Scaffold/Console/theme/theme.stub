@@ -1,0 +1,5 @@
+name: {{theme}}
+description: {{description}}
+author: {{author}}
+homepage: {{homepage}}
+code: {{code}}
