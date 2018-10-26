@@ -36,6 +36,7 @@ class CreateTheme extends GeneratorCommand
     protected $stubs = [
         'theme/theme.stub'  => 'theme.yaml',
         'theme/version.stub' => 'version.yaml',
+        'theme/gitkeep.stub' => '.gitkeep',
     ];
 
     /**
