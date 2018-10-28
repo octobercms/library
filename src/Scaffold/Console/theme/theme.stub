@@ -2,4 +2,4 @@ name: {{theme}}
 description: {{description}}
 author: {{author}}
 homepage: {{homepage}}
-code: {{code}}
+code: {{lower_theme}}
