@@ -53,14 +53,12 @@ class CreateTheme extends GeneratorCommand
         $authorName = $this->option('author');
         $themeDescription = $this->option('description');
         $homePage = $this->option('homepage');
-        $themeCode = $this->option('code');
 
         return [
             'theme'   => $themeName,
             'author' => $authorName,
             'description' => $themeDescription,
-            'homepage' => $homePage,
-            'code' => $themeCode
+            'homepage' => $homePage
         ];
     }
 
@@ -87,8 +85,7 @@ class CreateTheme extends GeneratorCommand
             ['force', null, InputOption::VALUE_NONE, 'Overwrite existing files with generated ones.'],
             ['author', null, InputOption::VALUE_OPTIONAL, 'The author of the theme.'],
             ['description', null, InputOption::VALUE_OPTIONAL, 'A description of the theme.'],
-            ['homepage', null, InputOption::VALUE_OPTIONAL, 'Author\'s home page url'],
-            ['code', null, InputOption::VALUE_OPTIONAL, 'A unique code to give theme theme.']
+            ['homepage', null, InputOption::VALUE_OPTIONAL, 'Author\'s home page url']
         ];
     }
 
