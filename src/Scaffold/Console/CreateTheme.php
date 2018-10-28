@@ -49,28 +49,16 @@ class CreateTheme extends GeneratorCommand
         /*
          * Get Console Arguments
          */
-        $themeName = $this->argument('theme');
+        $themeName = $this->option('name');
         $authorName = $this->option('author');
         $themeDescription = $this->option('description');
         $homePage = $this->option('homepage');
 
         return [
-            'theme'   => $themeName,
+            'name'   => $themeName,
             'author' => $authorName,
             'description' => $themeDescription,
             'homepage' => $homePage
-        ];
-    }
-
-    /**
-     * Get the console command arguments.
-     *
-     * @return array
-     */
-    protected function getArguments()
-    {
-        return [
-            ['theme', InputArgument::REQUIRED, 'The name of the theme to create. Eg: Demo']
         ];
     }
 
@@ -83,6 +71,7 @@ class CreateTheme extends GeneratorCommand
     {
         return [
             ['force', null, InputOption::VALUE_NONE, 'Overwrite existing files with generated ones.'],
+            ['name', null, InputOption::VALUE_REQUIRED, 'The name of the theme to create. Eg: Demo']
             ['author', null, InputOption::VALUE_OPTIONAL, 'The author of the theme.'],
             ['description', null, InputOption::VALUE_OPTIONAL, 'A description of the theme.'],
             ['homepage', null, InputOption::VALUE_OPTIONAL, 'Author\'s home page url']
@@ -137,7 +126,7 @@ class CreateTheme extends GeneratorCommand
      */
     protected function getDestinationPath()
     {
-        $name = $this->argument('theme');
+        $name = $this->argument('name');
 
         return base_path(Config::get('cms.themesPath', '/themes') . '/' . strtolower($name));
     }
