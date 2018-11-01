@@ -13,6 +13,7 @@ use October\Rain\Halcyon\Exception\FileExistsException;
  * 
  * Table Structure:
  *  - id, unsigned integer
+ *  - source, varchar
  *  - path, varchar
  *  - content, largeText
  *  - file_size, unsigned integer // In bytes - NOTE: max file size of 4.29 GB represented with unsigned int in MySQL
@@ -21,11 +22,11 @@ use October\Rain\Halcyon\Exception\FileExistsException;
 class DbDatasource extends Datasource implements DatasourceInterface
 {
     /**
-     * The local path where the datasource can be found.
+     * The identifier for this datasource instance can be found.
      *
      * @var string
      */
-    protected $basePath;
+    protected $source;
 
     /**
      * @var string The table name of the datasource
@@ -35,13 +36,13 @@ class DbDatasource extends Datasource implements DatasourceInterface
     /**
      * Create a new datasource instance.
      *
-     * @param string $basePath The base path for this datasource instance
+     * @param string $source The source identifier for this datasource instance
      * @param string $table The table for this database datasource
      * @return void
      */
-    public function __construct($basePath, $table)
+    public function __construct($source, $table)
     {
-        $this->basePath = $basePath;
+        $this->source = $source;
 
         $this->table = $table;
 
@@ -53,9 +54,14 @@ class DbDatasource extends Datasource implements DatasourceInterface
      *
      * @return QueryBuilder
      */
-    protected function getQuery()
+    protected function getQuery($filterBySource = true)
     {
-        return Db::table($this->table);
+        $query = Db::table($this->table);
+        if ($filterBySource) {
+            $query->where('source', $this->source);
+        }
+
+        return $query;
     }
     
     /**
@@ -68,7 +74,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     protected function makeFilePath($dirName, $fileName, $extension)
     {
-        return $this->basePath . '/' . $dirName . '/' . $fileName . '.' . $extension;
+        return $dirName . '/' . $fileName . '.' . $extension;
     }
 
     /**
@@ -81,17 +87,17 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     public function selectOne($dirName, $fileName, $extension)
     {
-        try {
-            $result = $this->getQuery()->where('path', $this->makeFilePath($dirName, $fileName, $extension))->firstOrFail();
-            
+        $result = $this->getQuery()->where('path', $this->makeFilePath($dirName, $fileName, $extension))->first();
+
+        if ($result) {
             return [
                 'fileName' => $fileName . '.' . $extension,
                 'content'  => $result->content,
                 'mtime'    => Carbon::parse($result->updated_at)->timestamp,
                 'record'   => $result,
             ];
-        } catch (Exception $ex) {
-            return null;
+        } else {
+            return $result;
         }
     }
 
@@ -145,6 +151,23 @@ class DbDatasource extends Datasource implements DatasourceInterface
             });
         }
 
+        // Apply the columns filter on the query
+        if (!is_null($columns)) {
+            // Source required for the datasource filtering, path required for actually using data
+            $selects = ['source', 'path'];
+
+            if (in_array('content', $columns)) {
+                $selects[] = 'content';
+            }
+
+            if (in_array('mtime', $columns)) {
+                $selects[] = 'updated_at';
+            }
+
+            $query->select(...$selects);
+        }
+
+        // Retrieve the results
         $results = $query->get();
 
         foreach ($results as $item) {
@@ -156,7 +179,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
                 continue;
             }
 
-            // Apply the columns filter
+            // Apply the columns filter on the data returned
             if (is_null($columns)) {
                 $resultItem = [
                     'fileName' => $fileName,
@@ -169,11 +192,11 @@ class DbDatasource extends Datasource implements DatasourceInterface
                     $resultItem['fileName'] = $fileName;
                 }
 
-                if (in_array('content')) {
+                if (in_array('content', $columns)) {
                     $resultItem['content'] = $item->content;
                 }
 
-                if (in_array('mtime')) {
+                if (in_array('mtime', $columns)) {
                     $resultItem['mtime'] = Carbon::parse($item->updated_at)->timestamp;
                 }
 
@@ -202,19 +225,20 @@ class DbDatasource extends Datasource implements DatasourceInterface
         $path = $this->makeFilePath($dirName, $fileName, $extension);
 
         // Check for an existing record
-        if ($this->selectOne($dirName, $fileName, $extension)) {
+        if ($this->getQuery()->where('path', $path)->count() > 0) {
             throw (new FileExistsException())->setInvalidPath($path);
         }
 
         try {
             $record = [
+                'source'     => $this->source,
                 'path'       => $path,
                 'content'    => $content,
                 'file_size'  => mb_strlen($content, '8bit'),
                 'updated_at' => Carbon::now()->toDateTimeString(),
             ];
 
-            $this->getQuery()->insert($record);
+            $this->getQuery(false)->insert($record);
 
             return $record['file_size'];
         }
@@ -279,13 +303,13 @@ class DbDatasource extends Datasource implements DatasourceInterface
     {
         try {
             // Get the existing record
-            $record = $this->selectOne($dirName, $fileName, $extension)['record'];
+            $path = $this->makeFilePath($dirName, $fileName, $extension);
 
             // Attempt to delete the existing record
-            $this->getQuery()->where('id', $record->id)->delete();
+            $this->getQuery()->where('path', $path)->delete();
         }
         catch (Exception $ex) {
-            throw (new DeleteFileException)->setInvalidPath($this->makeFilePath($dirName, $fileName, $extension));
+            throw (new DeleteFileException)->setInvalidPath();
         }
     }
 
@@ -300,7 +324,11 @@ class DbDatasource extends Datasource implements DatasourceInterface
     public function lastModified($dirName, $fileName, $extension)
     {
         try {
-            return $this->selectOne($dirName, $fileName, $extension)['mtime'];
+            return Carbon::parse($this->getQuery()
+                    ->where('path', $this->makeFilePath($dirName, $fileName, $extension))
+                    ->select('updated_at')
+                    ->first()->updated_at
+            )->timestamp;
         }
         catch (Exception $ex) {
             return null;
@@ -315,6 +343,6 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     public function makeCacheKey($name = '')
     {
-        return crc32($this->basePath . $name);
+        return crc32($this->source . $name);
     }
 }
