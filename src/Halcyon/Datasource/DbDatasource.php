@@ -15,7 +15,7 @@ use October\Rain\Halcyon\Exception\FileExistsException;
  *  - id, unsigned integer
  *  - source, varchar
  *  - path, varchar
- *  - content, largeText
+ *  - content, longText
  *  - file_size, unsigned integer // In bytes - NOTE: max file size of 4.29 GB represented with unsigned int in MySQL
  *  - updated_at, datetime
  */
