@@ -32,7 +32,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
     /**
      * Create a new datasource instance.
      *
-     * @param string $container
+     * @param string $basePath
      * @param Filesystem $files
      * @return void
      */
@@ -166,7 +166,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
      *
      * @param  string  $dirName
      * @param  string  $fileName
-     * @param  array   $content
+     * @param  string   $content
      * @return bool
      */
     public function insert($dirName, $fileName, $extension, $content)
@@ -192,7 +192,9 @@ class FileDatasource extends Datasource implements DatasourceInterface
      *
      * @param  string  $dirName
      * @param  string  $fileName
-     * @param  array   $content
+     * @param  string  $content
+     * @param  string  $oldFileName Defaults to null
+     * @param  string  $oldExtension Defaults to null
      * @return int
      */
     public function update($dirName, $fileName, $extension, $content, $oldFileName = null, $oldExtension = null)
