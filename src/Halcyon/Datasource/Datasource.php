@@ -5,6 +5,7 @@
  */
 class Datasource
 {
+    use \October\Rain\Support\Traits\Emitter;
 
     /**
      * The query post processor implementation.

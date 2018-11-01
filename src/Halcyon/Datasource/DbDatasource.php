@@ -52,14 +52,31 @@ class DbDatasource extends Datasource implements DatasourceInterface
     /**
      * Get the QueryBuilder object
      *
+     * @param boolean $applySourceFilter Defaults to true, flag determining whether or not to apply the source filter to the query builder returned
      * @return QueryBuilder
      */
-    protected function getQuery($filterBySource = true)
+    protected function getQuery($applySourceFilter = true)
     {
         $query = Db::table($this->table);
-        if ($filterBySource) {
+        if ($applySourceFilter) {
             $query->where('source', $this->source);
         }
+
+        /**
+         * @event halcyon.datasource.db.extendQuery
+         * Provides an opportunity to modify the query object used by the Halycon DbDatasource
+         *
+         * Example usage:
+         *
+         *     $datasource->bindEvent('halcyon.datasource.db.extendQuery', function ((QueryBuilder) $query, (boolean) $applySourceFilter) {
+         *         // Apply a site filter in a multi-tenant application
+         *         if ($applySourceFilter) {
+         *             $query->where('site_id', SiteManager::getSite()->id);
+         *         }
+         *     });
+         *
+         */
+        $this->fireEvent('halcyon.datasource.db.extendQuery', [$query, $applySourceFilter]);
 
         return $query;
     }
@@ -164,6 +181,21 @@ class DbDatasource extends Datasource implements DatasourceInterface
                 $selects[] = 'updated_at';
             }
 
+            /**
+             * @event halcyon.datasource.db.select.extendColumns
+             * Called before the filtering of what columns get selected from the DB table
+             *
+             * Example usage:
+             *
+             *     $datasource->bindEvent('halcyon.datasource.db.select.extendColumns', function ((string)) $dirName, (array) $options, (array) &$selects) {
+             *         // Ensure that the site_id column is selected for filtering with the
+             *         // where clause attached to the halcyon.datasource.db.extendQuery event
+             *         $selects[] = 'site_id';
+             *     });
+             *
+             */
+            $this->fireEvent('halcyon.datasource.db.select.extendColumns', [$dirName, $options, &$selects]);
+
             $query->select(...$selects);
         }
 
@@ -238,6 +270,20 @@ class DbDatasource extends Datasource implements DatasourceInterface
                 'updated_at' => Carbon::now()->toDateTimeString(),
             ];
 
+            /**
+             * @event halcyon.datasource.db.beforeInsert
+             * Provides an opportunity to modify records before being inserted into the DB
+             *
+             * Example usage:
+             *
+             *     $datasource->bindEvent('halcyon.datasource.db.beforeInsert', function ((array) &$record) {
+             *         // Attach a site id to every record in a multi-tenant application
+             *         $record['site_id'] = SiteManager::getSite()->id;
+             *     });
+             *
+             */
+            $this->fireEvent('halcyon.datasource.db.beforeInsert', [&$record]);
+
             $this->getQuery(false)->insert($record);
 
             return $record['file_size'];
@@ -277,12 +323,28 @@ class DbDatasource extends Datasource implements DatasourceInterface
         try {
             $fileSize = mb_strlen($content, '8bit');
 
-            $this->getQuery()->where('id', $record->id)->update([
+            $data = [
                 'path'       => $path,
                 'content'    => $content,
                 'file_size'  => $fileSize,
                 'updated_at' => Carbon::now()->toDateTimeString(),
-            ]);
+            ];
+
+            /**
+             * @event halcyon.datasource.db.beforeUpdate
+             * Provides an opportunity to modify records before being updated into the DB
+             *
+             * Example usage:
+             *
+             *     $datasource->bindEvent('halcyon.datasource.db.beforeUpdate', function ((array) &$data) {
+             *         // Attach a site id to every record in a multi-tenant application
+             *         $data['site_id'] = SiteManager::getSite()->id;
+             *     });
+             *
+             */
+            $this->fireEvent('halcyon.datasource.db.beforeUpdate', [&$data]);
+
+            $this->getQuery()->where('id', $record->id)->update($data);
 
             return $fileSize;
         }
