@@ -22,9 +22,7 @@ use October\Rain\Halcyon\Exception\FileExistsException;
 class DbDatasource extends Datasource implements DatasourceInterface
 {
     /**
-     * The identifier for this datasource instance can be found.
-     *
-     * @var string
+     * @var string The identifier for this datasource instance
      */
     protected $source;
 
@@ -55,7 +53,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
      * @param boolean $applySourceFilter Defaults to true, flag determining whether or not to apply the source filter to the query builder returned
      * @return QueryBuilder
      */
-    protected function getQuery($applySourceFilter = true)
+    public function getQuery($applySourceFilter = true)
     {
         $query = Db::table($this->table);
         if ($applySourceFilter) {
@@ -371,7 +369,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
             $this->getQuery()->where('path', $path)->delete();
         }
         catch (Exception $ex) {
-            throw (new DeleteFileException)->setInvalidPath();
+            throw (new DeleteFileException)->setInvalidPath($path);
         }
     }
 
@@ -406,5 +404,57 @@ class DbDatasource extends Datasource implements DatasourceInterface
     public function makeCacheKey($name = '')
     {
         return crc32($this->source . $name);
+    }
+
+    /**
+     * Generate a paths cache key unique to this datasource
+     * 
+     * @return string
+     */
+    public function getPathsCacheKey()
+    {
+        $key = 'halcyon-datastore-db-' . $this->table . '-' . $this->source;
+        /**
+         * @event halcyon.datasource.db.getPathsCacheKey
+         * Provides an opportunity to modify the path cache key
+         *
+         * Example usage:
+         *
+         *     $datasource->bindEvent('halcyon.datasource.db.getPathsCacheKey', function ((string) &$key) {
+         *         // Attach the site id the cache key used in the theme datasource in multi-tenant applications
+         *         $key .= '-' . SiteManager::getSite()->id;
+         *     });
+         *
+         */
+        $this->fireEvent('halcyon.datasource.db.getPathsCacheKey', [&$key]);
+
+        return $key;
+    }
+
+    /**
+     * Get all available paths within this datastore
+     * 
+     * @return array $paths ['path/to/file1.md', 'path/to/file2.md']
+     */
+    public function getAvailablePaths()
+    {
+        /**
+         * @event halcyon.datasource.db.beforeGetAvailablePaths
+         * Halting event called before the cache of what paths are available in the DB is built
+         *
+         * Example usage:
+         *
+         *     $datasource->bindEvent('halcyon.datasource.db.beforeGetAvailablePaths', function () use ($datastore) {
+         *         // Ensure that the site_id column is selected for filtering with the
+         *         // where clause attached to the halcyon.datasource.db.extendQuery event
+         *         $datastore->getQuery()->select('path', 'site_id')->get()->pluck('path')->all();
+         *     });
+         *
+         */
+        if (!$pathsCache = $this->fireEvent('halcyon.datasource.db.beforeGetAvailablePaths', [], true)) {
+            $pathsCache = $this->getQuery()->select('path')->get()->pluck('path')->all();
+        }
+
+        return $pathsCache;
     }
 }

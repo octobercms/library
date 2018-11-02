@@ -74,4 +74,17 @@ interface DatasourceInterface
      */
     public function makeCacheKey($name = '');
 
+    /**
+     * Generate a paths cache key unique to this datasource
+     * 
+     * @return string
+     */
+    public function getPathsCacheKey();
+
+    /**
+     * Get all available paths within this datastore
+     * 
+     * @return array $paths ['path/to/file1.md', 'path/to/file2.md']
+     */
+    public function getAvailablePaths();
 }

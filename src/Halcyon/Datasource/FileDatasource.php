@@ -330,4 +330,36 @@ class FileDatasource extends Datasource implements DatasourceInterface
     {
         return $this->basePath;
     }
+
+    /**
+     * Generate a paths cache key unique to this datasource
+     * 
+     * @return string
+     */
+    public function getPathsCacheKey()
+    {
+        return 'halcyon-datastore-file-' . $this->basePath;
+    }
+
+    /**
+     * Get all available paths within this datastore
+     * 
+     * @return array $paths ['path/to/file1.md', 'path/to/file2.md']
+     */
+    public function getAvailablePaths()
+    {
+        $pathsCache = [];
+        $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->basePath));
+
+        foreach ($it as $file) {
+            if ($file->isDir()) {
+                continue;
+            }
+
+            // Add the relative path
+            $pathsCache[] = substr($file->getPathname(), strlen($this->basePath) + 1);
+        }
+
+        return $pathsCache;
+    }
 }
