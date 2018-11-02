@@ -237,7 +237,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
      *
      * @param  string  $dirName
      * @param  string  $fileName
-     * @return int
+     * @return bool
      */
     public function delete($dirName, $fileName, $extension)
     {

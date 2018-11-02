@@ -18,9 +18,15 @@ use October\Rain\Halcyon\Exception\FileExistsException;
  *  - content, longText
  *  - file_size, unsigned integer // In bytes - NOTE: max file size of 4.29 GB represented with unsigned int in MySQL
  *  - updated_at, datetime
+ *  - deleted_at, datetime, nullable
  */
 class DbDatasource extends Datasource implements DatasourceInterface
 {
+    /**
+     * @var bool Indicates if the record is currently being force deleted.
+     */
+    protected $forceDeleting = false;
+
     /**
      * @var string The identifier for this datasource instance
      */
@@ -50,14 +56,15 @@ class DbDatasource extends Datasource implements DatasourceInterface
     /**
      * Get the QueryBuilder object
      *
-     * @param boolean $applySourceFilter Defaults to true, flag determining whether or not to apply the source filter to the query builder returned
+     * @param boolean $applyFilters Defaults to true, flag determining whether or not to apply the filters (source, deleted_at) to the query builder returned
      * @return QueryBuilder
      */
-    public function getQuery($applySourceFilter = true)
+    public function getQuery($applyFilters = true)
     {
         $query = Db::table($this->table);
-        if ($applySourceFilter) {
+        if ($applyFilters) {
             $query->where('source', $this->source);
+            $query->where('deleted_at', null);
         }
 
         /**
@@ -66,15 +73,15 @@ class DbDatasource extends Datasource implements DatasourceInterface
          *
          * Example usage:
          *
-         *     $datasource->bindEvent('halcyon.datasource.db.extendQuery', function ((QueryBuilder) $query, (boolean) $applySourceFilter) {
+         *     $datasource->bindEvent('halcyon.datasource.db.extendQuery', function ((QueryBuilder) $query, (boolean) $applyFilters) {
          *         // Apply a site filter in a multi-tenant application
-         *         if ($applySourceFilter) {
+         *         if ($applyFilters) {
          *             $query->where('site_id', SiteManager::getSite()->id);
          *         }
          *     });
          *
          */
-        $this->fireEvent('halcyon.datasource.db.extendQuery', [$query, $applySourceFilter]);
+        $this->fireEvent('halcyon.datasource.db.extendQuery', [$query, $applyFilters]);
 
         return $query;
     }
@@ -357,20 +364,41 @@ class DbDatasource extends Datasource implements DatasourceInterface
      * @param  string  $dirName
      * @param  string  $fileName
      * @param  string  $extension
-     * @return int
+     * @return bool
      */
     public function delete($dirName, $fileName, $extension)
     {
         try {
             // Get the existing record
             $path = $this->makeFilePath($dirName, $fileName, $extension);
+            $recordQuery = $this->getQuery()->where('path', $path);
 
             // Attempt to delete the existing record
-            $this->getQuery()->where('path', $path)->delete();
+            if ($this->forceDeleting) {
+                $recordQuery->delete();
+            } else {
+                $recordQuery->update(['deleted_at' => Carbon::now()->toDateTimeString()]);
+            }
+
+            return true;
         }
         catch (Exception $ex) {
             throw (new DeleteFileException)->setInvalidPath($path);
         }
+    }
+
+    /**
+     * Force the deletion of a record against the datasource
+     *
+     * @return void
+     */
+    public function forceDelete($dirName, $fileName, $extension)
+    {
+        $this->forceDeleting = true;
+
+        $this->delete($dirName, $fileName, $extension);
+
+        $this->forceDeleting = false;
     }
 
     /**

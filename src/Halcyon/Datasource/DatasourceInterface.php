@@ -52,7 +52,7 @@ interface DatasourceInterface
      * @param  string  $dirName
      * @param  string  $fileName
      * @param  string  $extension
-     * @return int
+     * @return bool
      */
     public function delete($dirName, $fileName, $extension);
 
