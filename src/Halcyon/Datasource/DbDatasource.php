@@ -52,19 +52,31 @@ class DbDatasource extends Datasource implements DatasourceInterface
 
         $this->postProcessor = new Processor;
     }
+
+    /**
+     * Get the base QueryBuilder object
+     */
+    public function getBaseQuery()
+    {
+        return Db::table($this->table);
+    }
     
     /**
      * Get the QueryBuilder object
      *
-     * @param boolean $applyFilters Defaults to true, flag determining whether or not to apply the filters (source, deleted_at) to the query builder returned
+     * @param bool $ignoreDeleted Flag to ignore deleted records, defaults to true
      * @return QueryBuilder
      */
-    public function getQuery($applyFilters = true)
+    public function getQuery($ignoreDeleted = true)
     {
-        $query = Db::table($this->table);
-        if ($applyFilters) {
-            $query->where('source', $this->source);
-            $query->where('deleted_at', null);
+        $query = $this->getBaseQuery();
+
+        $query->addSelect('id', 'source', 'path');
+        $query->where('source', $this->source);
+
+        if ($ignoreDeleted) {
+            $query->addSelect('deleted_at');
+            $query->whereNull('deleted_at');
         }
 
         /**
@@ -73,15 +85,14 @@ class DbDatasource extends Datasource implements DatasourceInterface
          *
          * Example usage:
          *
-         *     $datasource->bindEvent('halcyon.datasource.db.extendQuery', function ((QueryBuilder) $query, (boolean) $applyFilters) {
+         *     $datasource->bindEvent('halcyon.datasource.db.extendQuery', function ((QueryBuilder) $query, (bool) $ignoreDeleted) {
          *         // Apply a site filter in a multi-tenant application
-         *         if ($applyFilters) {
-         *             $query->where('site_id', SiteManager::getSite()->id);
-         *         }
+         *         $query->addSelect('site_id');
+         *         $query->where('site_id', SiteManager::getSite()->id);
          *     });
          *
          */
-        $this->fireEvent('halcyon.datasource.db.extendQuery', [$query, $applyFilters]);
+        $this->fireEvent('halcyon.datasource.db.extendQuery', [$query, $ignoreDeleted]);
 
         return $query;
     }
@@ -186,22 +197,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
                 $selects[] = 'updated_at';
             }
 
-            /**
-             * @event halcyon.datasource.db.select.extendColumns
-             * Called before the filtering of what columns get selected from the DB table
-             *
-             * Example usage:
-             *
-             *     $datasource->bindEvent('halcyon.datasource.db.select.extendColumns', function ((string)) $dirName, (array) $options, (array) &$selects) {
-             *         // Ensure that the site_id column is selected for filtering with the
-             *         // where clause attached to the halcyon.datasource.db.extendQuery event
-             *         $selects[] = 'site_id';
-             *     });
-             *
-             */
-            $this->fireEvent('halcyon.datasource.db.select.extendColumns', [$dirName, $options, &$selects]);
-
-            $query->select(...$selects);
+            $query->addSelect(...$selects);
         }
 
         // Retrieve the results
@@ -289,7 +285,8 @@ class DbDatasource extends Datasource implements DatasourceInterface
              */
             $this->fireEvent('halcyon.datasource.db.beforeInsert', [&$record]);
 
-            $this->getQuery(false)->insert($record);
+            // Get a raw query without filters applied to it
+            $this->getBaseQuery()->insert($record);
 
             return $record['file_size'];
         }
@@ -414,7 +411,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
         try {
             return Carbon::parse($this->getQuery()
                     ->where('path', $this->makeFilePath($dirName, $fileName, $extension))
-                    ->select('updated_at')
+                    ->addSelect('updated_at')
                     ->first()->updated_at
             )->timestamp;
         }
@@ -473,16 +470,39 @@ class DbDatasource extends Datasource implements DatasourceInterface
          * Example usage:
          *
          *     $datasource->bindEvent('halcyon.datasource.db.beforeGetAvailablePaths', function () use ($datastore) {
-         *         // Ensure that the site_id column is selected for filtering with the
-         *         // where clause attached to the halcyon.datasource.db.extendQuery event
-         *         $datastore->getQuery()->select('path', 'site_id')->get()->pluck('path')->all();
+         *         return ['path/to/file/that/exists' => true, 'path/to/file/that/is/deleted' => false];
          *     });
          *
          */
         if (!$pathsCache = $this->fireEvent('halcyon.datasource.db.beforeGetAvailablePaths', [], true)) {
-            $pathsCache = $this->getQuery()->select('path')->get()->pluck('path')->all();
-        }
+            // Get the valid paths that are retrievable
+            $pathsCache = array_map(
+                function () { return true; }, 
+                array_flip(
+                    $this->getQuery()
+                        ->get()
+                        ->pluck('path')
+                        ->all()
+                )
+            );
 
+            // Get the valid paths that are deleted
+            $pathsCache = array_merge(
+                $pathsCache,
+                array_map(
+                    function () { return false; }, 
+                    array_flip(
+                        $this->getQuery(false)
+                            ->addSelect('deleted_at')
+                            ->whereNotNull('deleted_at')
+                            ->get()
+                            ->pluck('path')
+                            ->all()
+                    )
+                )
+            );
+        }
+        
         return $pathsCache;
     }
 }
