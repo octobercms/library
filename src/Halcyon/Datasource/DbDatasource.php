@@ -10,7 +10,7 @@ use October\Rain\Halcyon\Exception\FileExistsException;
 
 /**
  * Database based data source
- * 
+ *
  * Table Structure:
  *  - id, unsigned integer
  *  - source, varchar
@@ -36,7 +36,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
      * @var string The table name of the datasource
      */
     protected $table;
-    
+
     /**
      * Create a new datasource instance.
      *
@@ -60,7 +60,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
     {
         return Db::table($this->table);
     }
-    
+
     /**
      * Get the QueryBuilder object
      *
@@ -96,10 +96,10 @@ class DbDatasource extends Datasource implements DatasourceInterface
 
         return $query;
     }
-    
+
     /**
      * Helper to make file path.
-     * 
+     *
      * @param string $dirName
      * @param string $fileName
      * @param string $extension
@@ -152,7 +152,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
     {
         // Initialize result set
         $result = [];
-        
+
         // Prepare query options
         extract(array_merge([
             'columns'     => null,  // Only return specific columns (fileName, mtime, content)
@@ -433,7 +433,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
 
     /**
      * Generate a paths cache key unique to this datasource
-     * 
+     *
      * @return string
      */
     public function getPathsCacheKey()
@@ -458,7 +458,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
 
     /**
      * Get all available paths within this datastore
-     * 
+     *
      * @return array $paths ['path/to/file1.md', 'path/to/file2.md']
      */
     public function getAvailablePaths()
@@ -477,7 +477,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
         if (!$pathsCache = $this->fireEvent('halcyon.datasource.db.beforeGetAvailablePaths', [], true)) {
             // Get the valid paths that are retrievable
             $pathsCache = array_map(
-                function () { return true; }, 
+                function () { return true; },
                 array_flip(
                     $this->getQuery()
                         ->get()
@@ -490,7 +490,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
             $pathsCache = array_merge(
                 $pathsCache,
                 array_map(
-                    function () { return false; }, 
+                    function () { return false; },
                     array_flip(
                         $this->getQuery(false)
                             ->addSelect('deleted_at')
@@ -502,7 +502,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
                 )
             );
         }
-        
+
         return $pathsCache;
     }
 }
