@@ -71,7 +71,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
     {
         $query = $this->getBaseQuery();
 
-        $query->addSelect('id', 'source', 'path');
+        $query->addSelect('id', 'source', 'path', 'updated_at', 'file_size');
         $query->where('source', $this->source);
 
         if ($ignoreDeleted) {
@@ -120,7 +120,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     public function selectOne($dirName, $fileName, $extension)
     {
-        $result = $this->getQuery()->where('path', $this->makeFilePath($dirName, $fileName, $extension))->first();
+        $result = $this->getQuery()->addSelect('content')->where('path', $this->makeFilePath($dirName, $fileName, $extension))->first();
 
         if ($result) {
             return [
