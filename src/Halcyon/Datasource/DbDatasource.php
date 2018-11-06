@@ -446,22 +446,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     public function getPathsCacheKey()
     {
-        $key = 'halcyon-datastore-db-' . $this->table . '-' . $this->source;
-        /**
-         * @event halcyon.datasource.db.getPathsCacheKey
-         * Provides an opportunity to modify the path cache key
-         *
-         * Example usage:
-         *
-         *     $datasource->bindEvent('halcyon.datasource.db.getPathsCacheKey', function ((string) &$key) {
-         *         // Attach the site id the cache key used in the theme datasource in multi-tenant applications
-         *         $key .= '-' . SiteManager::getSite()->id;
-         *     });
-         *
-         */
-        $this->fireEvent('halcyon.datasource.db.getPathsCacheKey', [&$key]);
-
-        return $key;
+        return 'halcyon-datastore-db-' . $this->table . '-' . $this->source;
     }
 
     /**
