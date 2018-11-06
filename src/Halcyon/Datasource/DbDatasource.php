@@ -264,6 +264,11 @@ class DbDatasource extends Datasource implements DatasourceInterface
             throw (new FileExistsException())->setInvalidPath($path);
         }
 
+        // Check for a deleted record, update it if it exists instead
+        if ($this->getQuery(false)->where('path', $path)->first()) {
+            return $this->update($dirName, $fileName, $extension, $content);
+        }
+
         try {
             $record = [
                 'source'     => $this->source,
@@ -271,6 +276,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
                 'content'    => $content,
                 'file_size'  => mb_strlen($content, '8bit'),
                 'updated_at' => Carbon::now()->toDateTimeString(),
+                'deleted_at' => null,
             ];
 
             /**
@@ -320,8 +326,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
             $extension = $oldExtension;
         }
 
-        // Get the existing record
-        $record = $this->selectOne($dirName, $fileName, $extension)['record'];
+        $oldPath = $this->makeFilePath($dirName, $fileName, $extension);
 
         // Update the existing record
         try {
@@ -332,6 +337,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
                 'content'    => $content,
                 'file_size'  => $fileSize,
                 'updated_at' => Carbon::now()->toDateTimeString(),
+                'deleted_at' => null,
             ];
 
             /**
@@ -348,7 +354,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
              */
             $this->fireEvent('halcyon.datasource.db.beforeUpdate', [&$data]);
 
-            $this->getQuery()->where('id', $record->id)->update($data);
+            $this->getQuery(false)->where('path', $oldPath)->update($data);
 
             return $fileSize;
         }
