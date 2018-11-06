@@ -198,6 +198,8 @@ class DbDatasource extends Datasource implements DatasourceInterface
             }
 
             $query->addSelect(...$selects);
+        } else {
+            $query->addSelect('content');
         }
 
         // Retrieve the results
