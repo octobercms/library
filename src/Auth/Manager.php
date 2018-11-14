@@ -287,6 +287,7 @@ class Manager
 
         $model = $this->createThrottleModel();
         $query = $model->where('user_id', '=', $userId);
+        $query = $query->orderBy('is_banned', 'DESC')->orderBy('id', 'DESC');
 
         if ($ipAddress) {
             $query->where(function($query) use ($ipAddress) {
