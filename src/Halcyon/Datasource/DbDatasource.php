@@ -380,9 +380,14 @@ class DbDatasource extends Datasource implements DatasourceInterface
 
             // Attempt to delete the existing record
             if ($this->forceDeleting) {
-                $recordQuery->delete();
+                $result = $recordQuery->delete();
             } else {
-                $recordQuery->update(['deleted_at' => Carbon::now()->toDateTimeString()]);
+                $result = $recordQuery->update(['deleted_at' => Carbon::now()->toDateTimeString()]);
+            }
+
+            // Throw an exception if there were no records affected by this query
+            if (!$result) {
+                throw new Exception('No records were affected!');
             }
 
             return true;
