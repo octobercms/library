@@ -8,6 +8,11 @@ class Datasource
     use \October\Rain\Support\Traits\Emitter;
 
     /**
+     * @var bool Indicates if the record is currently being force deleted.
+     */
+    protected $forceDeleting = false;
+
+    /**
      * The query post processor implementation.
      *
      * @var \October\Rain\Halcyon\Processors\Processor
@@ -22,6 +27,23 @@ class Datasource
     public function getPostProcessor()
     {
         return $this->postProcessor;
+    }
+
+    /**
+     * Force the deletion of a record against the datasource
+     *
+     * @param  string  $dirName
+     * @param  string  $fileName
+     * @param  string  $extension
+     * @return void
+     */
+    public function forceDelete(string $dirName, string $fileName, string $extension)
+    {
+        $this->forceDeleting = true;
+
+        $this->delete($dirName, $fileName, $extension);
+
+        $this->forceDeleting = false;
     }
 
     /**

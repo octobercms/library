@@ -23,11 +23,6 @@ use October\Rain\Halcyon\Exception\FileExistsException;
 class DbDatasource extends Datasource implements DatasourceInterface
 {
     /**
-     * @var bool Indicates if the record is currently being force deleted.
-     */
-    protected $forceDeleting = false;
-
-    /**
      * @var string The identifier for this datasource instance
      */
     protected $source;
@@ -44,7 +39,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
      * @param string $table The table for this database datasource
      * @return void
      */
-    public function __construct($source, $table)
+    public function __construct(string $source, string $table)
     {
         $this->source = $source;
 
@@ -105,7 +100,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
      * @param string $extension
      * @return string
      */
-    protected function makeFilePath($dirName, $fileName, $extension)
+    protected function makeFilePath(string $dirName, string $fileName, string $extension)
     {
         return $dirName . '/' . $fileName . '.' . $extension;
     }
@@ -118,7 +113,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
      * @param  string  $extension
      * @return mixed
      */
-    public function selectOne($dirName, $fileName, $extension)
+    public function selectOne(string $dirName, string $fileName, string $extension)
     {
         $result = $this->getQuery()->addSelect('content')->where('path', $this->makeFilePath($dirName, $fileName, $extension))->first();
 
@@ -148,7 +143,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
      *                      ];
      * @return array
      */
-    public function select($dirName, array $options = [])
+    public function select(string $dirName, array $options = [])
     {
         // Initialize result set
         $result = [];
@@ -255,7 +250,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
      * @param  string  $content
      * @return bool
      */
-    public function insert($dirName, $fileName, $extension, $content)
+    public function insert(string $dirName, string $fileName, string $extension, string $content)
     {
         $path = $this->makeFilePath($dirName, $fileName, $extension);
 
@@ -314,7 +309,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
      * @param  string  $oldExtension Defaults to null
      * @return int
      */
-    public function update($dirName, $fileName, $extension, $content, $oldFileName = null, $oldExtension = null)
+    public function update(string $dirName, string $fileName, string $extension, string $content, $oldFileName = null, $oldExtension = null)
     {
         $path = $this->makeFilePath($dirName, $fileName, $extension);
 
@@ -371,7 +366,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
      * @param  string  $extension
      * @return bool
      */
-    public function delete($dirName, $fileName, $extension)
+    public function delete(string $dirName, string $fileName, string $extension)
     {
         try {
             // Get the existing record
@@ -398,20 +393,6 @@ class DbDatasource extends Datasource implements DatasourceInterface
     }
 
     /**
-     * Force the deletion of a record against the datasource
-     *
-     * @return void
-     */
-    public function forceDelete($dirName, $fileName, $extension)
-    {
-        $this->forceDeleting = true;
-
-        $this->delete($dirName, $fileName, $extension);
-
-        $this->forceDeleting = false;
-    }
-
-    /**
      * Return the last modified date of an object
      *
      * @param  string  $dirName
@@ -419,7 +400,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
      * @param  string  $extension
      * @return int
      */
-    public function lastModified($dirName, $fileName, $extension)
+    public function lastModified(string $dirName, string $fileName, string $extension)
     {
         try {
             return Carbon::parse($this->getQuery()
