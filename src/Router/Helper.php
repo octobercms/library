@@ -147,6 +147,10 @@ class Helper
         $regexMarkerPos = mb_strpos($name, '|');
 
         if ($wildMarkerPos !== false) {
+            if ($optMarkerPos !== false) {
+                return mb_substr($name, 0, $optMarkerPos);
+            }
+
             return mb_substr($name, 0, $wildMarkerPos);
         }
 
@@ -201,10 +205,14 @@ class Helper
         }
 
         $regexMarkerPos = mb_strpos($segment, '|');
+        $wildMarkerPos = mb_strpos($segment, '*');
         $value = false;
 
         if ($regexMarkerPos !== false) {
             $value = mb_substr($segment, $optMarkerPos+1, $regexMarkerPos-$optMarkerPos-1);
+        }
+        elseif ($wildMarkerPos !== false) {
+            $value = mb_substr($segment, $optMarkerPos+1, $wildMarkerPos-$optMarkerPos-1);
         }
         else {
             $value = mb_substr($segment, $optMarkerPos+1);
