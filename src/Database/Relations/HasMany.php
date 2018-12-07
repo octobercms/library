@@ -80,7 +80,7 @@ class HasMany extends HasManyBase
         $value = null;
         $relationName = $this->relationName;
 
-        if ($relation = $this->parent->$relationName) {
+        if ($relation = $this->parent->$relationName()) {
             $value = $relation->pluck($this->localKey)->all();
         }
 
