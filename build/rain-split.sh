@@ -1,28 +1,4 @@
 #
-# This will split up each Rain library to its own github repo
-#
-
-mkdir -p library
-pushd library
-./../git-subsplit.sh init git@github.com:octobercms/library.git
-./../git-subsplit.sh update
-./../git-subsplit.sh publish --heads="master develop" --no-tags src/Translation:git@github.com:octoberrain/translation.git
-./../git-subsplit.sh publish --heads="master develop" --no-tags src/Support:git@github.com:octoberrain/support.git
-./../git-subsplit.sh publish --heads="master develop" --no-tags src/Router:git@github.com:octoberrain/router.git
-./../git-subsplit.sh publish --heads="master develop" --no-tags src/Network:git@github.com:octoberrain/network.git
-./../git-subsplit.sh publish --heads="master develop" --no-tags src/Mail:git@github.com:octoberrain/mail.git
-./../git-subsplit.sh publish --heads="master develop" --no-tags src/Html:git@github.com:octoberrain/html.git
-./../git-subsplit.sh publish --heads="master develop" --no-tags src/Filesystem:git@github.com:octoberrain/filesystem.git
-./../git-subsplit.sh publish --heads="master develop" --no-tags src/Extension:git@github.com:octoberrain/extension.git
-./../git-subsplit.sh publish --heads="master develop" --no-tags src/Database:git@github.com:octoberrain/database.git
-./../git-subsplit.sh publish --heads="master develop" --no-tags src/Config:git@github.com:octoberrain/config.git
-./../git-subsplit.sh publish --heads="master develop" --no-tags src/Auth:git@github.com:octoberrain/auth.git
-./../git-subsplit.sh publish --heads="master develop" --no-tags src/Parse:git@github.com:octoberrain/parse.git
-./../git-subsplit.sh publish --heads="master develop" --no-tags src/Halcyon:git@github.com:octoberrain/halcyon.git
-popd
-
-
-#
 # This will split up the Core modules to its own github repo
 #
 
