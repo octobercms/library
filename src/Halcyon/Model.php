@@ -795,6 +795,14 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function setRawAttributes(array $attributes, $sync = false)
     {
+        // merge dynamic properties to the base attributes
+        if ($sync && is_array($this->attributes)) {
+            foreach ($this->attributes as $attr => $value) {
+                $attributes[$attr] = $value;
+                $this->purgeable[] = $attr;
+            }
+        }
+
         $this->attributes = $attributes;
 
         if ($sync) {
