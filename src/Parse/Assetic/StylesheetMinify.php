@@ -41,8 +41,8 @@ class StylesheetMinify implements FilterInterface
         // Remove space after , : ; { } */ >
         $css = preg_replace('/(,|:|;|\{|}|\*\/|>) /', '$1', $css);
 
-        // Remove space before , ; { } ( ) >
-        $css = preg_replace('/ (,|;|\{|}|\(|\)|>)/', '$1', $css);
+        // Remove space before ; { } >
+        $css = preg_replace('/(,|;|\{|}|>)/', '$1', $css);
 
         // Remove trailing zeros from float numbers preceded by : or a white-space
         // -6.0100em to -6.01em, .0100 to .01, 1.200px to 1.2px
