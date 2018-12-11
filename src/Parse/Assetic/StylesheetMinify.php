@@ -44,8 +44,8 @@ class StylesheetMinify implements FilterInterface
         // Remove space before , ; { } ( ) >
         $css = preg_replace('/ (,|;|\{|}|\(|\)|>)/', '$1', $css);
 
-		// Remove trailing zeros from float numbers preceded by : or a white-space
-		// -6.0100em to -6.01em, .0100 to .01, 1.200px to 1.2px
+        // Remove trailing zeros from float numbers preceded by : or a white-space
+        // -6.0100em to -6.01em, .0100 to .01, 1.200px to 1.2px
         $css = preg_replace('/((?<!\\\\)\:|\s)(\-?)(\d?\.\d+?)0+([^\d])/S', '$1$2$3$4', $css);
 
         // Strips units if value is 0 (converts 0px to 0)
