@@ -180,7 +180,6 @@ trait ExtendableTrait
 
         if (!property_exists($this, $dynamicName)) {
             $this->{$dynamicName} = $value;
-            $this->purgeable[] = $dynamicName;
         }
 
         $this->extensionData['dynamicProperties'][] = $dynamicName;
