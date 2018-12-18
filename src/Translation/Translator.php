@@ -1,6 +1,6 @@
 <?php namespace October\Rain\Translation;
 
-use Event;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Collection;
 use Symfony\Component\Translation\MessageSelector;
 use Illuminate\Contracts\Translation\Translator as TranslatorContract;
@@ -44,6 +44,13 @@ class Translator implements TranslatorContract
      * @var array
      */
     protected $loaded = [];
+
+    /**
+     * The event dispatcher instance.
+     *
+     * @var \Illuminate\Contracts\Events\Dispatcher|\October\Rain\Events\Dispatcher
+     */
+    protected $events;
 
     /**
      * Create a new translator instance.
@@ -93,7 +100,8 @@ class Translator implements TranslatorContract
          *     });
          *
          */
-        if ($line = Event::fire('translator.beforeResolve', [$key, $replace, $locale], true)) {
+        if (isset($this->events) &&
+            ($line = $this->events->fire('translator.beforeResolve', [$key, $replace, $locale], true))) {
             return $line;
         }
 
@@ -406,4 +414,14 @@ class Translator implements TranslatorContract
         $this->fallback = $fallback;
     }
 
+    /**
+     * Set the event dispatcher instance.
+     *
+     * @param  \Illuminate\Contracts\Events\Dispatcher  $events
+     * @return void
+     */
+    public function setEventDispatcher(Dispatcher $events)
+    {
+        $this->events = $events;
+    }
 }
