@@ -343,7 +343,6 @@ ESC;
         ]);
 
         $page->addDynamicProperty('myDynamicProperty', 'myDynamicPropertyValue');
-        $page->addPurgeable('myDynamicProperty');
         $page->save();
         $page = HalcyonTestPage::find('dynamicproperty');
         $this->assertNotNull($page);
