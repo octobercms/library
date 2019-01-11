@@ -51,14 +51,8 @@ class StylesheetMinify implements FilterInterface
         // Strips units if value is 0 (converts 0px to 0)
         $css = preg_replace('/(:| )(\.?)0(%|em|ex|px|in|cm|mm|pt|pc)/i', '${1}0', $css);
 
-        // Converts all zeros value into short-hand
-        $css = preg_replace('/0 0 0 0/', '0', $css );
-
         // Shortern 6-character hex color codes to 3-character where possible
         $css = preg_replace('/#([a-f0-9])\\1([a-f0-9])\\2([a-f0-9])\\3/i', '#\1\2\3', $css);
-
-        // Remove new lines
-        $css = str_replace(["\r\n", "\r", "\n"], '', $css);
 
         return trim($css);
     }
