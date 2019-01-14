@@ -26,8 +26,8 @@ class StylesheetMinify implements FilterInterface
      */
     protected function minify($css)
     {
-        // Normalize whitespace
-        $css = preg_replace('/\s+/', ' ', $css);
+        // Normalize whitespace - Disabled to improve readability of diffs for compiled assets
+        // $css = preg_replace('/\s+/', ' ', $css);
 
         // Remove spaces before and after comment
         $css = preg_replace('/(\s+)(\/\*(.*?)\*\/)(\s+)/', '$2', $css);
