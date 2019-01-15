@@ -120,7 +120,7 @@ class File extends Model
 
         return $this;
     }
-    
+
     /**
      * Creates a file object from raw data.
      *
@@ -195,7 +195,7 @@ class File extends Model
     {
         $this->data = $value;
     }
-    
+
     /**
      * Helper attribute for get image width.
      * @return string
@@ -204,7 +204,7 @@ class File extends Model
     {
         if ($this->isImage()) {
             $dimensions = $this->getImageDimensions();
-            
+
             return $dimensions[0];
         }
     }
@@ -217,7 +217,7 @@ class File extends Model
     {
         if ($this->isImage()) {
             $dimensions = $this->getImageDimensions();
-            
+
             return $dimensions[1];
         }
     }
@@ -237,10 +237,13 @@ class File extends Model
 
     /**
      * Outputs the raw file contents.
+     *
      * @return void
      */
     public function output($disposition = 'inline')
     {
+        traceLog('output() is deprecated. Please use getHttpResponse() instead. Class: '.get_class($this));
+
         header("Content-type: ".$this->getContentType());
         header('Content-Disposition: '.$disposition.'; filename="'.$this->file_name.'"');
         header('Cache-Control: private');
@@ -257,6 +260,8 @@ class File extends Model
      */
     public function outputThumb($width, $height, $options = [])
     {
+        traceLog('outputThumb() is deprecated. Please use getThumbHttpResponse() instead. Class: '.get_class($this));
+
         $disposition = array_get($options, 'disposition', 'inline');
         $this->getThumb($width, $height, $options);
         $options = $this->getDefaultThumbOptions($options);
@@ -271,6 +276,56 @@ class File extends Model
         header('Accept-Ranges: bytes');
         header('Content-Length: '.mb_strlen($contents, '8bit'));
         echo $contents;
+    }
+
+    /**
+     * Returns the file as a Response to be sent to the client
+     *
+     * @param string $disposition The Content-Disposition to set, defaults to inline
+     * @return Response
+     */
+    public function getHttpResponse($disposition = 'inline')
+    {
+        return response($this->getContents())->withHeaders([
+            'Content-type'        => $this->getContentType(),
+            'Content-Disposition' => $disposition . '; filename="' . $this->file_name . '"',
+            'Cache-Control'       => 'private, no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0',
+            'Accept-Ranges'       => 'bytes',
+            'Content-Length'      => $this->file_size,
+        ]);
+    }
+
+    /**
+     * Returns the file's thumb as a Response to be sent to the client
+     *
+     * @param integer $width
+     * @param integer $height
+     * @param array $options [
+     *                  'mode'      => 'auto',
+     *                  'offset'    => [0, 0],
+     *                  'quality'   => 90,
+     *                  'sharpen'   => 0,
+     *                  'interlace' => false,
+     *                  'extension' => 'auto',
+     *                  'disposition' => 'inline',
+     *              ]
+     * @return Response
+     */
+    public function getThumbHttpResponse($width, $height, $options = [])
+    {
+        $disposition = array_get($options, 'disposition', 'inline');
+        $this->getThumb($width, $height, $options);
+        $options = $this->getDefaultThumbOptions($options);
+        $thumbFile = $this->getThumbFilename($width, $height, $options);
+        $contents = $this->getContents($thumbFile);
+
+        return response($contents)->withHeaders([
+            'Content-type'        => $this->getContentType(),
+            'Content-Disposition' => $disposition . '; filename="' . basename($thumbFile) . '"',
+            'Cache-Control'       => 'private, no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0',
+            'Accept-Ranges'       => 'bytes',
+            'Content-Length'      => mb_strlen($contents, '8bit'),
+        ]);
     }
 
     //
@@ -459,6 +514,18 @@ class File extends Model
 
     /**
      * Generates and returns a thumbnail path.
+     *
+     * @param integer $width
+     * @param integer $height
+     * @param array $options [
+     *                  'mode'      => 'auto',
+     *                  'offset'    => [0, 0],
+     *                  'quality'   => 90,
+     *                  'sharpen'   => 0,
+     *                  'interlace' => false,
+     *                  'extension' => 'auto',
+     *              ]
+     * @return string The URL to the generated thumbnail
      */
     public function getThumb($width, $height, $options = [])
     {
