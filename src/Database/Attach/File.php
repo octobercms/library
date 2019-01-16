@@ -238,65 +238,30 @@ class File extends Model
     /**
      * Outputs the raw file contents.
      *
-     * @return void
-     */
-    public function output($disposition = 'inline')
-    {
-        traceLog('output() is deprecated. Please use getHttpResponse() instead. Class: '.get_class($this));
-
-        header("Content-type: ".$this->getContentType());
-        header('Content-Disposition: '.$disposition.'; filename="'.$this->file_name.'"');
-        header('Cache-Control: private');
-        header('Cache-Control: no-store, no-cache, must-revalidate');
-        header('Cache-Control: pre-check=0, post-check=0, max-age=0');
-        header('Accept-Ranges: bytes');
-        header('Content-Length: '.$this->file_size);
-        echo $this->getContents();
-    }
-
-    /**
-     * Outputs the raw thumbfile contents.
-     * @return void
-     */
-    public function outputThumb($width, $height, $options = [])
-    {
-        traceLog('outputThumb() is deprecated. Please use getThumbHttpResponse() instead. Class: '.get_class($this));
-
-        $disposition = array_get($options, 'disposition', 'inline');
-        $this->getThumb($width, $height, $options);
-        $options = $this->getDefaultThumbOptions($options);
-        $thumbFile = $this->getThumbFilename($width, $height, $options);
-        $contents = $this->getContents($thumbFile);
-
-        header("Content-type: ".$this->getContentType());
-        header('Content-Disposition: '.$disposition.'; filename="'.basename($thumbFile).'"');
-        header('Cache-Control: private');
-        header('Cache-Control: no-store, no-cache, must-revalidate');
-        header('Cache-Control: pre-check=0, post-check=0, max-age=0');
-        header('Accept-Ranges: bytes');
-        header('Content-Length: '.mb_strlen($contents, '8bit'));
-        echo $contents;
-    }
-
-    /**
-     * Returns the file as a Response to be sent to the client
-     *
      * @param string $disposition The Content-Disposition to set, defaults to inline
-     * @return Response
+     * @param bool $returnResponse Defaults to false, returns a Response object instead of directly outputting to the browser
+     * @return Response | void
      */
-    public function getHttpResponse($disposition = 'inline')
+    public function output($disposition = 'inline', $returnResponse = false)
     {
-        return response($this->getContents())->withHeaders([
+        $response = response($this->getContents())->withHeaders([
             'Content-type'        => $this->getContentType(),
             'Content-Disposition' => $disposition . '; filename="' . $this->file_name . '"',
             'Cache-Control'       => 'private, no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0',
             'Accept-Ranges'       => 'bytes',
             'Content-Length'      => $this->file_size,
         ]);
+
+        if ($returnResponse) {
+            return $response;
+        } else {
+            $response->sendHeaders();
+            $response->sendContent();
+        }
     }
 
     /**
-     * Returns the file's thumb as a Response to be sent to the client
+     * Outputs the raw thumbfile contents.
      *
      * @param integer $width
      * @param integer $height
@@ -309,9 +274,10 @@ class File extends Model
      *                  'extension' => 'auto',
      *                  'disposition' => 'inline',
      *              ]
-     * @return Response
+     * @param bool $returnResponse Defaults to false, returns a Response object instead of directly outputting to the browser
+     * @return Response | void
      */
-    public function getThumbHttpResponse($width, $height, $options = [])
+    public function outputThumb($width, $height, $options = [], $returnResponse = false)
     {
         $disposition = array_get($options, 'disposition', 'inline');
         $this->getThumb($width, $height, $options);
@@ -319,13 +285,20 @@ class File extends Model
         $thumbFile = $this->getThumbFilename($width, $height, $options);
         $contents = $this->getContents($thumbFile);
 
-        return response($contents)->withHeaders([
+        $response = response($contents)->withHeaders([
             'Content-type'        => $this->getContentType(),
             'Content-Disposition' => $disposition . '; filename="' . basename($thumbFile) . '"',
             'Cache-Control'       => 'private, no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0',
             'Accept-Ranges'       => 'bytes',
             'Content-Length'      => mb_strlen($contents, '8bit'),
         ]);
+
+        if ($returnResponse) {
+            return $response;
+        } else {
+            $response->sendHeaders();
+            $response->sendContent();
+        }
     }
 
     //
