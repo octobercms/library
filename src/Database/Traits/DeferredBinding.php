@@ -10,11 +10,6 @@ trait DeferredBinding
     public $sessionKey;
 
     /**
-     * @var \October\Rain\Database\Collection Deferred binding lookup cache.
-     */
-    protected $deferredBindingCache = null;
-
-    /**
      * Returns true if a relation exists and can be deferred.
      */
     public function isDeferrable($relationName)
@@ -77,7 +72,7 @@ trait DeferredBinding
     public function commitDeferred($sessionKey)
     {
         $this->commitDeferredOfType($sessionKey);
-        $this->deferredBindingCache = null;
+        DeferredBindingModel::flushDuplicateCache();
     }
 
     /**
@@ -96,7 +91,7 @@ trait DeferredBinding
     protected function commitDeferredAfter($sessionKey)
     {
         $this->commitDeferredOfType($sessionKey, null, 'belongsTo');
-        $this->deferredBindingCache = null;
+        DeferredBindingModel::flushDuplicateCache();
     }
 
     /**
@@ -166,17 +161,13 @@ trait DeferredBinding
      * Returns any outstanding binding records for this model.
      * @return \October\Rain\Database\Collection
      */
-    protected function getDeferredBindingRecords($sessionKey, $force = false)
+    protected function getDeferredBindingRecords($sessionKey)
     {
-        if ($this->deferredBindingCache !== null && !$force) {
-            return $this->deferredBindingCache;
-        }
-
         $binding = new DeferredBindingModel;
 
         $binding->setConnection($this->getConnectionName());
 
-        return $this->deferredBindingCache = $binding
+        return $binding
             ->where('master_type', get_class($this))
             ->where('session_key', $sessionKey)
             ->get()
