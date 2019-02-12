@@ -232,10 +232,15 @@ class Dispatcher implements DispatcherContract
         foreach ($this->getListeners($event) as $listener) {
             $response = call_user_func_array($listener, $payload);
 
-            // If a response is returned from the listener and event halting is enabled
-            // we will just return this response, and not call the rest of the event
-            // listeners. Otherwise we will add the response on the response list.
-            if (! is_null($response) && $halt) {
+            // If the response is null continue to the next listener.
+            if ($response === null) {
+                continue;
+            }
+
+            // If event halting is enabled we will just return this response,
+            // and not call the rest of the event listeners. Otherwise we will
+            // add the response on the response list.
+            if ($halt) {
                 array_pop($this->firing);
 
                 return $response;
