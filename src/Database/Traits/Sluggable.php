@@ -53,9 +53,9 @@ trait Sluggable
      * @param int $maxLength Maximum length for the slug not including the counter.
      * @return string The generated value.
      */
-    public function setSluggedValue($slugAttribute, $sourceAttributes, $maxLength = 240)
+    public function setSluggedValue($slugAttribute, $sourceAttributes, $maxLength = 175)
     {
-        if (!isset($this->{$slugAttribute}) || !strlen($this->{$slugAttribute})) {
+        if (!isset($this->{$slugAttribute}) || !mb_strlen($this->{$slugAttribute})) {
             if (!is_array($sourceAttributes)) {
                 $sourceAttributes = [$sourceAttributes];
             }
@@ -66,7 +66,7 @@ trait Sluggable
             }
 
             $slug = implode(' ', $slugArr);
-            $slug = substr($slug, 0, $maxLength);
+            $slug = mb_substr($slug, 0, $maxLength);
             $slug = Str::slug($slug, $this->getSluggableSeparator());
         }
         else {
