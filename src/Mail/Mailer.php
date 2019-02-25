@@ -91,13 +91,13 @@ class Mailer extends MailerBase
           *
           * Example usage (stops the sending process):
           *
-          *     Event::listen('mailer.prepareSend', function ((string) $view, (\Illuminate\Mail\Message) $message) {
+          *     Event::listen('mailer.prepareSend', function ((\October\Rain\Mail\Mailer) $mailerInstance, (string) $view, (\Illuminate\Mail\Message) $message) {
           *         return false;
           *     });
           *
           * Or
           *
-          *     $mailerInstance->bindEvent('mailer.prepareSend', function ((\October\Rain\Mail\Mailer) $mailerInstance, (string) $view, (\Illuminate\Mail\Message) $message) {
+          *     $mailerInstance->bindEvent('mailer.prepareSend', function ((string) $view, (\Illuminate\Mail\Message) $message) {
           *         return false;
           *     });
           *
@@ -121,13 +121,13 @@ class Mailer extends MailerBase
          *
          * Example usage (logs the message):
          *
-         *     Event::listen('mailer.send', function ((string) $view, (\Illuminate\Mail\Message) $message) {
+         *     Event::listen('mailer.send', function ((\October\Rain\Mail\Mailer) $mailerInstance, (string) $view, (\Illuminate\Mail\Message) $message) {
          *         \Log::info("Message was rendered with $view and sent");
          *     });
          *
          * Or
          *
-         *     $mailerInstance->bindEvent('mailer.send', function ((\October\Rain\Mail\Mailer) $mailerInstance, (string) $view, (\Illuminate\Mail\Message) $message) {
+         *     $mailerInstance->bindEvent('mailer.send', function ((string) $view, (\Illuminate\Mail\Message) $message) {
          *         \Log::info("Message was rendered with $view and sent");
          *     });
          *
@@ -381,13 +381,13 @@ class Mailer extends MailerBase
          *
          * Example usage (stops the content adding process):
          *
-         *     Event::listen('mailer.beforeAddContent', function ((\Illuminate\Mail\Message) $message, (string) $view, (string) $plain, (string) $raw, (array) $data) {
+         *     Event::listen('mailer.beforeAddContent', function ((\October\Rain\Mail\Mailer) $mailerInstance, (\Illuminate\Mail\Message) $message, (string) $view, (string) $plain, (string) $raw, (array) $data) {
          *         return false;
          *     });
          *
          * Or
          *
-         *     $mailerInstance->bindEvent('mailer.beforeAddContent', function ((\October\Rain\Mail\Mailer) $mailerInstance, (\Illuminate\Mail\Message) $message, (string) $view, (string) $plain, (string) $raw, (array) $data) {
+         *     $mailerInstance->bindEvent('mailer.beforeAddContent', function ((\Illuminate\Mail\Message) $message, (string) $view, (string) $plain, (string) $raw, (array) $data) {
          *         return false;
          *     });
          *
@@ -439,13 +439,13 @@ class Mailer extends MailerBase
          *
          * Example usage (Logs that content has been added):
          *
-         *     Event::listen('mailer.addContent', function ((\Illuminate\Mail\Message) $message, (string) $view, (array) $data) {
+         *     Event::listen('mailer.addContent', function ((\October\Rain\Mail\Mailer) $mailerInstance, (\Illuminate\Mail\Message) $message, (string) $view, (array) $data) {
          *         \Log::info("$view has had content added to the message");
          *     });
          *
          * Or
          *
-         *     $mailerInstance->bindEvent('mailer.addContent', function ((\October\Rain\Mail\Mailer) $mailerInstance, (\Illuminate\Mail\Message) $message, (string) $view, (array) $data) {
+         *     $mailerInstance->bindEvent('mailer.addContent', function ((\Illuminate\Mail\Message) $message, (string) $view, (array) $data) {
          *         \Log::info("$view has had content added to the message");
          *     });
          *
