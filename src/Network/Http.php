@@ -279,7 +279,7 @@ class Http
             $requestDataQuery = http_build_query($this->requestData, '', $this->argumentSeparator);
 
             if (in_array($this->method, [self::METHOD_POST, self::METHOD_PATCH, self::METHOD_PUT])) {
-                curl_setopt($curl, CURLOPT_POSTFIELDS, $requestDataQuery);
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $this->requestData);
             }
             elseif ($this->method == self::METHOD_GET) {
                 curl_setopt($curl, CURLOPT_URL, $this->url . '?' . $requestDataQuery);
