@@ -83,6 +83,7 @@ class Dongle
         if ($this->driver == 'pgsql' || $this->driver == 'postgis') {
             $result = preg_replace("/\\(([]a-zA-Z\\-\\_\\.]+)\\,/i", "($1::VARCHAR,", $result);
             $result = str_ireplace('group_concat(', 'string_agg(', $result);
+            $result = str_ireplace(", ', '", "", $result);
         }
 
         /*
