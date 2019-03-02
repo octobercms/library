@@ -40,11 +40,13 @@ class Purgeable extends \October\Rain\Extension\ExtensionBase
          * Remove any purge attributes from the data set
          */
         $model = $this->parent;
-        $model->bindEvent('model.saveInternal', function() use ($model) {
-            $model->purgeAttributes();
-        });
-
+        $model->bindEvent('model.saveInternal', [$this, 'saveInternalHandler']);
     }
+
+    public function saveInternalHandler()
+    {
+        $this->parent->purgeAttributes();
+    }   
 
     /**
      * Adds an attribute to the purgeable attributes list
