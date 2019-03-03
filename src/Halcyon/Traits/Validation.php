@@ -295,6 +295,7 @@ trait Validation
             $fieldName = $field;
 
             if (preg_match_all('/^.*?\[.*?\]/', $fieldName)) {
+                $fieldName = str_replace('[]', '.*', $fieldName);
                 $fieldName = str_replace(['[', ']'], ['.', ''], $fieldName);
             }
 

@@ -9,7 +9,8 @@ class ValidationTraitTest extends TestCase
             'field' => 'required',
             'field.two' => 'required|boolean',
             'field[three]' => 'required|date',
-            'field[three][child]' => 'required'
+            'field[three][child]' => 'required',
+            'field[four][][name]' => 'required'
         ];
         $rules = self::callProtectedMethod($mock, 'processRuleFieldNames', [$rules]);
 
@@ -17,7 +18,8 @@ class ValidationTraitTest extends TestCase
             'field' => 'required',
             'field.two' => 'required|boolean',
             'field.three' => 'required|date',
-            'field.three.child' => 'required'
+            'field.three.child' => 'required',
+            'field.four.*.name' => 'required'
         ], $rules);
     }
 }
