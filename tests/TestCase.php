@@ -1,6 +1,6 @@
 <?php
 
-class TestCase extends PHPUnit_Framework_TestCase 
+class TestCase extends PHPUnit_Framework_TestCase
 {
     /**
      * Creates the application.
@@ -14,5 +14,14 @@ class TestCase extends PHPUnit_Framework_TestCase
     public function testNothing()
     {
         // Test nothing
+    }
+
+    protected static function callProtectedMethod($object, $name, $params = [])
+    {
+        $className = get_class($object);
+        $class = new ReflectionClass($className);
+        $method = $class->getMethod($name);
+        $method->setAccessible(true);
+        return $method->invokeArgs($object, $params);
     }
 }
