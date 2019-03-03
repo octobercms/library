@@ -73,7 +73,10 @@
     "autoload-dev": {
         "classmap": [
             "tests/TestCase.php"
-        ]
+        ],
+        "psr-4": {
+            "October\\Rain\\Tests\\": "tests/"
+        }
     },
     "extra": {
         "branch-alias": {
