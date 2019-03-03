@@ -150,7 +150,7 @@ class Updater
                  */
                 if ($tokens[$i][0] === T_CLASS) {
                     for ($j = $i + 1; $j < count($tokens); $j++) {
-                        if ($tokens[$j] === '{') {
+                        if ($tokens[$j] === '{' && !strlen($class)) {
                             $class = $tokens[$i+2][1];
                             break;
                         }
