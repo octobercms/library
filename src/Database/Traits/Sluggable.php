@@ -88,7 +88,7 @@ trait Sluggable
         $separator = $this->getSluggableSeparator();
         $_value = $value;
 
-        while ($this->newSluggableQuery()->where($name, $_value)->count() > 0) {
+        while ($this->newSluggableQuery()->where($name, $_value)->withTrashed()->count() > 0) {
             $counter++;
             $_value = $value . $separator . $counter;
         }
