@@ -97,7 +97,6 @@ class TestModelSluggableSoftDelete extends \October\Rain\Database\Model
 
     protected $slugs = ['slug' => 'name'];
     protected $fillable = ['name'];
-    protected $dates = ['deleted_at'];
     protected $table = 'testSoftDelete';
 
 }
@@ -111,7 +110,6 @@ class TestModelSluggable extends \October\Rain\Database\Model
 
     protected $slugs = ['slug' => 'name'];
     protected $fillable = ['name'];
-    protected $dates = ['deleted_at'];
     protected $table = 'test';
 
 }
