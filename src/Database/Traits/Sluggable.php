@@ -88,7 +88,7 @@ trait Sluggable
         $separator = $this->getSluggableSeparator();
         $_value = $value;
 
-        if (method_exists($this, 'withTrashed') ) {
+        if ($this->methodExists('withTrashed') ) {
             $query = $this->newSluggableQuery()->withTrashed();
         } else {
             $query = $this->newSluggableQuery();
