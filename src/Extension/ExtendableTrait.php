@@ -151,7 +151,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Programatically adds a method to the extendable class
+     * Programmatically adds a method to the extendable class
      * @param string   $dynamicName
      * @param callable $method
      * @param string   $extension
@@ -170,7 +170,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Programatically adds a property to the extendable class
+     * Programmatically adds a property to the extendable class
      * @param string   $dynamicName
      * @param string   $value
      */
@@ -235,9 +235,7 @@ trait ExtendableTrait
     public function getClassExtension($name)
     {
         $name = str_replace('.', '\\', trim($name));
-        return (isset($this->extensionData['extensions'][$name]))
-            ? $this->extensionData['extensions'][$name]
-            : null;
+        return $this->extensionData['extensions'][$name] ?? null;
     }
 
     /**
@@ -278,6 +276,18 @@ trait ExtendableTrait
         );
     }
 
+    /**
+     * Get a list of class methods, extension equivalent of get_class_methods()
+     * @return array
+     */
+    public function getClassMethods()
+    {
+        return array_values(array_unique(array_merge(
+            get_class_methods($this),
+            array_keys($this->extensionData['methods']),
+            array_keys($this->extensionData['dynamicMethods'])
+        )));
+    }
 
     /**
      * Returns all dynamic properties and their values
@@ -317,7 +327,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Checks if a property is accessible, property equivalent of `is_callabe()`
+     * Checks if a property is accessible, property equivalent of `is_callable()`
      * @param  mixed  $class
      * @param  string $propertyName
      * @return boolean

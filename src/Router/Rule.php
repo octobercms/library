@@ -234,9 +234,8 @@ class Rule
                     unset($urlSegments[$index]);
                     continue;
                 }
-                else {
-                    break;
-                }
+
+                break;
             }
 
             $patternSegment = $patternSegments[$index];

@@ -1,7 +1,5 @@
 <?php namespace October\Rain\Database\Behaviors;
 
-use Exception;
-
 class Purgeable extends \October\Rain\Extension\ExtensionBase
 {
     /**
@@ -111,9 +109,7 @@ class Purgeable extends \October\Rain\Extension\ExtensionBase
      */
     public function getOriginalPurgeValue($attribute)
     {
-        return isset($this->originalPurgeableValues[$attribute])
-            ? $this->originalPurgeableValues[$attribute]
-            : null;
+        return $this->originalPurgeableValues[$attribute] ?? null;
     }
 
     /**

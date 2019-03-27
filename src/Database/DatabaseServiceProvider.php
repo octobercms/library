@@ -1,11 +1,9 @@
 <?php namespace October\Rain\Database;
 
-use October\Rain\Database\Model;
 use October\Rain\Database\Schema\Blueprint;
 use October\Rain\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\DatabaseServiceProvider as DatabaseServiceProviderBase;
 use Illuminate\Database\DatabaseManager;
-use October\Rain\Database\MemoryCache;
 
 class DatabaseServiceProvider extends DatabaseServiceProviderBase
 {

@@ -101,6 +101,110 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
+     * Override attach() method of BelongToMany relation.
+     * This is necessary in order to fire 'model.relation.beforeAttach', 'model.relation.afterAttach' events
+     * @param mixed $id
+     * @param array $attributes
+     * @param bool  $touch
+     */
+    public function attach($id, array $attributes = [], $touch = true)
+    {
+        $insertData = $this->formatAttachRecords($this->parseIds($id), $attributes);
+        $attachedIdList = array_pluck($insertData, $this->relatedPivotKey);
+
+        /**
+         * @event model.relation.beforeAttach
+         * Called before creating a new relation between models (only for BelongsToMany relation)
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.relation.beforeAttach', function (string $relationName, array $attachedIdList, array $insertData) use (\October\Rain\Database\Model $model) {
+         *         if (!$model->isRelationValid($attachedIdList)) {
+         *             throw new \Exception("Invalid relation!");
+         *             return false;
+         *         }
+         *     });
+         *
+         */
+        if ($this->parent->fireEvent('model.relation.beforeAttach', [$this->relationName, $attachedIdList, $insertData], true) === false) {
+            return;
+        }
+
+        // Here we will insert the attachment records into the pivot table. Once we have
+        // inserted the records, we will touch the relationships if necessary and the
+        // function will return. We can parse the IDs before inserting the records.
+        $this->newPivotStatement()->insert($insertData);
+
+        if ($touch) {
+            $this->touchIfTouching();
+        }
+
+        /**
+         * @event model.relation.afterAttach
+         * Called after creating a new relation between models (only for BelongsToMany relation)
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.relation.afterAttach', function (string $relationName, array $attachedIdList, array $insertData) use (\October\Rain\Database\Model $model) {
+         *         traceLog("New relation {$relationName} was created", $attachedIdList);
+         *     });
+         *
+         */
+        $this->parent->fireEvent('model.relation.afterAttach', [$this->relationName, $attachedIdList, $insertData]);
+    }
+
+    /**
+     * Override detach() method of BelongToMany relation.
+     * This is necessary in order to fire 'model.relation.beforeDetach', 'model.relation.afterDetach' events
+     * @param null $ids
+     * @param bool $touch
+     * @return int|void
+     */
+    public function detach($ids = null, $touch = true)
+    {
+        $attachedIdList = $this->parseIds($ids);
+        if (empty($attachedIdList)) {
+            $attachedIdList = $this->newPivotQuery()->lists($this->relatedPivotKey);
+        }
+
+        /**
+         * @event model.relation.beforeDetach
+         * Called before removing a relation between models (only for BelongsToMany relation)
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.relation.beforeDetach', function (string $relationName, array $attachedIdList) use (\October\Rain\Database\Model $model) {
+         *         if (!$model->isRelationValid($attachedIdList)) {
+         *             throw new \Exception("Invalid relation!");
+         *             return false;
+         *         }
+         *     });
+         *
+         */
+        if ($this->parent->fireEvent('model.relation.beforeDetach', [$this->relationName, $attachedIdList], true) === false) {
+            return;
+        }
+
+        /*
+         * See Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
+         */
+        parent::detach($ids, $touch);
+
+        /**
+         * @event model.relation.afterDetach
+         * Called after removing a relation between models (only for BelongsToMany relation)
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.relation.afterDetach', function (string $relationName, array $attachedIdList) use (\October\Rain\Database\Model $model) {
+         *         traceLog("Relation {$relationName} was removed", $attachedIdList);
+         *     });
+         *
+         */
+        $this->parent->fireEvent('model.relation.afterDetach', [$this->relationName, $attachedIdList]);
+    }
+
+    /**
      * Adds a model to this relationship type.
      */
     public function add(Model $model, $sessionKey = null, $pivotData = [])

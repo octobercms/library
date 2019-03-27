@@ -89,8 +89,7 @@ trait NestedTree
              */
             $model->hasMany['children'] = [
                 get_class($model),
-                'key' => $model->getParentColumnName(),
-                'order' => $model->getLeftColumnName()
+                'key' => $model->getParentColumnName()
             ];
 
             $model->belongsTo['parent'] = [
@@ -560,16 +559,14 @@ trait NestedTree
                 ->first()
             ;
         }
-        else {
-            $parentId = $this->getParentId();
 
-            if ($parentId !== null && ($currentParent = $this->newQuery()->find($parentId))) {
-                return $currentParent->getRoot();
-            }
-            else {
-                return $this;
-            }
+        $parentId = $this->getParentId();
+
+        if ($parentId !== null && ($currentParent = $this->newQuery()->find($parentId))) {
+            return $currentParent->getRoot();
         }
+
+        return $this;
     }
 
     /**
@@ -671,6 +668,24 @@ trait NestedTree
         return $this->newQuery()->siblings(true)->get();
     }
 
+    /**
+     * Return left sibling
+     * @return \October\Rain\Database\Model
+     */
+    public function getLeftSibling()
+    {
+        return $this->siblings()->where($this->getRightColumnName(), '=', $this->getLeft() - 1)->first();
+    }
+
+    /**
+     * Return right sibling
+     * @return \October\Rain\Database\Model
+     */
+    public function getRightSibling()
+    {
+        return $this->siblings()->where($this->getLeftColumnName(), '=', $this->getRight() + 1)->first();
+    }
+    
     /**
      * Returns all final nodes without children.
      * @return \October\Rain\Database\Collection
@@ -999,9 +1014,8 @@ trait NestedTree
                     'Cannot resolve target node. This node cannot move any further to the %s.', $position
                 ));
             }
-            else {
-                throw new Exception('Cannot resolve target node.');
-            }
+
+            throw new Exception('Cannot resolve target node.');
         }
 
         if ($node == $target) {

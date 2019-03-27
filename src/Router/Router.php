@@ -87,7 +87,7 @@ class Router
         }
 
         $this->parameters = $parameters;
-        return ($this->matchedRouteRule) ? true : false;
+        return $this->matchedRouteRule ? true : false;
     }
 
     /**
@@ -258,23 +258,23 @@ class Router
             if ($lengthA > $lengthB) {
                 return -1;
             }
-            else if ($lengthA < $lengthB) {
+
+            if ($lengthA < $lengthB) {
                 return 1;
             }
-            else {
-                $lengthA = $a->dynamicSegmentCount;
-                $lengthB = $b->dynamicSegmentCount;
 
-                if ($lengthA > $lengthB) {
-                    return 1;
-                }
-                else if ($lengthA < $lengthB) {
-                    return -1;
-                }
-                else {
-                    return 0;
-                }
+            $lengthA = $a->dynamicSegmentCount;
+            $lengthB = $b->dynamicSegmentCount;
+
+            if ($lengthA > $lengthB) {
+                return 1;
             }
+
+            if ($lengthA < $lengthB) {
+                return -1;
+            }
+
+            return 0;
         });
     }
 
