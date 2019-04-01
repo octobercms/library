@@ -50,7 +50,7 @@ if (!function_exists('post'))
             $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
         }
 
-        return Request::post($name, $default);
+        return array_get(Request::post(), $name, $default);
     }
 }
 
@@ -72,7 +72,7 @@ if (!function_exists('get'))
             $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
         }
 
-        return Request::query($name, $default);
+        return array_get(Request::query(), $name, $default);
     }
 }
 
