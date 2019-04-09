@@ -222,6 +222,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     protected function bootNicerEvents()
     {
         $class = get_called_class();
+        $traitUses = class_uses($class);
 
         if (isset(static::$eventsBooted[$class])) {
             return;
@@ -254,6 +255,23 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
             if ($model->methodExists('afterBoot'))
                 return $model->afterBoot();
         });
+
+        $sortableTraits = [
+            \October\Rain\Database\Traits\NestedTree::class,
+            \October\Rain\Database\Traits\Sortable::class,
+        ];
+
+        if (array_diff($traitUses, $sortableTraits)) {
+            /*
+             * Hook to reorder events
+             */
+            static::registerModelEvent('reordered', function ($model) {
+                $model->fireEvent('model.afterReorder');
+                if ($model->methodExists('afterReorder')) {
+                    return $model->afterReorder();
+                }
+            });
+        }
 
         static::$eventsBooted[$class] = true;
     }

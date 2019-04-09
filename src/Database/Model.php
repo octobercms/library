@@ -144,6 +144,7 @@ class Model extends EloquentModel
     protected function bootNicerEvents()
     {
         $class = get_called_class();
+        $traitUses = class_uses($class);
 
         if (isset(static::$eventsBooted[$class])) {
             return;
@@ -192,6 +193,35 @@ class Model extends EloquentModel
                 return $model->afterBoot();
             }
         });
+
+        $sortableTraits = [
+            \October\Rain\Database\Traits\NestedTree::class,
+            \October\Rain\Database\Traits\Sortable::class,
+        ];
+
+        if (array_diff($traitUses, $sortableTraits)) {
+            /*
+             * Hook to reorder events
+             */
+            static::registerModelEvent('reordered', function ($model) {
+                /**
+                 * @event model.afterReorder
+                 * Called after the model is reordered
+                 *
+                 * Example usage:
+                 *
+                 *     $model->bindEvent('model.afterReorder', function () use (\October\Rain\Database\Model $model) {
+                 *         \Log::info("{$model->name} has been reordered!");
+                 *     });
+                 *
+                 */
+                $model->fireEvent('model.afterReorder');
+
+                if ($model->methodExists('afterReorder')) {
+                    return $model->afterReorder();
+                }
+            });
+        }
 
         static::$eventsBooted[$class] = true;
     }
