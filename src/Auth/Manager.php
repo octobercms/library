@@ -89,6 +89,7 @@ class Manager
         $model = $this->createUserModel();
         $query = $model->newQuery();
         $this->extendUserQuery($query);
+
         return $query;
     }
 
@@ -163,7 +164,8 @@ class Manager
     {
         $query = $this->createUserModelQuery();
         $user = $query->find($id);
-        return $user ?: null;
+
+        return $this->validateUserModel($user) ? $user : null;
     }
 
     /**
@@ -176,8 +178,9 @@ class Manager
     {
         $model = $this->createUserModel();
         $query = $this->createUserModelQuery();
-        $user = $query->where($model->getLoginName(), $login)->first();
-        return $user ?: null;
+        $user  = $query->where($model->getLoginName(), $login)->first();
+
+        return $this->validateUserModel($user) ? $user : null;
     }
 
     /**
@@ -213,7 +216,8 @@ class Manager
             }
         }
 
-        if (!$user = $query->first()) {
+        $user = $query->first();
+        if (!$this->validateUserModel($user)) {
             throw new AuthException('A user was not found with the given credentials.');
         }
 
@@ -236,6 +240,17 @@ class Manager
         }
 
         return $user;
+    }
+
+    /**
+     * Perform additional checks on the user model.
+     *
+     * @param $user
+     * @return boolean
+     */
+    protected function validateUserModel($user)
+    {
+        return $user instanceof $this->userModel;
     }
 
     //
@@ -408,7 +423,7 @@ class Manager
             /*
              * Look up user
              */
-            if (!$user = $this->createUserModel()->find($id)) {
+            if (!$user = $this->findUserById($id)) {
                 return false;
             }
 

@@ -276,6 +276,18 @@ trait ExtendableTrait
         );
     }
 
+    /**
+     * Get a list of class methods, extension equivalent of get_class_methods()
+     * @return array
+     */
+    public function getClassMethods()
+    {
+        return array_values(array_unique(array_merge(
+            get_class_methods($this),
+            array_keys($this->extensionData['methods']),
+            array_keys($this->extensionData['dynamicMethods'])
+        )));
+    }
 
     /**
      * Returns all dynamic properties and their values

@@ -188,6 +188,38 @@ class ExtendableTest extends TestCase
         $this->assertTrue($subject->isClassExtendedWith('ExtendableTest.ExampleBehaviorClass1'));
         $this->assertTrue($subject->isClassExtendedWith('ExtendableTest.ExampleBehaviorClass2'));
     }
+
+    public function testMethodExists()
+    {
+        $subject = new ExtendableTest_ExampleExtendableClass;
+        $this->assertTrue($subject->methodExists('extend'));
+    }
+
+    public function testMethodNotExists()
+    {
+        $subject = new ExtendableTest_ExampleExtendableClass;
+        $this->assertFalse($subject->methodExists('missingFunction'));
+    }
+
+    public function testDynamicMethodExists()
+    {
+        $subject = new ExtendableTest_ExampleExtendableClass;
+        $subject->addDynamicMethod('getFooAnotherWay', 'getFoo', 'ExtendableTest_ExampleBehaviorClass1');
+
+        $this->assertTrue($subject->methodExists('getFooAnotherWay'));
+    }
+
+    public function testGetClassMethods()
+    {
+        $subject = new ExtendableTest_ExampleExtendableClass;
+        $subject->addDynamicMethod('getFooAnotherWay', 'getFoo', 'ExtendableTest_ExampleBehaviorClass1');
+        $methods =  $subject->getClassMethods();
+
+        $this->assertContains('extend', $methods);
+        $this->assertContains('getFoo', $methods);
+        $this->assertContains('getFooAnotherWay', $methods);
+        $this->assertNotContains('missingFunction', $methods);
+    }
 }
 
 //

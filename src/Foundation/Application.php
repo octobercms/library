@@ -7,6 +7,7 @@ use October\Rain\Events\EventServiceProvider;
 use October\Rain\Router\RoutingServiceProvider;
 use October\Rain\Foundation\Providers\LogServiceProvider;
 use October\Rain\Foundation\Providers\MakerServiceProvider;
+use October\Rain\Foundation\Providers\ExecutionContextProvider;
 use Throwable;
 use Exception;
 
@@ -25,13 +26,6 @@ class Application extends ApplicationBase
      * @var string
      */
     protected $themesPath;
-
-    /**
-     * The request execution context (front-end, back-end)
-     *
-     * @var string
-     */
-    protected $executionContext;
 
     /**
      * Get the path to the public / web directory.
@@ -67,6 +61,8 @@ class Application extends ApplicationBase
         $this->register(new RoutingServiceProvider($this));
 
         $this->register(new MakerServiceProvider($this));
+
+        $this->register(new ExecutionContextProvider($this));
     }
 
     /**
@@ -215,18 +211,7 @@ class Application extends ApplicationBase
      */
     public function runningInBackend()
     {
-        return $this->executionContext == 'back-end';
-    }
-
-    /**
-     * Sets the execution context
-     *
-     * @param  string  $context
-     * @return void
-     */
-    public function setExecutionContext($context)
-    {
-        $this->executionContext = $context;
+        return $this['execution.context'] == 'back-end';
     }
 
     /**

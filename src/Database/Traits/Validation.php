@@ -181,7 +181,7 @@ trait Validation
          *     });
          *
          */
-        if (($this->fireModelEvent('validating') === false) || ($this->fireEvent('model.beforeValidate') === false)) {
+        if (($this->fireModelEvent('validating') === false) || ($this->fireEvent('model.beforeValidate', [], true) === false)) {
             if ($throwOnValidation) {
                 throw new ModelException($this);
             }
