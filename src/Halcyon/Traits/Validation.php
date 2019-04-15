@@ -294,7 +294,7 @@ trait Validation
         foreach ($rules as $field => $ruleParts) {
             $fieldName = $field;
 
-            if (preg_match_all('/^.*?\[.*?\]/', $fieldName)) {
+            if (preg_match('/^.*?\[.*?\]/', $fieldName)) {
                 $fieldName = str_replace('[]', '.*', $fieldName);
                 $fieldName = str_replace(['[', ']'], ['.', ''], $fieldName);
             }
