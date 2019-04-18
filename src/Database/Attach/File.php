@@ -7,6 +7,7 @@ use October\Rain\Database\Model;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\File\File as FileObj;
 use Exception;
+use Config;
 
 /**
  * File attachment model
@@ -767,8 +768,23 @@ class File extends Model
      */
     protected function hasFile($fileName = null)
     {
+        $isDebugMode = Config::get('app.debug', false);
         $filePath = $this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName;
-        return $this->storageCmd('exists', $filePath);
+
+        if (!$isDebugMode) {
+            $fileExists = Cache::remember($filePath, 43200, function() use($filePath) {
+                return $this->storageCmd('exists', $filePath);
+            });
+    
+            // force refresh of cache if value is false to prevent caching value that should not be there
+            if (!$fileExists) {
+                Cache::forget($filePath);
+            }
+        } else {
+            $fileExists = $this->storageCmd('exists', $filePath);
+        }
+
+        return $fileExists;
     }
 
     /**
