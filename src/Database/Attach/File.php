@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Attach;
 
+use Cache;
 use Storage;
 use File as FileHelper;
 use October\Rain\Network\Http;
@@ -305,6 +306,21 @@ class File extends Model
     //
     // Getters
     //
+
+    /**
+     * Returns the cache key used for the hasFile method
+     *
+     * @param string $path The path to get the cache key for
+     * @return string
+     */
+    public function getCacheKey($path = null)
+    {
+        if (empty($path)) {
+            $path = $this->getStorageDirectory() . $this->getPartitionDirectory() . $this>getFilename();
+        }
+
+        return 'file_exists::' . $path;
+    }
 
     /**
      * Returns the file name without path
@@ -759,6 +775,7 @@ class File extends Model
             $this->storageCmd('delete', $filePath);
         }
 
+        Cache::forget($this->getCacheKey($filePath));
         $this->deleteEmptyDirectory($directory);
     }
 
@@ -769,7 +786,10 @@ class File extends Model
     protected function hasFile($fileName = null)
     {
         $filePath = $this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName;
-        return $this->storageCmd('exists', $filePath);
+
+        return Cache::rememberForever($this->getCacheKey($filePath), function () use ($filePath) {
+            return $this->storageCmd('exists', $filePath);
+        });
     }
 
     /**
