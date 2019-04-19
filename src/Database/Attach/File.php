@@ -787,9 +787,16 @@ class File extends Model
     {
         $filePath = $this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName;
 
-        return Cache::rememberForever($this->getCacheKey($filePath), function () use ($filePath) {
+        $result = Cache::rememberForever($this->getCacheKey($filePath), function () use ($filePath) {
             return $this->storageCmd('exists', $filePath);
         });
+
+        // Forget negative results
+        if (!$result) {
+            Cache::forget($this->getCacheKey($filePath));
+        }
+
+        return $result;
     }
 
     /**
