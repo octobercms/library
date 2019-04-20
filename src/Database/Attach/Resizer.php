@@ -116,6 +116,9 @@ class Resizer
      */
     protected static function retainImageTransparency($img)
     {
+        if (imagecolortransparent($img) === -1) {
+            imagecolortransparent($img, imagecolorallocatealpha($img, 0, 0, 0, 127));
+        }
         imagealphablending($img, false);
         imagesavealpha($img, true);
     }
