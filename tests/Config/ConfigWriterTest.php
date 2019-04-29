@@ -129,5 +129,17 @@ class ConfigWriterTest extends TestCase
         $this->assertArrayHasKey('database', $result['redis']['default']);
         $this->assertEquals('127.0.0.1', $result['redis']['default']['host']);
         $this->assertEquals(null, $result['redis']['default']['password']);
+
+        /*
+         * Rewrite config with values from env
+         */
+        $contents = $writer->toContent($contents, [
+            'envMethod' => 'default',
+            'nestedEnv.envMethod.envChild' => 'default',
+        ]);
+        $result = eval('?>'.$contents);
+
+        $this->assertEquals('default', $result['envMethod']);
+        $this->assertEquals('default', $result['nestedEnv']['envMethod']['envChild']);
     }
 }

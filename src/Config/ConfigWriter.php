@@ -17,6 +17,7 @@ use Exception;
  * - booleans
  * - nulls
  * - single-dimension arrays
+ * - default values in env function calls
  *
  * To do:
  * - When an entry does not exist, provide a way to create it
@@ -84,13 +85,14 @@ class ConfigWriter
 
         $count = 0;
         $patterns = array();
-        $patterns[] = $this->buildStringExpression($key, $items);
-        $patterns[] = $this->buildStringExpression($key, $items, '"');
-        $patterns[] = $this->buildConstantExpression($key, $items);
-        $patterns[] = $this->buildArrayExpression($key, $items);
+        $patterns[$this->buildStringExpression($key, $items)] = '${1}${2}'.$replaceValue;
+        $patterns[$this->buildStringExpression($key, $items, '"')] = '${1}${2}'.$replaceValue;
+        $patterns[$this->buildEnvCallExpression($key, $items)] = '${1}${2}${4}' . $replaceValue . '${8}';
+        $patterns[$this->buildConstantExpression($key, $items)] = '${1}${2}'.$replaceValue;
+        $patterns[$this->buildArrayExpression($key, $items)] = '${1}${2}'.$replaceValue;
 
-        foreach ($patterns as $pattern) {
-            $result = preg_replace($pattern, '${1}${2}'.$replaceValue, $result, 1, $count);
+        foreach ($patterns as $pattern => $patternReplacement) {
+            $result = preg_replace($pattern, $patternReplacement, $result, 1, $count);
 
             if ($count > 0) {
                 break;
@@ -154,6 +156,22 @@ class ConfigWriter
 
         // The target key closure
         $expression[] = '['.$quoteChar.']';
+
+        return '/' . implode('', $expression) . '/';
+    }
+
+    protected function buildEnvCallExpression($targetKey, $arrayItems = array())
+    {
+        $expression = array();
+
+        // Opening expression for array items ($1)
+        $expression[] = $this->buildArrayOpeningExpression($arrayItems);
+
+        // The target key opening
+        $expression[] = '(([\'"])' . $targetKey . '\3\s*=>\s*)';
+
+        // The method call
+        $expression[] = '(env\(([\'"]).*\5,\s*)([\'"])(.*)\6(\))';
 
         return '/' . implode('', $expression) . '/';
     }
