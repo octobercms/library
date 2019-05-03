@@ -138,7 +138,7 @@ class Resizer
      *  - offset: The offset of the crop = [ left, top ]
      *  - sharpen: Sharpen image, from 0 - 100 (default: 0)
      *  - interlace: Interlace image,  Boolean: false (disabled: default), true (enabled)
-     *  - quality: Image quality, from 0 - 100 (default: 95)
+     *  - quality: Image quality, from 0 - 100 (default: 90)
      * @param array $options Set of resizing option
      * @return self
      */
