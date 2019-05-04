@@ -8,7 +8,7 @@ use Exception;
  *
  * Usage:
  *      Resizer::open(mixed $file)
- *          ->resize(int $width , int $height, string 'exact, portrait, landscape, auto or crop')
+ *          ->resize(int $width , int $height, string 'exact, portrait, landscape, auto, fit or crop')
  *          ->save(string 'path/to/file.jpg', int $quality);
  *
  *      // Resize and save an image.
