@@ -114,13 +114,14 @@ class Resizer
      * Manipulate an image resource in order to keep transparency for PNG and GIF files.
      * @param $img
      */
-    protected static function retainImageTransparency($img)
+    protected static function retainImageTransparency($img, $extension)
     {
-        if (imagecolortransparent($img) === -1) {
+        if ($extension === 'gif') {
             imagecolortransparent($img, imagecolorallocatealpha($img, 0, 0, 0, 127));
+        } else if ($extension === 'png') {
+            imagealphablending($img, false);
+            imagesavealpha($img, true);
         }
-        imagealphablending($img, false);
-        imagesavealpha($img, true);
     }
 
     /**
@@ -312,7 +313,7 @@ class Resizer
 
         // Resample - create image canvas of x, y size
         $imageResized = imagecreatetruecolor($optimalWidth, $optimalHeight);
-        self::retainImageTransparency($imageResized);
+        self::retainImageTransparency($imageResized, $this->extension);
 
         // get the rotated the original image according to exif orientation
         $rotatedOriginal = $this->getRotatedOriginal();
@@ -396,7 +397,7 @@ class Resizer
 
         // Create a new canvas
         $imageResized = imagecreatetruecolor($newWidth, $newHeight);
-        self::retainImageTransparency($imageResized);
+        self::retainImageTransparency($imageResized, $this->extension);
 
         // Crop the image to the requested size
         imagecopyresampled($imageResized, $image, 0, 0, $cropStartX, $cropStartY, $newWidth, $newHeight, $srcWidth, $srcHeight);
@@ -487,11 +488,11 @@ class Resizer
                 break;
             case 'image/gif':
                 $img = @imagecreatefromgif($filePath);
-                self::retainImageTransparency($img);
+                self::retainImageTransparency($img, $this->extension);
                 break;
             case 'image/png':
                 $img = @imagecreatefrompng($filePath);
-                self::retainImageTransparency($img);
+                self::retainImageTransparency($img, $this->extension);
                 break;
             case 'image/webp':
                 $img = @imagecreatefromwebp($filePath); break;
