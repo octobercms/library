@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Halcyon;
 
+use App;
 use Config;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Contracts\Cache\Store;
@@ -13,6 +14,11 @@ class MemoryCacheManager extends CacheManager
 
     public static function isEnabled()
     {
-        return !Config::get('cache.disableRequestCache', false);
+        $disabled = Config::get('cache.disableRequestCache', null);
+        if ($disabled === null) {
+            return !App::runningInConsole();
+        }
+
+        return !$disabled;
     }
 }
