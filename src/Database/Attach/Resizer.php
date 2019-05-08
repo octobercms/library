@@ -120,13 +120,20 @@ class Resizer
      * Manipulate an image resource in order to keep transparency for PNG and GIF files.
      * @param $img
      */
-    protected static function retainImageTransparency($img, $mime)
+    protected static function retainImageTransparency($dst, $src)
     {
-        if ($mime === 'image/gif') {
-            imagecolortransparent($img, imagecolorallocatealpha($img, 0, 0, 0, 127));
-        } else if ($mime === 'image/png' || $mime === 'image/webp') {
-            imagealphablending($img, false);
-            imagesavealpha($img, true);
+        if ($src->mime === 'image/gif') {
+            $alphaColor = array('red' => 0, 'green' => 0, 'blue' => 0);
+            $alphaIndex = imagecolortransparent($src->image);
+            if ($alphaIndex >= 0) {
+                $alphaColor = imagecolorsforindex($src->image, $alphaIndex);
+            }
+            $alphaIndex = imagecolorallocate($dst, $alphaColor['red'], $alphaColor['green'], $alphaColor['blue']);
+            imagefill($dst, 0, 0, $alphaIndex);
+            imagecolortransparent($dst, $alphaIndex);
+        } else if ($src->mime === 'image/png' || $src->mime === 'image/webp') {
+            imagealphablending($dst, false);
+            imagesavealpha($dst, true);
         }
     }
 
@@ -318,7 +325,7 @@ class Resizer
 
         // Resample - create image canvas of x, y size
         $imageResized = imagecreatetruecolor($optimalWidth, $optimalHeight);
-        self::retainImageTransparency($imageResized, $this->mime);
+        self::retainImageTransparency($imageResized, $this);
 
         // get the rotated the original image according to exif orientation
         $rotatedOriginal = $this->getRotatedOriginal();
@@ -402,7 +409,7 @@ class Resizer
 
         // Create a new canvas
         $imageResized = imagecreatetruecolor($newWidth, $newHeight);
-        self::retainImageTransparency($imageResized, $this->mime);
+        self::retainImageTransparency($imageResized, $this);
 
         // Crop the image to the requested size
         imagecopyresampled($imageResized, $image, 0, 0, $cropStartX, $cropStartY, $newWidth, $newHeight, $srcWidth, $srcHeight);
@@ -492,15 +499,14 @@ class Resizer
                 break;
             case 'image/gif':
                 $img = @imagecreatefromgif($filePath);
-                self::retainImageTransparency($img, $this->mime);
                 break;
             case 'image/png':
                 $img = @imagecreatefrompng($filePath);
-                self::retainImageTransparency($img, $this->mime);
+                self::retainImageTransparency($img, $this);
                 break;
             case 'image/webp':
                 $img = @imagecreatefromwebp($filePath);
-                self::retainImageTransparency($img, $this->mime);
+                self::retainImageTransparency($img, $this);
                 break;
             default:
                 throw new Exception(sprintf('Invalid mime type: %s. Accepted types: image/jpeg, image/gif, image/png, image/webp.', $this->mime));
