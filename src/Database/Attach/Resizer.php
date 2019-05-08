@@ -31,9 +31,14 @@ class Resizer
     protected $file;
 
     /**
-     * @var Resource The extension of the uploaded file.
+     * @var string The extension of the uploaded file.
      */
     protected $extension;
+
+    /**
+     * @var string The mime type of the uploaded file.
+     */
+    protected $mime;
 
     /**
      * @var Resource The image (on disk) that's being resized.
@@ -83,6 +88,7 @@ class Resizer
 
         // Get the file extension
         $this->extension = $file->guessExtension();
+        $this->mime = $file->getMimeType();
 
         // Open up the file
         $this->image = $this->originalImage = $this->openImage($file);
@@ -114,11 +120,11 @@ class Resizer
      * Manipulate an image resource in order to keep transparency for PNG and GIF files.
      * @param $img
      */
-    protected static function retainImageTransparency($img, $extension)
+    protected static function retainImageTransparency($img, $mime)
     {
-        if ($extension === 'gif') {
+        if ($mime === 'image/gif') {
             imagecolortransparent($img, imagecolorallocatealpha($img, 0, 0, 0, 127));
-        } else if ($extension === 'png') {
+        } else if ($mime === 'image/png' || $mime === 'image/webp') {
             imagealphablending($img, false);
             imagesavealpha($img, true);
         }
@@ -188,10 +194,9 @@ class Resizer
      */
     protected function getOrientation($file)
     {
-        $mime = $file->getMimeType();
         $filePath = $file->getPathname();
 
-        if ($mime != 'image/jpeg' || !function_exists('exif_read_data')) {
+        if ($this->mime != 'image/jpeg' || !function_exists('exif_read_data')) {
             return null;
         }
 
@@ -313,7 +318,7 @@ class Resizer
 
         // Resample - create image canvas of x, y size
         $imageResized = imagecreatetruecolor($optimalWidth, $optimalHeight);
-        self::retainImageTransparency($imageResized, $this->extension);
+        self::retainImageTransparency($imageResized, $this->mime);
 
         // get the rotated the original image according to exif orientation
         $rotatedOriginal = $this->getRotatedOriginal();
@@ -397,7 +402,7 @@ class Resizer
 
         // Create a new canvas
         $imageResized = imagecreatetruecolor($newWidth, $newHeight);
-        self::retainImageTransparency($imageResized, $this->extension);
+        self::retainImageTransparency($imageResized, $this->mime);
 
         // Crop the image to the requested size
         imagecopyresampled($imageResized, $image, 0, 0, $cropStartX, $cropStartY, $newWidth, $newHeight, $srcWidth, $srcHeight);
@@ -479,26 +484,26 @@ class Resizer
      */
     protected function openImage($file)
     {
-        $mime = $file->getMimeType();
         $filePath = $file->getPathname();
 
-        switch ($mime) {
+        switch ($this->mime) {
             case 'image/jpeg':
                 $img = @imagecreatefromjpeg($filePath);
                 break;
             case 'image/gif':
                 $img = @imagecreatefromgif($filePath);
-                self::retainImageTransparency($img, $this->extension);
+                self::retainImageTransparency($img, $this->mime);
                 break;
             case 'image/png':
                 $img = @imagecreatefrompng($filePath);
-                self::retainImageTransparency($img, $this->extension);
+                self::retainImageTransparency($img, $this->mime);
                 break;
             case 'image/webp':
-                $img = @imagecreatefromwebp($filePath); break;
-
+                $img = @imagecreatefromwebp($filePath);
+                self::retainImageTransparency($img, $this->mime);
+                break;
             default:
-                throw new Exception(sprintf('Invalid mime type: %s. Accepted types: image/jpeg, image/gif, image/png, image/webp.', $mime));
+                throw new Exception(sprintf('Invalid mime type: %s. Accepted types: image/jpeg, image/gif, image/png, image/webp.', $this->mime));
                 break;
         }
 
