@@ -598,7 +598,7 @@ class Manager
      */
     public function isImpersonator()
     {
-        return Session::has($this->sessionKey.'_impersonate');
+        return !empty(Session::has($this->sessionKey.'_impersonate'));
     }
 
     /**
