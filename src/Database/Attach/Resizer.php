@@ -331,7 +331,11 @@ class Resizer
         $rotatedOriginal = $this->getRotatedOriginal();
 
         // Create the new image
-        imagecopyresampled($imageResized, $rotatedOriginal, 0, 0, 0, 0, $optimalWidth, $optimalHeight, $this->width, $this->height);
+        if ($this->mime == 'image/gif') {
+            imagecopyresized($imageResized, $rotatedOriginal, 0, 0, 0, 0, $optimalWidth, $optimalHeight, $this->width, $this->height);
+        } else {
+            imagecopyresampled($imageResized, $rotatedOriginal, 0, 0, 0, 0, $optimalWidth, $optimalHeight, $this->width, $this->height);
+        }
 
         $this->image = $imageResized;
 
@@ -412,7 +416,11 @@ class Resizer
         self::retainImageTransparency($imageResized, $this);
 
         // Crop the image to the requested size
-        imagecopyresampled($imageResized, $image, 0, 0, $cropStartX, $cropStartY, $newWidth, $newHeight, $srcWidth, $srcHeight);
+        if ($this->mime == 'image/gif') {
+            imagecopyreresized($imageResized, $image, 0, 0, $cropStartX, $cropStartY, $newWidth, $newHeight, $srcWidth, $srcHeight);
+        } else {
+            imagecopyresampled($imageResized, $image, 0, 0, $cropStartX, $cropStartY, $newWidth, $newHeight, $srcWidth, $srcHeight);
+        }
 
         $this->image = $imageResized;
 
