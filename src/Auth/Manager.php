@@ -540,6 +540,20 @@ class Manager
     public function impersonate($user)
     {
         $oldSession = Session::get($this->sessionKey);
+        $oldUser = !empty($oldSession[0]) ? $this->findUserById($oldSession[0]) : false;
+
+        /**
+         * @event model.auth.beforeImpersonate
+         * Called after the model is booted
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.auth.beforeImpersonate', function (\October\Rain\Database\Model|false $oldUser) use (\October\Rain\Database\Model $model) {
+         *         \Log::info($oldUser->full_name . ' is now impersonating ' . $model->full_name);
+         *     });
+         *
+         */
+        $user->fireEvent('model.auth.beforeImpersonate', [$oldUser]);
 
         $this->login($user, false);
 
@@ -554,7 +568,25 @@ class Manager
      */
     public function stopImpersonate()
     {
+        $currentSession = Session::get($this->sessionKey);
+        $currentUser = !empty($currentSession[0]) ? $this->findUserById($currentSession[0]) : false;
         $oldSession = Session::pull($this->sessionKey.'_impersonate');
+        $oldUser = !empty($oldSession[0]) ? $this->findUserById($oldSession[0]) : false;
+
+        if ($currentUser) {
+            /**
+             * @event model.auth.afterImpersonate
+             * Called after the model is booted
+             *
+             * Example usage:
+             *
+             *     $model->bindEvent('model.auth.afterImpersonate', function (\October\Rain\Database\Model|false $oldUser) use (\October\Rain\Database\Model $model) {
+             *         \Log::info($oldUser->full_name . ' has stopped impersonating ' . $model->full_name);
+             *     });
+             *
+             */
+            $currentUser->fireEvent('model.auth.afterImpersonate', [$oldUser]);
+        }
 
         Session::put($this->sessionKey, $oldSession);
     }
