@@ -128,7 +128,7 @@ class Resizer
             if ($alphaIndex >= 0) {
                 $alphaColor = imagecolorsforindex($src->image, $alphaIndex);
             }
-            $alphaIndex = imagecolorallocate($dst, $alphaColor['red'], $alphaColor['green'], $alphaColor['blue']);
+            $alphaIndex = imagecolorallocatealpha($dst, $alphaColor['red'], $alphaColor['green'], $alphaColor['blue'], 127);
             imagefill($dst, 0, 0, $alphaIndex);
             imagecolortransparent($dst, $alphaIndex);
         } else if ($src->mime === 'image/png' || $src->mime === 'image/webp') {
