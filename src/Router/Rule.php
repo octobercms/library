@@ -10,7 +10,6 @@ use InvalidArgumentException;
  */
 class Rule
 {
-
     /**
      * @var string A named reference for this rule.
      */
@@ -210,7 +209,6 @@ class Rule
         return true;
     }
 
-
     /**
      * Captures and removes every segment of a URL after a wildcard
      * pattern segment is detected, until both collections of segments
@@ -234,9 +232,8 @@ class Rule
                     unset($urlSegments[$index]);
                     continue;
                 }
-                else {
-                    break;
-                }
+
+                break;
             }
 
             $patternSegment = $patternSegments[$index];
@@ -259,10 +256,12 @@ class Rule
      */
     public function name($name = null)
     {
-        if ($name === null)
+        if ($name === null) {
             return $this->ruleName;
+        }
 
         $this->ruleName = $name;
+
         return $this;
     }
 
@@ -274,10 +273,12 @@ class Rule
      */
     public function pattern($pattern = null)
     {
-        if ($pattern === null)
+        if ($pattern === null) {
             return $this->rulePattern;
+        }
 
         $this->rulePattern = $pattern;
+
         return $this;
     }
 
@@ -299,12 +300,12 @@ class Rule
             }
 
             $this->conditionCallback = $callback;
+
             return $this;
         }
 
         return $this->conditionCallback;
     }
-
 
     /**
      * After match callback
@@ -324,6 +325,7 @@ class Rule
             }
 
             $this->afterMatchCallback = $callback;
+
             return $this;
         }
 

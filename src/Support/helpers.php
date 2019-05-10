@@ -17,8 +17,9 @@ if (!function_exists('input'))
      */
     function input($name = null, $default = null)
     {
-        if ($name === null)
+        if ($name === null) {
             return Input::all();
+        }
 
         /*
          * Array field name, eg: field[key][key2][key3]
@@ -34,12 +35,13 @@ if (!function_exists('input'))
 if (!function_exists('post'))
 {
     /**
-     * Identical function to input(), however restricted to $_POST values.
+     * Identical function to input(), however restricted to POST values.
      */
     function post($name = null, $default = null)
     {
-        if ($name === null)
-            return $_POST;
+        if ($name === null) {
+            return Request::post();
+        }
 
         /*
          * Array field name, eg: field[key][key2][key3]
@@ -48,20 +50,20 @@ if (!function_exists('post'))
             $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
         }
 
-        return array_get($_POST, $name, $default);
+        return array_get(Request::post(), $name, $default);
     }
 }
-
 
 if (!function_exists('get'))
 {
     /**
-     * Identical function to input(), however restricted to $_GET values.
+     * Identical function to input(), however restricted to GET values.
      */
     function get($name = null, $default = null)
     {
-        if ($name === null)
-            return $_GET;
+        if ($name === null) {
+            return Request::query();
+        }
 
         /*
          * Array field name, eg: field[key][key2][key3]
@@ -70,7 +72,7 @@ if (!function_exists('get'))
             $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
         }
 
-        return array_get($_GET, $name, $default);
+        return array_get(Request::query(), $name, $default);
     }
 }
 

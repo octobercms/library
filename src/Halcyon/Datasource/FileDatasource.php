@@ -32,8 +32,8 @@ class FileDatasource extends Datasource implements DatasourceInterface
     /**
      * Create a new datasource instance.
      *
-     * @param  string   $container
-     * @param  array    $config
+     * @param string $basePath
+     * @param Filesystem $files
      * @return void
      */
     public function __construct($basePath, Filesystem $files)
@@ -71,7 +71,15 @@ class FileDatasource extends Datasource implements DatasourceInterface
     /**
      * Returns all templates.
      *
-     * @param  string  $dirName
+     * @param string $dirName
+     * @param array $options Array of options, [
+     *                          'columns'    => ['fileName', 'mtime', 'content'], // Only return specific columns
+     *                          'extensions' => ['htm', 'md', 'twig'],            // Extensions to search for
+     *                          'fileMatch'  => '*gr[ae]y',                       // Shell matching pattern to match the filename against using the fnmatch function
+     *                          'orders'     => false                             // Not implemented
+     *                          'limit'      => false                             // Not implemented
+     *                          'offset'     => false                             // Not implemented
+     *                      ];
      * @return array
      */
     public function select($dirName, array $options = [])
@@ -126,7 +134,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
             /*
              * Filter by file name match
              */
-            if ($fileMatch !== null && !fnmatch($fileName, $fileMatch)) {
+            if ($fileMatch !== null && !fnmatch($fileMatch, $fileName)) {
                 $it->next();
                 continue;
             }
@@ -158,7 +166,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
      *
      * @param  string  $dirName
      * @param  string  $fileName
-     * @param  array   $content
+     * @param  string   $content
      * @return bool
      */
     public function insert($dirName, $fileName, $extension, $content)
@@ -184,7 +192,9 @@ class FileDatasource extends Datasource implements DatasourceInterface
      *
      * @param  string  $dirName
      * @param  string  $fileName
-     * @param  array   $content
+     * @param  string  $content
+     * @param  string  $oldFileName Defaults to null
+     * @param  string  $oldExtension Defaults to null
      * @return int
      */
     public function update($dirName, $fileName, $extension, $content, $oldFileName = null, $oldExtension = null)

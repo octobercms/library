@@ -24,6 +24,17 @@ trait SoftDelete
         static::addGlobalScope(new SoftDeletingScope);
 
         static::restoring(function($model) {
+            /**
+             * @event model.beforeRestore
+             * Called before the model is restored from a soft delete
+             *
+             * Example usage:
+             *
+             *     $model->bindEvent('model.beforeRestore', function () use (\October\Rain\Database\Model $model) {
+             *         \Log::info("{$model->name} is going to be restored!");
+             *     });
+             *
+             */
             $model->fireEvent('model.beforeRestore');
             if ($model->methodExists('beforeRestore')) {
                 $model->beforeRestore();
@@ -31,6 +42,17 @@ trait SoftDelete
         });
 
         static::restored(function($model) {
+            /**
+             * @event model.afterRestore
+             * Called after the model is restored from a soft delete
+             *
+             * Example usage:
+             *
+             *     $model->bindEvent('model.afterRestore', function () use (\October\Rain\Database\Model $model) {
+             *         \Log::info("{$model->name} has been brought back to life!");
+             *     });
+             *
+             */
             $model->fireEvent('model.afterRestore');
             if ($model->methodExists('afterRestore')) {
                 $model->afterRestore();

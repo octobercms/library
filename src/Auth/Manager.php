@@ -12,31 +12,64 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
 {
     use \October\Rain\Support\Traits\Singleton;
 
+    /**
+     * @var Models\User The currently logged in user
+     */
     protected $user;
 
+    /**
+     * @var array In memory throttle cache [md5($userId.$ipAddress) => $this->throttleModel]
+     */
     protected $throttle = [];
 
-    protected $userModel = 'October\Rain\Auth\Models\User';
+    /**
+     * @var string User Model Class
+     */
+    protected $userModel = Models\User::class;
 
-    protected $groupModel = 'October\Rain\Auth\Models\Group';
+    /**
+     * @var string User Group Model Class
+     */
+    protected $groupModel = Models\Group::class;
 
-    protected $throttleModel = 'October\Rain\Auth\Models\Throttle';
+    /**
+     * @var string Throttle Model Class
+     */
+    protected $throttleModel = Models\Throttle::class;
 
+    /**
+     * @var bool Flag to enable login throttling
+     */
     protected $useThrottle = true;
-
-    protected $requireActivation = true;
-
-    protected $sessionKey = 'october_auth';
-
+  
+    /**
+     * @var bool Internal flag to toggle using the session for the current authentication request
+     */
     protected $useSession = true;
 
-    public $ipAddress = '0.0.0.0';
+    /**
+     * @var bool Flag to require users to be activated to login
+     */
+    protected $requireActivation = true;
+
+    /**
+     * @var string Key to store the auth session data in
+     */
+    protected $sessionKey = 'october_auth';
 
     /**
      * @var bool Indicates if the user was authenticated via a recaller cookie.
      */
     protected $viaRemember = false;
 
+    /**
+     * @var string The IP address of this request
+     */
+    public $ipAddress = '0.0.0.0';
+
+    /**
+     * Initializes the singleton
+     */
     protected function init()
     {
         $this->ipAddress = Request::ip();
@@ -48,22 +81,26 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
 
     /**
      * Creates a new instance of the user model
+     *
+     * @return Models\User
      */
     public function createUserModel()
     {
         $class = '\\'.ltrim($this->userModel, '\\');
-        $user = new $class();
-        return $user;
+        return new $class();
     }
 
     /**
      * Prepares a query derived from the user model.
+     *
+     * @return \October\Rain\Database\Builder $query
      */
     protected function createUserModelQuery()
     {
         $model = $this->createUserModel();
         $query = $model->newQuery();
         $this->extendUserQuery($query);
+
         return $query;
     }
 
@@ -77,14 +114,15 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Registers a user by giving the required credentials
-     * and an optional flag for whether to activate the user.
+     * Registers a user with the provided credentials with optional flags
+     * for activating the newly created user and automatically logging them in
      *
      * @param array $credentials
      * @param bool $activate
+     * @param bool $autoLogin
      * @return Models\User
      */
-    public function register(array $credentials, $activate = false)
+    public function register(array $credentials, $activate = false, $autoLogin = true)
     {
         $user = $this->createUserModel();
         $user->fill($credentials);
@@ -98,7 +136,11 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
         // on subsequent saves to this model object
         $user->password = null;
 
-        return $this->user = $user;
+        if ($autoLogin) {
+            $this->user = $user;
+        }
+
+        return $user;
     }
 
     /**
@@ -111,6 +153,8 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
 
     /**
      * Returns the current user, if any.
+     *
+     * @return mixed (Models\User || null)
      */
     public function getUser()
     {
@@ -123,7 +167,9 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
 
     /**
      * Finds a user by the login value.
+     *
      * @param string $id
+     * @return mixed (Models\User || null)
      */
     public function findUserById($id)
     {
@@ -131,12 +177,14 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
 
         $user = $query->find($id);
 
-        return $user ?: null;
+        return $this->validateUserModel($user) ? $user : null;
     }
 
     /**
      * Finds a user by the login value.
+     *
      * @param string $login
+     * @return mixed (Models\User || null)
      */
     public function findUserByLogin($login)
     {
@@ -146,11 +194,15 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
 
         $user = $query->where($model->getLoginName(), $login)->first();
 
-        return $user ?: null;
+        return $this->validateUserModel($user) ? $user : null;
     }
 
     /**
      * Finds a user by the given credentials.
+     *
+     * @param array $credentials The credentials to find a user by
+     * @throws AuthException If the credentials are invalid
+     * @return Models\User The requested user
      */
     public function findUserByCredentials(array $credentials)
     {
@@ -178,7 +230,8 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
             }
         }
 
-        if (!$user = $query->first()) {
+        $user = $query->first();
+        if (!$this->validateUserModel($user)) {
             throw new AuthException('A user was not found with the given credentials.');
         }
 
@@ -203,22 +256,38 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
         return $user;
     }
 
+    /**
+     * Perform additional checks on the user model.
+     *
+     * @param $user
+     * @return boolean
+     */
+    protected function validateUserModel($user)
+    {
+        return $user instanceof $this->userModel;
+    }
+
     //
     // Throttle
     //
 
     /**
      * Creates an instance of the throttle model
+     *
+     * @return Models\Throttle
      */
     public function createThrottleModel()
     {
         $class = '\\'.ltrim($this->throttleModel, '\\');
-        $user = new $class();
-        return $user;
+        return new $class();
     }
 
     /**
      * Find a throttle record by login and ip address
+     *
+     * @param string $loginName
+     * @param string $ipAddress
+     * @return Models\Throttle
      */
     public function findThrottleByLogin($loginName, $ipAddress)
     {
@@ -233,6 +302,10 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
 
     /**
      * Find a throttle record by user id and ip address
+     *
+     * @param integer $userId
+     * @param string $ipAddress
+     * @return Models\Throttle
      */
     public function findThrottleByUserId($userId, $ipAddress = null)
     {
@@ -271,9 +344,10 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     /**
      * Attempt to authenticate a user using the given credentials.
      *
-     * @param  array  $credentials
-     * @param  bool   $remember
-     * @return bool
+     * @param array $credentials The user login details
+     * @param bool $remember Store a non-expire cookie for the user
+     * @throws AuthException If authentication fails
+     * @return Models\User The successfully logged in user
      */
     public function attempt(array $credentials = [], $remember = false)
     {
@@ -303,7 +377,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
          * Default to the login name field or fallback to a hard-coded 'login' value
          */
         $loginName = $this->createUserModel()->getLoginName();
-        $loginCredentialKey = (isset($credentials[$loginName])) ? $loginName : 'login';
+        $loginCredentialKey = isset($credentials[$loginName]) ? $loginName : 'login';
 
         if (empty($credentials[$loginCredentialKey])) {
             throw new AuthException(sprintf('The "%s" attribute is required.', $loginCredentialKey));
@@ -403,7 +477,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
             /*
              * Look up user
              */
-            if (!$user = $this->createUserModel()->find($id)) {
+            if (!$user = $this->findUserById($id)) {
                 return false;
             }
 
@@ -431,7 +505,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
          * Throttle check
          */
         if ($this->useThrottle) {
-            $throttle = $this->findThrottleByUserId($user->getKey());
+            $throttle = $this->findThrottleByUserId($user->getKey(), $this->ipAddress);
 
             if ($throttle->is_banned || $throttle->checkSuspended()) {
                 $this->logout();
@@ -513,6 +587,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     /**
      * Logs in the given user and sets properties
      * in the session.
+     * @throws AuthException If the user is not activated and $this->requireActivation = true
      */
     public function login(Authenticatable $user, $remember = true)
     {
@@ -584,6 +659,11 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
      */
     public function logout()
     {
+        // Initialize the current auth session before trying to remove it
+        if (is_null($this->user) && !$this->check()) {
+            return;
+        }
+
         if ($this->isImpersonator()) {
             $this->user = $this->getImpersonator();
             $this->stopImpersonate();
@@ -597,7 +677,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
 
         $this->user = null;
 
-        Session::forget($this->sessionKey);
+        Session::flush();
         Cookie::queue(Cookie::forget($this->sessionKey));
     }
 
@@ -612,6 +692,20 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     public function impersonate($user)
     {
         $oldSession = Session::get($this->sessionKey);
+        $oldUser = !empty($oldSession[0]) ? $this->findUserById($oldSession[0]) : false;
+
+        /**
+         * @event model.auth.beforeImpersonate
+         * Called after the model is booted
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.auth.beforeImpersonate', function (\October\Rain\Database\Model|false $oldUser) use (\October\Rain\Database\Model $model) {
+         *         \Log::info($oldUser->full_name . ' is now impersonating ' . $model->full_name);
+         *     });
+         *
+         */
+        $user->fireEvent('model.auth.beforeImpersonate', [$oldUser]);
 
         $this->login($user, false);
 
@@ -620,18 +714,50 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
         }
     }
 
+    /**
+     * Stop the current session being impersonated and
+     * authenticate as the impersonator again
+     */
     public function stopImpersonate()
     {
+        $currentSession = Session::get($this->sessionKey);
+        $currentUser = !empty($currentSession[0]) ? $this->findUserById($currentSession[0]) : false;
         $oldSession = Session::pull($this->sessionKey.'_impersonate');
+        $oldUser = !empty($oldSession[0]) ? $this->findUserById($oldSession[0]) : false;
+
+        if ($currentUser) {
+            /**
+             * @event model.auth.afterImpersonate
+             * Called after the model is booted
+             *
+             * Example usage:
+             *
+             *     $model->bindEvent('model.auth.afterImpersonate', function (\October\Rain\Database\Model|false $oldUser) use (\October\Rain\Database\Model $model) {
+             *         \Log::info($oldUser->full_name . ' has stopped impersonating ' . $model->full_name);
+             *     });
+             *
+             */
+            $currentUser->fireEvent('model.auth.afterImpersonate', [$oldUser]);
+        }
 
         Session::put($this->sessionKey, $oldSession);
     }
 
+    /**
+     * Check to see if the current session is being impersonated
+     *
+     * @return bool
+     */
     public function isImpersonator()
     {
-        return Session::has($this->sessionKey.'_impersonate');
+        return !empty(Session::has($this->sessionKey.'_impersonate'));
     }
 
+    /**
+     * Get the original user doing the impersonation
+     *
+     * @return mixed Returns the User model for the impersonator if able, false if not
+     */
     public function getImpersonator()
     {
         $impersonateArray = Session::get($this->sessionKey.'_impersonate');
@@ -643,7 +769,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
             return false;
         }
 
-        $id = reset($impersonateArray);
+        $id = $impersonateArray[0];
 
         return $this->createUserModel()->find($id);
     }

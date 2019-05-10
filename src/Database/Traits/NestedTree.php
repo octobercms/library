@@ -4,6 +4,7 @@ use DbDongle;
 use October\Rain\Database\Collection;
 use October\Rain\Database\TreeCollection;
 use October\Rain\Database\NestedTreeScope;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Exception;
 
 /**
@@ -88,8 +89,7 @@ trait NestedTree
              */
             $model->hasMany['children'] = [
                 get_class($model),
-                'key' => $model->getParentColumnName(),
-                'order' => $model->getLeftColumnName()
+                'key' => $model->getParentColumnName()
             ];
 
             $model->belongsTo['parent'] = [
@@ -116,6 +116,16 @@ trait NestedTree
             $model->bindEvent('model.beforeDelete', function() use ($model) {
                 $model->deleteDescendants();
             });
+
+            if (static::hasGlobalScope(SoftDeletingScope::class)) {
+                $model->bindEvent('model.beforeRestore', function() use ($model) {
+                    $model->shiftSiblingsForRestore();
+                });
+
+                $model->bindEvent('model.afterRestore', function() use ($model) {
+                    $model->restoreDescendants();
+                });
+            }
         });
     }
 
@@ -165,8 +175,9 @@ trait NestedTree
      */
     public function deleteDescendants()
     {
-        if ($this->getRight() === null || $this->getLeft() === null)
+        if ($this->getRight() === null || $this->getLeft() === null) {
             return;
+        }
 
         $this->getConnection()->transaction(function() {
             $this->reload();
@@ -198,6 +209,62 @@ trait NestedTree
             $this->newQuery()
                 ->where($rightCol, '>', $right)
                 ->decrement($rightCol, $diff)
+            ;
+        });
+    }
+
+    /**
+     * Allocates a slot for the the current node between its siblings.
+     * @return void
+     */
+    public function shiftSiblingsForRestore()
+    {
+        if ($this->getRight() === null || $this->getLeft() === null) {
+            return;
+        }
+
+        $this->getConnection()->transaction(function() {
+            $leftCol = $this->getLeftColumnName();
+            $rightCol = $this->getRightColumnName();
+            $left = $this->getLeft();
+            $right = $this->getRight();
+
+            /*
+             * Update left and right indexes for the remaining nodes
+             */
+            $diff = $right - $left + 1;
+
+            $this->newQuery()
+                ->where($leftCol, '>=', $left)
+                ->increment($leftCol, $diff)
+            ;
+
+            $this->newQuery()
+                ->where($rightCol, '>=', $left)
+                ->increment($rightCol, $diff)
+            ;
+        });
+    }
+
+    /**
+     * Restores all of the current node descendants.
+     * @return void
+     */
+    public function restoreDescendants()
+    {
+        if ($this->getRight() === null || $this->getLeft() === null) {
+            return;
+        }
+
+        $this->getConnection()->transaction(function() {
+            $this->newQuery()
+                ->withTrashed()
+                ->where($this->getLeftColumnName(), '>', $this->getLeft())
+                ->where($this->getRightColumnName(), '<', $this->getRight())
+                ->update([
+                    $this->getDeletedAtColumn() => null,
+                    $this->getUpdatedAtColumn() => $this->{$this->getUpdatedAtColumn()}
+                ])
             ;
         });
     }
@@ -492,16 +559,14 @@ trait NestedTree
                 ->first()
             ;
         }
-        else {
-            $parentId = $this->getParentId();
 
-            if ($parentId !== null && ($currentParent = $this->newQuery()->find($parentId))) {
-                return $currentParent->getRoot();
-            }
-            else {
-                return $this;
-            }
+        $parentId = $this->getParentId();
+
+        if ($parentId !== null && ($currentParent = $this->newQuery()->find($parentId))) {
+            return $currentParent->getRoot();
         }
+
+        return $this;
     }
 
     /**
@@ -604,6 +669,24 @@ trait NestedTree
     }
 
     /**
+     * Return left sibling
+     * @return \October\Rain\Database\Model
+     */
+    public function getLeftSibling()
+    {
+        return $this->siblings()->where($this->getRightColumnName(), '=', $this->getLeft() - 1)->first();
+    }
+
+    /**
+     * Return right sibling
+     * @return \October\Rain\Database\Model
+     */
+    public function getRightSibling()
+    {
+        return $this->siblings()->where($this->getLeftColumnName(), '=', $this->getRight() + 1)->first();
+    }
+    
+    /**
      * Returns all final nodes without children.
      * @return \October\Rain\Database\Collection
      */
@@ -619,8 +702,9 @@ trait NestedTree
      */
     public function getLevel()
     {
-        if ($this->getParentId() === null)
+        if ($this->getParentId() === null) {
             return 0;
+        }
 
         return $this->newQuery()->parents()->count();
     }
@@ -815,12 +899,14 @@ trait NestedTree
         else {
             $target = $this->newQuery()->find($target);
         }
+
         /*
          * Validate move
          */
         if (!$this->validateMove($this, $target, $position)) {
             return $this;
         }
+
         /*
          * Perform move
          */
@@ -928,9 +1014,8 @@ trait NestedTree
                     'Cannot resolve target node. This node cannot move any further to the %s.', $position
                 ));
             }
-            else {
-                throw new Exception('Cannot resolve target node.');
-            }
+
+            throw new Exception('Cannot resolve target node.');
         }
 
         if ($node == $target) {

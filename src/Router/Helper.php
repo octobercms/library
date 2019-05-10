@@ -98,6 +98,22 @@ class Helper
     }
 
     /**
+     * Replaces :column_name with object value without requiring a list of names. Example: /some/link/:id/:name -> /some/link/1/Joe
+     *
+     * @param stdObject $object Object containing the data
+     * @param string $string URL template
+     * @return string Built string
+     */
+    public static function replaceParameters($object, $string)
+    {
+        if (preg_match_all('/\:([\w]+)/', $string, $matches)) {
+            return self::parseValues($object, $matches[1], $string);
+        }
+
+        return $string;
+    }
+
+    /**
      * Checks whether an URL pattern segment is a wildcard.
      * @param string $segment The segment definition.
      * @return boolean Returns boolean true if the segment is a wildcard. Returns false otherwise.
@@ -147,6 +163,10 @@ class Helper
         $regexMarkerPos = mb_strpos($name, '|');
 
         if ($wildMarkerPos !== false) {
+            if ($optMarkerPos !== false) {
+                return mb_substr($name, 0, $optMarkerPos);
+            }
+
             return mb_substr($name, 0, $wildMarkerPos);
         }
 
@@ -154,9 +174,8 @@ class Helper
             if ($optMarkerPos < $regexMarkerPos) {
                 return mb_substr($name, 0, $optMarkerPos);
             }
-            else {
-                return mb_substr($name, 0, $regexMarkerPos);
-            }
+
+            return mb_substr($name, 0, $regexMarkerPos);
         }
 
         if ($optMarkerPos !== false) {
@@ -202,10 +221,14 @@ class Helper
         }
 
         $regexMarkerPos = mb_strpos($segment, '|');
+        $wildMarkerPos = mb_strpos($segment, '*');
         $value = false;
 
         if ($regexMarkerPos !== false) {
             $value = mb_substr($segment, $optMarkerPos+1, $regexMarkerPos-$optMarkerPos-1);
+        }
+        elseif ($wildMarkerPos !== false) {
+            $value = mb_substr($segment, $optMarkerPos+1, $wildMarkerPos-$optMarkerPos-1);
         }
         else {
             $value = mb_substr($segment, $optMarkerPos+1);

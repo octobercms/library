@@ -136,6 +136,8 @@ class FormBuilder
 
         $attributes['accept-charset'] = 'UTF-8';
 
+        $attributes['role'] = 'form';
+
         // If the method is PUT, PATCH or DELETE we will need to add a spoofer hidden
         // field that will instruct the Symfony request to pretend the method is a
         // different method than it actually is, for convenience from the forms.

@@ -114,6 +114,8 @@ class Definitions
             'odt',
             'doc',
             'docx',
+            'ppt',
+            'pptx',
             'pdf',
             'swf',
             'txt',
@@ -137,6 +139,7 @@ class Definitions
             'webm',
             'mkv',
             'rar',
+            'xml',
             'zip'
         ];
     }
@@ -167,7 +170,8 @@ class Definitions
             'md',
             'less',
             'sass',
-            'scss'
+            'scss',
+            'xml'
         ];
     }
 

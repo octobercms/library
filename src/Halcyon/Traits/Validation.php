@@ -125,9 +125,8 @@ trait Validation
             if ($throwOnValidation) {
                 throw new ModelException($this);
             }
-            else {
-                return false;
-            }
+
+            return false;
         }
 
         if ($this->methodExists('beforeValidate')) {
@@ -238,6 +237,11 @@ trait Validation
      */
     protected function processValidationRules($rules)
     {
+        /*
+         * Run through field names and convert array notation field names to dot notation
+         */
+        $rules = $this->processRuleFieldNames($rules);
+
         foreach ($rules as $field => $ruleParts) {
             /*
              * Trim empty rules
@@ -273,6 +277,32 @@ trait Validation
         }
 
         return $rules;
+    }
+
+    /**
+     * Processes field names in a rule array.
+     *
+     * Converts any field names using array notation (ie. `field[child]`) into dot notation (ie. `field.child`)
+     *
+     * @param array $rules Rules array
+     * @return array
+     */
+    protected function processRuleFieldNames($rules)
+    {
+        $processed = [];
+
+        foreach ($rules as $field => $ruleParts) {
+            $fieldName = $field;
+
+            if (preg_match('/^.*?\[.*?\]/', $fieldName)) {
+                $fieldName = str_replace('[]', '.*', $fieldName);
+                $fieldName = str_replace(['[', ']'], ['.', ''], $fieldName);
+            }
+
+            $processed[$fieldName] = $ruleParts;
+        }
+
+        return $processed;
     }
 
     /**

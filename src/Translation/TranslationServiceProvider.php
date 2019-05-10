@@ -28,7 +28,7 @@ class TranslationServiceProvider extends ServiceProvider
             $locale = $app['config']['app.locale'];
 
             $trans = new Translator($loader, $locale);
-
+            $trans->setEventDispatcher($app['events']);
             $trans->setFallback($app['config']['app.fallback_locale']);
 
             return $trans;

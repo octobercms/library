@@ -5,8 +5,6 @@ use Config;
 use Request;
 use Response;
 use Exception;
-use October\Rain\Exception\AjaxException;
-use October\Rain\Exception\ApplicationException;
 
 /**
  * System Error Handler, this class handles application exception events.
@@ -123,9 +121,8 @@ class ErrorHandler
                 $exception->getFile()
             );
         }
-        else {
-            return $exception->getMessage();
-        }
+
+        return $exception->getMessage();
     }
 
     //

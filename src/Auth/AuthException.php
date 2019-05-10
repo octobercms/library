@@ -3,6 +3,7 @@
 use Config;
 use October\Rain\Exception\ApplicationException;
 use Exception;
+use Lang;
 
 /**
  * Used when user authentication fails. Implements a softer error message.
@@ -20,7 +21,7 @@ class AuthException extends ApplicationException
     /**
      * @var string Default soft error message.
      */
-    protected $errorMessage = 'The details you entered did not match our records. Please double-check and try again.';
+    protected $errorMessage;
 
     /**
      * Softens a detailed authentication error with a more vague message when
@@ -31,6 +32,8 @@ class AuthException extends ApplicationException
      */
     public function __construct($message = "", $code = 0, Exception $previous = null)
     {
+        $this->errorMessage = Lang::get('backend::lang.auth.invalid_login');
+
         $this->softErrors = !Config::get('app.debug', false);
 
         if ($this->softErrors) {
