@@ -325,7 +325,7 @@ class Resizer
 
         // Resample - create image canvas of x, y size
         $imageResized = imagecreatetruecolor($optimalWidth, $optimalHeight);
-        self::retainImageTransparency($imageResized);
+        $this->retainImageTransparency($imageResized);
 
         // get the rotated the original image according to exif orientation
         $rotatedOriginal = $this->getRotatedOriginal();
@@ -409,7 +409,7 @@ class Resizer
 
         // Create a new canvas
         $imageResized = imagecreatetruecolor($newWidth, $newHeight);
-        self::retainImageTransparency($imageResized);
+        $this->retainImageTransparency($imageResized);
 
         // Crop the image to the requested size
         imagecopyresampled($imageResized, $image, 0, 0, $cropStartX, $cropStartY, $newWidth, $newHeight, $srcWidth, $srcHeight);
@@ -502,11 +502,11 @@ class Resizer
                 break;
             case 'image/png':
                 $img = @imagecreatefrompng($filePath);
-                self::retainImageTransparency($img);
+                $this->retainImageTransparency($img);
                 break;
             case 'image/webp':
                 $img = @imagecreatefromwebp($filePath);
-                self::retainImageTransparency($img);
+                $this->retainImageTransparency($img);
                 break;
             default:
                 throw new Exception(sprintf('Invalid mime type: %s. Accepted types: image/jpeg, image/gif, image/png, image/webp.', $this->mime));
