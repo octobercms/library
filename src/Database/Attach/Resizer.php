@@ -31,9 +31,14 @@ class Resizer
     protected $file;
 
     /**
-     * @var Resource The extension of the uploaded file.
+     * @var string The extension of the uploaded file.
      */
     protected $extension;
+
+    /**
+     * @var string The mime type of the uploaded file.
+     */
+    protected $mime;
 
     /**
      * @var Resource The image (on disk) that's being resized.
@@ -83,6 +88,7 @@ class Resizer
 
         // Get the file extension
         $this->extension = $file->guessExtension();
+        $this->mime = $file->getMimeType();
 
         // Open up the file
         $this->image = $this->originalImage = $this->openImage($file);
@@ -114,11 +120,21 @@ class Resizer
      * Manipulate an image resource in order to keep transparency for PNG and GIF files.
      * @param $img
      */
-    protected static function retainImageTransparency($img)
+    protected function retainImageTransparency($img)
     {
-        imagecolortransparent($img, imagecolorallocatealpha($img, 0, 0, 0, 127));
-        imagealphablending($img, false);
-        imagesavealpha($img, true);
+        if ($this->mime === 'image/gif') {
+            $alphaColor = array('red' => 0, 'green' => 0, 'blue' => 0);
+            $alphaIndex = imagecolortransparent($this->image);
+            if ($alphaIndex >= 0) {
+                $alphaColor = imagecolorsforindex($this->image, $alphaIndex);
+            }
+            $alphaIndex = imagecolorallocatealpha($img, $alphaColor['red'], $alphaColor['green'], $alphaColor['blue'], 127);
+            imagefill($img, 0, 0, $alphaIndex);
+            imagecolortransparent($img, $alphaIndex);
+        } else if ($this->mime === 'image/png' || $this->mime === 'image/webp') {
+            imagealphablending($img, false);
+            imagesavealpha($img, true);
+        }
     }
 
     /**
@@ -185,10 +201,9 @@ class Resizer
      */
     protected function getOrientation($file)
     {
-        $mime = $file->getMimeType();
         $filePath = $file->getPathname();
 
-        if ($mime != 'image/jpeg' || !function_exists('exif_read_data')) {
+        if ($this->mime != 'image/jpeg' || !function_exists('exif_read_data')) {
             return null;
         }
 
@@ -310,7 +325,7 @@ class Resizer
 
         // Resample - create image canvas of x, y size
         $imageResized = imagecreatetruecolor($optimalWidth, $optimalHeight);
-        self::retainImageTransparency($imageResized);
+        $this->retainImageTransparency($imageResized);
 
         // get the rotated the original image according to exif orientation
         $rotatedOriginal = $this->getRotatedOriginal();
@@ -394,7 +409,7 @@ class Resizer
 
         // Create a new canvas
         $imageResized = imagecreatetruecolor($newWidth, $newHeight);
-        self::retainImageTransparency($imageResized);
+        $this->retainImageTransparency($imageResized);
 
         // Crop the image to the requested size
         imagecopyresampled($imageResized, $image, 0, 0, $cropStartX, $cropStartY, $newWidth, $newHeight, $srcWidth, $srcHeight);
@@ -476,26 +491,25 @@ class Resizer
      */
     protected function openImage($file)
     {
-        $mime = $file->getMimeType();
         $filePath = $file->getPathname();
 
-        switch ($mime) {
+        switch ($this->mime) {
             case 'image/jpeg':
                 $img = @imagecreatefromjpeg($filePath);
                 break;
             case 'image/gif':
                 $img = @imagecreatefromgif($filePath);
-                self::retainImageTransparency($img);
                 break;
             case 'image/png':
                 $img = @imagecreatefrompng($filePath);
-                self::retainImageTransparency($img);
+                $this->retainImageTransparency($img);
                 break;
             case 'image/webp':
-                $img = @imagecreatefromwebp($filePath); break;
-
+                $img = @imagecreatefromwebp($filePath);
+                $this->retainImageTransparency($img);
+                break;
             default:
-                throw new Exception(sprintf('Invalid mime type: %s. Accepted types: image/jpeg, image/gif, image/png, image/webp.', $mime));
+                throw new Exception(sprintf('Invalid mime type: %s. Accepted types: image/jpeg, image/gif, image/png, image/webp.', $this->mime));
                 break;
         }
 
