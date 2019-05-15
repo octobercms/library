@@ -92,7 +92,14 @@ class DataFeed
     public function count()
     {
         $query = $this->processCollection();
-        $result = Db::table(Db::raw("(".$query->toSql().") as records"))->select(Db::raw("COUNT(*) as total"))->first();
+        $bindings = $query->bindings;
+        $records = sprintf("(%s) as records", $query->toSql());
+        $result = Db::table(Db::raw($records))->selectRaw("COUNT(*) as total");
+        // set bindings if have;
+        foreach ($bindings as $type => $params) {
+          $result = $result->setBindings($params, $type);
+        }
+        $result = $result->first();
         return $result->total;
     }
 
@@ -113,7 +120,6 @@ class DataFeed
         }
 
         $query->orderBy($this->sortVar, $this->sortDirection);
-
         $records = $query->get();
 
         /*
@@ -211,9 +217,15 @@ class DataFeed
             /*
              * Flush the select, add ID and tag
              */
-            $cleanQuery = $cleanQuery->select(Db::raw($keyName." as id"));
-            $cleanQuery = $cleanQuery->addSelect(Db::raw("(SELECT '".$tag."') as ".$this->tagVar));
-            $cleanQuery = $cleanQuery->addSelect(Db::raw("(SELECT ".$sorting.") as ".$this->sortVar));
+
+            $cast = $this->getDbDialect() === 'pgsql' ? 'text' : 'binary';
+            $idSelect = sprintf("%s as id", $keyName);
+            $tagSelect = sprintf("cast('%s' as %s) as %s", $tag, $cast, $this->tagVar);
+            $sortSelect = sprintf("%s as %s", $sorting, $this->sortVar);
+
+            $cleanQuery = $cleanQuery->select(Db::raw($idSelect));
+            $cleanQuery = $cleanQuery->addSelect(Db::raw($tagSelect));
+            $cleanQuery = $cleanQuery->addSelect(Db::raw($sortSelect));
 
             /*
              * Union this query with the previous one
@@ -262,5 +274,13 @@ class DataFeed
         }
 
         return $data;
+    }
+
+    /**
+     * Get db driver for detect db dialect
+     */
+    private function getDbDialect() {
+      $defaultDb = config('database.default');
+      return config(sprintf('database.connections.%s.driver', $defaultDb));
     }
 }
