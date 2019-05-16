@@ -27,7 +27,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
-        'Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode',
+        '\October\Rain\Foundation\Http\Middleware\CheckForMaintenanceMode',
     ];
 
     /**
