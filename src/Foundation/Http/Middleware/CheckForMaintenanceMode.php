@@ -21,7 +21,7 @@ class CheckForMaintenanceMode extends Middleware
     public function handle($request, Closure $next)
     {
         try {
-            $response = parent::handle($request, $next);
+            return parent::handle($request, $next);
         } catch (\Illuminate\Foundation\Http\Exceptions\MaintenanceModeException $ex) {
             // Check if there is a project level view to override the system one
             View::addNamespace('base', base_path());
