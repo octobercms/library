@@ -114,7 +114,7 @@ class UrlGeneratorTest extends TestCase
 
     public function testStripSegments()
     {
-        $this->assertEquals('https://github.com:80/octobercms/october?test=1&test=2#comment1', http_build_url([
+        $segments = [
             'scheme' => 'https',
             'user' => 'user',
             'pass' => 'pass',
@@ -123,94 +123,51 @@ class UrlGeneratorTest extends TestCase
             'path' => '/octobercms/october',
             'query' => 'test=1&test=2',
             'fragment' => 'comment1'
-        ], [], HTTP_URL_STRIP_AUTH));
+        ];
 
-        $this->assertEquals('https://github.com', http_build_url([
-            'scheme' => 'https',
-            'user' => 'user',
-            'pass' => 'pass',
-            'host' => 'github.com',
-            'port' => 80,
-            'path' => '/octobercms/october',
-            'query' => 'test=1&test=2',
-            'fragment' => 'comment1'
-        ], [], HTTP_URL_STRIP_ALL));
+        $this->assertEquals(
+            'https://github.com:80/octobercms/october?test=1&test=2#comment1',
+            http_build_url($segments, [], HTTP_URL_STRIP_AUTH)
+        );
 
-        $this->assertEquals('https://github.com:80/octobercms/october?test=1&test=2#comment1', http_build_url([
-            'scheme' => 'https',
-            'user' => 'user',
-            'pass' => 'pass',
-            'host' => 'github.com',
-            'port' => 80,
-            'path' => '/octobercms/october',
-            'query' => 'test=1&test=2',
-            'fragment' => 'comment1'
-        ], [], HTTP_URL_STRIP_USER));
+        $this->assertEquals(
+            'https://github.com',
+            http_build_url($segments, [], HTTP_URL_STRIP_ALL)
+        );
 
-        $this->assertEquals('https://user@github.com:80/octobercms/october?test=1&test=2#comment1', http_build_url([
-            'scheme' => 'https',
-            'user' => 'user',
-            'pass' => 'pass',
-            'host' => 'github.com',
-            'port' => 80,
-            'path' => '/octobercms/october',
-            'query' => 'test=1&test=2',
-            'fragment' => 'comment1'
-        ], [], HTTP_URL_STRIP_PASS));
+        $this->assertEquals(
+            'https://github.com:80/octobercms/october?test=1&test=2#comment1',
+            http_build_url($segments, [], HTTP_URL_STRIP_USER)
+        );
 
-        $this->assertEquals('https://user:pass@github.com/octobercms/october?test=1&test=2#comment1', http_build_url([
-            'scheme' => 'https',
-            'user' => 'user',
-            'pass' => 'pass',
-            'host' => 'github.com',
-            'port' => 80,
-            'path' => '/octobercms/october',
-            'query' => 'test=1&test=2',
-            'fragment' => 'comment1'
-        ], [], HTTP_URL_STRIP_PORT));
+        $this->assertEquals(
+            'https://user@github.com:80/octobercms/october?test=1&test=2#comment1',
+            http_build_url($segments, [], HTTP_URL_STRIP_PASS)
+        );
 
-        $this->assertEquals('https://user:pass@github.com:80?test=1&test=2#comment1', http_build_url([
-            'scheme' => 'https',
-            'user' => 'user',
-            'pass' => 'pass',
-            'host' => 'github.com',
-            'port' => 80,
-            'path' => '/octobercms/october',
-            'query' => 'test=1&test=2',
-            'fragment' => 'comment1'
-        ], [], HTTP_URL_STRIP_PATH));
+        $this->assertEquals(
+            'https://user:pass@github.com/octobercms/october?test=1&test=2#comment1',
+            http_build_url($segments, [], HTTP_URL_STRIP_PORT)
+        );
 
-        $this->assertEquals('https://user:pass@github.com:80/octobercms/october#comment1', http_build_url([
-            'scheme' => 'https',
-            'user' => 'user',
-            'pass' => 'pass',
-            'host' => 'github.com',
-            'port' => 80,
-            'path' => '/octobercms/october',
-            'query' => 'test=1&test=2',
-            'fragment' => 'comment1'
-        ], [], HTTP_URL_STRIP_QUERY));
+        $this->assertEquals(
+            'https://user:pass@github.com:80?test=1&test=2#comment1',
+            http_build_url($segments, [], HTTP_URL_STRIP_PATH)
+        );
 
-        $this->assertEquals('https://user:pass@github.com:80/octobercms/october?test=1&test=2', http_build_url([
-            'scheme' => 'https',
-            'user' => 'user',
-            'pass' => 'pass',
-            'host' => 'github.com',
-            'port' => 80,
-            'path' => '/octobercms/october',
-            'query' => 'test=1&test=2',
-            'fragment' => 'comment1'
-        ], [], HTTP_URL_STRIP_FRAGMENT));
+        $this->assertEquals(
+            'https://user:pass@github.com:80/octobercms/october#comment1',
+            http_build_url($segments, [], HTTP_URL_STRIP_QUERY)
+        );
 
-        $this->assertEquals('https://user:pass@github.com/octobercms/october', http_build_url([
-            'scheme' => 'https',
-            'user' => 'user',
-            'pass' => 'pass',
-            'host' => 'github.com',
-            'port' => 80,
-            'path' => '/octobercms/october',
-            'query' => 'test=1&test=2',
-            'fragment' => 'comment1'
-        ], [], HTTP_URL_STRIP_PORT | HTTP_URL_STRIP_QUERY | HTTP_URL_STRIP_FRAGMENT));
+        $this->assertEquals(
+            'https://user:pass@github.com:80/octobercms/october?test=1&test=2',
+            http_build_url($segments, [], HTTP_URL_STRIP_FRAGMENT)
+        );
+
+        $this->assertEquals(
+            'https://user:pass@github.com/octobercms/october',
+            http_build_url($segments, [], HTTP_URL_STRIP_PORT | HTTP_URL_STRIP_QUERY | HTTP_URL_STRIP_FRAGMENT)
+        );
     }
 }
