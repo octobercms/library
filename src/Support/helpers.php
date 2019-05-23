@@ -314,6 +314,6 @@ if (!function_exists('http_build_url')) {
      */
     function http_build_url(array $url, array $replace = [], $flags = HTTP_URL_REPLACE, array &$newUrl = []): string
     {
-        return Url::buildUrl($url, $replace, $flags, $newUrl);
+        return \October\Rain\Router\UrlGenerator::buildUrl($url, $replace, $flags, $newUrl);
     }
 }

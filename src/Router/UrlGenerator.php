@@ -23,7 +23,7 @@ class UrlGenerator extends UrlGeneratorBase
      *
      * @return string The generated URL as a string
      */
-    public function buildUrl(array $url, array $replace = [], $flags = HTTP_URL_REPLACE, &$newUrl = []): string
+    public static function buildUrl(array $url, array $replace = [], $flags = HTTP_URL_REPLACE, &$newUrl = []): string
     {
         $urlSegments = ['scheme', 'host', 'user', 'pass', 'port', 'path', 'query', 'fragment'];
 
