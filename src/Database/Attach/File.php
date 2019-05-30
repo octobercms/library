@@ -682,7 +682,7 @@ class File extends Model
                 FileHelper::delete($collection);
             }
             else {
-                Storage::delete($collection);
+                $this->getDisk()->delete($collection);
             }
         }
     }
@@ -854,6 +854,7 @@ class File extends Model
     {
         $args = func_get_args();
         $command = array_shift($args);
+        $result = null;
 
         if ($this->isLocalStorage()) {
             $interface = 'File';
@@ -861,12 +862,14 @@ class File extends Model
             $args = array_map(function($value) use ($path) {
                 return $path . '/' . $value;
             }, $args);
+
+            $result = forward_static_call_array([$interface, $command], $args);
         }
         else {
-            $interface = 'Storage';
+            $result = call_user_func_array($this->getDisk(), $command, $args);
         }
 
-        return forward_static_call_array([$interface, $command], $args);
+        return $result;
     }
 
     /**
@@ -874,7 +877,7 @@ class File extends Model
      */
     protected function copyStorageToLocal($storagePath, $localPath)
     {
-        return FileHelper::put($localPath, Storage::get($storagePath));
+        return FileHelper::put($localPath, $this->getDisk()->get($storagePath));
     }
 
     /**
@@ -882,7 +885,7 @@ class File extends Model
      */
     protected function copyLocalToStorage($localPath, $storagePath)
     {
-        return Storage::put($storagePath, FileHelper::get($localPath), $this->isPublic() ? 'public' : null);
+        return $this->getDisk()->put($storagePath, FileHelper::get($localPath), $this->isPublic() ? 'public' : null);
     }
 
     //
@@ -934,6 +937,15 @@ class File extends Model
         }
 
         return $path;
+    }
+
+    /**
+     * Returns the storage disk the file is stored on
+     * @return FilesystemAdapter
+     */
+    public function getDisk()
+    {
+        return Storage::disk();
     }
 
     /**
