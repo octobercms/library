@@ -316,7 +316,7 @@ class File extends Model
     public function getCacheKey($path = null)
     {
         if (empty($path)) {
-            $path = $this->getStorageDirectory() . $this->getPartitionDirectory() . $this>getFilename();
+            $path = $this->getDiskPath();
         }
 
         return 'file_exists::' . $path;
@@ -344,11 +344,7 @@ class File extends Model
      */
     public function getLastModified($fileName = null)
     {
-        if (!$fileName) {
-            $fileName = $this->disk_name;
-        }
-
-        return $this->storageCmd('lastModified', $this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName);
+        return $this->storageCmd('lastModified', $this->getDiskPath($fileName));
     }
 
     /**
@@ -373,19 +369,18 @@ class File extends Model
      */
     public function getContents($fileName = null)
     {
-        if (!$fileName) {
-            $fileName = $this->disk_name;
-        }
-
-        return $this->storageCmd('get', $this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName);
+        return $this->storageCmd('get', $this->getDiskPath($fileName));
     }
 
     /**
      * Returns the public address to access the file.
      */
-    public function getPath()
+    public function getPath($fileName = null)
     {
-        return $this->getPublicPath() . $this->getPartitionDirectory() . $this->disk_name;
+        if (empty($fileName)) {
+            $fileName = $this->disk_name;
+        }
+        return $this->getPublicPath() . $this->getPartitionDirectory() . $fileName;
     }
 
     /**
@@ -413,9 +408,12 @@ class File extends Model
      * Returns the path to the file, relative to the storage disk.
      * @return string
      */
-    public function getDiskPath()
+    public function getDiskPath($fileName = null)
     {
-        return $this->getStorageDirectory() . $this->getPartitionDirectory() . $this->disk_name;
+        if (empty($fileName)) {
+            $fileName = $this->disk_name;
+        }
+        return $this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName;
     }
 
     /**
@@ -529,8 +527,8 @@ class File extends Model
         $options = $this->getDefaultThumbOptions($options);
 
         $thumbFile = $this->getThumbFilename($width, $height, $options);
-        $thumbPath = $this->getStorageDirectory() . $this->getPartitionDirectory() . $thumbFile;
-        $thumbPublic = $this->getPublicPath() . $this->getPartitionDirectory() . $thumbFile;
+        $thumbPath = $this->getDiskPath($thumbFile);
+        $thumbPublic = $this->getPath($thumbFile);
 
         if (!$this->hasFile($thumbFile)) {
 
@@ -785,7 +783,7 @@ class File extends Model
      */
     protected function hasFile($fileName = null)
     {
-        $filePath = $this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName;
+        $filePath = $this->getDiskPath($fileName);
 
         $result = Cache::rememberForever($this->getCacheKey($filePath), function () use ($filePath) {
             return $this->storageCmd('exists', $filePath);
