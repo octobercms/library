@@ -548,8 +548,9 @@ class File extends Model
      * Generates a thumbnail filename.
      * @return string
      */
-    protected function getThumbFilename($width, $height, $options)
+    public function getThumbFilename($width, $height, $options)
     {
+        $options = $this->getDefaultThumbOptions($options);
         return 'thumb_' . $this->id . '_' . $width . '_' . $height . '_' . $options['offset'][0] . '_' . $options['offset'][1] . '_' . $options['mode'] . '.' . $options['extension'];
     }
 
@@ -866,7 +867,7 @@ class File extends Model
             $result = forward_static_call_array([$interface, $command], $args);
         }
         else {
-            $result = call_user_func_array($this->getDisk(), $command, $args);
+            $result = call_user_func_array([$this->getDisk(), $command], $args);
         }
 
         return $result;
