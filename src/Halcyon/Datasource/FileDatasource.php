@@ -371,8 +371,11 @@ class FileDatasource extends Datasource implements DatasourceInterface
                 continue;
             }
 
-            // Add the relative path
-            $pathsCache[] = substr($file->getPathname(), strlen($this->basePath) + 1);
+            // Add the relative path, normalized
+            $pathsCache[] = substr(
+                $this->files->normalizePath($file->getPathname()),
+                strlen($this->basePath) + 1
+            );
         }
 
         // Format array in the form of ['path/to/file' => true];
