@@ -93,7 +93,90 @@ class Markdown
         $this->fireEvent('parse', [$text, $data], false);
         Event::fire('markdown.parse', [$text, $data], false);
 
+        // Strip out certain HTML elements (eg. <script> or <style>)
+        $data->text = $this->sanitizeHtml($data->text);
+
         return $data->text;
+    }
+
+    /**
+     * Strips tags from Markdown text.
+     *
+     * This function strips tags from Markdown-parsed text except for a list of whitelisted tags.
+     *
+     * @param string $text
+     * @return void
+     */
+    protected function sanitizeHtml(string $text): string
+    {
+        $validTags = [
+            'address',
+            'article',
+            'aside',
+            'base',
+            'basefont',
+            'blockquote',
+            'body',
+            'caption',
+            'center',
+            'col',
+            'colgroup',
+            'dd',
+            'details',
+            'dialog',
+            'dir',
+            'div',
+            'dl',
+            'dt',
+            'fieldset',
+            'figcaption',
+            'figure',
+            'footer',
+            'form',
+            'frame',
+            'frameset',
+            'h1',
+            'h2',
+            'h3',
+            'h4',
+            'h5',
+            'h6',
+            'head',
+            'header',
+            'hr',
+            'html',
+            'iframe',
+            'legend',
+            'li',
+            'link',
+            'main',
+            'menu',
+            'menuitem',
+            'nav',
+            'noframes',
+            'ol',
+            'optgroup',
+            'option',
+            'p',
+            'param',
+            'section',
+            'source',
+            'summary',
+            'table',
+            'tbody',
+            'td',
+            'tfoot',
+            'th',
+            'thead',
+            'title',
+            'tr',
+            'track',
+            'ul'
+        ];
+
+        return strip_tags($text, implode('', array_map(function ($tag) {
+            return '<' . $tag . '>';
+        }, $validTags)));
     }
 
     protected function getParser()
