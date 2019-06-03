@@ -344,6 +344,7 @@ ESC;
 
         $page->addDynamicProperty('myDynamicProperty', 'myDynamicPropertyValue');
         $this->assertArrayHasKey('myDynamicProperty', $page->attributes);
+        $this->assertEquals('myDynamicPropertyValue', $page->myDynamicProperty);
         $page->save();
         $page = HalcyonTestPage::find('dynamicproperty');
         $this->assertNotNull($page);
