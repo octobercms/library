@@ -343,9 +343,11 @@ ESC;
         ]);
 
         $page->addDynamicProperty('myDynamicProperty', 'myDynamicPropertyValue');
+        $this->assertArrayHasKey('myDynamicProperty', $page->attributes);
         $page->save();
         $page = HalcyonTestPage::find('dynamicproperty');
         $this->assertNotNull($page);
+        // dynamic properties should not be saved to DB layer
         $this->assertArrayNotHasKey('myDynamicProperty', $page->attributes);
         @unlink($targetFile);
     }
