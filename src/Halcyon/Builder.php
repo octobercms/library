@@ -6,6 +6,7 @@ use October\Rain\Halcyon\Exception\MissingFileNameException;
 use October\Rain\Halcyon\Exception\InvalidFileNameException;
 use October\Rain\Halcyon\Exception\InvalidExtensionException;
 use BadMethodCallException;
+use ApplicationException;
 
 /**
  * Query builder
@@ -304,6 +305,10 @@ class Builder
      */
     protected function runSelect()
     {
+        if (!is_string($this->from)) {
+            throw new ApplicationException(sprintf("The from property is invalid, make sure that %s has a string value for its \$dirName property (use '' if not using directories)", get_class($this->model)));
+        }
+
         if ($this->selectSingle) {
             list($name, $extension) = $this->selectSingle;
             return $this->datasource->selectOne($this->from, $name, $extension);

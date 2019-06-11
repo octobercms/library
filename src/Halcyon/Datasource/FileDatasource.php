@@ -142,7 +142,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
 
             $item = [];
 
-            $path = $this->basePath . '/' . $dirName . '/' .$fileName;
+            $path = $this->basePath . '/' . $dirName . '/' . $fileName;
 
             $item['fileName'] = $fileName;
 
