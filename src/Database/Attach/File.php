@@ -282,8 +282,8 @@ class File extends Model
     public function outputThumb($width, $height, $options = [], $returnResponse = false)
     {
         $disposition = array_get($options, 'disposition', 'inline');
-        $this->getThumb($width, $height, $options);
         $options = $this->getDefaultThumbOptions($options);
+        $this->getThumb($width, $height, $options);
         $thumbFile = $this->getThumbFilename($width, $height, $options);
         $contents = $this->getContents($thumbFile);
 
