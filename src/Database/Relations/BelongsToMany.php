@@ -126,7 +126,7 @@ class BelongsToMany extends BelongsToManyBase
          *     });
          *
          */
-        if ($this->parent->fireEvent('model.relation.beforeAttach', [$this->relationName, $attachedIdList, $insertData], true) === false) {
+        if ($this->parent->fireEvent('model.relation.beforeAttach', [$this->relationName, $attachedIdList, &$insertData], true) === false) {
             return;
         }
 
