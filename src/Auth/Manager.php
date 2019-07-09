@@ -543,7 +543,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
      */
     public function id()
     {
-        if ($user == $this->getUser()) {
+        if ($user = $this->getUser()) {
             return $user->getAuthIdentifier();
         }
 
