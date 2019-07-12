@@ -239,7 +239,7 @@ if (!function_exists('trans'))
     }
 }
 
-if (! function_exists('array_build')) {
+if (!function_exists('array_build')) {
     /**
      * Build a new array using a callback.
      *
@@ -253,7 +253,7 @@ if (! function_exists('array_build')) {
     }
 }
 
-if (! function_exists('collect')) {
+if (!function_exists('collect')) {
     /**
      * Create a collection from the given value.
      *
@@ -315,5 +315,18 @@ if (!function_exists('http_build_url')) {
     function http_build_url(array $url, array $replace = [], $flags = HTTP_URL_REPLACE, array &$newUrl = []): string
     {
         return \October\Rain\Router\UrlGenerator::buildUrl($url, $replace, $flags, $newUrl);
+    }
+}
+
+if (!function_exists('is_countable')) {
+    /**
+     * Polyfill for `is_countable` method provided in PHP 7.3
+     *
+     * @param  mixed  $var
+     * @return boolean
+     */
+    function is_countable($value)
+    {
+        return (is_array($value) || $value instanceof Countable);
     }
 }
