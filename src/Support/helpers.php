@@ -325,7 +325,8 @@ if (!function_exists('is_countable')) {
      * @param  mixed  $var
      * @return boolean
      */
-    function is_countable($value) {
+    function is_countable($value)
+    {
         return (is_array($value) || $value instanceof Countable);
     }
 }
