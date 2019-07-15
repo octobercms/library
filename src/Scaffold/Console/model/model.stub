@@ -38,6 +38,16 @@ class {{studly_name}} extends Model
     protected $jsonable = [];
 
     /**
+     * @var array Append attributes
+     */
+    protected $appends = [];
+
+    /**
+     * @var array Hide attributes
+     */
+    protected $hidden = [];
+
+    /**
      * @var array Date fields
      */
     protected $date = [
