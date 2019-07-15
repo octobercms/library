@@ -97,7 +97,7 @@ class DataFeed
         $result = Db::table(Db::raw($records))->selectRaw("COUNT(*) as total");
         // set bindings if have;
         foreach ($bindings as $type => $params) {
-          $result = $result->setBindings($params, $type);
+            $result = $result->setBindings($params, $type);
         }
         $result = $result->first();
         return $result->total;
@@ -205,8 +205,7 @@ class DataFeed
             return $this->queryCache;
 
         $lastQuery = null;
-        foreach ($this->collection as $tag => $data)
-        {
+        foreach ($this->collection as $tag => $data) {
             extract($data);
             $cleanQuery = clone $item->getQuery();
             $model = $item->getModel();
@@ -218,15 +217,16 @@ class DataFeed
              * Flush the select, add ID and tag
              */
 
-            $cast = (Db::connection()->getDriverName() === 'pgsql') ? 'text' : 'binary';
+            $condionalTagSelect = (Db::connection()->getDriverName() === 'pgsql') ?
+                "CAST('%s' as text) as %s" :
+                "%s as %s";
             $idSelect = sprintf("%s as id", $keyName);
-            $tagSelect = sprintf("cast('%s' as %s) as %s", $tag, $cast, $this->tagVar);
+            $tagSelect = sprintf($condionalTagSelect, $tag, $this->tagVar);
             $sortSelect = sprintf("%s as %s", $sorting, $this->sortVar);
 
-            $cleanQuery = $cleanQuery->select(Db::raw($idSelect));
-            $cleanQuery = $cleanQuery->addSelect(Db::raw($tagSelect));
-            $cleanQuery = $cleanQuery->addSelect(Db::raw($sortSelect));
-
+            $cleanQuery = $cleanQuery->select(Db::raw($idSelect))
+                ->addSelect(Db::raw($tagSelect))
+                ->addSelect(Db::raw($sortSelect));
             /*
              * Union this query with the previous one
              */
@@ -270,17 +270,9 @@ class DataFeed
     protected function getDataByTag($tag)
     {
         if (!$data = array_get($this->collection, $tag)) {
-            throw new Exception('Unable to find model in collection with tag: '. $tag);
+            throw new Exception('Unable to find model in collection with tag: ' . $tag);
         }
 
         return $data;
-    }
-
-    /**
-     * Get db driver for detect db dialect
-     */
-    private function getDbDialect() {
-      $defaultDb = config('database.default');
-      return config(sprintf('database.connections.%s.driver', $defaultDb));
     }
 }
