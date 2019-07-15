@@ -218,7 +218,7 @@ class DataFeed
              * Flush the select, add ID and tag
              */
 
-            $cast = $this->getDbDialect() === 'pgsql' ? 'text' : 'binary';
+            $cast = (Db::connection()->getDriverName() === 'pgsql') ? 'text' : 'binary';
             $idSelect = sprintf("%s as id", $keyName);
             $tagSelect = sprintf("cast('%s' as %s) as %s", $tag, $cast, $this->tagVar);
             $sortSelect = sprintf("%s as %s", $sorting, $this->sortVar);
