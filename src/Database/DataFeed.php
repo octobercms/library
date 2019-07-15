@@ -92,7 +92,16 @@ class DataFeed
     public function count()
     {
         $query = $this->processCollection();
-        $result = Db::table(Db::raw("(".$query->toSql().") as records"))->select(Db::raw("COUNT(*) as total"))->first();
+        $bindings = $query->bindings;
+        $records = sprintf("(%s) as records", $query->toSql());
+        $result = Db::table(Db::raw($records))->selectRaw("COUNT(*) as total");
+
+        // Set the bindings, if present
+        foreach ($bindings as $type => $params) {
+            $result = $result->setBindings($params, $type);
+        }
+        
+        $result = $result->first();
         return $result->total;
     }
 
@@ -113,7 +122,6 @@ class DataFeed
         }
 
         $query->orderBy($this->sortVar, $this->sortDirection);
-
         $records = $query->get();
 
         /*
@@ -199,25 +207,27 @@ class DataFeed
             return $this->queryCache;
 
         $lastQuery = null;
-        foreach ($this->collection as $tag => $data)
-        {
+        foreach ($this->collection as $tag => $data) {
             extract($data);
             $cleanQuery = clone $item->getQuery();
             $model = $item->getModel();
 
             $sorting = $model->getTable() . '.';
             $sorting .= $orderBy ?: $this->sortField;
+            
+            // Flush the select and add ID and tag
+            $conditionalTagSelect = (Db::connection()->getDriverName() === 'pgsql') ?
+                "CAST('%s' as text) as %s" :
+                "'%s' as %s";
+            $idSelect = sprintf("%s as id", $keyName);
+            $tagSelect = sprintf($conditionalTagSelect, $tag, $this->tagVar);
+            $sortSelect = sprintf("%s as %s", $sorting, $this->sortVar);
 
-            /*
-             * Flush the select, add ID and tag
-             */
-            $cleanQuery = $cleanQuery->select(Db::raw($keyName." as id"));
-            $cleanQuery = $cleanQuery->addSelect(Db::raw("(SELECT '".$tag."') as ".$this->tagVar));
-            $cleanQuery = $cleanQuery->addSelect(Db::raw("(SELECT ".$sorting.") as ".$this->sortVar));
-
-            /*
-             * Union this query with the previous one
-             */
+            $cleanQuery = $cleanQuery->select(Db::raw($idSelect))
+                ->addSelect(Db::raw($tagSelect))
+                ->addSelect(Db::raw($sortSelect));
+            
+            // Union this query with the previous one
             if ($lastQuery) {
                 if ($this->removeDuplicates)
                     $cleanQuery = $lastQuery->union($cleanQuery);
@@ -258,7 +268,7 @@ class DataFeed
     protected function getDataByTag($tag)
     {
         if (!$data = array_get($this->collection, $tag)) {
-            throw new Exception('Unable to find model in collection with tag: '. $tag);
+            throw new Exception('Unable to find model in collection with tag: ' . $tag);
         }
 
         return $data;
