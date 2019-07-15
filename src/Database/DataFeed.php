@@ -217,11 +217,11 @@ class DataFeed
              * Flush the select, add ID and tag
              */
 
-            $condionalTagSelect = (Db::connection()->getDriverName() === 'pgsql') ?
+            $conditionalTagSelect = (Db::connection()->getDriverName() === 'pgsql') ?
                 "CAST('%s' as text) as %s" :
                 "%s as %s";
             $idSelect = sprintf("%s as id", $keyName);
-            $tagSelect = sprintf($condionalTagSelect, $tag, $this->tagVar);
+            $tagSelect = sprintf($conditionalTagSelect, $tag, $this->tagVar);
             $sortSelect = sprintf("%s as %s", $sorting, $this->sortVar);
 
             $cleanQuery = $cleanQuery->select(Db::raw($idSelect))
