@@ -50,8 +50,9 @@ class {{studly_name}} extends Model
     /**
      * @var array Date fields
      */
-    protected $date = [
+    protected $dates = [
         'created_at',
+        'updated_at'
     ];
 
     /**
