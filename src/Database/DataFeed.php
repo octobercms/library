@@ -219,7 +219,7 @@ class DataFeed
 
             $conditionalTagSelect = (Db::connection()->getDriverName() === 'pgsql') ?
                 "CAST('%s' as text) as %s" :
-                "%s as %s";
+                "'%s' as %s";
             $idSelect = sprintf("%s as id", $keyName);
             $tagSelect = sprintf($conditionalTagSelect, $tag, $this->tagVar);
             $sortSelect = sprintf("%s as %s", $sorting, $this->sortVar);
