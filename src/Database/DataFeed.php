@@ -95,10 +95,12 @@ class DataFeed
         $bindings = $query->bindings;
         $records = sprintf("(%s) as records", $query->toSql());
         $result = Db::table(Db::raw($records))->selectRaw("COUNT(*) as total");
-        // set bindings if have;
+
+        // Set the bindings, if present
         foreach ($bindings as $type => $params) {
             $result = $result->setBindings($params, $type);
         }
+        
         $result = $result->first();
         return $result->total;
     }
@@ -212,11 +214,8 @@ class DataFeed
 
             $sorting = $model->getTable() . '.';
             $sorting .= $orderBy ?: $this->sortField;
-
-            /*
-             * Flush the select, add ID and tag
-             */
-
+            
+            // Flush the select and add ID and tag
             $conditionalTagSelect = (Db::connection()->getDriverName() === 'pgsql') ?
                 "CAST('%s' as text) as %s" :
                 "'%s' as %s";
@@ -227,9 +226,8 @@ class DataFeed
             $cleanQuery = $cleanQuery->select(Db::raw($idSelect))
                 ->addSelect(Db::raw($tagSelect))
                 ->addSelect(Db::raw($sortSelect));
-            /*
-             * Union this query with the previous one
-             */
+            
+            // Union this query with the previous one
             if ($lastQuery) {
                 if ($this->removeDuplicates)
                     $cleanQuery = $lastQuery->union($cleanQuery);
