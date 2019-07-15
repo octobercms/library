@@ -23,6 +23,28 @@ class {{studly_name}} extends Model
     protected $fillable = [];
 
     /**
+     * @var array Rules for fields
+     */
+    protected $rules = [];
+
+    /**
+     * @var array Cast fields
+     */
+    protected $casts = [];
+
+    /**
+     * @var array Json fields
+     */
+    protected $jsonable = [];
+
+    /**
+     * @var array Date fields
+     */
+    protected $date = [
+        'created_at',
+    ];
+
+    /**
      * @var array Relations
      */
     public $hasOne = [];
