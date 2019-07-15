@@ -25,7 +25,7 @@ class {{studly_name}} extends Model
     /**
      * @var array Rules for fields
      */
-    protected $rules = [];
+    public $rules = [];
 
     /**
      * @var array Cast fields
