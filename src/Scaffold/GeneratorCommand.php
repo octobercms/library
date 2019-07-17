@@ -7,6 +7,7 @@ use October\Rain\Filesystem\Filesystem;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Exception;
+use Twig;
 
 abstract class GeneratorCommand extends Command
 {
@@ -103,8 +104,9 @@ abstract class GeneratorCommand extends Command
         /*
          * Parse each variable in to the destination content and path
          */
+        $destinationContent = Twig::parse($destinationContent, $this->vars);
+
         foreach ($this->vars as $key => $var) {
-            $destinationContent = str_replace('{{' . $key . '}}', $var, $destinationContent);
             $destinationFile = str_replace('{{' . $key . '}}', $var, $destinationFile);
         }
 
