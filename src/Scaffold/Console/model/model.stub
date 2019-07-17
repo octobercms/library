@@ -25,32 +25,32 @@ class {{studly_name}} extends Model
     protected $fillable = [];
 
     /**
-     * @var array Rules for fields
+     * @var array Validation rules for attributes
      */
     public $rules = [];
 
     /**
-     * @var array Cast fields
+     * @var array The attributes that should be cast to native types
      */
     protected $casts = [];
 
     /**
-     * @var array Json fields
+     * @var array Attributes to be cast to JSON
      */
     protected $jsonable = [];
 
     /**
-     * @var array Append attributes
+     * @var array Attributes to be appended to the API representation of the model (ex. toArray())
      */
     protected $appends = [];
 
     /**
-     * @var array Hide attributes
+     * @var array Attributes to be removed from the API representation of the model (ex. toArray())
      */
     protected $hidden = [];
 
     /**
-     * @var array Date fields
+     * @var array Attributes to be cast to Carbon instances
      */
     protected $dates = [
         'created_at',
