@@ -105,10 +105,7 @@ abstract class GeneratorCommand extends Command
          * Parse each variable in to the destination content and path
          */
         $destinationContent = Twig::parse($destinationContent, $this->vars);
-
-        foreach ($this->vars as $key => $var) {
-            $destinationFile = str_replace('{{' . $key . '}}', $var, $destinationFile);
-        }
+        $destinationFile = Twig::parse($destinationFile, $this->vars);
 
         $this->makeDirectory($destinationFile);
 
