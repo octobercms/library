@@ -50,7 +50,7 @@ class {{studly_name}} extends Model
     protected $hidden = [];
 
     /**
-     * @var array Attributes to be cast to Carbon instances
+     * @var array Attributes to be cast to Argon (Carbon) instances
      */
     protected $dates = [
         'created_at',
