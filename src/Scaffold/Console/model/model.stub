@@ -30,7 +30,7 @@ class {{studly_name}} extends Model
     public $rules = [];
 
     /**
-     * @var array Attributes that to be cast to native types
+     * @var array Attributes to be cast to native types
      */
     protected $casts = [];
 
