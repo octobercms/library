@@ -377,10 +377,12 @@ class FieldParser
     /**
      * Splits an option string to an array.
      *
-     * one|two           -> [one, two]
-     * one:One|two:Two   -> [one => 'One', two => 'Two']
+     * one|two               -> [one, two]
+     * one:One|two:Two       -> [one => 'One', two => 'Two']
+     * \Path\To\Class|method -> \Path\To\Class::method()
      *
      * @param  string $optionsString
+     * @throws Exception
      * @return array
      */
     protected function processOptionsToArray($optionsString)
@@ -388,6 +390,29 @@ class FieldParser
         $options = explode('|', $optionsString);
 
         $result = [];
+
+        if (count($options) === 2 && class_exists($options[0])) {
+            if (!method_exists($options[0], $options[1])) {
+                throw new Exception(sprintf(
+                    'Invalid drop-down option: method `%s` not found in `%s`',
+                    $options[1],
+                    $options[0]
+                ));
+            }
+
+            $result = $options[0]::{$options[1]}();
+
+            if (!is_array($result)) {
+                throw new Exception(sprintf(
+                    'Invalid drop-down option result: `%s::%s` invalid return type',
+                    $options[0],
+                    $options[1]
+                ));
+            }
+
+            return $result;
+        }
+
         foreach ($options as $index => $optionStr) {
             $parts = explode(':', $optionStr, 2);
 
@@ -414,5 +439,4 @@ class FieldParser
 
         return $result;
     }
-
 }
