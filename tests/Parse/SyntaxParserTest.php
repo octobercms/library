@@ -4,7 +4,7 @@ use October\Rain\Parse\Syntax\Parser;
 
 class DropDownOptions
 {
-    public function get()
+    public static function get()
     {
         return ['foo' => 'bar', 'bar' => 'foo'];
     }
