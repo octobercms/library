@@ -387,31 +387,25 @@ class FieldParser
      */
     protected function processOptionsToArray($optionsString)
     {
-        $options = explode('|', $optionsString);
-
         $result = [];
 
-        if (count($options) === 2 && class_exists($options[0])) {
-            if (!method_exists($options[0], $options[1])) {
-                throw new Exception(sprintf(
-                    'Invalid drop-down option: method `%s` not found in `%s`',
-                    $options[1],
-                    $options[0]
-                ));
+        if (strpos($optionsString, '::')) {
+            $options = explode('::', $optionsString);
+            if (count($options) === 2 && class_exists($options[0]) && method_exists($options[0], $options[1])) {
+                $result = $options[0]::{$options[1]}();
+                if (!is_array($result)) {
+                    throw new Exception(sprintf(
+                        'Invalid drop-down option result: `%s::%s` invalid return type',
+                        $options[0],
+                        $options[1]
+                    ));
+                }
+
+                return $result;
             }
-
-            $result = $options[0]::{$options[1]}();
-
-            if (!is_array($result)) {
-                throw new Exception(sprintf(
-                    'Invalid drop-down option result: `%s::%s` invalid return type',
-                    $options[0],
-                    $options[1]
-                ));
-            }
-
-            return $result;
         }
+
+        $options = explode('|', $optionsString);
 
         foreach ($options as $index => $optionStr) {
             $parts = explode(':', $optionStr, 2);
