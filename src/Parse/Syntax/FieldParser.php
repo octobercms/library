@@ -389,7 +389,7 @@ class FieldParser
     {
         $result = [];
 
-        if (strpos($optionsString, '::')) {
+        if (strpos($optionsString, '::') !== false) {
             $options = explode('::', $optionsString);
             if (count($options) === 2 && class_exists($options[0]) && method_exists($options[0], $options[1])) {
                 $result = $options[0]::{$options[1]}();
