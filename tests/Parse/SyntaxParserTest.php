@@ -202,7 +202,7 @@ class SyntaxParserTest extends TestCase
         $this->assertArrayHasKey('bar', $result['optionList']['options']);
         $this->assertEquals('foo', $result['optionList']['options']['bar']);
 
-        $content = '{variable type="dropdown" name="optionList" label="Option List" options="\DropDownOptions|get"}'
+        $content = '{variable type="dropdown" name="optionList" label="Option List" options="\DropDownOptions::get"}'
             . '{/variable}';
 
         $result = Parser::parse($content)->toEditor();
