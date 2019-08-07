@@ -218,4 +218,24 @@ class SyntaxParserTest extends TestCase
         $this->assertArrayHasKey('bar', $result['optionList']['options']);
         $this->assertEquals('foo', $result['optionList']['options']['bar']);
     }
+
+    public function testParseDropDownVariableToEditInvalidKeyException()
+    {
+        $this->expectException(\Exception::class);
+
+        $content = '{variable type="dropdown" name="optionList" label="Option List" options="^:one|*:two"}'
+            . '{/variable}';
+
+        Parser::parse($content)->toEditor();
+    }
+
+    public function testParseDropDownVariableToEditInvalidStaticMethodException()
+    {
+        $this->expectException(\Exception::class);
+
+        $content = '{variable type="dropdown" name="optionList" label="Option List" options="\Invalid\Class\Path::get"}'
+            . '{/variable}';
+
+        Parser::parse($content)->toEditor();
+    }
 }
