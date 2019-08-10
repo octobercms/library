@@ -35,7 +35,7 @@ class Yaml
         try {
             // Cache parsed yaml file if debug mode is disabled
             if (!Config::get('app.debug', false)) {
-                $parsed = Cache::rememberForever('yaml::' . $fileName . '-' . filemtime($fileName), function () use ($fileName) {
+                $parsed = Cache::remember('yaml::' . $fileName . '-' . filemtime($fileName), now()->addDays(30), function () use ($fileName) {
                     return $this->parse(file_get_contents($fileName));
                 });
             } else {
