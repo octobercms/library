@@ -21,12 +21,8 @@ class Yaml
      */
     public function parse($contents)
     {
-        try {
-            $yaml = new Parser;
-            return $yaml->parse($contents);
-        } catch (\Exception $e) {
-            throw new ParseException("A syntax error was detected in $fileName. " . $e->getMessage(), __LINE__, __FILE__);
-        }
+        $yaml = new Parser;
+        return $yaml->parse($contents);
     }
 
     /**
