@@ -32,20 +32,19 @@ class Yaml
      */
     public function parseFile($fileName)
     {
-        // Cache parsed yaml file if debug mode is disabled
-        if (!Config::get('app.debug', false)) {
-            $parsed = Cache::rememberForever('yaml::' . $fileName . '-' . filemtime($fileName), function () use ($fileName) {
-                return $this->parse(file_get_contents($fileName));
-            });
-        } else {
-            try {
+        try {
+            // Cache parsed yaml file if debug mode is disabled
+            if (!Config::get('app.debug', false)) {
+                $parsed = Cache::rememberForever('yaml::' . $fileName . '-' . filemtime($fileName), function () use ($fileName) {
+                    return $this->parse(file_get_contents($fileName));
+                });
+            } else {
                 $parsed = $this->parse(file_get_contents($fileName));
-            } catch (\Exception $e) {
-                throw new ParseException("A syntax error was detected in $fileName. " . $e->getMessage(), __LINE__, __FILE__);
             }
+            return $parsed;
+        } catch (\Exception $e) {
+            throw new ParseException("A syntax error was detected in $fileName. " . $e->getMessage(), __LINE__, __FILE__);
         }
-
-        return $parsed;
     }
 
     /**
