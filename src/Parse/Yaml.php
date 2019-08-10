@@ -1,5 +1,7 @@
 <?php namespace October\Rain\Parse;
 
+use Cache;
+use Config;
 use Symfony\Component\Yaml\Dumper;
 use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -19,8 +21,12 @@ class Yaml
      */
     public function parse($contents)
     {
-        $yaml = new Parser;
-        return $yaml->parse($contents);
+        try {
+            $yaml = new Parser;
+            return $yaml->parse($contents);
+        } catch (\Exception $e) {
+            throw new ParseException("A syntax error was detected in $fileName. " . $e->getMessage(), __LINE__, __FILE__);
+        }
     }
 
     /**
@@ -30,13 +36,19 @@ class Yaml
      */
     public function parseFile($fileName)
     {
-        $contents = file_get_contents($fileName);
-        try {
-            $parsed = $this->parse($contents);
+        // Cache parsed yaml file if debug mode is disabled
+        if (!Config::get('app.debug', false)) {
+            $parsed = Cache::rememberForever('yaml::' . $fileName . '-' . filemtime($fileName), function () use ($fileName) {
+                return $this->parse(file_get_contents($fileName));
+            });
+        } else {
+            try {
+                $parsed = $this->parse(file_get_contents($fileName));
+            } catch (\Exception $e) {
+                throw new ParseException("A syntax error was detected in $fileName. " . $e->getMessage(), __LINE__, __FILE__);
+            }
         }
-        catch (\Exception $e) {
-            throw new ParseException("A syntax error was detected in $fileName. " . $e->getMessage(), __LINE__, __FILE__);
-        }
+
         return $parsed;
     }
 
