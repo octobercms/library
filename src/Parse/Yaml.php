@@ -35,13 +35,12 @@ class Yaml
         try {
             // Cache parsed yaml file if debug mode is disabled
             if (!Config::get('app.debug', false)) {
-                $parsed = Cache::remember('yaml::' . $fileName . '-' . filemtime($fileName), now()->addDays(30), function () use ($fileName) {
+                return Cache::remember('yaml::' . $fileName . '-' . filemtime($fileName), now()->addDays(30), function () use ($fileName) {
                     return $this->parse(file_get_contents($fileName));
                 });
             } else {
-                $parsed = $this->parse(file_get_contents($fileName));
+                return $this->parse(file_get_contents($fileName));
             }
-            return $parsed;
         } catch (\Exception $e) {
             throw new ParseException("A syntax error was detected in $fileName. " . $e->getMessage(), __LINE__, __FILE__);
         }
