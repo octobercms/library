@@ -598,6 +598,32 @@ class Model extends EloquentModel
     }
 
     /**
+     * Get a new query builder for the model's table.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function newQuery()
+    {
+        $query = $this->registerGlobalScopes($this->newQueryWithoutScopes());
+
+        /**
+         * @event model.extendQuery
+         * Called immediately after the query object has been created for static::newQuery().
+         * Enables applying instance-specific global scopes.
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.extendQuery', function ((\Illuminate\Database\Eloquent\Builder) $query) {
+         *         $query->where('client_id', Multisite::getClientId());
+         *     });
+         *
+         */
+        $this->fireEvent('model.extendQuery', [$query]);
+
+        return $query;
+    }
+
+    /**
      * Create a new Model Collection instance.
      *
      * @param  array  $models

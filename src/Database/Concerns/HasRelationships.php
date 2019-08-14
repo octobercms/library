@@ -192,7 +192,15 @@ trait HasRelationships
         }
 
         $relationClass = $relation[0];
-        return new $relationClass();
+        $relationObj = new $relationClass();
+
+        if (!empty($relation['conditions'])) {
+            $relationObj->bindEvent('model.extendQuery', function ($query) use ($relation) {
+                $query->whereRaw($relation['conditions']);
+            });
+        }
+
+        return $relationObj;
     }
 
     /**
