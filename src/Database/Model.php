@@ -1183,7 +1183,7 @@ class Model extends EloquentModel
         /*
          * Handle direct relation setting
          */
-        if ($this->hasRelation($key)) {
+        if ($this->hasRelation($key) && !$this->hasSetMutator($key)) {
             return $this->setRelationValue($key, $value);
         }
 
