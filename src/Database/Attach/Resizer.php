@@ -123,7 +123,7 @@ class Resizer
     protected function retainImageTransparency($img)
     {
         if ($this->mime === 'image/gif') {
-            $alphaColor = array('red' => 0, 'green' => 0, 'blue' => 0);
+            $alphaColor = ['red' => 0, 'green' => 0, 'blue' => 0];
             $alphaIndex = imagecolortransparent($this->image);
             if ($alphaIndex >= 0) {
                 $alphaColor = imagecolorsforindex($this->image, $alphaIndex);
@@ -371,11 +371,11 @@ class Resizer
         // Normalize sharpening value
         $kernelCenter = exp((80 - (float)$sharpness) / 18) + 9;
 
-        $matrix = array(
+        $matrix = [
             [-1, -1, -1],
             [-1, $kernelCenter, -1],
             [-1, -1, -1],
-        );
+        ];
 
         $divisor = array_sum(array_map('array_sum', $matrix));
 

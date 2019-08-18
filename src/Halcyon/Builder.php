@@ -578,7 +578,7 @@ class Builder
      */
     public function remember($minutes, $key = null)
     {
-        list($this->cacheMinutes, $this->cacheKey) = array($minutes, $key);
+        list($this->cacheMinutes, $this->cacheKey) = [$minutes, $key];
 
         return $this;
     }
