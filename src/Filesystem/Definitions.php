@@ -97,48 +97,49 @@ class Definitions
     protected function defaultExtensions()
     {
         return [
-            'jpg',
-            'jpeg',
+            'apng',
+            'av1',
+            'avi',
             'bmp',
-            'png',
-            'webp',
-            'gif',
-            'svg',
-            'js',
-            'map',
-            'ico',
             'css',
-            'less',
-            'scss',
-            'ics',
-            'odt',
             'doc',
             'docx',
-            'ppt',
-            'pptx',
-            'pdf',
-            'swf',
-            'txt',
-            'xml',
-            'ods',
-            'xls',
-            'xlsx',
             'eot',
-            'woff',
-            'woff2',
-            'ttf',
             'flv',
-            'wmv',
-            'mp3',
-            'ogg',
-            'wav',
-            'avi',
+            'gif',
+            'ico',
+            'ics',
+            'jpeg',
+            'jpg',
+            'js',
+            'less',
+            'map',
+            'mkv',
             'mov',
+            'mp3',
             'mp4',
             'mpeg',
-            'webm',
-            'mkv',
+            'ods',
+            'odt',
+            'ogg',
+            'pdf',
+            'png',
+            'ppt',
+            'pptx',
             'rar',
+            'scss',
+            'svg',
+            'swf',
+            'ttf',
+            'txt',
+            'wav',
+            'webm',
+            'webp',
+            'wmv',
+            'woff2',
+            'woff',
+            'xls',
+            'xlsx',
             'xml',
             'zip'
         ];
@@ -152,25 +153,26 @@ class Definitions
     protected function assetExtensions()
     {
         return [
-            'jpg',
-            'jpeg',
+            'apng',
             'bmp',
-            'png',
-            'webp',
+            'css',
+            'eot',
             'gif',
             'ico',
-            'css',
+            'jpeg',
+            'jpg',
             'js',
-            'woff',
-            'woff2',
-            'svg',
-            'ttf',
-            'eot',
             'json',
-            'md',
             'less',
+            'md',
+            'png',
             'sass',
             'scss',
+            'svg',
+            'ttf',
+            'webp',
+            'woff2',
+            'woff',
             'xml'
         ];
     }
@@ -182,13 +184,14 @@ class Definitions
      */
     protected function imageExtensions()
     {
-        return [
-            'jpg',
-            'jpeg',
+        return [            
+            'apng',
             'bmp',
+            'gif',
+            'jpeg',
+            'jpg',
             'png',
-            'webp',
-            'gif'
+            'webp'
         ];
     }
 
@@ -200,12 +203,13 @@ class Definitions
     protected function videoExtensions()
     {
         return [
-            'mp4',
+            'av1',
             'avi',
-            'mov',
-            'mpg',
-            'mpeg',
             'mkv',
+            'mov',
+            'mp4',
+            'mpeg',
+            'mpg',
             'webm'
         ];
     }
@@ -218,11 +222,11 @@ class Definitions
     protected function audioExtensions()
     {
         return [
-            'mp3',
-            'wav',
-            'wma',
             'm4a',
-            'ogg'
+            'mp3',
+            'ogg',
+            'wav',
+            'wma'
         ];
     }
 }
