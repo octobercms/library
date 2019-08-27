@@ -1,7 +1,7 @@
 <?php
 
 use October\Rain\Database\Updater;
-use October\Rain\Tests\Database\SampleFiles\SampleClass;
+use October\Rain\Tests\fixtures\Database\SampleClass;
 
 class UpdaterTest extends TestCase
 {
@@ -17,7 +17,6 @@ class UpdaterTest extends TestCase
 
         $classFullName = $this->updater->getClassFromFile($filePath);
 
-        $expectedString = 'October\Rain\Tests\Database\SampleFiles\SampleClass';
-        $this->assertEquals($expectedString, $classFullName);
+        $this->assertEquals(SampleClass::class, $classFullName);
     }
 }
