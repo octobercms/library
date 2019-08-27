@@ -83,7 +83,7 @@ class ConfigWriter
         $replaceValue = $this->writeValueToPhp($value);
 
         $count = 0;
-        $patterns = array();
+        $patterns = [];
         $patterns[] = $this->buildStringExpression($key, $items);
         $patterns[] = $this->buildStringExpression($key, $items, '"');
         $patterns[] = $this->buildConstantExpression($key, $items);
@@ -139,9 +139,9 @@ class ConfigWriter
         return '['.implode(', ', $result).']';
     }
 
-    protected function buildStringExpression($targetKey, $arrayItems = array(), $quoteChar = "'")
+    protected function buildStringExpression($targetKey, $arrayItems = [], $quoteChar = "'")
     {
-        $expression = array();
+        $expression = [];
 
         // Opening expression for array items ($1)
         $expression[] = $this->buildArrayOpeningExpression($arrayItems);
@@ -161,9 +161,9 @@ class ConfigWriter
     /**
      * Common constants only (true, false, null, integers)
      */
-    protected function buildConstantExpression($targetKey, $arrayItems = array())
+    protected function buildConstantExpression($targetKey, $arrayItems = [])
     {
-        $expression = array();
+        $expression = [];
 
         // Opening expression for array items ($1)
         $expression[] = $this->buildArrayOpeningExpression($arrayItems);
@@ -180,9 +180,9 @@ class ConfigWriter
     /**
      * Single level arrays only
      */
-    protected function buildArrayExpression($targetKey, $arrayItems = array())
+    protected function buildArrayExpression($targetKey, $arrayItems = [])
     {
-        $expression = array();
+        $expression = [];
 
         // Opening expression for array items ($1)
         $expression[] = $this->buildArrayOpeningExpression($arrayItems);
@@ -199,7 +199,7 @@ class ConfigWriter
     protected function buildArrayOpeningExpression($arrayItems)
     {
         if (count($arrayItems)) {
-            $itemOpen = array();
+            $itemOpen = [];
             foreach ($arrayItems as $item) {
                 // The left hand array assignment
                 $itemOpen[] = '[\'|"]'.$item.'[\'|"]\s*=>\s*(?:[aA][rR]{2}[aA][yY]\(|[\[])';

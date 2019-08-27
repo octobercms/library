@@ -38,7 +38,7 @@ class QueryBuilder extends QueryBuilderBase
      *
      * @param  string  $column
      * @param  string|null  $key
-     * @return \Illuminate\Support\Collection
+     * @return array
      */
     public function lists($column, $key = null)
     {

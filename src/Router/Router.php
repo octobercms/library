@@ -10,7 +10,6 @@
  */
 class Router
 {
-
     /**
      * @var string Value to use when a required parameter is not specified
      */
@@ -87,6 +86,7 @@ class Router
         }
 
         $this->parameters = $parameters;
+
         return $this->matchedRouteRule ? true : false;
     }
 
@@ -104,7 +104,9 @@ class Router
         }
 
         $routeRule = $this->routeMap[$name];
+
         $pattern = $routeRule->pattern();
+
         return $this->urlFromPattern($pattern, $parameters);
     }
 
@@ -277,5 +279,4 @@ class Router
             return 0;
         });
     }
-
 }

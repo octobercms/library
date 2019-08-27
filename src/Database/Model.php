@@ -1112,6 +1112,11 @@ class Model extends EloquentModel
                 continue;
             }
 
+            // Prevent double decoding of jsonable attributes.
+            if (!is_string($attributes[$key])) {
+                continue;
+            }
+
             $jsonValue = json_decode($attributes[$key], true);
             if (json_last_error() === JSON_ERROR_NONE) {
                 $attributes[$key] = $jsonValue;
@@ -1152,7 +1157,7 @@ class Model extends EloquentModel
         /*
          * Handle direct relation setting
          */
-        if ($this->hasRelation($key)) {
+        if ($this->hasRelation($key) && !$this->hasSetMutator($key)) {
             return $this->setRelationValue($key, $value);
         }
 
