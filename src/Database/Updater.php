@@ -148,7 +148,7 @@ class Updater
                 /*
                  * Class opening
                  */
-                if ($tokens[$i][0] === T_CLASS && $tokens[$i-1][0] !== T_PAAMAYIM_NEKUDOTAYIM) {
+                if ($tokens[$i][0] === T_CLASS && $tokens[$i-1][1] !== '::') {
                     $class = $tokens[$i+2][1];
                     break;
                 }
