@@ -232,7 +232,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
             throw new Exception('User is already active!');
         }
 
-        if ($activationCode == $this->activation_code) {
+        if ($activationCode === $this->activation_code) {
             $this->activation_code = null;
             $this->is_activated = true;
             $this->activated_at = $this->freshTimestamp();
