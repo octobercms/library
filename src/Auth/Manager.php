@@ -713,7 +713,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
             Session::put($this->sessionKey.'_impersonate', $oldSession);
         }
         
-        $user->fireEvent('model.auth.afterImpersonate', [$oldUser]);
+        $user->fireEvent('model.auth.impersonate', [$oldUser]);
     }
 
     /**
