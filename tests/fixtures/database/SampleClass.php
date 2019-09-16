@@ -1,6 +1,5 @@
 <?php
-
-namespace October\Rain\Tests\fixtures\Database;
+namespace TestPlugin;
 
 use October\Rain\Supports\Arr;
 

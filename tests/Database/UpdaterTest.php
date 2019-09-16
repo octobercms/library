@@ -1,22 +1,23 @@
 <?php
 
 use October\Rain\Database\Updater;
-use October\Rain\Tests\fixtures\Database\SampleClass;
 
 class UpdaterTest extends TestCase
 {
     public function setUp()
     {
+        include_once __DIR__.'/../fixtures/database/SampleClass.php';
+
         $this->updater = new Updater();
     }
 
     public function testClassNameGetsParsedCorrectly()
     {
-        $reflector = new ReflectionClass(SampleClass::class);
+        $reflector = new ReflectionClass(TestPlugin\SampleClass::class);
         $filePath = $reflector->getFileName();
 
         $classFullName = $this->updater->getClassFromFile($filePath);
 
-        $this->assertEquals(SampleClass::class, $classFullName);
+        $this->assertEquals(TestPlugin\SampleClass::class, $classFullName);
     }
 }
