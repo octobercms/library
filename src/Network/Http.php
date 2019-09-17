@@ -50,7 +50,7 @@
  *       $http->toFile('some/path/to/a/file.txt');
  *
  *       // Sets a cURL option manually
- *       $http->setOption('CURLOPT_SSL_VERIFYHOST', false);
+ *       $http->setOption(CURLOPT_SSL_VERIFYHOST, false);
  *
  *   });
  *
