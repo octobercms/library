@@ -355,12 +355,6 @@ trait Validation
 
         foreach ($rules as $field => $ruleParts) {
             /*
-             * Rule class instances should not be checked here
-             */
-            if(is_object($rulePart)) {
-                continue;
-            }
-            /*
              * Trim empty rules
              */
             if (is_string($ruleParts) && trim($ruleParts) == '') {
@@ -379,6 +373,12 @@ trait Validation
              * Analyse each rule individually
              */
             foreach ($ruleParts as $key => $rulePart) {
+                /*
+                 * Rule class instances should not be checked here
+                 */
+                if(is_object($rulePart)) {
+                    continue;
+                }
                 /*
                  * Remove primary key unique validation rule if the model already exists
                  */
