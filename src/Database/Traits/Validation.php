@@ -355,6 +355,12 @@ trait Validation
 
         foreach ($rules as $field => $ruleParts) {
             /*
+             * Rule class instances should not be checked here
+             */
+            if(is_object($rulePart)) {
+                continue;
+            }
+            /*
              * Trim empty rules
              */
             if (is_string($ruleParts) && trim($ruleParts) == '') {
