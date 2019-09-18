@@ -520,7 +520,22 @@ class Http
             return;
         }
 
-        $this->requestOptions[$option] = $value;
+        if (is_string($option) && defined($option)) {
+            $optionKey = constant($option);
+            $this->requestOptions[$optionKey] = $value;
+        } elseif (is_int($option)) {
+            $constants = get_defined_constants(true);
+            $curlOptConstants = preg_grep('/^CURLOPT_/', array_flip($constants['curl']));
+
+            if (isset($curlOptConstants[$option])) {
+                $this->requestOptions[$option] = $value;
+            } else {
+                throw new \Exception('Array keys must be CURLOPT constants or equivalent integer values');
+            }
+        } else {
+            throw new \Exception('Array keys must be CURLOPT constants or equivalent integer values');
+        }
+
         return $this;
     }
 
