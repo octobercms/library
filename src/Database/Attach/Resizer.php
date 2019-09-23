@@ -323,15 +323,34 @@ class Resizer
         // Get optimal width and height - based on supplied mode.
         list($optimalWidth, $optimalHeight) = $this->getDimensions($newWidth, $newHeight);
 
-        // Resample - create image canvas of x, y size
-        $imageResized = imagecreatetruecolor($optimalWidth, $optimalHeight);
-        $this->retainImageTransparency($imageResized);
 
         // get the rotated the original image according to exif orientation
         $rotatedOriginal = $this->getRotatedOriginal();
 
-        // Create the new image
-        imagecopyresampled($imageResized, $rotatedOriginal, 0, 0, 0, 0, $optimalWidth, $optimalHeight, $this->width, $this->height);
+        if ($this->mime === 'image/gif') {
+            // Use imagescale() for GIFs, as it produces better results
+            $imageResized = imagescale($rotatedOriginal, $optimalWidth, $optimalHeight, IMG_NEAREST_NEIGHBOUR);
+            $this->retainImageTransparency($imageResized);
+        } else {
+            // Resample - create image canvas of x, y size
+            $imageResized = imagecreatetruecolor($optimalWidth, $optimalHeight);
+            $this->retainImageTransparency($imageResized);
+
+            // Create the new image
+            imagecopyresampled(
+                $imageResized,
+                $rotatedOriginal,
+                0,
+                0,
+                0,
+                0,
+                $optimalWidth,
+                $optimalHeight,
+                $this->width,
+                $this->height
+            );
+        }
+
 
         $this->image = $imageResized;
 
