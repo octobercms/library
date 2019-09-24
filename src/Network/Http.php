@@ -1,5 +1,7 @@
 <?php namespace October\Rain\Network;
 
+use October\Rain\Exception\ApplicationException;
+
 /**
  * HTTP Network Access
  *
@@ -530,10 +532,10 @@ class Http
             if (isset($curlOptConstants[$option])) {
                 $this->requestOptions[$option] = $value;
             } else {
-                throw new \Exception('Array keys must be CURLOPT constants or equivalent integer values');
+                throw new ApplicationException($option.' parameter must be a CURLOPT constant or equivalent integer');
             }
         } else {
-            throw new \Exception('Array keys must be CURLOPT constants or equivalent integer values');
+            throw new ApplicationException($option.' parameter must be a CURLOPT constant or equivalent integer');
         }
 
         return $this;
