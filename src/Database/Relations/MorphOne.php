@@ -35,7 +35,7 @@ class MorphOne extends MorphOneBase
         // Nulling the relationship
         if (!$value) {
             if ($this->parent->exists) {
-                $this->parent->bindEventOnce('model.afterSave', function() {
+                $this->parent->bindEventOnce('model.afterSave', function () {
                     $this->update([
                         $this->getForeignKeyName() => null,
                         $this->getMorphType() => null
@@ -60,7 +60,7 @@ class MorphOne extends MorphOneBase
         if ($instance) {
             $this->parent->setRelation($this->relationName, $instance);
 
-            $this->parent->bindEventOnce('model.afterSave', function() use ($instance){
+            $this->parent->bindEventOnce('model.afterSave', function () use ($instance) {
                 // Relation is already set, do nothing. This prevents the relationship
                 // from being nulled below and left unset because the save will ignore
                 // attribute values that are numerically equivalent (not dirty).

@@ -62,7 +62,7 @@ class Dongle
      */
     public function parseGroupConcat($sql)
     {
-        $result = preg_replace_callback('/group_concat\((.+)\)/i', function($matches){
+        $result = preg_replace_callback('/group_concat\((.+)\)/i', function ($matches) {
             if (!isset($matches[1])) {
                 return $matches[0];
             }
@@ -102,7 +102,7 @@ class Dongle
      */
     public function parseConcat($sql)
     {
-        return preg_replace_callback('/(?:group_)?concat\((.+)\)(?R)?/i', function($matches){
+        return preg_replace_callback('/(?:group_)?concat\((.+)\)(?R)?/i', function ($matches) {
             if (!isset($matches[1])) {
                 return $matches[0];
             }

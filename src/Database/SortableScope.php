@@ -30,7 +30,7 @@ class SortableScope implements ScopeInterface
      */
     public function extend(BuilderBase $builder)
     {
-        $builder->macro('orderBy', function($builder, $column, $direction = 'asc') {
+        $builder->macro('orderBy', function ($builder, $column, $direction = 'asc') {
             $builder
                 ->withoutGlobalScope($this)
                 ->getQuery()

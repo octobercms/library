@@ -32,8 +32,9 @@ trait MorphOneOrMany
     {
         $model = parent::create($attributes);
 
-        if ($sessionKey !== null)
+        if ($sessionKey !== null) {
             $this->add($model, $sessionKey);
+        }
 
         return $model;
     }
@@ -69,7 +70,6 @@ trait MorphOneOrMany
     public function remove(Model $model, $sessionKey = null)
     {
         if ($sessionKey === null) {
-
             $options = $this->parent->getRelationDefinition($this->relationName);
 
             if (array_get($options, 'delete', false)) {
@@ -98,5 +98,4 @@ trait MorphOneOrMany
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);
         }
     }
-
 }

@@ -115,7 +115,8 @@ class ErrorHandler
          * Application Exceptions never display a detailed error
          */
         if (!($exception instanceof ApplicationException) && Config::get('app.debug', false)) {
-            return sprintf('"%s" on line %s of %s',
+            return sprintf(
+                '"%s" on line %s of %s',
                 $exception->getMessage(),
                 $exception->getLine(),
                 $exception->getFile()

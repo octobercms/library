@@ -32,8 +32,10 @@ class RoutingServiceProvider extends RoutingServiceProviderBase
             $app->instance('routes', $routes);
 
             $url = new UrlGenerator(
-                $routes, $app->rebinding(
-                    'request', $this->requestRebinder()
+                $routes,
+                $app->rebinding(
+                    'request',
+                    $this->requestRebinder()
                 )
             );
 

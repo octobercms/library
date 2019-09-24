@@ -14,11 +14,11 @@ class LoadTranslation
      */
     public function bootstrap(Application $app)
     {
-        $app->singleton('translation.loader', function($app) {
+        $app->singleton('translation.loader', function ($app) {
             return new FileLoader($app['files'], $app['path.lang']);
         });
 
-        $app->singleton('translator', function($app) {
+        $app->singleton('translator', function ($app) {
             $loader = $app['translation.loader'];
 
             // When registering the translator component, we'll need to set the default

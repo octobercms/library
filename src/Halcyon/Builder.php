@@ -458,7 +458,7 @@ class Builder
          * Flag the models as loaded from cache, then reset the internal property.
          */
         if ($this->loadedFromCache) {
-            $models->each(function($model) {
+            $models->each(function ($model) {
                 $model->setLoadedFromCache($this->loadedFromCache);
             });
 
@@ -740,7 +740,9 @@ class Builder
      */
     protected function getCacheCallback($columns)
     {
-        return function() use ($columns) { return $this->processInitCacheData($this->getFresh($columns)); };
+        return function () use ($columns) {
+            return $this->processInitCacheData($this->getFresh($columns));
+        };
     }
 
     /**
@@ -766,7 +768,7 @@ class Builder
      */
     public static function clearInternalCache()
     {
-        if(MemoryCacheManager::isEnabled()) {
+        if (MemoryCacheManager::isEnabled()) {
             Model::getCacheManager()->driver()->flushInternalCache();
         }
     }

@@ -23,7 +23,6 @@ class HalcyonTestPage extends Model
      * @var string
      */
     protected $dirName = 'pages';
-
 }
 
 class HalcyonTestPageWithValidation extends HalcyonTestPage

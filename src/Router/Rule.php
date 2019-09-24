@@ -123,7 +123,6 @@ class Rule
             $patternSegmentLower = mb_strtolower($patternSegment);
 
             if (strpos($patternSegment, ':') !== 0) {
-
                 /*
                  * Static segment
                  */
@@ -135,7 +134,6 @@ class Rule
                 }
             }
             else {
-
                 /*
                  * Dynamic segment. Initialize the parameter
                  */
@@ -188,7 +186,8 @@ class Rule
                             return false;
                         }
                     }
-                    catch (\Exception $ex) {}
+                    catch (\Exception $ex) {
+                    }
                 }
 
                 /*
@@ -202,7 +201,6 @@ class Rule
                 if (Helper::segmentIsWildcard($patternSegment) && count($wildSegments)) {
                     $parameters[$paramName] .= Helper::rebuildUrl($wildSegments);
                 }
-
             }
         }
 
@@ -292,10 +290,10 @@ class Rule
     public function condition($callback = null)
     {
         if ($callback !== null) {
-
             if (!is_callable($callback)) {
                 throw new InvalidArgumentException(sprintf(
-                    "Condition provided is not a valid callback. Given (%s)", gettype($callback)
+                    "Condition provided is not a valid callback. Given (%s)",
+                    gettype($callback)
                 ));
             }
 
@@ -317,10 +315,10 @@ class Rule
     public function afterMatch($callback = null)
     {
         if ($callback !== null) {
-
             if (!is_callable($callback)) {
                 throw new InvalidArgumentException(sprintf(
-                    "The after match callback provided is not valid. Given (%s)", gettype($callback)
+                    "The after match callback provided is not valid. Given (%s)",
+                    gettype($callback)
                 ));
             }
 

@@ -166,7 +166,6 @@ trait AttachOneOrMany
         }
 
         if ($sessionKey === null) {
-
             // Delete siblings for single attachments
             if ($this instanceof AttachOne) {
                 $this->delete();
@@ -210,7 +209,6 @@ trait AttachOneOrMany
     public function remove(Model $model, $sessionKey = null)
     {
         if ($sessionKey === null) {
-
             $options = $this->parent->getRelationDefinition($this->relationName);
 
             if (array_get($options, 'delete', false)) {

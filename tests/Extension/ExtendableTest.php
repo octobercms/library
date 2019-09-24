@@ -7,27 +7,27 @@ class ExtendableTest extends TestCase
 {
     public function testExtendingExtendableClass()
     {
-        $subject = new ExtendableTest_ExampleExtendableClass;
+        $subject = new ExtendableTestExampleExtendableClass;
         $this->assertNull($subject->classAttribute);
 
-        ExtendableTest_ExampleExtendableClass::extend(function($extension) {
+        ExtendableTestExampleExtendableClass::extend(function ($extension) {
             $extension->classAttribute = 'bar';
         });
 
-        $subject = new ExtendableTest_ExampleExtendableClass;
+        $subject = new ExtendableTestExampleExtendableClass;
         $this->assertEquals('bar', $subject->classAttribute);
     }
 
     public function testSettingDeclaredPropertyOnClass()
     {
-        $subject = new ExtendableTest_ExampleExtendableClass;
+        $subject = new ExtendableTestExampleExtendableClass;
         $subject->classAttribute = 'Test';
         $this->assertEquals('Test', $subject->classAttribute);
     }
 
     public function testSettingUndeclaredPropertyOnClass()
     {
-        $subject = new ExtendableTest_ExampleExtendableClass;
+        $subject = new ExtendableTestExampleExtendableClass;
         $subject->newAttribute = 'Test';
         $this->assertNull($subject->newAttribute);
         $this->assertFalse(property_exists($subject, 'newAttribute'));
@@ -35,18 +35,18 @@ class ExtendableTest extends TestCase
 
     public function testSettingDeclaredPropertyOnBehavior()
     {
-        $subject = new ExtendableTest_ExampleExtendableClass;
-        $behavior = $subject->getClassExtension('ExtendableTest_ExampleBehaviorClass1');
+        $subject = new ExtendableTestExampleExtendableClass;
+        $behavior = $subject->getClassExtension('ExtendableTestExampleBehaviorClass1');
 
         $subject->behaviorAttribute = 'Test';
         $this->assertEquals('Test', $subject->behaviorAttribute);
         $this->assertEquals('Test', $behavior->behaviorAttribute);
-        $this->assertTrue($subject->isClassExtendedWith('ExtendableTest_ExampleBehaviorClass1'));
+        $this->assertTrue($subject->isClassExtendedWith('ExtendableTestExampleBehaviorClass1'));
     }
 
     public function testDynamicPropertyOnClass()
     {
-        $subject = new ExtendableTest_ExampleExtendableClass;
+        $subject = new ExtendableTestExampleExtendableClass;
         $this->assertFalse(property_exists($subject, 'newAttribute'));
         $subject->addDynamicProperty('dynamicAttribute', 'Test');
         $this->assertEquals('Test', $subject->dynamicAttribute);
@@ -55,17 +55,17 @@ class ExtendableTest extends TestCase
 
     public function testDynamicallyExtendingClass()
     {
-        $subject = new ExtendableTest_ExampleExtendableClass;
-        $subject->extendClassWith('ExtendableTest_ExampleBehaviorClass2');
+        $subject = new ExtendableTestExampleExtendableClass;
+        $subject->extendClassWith('ExtendableTestExampleBehaviorClass2');
 
-        $this->assertTrue($subject->isClassExtendedWith('ExtendableTest_ExampleBehaviorClass1'));
-        $this->assertTrue($subject->isClassExtendedWith('ExtendableTest_ExampleBehaviorClass2'));
+        $this->assertTrue($subject->isClassExtendedWith('ExtendableTestExampleBehaviorClass1'));
+        $this->assertTrue($subject->isClassExtendedWith('ExtendableTestExampleBehaviorClass2'));
     }
 
     public function testDynamicMethodOnClass()
     {
-        $subject = new ExtendableTest_ExampleExtendableClass;
-        $subject->addDynamicMethod('getFooAnotherWay', 'getFoo', 'ExtendableTest_ExampleBehaviorClass1');
+        $subject = new ExtendableTestExampleExtendableClass;
+        $subject->addDynamicMethod('getFooAnotherWay', 'getFoo', 'ExtendableTestExampleBehaviorClass1');
 
         $this->assertEquals('foo', $subject->getFoo());
         $this->assertEquals('foo', $subject->getFooAnotherWay());
@@ -73,20 +73,20 @@ class ExtendableTest extends TestCase
 
     public function testDynamicExtendAndMethodOnClass()
     {
-        $subject = new ExtendableTest_ExampleExtendableClass;
-        $subject->extendClassWith('ExtendableTest_ExampleBehaviorClass2');
-        $subject->addDynamicMethod('getOriginalFoo', 'getFoo', 'ExtendableTest_ExampleBehaviorClass1');
+        $subject = new ExtendableTestExampleExtendableClass;
+        $subject->extendClassWith('ExtendableTestExampleBehaviorClass2');
+        $subject->addDynamicMethod('getOriginalFoo', 'getFoo', 'ExtendableTestExampleBehaviorClass1');
 
-        $this->assertTrue($subject->isClassExtendedWith('ExtendableTest_ExampleBehaviorClass1'));
-        $this->assertTrue($subject->isClassExtendedWith('ExtendableTest_ExampleBehaviorClass2'));
+        $this->assertTrue($subject->isClassExtendedWith('ExtendableTestExampleBehaviorClass1'));
+        $this->assertTrue($subject->isClassExtendedWith('ExtendableTestExampleBehaviorClass2'));
         $this->assertEquals('bar', $subject->getFoo());
         $this->assertEquals('foo', $subject->getOriginalFoo());
     }
 
     public function testDynamicClosureOnClass()
     {
-        $subject = new ExtendableTest_ExampleExtendableClass;
-        $subject->addDynamicMethod('sayHello', function() {
+        $subject = new ExtendableTestExampleExtendableClass;
+        $subject->addDynamicMethod('sayHello', function () {
             return 'Hello world';
         });
 
@@ -95,34 +95,34 @@ class ExtendableTest extends TestCase
 
     public function testDynamicCallableOnClass()
     {
-        $subject = new ExtendableTest_ExampleExtendableClass;
-        $subject->addDynamicMethod('getAppName', ['ExtendableTest_ExampleClass', 'getName']);
+        $subject = new ExtendableTestExampleExtendableClass;
+        $subject->addDynamicMethod('getAppName', ['ExtendableTestExampleClass', 'getName']);
 
         $this->assertEquals('october', $subject->getAppName());
     }
 
     public function testCallingStaticMethod()
     {
-        $result = ExtendableTest_ExampleExtendableClass::getStaticBar();
+        $result = ExtendableTestExampleExtendableClass::getStaticBar();
         $this->assertEquals('bar', $result);
 
-        $result = ExtendableTest_ExampleExtendableClass::vanillaIceIce();
+        $result = ExtendableTestExampleExtendableClass::vanillaIceIce();
         $this->assertEquals('baby', $result);
     }
 
     /**
      * @expectedException        BadMethodCallException
-     * @expectedExceptionMessage Call to undefined method ExtendableTest_ExampleExtendableClass::undefinedMethod()
+     * @expectedExceptionMessage Call to undefined method ExtendableTestExampleExtendableClass::undefinedMethod()
      */
     public function testCallingUndefinedStaticMethod()
     {
-        $result = ExtendableTest_ExampleExtendableClass::undefinedMethod();
+        $result = ExtendableTestExampleExtendableClass::undefinedMethod();
         $this->assertEquals('bar', $result);
     }
 
     public function testAccessingProtectedProperty()
     {
-        $subject = new ExtendableTest_ExampleExtendableClass;
+        $subject = new ExtendableTestExampleExtendableClass;
         $this->assertEmpty($subject->protectedFoo);
 
         $subject->protectedFoo = 'snickers';
@@ -131,58 +131,58 @@ class ExtendableTest extends TestCase
 
     /**
      * @expectedException        BadMethodCallException
-     * @expectedExceptionMessage Call to undefined method ExtendableTest_ExampleExtendableClass::protectedBar()
+     * @expectedExceptionMessage Call to undefined method ExtendableTestExampleExtendableClass::protectedBar()
      */
     public function testAccessingProtectedMethod()
     {
-        $subject = new ExtendableTest_ExampleExtendableClass;
+        $subject = new ExtendableTestExampleExtendableClass;
         echo $subject->protectedBar();
     }
 
     /**
      * @expectedException        BadMethodCallException
-     * @expectedExceptionMessage Call to undefined method ExtendableTest_ExampleExtendableClass::protectedMars()
+     * @expectedExceptionMessage Call to undefined method ExtendableTestExampleExtendableClass::protectedMars()
      */
     public function testAccessingProtectedStaticMethod()
     {
-        echo ExtendableTest_ExampleExtendableClass::protectedMars();
+        echo ExtendableTestExampleExtendableClass::protectedMars();
     }
 
     /**
      * @expectedException        Exception
-     * @expectedExceptionMessage Class ExtendableTest_InvalidExtendableClass contains an invalid $implement value
+     * @expectedExceptionMessage Class ExtendableTestInvalidExtendableClass contains an invalid $implement value
      */
     public function testInvalidImplementValue()
     {
-        $result = new ExtendableTest_InvalidExtendableClass;
+        $result = new ExtendableTestInvalidExtendableClass;
     }
 
     public function testSoftImplementFake()
     {
-        $result = new ExtendableTest_ExampleExtendableSoftImplementFakeClass;
+        $result = new ExtendableTestExampleExtendableSoftImplementFakeClass;
         $this->assertFalse($result->isClassExtendedWith('RabbleRabbleRabble'));
         $this->assertEquals('working', $result->getStatus());
     }
 
     public function testSoftImplementReal()
     {
-        $result = new ExtendableTest_ExampleExtendableSoftImplementRealClass;
-        $this->assertTrue($result->isClassExtendedWith('ExtendableTest_ExampleBehaviorClass1'));
+        $result = new ExtendableTestExampleExtendableSoftImplementRealClass;
+        $this->assertTrue($result->isClassExtendedWith('ExtendableTestExampleBehaviorClass1'));
         $this->assertEquals('foo', $result->getFoo());
     }
 
     public function testSoftImplementCombo()
     {
-        $result = new ExtendableTest_ExampleExtendableSoftImplementComboClass;
+        $result = new ExtendableTestExampleExtendableSoftImplementComboClass;
         $this->assertFalse($result->isClassExtendedWith('RabbleRabbleRabble'));
-        $this->assertTrue($result->isClassExtendedWith('ExtendableTest_ExampleBehaviorClass1'));
-        $this->assertTrue($result->isClassExtendedWith('ExtendableTest_ExampleBehaviorClass2'));
-        $this->assertEquals('bar', $result->getFoo()); // ExtendableTest_ExampleBehaviorClass2 takes priority, defined last
+        $this->assertTrue($result->isClassExtendedWith('ExtendableTestExampleBehaviorClass1'));
+        $this->assertTrue($result->isClassExtendedWith('ExtendableTestExampleBehaviorClass2'));
+        $this->assertEquals('bar', $result->getFoo()); // ExtendableTestExampleBehaviorClass2 takes priority, defined last
     }
 
     public function testDotNotation()
     {
-        $subject = new ExtendableTest_ExampleExtendableClassDotNotation();
+        $subject = new ExtendableTestExampleExtendableClassDotNotation();
         $subject->extendClassWith('ExtendableTest.ExampleBehaviorClass2');
 
         $this->assertTrue($subject->isClassExtendedWith('ExtendableTest.ExampleBehaviorClass1'));
@@ -191,28 +191,28 @@ class ExtendableTest extends TestCase
 
     public function testMethodExists()
     {
-        $subject = new ExtendableTest_ExampleExtendableClass;
+        $subject = new ExtendableTestExampleExtendableClass;
         $this->assertTrue($subject->methodExists('extend'));
     }
 
     public function testMethodNotExists()
     {
-        $subject = new ExtendableTest_ExampleExtendableClass;
+        $subject = new ExtendableTestExampleExtendableClass;
         $this->assertFalse($subject->methodExists('missingFunction'));
     }
 
     public function testDynamicMethodExists()
     {
-        $subject = new ExtendableTest_ExampleExtendableClass;
-        $subject->addDynamicMethod('getFooAnotherWay', 'getFoo', 'ExtendableTest_ExampleBehaviorClass1');
+        $subject = new ExtendableTestExampleExtendableClass;
+        $subject->addDynamicMethod('getFooAnotherWay', 'getFoo', 'ExtendableTestExampleBehaviorClass1');
 
         $this->assertTrue($subject->methodExists('getFooAnotherWay'));
     }
 
     public function testGetClassMethods()
     {
-        $subject = new ExtendableTest_ExampleExtendableClass;
-        $subject->addDynamicMethod('getFooAnotherWay', 'getFoo', 'ExtendableTest_ExampleBehaviorClass1');
+        $subject = new ExtendableTestExampleExtendableClass;
+        $subject->addDynamicMethod('getFooAnotherWay', 'getFoo', 'ExtendableTestExampleBehaviorClass1');
         $methods =  $subject->getClassMethods();
 
         $this->assertContains('extend', $methods);
@@ -229,7 +229,7 @@ class ExtendableTest extends TestCase
 /**
  * Example behavior classes
  */
-class ExtendableTest_ExampleBehaviorClass1 extends ExtensionBase
+class ExtendableTestExampleBehaviorClass1 extends ExtensionBase
 {
     public $behaviorAttribute;
 
@@ -249,7 +249,7 @@ class ExtendableTest_ExampleBehaviorClass1 extends ExtensionBase
     }
 }
 
-class ExtendableTest_ExampleBehaviorClass2 extends ExtensionBase
+class ExtendableTestExampleBehaviorClass2 extends ExtensionBase
 {
     public $behaviorAttribute;
 
@@ -262,7 +262,7 @@ class ExtendableTest_ExampleBehaviorClass2 extends ExtensionBase
 /*
  * Example class that has an invalid implementation
  */
-class ExtendableTest_InvalidExtendableClass extends Extendable
+class ExtendableTestInvalidExtendableClass extends Extendable
 {
     public $implement = 24;
 
@@ -272,9 +272,9 @@ class ExtendableTest_InvalidExtendableClass extends Extendable
 /*
  * Example class that has extensions enabled
  */
-class ExtendableTest_ExampleExtendableClass extends Extendable
+class ExtendableTestExampleExtendableClass extends Extendable
 {
-    public $implement = ['ExtendableTest_ExampleBehaviorClass1'];
+    public $implement = ['ExtendableTestExampleBehaviorClass1'];
 
     public $classAttribute;
 
@@ -304,7 +304,7 @@ class ExtendableTest_ExampleExtendableClass extends Extendable
 /**
  * A normal class without extensions enabled
  */
-class ExtendableTest_ExampleClass
+class ExtendableTestExampleClass
 {
     public static function getName()
     {
@@ -315,7 +315,7 @@ class ExtendableTest_ExampleClass
 /*
  * Example class with soft implement failure
  */
-class ExtendableTest_ExampleExtendableSoftImplementFakeClass extends Extendable
+class ExtendableTestExampleExtendableSoftImplementFakeClass extends Extendable
 {
     public $implement = ['@RabbleRabbleRabble'];
 
@@ -328,19 +328,19 @@ class ExtendableTest_ExampleExtendableSoftImplementFakeClass extends Extendable
 /*
  * Example class with soft implement success
  */
-class ExtendableTest_ExampleExtendableSoftImplementRealClass extends Extendable
+class ExtendableTestExampleExtendableSoftImplementRealClass extends Extendable
 {
-    public $implement = ['@ExtendableTest_ExampleBehaviorClass1'];
+    public $implement = ['@ExtendableTestExampleBehaviorClass1'];
 }
 
 /*
  * Example class with soft implement hybrid
  */
-class ExtendableTest_ExampleExtendableSoftImplementComboClass extends Extendable
+class ExtendableTestExampleExtendableSoftImplementComboClass extends Extendable
 {
     public $implement = [
-        'ExtendableTest_ExampleBehaviorClass1',
-        '@ExtendableTest_ExampleBehaviorClass2',
+        'ExtendableTestExampleBehaviorClass1',
+        '@ExtendableTestExampleBehaviorClass2',
         '@RabbleRabbleRabble'
     ];
 }
@@ -348,7 +348,7 @@ class ExtendableTest_ExampleExtendableSoftImplementComboClass extends Extendable
 /*
  * Example class that has extensions enabled using dot notation
  */
-class ExtendableTest_ExampleExtendableClassDotNotation extends Extendable
+class ExtendableTestExampleExtendableClassDotNotation extends Extendable
 {
     public $implement = ['ExtendableTest.ExampleBehaviorClass1'];
 
@@ -380,5 +380,5 @@ class ExtendableTest_ExampleExtendableClassDotNotation extends Extendable
 /*
  * Add namespaced aliases for dot notation test
  */
-class_alias('ExtendableTest_ExampleBehaviorClass1', 'ExtendableTest\\ExampleBehaviorClass1');
-class_alias('ExtendableTest_ExampleBehaviorClass2', 'ExtendableTest\\ExampleBehaviorClass2');
+class_alias('ExtendableTestExampleBehaviorClass1', 'ExtendableTest\\ExampleBehaviorClass1');
+class_alias('ExtendableTestExampleBehaviorClass2', 'ExtendableTest\\ExampleBehaviorClass2');

@@ -24,7 +24,8 @@ class TranslatorTest extends TestCase
 
     public function testSimilarWordsParsing()
     {
-        $this->assertEquals('Displayed records: 1-100 of 10',
+        $this->assertEquals(
+            'Displayed records: 1-100 of 10',
             $this->translator->get('lang.test.pagination', ['from' => 1, 'to' => 100, 'total' => 10])
         );
     }

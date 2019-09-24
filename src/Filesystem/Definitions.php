@@ -38,7 +38,7 @@ class Definitions
     }
 
     /**
-     * Determines if a path should be ignored, sourced from the ignoreFiles 
+     * Determines if a path should be ignored, sourced from the ignoreFiles
      * and ignorePatterns definitions.
      * @todo Efficiency of this method can be improved.
      * @param string $path Specifies a path to check.

@@ -56,8 +56,8 @@ trait Validation
             throw new Exception(sprintf('You must define a $rules property in %s to use the Validation trait.', get_called_class()));
         }
 
-        static::extend(function($model) {
-            $model->bindEvent('model.saveInternal', function($data, $options) use ($model) {
+        static::extend(function ($model) {
+            $model->bindEvent('model.saveInternal', function ($data, $options) use ($model) {
                 /*
                  * If forcing the save event, the beforeValidate/afterValidate
                  * events should still fire for consistency. So validate an
@@ -74,7 +74,6 @@ trait Validation
                 if (!$valid) {
                     return false;
                 }
-
             }, 500);
         });
     }
@@ -141,7 +140,6 @@ trait Validation
         $success = true;
 
         if (!empty($rules)) {
-
             $data = $this->getValidationAttributes();
 
             $lang = static::getModelValidator()->getTranslator();
@@ -158,7 +156,7 @@ trait Validation
             }
 
             $translatedCustomMessages = [];
-            foreach ($customMessages as $rule => $customMessage){
+            foreach ($customMessages as $rule => $customMessage) {
                 $translatedCustomMessages[$rule] = $lang->get($customMessage);
             }
 
@@ -176,7 +174,7 @@ trait Validation
             }
 
             $translatedAttributeNames = [];
-            foreach ($attributeNames as $attribute => $attributeName){
+            foreach ($attributeNames as $attribute => $attributeName) {
                 $translatedAttributeNames[$attribute] = $lang->get($attributeName);
             }
 
@@ -268,7 +266,7 @@ trait Validation
                 if (starts_with($rulePart, 'required:create') && $this->exists) {
                     unset($ruleParts[$key]);
                 }
-                else if (starts_with($rulePart, 'required:update') && !$this->exists) {
+                elseif (starts_with($rulePart, 'required:update') && !$this->exists) {
                     unset($ruleParts[$key]);
                 }
             }

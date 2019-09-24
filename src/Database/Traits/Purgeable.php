@@ -6,7 +6,7 @@ trait Purgeable
 {
     /**
      * @var array List of attribute names which should not be saved to the database.
-     * 
+     *
      * protected $purgeable = [];
      */
 
@@ -21,16 +21,18 @@ trait Purgeable
      */
     public static function bootPurgeable()
     {
-        if (!property_exists(get_called_class(), 'purgeable'))
+        if (!property_exists(get_called_class(), 'purgeable')) {
             throw new Exception(sprintf(
-                'You must define a $purgeable property in %s to use the Purgeable trait.', get_called_class()
+                'You must define a $purgeable property in %s to use the Purgeable trait.',
+                get_called_class()
             ));
+        }
 
         /*
          * Remove any purge attributes from the data set
          */
-        static::extend(function($model){
-            $model->bindEvent('model.saveInternal', function() use ($model) {
+        static::extend(function ($model) {
+            $model->bindEvent('model.saveInternal', function () use ($model) {
                 $model->purgeAttributes();
             });
         });

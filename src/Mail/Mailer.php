@@ -167,7 +167,7 @@ class Mailer extends MailerBase
         $method = $queue === true ? 'queue' : 'send';
         $recipients = $this->processRecipients($recipients);
 
-        return $this->{$method}($view, $data, function($message) use ($recipients, $callback, $bcc) {
+        return $this->{$method}($view, $data, function ($message) use ($recipients, $callback, $bcc) {
 
             $method = $bcc === true ? 'bcc' : 'to';
 

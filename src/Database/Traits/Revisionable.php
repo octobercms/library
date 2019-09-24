@@ -39,16 +39,17 @@ trait Revisionable
     {
         if (!property_exists(get_called_class(), 'revisionable')) {
             throw new Exception(sprintf(
-                'You must define a $revisionable property in %s to use the Revisionable trait.', get_called_class()
+                'You must define a $revisionable property in %s to use the Revisionable trait.',
+                get_called_class()
             ));
         }
 
-        static::extend(function($model) {
-            $model->bindEvent('model.afterUpdate', function() use ($model) {
+        static::extend(function ($model) {
+            $model->bindEvent('model.afterUpdate', function () use ($model) {
                 $model->revisionableAfterUpdate();
             });
 
-            $model->bindEvent('model.afterDelete', function() use ($model) {
+            $model->bindEvent('model.afterDelete', function () use ($model) {
                 $model->revisionableAfterDelete();
             });
         });
@@ -184,5 +185,4 @@ trait Revisionable
     {
         return defined('static::REVISION_HISTORY') ? static::REVISION_HISTORY : 'revision_history';
     }
-
 }

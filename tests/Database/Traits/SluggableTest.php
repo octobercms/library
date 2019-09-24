@@ -231,5 +231,4 @@ class TestModelSluggable extends \October\Rain\Database\Model
     protected $slugs = ['slug' => 'name'];
     protected $fillable = ['name'];
     protected $table = 'test';
-
 }

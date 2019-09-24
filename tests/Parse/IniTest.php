@@ -244,7 +244,7 @@ class IniTest extends TestCase
         $vars = [
             'var' => "\\Test\\Path\\",
             'editorContent' =>
-'<p>Some
+        '<p>Some
     <br>"Multi-line"
     <br>text
 </p>',
@@ -332,17 +332,16 @@ class IniTest extends TestCase
 
         $str = $parser->render($data);
         $this->assertEquals($this->getContents($path), $str);
-   }
+    }
 
    //
    // Helpers
    //
 
-   protected function getContents($path)
-   {
+    protected function getContents($path)
+    {
         $content = file_get_contents($path);
         $content = preg_replace('~\R~u', PHP_EOL, $content); // Normalize EOL
         return $content;
-   }
-
+    }
 }
