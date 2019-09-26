@@ -110,34 +110,19 @@ class EmitterTest extends TestCase
         $emitter = $this->traitObject;
         $result = '';
 
-        $emitter->bindEvent('event.test', function () use (&$result) {
-            $result .= 'the ';
-        }, 90);
-        $emitter->bindEvent('event.test', function () use (&$result) {
-            $result .= 'quick ';
-        }, 80);
-        $emitter->bindEvent('event.test', function () use (&$result) {
-            $result .= 'brown ';
-        }, 70);
-        $emitter->bindEvent('event.test', function () use (&$result) {
-            $result .= 'fox ';
-        }, 60);
-        $emitter->bindEvent('event.test', function () use (&$result) {
-            $result .= 'jumped ';
-        }, 50);
-        $emitter->bindEvent('event.test', function () use (&$result) {
-            $result .= 'over ';
-        }, 40);
-        $emitter->bindEvent('event.test', function () use (&$result) {
-            $result .= 'the ';
-        }, 30);
-        $emitter->bindEvent('event.test', function () use (&$result) {
-            $result .= 'lazy ';
-        }, 20);
-        $emitter->bindEvent('event.test', function () use (&$result) {
-            $result .= 'dog';
-        }, 10);
+        // Skip code smell checks for this block of code.
+        // phpcs:disable
+        $emitter->bindEvent('event.test', function () use (&$result) { $result .= 'the '; }, 90);
+        $emitter->bindEvent('event.test', function () use (&$result) { $result .= 'quick '; }, 80);
+        $emitter->bindEvent('event.test', function () use (&$result) { $result .= 'brown '; }, 70);
+        $emitter->bindEvent('event.test', function () use (&$result) { $result .= 'fox '; }, 60);
+        $emitter->bindEvent('event.test', function () use (&$result) { $result .= 'jumped '; }, 50);
+        $emitter->bindEvent('event.test', function () use (&$result) { $result .= 'over '; }, 40);
+        $emitter->bindEvent('event.test', function () use (&$result) { $result .= 'the '; }, 30);
+        $emitter->bindEvent('event.test', function () use (&$result) { $result .= 'lazy '; }, 20);
+        $emitter->bindEvent('event.test', function () use (&$result) { $result .= 'dog'; }, 10);
         $emitter->fireEvent('event.test');
+        // phpcs:enable
 
         $this->assertEquals('the quick brown fox jumped over the lazy dog', $result);
     }
