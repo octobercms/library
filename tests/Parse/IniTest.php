@@ -244,10 +244,10 @@ class IniTest extends TestCase
         $vars = [
             'var' => "\\Test\\Path\\",
             'editorContent' =>
-        '<p>Some
-    <br>"Multi-line"
-    <br>text
-</p>',
+                "<p>Some\n" .
+                "    <br>\"Multi-line\"\n" .
+                "    <br>text\n" .
+                "</p>",
         ];
 
         $parser = new IniParser;
