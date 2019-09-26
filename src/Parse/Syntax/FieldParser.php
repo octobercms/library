@@ -377,9 +377,9 @@ class FieldParser
     /**
      * Splits an option string to an array.
      *
-     * one|two               -> [one, two]
-     * one:One|two:Two       -> [one => 'One', two => 'Two']
-     * \Path\To\Class|method -> \Path\To\Class::method()
+     * one|two                -> [one, two]
+     * one:One|two:Two        -> [one => 'One', two => 'Two']
+     * \Path\To\Class::method -> \Path\To\Class::method(): array
      *
      * @param  string $optionsString
      * @throws Exception
