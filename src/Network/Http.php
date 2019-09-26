@@ -527,15 +527,17 @@ class Http
             $this->requestOptions[$optionKey] = $value;
         } elseif (is_int($option)) {
             $constants = get_defined_constants(true);
-            $curlOptConstants = preg_grep('/^CURLOPT_/', array_flip($constants['curl']));
+            $curlOptConstants = array_flip(array_filter($constants['curl'], function ($key) {
+                return strpos($key, 'CURLOPT_') === 0;
+            }, ARRAY_FILTER_USE_KEY));
 
             if (isset($curlOptConstants[$option])) {
                 $this->requestOptions[$option] = $value;
             } else {
-                throw new ApplicationException($option.' parameter must be a CURLOPT constant or equivalent integer');
+                throw new ApplicationException('$option parameter must be a CURLOPT constant or equivalent integer');
             }
         } else {
-            throw new ApplicationException($option.' parameter must be a CURLOPT constant or equivalent integer');
+            throw new ApplicationException('$option parameter must be a CURLOPT constant or equivalent integer');
         }
 
         return $this;
