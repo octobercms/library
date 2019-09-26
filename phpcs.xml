@@ -33,4 +33,6 @@
 
     <!-- Ignore vendor files -->
     <exclude-pattern>*/vendor/*</exclude-pattern>
+    <!-- Ignore test config fixture -->
+    <exclude-pattern>*/tests/fixtures/config/sample-config.php</exclude-pattern>
 </ruleset>
