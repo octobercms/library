@@ -28,6 +28,6 @@ class DbFiles extends Migration
 
     public function down()
     {
-        Schema::dropIfExists('system_files');
+        Schema::dropIfExists('files');
     }
 }
