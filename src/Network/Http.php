@@ -266,7 +266,6 @@ class Http
          */
         if ($this->method == self::METHOD_POST) {
             curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, '');
         }
         elseif ($this->method !== self::METHOD_GET) {
             curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $this->method);
