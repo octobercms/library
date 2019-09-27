@@ -28,7 +28,8 @@ class LogServiceProvider extends LogServiceProviderBase
     protected function configureDailyHandler(Writer $log)
     {
         $log->useDailyFiles(
-            $this->app->storagePath().'/logs/system.log', $this->maxFiles(),
+            $this->app->storagePath().'/logs/system.log',
+            $this->maxFiles(),
             $this->logLevel()
         );
     }

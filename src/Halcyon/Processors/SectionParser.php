@@ -93,7 +93,7 @@ class SectionParser
      * If there is only a single section, it is considered as Twig.
      * @param string $content Specifies the file content.
      * @return array Returns an array with the following indexes: 'settings', 'markup', 'code'.
-     * The 'markup' and 'code' elements contain strings. The 'settings' element contains the 
+     * The 'markup' and 'code' elements contain strings. The 'settings' element contains the
      * parsed INI file as array. If the content string doesn't contain a section, the corresponding
      * result element has null value.
      */

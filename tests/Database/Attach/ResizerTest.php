@@ -401,10 +401,13 @@ class ResizerTest extends TestCase
             $this->resizer->save($this->tmpTarget);
 
             // Assert file is the same as expected output with 1% error permitted to account for library updates and whatnot
-            $this->assertSimilarGD($this->tmpTarget, $this->target,
-                $methodName . ' result did not match ' . $this->target, 0.01);
+            $this->assertSimilarGD(
+                $this->tmpTarget,
+                $this->target,
+                $methodName . ' result did not match ' . $this->target,
+                0.01
+            );
         }
-
     }
 
     /**
@@ -418,5 +421,4 @@ class ResizerTest extends TestCase
         $this->buildTargetFixturePath($methodName);
         $this->resizer->save($this->target);
     }
-
 }

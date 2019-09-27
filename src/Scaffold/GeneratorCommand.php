@@ -145,7 +145,6 @@ abstract class GeneratorCommand extends Command
         $modifiers = ['plural', 'singular', 'title'];
 
         foreach ($vars as $key => $var) {
-
             /*
              * Apply cases, and cases with modifiers
              */
@@ -166,7 +165,6 @@ abstract class GeneratorCommand extends Command
                 $primaryKey = $modifier . '_' . $key;
                 $vars[$primaryKey] = $this->modifyString($modifier, $var);
             }
-
         }
 
         return $vars;

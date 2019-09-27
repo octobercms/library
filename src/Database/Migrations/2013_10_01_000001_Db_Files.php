@@ -8,8 +8,7 @@ class DbFiles extends Migration
 
     public function up()
     {
-        Schema::create('files', function(Blueprint $table)
-        {
+        Schema::create('files', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id');
             $table->string('disk_name');
@@ -29,7 +28,6 @@ class DbFiles extends Migration
 
     public function down()
     {
-        Schema::dropIfExists('system_files');
+        Schema::dropIfExists('files');
     }
-
 }

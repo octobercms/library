@@ -71,8 +71,9 @@ class DataFeed
             $item = call_user_func($item);
         }
 
-        if (!$item)
+        if (!$item) {
             return;
+        }
 
         $keyName = $item instanceof EloquentModel
             ? $item->getKeyName()
@@ -203,8 +204,9 @@ class DataFeed
      */
     protected function processCollection()
     {
-        if ($this->queryCache !== null)
+        if ($this->queryCache !== null) {
             return $this->queryCache;
+        }
 
         $lastQuery = null;
         foreach ($this->collection as $tag => $data) {
@@ -229,10 +231,11 @@ class DataFeed
             
             // Union this query with the previous one
             if ($lastQuery) {
-                if ($this->removeDuplicates)
+                if ($this->removeDuplicates) {
                     $cleanQuery = $lastQuery->union($cleanQuery);
-                else
+                } else {
                     $cleanQuery = $lastQuery->unionAll($cleanQuery);
+                }
             }
 
             $lastQuery = $cleanQuery;

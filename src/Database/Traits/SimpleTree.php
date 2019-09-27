@@ -45,7 +45,7 @@ trait SimpleTree
      */
     public static function bootSimpleTree()
     {
-        static::extend(function($model){
+        static::extend(function ($model) {
             /*
              * Define relationships
              */
@@ -177,7 +177,11 @@ trait SimpleTree
         /*
          * Recursive helper function
          */
-        $buildCollection = function($items, $map, $depth = 0) use (
+        $buildCollection = function (
+            $items,
+            $map,
+            $depth = 0
+        ) use (
             &$buildCollection,
             $column,
             $key,
@@ -257,5 +261,4 @@ trait SimpleTree
     {
         return new TreeCollection($models);
     }
-
 }

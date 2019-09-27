@@ -22,7 +22,7 @@ class FilesystemServiceProvider extends FilesystemServiceProviderBase
      */
     protected function registerNativeFilesystem()
     {
-        $this->app->singleton('files', function() {
+        $this->app->singleton('files', function () {
             $config = $this->app['config'];
             $files = new Filesystem;
             $files->filePermissions = $config->get('cms.defaultMask.file', null);

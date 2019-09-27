@@ -108,5 +108,4 @@ trait KeyParser
 
         return array_merge([$namespace], $groupAndItem);
     }
-
 }

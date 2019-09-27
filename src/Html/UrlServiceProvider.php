@@ -48,5 +48,4 @@ class UrlServiceProvider extends ServiceProvider
                 break;
         }
     }
-
 }

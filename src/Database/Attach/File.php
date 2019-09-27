@@ -476,7 +476,8 @@ class File extends Model
             $this->deleteThumbs();
             $this->deleteFile();
         }
-        catch (Exception $ex) {}
+        catch (Exception $ex) {
+        }
     }
 
     //
@@ -531,14 +532,12 @@ class File extends Model
         $thumbPublic = $this->getPath($thumbFile);
 
         if (!$this->hasFile($thumbFile)) {
-
             if ($this->isLocalStorage()) {
                 $this->makeThumbLocal($thumbFile, $thumbPath, $width, $height, $options);
             }
             else {
                 $this->makeThumbStorage($thumbFile, $thumbPath, $width, $height, $options);
             }
-
         }
 
         return $thumbPublic;
@@ -697,8 +696,9 @@ class File extends Model
      */
     protected function getDiskName()
     {
-        if ($this->disk_name !== null)
+        if ($this->disk_name !== null) {
             return $this->disk_name;
+        }
 
         $ext = strtolower($this->getExtension());
         $name = str_replace('.', '', uniqid(null, true));
@@ -860,7 +860,7 @@ class File extends Model
         if ($this->isLocalStorage()) {
             $interface = 'File';
             $path = $this->getLocalRootPath();
-            $args = array_map(function($value) use ($path) {
+            $args = array_map(function ($value) use ($path) {
                 return $path . '/' . $value;
             }, $args);
 

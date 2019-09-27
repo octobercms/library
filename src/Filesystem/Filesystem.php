@@ -253,8 +253,12 @@ class Filesystem extends FilesystemBase
             $chmodPath = $path;
             while (true) {
                 $basePath = dirname($chmodPath);
-                if ($chmodPath == $basePath) break;
-                if ($this->isDirectory($basePath)) break;
+                if ($chmodPath == $basePath) {
+                    break;
+                }
+                if ($this->isDirectory($basePath)) {
+                    break;
+                }
                 $chmodPath = $basePath;
             }
         }

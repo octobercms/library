@@ -131,7 +131,7 @@ class Resizer
             $alphaIndex = imagecolorallocatealpha($img, $alphaColor['red'], $alphaColor['green'], $alphaColor['blue'], 127);
             imagefill($img, 0, 0, $alphaIndex);
             imagecolortransparent($img, $alphaIndex);
-        } else if ($this->mime === 'image/png' || $this->mime === 'image/webp') {
+        } elseif ($this->mime === 'image/png' || $this->mime === 'image/webp') {
             imagealphablending($img, false);
             imagesavealpha($img, true);
         }
@@ -674,7 +674,8 @@ class Resizer
      * @param int $maxHeight The maximum height of the image
      * @return array
      */
-    protected function getSizeByFit($maxWidth, $maxHeight) {
+    protected function getSizeByFit($maxWidth, $maxHeight)
+    {
 
         // Calculate the scaling ratios in order to get the target width and height
         $ratioW = $maxWidth / $this->width;

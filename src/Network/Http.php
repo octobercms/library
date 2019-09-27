@@ -11,7 +11,7 @@ use October\Rain\Exception\ApplicationException;
  * @author Alexey Bobkov, Samuel Georges
  *
  * Usage:
- * 
+ *
  *   Http::get('http://octobercms.com');
  *   Http::post('...');
  *   Http::delete('...');

@@ -31,5 +31,4 @@ class DatasourceResolverTest extends TestCase
         $resolver->setDefaultDatasource('theme1');
         $this->assertEquals('theme1', $resolver->getDefaultDatasource());
     }
-
 }

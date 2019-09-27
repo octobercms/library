@@ -310,7 +310,7 @@ class Repository implements ArrayAccess, RepositoryContract
         // callback so that we can cascade an application package configuration.
         $this->addNamespace($namespace, $hint);
 
-        $this->afterLoading($namespace, function($me, $group, $items) use ($namespace) {
+        $this->afterLoading($namespace, function ($me, $group, $items) use ($namespace) {
             $env = $me->getEnvironment();
 
             $loader = $me->getLoader();

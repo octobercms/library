@@ -39,7 +39,7 @@ class AttachOne extends MorphOneBase
          * Newly uploaded file
          */
         if ($this->isValidFileData($value)) {
-            $this->parent->bindEventOnce('model.afterSave', function() use ($value) {
+            $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
                 $file = $this->create(['data' => $value]);
                 $this->parent->setRelation($this->relationName, $file);
             });
@@ -48,7 +48,7 @@ class AttachOne extends MorphOneBase
          * Existing File model
          */
         elseif ($value instanceof FileModel) {
-            $this->parent->bindEventOnce('model.afterSave', function() use ($value) {
+            $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
                 $this->add($value);
             });
         }
