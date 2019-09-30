@@ -371,7 +371,5 @@ ESC;
         $this->assertEquals(2, $result["settings"]);
         $this->assertEquals(7, $result["code"]);
         $this->assertEquals(16, $result["markup"]);
-
     }
-
 }

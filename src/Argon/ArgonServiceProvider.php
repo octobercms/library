@@ -22,7 +22,7 @@ class ArgonServiceProvider extends ServiceProvider
 
         $this->setArgonLocale($locale);
 
-        $this->app['events']->listen('locale.changed', function($locale) {
+        $this->app['events']->listen('locale.changed', function ($locale) {
             $this->setArgonLocale($locale);
         });
     }

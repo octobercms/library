@@ -24,14 +24,15 @@ trait Hashable
     {
         if (!property_exists(get_called_class(), 'hashable')) {
             throw new Exception(sprintf(
-                'You must define a $hashable property in %s to use the Hashable trait.', get_called_class()
+                'You must define a $hashable property in %s to use the Hashable trait.',
+                get_called_class()
             ));
         }
         /*
          * Hash required fields when necessary
          */
-        static::extend(function($model){
-            $model->bindEvent('model.beforeSetAttribute', function($key, $value) use ($model) {
+        static::extend(function ($model) {
+            $model->bindEvent('model.beforeSetAttribute', function ($key, $value) use ($model) {
                 $hashable = $model->getHashableAttributes();
                 if (in_array($key, $hashable) && !empty($value)) {
                     return $model->makeHashValue($key, $value);

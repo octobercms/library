@@ -14,7 +14,7 @@ class ResizerTest extends TestCase
     const FIXTURE_PATH = __DIR__ . '/../../fixtures/';
     const FIXTURE_SRC_BASE_PATH = self::FIXTURE_PATH . 'resizer/source/';
     const FIXTURE_TARGET_PATH = self::FIXTURE_PATH . 'resizer/target/';
-    const TMP_TEST_FILE_PATH = self::FIXTURE_PATH . 'tmp';
+    const TMP_TEST_FILE_PATH = self::FIXTURE_PATH . 'tmp/';
 
     // Source image filenames
     const SRC_LANDSCAPE_ROTATED = 'landscape_rotated.jpg';
@@ -51,6 +51,7 @@ class ResizerTest extends TestCase
     protected function tearDown()
     {
         @unlink($this->tmpTarget);
+        @rmdir(self::TMP_TEST_FILE_PATH);
         parent::tearDown();
     }
 
@@ -376,7 +377,10 @@ class ResizerTest extends TestCase
     protected function buildTargetFixturePath(string $methodName)
     {
         $filename = str_replace(__CLASS__ . '::', '', $methodName);
-        $this->tmpTarget = self::TMP_TEST_FILE_PATH . '.' . $this->extension;
+        if (!is_dir(self::TMP_TEST_FILE_PATH)) {
+            mkdir(self::TMP_TEST_FILE_PATH);
+        }
+        $this->tmpTarget = self::TMP_TEST_FILE_PATH . $filename . '.' . $this->extension;
         $this->target = self::FIXTURE_TARGET_PATH . $filename . '.' . $this->extension;
     }
 
@@ -397,10 +401,13 @@ class ResizerTest extends TestCase
             $this->resizer->save($this->tmpTarget);
 
             // Assert file is the same as expected output with 1% error permitted to account for library updates and whatnot
-            $this->assertSimilarGD($this->tmpTarget, $this->target,
-                $methodName . ' result did not match ' . $this->target, 0.01);
+            $this->assertSimilarGD(
+                $this->tmpTarget,
+                $this->target,
+                $methodName . ' result did not match ' . $this->target,
+                0.01
+            );
         }
-
     }
 
     /**
@@ -414,5 +421,4 @@ class ResizerTest extends TestCase
         $this->buildTargetFixturePath($methodName);
         $this->resizer->save($this->target);
     }
-
 }

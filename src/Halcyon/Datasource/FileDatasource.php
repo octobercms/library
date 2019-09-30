@@ -379,7 +379,9 @@ class FileDatasource extends Datasource implements DatasourceInterface
         }
 
         // Format array in the form of ['path/to/file' => true];
-        $pathsCache = array_map(function () { return true; }, array_flip($pathsCache));
+        $pathsCache = array_map(function () {
+            return true;
+        }, array_flip($pathsCache));
 
         return $pathsCache;
     }

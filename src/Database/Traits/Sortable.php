@@ -31,7 +31,7 @@ trait Sortable
      */
     public static function bootSortable()
     {
-        static::created(function($model) {
+        static::created(function ($model) {
             $sortOrderColumn = $model->getSortOrderColumn();
 
             if (is_null($model->$sortOrderColumn)) {

@@ -53,5 +53,4 @@ class Datasource
     {
         return crc32($name);
     }
-
 }

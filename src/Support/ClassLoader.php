@@ -191,7 +191,7 @@ class ClassLoader
         else {
             $directories = (array) $directories;
 
-            $this->directories = array_filter($this->directories, function($directory) use ($directories) {
+            $this->directories = array_filter($this->directories, function ($directory) use ($directories) {
                 return !in_array($directory, $directories);
             });
         }
@@ -284,7 +284,8 @@ class ClassLoader
         }
 
         $this->files->put(
-            $this->manifestPath, '<?php return '.var_export($manifest, true).';'
+            $this->manifestPath,
+            '<?php return '.var_export($manifest, true).';'
         );
     }
 }

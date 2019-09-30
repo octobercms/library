@@ -7,8 +7,7 @@ class DbUsersGroups extends Migration
 {
     public function up()
     {
-        Schema::create('users_groups', function($table)
-        {
+        Schema::create('users_groups', function ($table) {
             $table->engine = 'InnoDB';
             $table->integer('user_id')->unsigned();
             $table->integer('group_id')->unsigned();

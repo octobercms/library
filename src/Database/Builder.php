@@ -58,7 +58,7 @@ class Builder extends BuilderModel
      * - any: result can contain any word
      * - exact: result must contain the exact phrase
      */
-    protected function searchWhereInternal($term, $columns = [], $mode, $boolean)
+    protected function searchWhereInternal($term, $columns, $mode, $boolean)
     {
         if (!is_array($columns)) {
             $columns = [$columns];
@@ -69,9 +69,11 @@ class Builder extends BuilderModel
         }
 
         if ($mode === 'exact') {
-            $this->where(function($query) use ($columns, $term) {
+            $this->where(function ($query) use ($columns, $term) {
                 foreach ($columns as $field) {
-                    if (!strlen($term)) continue;
+                    if (!strlen($term)) {
+                        continue;
+                    }
                     $fieldSql = $this->query->raw(sprintf("lower(%s)", DbDongle::cast($field, 'text')));
                     $termSql = '%'.trim(mb_strtolower($term)).'%';
                     $query->orWhere($fieldSql, 'LIKE', $termSql);
@@ -82,11 +84,13 @@ class Builder extends BuilderModel
             $words = explode(' ', $term);
             $wordBoolean = $mode === 'any' ? 'or' : 'and';
 
-            $this->where(function($query) use ($columns, $words, $wordBoolean) {
+            $this->where(function ($query) use ($columns, $words, $wordBoolean) {
                 foreach ($columns as $field) {
-                    $query->orWhere(function($query) use ($field, $words, $wordBoolean) {
+                    $query->orWhere(function ($query) use ($field, $words, $wordBoolean) {
                         foreach ($words as $word) {
-                            if (!strlen($word)) continue;
+                            if (!strlen($word)) {
+                                continue;
+                            }
                             $fieldSql = $this->query->raw(sprintf("lower(%s)", DbDongle::cast($field, 'text')));
                             $wordSql = '%'.trim(mb_strtolower($word)).'%';
                             $query->where($fieldSql, 'LIKE', $wordSql, $wordBoolean);

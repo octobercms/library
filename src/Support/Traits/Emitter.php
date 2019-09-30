@@ -83,14 +83,17 @@ trait Emitter
             return $this;
         }
 
-        if (isset($this->emitterSingleEventCollection[$event]))
+        if (isset($this->emitterSingleEventCollection[$event])) {
             unset($this->emitterSingleEventCollection[$event]);
+        }
 
-        if (isset($this->emitterEventCollection[$event]))
+        if (isset($this->emitterEventCollection[$event])) {
             unset($this->emitterEventCollection[$event]);
+        }
 
-        if (isset($this->emitterEventSorted[$event]))
+        if (isset($this->emitterEventSorted[$event])) {
             unset($this->emitterEventSorted[$event]);
+        }
 
         return $this;
     }
@@ -104,7 +107,9 @@ trait Emitter
      */
     public function fireEvent($event, $params = [], $halt = false)
     {
-        if (!is_array($params)) $params = [$params];
+        if (!is_array($params)) {
+            $params = [$params];
+        }
         $result = [];
 
         /*
@@ -113,8 +118,12 @@ trait Emitter
         if (isset($this->emitterSingleEventCollection[$event])) {
             foreach ($this->emitterSingleEventCollection[$event] as $callback) {
                 $response = call_user_func_array($callback, $params);
-                if (is_null($response)) continue;
-                if ($halt) return $response;
+                if (is_null($response)) {
+                    continue;
+                }
+                if ($halt) {
+                    return $response;
+                }
                 $result[] = $response;
             }
 
@@ -125,17 +134,20 @@ trait Emitter
          * Recurring events, with priority
          */
         if (isset($this->emitterEventCollection[$event])) {
-
-            if (!isset($this->emitterEventSorted[$event]))
+            if (!isset($this->emitterEventSorted[$event])) {
                 $this->emitterEventSortEvents($event);
+            }
 
             foreach ($this->emitterEventSorted[$event] as $callback) {
                 $response = call_user_func_array($callback, $params);
-                if (is_null($response)) continue;
-                if ($halt) return $response;
+                if (is_null($response)) {
+                    continue;
+                }
+                if ($halt) {
+                    return $response;
+                }
                 $result[] = $response;
             }
-
         }
 
         return $halt ? null : $result;

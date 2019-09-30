@@ -140,7 +140,6 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
 
     public function beforeLogin()
     {
-
     }
 
     public function afterLogin()
@@ -566,7 +565,9 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
         foreach ($permissions as $permission => &$value) {
             if (!in_array($value = (int) $value, $this->allowedPermissionsValues)) {
                 throw new InvalidArgumentException(sprintf(
-                    'Invalid value "%s" for permission "%s" given.', $value, $permission
+                    'Invalid value "%s" for permission "%s" given.',
+                    $value,
+                    $permission
                 ));
             }
 

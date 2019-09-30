@@ -320,7 +320,8 @@ class Dispatcher implements DispatcherContract
             krsort($this->listeners[$eventName]);
 
             $this->sorted[$eventName] = call_user_func_array(
-                'array_merge', $this->listeners[$eventName]
+                'array_merge',
+                $this->listeners[$eventName]
             );
         }
     }
@@ -348,7 +349,8 @@ class Dispatcher implements DispatcherContract
 
         return function () use ($listener, $container) {
             return call_user_func_array(
-                $this->createClassCallable($listener, $container), func_get_args()
+                $this->createClassCallable($listener, $container),
+                func_get_args()
             );
         };
     }

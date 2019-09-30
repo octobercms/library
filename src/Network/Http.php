@@ -1,5 +1,7 @@
 <?php namespace October\Rain\Network;
 
+use October\Rain\Exception\ApplicationException;
+
 /**
  * HTTP Network Access
  *
@@ -9,7 +11,7 @@
  * @author Alexey Bobkov, Samuel Georges
  *
  * Usage:
- * 
+ *
  *   Http::get('http://octobercms.com');
  *   Http::post('...');
  *   Http::delete('...');
@@ -50,7 +52,7 @@
  *       $http->toFile('some/path/to/a/file.txt');
  *
  *       // Sets a cURL option manually
- *       $http->setOption('CURLOPT_SSL_VERIFYHOST', false);
+ *       $http->setOption(CURLOPT_SSL_VERIFYHOST, false);
  *
  *   });
  *
@@ -519,7 +521,24 @@ class Http
             return;
         }
 
-        $this->requestOptions[$option] = $value;
+        if (is_string($option) && defined($option)) {
+            $optionKey = constant($option);
+            $this->requestOptions[$optionKey] = $value;
+        } elseif (is_int($option)) {
+            $constants = get_defined_constants(true);
+            $curlOptConstants = array_flip(array_filter($constants['curl'], function ($key) {
+                return strpos($key, 'CURLOPT_') === 0;
+            }, ARRAY_FILTER_USE_KEY));
+
+            if (isset($curlOptConstants[$option])) {
+                $this->requestOptions[$option] = $value;
+            } else {
+                throw new ApplicationException('$option parameter must be a CURLOPT constant or equivalent integer');
+            }
+        } else {
+            throw new ApplicationException('$option parameter must be a CURLOPT constant or equivalent integer');
+        }
+
         return $this;
     }
 

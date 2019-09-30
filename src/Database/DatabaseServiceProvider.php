@@ -56,7 +56,7 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
             return $app['db']->connection();
         });
 
-        $this->app->singleton('db.dongle', function($app) {
+        $this->app->singleton('db.dongle', function ($app) {
             return new Dongle($this->getDefaultDatabaseDriver(), $app['db']);
         });
 
@@ -84,11 +84,10 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
      */
     protected function swapSchemaBuilderBlueprint()
     {
-        $this->app['events']->listen('db.schema.getBuilder', function($builder) {
-            $builder->blueprintResolver(function($table, $callback) {
+        $this->app['events']->listen('db.schema.getBuilder', function ($builder) {
+            $builder->blueprintResolver(function ($table, $callback) {
                 return new Blueprint($table, $callback);
             });
         });
     }
-
 }

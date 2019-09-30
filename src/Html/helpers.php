@@ -1,7 +1,6 @@
 <?php
 
-if (!function_exists('link_to'))
-{
+if (!function_exists('link_to')) {
     /**
      * Generate a HTML link.
      *
@@ -17,8 +16,7 @@ if (!function_exists('link_to'))
     }
 }
 
-if (!function_exists('link_to_asset'))
-{
+if (!function_exists('link_to_asset')) {
     /**
      * Generate a HTML link to an asset.
      *
@@ -34,8 +32,7 @@ if (!function_exists('link_to_asset'))
     }
 }
 
-if (!function_exists('link_to_route'))
-{
+if (!function_exists('link_to_route')) {
     /**
      * Generate a HTML link to a named route.
      *
@@ -51,8 +48,7 @@ if (!function_exists('link_to_route'))
     }
 }
 
-if (!function_exists('link_to_action'))
-{
+if (!function_exists('link_to_action')) {
     /**
      * Generate a HTML link to a controller action.
      *
