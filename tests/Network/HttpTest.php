@@ -143,13 +143,13 @@ class HttpTest extends TestCase
         ]);
     }
 
-    public function testSetPostData()
+    public function testSetRequestData()
     {
         $this->Http->data('foo', 'bar');
         $this->assertEquals('foo=bar', $this->Http->getRequestData());
     }
 
-    public function testSetPostDataArray()
+    public function testSetRequestDataArray()
     {
         $this->Http->data([
             'foo' => 'bar',
@@ -164,7 +164,7 @@ class HttpTest extends TestCase
         $this->assertEquals('foobar', $this->Http->getRequestData());
     }
 
-    public function testPostDataOverridePostFields()
+    public function testRequestDataOverridePostFields()
     {
         $this->Http->data([
             'foo' => 'bar',
