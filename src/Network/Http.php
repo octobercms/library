@@ -277,13 +277,11 @@ class Http
          * Set request data
          */
         if ($this->requestData) {
-            $requestDataQuery = http_build_query($this->requestData, '', $this->argumentSeparator);
-
             if (in_array($this->method, [self::METHOD_POST, self::METHOD_PATCH, self::METHOD_PUT])) {
-                curl_setopt($curl, CURLOPT_POSTFIELDS, $requestDataQuery);
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $this->getRequestData());
             }
             elseif ($this->method == self::METHOD_GET) {
-                curl_setopt($curl, CURLOPT_URL, $this->url . '?' . $requestDataQuery);
+                curl_setopt($curl, CURLOPT_URL, $this->url . '?' . $this->getRequestData());
             }
         }
 
@@ -350,6 +348,21 @@ class Http
         }
 
         return $this;
+    }
+
+    /**
+     * Return the request data set.
+     * @return string
+     */
+    public function getRequestData()
+    {
+        if (isset($this->requestOptions[CURLOPT_POSTFIELDS]) && empty($this->requestData)) {
+            return $this->requestOptions[CURLOPT_POSTFIELDS];
+        }
+        if (!empty($this->requestData)) {
+            return http_build_query($this->requestData, '', $this->argumentSeparator);
+        }
+        return '';
     }
 
     /**
