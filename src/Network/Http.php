@@ -422,7 +422,7 @@ class Http
             foreach ($key as $_key => $_value) {
                 $this->header($_key, $_value);
             }
-            return;
+            return $this;
         }
 
         $this->requestHeaders[$key] = $value;
@@ -531,7 +531,7 @@ class Http
             foreach ($option as $_option => $_value) {
                 $this->setOption($_option, $_value);
             }
-            return;
+            return $this;
         }
 
         if (is_string($option) && defined($option)) {
