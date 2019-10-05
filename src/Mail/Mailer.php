@@ -66,6 +66,10 @@ class Mailer extends MailerBase
 
         $data['message'] = $message = $this->createMessage();
 
+        if ($callback !== null) {
+            call_user_func($callback, $message);
+        }
+
         if (is_bool($raw) && $raw === true) {
             $this->addContentRaw($message, $view, $plain);
         }
@@ -73,10 +77,6 @@ class Mailer extends MailerBase
             $this->addContent($message, $view, $plain, $raw, $data);
         }
 
-        if ($callback !== null) {
-            call_user_func($callback, $message);
-        }
-        
         if (isset($this->to['address'])) {
             $this->setGlobalTo($message);
         }
