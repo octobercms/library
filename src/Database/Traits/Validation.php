@@ -484,8 +484,16 @@ trait Validation
 
         if (strpos($ruleset, 'required_with') !== false) {
             $requiredWith = substr($ruleset, strpos($ruleset, 'required_with') + 14);
-            $requiredWith = substr($requiredWith, 0, strpos($requiredWith, '|'));
+            if (strpos($requiredWith, '|') !== false) {
+                $requiredWith = substr($requiredWith, 0, strpos($requiredWith, '|'));
+            }
             return $this->isAttributeRequired($requiredWith);
+        }
+
+        if (strpos($ruleset, 'required_if') !== false) {
+            $requiredIf = substr($ruleset, strpos($ruleset, 'required_if') + 12);
+            $requiredIf = substr($requiredIf, 0, strpos($requiredIf, ','));
+            return $this->isAttributeRequired($requiredIf);
         }
 
         return strpos($ruleset, 'required') !== false;
