@@ -202,7 +202,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
 
         foreach ($results as $item) {
             $resultItem = [];
-            $fileName = pathinfo($item->path, PATHINFO_BASENAME);
+            $fileName = ltrim(str_replace($dirName, '', $item->path), '/');
 
             // Apply the fileMatch filter
             if (!empty($fileMatch) && !fnmatch($fileMatch, $fileName)) {
