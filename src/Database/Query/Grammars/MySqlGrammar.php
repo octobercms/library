@@ -5,6 +5,7 @@ namespace October\Rain\Database\Query\Grammars;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JsonExpression;
 
 class MySqlGrammar extends Grammar
@@ -53,10 +54,14 @@ class MySqlGrammar extends Grammar
         $compileParts = [];
 
         foreach ($parts as $part) {
-            $compileParts[] = $this->wrap($part);
+            if (preg_match('/^[a-z_@#][a-z0-9@$#_]*$/', $part)) {
+                $compileParts[] = $this->wrap($part);
+            } else {
+                $compileParts[] = $this->wrap(new Expression('"' . $part . '"'));
+            }
         }
 
-        return 'CONCAT(' . implode(', ', $compileParts) . ') AS ' . $as;
+        return 'CONCAT(' . implode(', ', $compileParts) . ') AS ' . $this->wrap($as);
     }
 
     /**

@@ -22,7 +22,7 @@ class SelectConcatTest extends TestCase
             ->selectConcat(['field', ' ', 'cast'], 'full_cast');
 
         $this->assertEquals(
-            'select `id`, CONCAT(`field`, ` `, `cast`) AS full_cast from `revisions`',
+            'select `id`, CONCAT(`field`, " ", `cast`) AS `full_cast` from `revisions`',
             $query->toSql()
         );
     }

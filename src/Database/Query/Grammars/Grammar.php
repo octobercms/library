@@ -3,6 +3,7 @@
 namespace October\Rain\Database\Query\Grammars;
 
 use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\Grammars\Grammar as BaseGrammar;
 
 class Grammar extends BaseGrammar
@@ -81,7 +82,11 @@ class Grammar extends BaseGrammar
         $compileParts = [];
 
         foreach ($parts as $part) {
-            $compileParts[] = $this->wrap($part);
+            if (preg_match('/^[a-z_@#][a-z0-9@$#_]*$/', $part)) {
+                $compileParts[] = $this->wrap($part);
+            } else {
+                $compileParts[] = $this->wrap(new Expression('"' . $part . '"'));
+            }
         }
 
         return implode(' || ', $compileParts) . ' AS ' . $this->wrap($as);
