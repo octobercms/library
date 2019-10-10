@@ -38,7 +38,8 @@ class SqlServerGrammar extends Grammar
         }
 
         return $this->compileAnsiOffset(
-            $query, $this->compileComponents($query)
+            $query,
+            $this->compileComponents($query)
         );
     }
 
