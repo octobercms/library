@@ -361,4 +361,18 @@ class QueryBuilder extends QueryBuilderBase
     {
         return $this->cachingDuplicateQueries;
     }
+
+    /**
+     * Adds a concatenated value as a SELECT column.
+     *
+     * @param array $parts The concatenation parts.
+     * @param string $as The alias to return the entire concatenation as.
+     * @return void
+     */
+    public function selectConcat(array $parts, string $as)
+    {
+        $this->grammar->addSelectConcat($parts, $as);
+
+        return $this;
+    }
 }
