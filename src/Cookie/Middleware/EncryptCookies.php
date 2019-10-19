@@ -16,6 +16,10 @@ class EncryptCookies extends \Illuminate\Cookie\Middleware\EncryptCookies
     {
         parent::__construct($encrypter);
         $except = Config::get('cookie.unencryptedCookies', []);
+
+        // Disable encryption on CSRF token cookie
+        $except[] = 'csrfToken';
+
         $this->disableFor($except);
     }
 }
