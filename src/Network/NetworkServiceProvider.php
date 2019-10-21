@@ -16,7 +16,7 @@ class NetworkServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('network.http', function($app) {
+        $this->app->singleton('network.http', function ($app) {
             return new Http;
         });
     }

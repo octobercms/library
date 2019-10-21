@@ -35,7 +35,7 @@ class AttachMany extends MorphManyBase
          * Newly uploaded file(s)
          */
         if ($this->isValidFileData($value)) {
-            $this->parent->bindEventOnce('model.afterSave', function() use ($value) {
+            $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
                 $this->create(['data' => $value]);
             });
         }
@@ -46,7 +46,7 @@ class AttachMany extends MorphManyBase
                     $files[] = $_value;
                 }
             }
-            $this->parent->bindEventOnce('model.afterSave', function() use ($files) {
+            $this->parent->bindEventOnce('model.afterSave', function () use ($files) {
                 foreach ($files as $file) {
                     $this->create(['data' => $file]);
                 }
@@ -56,7 +56,7 @@ class AttachMany extends MorphManyBase
          * Existing File model
          */
         elseif ($value instanceof FileModel) {
-            $this->parent->bindEventOnce('model.afterSave', function() use ($value) {
+            $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
                 $this->add($value);
             });
         }
@@ -112,7 +112,7 @@ class AttachMany extends MorphManyBase
 
         if ($files) {
             $value = [];
-            $files->each(function($file) use (&$value){
+            $files->each(function ($file) use (&$value) {
                 $value[] = $file;
             });
         }

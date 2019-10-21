@@ -27,8 +27,7 @@ class Purgeable extends \October\Rain\Extension\ExtensionBase
      */
     public function bootPurgeable()
     {
-        if (!$this->parent->propertyExists('purgeable'))
-        {
+        if (!$this->parent->propertyExists('purgeable')) {
             $this->parent->addDynamicProperty('purgeable', []);
         }
         
@@ -40,10 +39,9 @@ class Purgeable extends \October\Rain\Extension\ExtensionBase
          * Remove any purge attributes from the data set
          */
         $model = $this->parent;
-        $model->bindEvent('model.saveInternal', function() use ($model) {
+        $model->bindEvent('model.saveInternal', function () use ($model) {
             $model->purgeAttributes();
         });
-
     }
 
     /**

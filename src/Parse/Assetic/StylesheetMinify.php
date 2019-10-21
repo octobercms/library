@@ -12,7 +12,9 @@ use Assetic\Filter\FilterInterface;
  */
 class StylesheetMinify implements FilterInterface
 {
-    public function filterLoad(AssetInterface $asset) {}
+    public function filterLoad(AssetInterface $asset)
+    {
+    }
 
     public function filterDump(AssetInterface $asset)
     {

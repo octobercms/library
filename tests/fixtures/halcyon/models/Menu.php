@@ -25,5 +25,4 @@ class HalcyonTestMenu extends Model
      * @var string
      */
     protected $dirName = 'menus';
-
 }

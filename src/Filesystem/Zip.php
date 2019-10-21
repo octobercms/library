@@ -7,7 +7,7 @@
  * @author Alexey Bobkov, Samuel Georges
  *
  * Usage:
- * 
+ *
  *   Zip::make('file.zip', '/some/path/*.php');
  *
  *   Zip::make('file.zip', function($zip) {

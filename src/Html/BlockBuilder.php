@@ -72,7 +72,7 @@ class BlockBuilder
      * Sets a content of the layout block.
      * @param string $name Specifies the block name.
      * @param string $content Specifies the block content.
-     * 
+     *
      */
     public function set($name, $content)
     {
@@ -85,7 +85,7 @@ class BlockBuilder
      * Appends a content of the layout block.
      * @param string $name Specifies the block name.
      * @param string $content Specifies the block content.
-     * 
+     *
      */
     public function append($name, $content)
     {
@@ -138,5 +138,4 @@ class BlockBuilder
         $this->blockStack = [];
         $this->blocks = [];
     }
-
 }

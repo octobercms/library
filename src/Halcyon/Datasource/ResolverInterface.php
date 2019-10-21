@@ -25,5 +25,4 @@ interface ResolverInterface
      * @return void
      */
     public function setDefaultDatasource($name);
-
 }

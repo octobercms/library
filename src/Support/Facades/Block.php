@@ -12,11 +12,14 @@ class Block extends Facade
 {
     /**
      * Get the registered name of the component.
-     * 
+     *
      * Resolves to:
      * - October\Rain\Html\BlockBuilder
-     * 
+     *
      * @return string
      */
-    protected static function getFacadeAccessor() { return 'block'; }
+    protected static function getFacadeAccessor()
+    {
+        return 'block';
+    }
 }

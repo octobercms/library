@@ -120,7 +120,9 @@ class MorphToMany extends BelongsToMany
     protected function baseAttachRecord($id, $timed)
     {
         return Arr::add(
-            parent::baseAttachRecord($id, $timed), $this->morphType, $this->morphClass
+            parent::baseAttachRecord($id, $timed),
+            $this->morphType,
+            $this->morphClass
         );
     }
 
@@ -135,7 +137,8 @@ class MorphToMany extends BelongsToMany
     public function getRelationExistenceQuery(Builder $query, Builder $parentQuery, $columns = ['*'])
     {
         return parent::getRelationExistenceQuery($query, $parentQuery, $columns)->where(
-            $this->table.'.'.$this->morphType, $this->morphClass
+            $this->table.'.'.$this->morphType,
+            $this->morphClass
         );
     }
 

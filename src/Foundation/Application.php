@@ -199,7 +199,7 @@ class Application extends ApplicationBase
      */
     public function fatal(Closure $callback)
     {
-        $this->error(function(FatalErrorException $e) use ($callback) {
+        $this->error(function (FatalErrorException $e) use ($callback) {
             return call_user_func($callback, $e);
         });
     }

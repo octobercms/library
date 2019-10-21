@@ -11,7 +11,7 @@ use RuntimeException;
  *
  * =include library/jquery.js;
  * =require library/jquery.js;
- * 
+ *
  * (@todo Below needs fixing)
  * =define #FOO "Bar";
  * console.log(#FOO);
@@ -42,7 +42,9 @@ class JavascriptImporter implements FilterInterface
      */
     protected $definedVars = [];
 
-    public function filterLoad(AssetInterface $asset) {}
+    public function filterLoad(AssetInterface $asset)
+    {
+    }
 
     public function filterDump(AssetInterface $asset)
     {
@@ -68,7 +70,6 @@ class JavascriptImporter implements FilterInterface
         }
 
         foreach ($matches[1] as $macro) {
-
             // Look for: =include something
             if (!preg_match_all('/=([^\\s]*)\\s(.*)\n/', $macro, $matches2)) {
                 continue;
@@ -81,7 +82,6 @@ class JavascriptImporter implements FilterInterface
                     $imported .= $this->$method($matches2[2][$index]);
                 }
             }
-
         }
 
         return $imported . $content;
@@ -172,5 +172,4 @@ class JavascriptImporter implements FilterInterface
 
         return '';
     }
-
 }

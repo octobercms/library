@@ -202,7 +202,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
 
         foreach ($results as $item) {
             $resultItem = [];
-            $fileName = pathinfo($item->path, PATHINFO_BASENAME);
+            $fileName = ltrim(str_replace($dirName, '', $item->path), '/');
 
             // Apply the fileMatch filter
             if (!empty($fileMatch) && !fnmatch($fileMatch, $fileName)) {
@@ -406,8 +406,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
             return Carbon::parse($this->getQuery()
                     ->where('path', $this->makeFilePath($dirName, $fileName, $extension))
                     ->addSelect('updated_at')
-                    ->first()->updated_at
-            )->timestamp;
+                    ->first()->updated_at)->timestamp;
         }
         catch (Exception $ex) {
             return null;
@@ -456,7 +455,9 @@ class DbDatasource extends Datasource implements DatasourceInterface
         if (!$pathsCache = $this->fireEvent('halcyon.datasource.db.beforeGetAvailablePaths', [], true)) {
             // Get the valid paths that are retrievable
             $pathsCache = array_map(
-                function () { return true; },
+                function () {
+                    return true;
+                },
                 array_flip(
                     $this->getQuery()
                         ->get()
@@ -469,7 +470,9 @@ class DbDatasource extends Datasource implements DatasourceInterface
             $pathsCache = array_merge(
                 $pathsCache,
                 array_map(
-                    function () { return false; },
+                    function () {
+                        return false;
+                    },
                     array_flip(
                         $this->getQuery(false)
                             ->addSelect('deleted_at')

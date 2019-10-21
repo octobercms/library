@@ -117,7 +117,7 @@ class ExceptionBase extends Exception
     }
 
     /**
-     * This method is used when applying the mask exception to the face exception. 
+     * This method is used when applying the mask exception to the face exception.
      * It can be used as an override for child classes who may use different masking logic.
      * @param Exception $exception Face exception being masked.
      * @return void
@@ -132,7 +132,7 @@ class ExceptionBase extends Exception
 
     /**
      * If this exception is acting as a mask, return the face exception. Otherwise return
-     * this exception as the true one. 
+     * this exception as the true one.
      * @return Exception The underlying exception, or this exception if no mask is applied.
      */
     public function getTrueException()
@@ -222,7 +222,6 @@ class ExceptionBase extends Exception
         $lastIndex = count($traceInfo) - 1;
 
         foreach ($traceInfo as $index => $event) {
-
             if (!isset($event['function'])) {
                 $event['function'] = null;
             }
