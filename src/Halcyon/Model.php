@@ -537,7 +537,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      * Begin querying the model on a given datasource.
      *
      * @param  string|null  $datasource
-     * @return \October\Rain\Halcyon\Builder
+     * @return \October\Rain\Halcyon\Model
      */
     public static function on($datasource = null)
     {
@@ -1341,7 +1341,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * Get a new query builder for the object
-     * @return CmsObjectQuery
+     * @return \October\Rain\Halcyon\Builder
      */
     public function newQuery()
     {
