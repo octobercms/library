@@ -152,7 +152,7 @@ class FieldParser
      */
     public function getDefaultParams($fields = null)
     {
-        if (!$fields) {
+        if (is_null($fields)) {
             $fields = $this->fields;
         }
 
