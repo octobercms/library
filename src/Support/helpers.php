@@ -235,7 +235,14 @@ if (!function_exists('trans'))
      */
     function trans($id = null, $parameters = [], $domain = 'messages', $locale = null)
     {
-        return app('translator')->trans($id, $parameters, $domain, $locale);
+        $result = app('translator')->trans($id, $parameters, $domain, $locale);
+        $event = Event::fire('lang.trans', [$id, $result], true);
+
+        if (is_string($event)) {
+            $result = $event;
+        }
+
+        return $result;
     }
 }
 
