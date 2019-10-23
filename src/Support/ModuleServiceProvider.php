@@ -25,22 +25,13 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
             $this->loadViewsFrom($modulePath . '/views', $module);
             $this->loadTranslationsFrom($modulePath . '/lang', $module);
             $this->loadConfigFrom($modulePath . '/config', $module);
-        }
-    }
 
-    /**
-     * Register the service provider.
-     * @return void
-     */
-    public function register()
-    {
-        if ($module = $this->getModule(func_get_args())) {
             /*
-             * Add routes, if available
-             */
+            * Register routes, if available
+            */
             $routesFile = base_path() . '/modules/' . $module . '/routes.php';
             if (File::isFile($routesFile)) {
-                require $routesFile;
+                $this->loadRoutesFrom($routesFile);
             }
         }
     }
