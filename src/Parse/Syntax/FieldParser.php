@@ -15,7 +15,7 @@ class FieldParser
 
     /**
      * @var array Extracted fields from the template
-     * The array key should match a unique field name, and the value 
+     * The array key should match a unique field name, and the value
      * is another array with values:
      *
      * - type: the tag name, eg: text
@@ -80,11 +80,11 @@ class FieldParser
 
         // Process registered tags
         list($tags, $fields) = $this->processTags($template);
-        $this->tags = $this->tags + $tags;
-        $this->fields = $this->fields + $fields;
+        $this->tags += $tags;
+        $this->fields += $fields;
 
         /*
-         * Layer the repeater tags over the standard ones to retain 
+         * Layer the repeater tags over the standard ones to retain
          * the original sort order
          */
         foreach ($repeatfields as $field => $params) {
@@ -123,9 +123,7 @@ class FieldParser
      */
     public function getFieldTags($field)
     {
-        return isset($this->tags[$field])
-            ? $this->tags[$field]
-            : [];
+        return $this->tags[$field] ?? [];
     }
 
     /**
@@ -144,9 +142,7 @@ class FieldParser
      */
     public function getFieldParams($field)
     {
-        return isset($this->fields[$field])
-            ? $this->fields[$field]
-            : [];
+        return $this->fields[$field] ?? [];
     }
 
     /**
@@ -168,7 +164,7 @@ class FieldParser
                 $defaults[$field][] = $this->getDefaultParams(array_get($params, 'fields', []));
             }
             else {
-                $defaults[$field] = isset($params['default']) ? $params['default'] : null;
+                $defaults[$field] = $params['default'] ?? null;
             }
         }
 
@@ -200,7 +196,7 @@ class FieldParser
                 'close'    => $closeTag
             ];
 
-            // Remove the inner content of the repeater 
+            // Remove the inner content of the repeater
             // tag to prevent further parsing
             $template = str_replace($outerTemplate, $openTag.$closeTag, $template);
         }
@@ -295,7 +291,7 @@ class FieldParser
         // Convert all 'true' and 'false' string values to boolean values
         foreach ($paramValues as $key => $value) {
             if ($value === 'true' || $value === 'false') {
-                $paramValues[$key] = $value === 'true' ? true: false;
+                $paramValues[$key] = $value === 'true';
             }
         }
 
@@ -316,7 +312,7 @@ class FieldParser
      *
      *  In: name="test" comment="This is a test"
      *  Out: ['name' => 'test', 'comment' => 'This is a test']
-     * 
+     *
      * @param  [type] $string [description]
      * @return [type]         [description]
      */
@@ -351,7 +347,7 @@ class FieldParser
      *  1 - The opening and closing tag name
      *  2 - The tag parameters as a string, eg: name="test"} and;
      *  2 - The default text inside the tag (optional), eg: Foobar
-     * 
+     *
      * @param  string $string
      * @param  string $tags
      * @return array
@@ -395,13 +391,14 @@ class FieldParser
         foreach ($options as $index => $optionStr) {
             $parts = explode(':', $optionStr, 2);
 
-            if (count($parts) > 1 ) {
+            if (count($parts) > 1) {
                 $key = trim($parts[0]);
 
                 if (strlen($key)) {
                     if (!preg_match('/^[0-9a-z-_]+$/i', $key)) {
                         throw new Exception(sprintf(
-                            'Invalid drop-down option key: %s. Option keys can contain only digits, Latin letters and characters _ and -', $key
+                            'Invalid drop-down option key: %s. Option keys can contain only digits, Latin letters and characters _ and -',
+                            $key
                         ));
                     }
 
@@ -418,5 +415,4 @@ class FieldParser
 
         return $result;
     }
-
 }

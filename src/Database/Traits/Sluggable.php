@@ -13,6 +13,12 @@ trait Sluggable
      */
 
     /**
+     * @var bool Allow trashed slugs to be counted in the slug generation.
+     *
+     * protected $allowTrashedSlugs = false;
+     */
+
+    /**
      * Boot the sluggable trait for a model.
      * @return void
      */
@@ -20,19 +26,16 @@ trait Sluggable
     {
         if (!property_exists(get_called_class(), 'slugs')) {
             throw new Exception(sprintf(
-                'You must define a $slugs property in %s to use the Sluggable trait.', get_called_class()
+                'You must define a $slugs property in %s to use the Sluggable trait.',
+                get_called_class()
             ));
         }
 
         /*
-         * Set slugged attributes on new records
+         * Set slugged attributes on new records and existing records if slug is missing.
          */
-        static::extend(function($model) {
-            $model->bindEvent('model.saveInternal', function() use ($model) {
-                if ($model->exists) {
-                    return;
-                }
-
+        static::extend(function ($model) {
+            $model->bindEvent('model.saveInternal', function () use ($model) {
                 $model->slugAttributes();
             });
         });
@@ -57,9 +60,9 @@ trait Sluggable
      * @param int $maxLength Maximum length for the slug not including the counter.
      * @return string The generated value.
      */
-    public function setSluggedValue($slugAttribute, $sourceAttributes, $maxLength = 240)
+    public function setSluggedValue($slugAttribute, $sourceAttributes, $maxLength = 175)
     {
-        if (!isset($this->{$slugAttribute}) || !strlen($this->{$slugAttribute})) {
+        if (!isset($this->{$slugAttribute}) || !mb_strlen($this->{$slugAttribute})) {
             if (!is_array($sourceAttributes)) {
                 $sourceAttributes = [$sourceAttributes];
             }
@@ -70,7 +73,7 @@ trait Sluggable
             }
 
             $slug = implode(' ', $slugArr);
-            $slug = substr($slug, 0, $maxLength);
+            $slug = mb_substr($slug, 0, $maxLength);
             $slug = Str::slug($slug, $this->getSluggableSeparator());
         }
         else {
@@ -91,8 +94,10 @@ trait Sluggable
         $counter = 1;
         $separator = $this->getSluggableSeparator();
         $_value = $value;
-
-        while ($this->newSluggableQuery()->where($name, $_value)->count() > 0) {
+        while (($this->methodExists('withTrashed') && $this->allowTrashedSlugs) ?
+            $this->newSluggableQuery()->where($name, $_value)->withTrashed()->count() > 0 :
+            $this->newSluggableQuery()->where($name, $_value)->count() > 0
+        ) {
             $counter++;
             $_value = $value . $separator . $counter;
         }
@@ -143,5 +148,4 @@ trait Sluggable
     {
         return defined('static::SLUG_SEPARATOR') ? static::SLUG_SEPARATOR : '-';
     }
-
 }

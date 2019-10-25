@@ -1,7 +1,6 @@
 <?php namespace October\Rain\Foundation\Providers;
 
 use Illuminate\Log\Writer;
-use October\Rain\Foundation\Console\KeyGenerateCommand;
 use Illuminate\Log\LogServiceProvider as LogServiceProviderBase;
 
 class LogServiceProvider extends LogServiceProviderBase
@@ -29,7 +28,8 @@ class LogServiceProvider extends LogServiceProviderBase
     protected function configureDailyHandler(Writer $log)
     {
         $log->useDailyFiles(
-            $this->app->storagePath().'/logs/system.log', $this->maxFiles(),
+            $this->app->storagePath().'/logs/system.log',
+            $this->maxFiles(),
             $this->logLevel()
         );
     }

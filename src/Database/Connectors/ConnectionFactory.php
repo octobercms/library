@@ -8,6 +8,7 @@ use October\Rain\Database\Connections\SQLiteConnection;
 use October\Rain\Database\Connections\PostgresConnection;
 use October\Rain\Database\Connections\SqlServerConnection;
 use PDOException;
+use InvalidArgumentException;
 
 class ConnectionFactory extends ConnectionFactoryBase
 {

@@ -320,7 +320,8 @@ class Dispatcher implements DispatcherContract
             krsort($this->listeners[$eventName]);
 
             $this->sorted[$eventName] = call_user_func_array(
-                'array_merge', $this->listeners[$eventName]
+                'array_merge',
+                $this->listeners[$eventName]
             );
         }
     }
@@ -348,7 +349,8 @@ class Dispatcher implements DispatcherContract
 
         return function () use ($listener, $container) {
             return call_user_func_array(
-                $this->createClassCallable($listener, $container), func_get_args()
+                $this->createClassCallable($listener, $container),
+                func_get_args()
             );
         };
     }
@@ -366,9 +368,9 @@ class Dispatcher implements DispatcherContract
 
         if ($this->handlerShouldBeQueued($class)) {
             return $this->createQueuedHandlerCallable($class, $method);
-        } else {
-            return [$container->make($class), $method];
         }
+
+        return [$container->make($class), $method];
     }
 
     /**
@@ -416,7 +418,7 @@ class Dispatcher implements DispatcherContract
             if (method_exists($class, 'queue')) {
                 $this->callQueueMethodOnHandler($class, $method, $arguments);
             } else {
-                $this->resolveQueue()->push('Illuminate\Events\CallQueuedHandler@call', [
+                $this->resolveQueue()->push('October\Rain\Events\CallQueuedHandler@call', [
                     'class' => $class, 'method' => $method, 'data' => serialize($arguments),
                 ]);
             }
@@ -448,7 +450,7 @@ class Dispatcher implements DispatcherContract
     {
         $handler = (new ReflectionClass($class))->newInstanceWithoutConstructor();
 
-        $handler->queue($this->resolveQueue(), 'Illuminate\Events\CallQueuedHandler@call', [
+        $handler->queue($this->resolveQueue(), 'October\Rain\Events\CallQueuedHandler@call', [
             'class' => $class, 'method' => $method, 'data' => serialize($arguments),
         ]);
     }

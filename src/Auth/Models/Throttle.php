@@ -187,13 +187,15 @@ class Throttle extends Model
     {
         if ($this->is_banned) {
             throw new AuthException(sprintf(
-                'User [%s] has been banned.', $this->user->getLogin()
+                'User [%s] has been banned.',
+                $this->user->getLogin()
             ));
         }
 
         if ($this->checkSuspended()) {
             throw new AuthException(sprintf(
-                'User [%s] has been suspended.', $this->user->getLogin()
+                'User [%s] has been suspended.',
+                $this->user->getLogin()
             ));
         }
 
@@ -221,9 +223,7 @@ class Throttle extends Model
             $this->save();
         }
 
-        unset($lastAttempt);
-        unset($clearAttemptsAt);
-        unset($now);
+        unset($lastAttempt, $clearAttemptsAt, $now);
     }
 
     /**
@@ -245,9 +245,7 @@ class Throttle extends Model
             $this->unsuspend();
         }
 
-        unset($suspended);
-        unset($unsuspendAt);
-        unset($now);
+        unset($suspended, $unsuspendAt, $now);
     }
 
     /**

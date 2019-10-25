@@ -23,7 +23,7 @@ Once you have prepared your route you can match it like this:
 ```php
 if ($router->match('/post/2')) {
 
-    // Returns: array(id => 2)
+    // Returns: [id => 2]
     $params = $router->getParameters(); 
 
     // Returns: myRouteId
@@ -37,5 +37,5 @@ You can also reverse match a route by it's identifier:
 
 ```php
 // Returns: /post/2
-$url = $router->url('myRouteId', array('id' => 2));
+$url = $router->url('myRouteId', ['id' => 2]);
 ```

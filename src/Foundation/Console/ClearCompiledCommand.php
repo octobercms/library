@@ -13,9 +13,9 @@ class ClearCompiledCommand extends ClearCompiledCommandBase
     public function handle()
     {
         if (file_exists($classesPath = $this->laravel->getCachedClassesPath())) {
-            @unlink($servicesPath);
+            @unlink($classesPath);
         }
 
-        parent::fire();
+        parent::handle();
     }
 }

@@ -15,4 +15,13 @@ class TestCase extends PHPUnit\Framework\TestCase
     {
         // Test nothing
     }
+
+    protected static function callProtectedMethod($object, $name, $params = [])
+    {
+        $className = get_class($object);
+        $class = new ReflectionClass($className);
+        $method = $class->getMethod($name);
+        $method->setAccessible(true);
+        return $method->invokeArgs($object, $params);
+    }
 }

@@ -38,7 +38,7 @@ class QueryBuilder extends QueryBuilderBase
      *
      * @param  string  $column
      * @param  string|null  $key
-     * @return \Illuminate\Support\Collection
+     * @return array
      */
     public function lists($column, $key = null)
     {
@@ -213,7 +213,9 @@ class QueryBuilder extends QueryBuilderBase
      */
     protected function getCacheCallback($columns)
     {
-        return function() use ($columns) { return parent::get($columns)->all(); };
+        return function () use ($columns) {
+            return parent::get($columns)->all();
+        };
     }
 
     /**

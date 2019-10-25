@@ -3,7 +3,6 @@
 use October\Rain\Support\Arr;
 use October\Rain\Support\Str;
 use October\Rain\Extension\Extendable;
-use October\Rain\Halcyon\Builder;
 use October\Rain\Halcyon\Datasource\ResolverInterface as Resolver;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Support\Arrayable;
@@ -233,16 +232,18 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
         foreach ($radicals as $radical) {
             foreach ($hooks as $hook => $event) {
-
                 $eventMethod = $radical . $event; // saving / saved
                 $method = $hook . ucfirst($radical); // beforeSave / afterSave
-                if ($radical != 'fetch') $method .= 'e';
+                if ($radical != 'fetch') {
+                    $method .= 'e';
+                }
 
-                self::$eventMethod(function($model) use ($method) {
+                self::$eventMethod(function ($model) use ($method) {
                     $model->fireEvent('model.' . $method);
 
-                    if ($model->methodExists($method))
+                    if ($model->methodExists($method)) {
                         return $model->$method();
+                    }
                 });
             }
         }
@@ -250,10 +251,11 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         /*
          * Hook to boot events
          */
-        static::registerModelEvent('booted', function($model){
+        static::registerModelEvent('booted', function ($model) {
             $model->fireEvent('model.afterBoot');
-            if ($model->methodExists('afterBoot'))
+            if ($model->methodExists('afterBoot')) {
                 return $model->afterBoot();
+            }
         });
 
         static::$eventsBooted[$class] = true;
@@ -284,6 +286,20 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
+     * Adds an attribute to the purgeable attributes list
+     * @param  array|string|null  $attributes
+     * @return $this
+     */
+    public function addPurgeable($attributes = null)
+    {
+        $attributes = is_array($attributes) ? $attributes : func_get_args();
+
+        $this->purgeable = array_merge($this->purgeable, $attributes);
+
+        return $this;
+    }
+
+    /**
      * The settings is attribute contains everything that should
      * be saved to the settings area.
      * @return array
@@ -299,9 +315,11 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
             'code'
         ];
 
+        $dynPropNames = array_keys(array_diff_key($this->getDynamicProperties(), ['purgeable' => 0]));
+
         return array_diff_key(
             $this->attributes,
-            array_flip(array_merge($defaults, $this->purgeable))
+            array_flip(array_merge($defaults, $this->purgeable, $dynPropNames))
         );
     }
 
@@ -522,7 +540,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      * Begin querying the model on a given datasource.
      *
      * @param  string|null  $datasource
-     * @return \October\Rain\Halcyon\Builder
+     * @return \October\Rain\Halcyon\Model
      */
     public static function on($datasource = null)
     {
@@ -621,7 +639,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
             }
 
             $attributes[$key] = $this->mutateAttributeForArray(
-                $key, $attributes[$key]
+                $key,
+                $attributes[$key]
             );
         }
 
@@ -750,9 +769,9 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         // the model, such as "json_encoding" an listing of data for storage.
         if ($this->hasSetMutator($key)) {
             $method = 'set'.Str::studly($key).'Attribute';
-            // If we return the returned value of the mutator call straight away, that will disable the firing of 
-            // 'model.setAttribute' event, and then no third party plugins will be able to implement any kind of 
-            // post processing logic when an attribute is set with explicit mutators. Returning from the mutator 
+            // If we return the returned value of the mutator call straight away, that will disable the firing of
+            // 'model.setAttribute' event, and then no third party plugins will be able to implement any kind of
+            // post processing logic when an attribute is set with explicit mutators. Returning from the mutator
             // call will also break method chaining as intended by returning `$this` at the end of this method.
             $this->{$method}($value);
         }
@@ -796,6 +815,11 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function setRawAttributes(array $attributes, $sync = false)
     {
+        // merge dynamic properties to the base attributes
+        if ($sync) {
+            $attributes = array_merge($this->attributes, $attributes);
+        }
+
         $this->attributes = $attributes;
 
         if ($sync) {
@@ -1253,6 +1277,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
                 return false;
             }
 
+            // Recheck dirty attributes as developers could have changed this in the
+            // updating event
             $dirty = $this->getDirty();
 
             if (count($dirty) > 0) {
@@ -1319,7 +1345,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * Get a new query builder for the object
-     * @return CmsObjectQuery
+     * @return \October\Rain\Halcyon\Builder
      */
     public function newQuery()
     {
@@ -1504,7 +1530,9 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      * set here becomes available as attributes set on the model after fetch.
      * @param array $cached The cached data array.
      */
-    public static function initCacheItem(&$item) { }
+    public static function initCacheItem(&$item)
+    {
+    }
 
     /**
      * Get the mutated attributes for a given instance.

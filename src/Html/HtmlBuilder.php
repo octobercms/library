@@ -1,7 +1,6 @@
 <?php namespace October\Rain\Html;
 
 use Illuminate\Routing\UrlGenerator;
-use October\Rain\Support\Str as StrHelper;
 
 /**
  * Html builder
@@ -291,9 +290,8 @@ class HtmlBuilder
         if (is_array($value)) {
             return $this->nestedListing($key, $type, $value);
         }
-        else {
-            return '<li>'.e($value).'</li>';
-        }
+
+        return '<li>'.e($value).'</li>';
     }
 
     /**
@@ -309,9 +307,8 @@ class HtmlBuilder
         if (is_int($key)) {
             return $this->listing($type, $value);
         }
-        else {
-            return '<li>'.$key.$this->listing($type, $value).'</li>';
-        }
+
+        return '<li>'.$key.$this->listing($type, $value).'</li>';
     }
 
     /**
@@ -382,10 +379,12 @@ class HtmlBuilder
             // the randomly obfuscated letters out of the string on the responses.
             switch (rand(1, 3)) {
                 case 1:
-                    $safe .= '&#'.ord($letter).';'; break;
+                    $safe .= '&#'.ord($letter).';';
+                    break;
 
                 case 2:
-                    $safe .= '&#x'.dechex(ord($letter)).';'; break;
+                    $safe .= '&#x'.dechex(ord($letter)).';';
+                    break;
 
                 case 3:
                     $safe .= $letter;
@@ -452,7 +451,7 @@ class HtmlBuilder
                     $openingTag = array_pop($tags);
                     $result .= $tag;
                 }
-                else if ($tag[strlen($tag) - 2] == '/') {
+                elseif ($tag[strlen($tag) - 2] == '/') {
                     $result .= $tag;
                 }
                 else {
@@ -513,5 +512,4 @@ class HtmlBuilder
 
         return $html;
     }
-
 }

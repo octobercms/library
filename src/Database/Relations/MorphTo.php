@@ -39,7 +39,7 @@ class MorphTo extends MorphToBase
              * Non existent model, use a single serve event to associate it again when ready
              */
             if (!$value->exists) {
-                $value->bindEventOnce('model.afterSave', function() use ($value){
+                $value->bindEventOnce('model.afterSave', function () use ($value) {
                     $this->associate($value);
                 });
             }
@@ -52,7 +52,6 @@ class MorphTo extends MorphToBase
             $this->parent->setAttribute($this->foreignKey, $modelId);
             $this->parent->setAttribute($this->morphType, $modelClass);
             $this->parent->reloadRelations($this->relationName);
-
         }
         else {
             $this->parent->setAttribute($this->foreignKey, $value);

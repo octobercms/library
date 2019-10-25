@@ -39,8 +39,9 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
              * Add routes, if available
              */
             $routesFile = base_path() . '/modules/' . $module . '/routes.php';
-            if (File::isFile($routesFile))
+            if (File::isFile($routesFile)) {
                 require $routesFile;
+            }
         }
     }
 
@@ -55,8 +56,7 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
 
     public function getModule($args)
     {
-        $module = (isset($args[0]) and is_string($args[0])) ? $args[0] : null;
-        return $module;
+        return (isset($args[0]) and is_string($args[0])) ? $args[0] : null;
     }
 
     /**
@@ -69,7 +69,7 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
     {
         $key = 'command.'.$key;
 
-        $this->app->singleton($key, function($app) use ($class) {
+        $this->app->singleton($key, function ($app) use ($class) {
             return new $class;
         });
 
@@ -86,5 +86,4 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
     {
         $this->app['config']->package($namespace, $path);
     }
-
 }

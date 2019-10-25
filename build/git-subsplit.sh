@@ -39,7 +39,7 @@ PATH=$PATH:$(git --exec-path)
 
 if [ "$(hash git-subtree &>/dev/null && echo OK)" = "" ]
 then
-    die "Git subplit needs git subtree; install git subtree or upgrade git to >=1.7.11"
+    die "Git subsplit needs git subtree; install git subtree or upgrade git to >=1.7.11"
 fi
 
 ANNOTATE=

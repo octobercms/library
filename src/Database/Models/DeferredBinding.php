@@ -19,11 +19,6 @@ class DeferredBinding extends Model
     public $table = 'deferred_bindings';
 
     /**
-     * @var bool Indicates if duplicate queries from this model should be cached in memory.
-     */
-    public $duplicateCache = false;
-
-    /**
      * Prevents duplicates and conflicting binds.
      */
     public function beforeCreate()
@@ -36,12 +31,11 @@ class DeferredBinding extends Model
                 $existingRecord->deleteCancel();
                 return false;
             }
+
             /*
              * Skip repeating bindings
              */
-            else {
-                return false;
-            }
+            return false;
         }
     }
 
@@ -87,7 +81,7 @@ class DeferredBinding extends Model
      */
     public static function cleanUp($days = 5)
     {
-        $records = self::where('created_at', '<',  Carbon::now()->subDays($days)->toDateTimeString())->get();
+        $records = self::where('created_at', '<', Carbon::now()->subDays($days)->toDateTimeString())->get();
 
         foreach ($records as $record) {
             $record->deleteCancel();
@@ -102,8 +96,7 @@ class DeferredBinding extends Model
         /*
          * Try to delete unbound hasOne/hasMany records from the details table
          */
-        try
-        {
+        try {
             if (!$this->is_bind) {
                 return;
             }
@@ -133,7 +126,6 @@ class DeferredBinding extends Model
             if (!$relatedObj->$foreignKey) {
                 $relatedObj->delete();
             }
-
         }
         catch (Exception $ex) {
             // Do nothing
