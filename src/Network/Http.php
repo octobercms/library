@@ -356,7 +356,11 @@ class Http
      */
     public function getRequestData()
     {
-        if (isset($this->requestOptions[CURLOPT_POSTFIELDS]) && empty($this->requestData)) {
+        if (
+            $this->method !== self::METHOD_GET
+            && isset($this->requestOptions[CURLOPT_POSTFIELDS])
+            && empty($this->requestData)
+        ) {
             return $this->requestOptions[CURLOPT_POSTFIELDS];
         }
         if (!empty($this->requestData)) {
