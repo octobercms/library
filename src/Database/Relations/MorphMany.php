@@ -33,7 +33,7 @@ class MorphMany extends MorphManyBase
         // Nulling the relationship
         if (!$value) {
             if ($this->parent->exists) {
-                $this->parent->bindEventOnce('model.afterSave', function() {
+                $this->parent->bindEventOnce('model.afterSave', function () {
                     $this->update([
                         $this->getForeignKeyName() => null,
                         $this->getMorphType() => null
@@ -51,7 +51,7 @@ class MorphMany extends MorphManyBase
             $collection = $value;
 
             if ($this->parent->exists) {
-                $collection->each(function($instance) {
+                $collection->each(function ($instance) {
                     $instance->setAttribute($this->getForeignKeyName(), $this->getParentKey());
                     $instance->setAttribute($this->getMorphType(), $this->morphClass);
                 });
@@ -64,13 +64,13 @@ class MorphMany extends MorphManyBase
         if ($collection) {
             $this->parent->setRelation($this->relationName, $collection);
 
-            $this->parent->bindEventOnce('model.afterSave', function() use ($collection) {
+            $this->parent->bindEventOnce('model.afterSave', function () use ($collection) {
                 $existingIds = $collection->pluck($this->localKey)->all();
                 $this->whereNotIn($this->localKey, $existingIds)->update([
                     $this->getForeignKeyName() => null,
                     $this->getMorphType() => null
                 ]);
-                $collection->each(function($instance) {
+                $collection->each(function ($instance) {
                     $instance->setAttribute($this->getForeignKeyName(), $this->getParentKey());
                     $instance->setAttribute($this->getMorphType(), $this->morphClass);
                     $instance->save(['timestamps' => false]);

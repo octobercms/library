@@ -54,7 +54,6 @@ class Router
 
         foreach ($this->routeMap as $name => $routeRule) {
             if ($routeRule->resolveUrl($url, $parameters)) {
-
                 $this->matchedRouteRule = $routeRule;
 
                 // If this route has a condition, run it
@@ -76,13 +75,11 @@ class Router
 
         // Success
         if ($this->matchedRouteRule) {
-
             // If this route has a match callback, run it
             $matchCallback = $routeRule->afterMatch();
             if ($matchCallback !== null) {
                 $parameters = call_user_func($matchCallback, $parameters, $url);
             }
-
         }
 
         $this->parameters = $parameters;
@@ -126,7 +123,9 @@ class Router
          * Normalize the parameters, colons (:) in key names are removed.
          */
         foreach ($parameters as $param => $value) {
-            if (strpos($param, ':') !== 0) continue;
+            if (strpos($param, ':') !== 0) {
+                continue;
+            }
             $normalizedParam = substr($param, 1);
             $parameters[$normalizedParam] = $value;
             unset($parameters[$param]);
@@ -204,7 +203,7 @@ class Router
 
     /**
      * Returns the active list of router rule objects
-     * @return array An associative array with keys matching the route rule names and 
+     * @return array An associative array with keys matching the route rule names and
      * values matching the router rule object.
      */
     public function getRouteMap()
@@ -213,10 +212,10 @@ class Router
     }
 
     /**
-     * Returns a list of parameters specified in the requested page URL. 
-     * For example, if the URL pattern was /blog/post/:id and the actual URL 
+     * Returns a list of parameters specified in the requested page URL.
+     * For example, if the URL pattern was /blog/post/:id and the actual URL
      * was /blog/post/10, the $parameters['id'] element would be 10.
-     * @return array An associative array with keys matching the parameter names specified in the URL pattern and 
+     * @return array An associative array with keys matching the parameter names specified in the URL pattern and
      * values matching the corresponding segments of the actual requested URL.
      */
     public function getParameters()
@@ -253,7 +252,7 @@ class Router
      */
     public function sortRules()
     {
-        uasort($this->routeMap, function($a, $b) {
+        uasort($this->routeMap, function ($a, $b) {
             $lengthA = $a->staticSegmentCount;
             $lengthB = $b->staticSegmentCount;
 

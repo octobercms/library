@@ -136,8 +136,6 @@ class FormBuilder
 
         $attributes['accept-charset'] = 'UTF-8';
 
-        $attributes['role'] = 'form';
-
         // If the method is PUT, PATCH or DELETE we will need to add a spoofer hidden
         // field that will instruct the Symfony request to pretend the method is a
         // different method than it actually is, for convenience from the forms.
@@ -151,7 +149,8 @@ class FormBuilder
         // format the array of attributes. We will also add on the appendage which
         // is used to spoof requests for this PUT, PATCH, etc. methods on forms.
         $attributes = array_merge(
-            $attributes, array_except($options, $this->reserved)
+            $attributes,
+            array_except($options, $this->reserved)
         );
 
         // Finally, we will concatenate all of the attributes into a single string so
@@ -1084,8 +1083,9 @@ class FormBuilder
      */
     protected function requestHandler($name = null)
     {
-        if (!strlen($name))
+        if (!strlen($name)) {
             return '';
+        }
 
         return $this->hidden('_handler', $name);
     }
@@ -1096,8 +1096,9 @@ class FormBuilder
      */
     public function sessionKey($sessionKey = null)
     {
-        if (!$sessionKey)
+        if (!$sessionKey) {
             $sessionKey = post('_session_key', $this->sessionKey);
+        }
 
         return $this->hidden('_session_key', $sessionKey);
     }

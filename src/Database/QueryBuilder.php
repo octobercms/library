@@ -213,7 +213,9 @@ class QueryBuilder extends QueryBuilderBase
      */
     protected function getCacheCallback($columns)
     {
-        return function() use ($columns) { return parent::get($columns)->all(); };
+        return function () use ($columns) {
+            return parent::get($columns)->all();
+        };
     }
 
     /**

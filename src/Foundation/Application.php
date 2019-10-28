@@ -199,7 +199,7 @@ class Application extends ApplicationBase
      */
     public function fatal(Closure $callback)
     {
-        $this->error(function(FatalErrorException $e) use ($callback) {
+        $this->error(function (FatalErrorException $e) use ($callback) {
             return call_user_func($callback, $e);
         });
     }
@@ -281,7 +281,7 @@ class Application extends ApplicationBase
             'router'               => [\Illuminate\Routing\Router::class, \Illuminate\Contracts\Routing\Registrar::class, \Illuminate\Contracts\Routing\BindingRegistrar::class],
             'session'              => [\Illuminate\Session\SessionManager::class],
             'session.store'        => [\Illuminate\Session\Store::class, \Illuminate\Contracts\Session\Session::class],
-            'url'                  => [\Illuminate\Routing\UrlGenerator::class, \Illuminate\Contracts\Routing\UrlGenerator::class],
+            'url'                  => [\October\Rain\Router\UrlGenerator::class, \Illuminate\Contracts\Routing\UrlGenerator::class],
             'validator'            => [\Illuminate\Validation\Factory::class, \Illuminate\Contracts\Validation\Factory::class],
             'view'                 => [\Illuminate\View\Factory::class, \Illuminate\Contracts\View\Factory::class],
         ];

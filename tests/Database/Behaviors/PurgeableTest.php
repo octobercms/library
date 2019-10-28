@@ -20,7 +20,7 @@ class PurgeableTest extends TestCase
 
     public function testDynamicImplementation()
     {
-        TestModelDynamic::extend(function($model) {
+        TestModelDynamic::extend(function ($model) {
             $model->implement[] = 'October.Rain.Database.Behaviors.Purgeable';
             $model->addDynamicProperty('purgeable', []);
         });
@@ -31,7 +31,7 @@ class PurgeableTest extends TestCase
 
     public function testDynamicImplementationWithoutProperty()
     {
-        TestModelDynamicWithoutProperty::extend(function($model) {
+        TestModelDynamicWithoutProperty::extend(function ($model) {
             $model->implement[] = 'October.Rain.Database.Behaviors.Purgeable';
         });
         $model = new TestModelDynamicWithoutProperty();

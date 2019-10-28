@@ -282,8 +282,8 @@ class File extends Model
     public function outputThumb($width, $height, $options = [], $returnResponse = false)
     {
         $disposition = array_get($options, 'disposition', 'inline');
-        $this->getThumb($width, $height, $options);
         $options = $this->getDefaultThumbOptions($options);
+        $this->getThumb($width, $height, $options);
         $thumbFile = $this->getThumbFilename($width, $height, $options);
         $contents = $this->getContents($thumbFile);
 
@@ -316,7 +316,7 @@ class File extends Model
     public function getCacheKey($path = null)
     {
         if (empty($path)) {
-            $path = $this->getStorageDirectory() . $this->getPartitionDirectory() . $this>getFilename();
+            $path = $this->getDiskPath();
         }
 
         return 'file_exists::' . $path;
@@ -344,11 +344,7 @@ class File extends Model
      */
     public function getLastModified($fileName = null)
     {
-        if (!$fileName) {
-            $fileName = $this->disk_name;
-        }
-
-        return $this->storageCmd('lastModified', $this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName);
+        return $this->storageCmd('lastModified', $this->getDiskPath($fileName));
     }
 
     /**
@@ -373,19 +369,18 @@ class File extends Model
      */
     public function getContents($fileName = null)
     {
-        if (!$fileName) {
-            $fileName = $this->disk_name;
-        }
-
-        return $this->storageCmd('get', $this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName);
+        return $this->storageCmd('get', $this->getDiskPath($fileName));
     }
 
     /**
      * Returns the public address to access the file.
      */
-    public function getPath()
+    public function getPath($fileName = null)
     {
-        return $this->getPublicPath() . $this->getPartitionDirectory() . $this->disk_name;
+        if (empty($fileName)) {
+            $fileName = $this->disk_name;
+        }
+        return $this->getPublicPath() . $this->getPartitionDirectory() . $fileName;
     }
 
     /**
@@ -413,9 +408,12 @@ class File extends Model
      * Returns the path to the file, relative to the storage disk.
      * @return string
      */
-    public function getDiskPath()
+    public function getDiskPath($fileName = null)
     {
-        return $this->getStorageDirectory() . $this->getPartitionDirectory() . $this->disk_name;
+        if (empty($fileName)) {
+            $fileName = $this->disk_name;
+        }
+        return $this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName;
     }
 
     /**
@@ -478,7 +476,8 @@ class File extends Model
             $this->deleteThumbs();
             $this->deleteFile();
         }
-        catch (Exception $ex) {}
+        catch (Exception $ex) {
+        }
     }
 
     //
@@ -529,18 +528,16 @@ class File extends Model
         $options = $this->getDefaultThumbOptions($options);
 
         $thumbFile = $this->getThumbFilename($width, $height, $options);
-        $thumbPath = $this->getStorageDirectory() . $this->getPartitionDirectory() . $thumbFile;
-        $thumbPublic = $this->getPublicPath() . $this->getPartitionDirectory() . $thumbFile;
+        $thumbPath = $this->getDiskPath($thumbFile);
+        $thumbPublic = $this->getPath($thumbFile);
 
         if (!$this->hasFile($thumbFile)) {
-
             if ($this->isLocalStorage()) {
                 $this->makeThumbLocal($thumbFile, $thumbPath, $width, $height, $options);
             }
             else {
                 $this->makeThumbStorage($thumbFile, $thumbPath, $width, $height, $options);
             }
-
         }
 
         return $thumbPublic;
@@ -550,8 +547,9 @@ class File extends Model
      * Generates a thumbnail filename.
      * @return string
      */
-    protected function getThumbFilename($width, $height, $options)
+    public function getThumbFilename($width, $height, $options)
     {
+        $options = $this->getDefaultThumbOptions($options);
         return 'thumb_' . $this->id . '_' . $width . '_' . $height . '_' . $options['offset'][0] . '_' . $options['offset'][1] . '_' . $options['mode'] . '.' . $options['extension'];
     }
 
@@ -684,7 +682,7 @@ class File extends Model
                 FileHelper::delete($collection);
             }
             else {
-                Storage::delete($collection);
+                $this->getDisk()->delete($collection);
             }
         }
     }
@@ -698,8 +696,9 @@ class File extends Model
      */
     protected function getDiskName()
     {
-        if ($this->disk_name !== null)
+        if ($this->disk_name !== null) {
             return $this->disk_name;
+        }
 
         $ext = strtolower($this->getExtension());
         $name = str_replace('.', '', uniqid(null, true));
@@ -785,7 +784,7 @@ class File extends Model
      */
     protected function hasFile($fileName = null)
     {
-        $filePath = $this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName;
+        $filePath = $this->getDiskPath($fileName);
 
         $result = Cache::rememberForever($this->getCacheKey($filePath), function () use ($filePath) {
             return $this->storageCmd('exists', $filePath);
@@ -856,19 +855,22 @@ class File extends Model
     {
         $args = func_get_args();
         $command = array_shift($args);
+        $result = null;
 
         if ($this->isLocalStorage()) {
             $interface = 'File';
             $path = $this->getLocalRootPath();
-            $args = array_map(function($value) use ($path) {
+            $args = array_map(function ($value) use ($path) {
                 return $path . '/' . $value;
             }, $args);
+
+            $result = forward_static_call_array([$interface, $command], $args);
         }
         else {
-            $interface = 'Storage';
+            $result = call_user_func_array([$this->getDisk(), $command], $args);
         }
 
-        return forward_static_call_array([$interface, $command], $args);
+        return $result;
     }
 
     /**
@@ -876,7 +878,7 @@ class File extends Model
      */
     protected function copyStorageToLocal($storagePath, $localPath)
     {
-        return FileHelper::put($localPath, Storage::get($storagePath));
+        return FileHelper::put($localPath, $this->getDisk()->get($storagePath));
     }
 
     /**
@@ -884,7 +886,7 @@ class File extends Model
      */
     protected function copyLocalToStorage($localPath, $storagePath)
     {
-        return Storage::put($storagePath, FileHelper::get($localPath), $this->isPublic() ? 'public' : null);
+        return $this->getDisk()->put($storagePath, FileHelper::get($localPath), $this->isPublic() ? 'public' : null);
     }
 
     //
@@ -936,6 +938,15 @@ class File extends Model
         }
 
         return $path;
+    }
+
+    /**
+     * Returns the storage disk the file is stored on
+     * @return FilesystemAdapter
+     */
+    public function getDisk()
+    {
+        return Storage::disk();
     }
 
     /**

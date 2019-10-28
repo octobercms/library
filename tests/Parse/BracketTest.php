@@ -44,8 +44,12 @@ class BracketTest extends TestCase
     public function testParseWithFilters()
     {
         $filters = [];
-        $filters['upper'] = function($value) { return strtoupper($value); };
-        $filters['lower'] = function($value) { return strtolower($value); };
+        $filters['upper'] = function ($value) {
+            return strtoupper($value);
+        };
+        $filters['lower'] = function ($value) {
+            return strtolower($value);
+        };
 
         $content = '';
         $content .= '{foo} {foo|upper} {foo|lower} ';
@@ -60,5 +64,4 @@ class BracketTest extends TestCase
         $result = TextParser::parse($content, $vars, ['filters' => $filters]);
         $this->assertEquals('Bar BAR bar DogDOGdogCatCATcat', $result);
     }
-
 }

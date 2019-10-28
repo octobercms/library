@@ -29,7 +29,7 @@ class RegisterClassLoader
             'plugins'
         ]);
 
-        $app->after(function() use ($loader) {
+        $app->after(function () use ($loader) {
             $loader->build();
         });
     }

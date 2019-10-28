@@ -26,15 +26,16 @@ trait Sluggable
     {
         if (!property_exists(get_called_class(), 'slugs')) {
             throw new Exception(sprintf(
-                'You must define a $slugs property in %s to use the Sluggable trait.', get_called_class()
+                'You must define a $slugs property in %s to use the Sluggable trait.',
+                get_called_class()
             ));
         }
 
         /*
          * Set slugged attributes on new records and existing records if slug is missing.
          */
-        static::extend(function($model) {
-            $model->bindEvent('model.saveInternal', function() use ($model) {
+        static::extend(function ($model) {
+            $model->bindEvent('model.saveInternal', function () use ($model) {
                 $model->slugAttributes();
             });
         });
@@ -147,5 +148,4 @@ trait Sluggable
     {
         return defined('static::SLUG_SEPARATOR') ? static::SLUG_SEPARATOR : '-';
     }
-
 }

@@ -126,5 +126,4 @@ class FileLoader implements LoaderInterface
     {
         $this->hints[$namespace] = $hint;
     }
-
 }

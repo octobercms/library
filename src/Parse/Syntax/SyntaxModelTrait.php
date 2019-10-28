@@ -7,7 +7,7 @@ trait SyntaxModelTrait
 
     public static function bootSyntaxModelTrait()
     {
-        static::fetched(function($model) {
+        static::fetched(function ($model) {
             $model->defineSyntaxRelations();
         });
     }
@@ -25,7 +25,9 @@ trait SyntaxModelTrait
         }
 
         foreach ($fields as $field => $params) {
-            if (!isset($params['type'])) continue;
+            if (!isset($params['type'])) {
+                continue;
+            }
 
             if ($params['type'] == 'fileupload') {
                 $this->attachOne[$field] = 'System\Models\File';
@@ -46,7 +48,6 @@ trait SyntaxModelTrait
         }
 
         foreach ($fields as $field => $params) {
-
             /*
              * File upload
              */
@@ -63,7 +64,6 @@ trait SyntaxModelTrait
                     $data[$field] = $this->getThumbForImage($this->$field, $params);
                 }
             }
-
         }
 
         return $data;
@@ -98,12 +98,12 @@ trait SyntaxModelTrait
     public function getFormSyntaxFields()
     {
         $fields = $this->getSyntaxFields();
-        if (!is_array($fields))
+        if (!is_array($fields)) {
             return [];
+        }
 
         $newFields = [];
         foreach ($fields as $field => $params) {
-
             if ($params['type'] != 'fileupload') {
                 $newField = $this->getSyntaxDataColumnName().'['.$field.']';
             }
@@ -187,5 +187,4 @@ trait SyntaxModelTrait
     {
         return $this->getAttribute($this->getSyntaxFieldsColumnName());
     }
-
 }

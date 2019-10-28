@@ -44,7 +44,9 @@ class Helper
             array_unshift($result, $matches[1]);
         }
 
-        $result = array_filter($result, function($val) { return strlen($val); });
+        $result = array_filter($result, function ($val) {
+            return strlen($val);
+        });
 
         return $result;
     }

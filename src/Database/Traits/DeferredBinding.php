@@ -106,7 +106,6 @@ trait DeferredBinding
         $bindings = $this->getDeferredBindingRecords($sessionKey);
 
         foreach ($bindings as $binding) {
-
             if (!($relationName = $binding->master_field)) {
                 continue;
             }

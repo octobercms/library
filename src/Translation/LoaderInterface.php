@@ -1,6 +1,6 @@
 <?php namespace October\Rain\Translation;
 
-interface LoaderInterface 
+interface LoaderInterface
 {
 
     /**
@@ -21,5 +21,4 @@ interface LoaderInterface
      * @return void
      */
     public function addNamespace($namespace, $hint);
-
 }
