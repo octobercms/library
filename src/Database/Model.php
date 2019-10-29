@@ -1190,15 +1190,9 @@ class Model extends EloquentModel
         }
 
         /*
-         * Trim scalars
+         * Trim strings
          */
-        if (
-            !is_resource($value) &&
-            !is_object($value) &&
-            !is_array($value) &&
-            !is_null($value) &&
-            !is_bool($value)
-        ) {
+        if (is_string($value)) {
             $value = trim($value);
         }
 
