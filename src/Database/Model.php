@@ -1193,6 +1193,7 @@ class Model extends EloquentModel
          * Trim scalars
          */
         if (
+            !is_resource($value) &&
             !is_object($value) &&
             !is_array($value) &&
             !is_null($value) &&
