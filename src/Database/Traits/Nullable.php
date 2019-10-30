@@ -52,7 +52,7 @@ trait Nullable
      */
     public function checkNullableValue($value)
     {
-        if ($value === 0 || $value === '0' || $value === false) {
+        if ($value === 0 || $value === '0' || $value === 0.0 || $value === false) {
             return false;
         }
 
