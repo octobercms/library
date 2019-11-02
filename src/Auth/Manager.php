@@ -458,7 +458,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
             }
             elseif ($cookieArray = Cookie::get($this->sessionKey)) {
                 $this->viaRemember = true;
-                $userArray = $cookieArray;
+                $userArray = @json_decode($cookieArray, true);
             }
             else {
                 return false;
@@ -616,7 +616,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
             Session::put($this->sessionKey, $toPersist);
 
             if ($remember) {
-                Cookie::queue(Cookie::forever($this->sessionKey, $toPersist));
+                Cookie::queue(Cookie::forever($this->sessionKey, json_encode($toPersist)));
             }
         }
 

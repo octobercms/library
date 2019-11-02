@@ -2,20 +2,17 @@
 
 use Config;
 use Illuminate\Contracts\Encryption\Encrypter as EncrypterContract;
+use Illuminate\Cookie\Middleware\EncryptCookies as EncryptCookiesBase;
 
-class EncryptCookies extends \Illuminate\Cookie\Middleware\EncryptCookies
+class EncryptCookies extends EncryptCookiesBase
 {
-    /**
-     * Indicates if cookies should be serialized.
-     *
-     * @var bool
-     */
-    protected static $serialize = true;
-
     public function __construct(EncrypterContract $encrypter)
     {
         parent::__construct($encrypter);
+
+        // Find unencrypted cookies as specified by the configuration
         $except = Config::get('cookie.unencryptedCookies', []);
+
         $this->disableFor($except);
     }
 }
