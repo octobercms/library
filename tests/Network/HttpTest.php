@@ -12,7 +12,7 @@ class HttpTest extends TestCase
      */
     protected $Http;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->Http = new Http;
     }

@@ -48,7 +48,7 @@ class ResizerTest extends TestCase
     /**
      * Remove the temporary file after running each test.
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         @unlink($this->tmpTarget);
         @rmdir(self::TMP_TEST_FILE_PATH);

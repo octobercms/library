@@ -9,7 +9,7 @@ class HalcyonModelTest extends TestCase
 {
     protected $resolver;
 
-    public function setUp()
+    public function setUp(): void
     {
         include_once __DIR__.'/../fixtures/halcyon/models/Page.php';
         include_once __DIR__.'/../fixtures/halcyon/models/Menu.php';
