@@ -23,5 +23,4 @@ class Twig
         $template = $twig->createTemplate($contents);
         return $template->render($vars);
     }
-
 }

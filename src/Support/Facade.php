@@ -37,5 +37,4 @@ class Facade extends FacadeParent
     {
         return null;
     }
-
 }

@@ -20,7 +20,7 @@ class Str extends StrHelper
      */
     public static function ordinal($number)
     {
-        if (in_array($number % 100, range(11,13))) {
+        if (in_array($number % 100, range(11, 13))) {
             return $number.'th';
         }
 
@@ -49,8 +49,9 @@ class Str extends StrHelper
      */
     public static function normalizeClassName($name)
     {
-        if (is_object($name))
+        if (is_object($name)) {
             $name = get_class($name);
+        }
 
         $name = '\\'.ltrim($name, '\\');
         return $name;
@@ -61,8 +62,9 @@ class Str extends StrHelper
      */
     public static function getClassId($name)
     {
-        if (is_object($name))
+        if (is_object($name)) {
             $name = get_class($name);
+        }
 
         $name = ltrim($name, '\\');
         $name = str_replace('\\', '_', $name);

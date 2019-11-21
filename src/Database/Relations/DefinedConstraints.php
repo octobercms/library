@@ -98,16 +98,18 @@ trait DefinedConstraints
          */
         $hasCountArg = array_get($args, 'count') !== null;
         if (($orderBy = array_get($args, 'order')) && !$hasCountArg) {
-            if (!is_array($orderBy))
+            if (!is_array($orderBy)) {
                 $orderBy = [$orderBy];
+            }
 
             foreach ($orderBy as $order) {
                 $column = $order;
                 $direction = 'asc';
 
                 $parts = explode(' ', $order);
-                if (count($parts) > 1)
+                if (count($parts) > 1) {
                     list($column, $direction) = $parts;
+                }
 
                 $query->orderBy($column, $direction);
             }
@@ -120,5 +122,4 @@ trait DefinedConstraints
             $query->$scope($this->parent);
         }
     }
-
 }

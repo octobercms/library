@@ -58,7 +58,7 @@ class LessCompiler implements FilterInterface, HashableInterface, DependencyExtr
 
         $modifieds = [];
         foreach ($allFiles as $file) {
-           $modifieds[] = $file->getLastModified();
+            $modifieds[] = $file->getLastModified();
         }
 
         return md5(implode('|', $modifieds));

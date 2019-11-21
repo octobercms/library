@@ -239,12 +239,12 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
          * Check the hashed credentials match
          */
         foreach ($hashedCredentials as $credential => $value) {
-
             if (!$user->checkHashValue($credential, $value)) {
                 // Incorrect password
                 if ($credential == 'password') {
                     throw new AuthException(sprintf(
-                        'A user was found to match all plain text credentials however hashed credential "%s" did not match.', $credential
+                        'A user was found to match all plain text credentials however hashed credential "%s" did not match.',
+                        $credential
                     ));
                 }
 
@@ -318,7 +318,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
         $query = $model->where('user_id', '=', $userId);
 
         if ($ipAddress) {
-            $query->where(function($query) use ($ipAddress) {
+            $query->where(function ($query) use ($ipAddress) {
                 $query->where('ip_address', '=', $ipAddress);
                 $query->orWhere('ip_address', '=', null);
             });
@@ -450,7 +450,6 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     public function check()
     {
         if (is_null($this->user)) {
-
             /*
              * Check session first, follow by cookie
              */
@@ -459,7 +458,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
             }
             elseif ($cookieArray = Cookie::get($this->sessionKey)) {
                 $this->viaRemember = true;
-                $userArray = $cookieArray;
+                $userArray = @json_decode($cookieArray, true);
             }
             else {
                 return false;
@@ -543,7 +542,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
      */
     public function id()
     {
-        if ($user == $this->getUser()) {
+        if ($user = $this->getUser()) {
             return $user->getAuthIdentifier();
         }
 
@@ -602,7 +601,8 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
         if ($this->requireActivation && !$user->is_activated) {
             $login = $user->getLogin();
             throw new AuthException(sprintf(
-                'Cannot login user "%s" as they are not activated.', $login
+                'Cannot login user "%s" as they are not activated.',
+                $login
             ));
         }
 
@@ -616,7 +616,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
             Session::put($this->sessionKey, $toPersist);
 
             if ($remember) {
-                Cookie::queue(Cookie::forever($this->sessionKey, $toPersist));
+                Cookie::queue(Cookie::forever($this->sessionKey, json_encode($toPersist)));
             }
         }
 

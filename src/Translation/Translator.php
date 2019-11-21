@@ -122,7 +122,11 @@ class Translator implements TranslatorContract
             $this->load($namespace, $group, $locale);
 
             $line = $this->getLine(
-                $namespace, $group, $locale, $item, $replace
+                $namespace,
+                $group,
+                $locale,
+                $item,
+                $replace
             );
 
             if (!is_null($line)) {

@@ -49,5 +49,4 @@ interface LoaderInterface
      * @return array
      */
     public function cascadePackage($environment, $package, $group, $items);
-
 }

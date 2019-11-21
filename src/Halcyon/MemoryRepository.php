@@ -26,13 +26,13 @@ class MemoryRepository extends Repository
      */
     public function get($key, $default = null)
     {
-        if(is_array($key)) {
+        if (is_array($key)) {
             return $this->many($key);
         }
 
         $value = $this->getFromMemoryCache($key);
 
-        if(!is_null($value)) {
+        if (!is_null($value)) {
             return $value;
         }
 

@@ -54,12 +54,13 @@ trait Validation
     {
         if (!property_exists(get_called_class(), 'rules')) {
             throw new Exception(sprintf(
-                'You must define a $rules property in %s to use the Validation trait.', get_called_class()
+                'You must define a $rules property in %s to use the Validation trait.',
+                get_called_class()
             ));
         }
 
-        static::extend(function($model) {
-            $model->bindEvent('model.saveInternal', function($data, $options) use ($model) {
+        static::extend(function ($model) {
+            $model->bindEvent('model.saveInternal', function ($data, $options) use ($model) {
                 /*
                  * If forcing the save event, the beforeValidate/afterValidate
                  * events should still fire for consistency. So validate an
@@ -76,7 +77,6 @@ trait Validation
                 if (!$valid) {
                     return false;
                 }
-
             }, 500);
         });
     }
@@ -137,9 +137,9 @@ trait Validation
         $validator = Validator::make($data, $rules, $customMessages, $attributeNames);
 
         if ($connection !== null) {
-           $verifier = App::make('validation.presence');
-           $verifier->setConnection($connection);
-           $validator->setPresenceVerifier($verifier);
+            $verifier = App::make('validation.presence');
+            $verifier->setConnection($connection);
+            $validator->setPresenceVerifier($verifier);
         }
 
         return $validator;
@@ -201,7 +201,6 @@ trait Validation
         $success = true;
 
         if (!empty($rules)) {
-
             $data = $this->getValidationAttributes();
 
             /*
@@ -259,7 +258,7 @@ trait Validation
             }
 
             $translatedCustomMessages = [];
-            foreach ($customMessages as $rule => $customMessage){
+            foreach ($customMessages as $rule => $customMessage) {
                 $translatedCustomMessages[$rule] = Lang::get($customMessage);
             }
 
@@ -279,7 +278,7 @@ trait Validation
             }
 
             $translatedAttributeNames = [];
-            foreach ($attributeNames as $attribute => $attributeName){
+            foreach ($attributeNames as $attribute => $attributeName) {
                 $translatedAttributeNames[$attribute] = Lang::get($attributeName);
             }
 
@@ -307,8 +306,9 @@ trait Validation
             $success = $validator->passes();
 
             if ($success) {
-                if ($this->validationErrors->count() > 0)
+                if ($this->validationErrors->count() > 0) {
                     $this->validationErrors = new MessageBag;
+                }
             }
             else {
                 $this->validationErrors = $validator->messages();
@@ -382,10 +382,10 @@ trait Validation
                 /*
                  * Look for required:create and required:update rules
                  */
-                else if (starts_with($rulePart, 'required:create') && $this->exists) {
+                elseif (starts_with($rulePart, 'required:create') && $this->exists) {
                     unset($ruleParts[$key]);
                 }
-                else if (starts_with($rulePart, 'required:update') && !$this->exists) {
+                elseif (starts_with($rulePart, 'required:update') && !$this->exists) {
                     unset($ruleParts[$key]);
                 }
             }
@@ -460,9 +460,10 @@ trait Validation
     /**
      * Determines if an attribute is required based on the validation rules.
      * @param  string  $attribute
+     * @param boolean $checkDependencies Checks the attribute dependencies (for required_if & required_with rules). Note that it will only be checked up to the next level, if another dependent rule is found then it will just assume the field is required
      * @return boolean
      */
-    public function isAttributeRequired($attribute)
+    public function isAttributeRequired($attribute, $checkDependencies = true)
     {
         if (!isset($this->rules[$attribute])) {
             return false;
@@ -483,9 +484,25 @@ trait Validation
         }
 
         if (strpos($ruleset, 'required_with') !== false) {
-            $requiredWith = substr($ruleset, strpos($ruleset, 'required_with') + 14);
-            $requiredWith = substr($requiredWith, 0, strpos($requiredWith, '|'));
-            return $this->isAttributeRequired($requiredWith);
+            if ($checkDependencies) {
+                $requiredWith = substr($ruleset, strpos($ruleset, 'required_with') + 14);
+                if (strpos($requiredWith, '|') !== false) {
+                    $requiredWith = substr($requiredWith, 0, strpos($requiredWith, '|'));
+                }
+                return $this->isAttributeRequired($requiredWith, false);
+            } else {
+                return true;
+            }
+        }
+
+        if (strpos($ruleset, 'required_if') !== false) {
+            if ($checkDependencies) {
+                $requiredIf = substr($ruleset, strpos($ruleset, 'required_if') + 12);
+                $requiredIf = substr($requiredIf, 0, strpos($requiredIf, ','));
+                return $this->isAttributeRequired($requiredIf, false);
+            } else {
+                return true;
+            }
         }
 
         return strpos($ruleset, 'required') !== false;
