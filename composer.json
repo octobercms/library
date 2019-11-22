@@ -85,12 +85,6 @@
             "October\\Rain\\Tests\\": "tests/"
         }
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/assetic-php/assetic"
-        }
-    ],
     "extra": {
         "branch-alias": {
             "dev-master": "1.0-dev"
