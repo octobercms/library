@@ -313,6 +313,8 @@ ESC;
 
     public function testPageWithNestedValidationPass()
     {
+        $this->expectNotToPerformAssertions();
+        
         $page = new HalcyonTestPageWithValidation;
         $page->fileName = 'with-validation';
         $page->title = "Pass";
