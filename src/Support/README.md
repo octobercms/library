@@ -23,7 +23,7 @@ $class = MyClass::instance();
 
 **input()**
 
-Similar to `Input::get()` this returns an input parameter or the default value. However it supports HTML Array names. Booleans are also converted from strings.
+Similar to `Request::get()` this returns an input parameter or the default value. However it supports HTML Array names. Booleans are also converted from strings.
 ```php
 $value = input('value', 'not found');
 $name = input('contact[name]');
