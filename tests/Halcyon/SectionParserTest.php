@@ -47,8 +47,8 @@ class SectionParserTest extends TestCase
         $this->assertIsArray($result["settings"]);
         $this->assertArrayHasKey("url", $result["settings"]);
         $this->assertEquals("/blog/post/", $result["settings"]["url"]);
-        $this->assertContains("\$var = 23;", $result["code"]);
-        $this->assertContains("phpinfo();", $result["code"]);
+        $this->assertStringContainsString("\$var = 23;", $result["code"]);
+        $this->assertStringContainsString("phpinfo();", $result["code"]);
 
         $this->assertArrayHasKey("section", $result["settings"]);
         $this->assertIsArray($result["settings"]["section"]);
@@ -100,8 +100,8 @@ class SectionParserTest extends TestCase
         $this->assertArrayHasKey("url", $result["settings"]);
         $this->assertEquals("/blog/post", $result["settings"]["url"]);
         $this->assertNotNull($result["code"]);
-        $this->assertContains("\$var = 23;", $result["code"]);
-        $this->assertContains("phpinfo();", $result["code"]);
+        $this->assertStringContainsString("\$var = 23;", $result["code"]);
+        $this->assertStringContainsString("phpinfo();", $result["code"]);
         $this->assertNotNull($result["markup"]);
         $this->assertEquals("This is a header\n================\n\nThis is a paragraph", $result["markup"]);
     }
