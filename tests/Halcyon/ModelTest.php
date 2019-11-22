@@ -282,10 +282,6 @@ ESC;
         $this->assertFileNotExists($targetFile);
     }
 
-    /**
-     * @expectedException        October\Rain\Halcyon\Exception\ModelException
-     * @expectedExceptionMessage The title field is required.
-     */
     public function testPageWithValidation()
     {
         $this->expectException(\October\Rain\Halcyon\Exception\ModelException::class);
