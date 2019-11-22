@@ -8,7 +8,7 @@ class SectionParserTest extends TestCase
     {
         // Test a single section
         $result = SectionParser::parse("this is a twig content");
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
         $this->assertCount(3, $result);
         $this->assertArrayHasKey("settings", $result);
         $this->assertArrayHasKey("code", $result);
@@ -20,7 +20,7 @@ class SectionParserTest extends TestCase
 
         // Test two sections
         $result = SectionParser::parse("url = \"/blog/post/\" \n==\n this is a twig content");
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
         $this->assertCount(3, $result);
         $this->assertArrayHasKey("settings", $result);
         $this->assertArrayHasKey("code", $result);
@@ -29,13 +29,13 @@ class SectionParserTest extends TestCase
         $this->assertNotNull($result["settings"]);
         $this->assertNull($result["code"]);
         $this->assertEquals("this is a twig content", $result["markup"]);
-        $this->assertInternalType("array", $result["settings"]);
+        $this->assertIsArray($result["settings"]);
         $this->assertArrayHasKey("url", $result["settings"]);
         $this->assertEquals("/blog/post/", $result["settings"]["url"]);
 
         // Test three sections
         $result = SectionParser::parse("url = \"/blog/post/\"\n[section]\nindex = value \n==\n \$var = 23; \n phpinfo(); \n==\n this is a twig content");
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
         $this->assertCount(3, $result);
         $this->assertArrayHasKey("settings", $result);
         $this->assertArrayHasKey("code", $result);
@@ -44,14 +44,14 @@ class SectionParserTest extends TestCase
         $this->assertNotNull($result["markup"]);
         $this->assertNotNull($result["code"]);
         $this->assertEquals("this is a twig content", $result["markup"]);
-        $this->assertInternalType("array", $result["settings"]);
+        $this->assertIsArray($result["settings"]);
         $this->assertArrayHasKey("url", $result["settings"]);
         $this->assertEquals("/blog/post/", $result["settings"]["url"]);
         $this->assertContains("\$var = 23;", $result["code"]);
         $this->assertContains("phpinfo();", $result["code"]);
 
         $this->assertArrayHasKey("section", $result["settings"]);
-        $this->assertInternalType("array", $result["settings"]["section"]);
+        $this->assertIsArray($result["settings"]["section"]);
         $this->assertArrayHasKey("index", $result["settings"]["section"]);
         $this->assertEquals("value", $result["settings"]["section"]["index"]);
 
