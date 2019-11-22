@@ -11,11 +11,6 @@ class TestCase extends PHPUnit\Framework\TestCase
     {
     }
 
-    public function testNothing()
-    {
-        // Test nothing
-    }
-
     protected static function callProtectedMethod($object, $name, $params = [])
     {
         $className = get_class($object);
