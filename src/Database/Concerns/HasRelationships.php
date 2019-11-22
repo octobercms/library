@@ -435,7 +435,7 @@ trait HasRelationships
             $name = $this->getRelationCaller();
         }
 
-        [$type, $id] = $this->getMorphs(Str::snake($name), $type, $id);
+        list($type, $id) = $this->getMorphs(Str::snake($name), $type, $id);
 
         return empty($class = $this->{$type})
                     ? $this->morphEagerTo($name, $type, $id, $ownerKey)
