@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Parse\Assetic;
 
 use File;
-use Assetic\Asset\AssetInterface;
-use Assetic\Filter\FilterInterface;
+use Assetic\Contracts\Asset\AssetInterface;
+use Assetic\Contracts\Filter\FilterInterface;
 use RuntimeException;
 
 /**
