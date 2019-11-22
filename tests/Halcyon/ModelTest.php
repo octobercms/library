@@ -373,6 +373,7 @@ ESC;
     {
         $translator = $this->getMockBuilder('Illuminate\Contracts\Translation\Translator')->setMethods([
             'get',
+            'choice',
             'trans',
             'transChoice',
             'setLocale',
