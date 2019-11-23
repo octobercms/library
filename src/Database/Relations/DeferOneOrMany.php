@@ -35,7 +35,7 @@ trait DeferOneOrMany
                         $query
                             ->select($this->parent->getConnection()->raw(1))
                             ->from($this->table)
-                            ->where($this->getOtherKey(), $this->getWithDeferredQualifiedKeyName())
+                            ->where($this->getOtherKey(), DbDongle::raw(DbDongle::getTablePrefix().$this->related->getQualifiedKeyName()))
                             ->where($this->getForeignKey(), $this->parent->getKey());
                     });
                 }
