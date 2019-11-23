@@ -26,7 +26,7 @@
         "patchwork/jsqueeze": "~2.0",
         "oyejorge/less.php": "~1.7",
         "leafo/scssphp": "~0.6",
-        "symfony/yaml": "3.3.*",
+        "symfony/yaml": "^3.4",
         "twig/twig": "~2.0",
         "league/csv": "~8.0",
         "jenssegers/date": "~3.0",
