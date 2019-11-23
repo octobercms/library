@@ -27,7 +27,7 @@ if (!function_exists('input')) {
             $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
         }
 
-        return Request::get($name, $default);
+        return Request::input($name, $default);
     }
 }
 
