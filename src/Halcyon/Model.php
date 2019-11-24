@@ -678,6 +678,19 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function getAttribute($key)
     {
+        /**
+         * @event model.beforeGetAttribute
+         * Provides an opportunity to override the value of an attribute
+         *
+         * Example usage:
+         *
+         *     Event::listen('model.beforeGetAttribute', function ((string) $key) {
+         *         if ($key === 'my.custom.key') {
+         *             return 'My overriding value';
+         *         }
+         *     });
+         *
+         */
         // Before Event
         if (($attr = $this->fireEvent('model.beforeGetAttribute', [$key], true)) !== null) {
             return $attr;
@@ -692,8 +705,21 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
             return $this->mutateAttribute($key, $value);
         }
 
+        /**
+         * @event model.getAttribute
+         * Provides an opportunity to modify the value of an attribute after it has been retrieved from the model
+         *
+         * Example usage:
+         *
+         *     Event::listen('model.getAttribute', function ((string) $key, (array) $value) {
+         *         if ($key === 'my.custom.key') {
+         *             return strtolower($value);
+         *         }
+         *     });
+         *
+         */
         // After Event
-        if (($_attr = $this->fireEvent('model.getAttribute', [$key, $attr], true)) !== null) {
+        if (($_attr = $this->fireEvent('model.getAttribute', [$key, $value], true)) !== null) {
             return $_attr;
         }
 
