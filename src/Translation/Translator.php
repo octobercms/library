@@ -138,7 +138,7 @@ class Translator implements TranslatorContract
         // that will be quick to spot in the UI if language keys are wrong or missing
         // from the application's language files. Otherwise we can return the line.
         if (!isset($line)) {
-            return $key;
+            return $this->makeReplacements($key, $replace);
         }
 
         return $line;
