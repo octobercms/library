@@ -1009,6 +1009,8 @@ class Model extends EloquentModel
          * @event model.getAttribute
          * Called after the model attribute is retrieved
          *
+         * Note: also triggered in October\Rain\Halcyon\Model
+         *
          * Example usage:
          *
          *     $model->bindEvent('model.getAttribute', function ((string) $key, $value) use (\October\Rain\Database\Model $model) {
