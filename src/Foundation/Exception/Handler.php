@@ -68,6 +68,10 @@ class Handler extends ExceptionHandler
         $response = $this->callCustomHandlers($exception);
 
         if (!is_null($response)) {
+            if ($response instanceof \Symfony\Component\HttpFoundation\Response) {
+                return $response;
+            }
+
             return Response::make($response, $statusCode);
         }
 
@@ -150,7 +154,7 @@ class Handler extends ExceptionHandler
                 $response = $handler($exception, $code, $fromConsole);
             }
             catch (Exception $e) {
-                $response = $this->formatException($e);
+                $response = $this->convertExceptionToResponse($e);
             }
             // If this handler returns a "non-null" response, we will return it so it will
             // get sent back to the browsers. Once the handler returns a valid response
