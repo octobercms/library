@@ -46,7 +46,6 @@ class EncryptCookies extends EncryptCookiesBase
 
         foreach ($cookie as $key => $value) {
             if (is_string($value)) {
-
                 try {
                     $decrypted[$key] = $this->encrypter->decrypt($value, true);
                 }
