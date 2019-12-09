@@ -41,7 +41,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
      * @var bool Flag to enable login throttling
      */
     protected $useThrottle = true;
-  
+
     /**
      * @var bool Internal flag to toggle using the session for the current authentication request
      */
@@ -458,7 +458,16 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
             }
             elseif ($cookieArray = Cookie::get($this->sessionKey)) {
                 $this->viaRemember = true;
-                $userArray = @json_decode($cookieArray, true);
+                /*
+                 * Shift gracefully to unserialized cookies
+                 * @todo Remove if statement below if year >= 2021 or build >= 475
+                 */
+                if (is_array($cookieArray)) {
+                    $userArray = $cookieArray;
+                }
+                else {
+                    $userArray = @json_decode($cookieArray, true);
+                }
             }
             else {
                 return false;
