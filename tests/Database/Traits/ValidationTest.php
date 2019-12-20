@@ -17,12 +17,12 @@ class ValidationTest extends TestCase
 
         $this->exists = true;
         $this->assertEquals([
-            'email' => ['unique:users,email,7,the_id']
+            'email' => ['unique:mysql.users,email,7,the_id']
         ], $this->processValidationRules($rules));
 
         $this->exists = false;
         $this->assertEquals([
-            'email' => ['unique:users']
+            'email' => ['unique:mysql.users']
         ], $this->processValidationRules($rules));
 
         /*
@@ -32,12 +32,12 @@ class ValidationTest extends TestCase
 
         $this->exists = true;
         $this->assertEquals([
-            'email' => ['unique:users,email_address,7,the_id']
+            'email' => ['unique:mysql.users,email_address,7,the_id']
         ], $this->processValidationRules($rules));
 
         $this->exists = false;
         $this->assertEquals([
-            'email' => ['unique:users,email_address']
+            'email' => ['unique:mysql.users,email_address']
         ], $this->processValidationRules($rules));
 
         /*
@@ -47,12 +47,12 @@ class ValidationTest extends TestCase
 
         $this->exists = true;
         $this->assertEquals([
-            'email' => ['unique:users,email_address,7,the_id']
+            'email' => ['unique:mysql.users,email_address,7,the_id']
         ], $this->processValidationRules($rules));
 
         $this->exists = false;
         $this->assertEquals([
-            'email' => ['unique:users,email_address,10']
+            'email' => ['unique:mysql.users,email_address,10']
         ], $this->processValidationRules($rules));
 
         /*
@@ -62,12 +62,12 @@ class ValidationTest extends TestCase
 
         $this->exists = true;
         $this->assertEquals([
-            'email' => ['unique:users,email_address,20,id,account_id,1']
+            'email' => ['unique:mysql.users,email_address,20,id,account_id,1']
         ], $this->processValidationRules($rules));
 
         $this->exists = false;
         $this->assertEquals([
-            'email' => ['unique:users,email_address,NULL,id,account_id,1']
+            'email' => ['unique:mysql.users,email_address,NULL,id,account_id,1']
         ], $this->processValidationRules($rules));
     }
     
