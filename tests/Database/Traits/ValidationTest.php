@@ -22,7 +22,7 @@ class ValidationTest extends TestCase
 
         $this->exists = false;
         $this->assertEquals([
-            'email' => ['unique:mysql.users']
+            'email' => ['unique:users']
         ], $this->processValidationRules($rules));
 
         /*
@@ -37,7 +37,7 @@ class ValidationTest extends TestCase
 
         $this->exists = false;
         $this->assertEquals([
-            'email' => ['unique:mysql.users,email_address']
+            'email' => ['unique:users,email_address']
         ], $this->processValidationRules($rules));
 
         /*
@@ -52,7 +52,7 @@ class ValidationTest extends TestCase
 
         $this->exists = false;
         $this->assertEquals([
-            'email' => ['unique:mysql.users,email_address,10']
+            'email' => ['unique:users,email_address,10']
         ], $this->processValidationRules($rules));
 
         /*
@@ -67,7 +67,7 @@ class ValidationTest extends TestCase
 
         $this->exists = false;
         $this->assertEquals([
-            'email' => ['unique:mysql.users,email_address,NULL,id,account_id,1']
+            'email' => ['unique:users,email_address,NULL,id,account_id,1']
         ], $this->processValidationRules($rules));
     }
     
