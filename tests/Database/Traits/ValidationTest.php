@@ -69,6 +69,11 @@ class ValidationTest extends TestCase
         $this->assertEquals([
             'email' => ['unique:users,email_address,NULL,id,account_id,1']
         ], $this->processValidationRules($rules));
+    }   
+
+    protected function getConnectionName()
+    {
+        return 'mysql';
     }
 
     protected function getTable()
