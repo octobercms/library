@@ -114,9 +114,19 @@ class Builder extends BuilderModel
      */
     public function paginate($perPage = 15, $currentPage = null, $columns = ['*'], $pageName = 'page')
     {
+        /*
+         * Engage Laravel signature support
+         *
+         * paginate($perPage, $columns, $pageName, $currentPage)
+         */
         if (is_array($currentPage)) {
-            $columns = $currentPage;
-            $currentPage = null;
+            $_columns = $columns;
+            $_currentPage = $currentPage;
+            $_pageName = $pageName;
+
+            $columns = $_currentPage;
+            $pageName = is_string($_columns) ? $_columns : 'page';
+            $currentPage = $_pageName === 'page' ? null : $_pageName;
         }
 
         if (!$currentPage) {
