@@ -20,7 +20,6 @@
         "erusev/parsedown-extra": "~0.7",
         "kriswallsmith/assetic": "~1.3",
         "linkorb/jsmin-php": "~1.0",
-        "oyejorge/less.php": "~1.7",
         "leafo/scssphp": "~0.6",
         "symfony/yaml": "~3.2",
         "twig/twig": "~2.0",
@@ -66,10 +65,14 @@
     "autoload": {
         "files": [
             "src/Support/helpers.php",
-            "src/Html/helpers.php"
+            "src/Html/helpers.php",
+            "src/Parse/Assetic/Less/lessc.inc.php"
         ],
         "psr-4": {
             "October\\Rain\\": "src/"
+        },
+        "psr-0": {
+            "Less": "src/Parse/Assetic/Less/lib/"
         }
     },
     "autoload-dev": {
