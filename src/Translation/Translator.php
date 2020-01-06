@@ -245,11 +245,10 @@ class Translator implements TranslatorContract
      *
      * @param  string  $id
      * @param  array   $parameters
-     * @param  string  $domain
      * @param  string  $locale
      * @return string
      */
-    public function trans($id, array $parameters = [], $domain = 'messages', $locale = null)
+    public function trans($id, array $parameters = [], $locale = null)
     {
         return $this->get($id, $parameters, $locale);
     }
@@ -260,11 +259,10 @@ class Translator implements TranslatorContract
      * @param  string  $id
      * @param  int     $number
      * @param  array   $parameters
-     * @param  string  $domain
      * @param  string  $locale
      * @return string
      */
-    public function transChoice($id, $number, array $parameters = [], $domain = 'messages', $locale = null)
+    public function transChoice($id, $number, array $parameters = [], $locale = null)
     {
         return $this->choice($id, $number, $parameters, $locale);
     }
