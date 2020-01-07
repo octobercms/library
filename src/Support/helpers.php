@@ -220,9 +220,9 @@ if (!function_exists('trans')) {
      * @param  string  $locale
      * @return string
      */
-    function trans($id = null, $parameters = [], $domain = 'messages', $locale = null)
+    function trans($id = null, $parameters = [], $locale = null)
     {
-        return app('translator')->trans($id, $parameters, $domain, $locale);
+        return app('translator')->trans($id, $parameters, $locale);
     }
 }
 
