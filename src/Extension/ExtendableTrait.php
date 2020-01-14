@@ -403,21 +403,14 @@ trait ExtendableTrait
      */
     public function extendableCall($name, $params = null)
     {
-        if (isset($this->extensionData['methods'][$name])) {
-            $extension = $this->extensionData['methods'][$name];
-            $extensionObject = $this->extensionData['extensions'][$extension];
+        $callable = $this->getExtendableMethodFromExtensions($name);
 
-            if (method_exists($extension, $name) && is_callable([$extension, $name])) {
-                return call_user_func_array([$extensionObject, $name], $params);
-            }
+        if ($callable === null) {
+            $callable = $this->getExtendableMethodFromDynamicMethods($name);
         }
 
-        if (isset($this->extensionData['dynamicMethods'][$name])) {
-            $dynamicCallable = $this->extensionData['dynamicMethods'][$name];
-
-            if (is_callable($dynamicCallable)) {
-                return call_user_func_array($dynamicCallable, $params);
-            }
+        if ($callable !== null) {
+            return call_user_func_array($callable, $params);
         }
 
         $parent = get_parent_class();
@@ -430,6 +423,27 @@ trait ExtendableTrait
             get_class($this),
             $name
         ));
+    }
+
+    /**
+     * @param string $name
+     * @return \ReflectionFunctionAbstract|null
+     */
+    public function getExtendableCallReflection(string $name)
+    {
+        $extandableMethod = $this->getExtendableMethodFromExtensions($name);
+
+        if ($extandableMethod !== null) {
+            return new ReflectionMethod($extandableMethod[0], $extandableMethod[1]);
+        }
+
+        $extandableDynamicMethod = $this->getExtendableMethodFromDynamicMethods($name);
+
+        if ($extandableDynamicMethod !== null) {
+            return new \ReflectionFunction($extandableDynamicMethod);
+        }
+
+        return null;
     }
 
     /**
@@ -497,5 +511,48 @@ trait ExtendableTrait
             $className,
             $name
         ));
+    }
+
+    /**
+     * Get the extendable method from the extensions
+     *
+     * @param string $name the name of the method
+     * @return array|null
+     */
+    private function getExtendableMethodFromExtensions(string $name)
+    {
+        if (!isset($this->extensionData['methods'][$name])) {
+            return null;
+        }
+
+        $extension = $this->extensionData['methods'][$name];
+        $extensionObject = $this->extensionData['extensions'][$extension];
+
+        if (method_exists($extension, $name) && is_callable([$extension, $name])) {
+            return [$extensionObject, $name];
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the extendable method from the dynamic methods
+     *
+     * @param string $name the name of the method
+     * @return \Closure|null
+     */
+    private function getExtendableMethodFromDynamicMethods(string $name)
+    {
+        if (!isset($this->extensionData['dynamicMethods'][$name])) {
+            return null;
+        }
+
+        $dynamicCallable = $this->extensionData['dynamicMethods'][$name];
+
+        if (is_callable($dynamicCallable)) {
+            return $dynamicCallable;
+        }
+
+        return null;
     }
 }
