@@ -2,6 +2,7 @@
 
 use Event;
 use Config;
+use Queue;
 use Illuminate\Mail\Mailer as MailerBase;
 use Illuminate\Contracts\Mail\Mailable as MailableContract;
 use Illuminate\Support\Collection;
@@ -193,7 +194,8 @@ class Mailer extends MailerBase
     public function queue($view, $data = null, $callback = null, $queue = null)
     {
         if (!$view instanceof MailableContract) {
-            $mailable = $this->buildQueueMailable($view, $data, $callback);
+            $mailable = $this->buildQueueMailable($view, $data, $callback, $queue);
+            $queue = null;
         }
         else {
             $mailable = $view;
@@ -230,7 +232,8 @@ class Mailer extends MailerBase
     public function later($delay, $view, $data = null, $callback = null, $queue = null)
     {
         if (!$view instanceof MailableContract) {
-            $mailable = $this->buildQueueMailable($view, $data, $callback);
+            $mailable = $this->buildQueueMailable($view, $data, $callback, $queue);
+            $queue = null;
         }
         else {
             $mailable = $view;
@@ -261,9 +264,13 @@ class Mailer extends MailerBase
      * @param  mixed  $callback
      * @return mixed
      */
-    protected function buildQueueMailable($view, $data, $callback)
+    protected function buildQueueMailable($view, $data, $callback, $queueName = null)
     {
         $mailable = new Mailable;
+
+        if (!empty($queueName)) {
+            $mailable->queue = $queueName;
+        }
 
         $mailable->view($view)->withSerializedData($data);
 
