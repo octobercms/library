@@ -2,7 +2,6 @@
 
 use Event;
 use Config;
-use Queue;
 use Illuminate\Mail\Mailer as MailerBase;
 use Illuminate\Contracts\Mail\Mailable as MailableContract;
 use Illuminate\Support\Collection;
