@@ -85,10 +85,16 @@ trait FormatsMessages
         return true;
     }
 
+    /**
+     * Calls the `message()` method for an extended rule and returns the result as a string.
+     *
+     * @param string $rule
+     * @return string
+     */
     protected function getMessageInExtension($rule)
     {
         [$class, $method] = Str::parseCallback($this->extensions[$rule]);
 
-        return call_user_func_array([$this->container->make($class), 'message'], []);
+        return (string) call_user_func_array([$this->container->make($class), 'message'], []);
     }
 }
