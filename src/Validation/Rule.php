@@ -11,7 +11,7 @@ abstract class Rule implements RuleContract
      * @param  mixed  $value
      * @return bool
      */
-    public abstract function passes($attribute, $value);
+    abstract public function passes($attribute, $value);
 
     /**
      * Validation callback method.
@@ -31,5 +31,5 @@ abstract class Rule implements RuleContract
      *
      * @return string
      */
-    public abstract function message();
+    abstract public function message();
 }
