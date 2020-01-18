@@ -47,6 +47,22 @@ class Markdown
     }
 
     /**
+     * Enables safe mode
+     * @param  string $text Markdown text to parse
+     * @return string       Resulting HTML
+     */
+    public function parseClean($text)
+    {
+        $this->getParser()->setSafeMode(true);
+
+        $result = $this->parse($text);
+
+        $this->parser = null;
+
+        return $result;
+    }
+
+    /**
      * Disables code blocks caused by indentation.
      * @param  string $text Markdown text to parse
      * @return string       Resulting HTML

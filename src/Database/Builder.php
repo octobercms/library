@@ -112,11 +112,21 @@ class Builder extends BuilderModel
      * @param  string $pageName
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate($perPage = 15, $currentPage = null, $columns = ['*'], $pageName = 'page')
+    public function paginate($perPage = null, $currentPage = null, $columns = ['*'], $pageName = 'page')
     {
+        /*
+         * Engage Laravel signature support
+         *
+         * paginate($perPage, $columns, $pageName, $currentPage)
+         */
         if (is_array($currentPage)) {
-            $columns = $currentPage;
-            $currentPage = null;
+            $_columns = $columns;
+            $_currentPage = $currentPage;
+            $_pageName = $pageName;
+
+            $columns = $_currentPage;
+            $pageName = is_string($_columns) ? $_columns : 'page';
+            $currentPage = $_pageName === 'page' ? null : $_pageName;
         }
 
         if (!$currentPage) {
@@ -144,15 +154,25 @@ class Builder extends BuilderModel
      * @param  array  $columns
      * @return \Illuminate\Contracts\Pagination\Paginator
      */
-    public function simplePaginate($perPage = null, $currentPage = null, $pageName = 'page', $columns = ['*'])
+    public function simplePaginate($perPage = null, $currentPage = null, $columns = ['*'], $pageName = 'page')
     {
+        /*
+         * Engage Laravel signature support
+         *
+         * paginate($perPage, $columns, $pageName, $currentPage)
+         */
         if (is_array($currentPage)) {
-            $columns = $currentPage;
-            $currentPage = null;
+            $_columns = $columns;
+            $_currentPage = $currentPage;
+            $_pageName = $pageName;
+
+            $columns = $_currentPage;
+            $pageName = is_string($_columns) ? $_columns : 'page';
+            $currentPage = $_pageName === 'page' ? null : $_pageName;
         }
 
         if (!$currentPage) {
-            $currentPage = Paginator::resolveCurrentPage();
+            $currentPage = Paginator::resolveCurrentPage($pageName);
         }
 
         if (!$perPage) {
