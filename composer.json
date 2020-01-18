@@ -21,11 +21,9 @@
     "require": {
         "php": "^7.2",
         "doctrine/dbal": "^2.6",
-        "erusev/parsedown-extra": "~0.7",
+        "erusev/parsedown-extra": "~0.8",
         "assetic/framework": "dev-2.0/dev",
-        "patchwork/jsqueeze": "~2.0",
-        "oyejorge/less.php": "~1.7",
-        "leafo/scssphp": "~0.6",
+        "linkorb/jsmin-php": "~1.0",
         "symfony/yaml": "^3.4",
         "twig/twig": "~2.0",
         "league/csv": "~8.0",
@@ -35,20 +33,20 @@
         "fideloper/proxy": "^4.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8.0",
+        "phpunit/phpunit": "^8.0|^9.0",
         "dms/phpunit-arraysubset-asserts": "^0.1.0",
-        "illuminate/database": "^6.0",
-        "illuminate/filesystem": "^6.0",
-        "illuminate/queue": "^6.0",
-        "illuminate/support": "^6.0",
-        "illuminate/log": "^6.0",
-        "illuminate/mail": "^6.0",
-        "illuminate/events": "^6.0",
-        "illuminate/pagination": "^6.0",
-        "illuminate/routing": "^6.0",
-        "illuminate/validation": "^6.0",
-        "illuminate/view": "^6.0",
-        "illuminate/cache": "^6.0",
+        "illuminate/database": "^6.11",
+        "illuminate/filesystem": "^6.11",
+        "illuminate/queue": "^6.11",
+        "illuminate/support": "^6.11",
+        "illuminate/log": "^6.11",
+        "illuminate/mail": "^6.11",
+        "illuminate/events": "^6.11",
+        "illuminate/pagination": "^6.11",
+        "illuminate/routing": "^6.11",
+        "illuminate/validation": "^6.11",
+        "illuminate/view": "^6.11",
+        "illuminate/cache": "^6.11",
         "meyfa/phpunit-assert-gd": "^2.0.0",
         "squizlabs/php_codesniffer": "3.*",
         "jakub-onderka/php-parallel-lint": "^1.0"
@@ -71,10 +69,14 @@
     "autoload": {
         "files": [
             "src/Support/helpers.php",
-            "src/Html/helpers.php"
+            "src/Html/helpers.php",
+            "src/Parse/Assetic/Less/lessc.inc.php"
         ],
         "psr-4": {
             "October\\Rain\\": "src/"
+        },
+        "psr-0": {
+            "Less": "src/Parse/Assetic/Less/lib/"
         }
     },
     "autoload-dev": {

@@ -66,8 +66,6 @@ class Mailable extends MailableBase
         // Otherwise attempt to set the subject if the message doesn't already have one set
         if ($this->subject) {
             $message->subject($this->subject);
-        } elseif (empty($message->getSubject())) {
-            parent::buildSubject($message);
         }
         return $this;
     }

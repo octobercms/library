@@ -4,7 +4,7 @@ The October Rain Support contains common classes relevant to supporting the othe
 
 ### Scaffolding
 
-See the Scaffolding Commands section of the [Console documentation](https://github.com/octobercms/docs/blob/master/advanced-console.md).
+See the Scaffolding Commands section of the [Console documentation](https://octobercms.com/docs/console/commands).
 
 ### A true Singleton trait
 

@@ -178,6 +178,7 @@ class Model extends EloquentModel
             /**
              * @event model.afterBoot
              * Called after the model is booted
+             * > **Note:** also triggered in October\Rain\Halcyon\Model
              *
              * Example usage:
              *
@@ -218,6 +219,7 @@ class Model extends EloquentModel
         /**
          * @event model.beforeCreate
          * Called before the model is created
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
          *
          * Example usage:
          *
@@ -238,6 +240,7 @@ class Model extends EloquentModel
         /**
          * @event model.afterCreate
          * Called after the model is created
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
          *
          * Example usage:
          *
@@ -256,6 +259,7 @@ class Model extends EloquentModel
         /**
          * @event model.beforeUpdate
          * Called before the model is updated
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
          *
          * Example usage:
          *
@@ -276,6 +280,7 @@ class Model extends EloquentModel
         /**
          * @event model.afterUpdate
          * Called after the model is updated
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
          *
          * Example usage:
          *
@@ -297,6 +302,7 @@ class Model extends EloquentModel
          * @event model.beforeSave
          * Called before the model is saved
          * > **Note:** This is called both when creating and updating
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
          *
          * Example usage:
          *
@@ -318,6 +324,7 @@ class Model extends EloquentModel
          * @event model.afterSave
          * Called after the model is saved
          * > **Note:** This is called both when creating and updating
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
          *
          * Example usage:
          *
@@ -338,6 +345,7 @@ class Model extends EloquentModel
         /**
          * @event model.beforeDelete
          * Called before the model is deleted
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
          *
          * Example usage:
          *
@@ -358,6 +366,7 @@ class Model extends EloquentModel
         /**
          * @event model.afterDelete
          * Called after the model is deleted
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
          *
          * Example usage:
          *
@@ -376,6 +385,7 @@ class Model extends EloquentModel
         /**
          * @event model.beforeFetch
          * Called before the model is fetched
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
          *
          * Example usage:
          *
@@ -396,6 +406,7 @@ class Model extends EloquentModel
         /**
          * @event model.afterFetch
          * Called after the model is fetched
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
          *
          * Example usage:
          *
@@ -718,6 +729,7 @@ class Model extends EloquentModel
         /**
          * @event model.saveInternal
          * Called before the model is saved
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
          *
          * Example usage:
          *
@@ -978,6 +990,7 @@ class Model extends EloquentModel
         /**
          * @event model.beforeGetAttribute
          * Called before the model attribute is retrieved
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
          *
          * Example usage:
          *
@@ -1008,6 +1021,7 @@ class Model extends EloquentModel
         /**
          * @event model.getAttribute
          * Called after the model attribute is retrieved
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
          *
          * Example usage:
          *
@@ -1168,6 +1182,7 @@ class Model extends EloquentModel
         /**
          * @event model.beforeSetAttribute
          * Called before the model attribute is set
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
          *
          * Example usage:
          *
@@ -1201,6 +1216,7 @@ class Model extends EloquentModel
         /**
          * @event model.setAttribute
          * Called after the model attribute is set
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
          *
          * Example usage:
          *
