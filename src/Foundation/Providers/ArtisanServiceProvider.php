@@ -45,7 +45,6 @@ class ArtisanServiceProvider extends ArtisanServiceProviderBase
      * @var array
      */
     protected $devCommands = [
-        'AppName'           => 'command.app.name',
         'Serve'             => 'command.serve',
         'VendorPublish'     => 'command.vendor.publish',
     ];
