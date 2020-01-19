@@ -1,6 +1,12 @@
+# Composer files
 /vendor
 composer.phar
 composer.lock
-.DS_Store
+
+# Editor files
 .idea
+.vscode
+
+# Other files
+.DS_Store
 php_errors.log

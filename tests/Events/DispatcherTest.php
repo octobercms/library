@@ -11,7 +11,7 @@ class DispatcherTest extends TestCase
      */
     private $dispatcher;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dispatcher = new Dispatcher();
     }

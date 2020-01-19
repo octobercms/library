@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Halcyon\Traits;
 
 use Illuminate\Support\MessageBag;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Validator;
 use October\Rain\Halcyon\Exception\ModelException;
 use Exception;
@@ -204,14 +204,14 @@ trait Validation
                 $this->validationErrors = $validator->messages();
 
                 /*
-                 * Flash input, if available
+                 * Flash request, if available
                  */
                 if (
-                    ($input = Input::getFacadeRoot()) &&
-                    method_exists($input, 'hasSession') &&
-                    $input->hasSession()
+                    ($request = Request::getFacadeRoot()) &&
+                    method_exists($request, 'hasSession') &&
+                    $request->hasSession()
                 ) {
-                    $input->flash();
+                    $request->flash();
                 }
             }
         }

@@ -47,18 +47,18 @@ class MemoryRepository extends Repository
      *
      * @param  string  $key
      * @param  mixed   $value
-     * @param  \DateTimeInterface|\DateInterval|float|int  $minutes
+     * @param  \DateTimeInterface|\DateInterval|int  $seconds
      * @return void
      */
-    public function put($key, $value, $minutes = null)
+    public function put($key, $value, $seconds = null)
     {
         if (is_array($key)) {
             $this->putMany($key, $value);
         }
 
-        if (!is_null($minutes = $this->getMinutes($minutes))) {
+        if (!is_null($seconds = $this->getSeconds($seconds))) {
             $this->putInMemoryCache($key, $value);
-            parent::put($key, $value, $minutes);
+            parent::put($key, $value, $seconds);
         }
     }
 

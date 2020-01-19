@@ -2,7 +2,7 @@
 
 use App;
 use Lang;
-use Input;
+use Request;
 use October\Rain\Database\ModelException;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Facades\Validator;
@@ -312,8 +312,8 @@ trait Validation
             }
             else {
                 $this->validationErrors = $validator->messages();
-                if (Input::hasSession()) {
-                    Input::flash();
+                if (Request::hasSession()) {
+                    Request::flash();
                 }
             }
         }

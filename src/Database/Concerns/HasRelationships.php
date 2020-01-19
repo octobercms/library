@@ -110,7 +110,20 @@ trait HasRelationships
     /**
      * @var array Excepted relationship types, used to cycle and verify relationships.
      */
-    protected static $relationTypes = ['hasOne', 'hasMany', 'belongsTo', 'belongsToMany', 'morphTo', 'morphOne', 'morphMany', 'morphToMany', 'morphedByMany', 'attachOne', 'attachMany', 'hasManyThrough'];
+    protected static $relationTypes = [
+        'hasOne',
+        'hasMany',
+        'belongsTo',
+        'belongsToMany',
+        'morphTo',
+        'morphOne',
+        'morphMany',
+        'morphToMany',
+        'morphedByMany',
+        'attachOne',
+        'attachMany',
+        'hasManyThrough'
+    ];
 
 
     //
@@ -416,7 +429,7 @@ trait HasRelationships
      * Overridden from {@link Eloquent\Model} to allow the usage of the intermediary methods to handle the relation.
      * @return \October\Rain\Database\Relations\BelongsTo
      */
-    public function morphTo($name = null, $type = null, $id = null)
+    public function morphTo($name = null, $type = null, $id = null, $ownerKey = null)
     {
         if (is_null($name)) {
             $name = $this->getRelationCaller();
@@ -425,8 +438,8 @@ trait HasRelationships
         list($type, $id) = $this->getMorphs(Str::snake($name), $type, $id);
 
         return empty($class = $this->{$type})
-                    ? $this->morphEagerTo($name, $type, $id)
-                    : $this->morphInstanceTo($class, $name, $type, $id);
+                    ? $this->morphEagerTo($name, $type, $id, $ownerKey)
+                    : $this->morphInstanceTo($class, $name, $type, $id, $ownerKey);
     }
 
     /**
@@ -435,15 +448,16 @@ trait HasRelationships
      * @param  string  $name
      * @param  string  $type
      * @param  string  $id
+     * @param  string  $ownerKey
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
-    protected function morphEagerTo($name, $type, $id)
+    protected function morphEagerTo($name, $type, $id, $ownerKey)
     {
         return new MorphTo(
             $this->newQuery()->setEagerLoads([]),
             $this,
             $id,
-            null,
+            $ownerKey,
             $type,
             $name
         );
@@ -456,9 +470,10 @@ trait HasRelationships
      * @param  string  $name
      * @param  string  $type
      * @param  string  $id
+     * @param  string  $ownerKey
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
-    protected function morphInstanceTo($target, $name, $type, $id)
+    protected function morphInstanceTo($target, $name, $type, $id, $ownerKey)
     {
         $instance = $this->newRelatedInstance(
             static::getActualClassNameForMorph($target)
@@ -468,7 +483,7 @@ trait HasRelationships
             $instance->newQuery(),
             $this,
             $id,
-            $instance->getKeyName(),
+            $ownerKey ?? $instance->getKeyName(),
             $type,
             $name
         );

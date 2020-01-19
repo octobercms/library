@@ -1,12 +1,11 @@
 <?php namespace October\Rain\Parse\Assetic;
 
 use Event;
-use Assetic\Asset\AssetInterface;
+use Assetic\Contracts\Asset\AssetInterface;
 use Assetic\Factory\AssetFactory;
-use Assetic\Filter\ScssphpFilter;
-use Assetic\Filter\HashableInterface;
-use Assetic\Filter\DependencyExtractorInterface;
-use Assetic\Filter\FilterInterface;
+use Assetic\Filter\ScssFilter;
+use Assetic\Contracts\Filter\HashableInterface;
+use Assetic\Contracts\Filter\DependencyExtractorInterface;
 
 /**
  * Less.php Compiler Filter
@@ -15,7 +14,7 @@ use Assetic\Filter\FilterInterface;
  * @package october/parse
  * @author Alexey Bobkov, Samuel Georges
  */
-class ScssCompiler extends ScssphpFilter implements HashableInterface, DependencyExtractorInterface
+class ScssCompiler extends ScssFilter implements HashableInterface, DependencyExtractorInterface
 {
     protected $currentFiles = [];
 

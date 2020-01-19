@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Parse\Assetic;
 
 use File;
-use Assetic\Cache\CacheInterface;
+use Assetic\Contracts\Cache\CacheInterface;
 use RuntimeException;
 
 /**

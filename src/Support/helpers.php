@@ -17,7 +17,7 @@ if (!function_exists('input')) {
     function input($name = null, $default = null)
     {
         if ($name === null) {
-            return Input::all();
+            return Request::all();
         }
 
         /*
@@ -27,7 +27,7 @@ if (!function_exists('input')) {
             $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
         }
 
-        return Input::get($name, $default);
+        return Request::input($name, $default);
     }
 }
 
