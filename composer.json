@@ -28,9 +28,7 @@
         "twig/twig": "~2.0",
         "league/csv": "~8.0",
         "jenssegers/date": "~3.0",
-        "laravel/tinker": "^1.0",
-        "laravel/helpers": "^1.0",
-        "fideloper/proxy": "^4.0"
+        "laravel/tinker": "^1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^8.0|^9.0",
