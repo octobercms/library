@@ -210,7 +210,7 @@ if (!function_exists('temp_path')) {
     }
 }
 
-if (! function_exists('e')) {
+if (!function_exists('e')) {
     /**
      * Encode HTML special characters in a string.
      *
