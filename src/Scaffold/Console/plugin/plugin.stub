@@ -137,7 +137,18 @@ class Plugin extends PluginBase
      */
     public function registerSettings()
     {
+        return []; // Remove this line to activate
 
+        return [
+            '{{lower_name}}' => [
+                'label'       => 'Settings',
+                'description' => '{{name} settings',
+                'category'    => '{{name}}',
+                'icon'        => 'icon-leaf',
+                'url'         => Backend::url('{{lower_author}}/{{lower_name}}/settings'),
+                'order'       => 500,
+            ]
+        ];
     }
 
     /**
