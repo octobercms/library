@@ -54,6 +54,10 @@ class Plugin extends PluginBase
         
     }
     
+    /**
+     * Register new Twig variables
+     * @return array
+     */
     public function registerMarkupTags()
     {
         return [
@@ -66,9 +70,13 @@ class Plugin extends PluginBase
         ];
     }
 
+    /**
+     * Register List Column Types
+     * @return array
+     */
     public function registerListColumnTypes()
     {
-    
+        return [];
     }
     
     /**
