@@ -46,7 +46,7 @@ class Plugin extends PluginBase
     /**
      * Registers scheduled tasks that are executed on a regular basis.
      *
-     * @param string $schedule
+     * @param Schedule $schedule
      * @return void
      */
     public function registerSchedule($schedule)
