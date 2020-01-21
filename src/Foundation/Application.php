@@ -9,7 +9,6 @@ use Illuminate\Log\LogServiceProvider;
 use October\Rain\Foundation\Providers\MakerServiceProvider;
 use October\Rain\Foundation\Providers\ExecutionContextProvider;
 use Throwable;
-use Exception;
 
 class Application extends ApplicationBase
 {
