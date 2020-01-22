@@ -12,6 +12,7 @@ use October\Rain\Database\Relations\MorphOne;
 use October\Rain\Database\Relations\AttachMany;
 use October\Rain\Database\Relations\AttachOne;
 use October\Rain\Database\Relations\HasManyThrough;
+use October\Rain\Database\Relations\HasOneThrough;
 use InvalidArgumentException;
 
 trait HasRelationships
@@ -101,11 +102,18 @@ trait HasRelationships
     public $attachMany = [];
 
     /**
-     * protected $attachMany = [
-     *     'pictures' => ['Picture', 'name'=> 'imageable']
+     * protected $hasManyThrough = [
+     *     'posts' => ['Posts', 'through' => 'User']
      * ];
      */
     public $hasManyThrough = [];
+
+    /**
+     * protected $hasOneThrough = [
+     *     'post' => ['Posts', 'through' => 'User']
+     * ];
+     */
+    public $hasOneThrough = [];
 
     /**
      * @var array Excepted relationship types, used to cycle and verify relationships.
@@ -122,6 +130,7 @@ trait HasRelationships
         'morphedByMany',
         'attachOne',
         'attachMany',
+        'hasOneThrough',
         'hasManyThrough'
     ];
 
@@ -312,6 +321,7 @@ trait HasRelationships
                 $relationObj = $this->$relationType($relation[0], $relation['public'], $relation['key'], $relationName);
                 break;
 
+            case 'hasOneThrough':
             case 'hasManyThrough':
                 $relation = $this->validateRelationArgs($relationName, ['key', 'throughKey', 'otherKey', 'secondOtherKey'], ['through']);
                 $relationObj = $this->$relationType($relation[0], $relation['through'], $relation['key'], $relation['throughKey'], $relation['otherKey'], $relation['secondOtherKey']);
@@ -512,7 +522,7 @@ trait HasRelationships
     /**
      * Define a has-many-through relationship.
      * This code is a duplicate of Eloquent but uses a Rain relation class.
-     * @return \October\Rain\Database\Relations\HasMany
+     * @return \October\Rain\Database\Relations\HasManyThrough
      */
     public function hasManyThrough($related, $through, $primaryKey = null, $throughKey = null, $localKey = null, $secondLocalKey = null, $relationName = null)
     {
@@ -533,6 +543,32 @@ trait HasRelationships
         $instance = $this->newRelatedInstance($related);
 
         return new HasManyThrough($instance->newQuery(), $this, $throughInstance, $primaryKey, $throughKey, $localKey, $secondLocalKey, $relationName);
+    }
+
+    /**
+     * Define a has-one-through relationship.
+     * This code is a duplicate of Eloquent but uses a Rain relation class.
+     * @return \October\Rain\Database\Relations\HasOneThrough
+     */
+    public function hasOneThrough($related, $through, $primaryKey = null, $throughKey = null, $localKey = null, $secondLocalKey = null, $relationName = null)
+    {
+        if (is_null($relationName)) {
+            $relationName = $this->getRelationCaller();
+        }
+
+        $throughInstance = new $through;
+
+        $primaryKey = $primaryKey ?: $this->getForeignKey();
+
+        $throughKey = $throughKey ?: $throughInstance->getForeignKey();
+
+        $localKey = $localKey ?: $this->getKeyName();
+
+        $secondLocalKey = $secondLocalKey ?: $throughInstance->getKeyName();
+
+        $instance = $this->newRelatedInstance($related);
+
+        return new HasOneThrough($instance->newQuery(), $this, $throughInstance, $primaryKey, $throughKey, $localKey, $secondLocalKey, $relationName);
     }
 
     /**
