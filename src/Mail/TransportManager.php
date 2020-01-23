@@ -16,7 +16,8 @@ class TransportManager extends BaseTransportManager
         $config = $this->container['config']->get('services.mandrill', []);
 
         return new MandrillTransport(
-            $this->guzzle($config), $config['secret']
+            $this->guzzle($config),
+            $config['secret']
         );
     }
 
@@ -30,7 +31,9 @@ class TransportManager extends BaseTransportManager
         $config = $this->container['config']->get('services.sparkpost', []);
 
         return new SparkPostTransport(
-            $this->guzzle($config), $config['secret'], $config['options'] ?? []
+            $this->guzzle($config),
+            $config['secret'],
+            $config['options'] ?? []
         );
     }
 }
