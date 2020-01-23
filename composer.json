@@ -27,7 +27,7 @@
         "symfony/yaml": "^3.4",
         "twig/twig": "~2.0",
         "league/csv": "~8.0",
-        "jenssegers/date": "~3.0",
+        "jenssegers/date": "^3.5",
         "laravel/tinker": "^1.0"
     },
     "require-dev": {
