@@ -317,7 +317,10 @@ class BelongsToMany extends BelongsToManyBase
             }
         }
 
-        if (!is_array($value)) {
+        /*
+         * Convert scalar to array
+         */
+        if (!is_array($value) && !$value instanceof CollectionBase) {
             $value = [$value];
         }
 
