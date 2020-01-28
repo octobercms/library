@@ -496,4 +496,17 @@ class Mailer extends MailerBase
             Config::set('mail.driver', $this->pretendingOriginal);
         }
     }
+
+    /**
+     * Set the global "to" address on the given message.
+     *
+     * This retains the Laravel 5.5 method name and wraps around the new method name to retain backwards compatibility.
+     *
+     * @param  \Illuminate\Mail\Message  $message
+     * @return void
+     */
+    protected function setGlobalTo($message)
+    {
+        $this->setGlobalToAndRemoveCcAndBcc($message);
+    }
 }
