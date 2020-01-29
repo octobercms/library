@@ -20,6 +20,13 @@ class ClassLoader
     public $files;
 
     /**
+     * A map of namespaces to directories.
+     *
+     * @var array
+     */
+    public $namespaceMap = [];
+
+    /**
      * The base path.
      *
      * @var string
@@ -80,7 +87,7 @@ class ClassLoader
      * Load the given class file.
      *
      * @param  string  $class
-     * @return void
+     * @return bool
      */
     public function load($class)
     {
@@ -92,19 +99,21 @@ class ClassLoader
             return true;
         }
 
-        list($lowerClass, $upperClass) = static::normalizeClass($class);
-
         foreach ($this->directories as $directory) {
-            if ($this->isRealFilePath($path = $directory.DIRECTORY_SEPARATOR.$lowerClass)) {
-                $this->includeClass($class, $path);
+            [$lowerPath, $upperPath] = static::normalizePath($class, $directory);
+
+            if ($this->isRealFilePath($lowerPath)) {
+                $this->includeClass($class, $lowerPath);
                 return true;
             }
 
-            if ($this->isRealFilePath($path = $directory.DIRECTORY_SEPARATOR.$upperClass)) {
-                $this->includeClass($class, $path);
+            if ($this->isRealFilePath($upperPath)) {
+                $this->includeClass($class, $upperPath);
                 return true;
             }
         }
+
+        return false;
     }
 
     /**
@@ -167,12 +176,33 @@ class ClassLoader
     /**
      * Add directories to the class loader.
      *
-     * @param  string|array  $directories
+     * Directories can be defined a single directory as a string, an array of directories as strings, or an array with
+     * a key/value that represents a path and expected namespace - ie. "tests" => "October\\Core\\Tests\\"
+     *
+     * @param string|array $directories
      * @return void
      */
     public function addDirectories($directories)
     {
-        $this->directories = array_merge($this->directories, (array) $directories);
+        // Traverse directories and map them to the directory or namespace map arrays as necessary
+        if (is_string($directories)) {
+            $this->directories[] = $directories;
+        } elseif (is_array($directories)) {
+            foreach ($directories as $path => $directory) {
+                if (is_string($directory)) {
+                    $this->directories[] = $directory;
+                } elseif (is_string($path)) {
+                    $this->directories[] = $path;
+                    $this->namespaceMap[$path] = $directory;
+                } elseif (is_array($directory)) {
+                    $path = key($directory);
+                    $directory = $directory[$path];
+
+                    $this->directories[] = $path;
+                    $this->namespaceMap[$path] = $directory;
+                }
+            }
+        }
 
         $this->directories = array_unique($this->directories);
     }
@@ -194,6 +224,9 @@ class ClassLoader
             $this->directories = array_filter($this->directories, function ($directory) use ($directories) {
                 return !in_array($directory, $directories);
             });
+            $this->namespaceMap = array_filter($this->namespaceMap, function ($directory) use ($directories) {
+                return !in_array($directory, $directories);
+            }, ARRAY_FILTER_USE_KEY);
         }
     }
 
@@ -208,10 +241,20 @@ class ClassLoader
     }
 
     /**
+     * Gets all the namespace maps registered with the loader.
+     *
+     * @return array
+     */
+    public function getNamespaceMap()
+    {
+        return $this->namespaceMap;
+    }
+
+    /**
      * Get the normal file name for a class.
      *
-     * @param  string  $class
-     * @return string
+     * @param string $class
+     * @return array
      */
     protected function normalizeClass($class)
     {
@@ -237,6 +280,47 @@ class ClassLoader
         $upperClass = $directory . DIRECTORY_SEPARATOR . $file . '.php';
 
         return [$lowerClass, $upperClass];
+    }
+
+    /**
+     * Get the normal (expected) file paths for a class based on the directory that's being searched.
+     *
+     * @param string $class
+     * @param string $directory
+     * @return array
+     */
+    protected function normalizePath($class, $directory)
+    {
+        [$lowerClass, $upperClass] = static::normalizeClass($class);
+
+        // If a namespace is assigned for this directory, map it to a directory structure in lower and normal form.
+        $lowerNS = $upperNS = null;
+
+        if (isset($this->namespaceMap[$directory])) {
+            $namespace = $this->namespaceMap[$directory];
+
+            // Ensure a trailing slash
+            if (substr($namespace, -1) !== '\\') {
+                $namespace .= '\\';
+            }
+
+            $lowerNS = str_replace(['\\', '_'], DIRECTORY_SEPARATOR, strtolower($namespace));
+            $upperNS = str_replace(['\\', '_'], DIRECTORY_SEPARATOR, $namespace);
+        }
+
+        // Return expected paths
+        $lowerPath = $directory
+            . DIRECTORY_SEPARATOR
+            . ((isset($lowerNS))
+                ? str_replace($lowerNS, '', $lowerClass)
+                : $lowerClass);
+        $upperPath = $directory
+            . DIRECTORY_SEPARATOR
+            . ((isset($upperNS))
+                ? str_replace($upperNS, '', $upperClass)
+                : $upperClass);
+
+        return [$lowerPath, $upperPath];
     }
 
     /**
