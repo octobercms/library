@@ -2,7 +2,7 @@
 
 use October\Rain\Parse\Ini as IniParser;
 
-class IniTest extends TestCase
+class IniTest extends \October\Rain\Tests\TestCase
 {
 
     public function testBasic()

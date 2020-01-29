@@ -4,7 +4,7 @@ use October\Rain\Exception\ApplicationException;
 use October\Rain\Network\Http;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 
-class HttpTest extends TestCase
+class HttpTest extends \October\Rain\Tests\TestCase
 {
     use ArraySubsetAsserts;
 

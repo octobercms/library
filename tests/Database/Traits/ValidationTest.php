@@ -1,6 +1,6 @@
 <?php
 
-class ValidationTest extends TestCase
+class ValidationTest extends \October\Rain\Tests\TestCase
 {
     use \October\Rain\Database\Traits\Validation;
 

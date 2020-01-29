@@ -1,6 +1,6 @@
 <?php
 
-class ModelAddersTest extends TestCase
+class ModelAddersTest extends \October\Rain\Tests\TestCase
 {
     public function testAddCasts()
     {

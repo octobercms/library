@@ -2,7 +2,7 @@
 
 use October\Rain\Parse\Syntax\FieldParser;
 
-class SyntaxFieldParserTest extends TestCase
+class SyntaxFieldParserTest extends \October\Rain\Tests\TestCase
 {
 
     public function testParse()

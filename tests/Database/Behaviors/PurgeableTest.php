@@ -2,7 +2,7 @@
 
 use October\Rain\Database\Model;
 
-class PurgeableTest extends TestCase
+class PurgeableTest extends \October\Rain\Tests\TestCase
 {
     public function testDirectImplementation()
     {

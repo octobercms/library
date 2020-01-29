@@ -2,7 +2,7 @@
 
 use October\Rain\Parse\Assetic\StylesheetMinify;
 
-class StylesheetMinifyTest extends TestCase
+class StylesheetMinifyTest extends \October\Rain\Tests\TestCase
 {
     public function testUnitRemoval()
     {

@@ -5,7 +5,7 @@ use October\Rain\Events\Dispatcher;
 use October\Rain\Translation\FileLoader;
 use October\Rain\Translation\Translator;
 
-class TranslatorTest extends TestCase
+class TranslatorTest extends \October\Rain\Tests\TestCase
 {
     /**
      * @var Translator

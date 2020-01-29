@@ -2,7 +2,7 @@
 
 use October\Rain\Database\Attach\Resizer;
 
-class ResizerTest extends TestCase
+class ResizerTest extends \October\Rain\Tests\TestCase
 {
     use \AssertGD\GDAssertTrait;
 

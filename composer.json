@@ -71,18 +71,11 @@
             "src/Parse/Assetic/Less/lessc.inc.php"
         ],
         "psr-4": {
-            "October\\Rain\\": "src/"
+            "October\\Rain\\": "src/",
+            "October\\Rain\\Tests\\": "tests/"
         },
         "psr-0": {
             "Less": "src/Parse/Assetic/Less/lib/"
-        }
-    },
-    "autoload-dev": {
-        "classmap": [
-            "tests/TestCase.php"
-        ],
-        "psr-4": {
-            "October\\Rain\\Tests\\": "tests/"
         }
     },
     "extra": {

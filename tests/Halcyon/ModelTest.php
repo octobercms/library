@@ -5,7 +5,7 @@ use October\Rain\Halcyon\Datasource\Resolver;
 use October\Rain\Halcyon\Datasource\FileDatasource;
 use October\Rain\Filesystem\Filesystem;
 
-class HalcyonModelTest extends TestCase
+class HalcyonModelTest extends \October\Rain\Tests\TestCase
 {
     protected $resolver;
 
