@@ -24,6 +24,7 @@
         "erusev/parsedown-extra": "~0.8",
         "assetic/framework": "dev-2.0/dev",
         "linkorb/jsmin-php": "~1.0",
+        "scssphp/scssphp": "~1.0.6",
         "symfony/yaml": "^3.4",
         "twig/twig": "~2.0",
         "league/csv": "~8.0",
