@@ -2,7 +2,7 @@
 
 use October\Rain\Router\Helper;
 
-class RouterHelperTest extends TestCase
+class RouterHelperTest extends \October\Rain\Tests\TestCase
 {
     public function testSegmentIsOptional()
     {

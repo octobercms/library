@@ -770,9 +770,7 @@ class Builder
      */
     public static function clearInternalCache()
     {
-        if (MemoryCacheManager::isEnabled()) {
-            Model::getCacheManager()->driver()->flushInternalCache();
-        }
+        Model::flushDuplicateCache();
     }
 
     /**

@@ -2,7 +2,7 @@
 
 use October\Rain\Database\Dongle;
 
-class DongleTest extends TestCase
+class DongleTest extends \October\Rain\Tests\TestCase
 {
     public function testSqliteParseConcat()
     {

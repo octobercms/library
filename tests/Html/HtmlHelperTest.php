@@ -2,7 +2,7 @@
 
 use October\Rain\Html\Helper as HtmlHelper;
 
-class HtmlHelperTest extends TestCase
+class HtmlHelperTest extends \October\Rain\Tests\TestCase
 {
     public function testNameToId()
     {

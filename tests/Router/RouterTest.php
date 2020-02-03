@@ -2,7 +2,7 @@
 
 use October\Rain\Router\Router;
 
-class RouteTest extends TestCase
+class RouteTest extends \October\Rain\Tests\TestCase
 {
     public function testResolveUrl()
     {

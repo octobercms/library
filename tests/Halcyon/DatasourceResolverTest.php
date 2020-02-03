@@ -4,7 +4,7 @@ use October\Rain\Filesystem\Filesystem;
 use October\Rain\Halcyon\Datasource\Resolver;
 use October\Rain\Halcyon\Datasource\FileDatasource;
 
-class DatasourceResolverTest extends TestCase
+class DatasourceResolverTest extends \October\Rain\Tests\TestCase
 {
 
     public function testConstruct()

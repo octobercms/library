@@ -1,5 +1,5 @@
 <?php
-class ValidationTraitTest extends TestCase
+class ValidationTraitTest extends \October\Rain\Tests\TestCase
 {
     public function testArrayFieldNames()
     {
