@@ -62,6 +62,7 @@ class {{studly_name}} extends Model
      */
     public $hasOne = [];
     public $hasMany = [];
+    public $hasManyThrough = [];
     public $belongsTo = [];
     public $belongsToMany = [];
     public $morphTo = [];
