@@ -1554,7 +1554,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public static function flushDuplicateCache()
     {
-        if (MemoryCacheManager::isEnabled()) {
+        if (MemoryCacheManager::isEnabled() && self::getCacheManager() !== null) {
             self::getCacheManager()->driver()->flushInternalCache();
         }
     }
