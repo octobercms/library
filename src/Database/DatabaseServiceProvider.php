@@ -29,10 +29,9 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
     public function register()
     {
         Model::clearBootedModels();
-
         Model::clearExtendedClasses();
-
         Model::flushDuplicateCache();
+        Model::flushEventListeners();
 
         $this->registerEloquentFactory();
 
