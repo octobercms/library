@@ -36,6 +36,7 @@ class HalcyonServiceProvider extends ServiceProvider
     {
         Model::clearBootedModels();
         Model::clearExtendedClasses();
+        Model::flushDuplicateCache();
         Model::flushEventListeners();
 
         // The halcyon resolver is used to resolve various datasources,

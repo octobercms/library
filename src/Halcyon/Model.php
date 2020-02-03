@@ -1549,6 +1549,17 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
+     * Flush the memory cache.
+     * @return void
+     */
+    public static function flushDuplicateCache()
+    {
+        if (MemoryCacheManager::isEnabled()) {
+            self::getCacheManager()->driver()->flushInternalCache();
+        }
+    }
+
+    /**
      * Get the mutated attributes for a given instance.
      *
      * @return array
