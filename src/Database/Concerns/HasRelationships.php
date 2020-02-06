@@ -154,7 +154,7 @@ trait HasRelationships
     }
 
     /**
-     * Returns all defined relations of given type.
+     * Returns the given relation definition.
      * @param string $type Relation type
      * @param string $name Relation name
      * @return array
