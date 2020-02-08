@@ -3,7 +3,7 @@
 use Event;
 use Assetic\Contracts\Asset\AssetInterface;
 use Assetic\Factory\AssetFactory;
-use Assetic\Filter\ScssFilter;
+use Assetic\Filter\ScssphpFilter;
 use Assetic\Contracts\Filter\HashableInterface;
 use Assetic\Contracts\Filter\DependencyExtractorInterface;
 
@@ -14,7 +14,7 @@ use Assetic\Contracts\Filter\DependencyExtractorInterface;
  * @package october/parse
  * @author Alexey Bobkov, Samuel Georges
  */
-class ScssCompiler extends ScssFilter implements HashableInterface, DependencyExtractorInterface
+class ScssCompiler extends ScssphpFilter implements HashableInterface, DependencyExtractorInterface
 {
     protected $currentFiles = [];
 
