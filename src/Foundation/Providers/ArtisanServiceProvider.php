@@ -34,6 +34,7 @@ class ArtisanServiceProvider extends ArtisanServiceProviderBase
         'RouteList'       => 'command.route.list',
         'ScheduleFinish'  => \Illuminate\Console\Scheduling\ScheduleFinishCommand::class,
         'ScheduleRun'     => \Illuminate\Console\Scheduling\ScheduleRunCommand::class,
+        'Seed'            => 'command.seed',
         'StorageLink'     => 'command.storage.link',
         'Up'              => 'command.up',
         'ViewClear'       => 'command.view.clear',
