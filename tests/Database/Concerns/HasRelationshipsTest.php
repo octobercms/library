@@ -18,7 +18,7 @@ class HasRelationshipsTest extends TestCase
         });
         $model = new TestModelBelongsTo();
         $this->assertEquals([
-            'relatedModel' => 'TestModelNoRelation', 
+            'relatedModel' => 'TestModelNoRelation',
             'secondRelatedModel' => 'TestModelNoRelation'
         ], $model->getRelationTypeDefinitions('belongsTo'));
     }
@@ -43,23 +43,19 @@ class HasRelationshipsTest extends TestCase
 }
 
 /*
- * Class with implementation in the class itself
+ * Class with belongsTo relation
  */
 class TestModelBelongsTo extends Model
 {
     public $belongsTo = [
         'relatedModel' => 'TestModelNoRelation'
     ];
-    
-    public $purgeable = [];
 }
 
 /*
- * Class with implementation in the class itself but without property
+ * Class with no belongsTo relation
  */
 class TestModelNoRelation extends Model
 {
-    public $implement = [
-        'October.Rain.Database.Behaviors.Purgeable'
-    ];
+
 }
