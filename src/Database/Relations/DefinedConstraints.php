@@ -67,9 +67,9 @@ trait DefinedConstraints
             $countSql = $this->parent->getConnection()->raw('count(*) as count');
 
             $relation
-                ->select($relation->getForeignKey(), $countSql)
-                ->groupBy($relation->getForeignKey())
-                ->orderBy($relation->getForeignKey())
+                ->select($relation->getQualifiedForeignKeyName(), $countSql)
+                ->groupBy($relation->getQualifiedForeignKeyName())
+                ->orderBy($relation->getQualifiedForeignKeyName())
             ;
         }
     }
