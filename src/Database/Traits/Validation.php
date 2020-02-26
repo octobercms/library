@@ -60,25 +60,28 @@ trait Validation
         }
 
         static::extend(function ($model) {
-            $model->bindEvent('model.saveInternal', function ($data, $options) use ($model) {
-                /*
-                 * If forcing the save event, the beforeValidate/afterValidate
-                 * events should still fire for consistency. So validate an
-                 * empty set of rules and messages.
-                 */
-                $force = array_get($options, 'force', false);
-                if ($force) {
-                    $valid = $model->validate([], []);
-                }
-                else {
-                    $valid = $model->validate();
-                }
-
-                if (!$valid) {
-                    return false;
-                }
-            }, 500);
+            $model->bindEvent('model.saveInternal', [$model, 'saveInternalHandler'], 500);
         });
+    }
+
+    public function saveInternalHandler($data, $options)
+    {
+        /*
+         * If forcing the save event, the beforeValidate/afterValidate
+         * events should still fire for consistency. So validate an
+         * empty set of rules and messages.
+         */
+        $force = array_get($options, 'force', false);
+        if ($force) {
+            $valid = $this->validate([], []);
+        }
+        else {
+            $valid = $this->validate();
+        }
+
+        if (!$valid) {
+            return false;
+        }
     }
 
     /**
