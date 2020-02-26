@@ -33,7 +33,8 @@ class FilesystemManager extends BaseFilesystemManager
         $root = $config['root'] ?? null;
 
         return $this->adapt($this->createFlysystem(
-            new RackspaceAdapter($this->getRackspaceContainer($client, $config), $root), $config
+            new RackspaceAdapter($this->getRackspaceContainer($client, $config), $root),
+            $config
         ));
     }
 
