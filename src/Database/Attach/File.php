@@ -447,7 +447,7 @@ class File extends Model
 
     /**
      * Before the model is saved
-     * - check if new file data has been supplied, eg: $model->data = Request::file('something');
+     * - check if new file data has been supplied, eg: $model->data = Input::file('something');
      */
     public function beforeSave()
     {

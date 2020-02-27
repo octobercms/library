@@ -13,11 +13,11 @@ class MorphTo extends MorphToBase
      */
     protected $relationName;
 
-    public function __construct(Builder $query, Model $parent, $foreignKey, $ownerKey, $type, $relationName)
+    public function __construct(Builder $query, Model $parent, $foreignKey, $otherKey, $type, $relationName)
     {
         $this->relationName = $relationName;
 
-        parent::__construct($query, $parent, $foreignKey, $ownerKey, $type, $relationName);
+        parent::__construct($query, $parent, $foreignKey, $otherKey, $type, $relationName);
 
         $this->addDefinedConstraints();
     }

@@ -12,7 +12,7 @@ use Exception;
  *          ->save(string 'path/to/file.jpg', int $quality);
  *
  *      // Resize and save an image.
- *      Resizer::open(Request::file('field_name'))
+ *      Resizer::open(Input::file('field_name'))
  *          ->resize(800, 600, 'crop')
  *          ->save('path/to/file.jpg', 100);
  *
@@ -72,7 +72,7 @@ class Resizer
 
     /**
      * Instantiates the Resizer and receives the path to an image we're working with
-     * @param mixed $file The file array provided by Laravel's Request::file('field_name') or a path to a file
+     * @param mixed $file The file array provided by Laravel's Input::file('field_name') or a path to a file
      * @throws Exception
      */
     public function __construct($file)
@@ -107,7 +107,7 @@ class Resizer
     /**
      * Static call, Laravel style.
      * Returns a new Resizer object, allowing for chainable calls
-     * @param  mixed $file The file array provided by Laravel's Request::file('field_name') or a path to a file
+     * @param  mixed $file The file array provided by Laravel's Input::file('field_name') or a path to a file
      * @return Resizer
      * @throws Exception
      */

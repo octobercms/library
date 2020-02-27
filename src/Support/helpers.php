@@ -1,5 +1,9 @@
 <?php
 
+use October\Rain\Support\Arr;
+use October\Rain\Support\Str;
+use October\Rain\Support\Collection;
+
 if (!function_exists('input')) {
     /**
      * Returns an input parameter or the default value.
@@ -17,7 +21,7 @@ if (!function_exists('input')) {
     function input($name = null, $default = null)
     {
         if ($name === null) {
-            return Request::all();
+            return Input::all();
         }
 
         /*
@@ -27,7 +31,7 @@ if (!function_exists('input')) {
             $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
         }
 
-        return Request::input($name, $default);
+        return Input::get($name, $default);
     }
 }
 
@@ -243,18 +247,17 @@ if (!function_exists('trans')) {
     }
 }
 
-if (!function_exists('__')) {
+if (!function_exists('array_build')) {
     /**
-     * Translate the given message.
+     * Build a new array using a callback.
      *
-     * @param  string|null  $id
-     * @param  array   $parameters
-     * @param  string|null  $locale
-     * @return string
+     * @param  array  $array
+     * @param  callable  $callback
+     * @return array
      */
-    function __($id = null, $parameters = [], $locale = null)
+    function array_build($array, callable $callback)
     {
-        return trans($id, $parameters, $locale);
+        return Arr::build($array, $callback);
     }
 }
 
@@ -267,59 +270,7 @@ if (!function_exists('collect')) {
      */
     function collect($value = null)
     {
-        return new \October\Rain\Support\Collection($value);
-    }
-}
-
-// PECL HTTP constant definitions
-if (!defined('HTTP_URL_REPLACE')) {
-    define('HTTP_URL_REPLACE', 1);
-}
-if (!defined('HTTP_URL_JOIN_PATH')) {
-    define('HTTP_URL_JOIN_PATH', 2);
-}
-if (!defined('HTTP_URL_JOIN_QUERY')) {
-    define('HTTP_URL_JOIN_QUERY', 4);
-}
-if (!defined('HTTP_URL_STRIP_USER')) {
-    define('HTTP_URL_STRIP_USER', 8);
-}
-if (!defined('HTTP_URL_STRIP_PASS')) {
-    define('HTTP_URL_STRIP_PASS', 16);
-}
-if (!defined('HTTP_URL_STRIP_AUTH')) {
-    define('HTTP_URL_STRIP_AUTH', 32);
-}
-if (!defined('HTTP_URL_STRIP_PORT')) {
-    define('HTTP_URL_STRIP_PORT', 64);
-}
-if (!defined('HTTP_URL_STRIP_PATH')) {
-    define('HTTP_URL_STRIP_PATH', 128);
-}
-if (!defined('HTTP_URL_STRIP_QUERY')) {
-    define('HTTP_URL_STRIP_QUERY', 256);
-}
-if (!defined('HTTP_URL_STRIP_FRAGMENT')) {
-    define('HTTP_URL_STRIP_FRAGMENT', 512);
-}
-if (!defined('HTTP_URL_STRIP_ALL')) {
-    define('HTTP_URL_STRIP_ALL', 1024);
-}
-
-if (!function_exists('http_build_url')) {
-    /**
-     * Polyfill for `http_build_url` method provided by PECL HTTP extension.
-     *
-     * @see \October\Rain\Router\UrlGenerator::buildUrl()
-     * @param array $url
-     * @param array $replace
-     * @param mixed $flags
-     * @param array $newUrl
-     * @return string
-     */
-    function http_build_url(array $url, array $replace = [], $flags = HTTP_URL_REPLACE, array &$newUrl = []): string
-    {
-        return \October\Rain\Router\UrlGenerator::buildUrl($url, $replace, $flags, $newUrl);
+        return new Collection($value);
     }
 }
 
@@ -336,10 +287,6 @@ if (!function_exists('is_countable')) {
     }
 }
 
-/**
- * Laravel helpers
- */
-
 if (!function_exists('array_add')) {
     /**
      * Add an element to an array using "dot" notation if it doesn't exist.
@@ -351,21 +298,7 @@ if (!function_exists('array_add')) {
      */
     function array_add($array, $key, $value)
     {
-        return \October\Rain\Support\Arr::add($array, $key, $value);
-    }
-}
-
-if (!function_exists('array_build')) {
-    /**
-     * Build a new array using a callback.
-     *
-     * @param  array  $array
-     * @param  callable  $callback
-     * @return array
-     */
-    function array_build($array, callable $callback)
-    {
-        return \October\Rain\Support\Arr::build($array, $callback);
+        return Arr::add($array, $key, $value);
     }
 }
 
@@ -378,7 +311,7 @@ if (!function_exists('array_collapse')) {
      */
     function array_collapse($array)
     {
-        return \October\Rain\Support\Arr::collapse($array);
+        return Arr::collapse($array);
     }
 }
 
@@ -391,7 +324,7 @@ if (!function_exists('array_divide')) {
      */
     function array_divide($array)
     {
-        return \October\Rain\Support\Arr::divide($array);
+        return Arr::divide($array);
     }
 }
 
@@ -405,7 +338,7 @@ if (!function_exists('array_dot')) {
      */
     function array_dot($array, $prepend = '')
     {
-        return \October\Rain\Support\Arr::dot($array, $prepend);
+        return Arr::dot($array, $prepend);
     }
 }
 
@@ -419,7 +352,7 @@ if (!function_exists('array_except')) {
      */
     function array_except($array, $keys)
     {
-        return \October\Rain\Support\Arr::except($array, $keys);
+        return Arr::except($array, $keys);
     }
 }
 
@@ -434,7 +367,7 @@ if (!function_exists('array_first')) {
      */
     function array_first($array, callable $callback = null, $default = null)
     {
-        return \October\Rain\Support\Arr::first($array, $callback, $default);
+        return Arr::first($array, $callback, $default);
     }
 }
 
@@ -448,7 +381,7 @@ if (!function_exists('array_flatten')) {
      */
     function array_flatten($array, $depth = INF)
     {
-        return \October\Rain\Support\Arr::flatten($array, $depth);
+        return Arr::flatten($array, $depth);
     }
 }
 
@@ -462,7 +395,7 @@ if (!function_exists('array_forget')) {
      */
     function array_forget(&$array, $keys)
     {
-        \October\Rain\Support\Arr::forget($array, $keys);
+        Arr::forget($array, $keys);
     }
 }
 
@@ -471,13 +404,13 @@ if (!function_exists('array_get')) {
      * Get an item from an array using "dot" notation.
      *
      * @param  \ArrayAccess|array  $array
-     * @param  string  $key
+     * @param  string|int  $key
      * @param  mixed  $default
      * @return mixed
      */
     function array_get($array, $key, $default = null)
     {
-        return \October\Rain\Support\Arr::get($array, $key, $default);
+        return Arr::get($array, $key, $default);
     }
 }
 
@@ -491,7 +424,7 @@ if (!function_exists('array_has')) {
      */
     function array_has($array, $keys)
     {
-        return \October\Rain\Support\Arr::has($array, $keys);
+        return Arr::has($array, $keys);
     }
 }
 
@@ -506,7 +439,7 @@ if (!function_exists('array_last')) {
      */
     function array_last($array, callable $callback = null, $default = null)
     {
-        return \October\Rain\Support\Arr::last($array, $callback, $default);
+        return Arr::last($array, $callback, $default);
     }
 }
 
@@ -520,7 +453,7 @@ if (!function_exists('array_only')) {
      */
     function array_only($array, $keys)
     {
-        return \October\Rain\Support\Arr::only($array, $keys);
+        return Arr::only($array, $keys);
     }
 }
 
@@ -535,7 +468,7 @@ if (!function_exists('array_pluck')) {
      */
     function array_pluck($array, $value, $key = null)
     {
-        return \October\Rain\Support\Arr::pluck($array, $value, $key);
+        return Arr::pluck($array, $value, $key);
     }
 }
 
@@ -550,7 +483,7 @@ if (!function_exists('array_prepend')) {
      */
     function array_prepend($array, $value, $key = null)
     {
-        return \October\Rain\Support\Arr::prepend($array, $value, $key);
+        return Arr::prepend($array, $value, $key);
     }
 }
 
@@ -565,7 +498,7 @@ if (!function_exists('array_pull')) {
      */
     function array_pull(&$array, $key, $default = null)
     {
-        return \October\Rain\Support\Arr::pull($array, $key, $default);
+        return Arr::pull($array, $key, $default);
     }
 }
 
@@ -579,7 +512,7 @@ if (!function_exists('array_random')) {
      */
     function array_random($array, $num = null)
     {
-        return \October\Rain\Support\Arr::random($array, $num);
+        return Arr::random($array, $num);
     }
 }
 
@@ -596,7 +529,7 @@ if (!function_exists('array_set')) {
      */
     function array_set(&$array, $key, $value)
     {
-        return \October\Rain\Support\Arr::set($array, $key, $value);
+        return Arr::set($array, $key, $value);
     }
 }
 
@@ -610,7 +543,7 @@ if (!function_exists('array_sort')) {
      */
     function array_sort($array, $callback = null)
     {
-        return \October\Rain\Support\Arr::sort($array, $callback);
+        return Arr::sort($array, $callback);
     }
 }
 
@@ -623,7 +556,7 @@ if (!function_exists('array_sort_recursive')) {
      */
     function array_sort_recursive($array)
     {
-        return \October\Rain\Support\Arr::sortRecursive($array);
+        return Arr::sortRecursive($array);
     }
 }
 
@@ -637,7 +570,7 @@ if (!function_exists('array_where')) {
      */
     function array_where($array, callable $callback)
     {
-        return \October\Rain\Support\Arr::where($array, $callback);
+        return Arr::where($array, $callback);
     }
 }
 
@@ -650,7 +583,7 @@ if (!function_exists('array_wrap')) {
      */
     function array_wrap($value)
     {
-        return \October\Rain\Support\Arr::wrap($value);
+        return Arr::wrap($value);
     }
 }
 
@@ -663,7 +596,7 @@ if (!function_exists('camel_case')) {
      */
     function camel_case($value)
     {
-        return \October\Rain\Support\Str::camel($value);
+        return Str::camel($value);
     }
 }
 
@@ -677,7 +610,7 @@ if (!function_exists('ends_with')) {
      */
     function ends_with($haystack, $needles)
     {
-        return \October\Rain\Support\Str::endsWith($haystack, $needles);
+        return Str::endsWith($haystack, $needles);
     }
 }
 
@@ -690,7 +623,7 @@ if (!function_exists('kebab_case')) {
      */
     function kebab_case($value)
     {
-        return \October\Rain\Support\Str::kebab($value);
+        return Str::kebab($value);
     }
 }
 
@@ -704,7 +637,7 @@ if (!function_exists('snake_case')) {
      */
     function snake_case($value, $delimiter = '_')
     {
-        return \October\Rain\Support\Str::snake($value, $delimiter);
+        return Str::snake($value, $delimiter);
     }
 }
 
@@ -718,7 +651,7 @@ if (!function_exists('starts_with')) {
      */
     function starts_with($haystack, $needles)
     {
-        return \October\Rain\Support\Str::startsWith($haystack, $needles);
+        return Str::startsWith($haystack, $needles);
     }
 }
 
@@ -732,7 +665,7 @@ if (!function_exists('str_after')) {
      */
     function str_after($subject, $search)
     {
-        return \October\Rain\Support\Str::after($subject, $search);
+        return Str::after($subject, $search);
     }
 }
 
@@ -746,7 +679,7 @@ if (!function_exists('str_before')) {
      */
     function str_before($subject, $search)
     {
-        return \October\Rain\Support\Str::before($subject, $search);
+        return Str::before($subject, $search);
     }
 }
 
@@ -760,7 +693,7 @@ if (!function_exists('str_contains')) {
      */
     function str_contains($haystack, $needles)
     {
-        return \October\Rain\Support\Str::contains($haystack, $needles);
+        return Str::contains($haystack, $needles);
     }
 }
 
@@ -774,7 +707,7 @@ if (!function_exists('str_finish')) {
      */
     function str_finish($value, $cap)
     {
-        return \October\Rain\Support\Str::finish($value, $cap);
+        return Str::finish($value, $cap);
     }
 }
 
@@ -788,7 +721,7 @@ if (!function_exists('str_is')) {
      */
     function str_is($pattern, $value)
     {
-        return \October\Rain\Support\Str::is($pattern, $value);
+        return Str::is($pattern, $value);
     }
 }
 
@@ -803,7 +736,7 @@ if (!function_exists('str_limit')) {
      */
     function str_limit($value, $limit = 100, $end = '...')
     {
-        return \October\Rain\Support\Str::limit($value, $limit, $end);
+        return Str::limit($value, $limit, $end);
     }
 }
 
@@ -817,7 +750,7 @@ if (!function_exists('str_plural')) {
      */
     function str_plural($value, $count = 2)
     {
-        return \October\Rain\Support\Str::plural($value, $count);
+        return Str::plural($value, $count);
     }
 }
 
@@ -832,7 +765,7 @@ if (!function_exists('str_random')) {
      */
     function str_random($length = 16)
     {
-        return \October\Rain\Support\Str::random($length);
+        return Str::random($length);
     }
 }
 
@@ -847,7 +780,7 @@ if (!function_exists('str_replace_array')) {
      */
     function str_replace_array($search, array $replace, $subject)
     {
-        return \October\Rain\Support\Str::replaceArray($search, $replace, $subject);
+        return Str::replaceArray($search, $replace, $subject);
     }
 }
 
@@ -862,7 +795,7 @@ if (!function_exists('str_replace_first')) {
      */
     function str_replace_first($search, $replace, $subject)
     {
-        return \October\Rain\Support\Str::replaceFirst($search, $replace, $subject);
+        return Str::replaceFirst($search, $replace, $subject);
     }
 }
 
@@ -877,7 +810,7 @@ if (!function_exists('str_replace_last')) {
      */
     function str_replace_last($search, $replace, $subject)
     {
-        return \October\Rain\Support\Str::replaceLast($search, $replace, $subject);
+        return Str::replaceLast($search, $replace, $subject);
     }
 }
 
@@ -890,7 +823,7 @@ if (!function_exists('str_singular')) {
      */
     function str_singular($value)
     {
-        return \October\Rain\Support\Str::singular($value);
+        return Str::singular($value);
     }
 }
 
@@ -905,7 +838,7 @@ if (!function_exists('str_slug')) {
      */
     function str_slug($title, $separator = '-', $language = 'en')
     {
-        return \October\Rain\Support\Str::slug($title, $separator, $language);
+        return Str::slug($title, $separator, $language);
     }
 }
 
@@ -919,7 +852,7 @@ if (!function_exists('str_start')) {
      */
     function str_start($value, $prefix)
     {
-        return \October\Rain\Support\Str::start($value, $prefix);
+        return Str::start($value, $prefix);
     }
 }
 
@@ -932,7 +865,7 @@ if (!function_exists('studly_case')) {
      */
     function studly_case($value)
     {
-        return \October\Rain\Support\Str::studly($value);
+        return Str::studly($value);
     }
 }
 
@@ -945,6 +878,6 @@ if (!function_exists('title_case')) {
      */
     function title_case($value)
     {
-        return \October\Rain\Support\Str::title($value);
+        return Str::title($value);
     }
 }

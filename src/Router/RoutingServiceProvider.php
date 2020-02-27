@@ -42,7 +42,7 @@ class RoutingServiceProvider extends RoutingServiceProviderBase
             $url->setSessionResolver(function () {
                 return $this->app['session'];
             });
-    
+
             $url->setKeyResolver(function () {
                 return $this->app->make('config')->get('app.key');
             });
