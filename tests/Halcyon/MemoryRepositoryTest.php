@@ -3,7 +3,7 @@
 use October\Rain\Halcyon\MemoryRepository;
 use Illuminate\Cache\ArrayStore;
 
-class MemoryRepositoryTest extends \October\Rain\Tests\TestCase
+class MemoryRepositoryTest extends TestCase
 {
     protected $repository;
 

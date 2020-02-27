@@ -2,7 +2,7 @@
 
 use October\Rain\Parse\Bracket as TextParser;
 
-class BracketTest extends \October\Rain\Tests\TestCase
+class BracketTest extends TestCase
 {
 
     public function testParseCombination()

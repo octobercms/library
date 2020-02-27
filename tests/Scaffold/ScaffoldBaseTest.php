@@ -14,7 +14,7 @@ class ScaffoldBaseTestCommand extends GeneratorCommand
     }
 }
 
-class ScaffoldBaseTest extends \October\Rain\Tests\TestCase
+class ScaffoldBaseTest extends TestCase
 {
     //
     // Helpers

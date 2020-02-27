@@ -1,6 +1,6 @@
 <?php
 
-class SortableTest extends \October\Rain\Tests\TestCase
+class SortableTest extends TestCase
 {
     public function setUp(): void
     {

@@ -2,7 +2,7 @@
 
 use October\Rain\Html\HtmlBuilder;
 
-class HtmlBuilderTest extends \October\Rain\Tests\TestCase
+class HtmlBuilderTest extends TestCase
 {
     public function testStrip()
     {

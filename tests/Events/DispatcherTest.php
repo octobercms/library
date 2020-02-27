@@ -4,7 +4,7 @@ use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use October\Rain\Events\Dispatcher;
 
-class DispatcherTest extends \October\Rain\Tests\TestCase
+class DispatcherTest extends TestCase
 {
     /**
      * @var Dispatcher

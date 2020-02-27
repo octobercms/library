@@ -3,7 +3,7 @@
 use October\Rain\Extension\Extendable;
 use October\Rain\Extension\ExtensionBase;
 
-class ExtendableTest extends \October\Rain\Tests\TestCase
+class ExtendableTest extends TestCase
 {
     public function testExtendingExtendableClass()
     {

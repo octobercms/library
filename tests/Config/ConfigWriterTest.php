@@ -2,7 +2,7 @@
 
 use October\Rain\Config\ConfigWriter;
 
-class ConfigWriterTest extends \October\Rain\Tests\TestCase
+class ConfigWriterTest extends TestCase
 {
     public function testToFile()
     {

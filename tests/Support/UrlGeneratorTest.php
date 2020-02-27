@@ -1,7 +1,7 @@
 <?php
 use October\Rain\Router\UrlGenerator;
 
-class UrlGeneratorTest extends \October\Rain\Tests\TestCase
+class UrlGeneratorTest extends TestCase
 {
     public function testSimpleUrl()
     {

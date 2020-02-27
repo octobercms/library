@@ -2,7 +2,7 @@
 
 use October\Rain\Mail\Mailer;
 
-class MailerTest extends \October\Rain\Tests\TestCase
+class MailerTest extends TestCase
 {
     //
     // Helpers

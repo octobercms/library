@@ -2,7 +2,7 @@
 
 use October\Rain\Database\Attach\Resizer;
 
-class ResizerTest extends \October\Rain\Tests\TestCase
+class ResizerTest extends TestCase
 {
     use \AssertGD\GDAssertTrait;
 
@@ -316,6 +316,10 @@ class ResizerTest extends \October\Rain\Tests\TestCase
      */
     public function testResizeAutoExifRotated30x30()
     {
+        if (!function_exists('exif_read_data')) {
+            $this->markTestSkipped('Missing exif extension');
+        }
+
         $this->setSource(self::SRC_LANDSCAPE_ROTATED);
         $this->createFixtureResizer();
         $this->resizer->resize(30, 30);
@@ -377,9 +381,11 @@ class ResizerTest extends \October\Rain\Tests\TestCase
     protected function buildTargetFixturePath(string $methodName)
     {
         $filename = str_replace(__CLASS__ . '::', '', $methodName);
+
         if (!is_dir(self::TMP_TEST_FILE_PATH)) {
             mkdir(self::TMP_TEST_FILE_PATH);
         }
+
         $this->tmpTarget = self::TMP_TEST_FILE_PATH . $filename . '.' . $this->extension;
         $this->target = self::FIXTURE_TARGET_PATH . $filename . '.' . $this->extension;
     }
@@ -394,7 +400,8 @@ class ResizerTest extends \October\Rain\Tests\TestCase
     {
         if (self::GENERATE_NEW_FIXTURES) {
             $this->generateFixture($methodName);
-        } else {
+        }
+        else {
             $this->buildTargetFixturePath($methodName);
 
             // Save resizer result to temp file

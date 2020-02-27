@@ -2,7 +2,7 @@
 
 use October\Rain\Parse\Syntax\Parser;
 
-class SyntaxParserTest extends \October\Rain\Tests\TestCase
+class SyntaxParserTest extends TestCase
 {
 
     public function testParseToTwig()

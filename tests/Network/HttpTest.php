@@ -2,11 +2,10 @@
 
 use October\Rain\Exception\ApplicationException;
 use October\Rain\Network\Http;
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 
-class HttpTest extends \October\Rain\Tests\TestCase
+class HttpTest extends TestCase
 {
-    use ArraySubsetAsserts;
+    use \DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 
     /**
      * Http object fixture

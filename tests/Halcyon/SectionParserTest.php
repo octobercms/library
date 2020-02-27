@@ -2,7 +2,7 @@
 
 use October\Rain\Halcyon\Processors\SectionParser;
 
-class SectionParserTest extends \October\Rain\Tests\TestCase
+class SectionParserTest extends TestCase
 {
     public function testParse()
     {

@@ -2,7 +2,7 @@
 
 use October\Rain\Database\Updater;
 
-class UpdaterTest extends \October\Rain\Tests\TestCase
+class UpdaterTest extends TestCase
 {
     public function setUp(): void
     {

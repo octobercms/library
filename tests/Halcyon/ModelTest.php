@@ -5,7 +5,7 @@ use October\Rain\Halcyon\Datasource\Resolver;
 use October\Rain\Halcyon\Datasource\FileDatasource;
 use October\Rain\Filesystem\Filesystem;
 
-class HalcyonModelTest extends \October\Rain\Tests\TestCase
+class HalcyonModelTest extends TestCase
 {
     protected $resolver;
 
@@ -310,7 +310,7 @@ ESC;
     public function testPageWithNestedValidationPass()
     {
         $this->expectNotToPerformAssertions();
-        
+
         $page = new HalcyonTestPageWithValidation;
         $page->fileName = 'with-validation';
         $page->title = "Pass";
@@ -346,7 +346,7 @@ ESC;
         $page->save();
         $page = HalcyonTestPage::find('dynamicproperty');
         $this->assertNotNull($page);
-        // dynamic properties should not be saved to DB layer
+        // Dynamic properties should not be saved to DB layer
         $this->assertArrayNotHasKey('myDynamicProperty', $page->attributes);
         @unlink($targetFile);
     }

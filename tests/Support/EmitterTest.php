@@ -1,6 +1,6 @@
 <?php
 
-class EmitterTest extends \October\Rain\Tests\TestCase
+class EmitterTest extends TestCase
 {
     /**
      * The object under test.
