@@ -16,7 +16,7 @@ class LogServiceProvider extends LogServiceProviderBase
         /*
          * After registration
          */
-        $this->app->booting(function() {
+        $this->app->booting(function () {
             $this->configureDefaultLogger();
         });
     }
