@@ -175,6 +175,15 @@ class Rule
                     return false;
                 }
 
+                $paramValue = $urlSegments[$index];
+
+                /*
+                 * Determine if wildcard and add stored parameters as a suffix
+                 */
+                if (Helper::segmentIsWildcard($patternSegment) && count($wildSegments)) {
+                    $paramValue .= Helper::rebuildUrl($wildSegments);
+                }
+
                 /*
                  * Validate the value with the regular expression
                  */
@@ -182,7 +191,7 @@ class Rule
 
                 if ($regexp) {
                     try {
-                        if (!preg_match($regexp, $urlSegments[$index])) {
+                        if (!preg_match($regexp, $paramValue)) {
                             return false;
                         }
                     }
@@ -193,14 +202,7 @@ class Rule
                 /*
                  * Set the parameter value
                  */
-                $parameters[$paramName] = $urlSegments[$index];
-
-                /*
-                 * Determine if wildcard and add stored parameters as a suffix
-                 */
-                if (Helper::segmentIsWildcard($patternSegment) && count($wildSegments)) {
-                    $parameters[$paramName] .= Helper::rebuildUrl($wildSegments);
-                }
+                $parameters[$paramName] = $paramValue;
             }
         }
 

@@ -156,6 +156,19 @@ class RouteTest extends TestCase
         $this->assertArrayHasKey('largecode', $params);
         $this->assertEquals('brown', $params['color']);
         $this->assertEquals('code/with/slashes/edit', $params['largecode']);
+
+        $rule = $router->reset()->route('testRuleId', '/color/:color/largecode/:largecode*|^[a-z]+\/[a-z]+$');
+        $result = $rule->resolveUrl('color/brown/largecode/code/with', $params);
+        $this->assertTrue($result);
+        $this->assertEquals(2, count($params));
+        $this->assertArrayHasKey('color', $params);
+        $this->assertArrayHasKey('largecode', $params);
+        $this->assertEquals('brown', $params['color']);
+        $this->assertEquals('code/with', $params['largecode']);
+
+        $rule = $router->reset()->route('testRuleId', '/color/:color/largecode/:largecode*|^[a-z]+\/[a-z]+$');
+        $result = $rule->resolveUrl('color/brown/largecode/code/with/slashes', $params);
+        $this->assertfalse($result);
     }
 
     public function testMatch()

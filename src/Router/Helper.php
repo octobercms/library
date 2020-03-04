@@ -40,11 +40,12 @@ class Helper
     public static function segmentizeUrl($url)
     {
         $url = self::normalizeUrl($url);
-        $segments = explode('/', $url);
+        // Explode by unescaped / characters
+        $segments = mb_split('(?<!\\\)\/', $url);
 
         $result = [];
         foreach ($segments as $segment) {
-            if (strlen($segment)) {
+            if (mb_strlen($segment)) {
                 $result[] = $segment;
             }
         }
@@ -123,7 +124,8 @@ class Helper
      */
     public static function segmentIsWildcard($segment)
     {
-        return mb_strpos($segment, ':') === 0 && mb_substr($segment, -1) === '*';
+        $parts = mb_split("\|", $segment, 2);
+        return mb_strpos($parts[0], ':') === 0 && mb_substr($parts[0], -1) === '*';
     }
 
     /**
