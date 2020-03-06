@@ -22,7 +22,7 @@ class Schema extends Facade
      * Get a schema builder instance for a connection.
      *
      * @param  string  $name
-     * @return \October\Rain\Database\Schema\Blueprint
+     * @return \Illuminate\Database\Schema\Builder
      */
     public static function connection($name)
     {
@@ -36,7 +36,7 @@ class Schema extends Facade
     /**
      * Get a schema builder instance for the default connection.
      *
-     * @return \October\Rain\Database\Schema
+     * @return \Illuminate\Database\Schema\Builder
      */
     protected static function getFacadeAccessor()
     {
