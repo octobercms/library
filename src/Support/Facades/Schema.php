@@ -15,6 +15,8 @@ use October\Rain\Support\Facade;
  * @method static \Illuminate\Database\Schema\Builder disableForeignKeyConstraints()
  * @method static \Illuminate\Database\Schema\Builder enableForeignKeyConstraints()
  * @method static void registerCustomDoctrineType(string $class, string $name, string $type)
+ *
+ * @see \Illuminate\Database\Schema\Builder
  */
 class Schema extends Facade
 {
