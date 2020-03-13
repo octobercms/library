@@ -50,7 +50,9 @@ class FieldParser
         'dropdown',
         'radio',
         'checkbox',
+        'checkboxlist',
         'datepicker',
+        'balloon-selector',
         'repeater',
         'variable'
     ];
@@ -230,6 +232,14 @@ class FieldParser
         $tagNames = $result[1];
         $paramStrings = $result[2];
 
+        // These fields take options for selection
+        $optionables = [
+            'dropdown',
+            'radio',
+            'checkboxlist',
+            'balloon-selector',
+        ];
+
         foreach ($tagStrings as $key => $tagString) {
             $tagName = $tagNames[$key];
             $params = $this->processParams($paramStrings[$key], $tagName);
@@ -250,7 +260,7 @@ class FieldParser
                 $params['type'] = $tagName;
             }
 
-            if (in_array($tagName, ['dropdown', 'radio']) && isset($params['options'])) {
+            if (in_array($tagName, $optionables) && isset($params['options'])) {
                 $params['options'] = $this->processOptionsToArray($params['options']);
             }
 
