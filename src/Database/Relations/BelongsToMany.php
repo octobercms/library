@@ -214,7 +214,7 @@ class BelongsToMany extends BelongsToManyBase
             $sessionKey = null;
         }
 
-        if ($sessionKey === null) {
+        if ($sessionKey === null || $sessionKey === false) {
             $this->attach($model->getKey(), $pivotData);
             $this->parent->reloadRelations($this->relationName);
         }
