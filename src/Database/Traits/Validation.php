@@ -376,7 +376,7 @@ trait Validation
                 /*
                  * Remove primary key unique validation rule if the model already exists
                  */
-                if (($rulePart == 'unique' || starts_with($rulePart, 'unique:')) && $this->exists) {
+                if (($rulePart === 'unique' || starts_with($rulePart, 'unique:')) && $this->exists) {
                     $ruleParts[$key] = $this->processValidationUniqueRule($rulePart, $field);
                 }
                 /*
