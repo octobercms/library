@@ -12,7 +12,7 @@
 use October\Rain\Assetic\Asset\AssetInterface;
 use October\Rain\Assetic\Factory\AssetFactory;
 use October\Rain\Assetic\Util\CssUtils;
-use Leafo\ScssPhp\Compiler;
+use ScssPhp\ScssPhp\Compiler;
 
 /**
  * Loads SCSS files using the PHP implementation of scss, scssphp.
