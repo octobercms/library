@@ -22,7 +22,7 @@ class ParseServiceProvider extends ServiceProvider implements DeferrableProvider
      *
      * @return array
      */
-    public function prsovides()
+    public function provides()
     {
         return [
             'parse.markdown',
