@@ -239,9 +239,7 @@ class Dispatcher implements DispatcherContract
         // When the given "event" is actually an object we will assume it is an event
         // object and use the class as the event name and this event itself as the
         // payload to the handler, which makes object based events quite simple.
-        list($event, $payload) = $this->parseEventAndPayload(
-            $event, $payload
-        );
+        list($event, $payload) = $this->parseEventAndPayload($event, $payload);
 
         $responses = [];
 
@@ -434,9 +432,7 @@ class Dispatcher implements DispatcherContract
                 return call_user_func($this->createClassCallable($listener), $event, $payload);
             }
 
-            return call_user_func_array(
-                $this->createClassCallable($listener), $payload
-            );
+            return call_user_func_array($this->createClassCallable($listener), $payload);
         };
     }
 
