@@ -178,6 +178,9 @@ trait ExtendableTrait
      */
     public function addDynamicProperty($dynamicName, $value = null)
     {
+        if (array_key_exists($dynamicName, $this->getDynamicProperties())) {
+            return;
+        }
         self::$extendableGuardProperties = false;
 
         if (!property_exists($this, $dynamicName)) {
@@ -325,7 +328,7 @@ trait ExtendableTrait
             }
         }
 
-        return false;
+        return array_key_exists($name, $this->getDynamicProperties());
     }
 
     /**
