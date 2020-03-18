@@ -167,6 +167,10 @@ class RouteTest extends TestCase
         $this->assertEquals('code/with', $params['largecode']);
 
         $rule = $router->reset()->route('testRuleId', '/color/:color/largecode/:largecode*|^[a-z]+\/[a-z]+$');
+        $result = $rule->resolveUrl('color/brown/largecode/code/100', $params);
+        $this->assertfalse($result);
+
+        $rule = $router->reset()->route('testRuleId', '/color/:color/largecode/:largecode*|^[a-z]+\/[a-z]+$');
         $result = $rule->resolveUrl('color/brown/largecode/code/with/slashes', $params);
         $this->assertfalse($result);
     }
