@@ -124,7 +124,7 @@ class Helper
      */
     public static function segmentIsWildcard($segment)
     {
-        $parts = mb_split("\|", $segment, 2);
+        $parts = mb_split('\|', $segment, 2);
         return mb_strpos($parts[0], ':') === 0 && mb_substr($parts[0], -1) === '*';
     }
 
