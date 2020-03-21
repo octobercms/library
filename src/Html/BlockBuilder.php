@@ -26,6 +26,7 @@ class BlockBuilder
     /**
      * Begins the layout block.
      * @param string $name Specifies the block name.
+     * @return void
      */
     public function startBlock($name)
     {
@@ -36,6 +37,7 @@ class BlockBuilder
     /**
      * Helper for endBlock and also clears the output buffer.
      * @param boolean $append Indicates that the new content should be appended to the existing block content.
+     * @return void
      * @throws Exception if there are no items in the block stack
      */
     public function endPut($append = false)
@@ -50,6 +52,7 @@ class BlockBuilder
     /**
      * Closes the layout block.
      * @param boolean $append Indicates that the new content should be appended to the existing block content.
+     * @return void
      * @throws Exception if there are no items in the block stack
      */
     public function endBlock($append = false)
@@ -73,6 +76,7 @@ class BlockBuilder
      * Sets a content of the layout block.
      * @param string $name Specifies the block name.
      * @param string $content Specifies the block content.
+     * @return void
      * @throws Exception if there are no items in the block stack
      */
     public function set($name, $content)
@@ -86,7 +90,7 @@ class BlockBuilder
      * Appends a content of the layout block.
      * @param string $name Specifies the block name.
      * @param string $content Specifies the block content.
-     *
+     * @return void
      */
     public function append($name, $content)
     {
