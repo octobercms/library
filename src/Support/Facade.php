@@ -19,6 +19,7 @@ class Facade extends FacadeParent
     {
         if (
             !is_object($name) &&
+            !is_null(static::$app) &&
             !static::$app->bound($name) &&
             ($instance = static::getFacadeInstance()) !== null
         ) {
