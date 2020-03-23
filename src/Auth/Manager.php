@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Auth;
 
 use Cookie;
+use October\Rain\Database\Builder;
 use Session;
 use Request;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -26,11 +27,6 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
      * @var string User Model Class
      */
     protected $userModel = Models\User::class;
-
-    /**
-     * @var string User Group Model Class
-     */
-    protected $groupModel = Models\Group::class;
 
     /**
      * @var string Throttle Model Class
@@ -68,6 +64,11 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     public $ipAddress = '0.0.0.0';
 
     /**
+     * @var \Illuminate\Http\Request $request
+     */
+    private $request;
+
+    /**
      * Initializes the singleton
      */
     protected function init()
@@ -98,19 +99,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     protected function createUserModelQuery()
     {
         $model = $this->createUserModel();
-        $query = $model->newQuery();
-        $this->extendUserQuery($query);
-
-        return $query;
-    }
-
-    /**
-     * Extend the query used for finding the user.
-     * @param \October\Rain\Database\Builder $query
-     * @return void
-     */
-    public function extendUserQuery($query)
-    {
+        return $model->newQuery();
     }
 
     /**
@@ -121,6 +110,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
      * @param bool $activate
      * @param bool $autoLogin
      * @return Models\User
+     * @throws \Exception  if the user is already active
      */
     public function register(array $credentials, $activate = false, $autoLogin = true)
     {
@@ -145,6 +135,8 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
 
     /**
      * Sets the user
+     * @param Authenticatable $user
+     * @return void
      */
     public function setUser(Authenticatable $user)
     {
@@ -154,7 +146,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     /**
      * Returns the current user, if any.
      *
-     * @return mixed (Models\User || null)
+     * @return Models\User|null
      */
     public function getUser()
     {
@@ -169,7 +161,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
      * Finds a user by the login value.
      *
      * @param string $id
-     * @return mixed (Models\User || null)
+     * @return Models\User|null
      */
     public function findUserById($id)
     {
@@ -288,6 +280,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
      * @param string $loginName
      * @param string $ipAddress
      * @return Models\Throttle
+     * @throws AuthException if there was no user found with the given credentials.
      */
     public function findThrottleByLogin($loginName, $ipAddress)
     {
@@ -315,10 +308,11 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
         }
 
         $model = $this->createThrottleModel();
-        $query = $model->where('user_id', '=', $userId);
+        $query = $model->newQuery()
+            ->where('user_id', '=', $userId);
 
         if ($ipAddress) {
-            $query->where(function ($query) use ($ipAddress) {
+            $query->where(function (Builder $query) use ($ipAddress) {
                 $query->where('ip_address', '=', $ipAddress);
                 $query->orWhere('ip_address', '=', null);
             });
@@ -346,12 +340,15 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
      *
      * @param array $credentials The user login details
      * @param bool $remember Store a non-expire cookie for the user
-     * @throws AuthException If authentication fails
-     * @return Models\User The successfully logged in user
+     * @return bool
      */
     public function attempt(array $credentials = [], $remember = false)
     {
-        return !!$this->authenticate($credentials, $remember);
+        try {
+            return $this->authenticate($credentials, $remember) !== null;
+        } catch (AuthException $exception) {
+            return false;
+        }
     }
 
     /**
@@ -362,14 +359,19 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
      */
     public function validate(array $credentials = [])
     {
-        return !!$this->validateInternal($credentials);
+        try {
+            return $this->validateInternal($credentials) !== null;
+        } catch (AuthException $exception) {
+            return false;
+        }
     }
 
     /**
      * Validate a user's credentials, method used internally.
      *
-     * @param  array  $credentials
-     * @return User
+     * @param array $credentials
+     * @return Models\User
+     * @throws AuthException if the credentials are invalid
      */
     protected function validateInternal(array $credentials = [])
     {
@@ -430,6 +432,8 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
      *
      * @param array $credentials The user login details
      * @param bool $remember Store a non-expire cookie for the user
+     * @return Models\User
+     * @throws AuthException if the credentials are invalid
      */
     public function authenticate(array $credentials, $remember = true)
     {
@@ -561,18 +565,22 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     /**
      * Log a user into the application without sessions or cookies.
      *
-     * @param  array  $credentials
+     * @param array $credentials
      * @return bool
      */
     public function once(array $credentials = [])
     {
         $this->useSession = false;
 
-        $user = $this->authenticate($credentials);
+        try {
+            $user = $this->authenticate($credentials);
+        } catch (AuthException $exception) {
+            return false;
+        }
 
         $this->useSession = true;
 
-        return !!$user;
+        return $user !== null;
     }
 
     /**
@@ -595,6 +603,10 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     /**
      * Logs in the given user and sets properties
      * in the session.
+     *
+     * @param Authenticatable $user
+     * @param bool $remember
+     * @return void
      * @throws AuthException If the user is not activated and $this->requireActivation = true
      */
     public function login(Authenticatable $user, $remember = true)
@@ -640,17 +652,22 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
      *
      * @param  mixed  $id
      * @param  bool   $remember
-     * @return \Illuminate\Contracts\Auth\Authenticatable
+     * @return \Illuminate\Contracts\Auth\Authenticatable|false
      */
     public function loginUsingId($id, $remember = false)
     {
-        if (!is_null($user = $this->findUserById($id))) {
-            $this->login($user, $remember);
+        $user = $this->findUserById($id);
 
-            return $user;
+        if ($user === null) {
+            return false;
         }
 
-        return false;
+        try {
+            $this->login($user, $remember);
+            return $user;
+        } catch (AuthException $exception) {
+            return false;
+        }
     }
 
     /**
@@ -697,6 +714,10 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     /**
      * Impersonates the given user and sets properties
      * in the session but not the cookie.
+     *
+     * @param Models\User $user
+     * @return void
+     * @throws AuthException If the user is not activated and $this->requireActivation = true
      */
     public function impersonate($user)
     {

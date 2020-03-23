@@ -224,6 +224,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
      * Attempts to activate the given user by checking the activate code. If the user is activated already, an Exception is thrown.
      * @param string $activationCode
      * @return bool
+     * @throws Exception if the user is already active
      */
     public function attemptActivation($activationCode)
     {
@@ -341,7 +342,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
 
     /**
      * Returns the role assigned to this user.
-     * @return October\Rain\Auth\Models\Role
+     * @return \October\Rain\Auth\Models\Role
      */
     public function getRole()
     {
