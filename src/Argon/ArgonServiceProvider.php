@@ -5,13 +5,6 @@ use October\Rain\Support\ServiceProvider;
 class ArgonServiceProvider extends ServiceProvider
 {
     /**
-     * Indicates if loading of the provider is deferred.
-     *
-     * @var bool
-     */
-    protected $defer = false;
-
-    /**
      * Bootstrap the application events.
      *
      * @return void
@@ -50,14 +43,5 @@ class ArgonServiceProvider extends ServiceProvider
         }
 
         return $this->app['config']->get('app.fallback_locale');
-    }
-
-    /**
-     * Register the service provider.
-     *
-     * @return void
-     */
-    public function register()
-    {
     }
 }
