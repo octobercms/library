@@ -64,11 +64,6 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     public $ipAddress = '0.0.0.0';
 
     /**
-     * @var \Illuminate\Http\Request $request
-     */
-    private $request;
-
-    /**
      * Initializes the singleton
      */
     protected function init()
