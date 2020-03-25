@@ -53,7 +53,7 @@ class BlockBuilder
      * Closes the layout block.
      * @param boolean $append Indicates that the new content should be appended to the existing block content.
      * @return void
-     * @throws Exception if there are no items in the block stack
+     * @throws \Exception if there are no items in the block stack
      */
     public function endBlock($append = false)
     {
@@ -77,7 +77,7 @@ class BlockBuilder
      * @param string $name Specifies the block name.
      * @param string $content Specifies the block content.
      * @return void
-     * @throws Exception if there are no items in the block stack
+     * @throws \Exception if there are no items in the block stack
      */
     public function set($name, $content)
     {
