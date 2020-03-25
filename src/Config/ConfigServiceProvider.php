@@ -32,6 +32,6 @@ class ConfigServiceProvider extends ServiceProvider
      */
     public function getConfigLoader()
     {
-        return new FileLoader(new Filesystem, $this->app['path'].'/config');
+        return new FileLoader(new Filesystem, $this->app['path.config']);
     }
 }
