@@ -38,7 +38,7 @@ class BlockBuilder
      * Helper for endBlock and also clears the output buffer.
      * @param boolean $append Indicates that the new content should be appended to the existing block content.
      * @return void
-     * @throws Exception if there are no items in the block stack
+     * @throws \Exception if there are no items in the block stack
      */
     public function endPut($append = false)
     {
