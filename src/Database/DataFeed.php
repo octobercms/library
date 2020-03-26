@@ -65,7 +65,7 @@ class DataFeed
      * Add a new Builder to the feed collection
      * @param string $tag
      * @param \Closure|EloquentModel|mixed $item
-     * @param string $orderBy
+     * @param string|null $orderBy
      * @return DataFeed|void
      */
     public function add($tag, $item, $orderBy = null)
@@ -195,7 +195,7 @@ class DataFeed
     /**
      * Limits the number of results displayed.
      * @param int $count
-     * @param int $offset
+     * @param int|null $offset
      * @return DataFeed
      */
     public function limit($count, $offset = null)
