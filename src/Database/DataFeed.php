@@ -247,7 +247,7 @@ class DataFeed
                 ->addSelect(Db::raw($sortSelect));
 
             // Union this query with the previous one
-            if ($lastQuery !== null) {
+            if ($lastQuery) {
                 if ($this->removeDuplicates) {
                     $cleanQuery = $lastQuery->union($cleanQuery);
                 } else {
