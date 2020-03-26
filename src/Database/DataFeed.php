@@ -280,7 +280,7 @@ class DataFeed
      */
     protected function getKeyNameByTag($tag)
     {
-        return $this->getDataByTag($tag)[$tag] ?? null;
+        return $this->getDataByTag($tag)['keyName'] ?? null;
     }
 
     /**
