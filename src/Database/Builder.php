@@ -1,7 +1,6 @@
 <?php namespace October\Rain\Database;
 
 use Illuminate\Pagination\Paginator;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder as BuilderModel;
 use October\Rain\Support\Facades\DbDongle;
 
@@ -69,7 +68,7 @@ class Builder extends BuilderModel
         }
 
         if ($mode === 'exact') {
-            $this->where(function ($query) use ($columns, $term) {
+            $this->where(function (Builder $query) use ($columns, $term) {
                 foreach ($columns as $field) {
                     if (!strlen($term)) {
                         continue;
@@ -84,9 +83,9 @@ class Builder extends BuilderModel
             $words = explode(' ', $term);
             $wordBoolean = $mode === 'any' ? 'or' : 'and';
 
-            $this->where(function ($query) use ($columns, $words, $wordBoolean) {
+            $this->where(function (Builder $query) use ($columns, $words, $wordBoolean) {
                 foreach ($columns as $field) {
-                    $query->orWhere(function ($query) use ($field, $words, $wordBoolean) {
+                    $query->orWhere(function (Builder $query) use ($field, $words, $wordBoolean) {
                         foreach ($words as $word) {
                             if (!strlen($word)) {
                                 continue;
