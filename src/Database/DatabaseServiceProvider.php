@@ -84,7 +84,7 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
      */
     protected function swapSchemaBuilderBlueprint()
     {
-        $this->app['events']->listen('db.schema.getBuilder', function ($builder) {
+        $this->app['events']->listen('db.schema.getBuilder', function (\Illuminate\Database\Schema\Builder $builder) {
             $builder->blueprintResolver(function ($table, $callback) {
                 return new Blueprint($table, $callback);
             });
