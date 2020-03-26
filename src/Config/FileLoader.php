@@ -36,8 +36,8 @@ class FileLoader implements LoaderInterface
     /**
      * Create a new file configuration loader.
      *
-     * @param  \Illuminate\Filesystem\Filesystem  $files
-     * @param  string  $defaultPath
+     * @param \Illuminate\Filesystem\Filesystem $files
+     * @param string $defaultPath
      * @return void
      */
     public function __construct(Filesystem $files, $defaultPath)
@@ -105,13 +105,13 @@ class FileLoader implements LoaderInterface
     /**
      * Determine if the given group exists.
      *
-     * @param  string  $group
-     * @param  string  $namespace
+     * @param string $group
+     * @param string $namespace
      * @return bool
      */
     public function exists($group, $namespace = null)
     {
-        $key = $group.$namespace;
+        $key = $group . $namespace;
 
         // We'll first check to see if we have determined if this namespace and
         // group combination have been checked before. If they have, we will
@@ -175,9 +175,9 @@ class FileLoader implements LoaderInterface
     /**
      * Get the package path for an environment and group.
      *
-     * @param  string  $env
-     * @param  string  $package
-     * @param  string  $group
+     * @param string $env
+     * @param string $package
+     * @param string $group
      * @return string
      */
     protected function getPackagePath($package, $group, $env = null)
@@ -186,26 +186,24 @@ class FileLoader implements LoaderInterface
 
         if (!$env) {
             $file = "{$package}/{$group}.php";
-        }
-        else {
+        } else {
             $file = "{$package}/{$env}/{$group}.php";
         }
 
-        return $this->defaultPath.'/'.$file;
+        return $this->defaultPath . '/' . $file;
     }
 
     /**
      * Get the configuration path for a namespace.
      *
-     * @param  string  $namespace
+     * @param string $namespace
      * @return string|void
      */
     protected function getPath($namespace)
     {
         if (is_null($namespace)) {
             return $this->defaultPath;
-        }
-        elseif (isset($this->hints[$namespace])) {
+        } elseif (isset($this->hints[$namespace])) {
             return $this->hints[$namespace];
         }
     }
@@ -213,8 +211,8 @@ class FileLoader implements LoaderInterface
     /**
      * Add a new namespace to the loader.
      *
-     * @param  string  $namespace
-     * @param  string  $hint
+     * @param string $namespace
+     * @param string $hint
      * @return void
      */
     public function addNamespace($namespace, $hint)
