@@ -49,10 +49,11 @@ class FileLoader implements LoaderInterface
     /**
      * Load the given configuration group.
      *
-     * @param  string  $environment
-     * @param  string  $group
-     * @param  string  $namespace
+     * @param string $environment
+     * @param string $group
+     * @param string $namespace
      * @return array
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException if file does not exist
      */
     public function load($environment, $group, $namespace = null)
     {
@@ -91,9 +92,10 @@ class FileLoader implements LoaderInterface
     /**
      * Merge the items in the given file into the items.
      *
-     * @param  array   $items
-     * @param  string  $file
+     * @param array $items
+     * @param string $file
      * @return array
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException if file does not exist
      */
     protected function mergeEnvironment(array $items, $file)
     {
@@ -140,11 +142,12 @@ class FileLoader implements LoaderInterface
     /**
      * Apply any cascades to an array of package options.
      *
-     * @param  string  $env
-     * @param  string  $package
-     * @param  string  $group
-     * @param  array   $items
+     * @param string $env
+     * @param string $package
+     * @param string $group
+     * @param array $items
      * @return array
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException if file does not exist
      */
     public function cascadePackage($env, $package, $group, $items)
     {
@@ -195,7 +198,7 @@ class FileLoader implements LoaderInterface
      * Get the configuration path for a namespace.
      *
      * @param  string  $namespace
-     * @return string
+     * @return string|void
      */
     protected function getPath($namespace)
     {
@@ -233,8 +236,9 @@ class FileLoader implements LoaderInterface
     /**
      * Get a file's contents by requiring it.
      *
-     * @param  string  $path
+     * @param string $path
      * @return mixed
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException if file does not exist
      */
     protected function getRequire($path)
     {
