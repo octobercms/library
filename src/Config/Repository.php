@@ -246,7 +246,6 @@ class Repository implements ArrayAccess, RepositoryContract
             return $this->keyParserCache[$key];
         }
 
-        $segments = explode('.', $key);
         $parsed = $this->parseNamespacedSegments($key);
         return $this->keyParserCache[$key] = $parsed;
     }
@@ -298,7 +297,6 @@ class Repository implements ArrayAccess, RepositoryContract
      *
      * @param  string  $namespace
      * @param  string  $hint
-     * @param  string  $namespace
      * @return void
      */
     public function package($namespace, $hint)
@@ -310,7 +308,7 @@ class Repository implements ArrayAccess, RepositoryContract
         // callback so that we can cascade an application package configuration.
         $this->addNamespace($namespace, $hint);
 
-        $this->afterLoading($namespace, function ($me, $group, $items) use ($namespace) {
+        $this->afterLoading($namespace, function (Repository $me, $group, $items) use ($namespace) {
             $env = $me->getEnvironment();
 
             $loader = $me->getLoader();
