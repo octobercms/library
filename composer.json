@@ -45,7 +45,7 @@
         "symfony/css-selector": "~3.1",
         "meyfa/phpunit-assert-gd": "1.1.0",
         "squizlabs/php_codesniffer": "3.*",
-        "jakub-onderka/php-parallel-lint": "^1.0"
+        "php-parallel-lint/php-parallel-lint": "^1.0"
     },
     "replace": {
         "october/auth": "self.version",
