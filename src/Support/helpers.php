@@ -162,6 +162,19 @@ if (!function_exists('traceSql')) {
     }
 }
 
+if (!function_exists('config_path')) {
+    /**
+     * Get the path to the plugins folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function config_path($path = '')
+    {
+        return app('path.config').($path ? '/'.$path : $path);
+    }
+}
+
 if (!function_exists('plugins_path')) {
     /**
      * Get the path to the plugins folder.
