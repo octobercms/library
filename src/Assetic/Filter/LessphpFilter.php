@@ -62,7 +62,7 @@ class LessphpFilter implements DependencyExtractorInterface
     {
         $this->presets = $presets;
     }
-    
+
     public function setOptions(array $options)
     {
         $this->options = $options;

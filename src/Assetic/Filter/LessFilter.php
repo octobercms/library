@@ -139,10 +139,13 @@ EOF;
 
         $pb->add($this->nodeBin)->add($input = FilesystemUtils::createTemporaryFile('less'));
         file_put_contents(
-            $input, sprintf($format,
-            json_encode($asset->getContent()),
-            json_encode(array_merge($parserOptions, $this->treeOptions))
-        ));
+            $input,
+            sprintf(
+                $format,
+                json_encode($asset->getContent()),
+                json_encode(array_merge($parserOptions, $this->treeOptions))
+            )
+        );
 
         $proc = $pb->getProcess();
         $code = $proc->run();
