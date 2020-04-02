@@ -107,7 +107,7 @@ class LessphpFilter implements DependencyExtractorInterface
             $lc->setPreserveComments($this->preserveComments);
         }
 
-        if (method_exists($lc, 'setOptions') && count($this->options) > 0 ) {
+        if (method_exists($lc, 'setOptions') && count($this->options) > 0) {
             $lc->setOptions($this->options);
         }
 
