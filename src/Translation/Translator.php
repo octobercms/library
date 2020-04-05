@@ -237,6 +237,12 @@ class Translator implements TranslatorContract
 
         $replace['count'] = $number;
 
+        // Format locale for MessageSelector
+        if (strpos($locale, '-') !== false) {
+            $localeParts = explode('-', $locale, 2);
+            $locale = $localeParts[0] . '_' . strtoupper($localeParts[1]);
+        }
+
         return $this->makeReplacements($this->getSelector()->choose($line, $number, $locale), $replace);
     }
 
