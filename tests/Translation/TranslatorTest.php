@@ -30,6 +30,37 @@ class TranslatorTest extends TestCase
         );
     }
 
+    public function testChoice()
+    {
+        $this->assertEquals(
+            'Page',
+            $this->translator->choice('lang.test.choice', 1)
+        );
+        $this->assertEquals(
+            'Pages',
+            $this->translator->choice('lang.test.choice', 2)
+        );
+    }
+
+    /**
+     * Test case for https://github.com/octobercms/october/issues/4858
+     *
+     * @return void
+     */
+    public function testChoiceSublocale()
+    {
+        $this->translator->setLocale('en-au');
+
+        $this->assertEquals(
+            'Page',
+            $this->translator->choice('lang.test.choice', 1)
+        );
+        $this->assertEquals(
+            'Pages',
+            $this->translator->choice('lang.test.choice', 2)
+        );
+    }
+
     public function testOverrideWithBeforeResolveEvent()
     {
         $eventsDispatcher = $this->createMock(Dispatcher::class);

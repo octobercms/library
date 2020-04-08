@@ -364,7 +364,9 @@ class FileDatasource extends Datasource implements DatasourceInterface
     public function getAvailablePaths()
     {
         $pathsCache = [];
-        $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->basePath));
+        $it = (is_dir($this->basePath))
+            ? new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->basePath))
+            : [];
 
         foreach ($it as $file) {
             if ($file->isDir()) {
