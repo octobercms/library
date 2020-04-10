@@ -26,10 +26,10 @@
         "ext-ctype": "*",
         "ext-curl": "*",
         "ext-dom": "*",
-        "ext-libxml": "*",
         "ext-fileinfo": "*",
         "ext-gd": "*",
         "ext-json": "*",
+        "ext-libxml": "*",
         "ext-mbstring": "*",
         "ext-openssl": "*",
         "ext-PDO": "*",
@@ -64,6 +64,13 @@
         "php-parallel-lint/php-parallel-lint": "^1.0",
         "meyfa/phpunit-assert-gd": "^2.0.0",
         "dms/phpunit-arraysubset-asserts": "^0.1.0"
+    },
+    "suggest": {
+        "ext-pdo_dblib": "Required to use MS SQL Server databases",
+        "ext-pdo_mysql": "Required to use MySQL databases",
+        "ext-PDO_ODBC": "Required to use databases accessed through ODBC drivers",
+        "ext-pdo_pgsql": "Required to use PostgreSQL databases",
+        "ext-pdo_sqlite": "Required to use SQLite databases"
     },
     "autoload": {
         "files": [
