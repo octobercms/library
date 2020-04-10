@@ -24,6 +24,8 @@
     "require": {
         "php": ">=7.2",
         "ext-ctype": "*",
+        "ext-curl": "*",
+        "ext-fileinfo": "*",
         "ext-gd": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
