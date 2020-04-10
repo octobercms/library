@@ -23,6 +23,7 @@
     ],
     "require": {
         "php": ">=7.2",
+        "ext-ctype": "*",
         "ext-gd": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
