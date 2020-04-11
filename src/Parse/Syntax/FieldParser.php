@@ -394,7 +394,7 @@ class FieldParser
             if (count($options) === 2 && class_exists($options[0]) && method_exists($options[0], $options[1])) {
                 $result = $options[0]::{$options[1]}();
                 if (!is_array($result)) {
-                    throw new Exception(sprintf(
+                    throw new ApplicationException(sprintf(
                         'Invalid dropdown option array returned by `%s::%s`',
                         $options[0],
                         $options[1]
