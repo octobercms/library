@@ -395,7 +395,7 @@ class FieldParser
                 $result = $options[0]::{$options[1]}();
                 if (!is_array($result)) {
                     throw new Exception(sprintf(
-                        'Invalid drop-down option result: `%s::%s` invalid return type',
+                        'Invalid dropdown option array returned by `%s::%s`',
                         $options[0],
                         $options[1]
                     ));
