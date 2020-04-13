@@ -69,7 +69,9 @@ class FileLoader implements LoaderInterface
         if (isset($this->hints[$namespace])) {
             $lines = $this->loadPath($this->hints[$namespace], $locale, $group);
 
-            return $this->loadNamespaceOverrides($lines, $locale, $group, $namespace);
+            if (is_array($lines)) {
+                return $this->loadNamespaceOverrides($lines, $locale, $group, $namespace);
+            }
         }
 
         return [];
@@ -124,5 +126,4 @@ class FileLoader implements LoaderInterface
     {
         $this->hints[$namespace] = $hint;
     }
-
 }

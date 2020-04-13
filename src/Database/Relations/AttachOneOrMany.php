@@ -2,6 +2,9 @@
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use October\Rain\Support\Facades\DbDongle;
+use October\Rain\Database\Attach\File as FileModel;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 trait AttachOneOrMany
 {
@@ -36,24 +39,59 @@ trait AttachOneOrMany
     public function addConstraints()
     {
         if (static::$constraints) {
-            parent::addConstraints();
+            $this->query->where($this->morphType, $this->morphClass);
+
+            $this->query->where($this->foreignKey, '=', $this->getParentKey());
 
             $this->query->where('field', $this->relationName);
+
+            $this->query->whereNotNull($this->foreignKey);
         }
     }
 
     /**
-     * Add the field constraint for a relationship count query.
+     * Add the constraints for a relationship count query.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Builder  $parent
+     * @param  \Illuminate\Database\Eloquent\Builder  $parentQuery
+     * @param  array|mixed  $columns
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function getRelationCountQuery(Builder $query, Builder $parent)
+    public function getRelationExistenceQuery(Builder $query, Builder $parentQuery, $columns = ['*'])
     {
-        $query = parent::getRelationCountQuery($query, $parent);
+        if ($parentQuery->getQuery()->from == $query->getQuery()->from) {
+            $query = $this->getRelationExistenceQueryForSelfJoin($query, $parentQuery, $columns);
+        }
+        else {
+            $key = DbDongle::cast($this->getQualifiedParentKeyName(), 'TEXT');
+
+            $query = $query->select($columns)->whereColumn($this->getExistenceCompareKey(), '=', $key);
+        }
+
+        $query = $query->where($this->morphType, $this->morphClass);
 
         return $query->where('field', $this->relationName);
+    }
+
+    /**
+     * Add the constraints for a relationship query on the same table.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $parentQuery
+     * @param  array|mixed  $columns
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function getRelationExistenceQueryForSelfRelation(Builder $query, Builder $parentQuery, $columns = ['*'])
+    {
+        $query->select($columns)->from(
+            $query->getModel()->getTable().' as '.$hash = $this->getRelationCountHash()
+        );
+
+        $query->getModel()->setTable($hash);
+
+        $key = DbDongle::cast($this->getQualifiedParentKeyName(), 'TEXT');
+
+        return $query->whereColumn($hash.'.'.$this->getForeignKeyName(), '=', $key);
     }
 
     /**
@@ -88,10 +126,9 @@ trait AttachOneOrMany
         if ($sessionKey === null) {
             return parent::save($model);
         }
-        else {
-            $this->add($model, $sessionKey);
-            return $model->save() ? $model : false;
-        }
+
+        $this->add($model, $sessionKey);
+        return $model->save() ? $model : false;
     }
 
     /**
@@ -129,14 +166,13 @@ trait AttachOneOrMany
         }
 
         if ($sessionKey === null) {
-
             // Delete siblings for single attachments
             if ($this instanceof AttachOne) {
                 $this->delete();
             }
 
-            $model->setAttribute($this->getPlainForeignKey(), $this->parent->getKey());
-            $model->setAttribute($this->getPlainMorphType(), $this->morphClass);
+            $model->setAttribute($this->getForeignKeyName(), $this->parent->getKey());
+            $model->setAttribute($this->getMorphType(), $this->morphClass);
             $model->setAttribute('field', $this->relationName);
             $model->save();
 
@@ -154,6 +190,18 @@ trait AttachOneOrMany
             $this->parent->bindDeferred($this->relationName, $model, $sessionKey);
         }
     }
+    
+    /**
+     * Attach an array of models to the parent instance with deferred binding support.
+     * @param  array  $models
+     * @return void
+     */
+    public function addMany($models, $sessionKey = null)
+    {
+        foreach ($models as $model) {
+            $this->add($model, $sessionKey);
+        }
+    }
 
     /**
      * Removes a model from this relationship type.
@@ -161,7 +209,6 @@ trait AttachOneOrMany
     public function remove(Model $model, $sessionKey = null)
     {
         if ($sessionKey === null) {
-
             $options = $this->parent->getRelationDefinition($this->relationName);
 
             if (array_get($options, 'delete', false)) {
@@ -171,20 +218,20 @@ trait AttachOneOrMany
                 /*
                  * Make this model an orphan ;~(
                  */
-                $model->setAttribute($this->getPlainForeignKey(), null);
-                $model->setAttribute($this->getPlainMorphType(), null);
+                $model->setAttribute($this->getForeignKeyName(), null);
+                $model->setAttribute($this->getMorphType(), null);
                 $model->setAttribute('field', null);
                 $model->save();
+            }
 
-                /*
-                 * Use the opportunity to set the relation in memory
-                 */
-                if ($this instanceof AttachOne) {
-                    $this->parent->setRelation($this->relationName, null);
-                }
-                else {
-                    $this->parent->reloadRelations($this->relationName);
-                }
+            /*
+             * Use the opportunity to set the relation in memory
+             */
+            if ($this instanceof AttachOne) {
+                $this->parent->setRelation($this->relationName, null);
+            }
+            else {
+                $this->parent->reloadRelations($this->relationName);
             }
         }
         else {
@@ -192,4 +239,65 @@ trait AttachOneOrMany
         }
     }
 
+    /**
+     * Returns true if the specified value can be used as the data attribute.
+     */
+    protected function isValidFileData($value)
+    {
+        if ($value instanceof UploadedFile) {
+            return true;
+        }
+
+        if (is_string($value) && file_exists($value)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Creates a file object suitable for validation, called from
+     * the `getValidationValue` method. Value can be a file model,
+     * UploadedFile object (expected) or potentially a string.
+     *
+     * @param mixed $value
+     * @return UploadedFile
+     */
+    public function makeValidationFile($value)
+    {
+        if ($value instanceof FileModel) {
+            return new UploadedFile(
+                $value->getLocalPath(),
+                $value->file_name,
+                $value->content_type,
+                $value->file_size,
+                null,
+                true
+            );
+        }
+
+        /*
+         * @todo `$value` might be a string, may not validate
+         */
+
+        return $value;
+    }
+
+    /**
+     * Get the foreign key for the relationship.
+     * @return string
+     */
+    public function getForeignKey()
+    {
+        return $this->foreignKey;
+    }
+
+    /**
+     * Get the associated "other" key of the relationship.
+     * @return string
+     */
+    public function getOtherKey()
+    {
+        return $this->localKey;
+    }
 }

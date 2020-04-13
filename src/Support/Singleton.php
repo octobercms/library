@@ -21,7 +21,7 @@ class Singleton
         $accessor = static::getSingletonAccessor();
 
         if (!App::bound($accessor)) {
-            App::singleton($accessor, function() {
+            App::singleton($accessor, function () {
                 return static::getSingletonInstance();
             });
         }
@@ -53,13 +53,21 @@ class Singleton
     /**
      * Initialize the singleton free from constructor parameters.
      */
-    protected function init() {}
+    protected function init()
+    {
+    }
 
+    /**
+     * @ignore
+     */
     public function __clone()
     {
         trigger_error('Cloning '.__CLASS__.' is not allowed.', E_USER_ERROR);
     }
 
+    /**
+     * @ignore
+     */
     public function __wakeup()
     {
         trigger_error('Unserializing '.__CLASS__.' is not allowed.', E_USER_ERROR);

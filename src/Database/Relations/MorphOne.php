@@ -35,10 +35,10 @@ class MorphOne extends MorphOneBase
         // Nulling the relationship
         if (!$value) {
             if ($this->parent->exists) {
-                $this->parent->bindEventOnce('model.afterSave', function() {
+                $this->parent->bindEventOnce('model.afterSave', function () {
                     $this->update([
-                        $this->getPlainForeignKey() => null,
-                        $this->getPlainMorphType() => null
+                        $this->getForeignKeyName() => null,
+                        $this->getMorphType() => null
                     ]);
                 });
             }
@@ -49,8 +49,8 @@ class MorphOne extends MorphOneBase
             $instance = $value;
 
             if ($this->parent->exists) {
-                $instance->setAttribute($this->getPlainForeignKey(), $this->getParentKey());
-                $instance->setAttribute($this->getPlainMorphType(), $this->morphClass);
+                $instance->setAttribute($this->getForeignKeyName(), $this->getParentKey());
+                $instance->setAttribute($this->getMorphType(), $this->morphClass);
             }
         }
         else {
@@ -60,13 +60,23 @@ class MorphOne extends MorphOneBase
         if ($instance) {
             $this->parent->setRelation($this->relationName, $instance);
 
-            $this->parent->bindEventOnce('model.afterSave', function() use ($instance){
+            $this->parent->bindEventOnce('model.afterSave', function () use ($instance) {
+                // Relation is already set, do nothing. This prevents the relationship
+                // from being nulled below and left unset because the save will ignore
+                // attribute values that are numerically equivalent (not dirty).
+                if (
+                    $instance->getOriginal($this->getForeignKeyName()) == $this->getParentKey() &&
+                    $instance->getOriginal($this->getMorphType()) == $this->morphClass
+                ) {
+                    return;
+                }
+
                 $this->update([
-                    $this->getPlainForeignKey() => null,
-                    $this->getPlainMorphType() => null
+                    $this->getForeignKeyName() => null,
+                    $this->getMorphType() => null
                 ]);
-                $instance->setAttribute($this->getPlainForeignKey(), $this->getParentKey());
-                $instance->setAttribute($this->getPlainMorphType(), $this->morphClass);
+                $instance->setAttribute($this->getForeignKeyName(), $this->getParentKey());
+                $instance->setAttribute($this->getMorphType(), $this->morphClass);
                 $instance->save(['timestamps' => false]);
             });
         }
@@ -82,7 +92,7 @@ class MorphOne extends MorphOneBase
         $relationName = $this->relationName;
 
         if ($this->parent->$relationName) {
-            $key = $this->getPlainForeignKey();
+            $key = $this->getForeignKeyName();
             $value = $this->parent->$relationName->$key;
         }
 

@@ -19,23 +19,19 @@ trait HasOneOrMany
         if ($sessionKey === null) {
             return parent::save($model);
         }
-        else {
-            $this->add($model, $sessionKey);
-            return $model->save() ? $model : false;
-        }
+
+        $this->add($model, $sessionKey);
+        return $model->save() ? $model : false;
     }
 
     /**
-     * Attach an array of models to the parent instance with deferred binding support.
-     *
+     * Alias for the addMany() method.
      * @param  array  $models
      * @return array
      */
     public function saveMany($models, $sessionKey = null)
     {
-        foreach ($models as $model) {
-            $this->save($model, $sessionKey);
-        }
+        $this->addMany($models, $sessionKey);
 
         return $models;
     }
@@ -60,8 +56,11 @@ trait HasOneOrMany
     public function add(Model $model, $sessionKey = null)
     {
         if ($sessionKey === null) {
-            $model->setAttribute($this->getPlainForeignKey(), $this->parent->getKey());
-            $model->save();
+            $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
+
+            if (!$model->exists || $model->isDirty()) {
+                $model->save();
+            }
 
             /*
              * Use the opportunity to set the relation in memory
@@ -79,12 +78,24 @@ trait HasOneOrMany
     }
 
     /**
+     * Attach an array of models to the parent instance with deferred binding support.
+     * @param  array  $models
+     * @return void
+     */
+    public function addMany($models, $sessionKey = null)
+    {
+        foreach ($models as $model) {
+            $this->add($model, $sessionKey);
+        }
+    }
+
+    /**
      * Removes a model from this relationship type.
      */
     public function remove(Model $model, $sessionKey = null)
     {
         if ($sessionKey === null) {
-            $model->setAttribute($this->getPlainForeignKey(), null);
+            $model->setAttribute($this->getForeignKeyName(), null);
             $model->save();
 
             /*
@@ -102,4 +113,21 @@ trait HasOneOrMany
         }
     }
 
+    /**
+     * Get the foreign key for the relationship.
+     * @return string
+     */
+    public function getForeignKey()
+    {
+        return $this->foreignKey;
+    }
+
+    /**
+     * Get the associated "other" key of the relationship.
+     * @return string
+     */
+    public function getOtherKey()
+    {
+        return $this->localKey;
+    }
 }

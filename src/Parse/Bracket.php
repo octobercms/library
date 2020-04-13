@@ -62,6 +62,7 @@ class Bracket
             else {
                 $string = $this->parseKey($key, $value, $string);
                 $string = $this->parseKeyFilters($key, $value, $string);
+                $string = $this->parseKeyBooleans($key, $value, $string);
             }
         }
 
@@ -117,6 +118,26 @@ class Bracket
     }
 
     /**
+     * This is an internally used method, the syntax is experimental and may change.
+     */
+    protected function parseKeyBooleans($key, $value, $string)
+    {
+        $openKey = static::CHAR_OPEN.'?'.$key.static::CHAR_CLOSE;
+        $closeKey = static::CHAR_OPEN.'/'.$key.static::CHAR_CLOSE;
+
+        if ($value) {
+            $returnStr = str_replace([$openKey, $closeKey], '', $string);
+        }
+        else {
+            $open = preg_quote($openKey);
+            $close = preg_quote($closeKey);
+            $returnStr = preg_replace('|'.$open.'[\s\S]+?'.$close.'|s', '', $string);
+        }
+
+        return $returnStr;
+    }
+
+    /**
      * Search for open/close keys and process them in a nested fashion
      * @param  string $key
      * @param  array  $data
@@ -142,6 +163,7 @@ class Bracket
                 else {
                     $matchedText = $this->parseKey($key, $value, $matchedText);
                     $matchedText = $this->parseKeyFilters($key, $value, $matchedText);
+                    $matchedText = $this->parseKeyBooleans($key, $value, $matchedText);
                 }
             }
 
@@ -170,6 +192,6 @@ class Bracket
         $regex .='|s';
 
         preg_match($regex, $string, $match);
-        return ($match) ? $match : false;
+        return $match ?: false;
     }
 }

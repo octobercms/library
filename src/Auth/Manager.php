@@ -3,32 +3,73 @@
 use Cookie;
 use Session;
 use Request;
+use Illuminate\Contracts\Auth\Authenticatable;
 
 /**
  * Authentication manager
  */
-class Manager
+class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
 {
     use \October\Rain\Support\Traits\Singleton;
 
+    /**
+     * @var Models\User The currently logged in user
+     */
     protected $user;
 
+    /**
+     * @var array In memory throttle cache [md5($userId.$ipAddress) => $this->throttleModel]
+     */
     protected $throttle = [];
 
-    protected $userModel = 'October\Rain\Auth\Models\User';
+    /**
+     * @var string User Model Class
+     */
+    protected $userModel = Models\User::class;
 
-    protected $groupModel = 'October\Rain\Auth\Models\Group';
+    /**
+     * @var string User Group Model Class
+     */
+    protected $groupModel = Models\Group::class;
 
-    protected $throttleModel = 'October\Rain\Auth\Models\Throttle';
+    /**
+     * @var string Throttle Model Class
+     */
+    protected $throttleModel = Models\Throttle::class;
 
+    /**
+     * @var bool Flag to enable login throttling
+     */
     protected $useThrottle = true;
 
+    /**
+     * @var bool Internal flag to toggle using the session for the current authentication request
+     */
+    protected $useSession = true;
+
+    /**
+     * @var bool Flag to require users to be activated to login
+     */
     protected $requireActivation = true;
 
+    /**
+     * @var string Key to store the auth session data in
+     */
     protected $sessionKey = 'october_auth';
 
+    /**
+     * @var bool Indicates if the user was authenticated via a recaller cookie.
+     */
+    protected $viaRemember = false;
+
+    /**
+     * @var string The IP address of this request
+     */
     public $ipAddress = '0.0.0.0';
 
+    /**
+     * Initializes the singleton
+     */
     protected function init()
     {
         $this->ipAddress = Request::ip();
@@ -40,12 +81,27 @@ class Manager
 
     /**
      * Creates a new instance of the user model
+     *
+     * @return Models\User
      */
     public function createUserModel()
     {
         $class = '\\'.ltrim($this->userModel, '\\');
-        $user = new $class();
-        return $user;
+        return new $class();
+    }
+
+    /**
+     * Prepares a query derived from the user model.
+     *
+     * @return \October\Rain\Database\Builder $query
+     */
+    protected function createUserModelQuery()
+    {
+        $model = $this->createUserModel();
+        $query = $model->newQuery();
+        $this->extendUserQuery($query);
+
+        return $query;
     }
 
     /**
@@ -58,14 +114,15 @@ class Manager
     }
 
     /**
-     * Registers a user by giving the required credentials
-     * and an optional flag for whether to activate the user.
+     * Registers a user with the provided credentials with optional flags
+     * for activating the newly created user and automatically logging them in
      *
      * @param array $credentials
      * @param bool $activate
+     * @param bool $autoLogin
      * @return Models\User
      */
-    public function register(array $credentials, $activate = false)
+    public function register(array $credentials, $activate = false, $autoLogin = true)
     {
         $user = $this->createUserModel();
         $user->fill($credentials);
@@ -79,19 +136,25 @@ class Manager
         // on subsequent saves to this model object
         $user->password = null;
 
-        return $this->user = $user;
+        if ($autoLogin) {
+            $this->user = $user;
+        }
+
+        return $user;
     }
 
     /**
      * Sets the user
      */
-    public function setUser($user)
+    public function setUser(Authenticatable $user)
     {
         $this->user = $user;
     }
 
     /**
      * Returns the current user, if any.
+     *
+     * @return mixed (Models\User || null)
      */
     public function getUser()
     {
@@ -104,32 +167,42 @@ class Manager
 
     /**
      * Finds a user by the login value.
+     *
      * @param string $id
+     * @return mixed (Models\User || null)
      */
     public function findUserById($id)
     {
-        $model = $this->createUserModel();
-        $query = $model->newQuery();
-        $this->extendUserQuery($query);
+        $query = $this->createUserModelQuery();
+
         $user = $query->find($id);
-        return $user ?: null;
+
+        return $this->validateUserModel($user) ? $user : null;
     }
 
     /**
      * Finds a user by the login value.
+     *
      * @param string $login
+     * @return mixed (Models\User || null)
      */
     public function findUserByLogin($login)
     {
         $model = $this->createUserModel();
-        $query = $model->newQuery();
-        $this->extendUserQuery($query);
+
+        $query = $this->createUserModelQuery();
+
         $user = $query->where($model->getLoginName(), $login)->first();
-        return $user ?: null;
+
+        return $this->validateUserModel($user) ? $user : null;
     }
 
     /**
      * Finds a user by the given credentials.
+     *
+     * @param array $credentials The credentials to find a user by
+     * @throws AuthException If the credentials are invalid
+     * @return Models\User The requested user
      */
     public function findUserByCredentials(array $credentials)
     {
@@ -140,8 +213,7 @@ class Manager
             throw new AuthException(sprintf('Login attribute "%s" was not provided.', $loginName));
         }
 
-        $query = $model->newQuery();
-        $this->extendUserQuery($query);
+        $query = $this->createUserModelQuery();
         $hashableAttributes = $model->getHashableAttributes();
         $hashedCredentials = [];
 
@@ -158,7 +230,8 @@ class Manager
             }
         }
 
-        if (!$user = $query->first()) {
+        $user = $query->first();
+        if (!$this->validateUserModel($user)) {
             throw new AuthException('A user was not found with the given credentials.');
         }
 
@@ -166,12 +239,12 @@ class Manager
          * Check the hashed credentials match
          */
         foreach ($hashedCredentials as $credential => $value) {
-
             if (!$user->checkHashValue($credential, $value)) {
                 // Incorrect password
                 if ($credential == 'password') {
                     throw new AuthException(sprintf(
-                        'A user was found to match all plain text credentials however hashed credential "%s" did not match.', $credential
+                        'A user was found to match all plain text credentials however hashed credential "%s" did not match.',
+                        $credential
                     ));
                 }
 
@@ -183,22 +256,38 @@ class Manager
         return $user;
     }
 
+    /**
+     * Perform additional checks on the user model.
+     *
+     * @param $user
+     * @return boolean
+     */
+    protected function validateUserModel($user)
+    {
+        return $user instanceof $this->userModel;
+    }
+
     //
     // Throttle
     //
 
     /**
      * Creates an instance of the throttle model
+     *
+     * @return Models\Throttle
      */
     public function createThrottleModel()
     {
         $class = '\\'.ltrim($this->throttleModel, '\\');
-        $user = new $class();
-        return $user;
+        return new $class();
     }
 
     /**
      * Find a throttle record by login and ip address
+     *
+     * @param string $loginName
+     * @param string $ipAddress
+     * @return Models\Throttle
      */
     public function findThrottleByLogin($loginName, $ipAddress)
     {
@@ -213,6 +302,10 @@ class Manager
 
     /**
      * Find a throttle record by user id and ip address
+     *
+     * @param integer $userId
+     * @param string $ipAddress
+     * @return Models\Throttle
      */
     public function findThrottleByUserId($userId, $ipAddress = null)
     {
@@ -225,7 +318,7 @@ class Manager
         $query = $model->where('user_id', '=', $userId);
 
         if ($ipAddress) {
-            $query->where(function($query) use ($ipAddress) {
+            $query->where(function ($query) use ($ipAddress) {
                 $query->where('ip_address', '=', $ipAddress);
                 $query->orWhere('ip_address', '=', null);
             });
@@ -249,18 +342,42 @@ class Manager
     //
 
     /**
-     * Attempts to authenticate the given user according to the passed credentials.
+     * Attempt to authenticate a user using the given credentials.
      *
      * @param array $credentials The user login details
      * @param bool $remember Store a non-expire cookie for the user
+     * @throws AuthException If authentication fails
+     * @return Models\User The successfully logged in user
      */
-    public function authenticate(array $credentials, $remember = true)
+    public function attempt(array $credentials = [], $remember = false)
+    {
+        return !!$this->authenticate($credentials, $remember);
+    }
+
+    /**
+     * Validate a user's credentials.
+     *
+     * @param  array  $credentials
+     * @return bool
+     */
+    public function validate(array $credentials = [])
+    {
+        return !!$this->validateInternal($credentials);
+    }
+
+    /**
+     * Validate a user's credentials, method used internally.
+     *
+     * @param  array  $credentials
+     * @return User
+     */
+    protected function validateInternal(array $credentials = [])
     {
         /*
          * Default to the login name field or fallback to a hard-coded 'login' value
          */
         $loginName = $this->createUserModel()->getLoginName();
-        $loginCredentialKey = (isset($credentials[$loginName])) ? $loginName : 'login';
+        $loginCredentialKey = isset($credentials[$loginName]) ? $loginName : 'login';
 
         if (empty($credentials[$loginCredentialKey])) {
             throw new AuthException(sprintf('The "%s" attribute is required.', $loginCredentialKey));
@@ -305,7 +422,21 @@ class Manager
             $throttle->clearLoginAttempts();
         }
 
+        return $user;
+    }
+
+    /**
+     * Attempts to authenticate the given user according to the passed credentials.
+     *
+     * @param array $credentials The user login details
+     * @param bool $remember Store a non-expire cookie for the user
+     */
+    public function authenticate(array $credentials, $remember = true)
+    {
+        $user = $this->validateInternal($credentials);
+
         $user->clearResetPassword();
+
         $this->login($user, $remember);
 
         return $this->user;
@@ -319,19 +450,31 @@ class Manager
     public function check()
     {
         if (is_null($this->user)) {
-
             /*
              * Check session first, follow by cookie
              */
-            if (
-                !($userArray = Session::get($this->sessionKey)) &&
-                !($userArray = Cookie::get($this->sessionKey))
-            ) {
+            if ($sessionArray = Session::get($this->sessionKey)) {
+                $userArray = $sessionArray;
+            }
+            elseif ($cookieArray = Cookie::get($this->sessionKey)) {
+                $this->viaRemember = true;
+                /*
+                 * Shift gracefully to unserialized cookies
+                 * @todo Remove if statement below if year >= 2021 or build >= 475
+                 */
+                if (is_array($cookieArray)) {
+                    $userArray = $cookieArray;
+                }
+                else {
+                    $userArray = @json_decode($cookieArray, true);
+                }
+            }
+            else {
                 return false;
             }
 
             /*
-             * Check supplied session/cookie is an array (username, persist code)
+             * Check supplied session/cookie is an array (user id, persist code)
              */
             if (!is_array($userArray) || count($userArray) !== 2) {
                 return false;
@@ -342,7 +485,7 @@ class Manager
             /*
              * Look up user
              */
-            if (!$user = $this->createUserModel()->find($id)) {
+            if (!$user = $this->findUserById($id)) {
                 return false;
             }
 
@@ -370,7 +513,7 @@ class Manager
          * Throttle check
          */
         if ($this->useThrottle) {
-            $throttle = $this->findThrottleByUserId($user->getKey());
+            $throttle = $this->findThrottleByUserId($user->getKey(), $this->ipAddress);
 
             if ($throttle->is_banned || $throttle->checkSuspended()) {
                 $this->logout();
@@ -382,15 +525,93 @@ class Manager
     }
 
     /**
+     * Determine if the current user is a guest.
+     *
+     * @return bool
+     */
+    public function guest()
+    {
+        return false;
+    }
+
+    /**
+     * Get the currently authenticated user.
+     *
+     * @return \Illuminate\Contracts\Auth\Authenticatable|null
+     */
+    public function user()
+    {
+        return $this->getUser();
+    }
+
+    /**
+     * Get the ID for the currently authenticated user.
+     *
+     * @return int|null
+     */
+    public function id()
+    {
+        if ($user = $this->getUser()) {
+            return $user->getAuthIdentifier();
+        }
+
+        return null;
+    }
+
+    /**
+     * Log a user into the application without sessions or cookies.
+     *
+     * @param  array  $credentials
+     * @return bool
+     */
+    public function once(array $credentials = [])
+    {
+        $this->useSession = false;
+
+        $user = $this->authenticate($credentials);
+
+        $this->useSession = true;
+
+        return !!$user;
+    }
+
+    /**
+     * Log the given user ID into the application without sessions or cookies.
+     *
+     * @param  mixed  $id
+     * @return \Illuminate\Contracts\Auth\Authenticatable|false
+     */
+    public function onceUsingId($id)
+    {
+        if (!is_null($user = $this->findUserById($id))) {
+            $this->setUser($user);
+
+            return $user;
+        }
+
+        return false;
+    }
+
+    /**
      * Logs in the given user and sets properties
      * in the session.
+     * @throws AuthException If the user is not activated and $this->requireActivation = true
      */
-    public function login($user, $remember = true)
+    public function login(Authenticatable $user, $remember = true)
     {
+        /*
+         * Fire the 'beforeLogin' event
+         */
+        $user->beforeLogin();
+
+        /*
+         * Activation is required, user not activated
+         */
         if ($this->requireActivation && !$user->is_activated) {
             $login = $user->getLogin();
             throw new AuthException(sprintf(
-                'Cannot login user "%s" as they are not activated.', $login
+                'Cannot login user "%s" as they are not activated.',
+                $login
             ));
         }
 
@@ -399,11 +620,13 @@ class Manager
         /*
          * Create session/cookie data to persist the session
          */
-        $toPersist = [$user->getKey(), $user->getPersistCode()];
-        Session::put($this->sessionKey, $toPersist);
+        if ($this->useSession) {
+            $toPersist = [$user->getKey(), $user->getPersistCode()];
+            Session::put($this->sessionKey, $toPersist);
 
-        if ($remember) {
-            Cookie::queue(Cookie::forever($this->sessionKey, $toPersist));
+            if ($remember) {
+                Cookie::queue(Cookie::forever($this->sessionKey, json_encode($toPersist)));
+            }
         }
 
         /*
@@ -413,13 +636,150 @@ class Manager
     }
 
     /**
+     * Log the given user ID into the application.
+     *
+     * @param  mixed  $id
+     * @param  bool   $remember
+     * @return \Illuminate\Contracts\Auth\Authenticatable
+     */
+    public function loginUsingId($id, $remember = false)
+    {
+        if (!is_null($user = $this->findUserById($id))) {
+            $this->login($user, $remember);
+
+            return $user;
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine if the user was authenticated via "remember me" cookie.
+     *
+     * @return bool
+     */
+    public function viaRemember()
+    {
+        return $this->viaRemember;
+    }
+
+    /**
      * Logs the current user out.
      */
     public function logout()
     {
+        // Initialize the current auth session before trying to remove it
+        if (is_null($this->user) && !$this->check()) {
+            return;
+        }
+
+        if ($this->isImpersonator()) {
+            $this->user = $this->getImpersonator();
+            $this->stopImpersonate();
+            return;
+        }
+
+        if ($this->user) {
+            $this->user->setRememberToken(null);
+            $this->user->forceSave();
+        }
+
         $this->user = null;
 
-        Session::forget($this->sessionKey);
+        Session::flush();
         Cookie::queue(Cookie::forget($this->sessionKey));
+    }
+
+    //
+    // Impersonation
+    //
+
+    /**
+     * Impersonates the given user and sets properties
+     * in the session but not the cookie.
+     */
+    public function impersonate($user)
+    {
+        $oldSession = Session::get($this->sessionKey);
+        $oldUser = !empty($oldSession[0]) ? $this->findUserById($oldSession[0]) : false;
+
+        /**
+         * @event model.auth.beforeImpersonate
+         * Called after the model is booted
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.auth.beforeImpersonate', function (\October\Rain\Database\Model|false $oldUser) use (\October\Rain\Database\Model $model) {
+         *         \Log::info($oldUser->full_name . ' is now impersonating ' . $model->full_name);
+         *     });
+         *
+         */
+        $user->fireEvent('model.auth.beforeImpersonate', [$oldUser]);
+
+        $this->login($user, false);
+
+        if (!$this->isImpersonator()) {
+            Session::put($this->sessionKey.'_impersonate', $oldSession);
+        }
+    }
+
+    /**
+     * Stop the current session being impersonated and
+     * authenticate as the impersonator again
+     */
+    public function stopImpersonate()
+    {
+        $currentSession = Session::get($this->sessionKey);
+        $currentUser = !empty($currentSession[0]) ? $this->findUserById($currentSession[0]) : false;
+        $oldSession = Session::pull($this->sessionKey.'_impersonate');
+        $oldUser = !empty($oldSession[0]) ? $this->findUserById($oldSession[0]) : false;
+
+        if ($currentUser) {
+            /**
+             * @event model.auth.afterImpersonate
+             * Called after the model is booted
+             *
+             * Example usage:
+             *
+             *     $model->bindEvent('model.auth.afterImpersonate', function (\October\Rain\Database\Model|false $oldUser) use (\October\Rain\Database\Model $model) {
+             *         \Log::info($oldUser->full_name . ' has stopped impersonating ' . $model->full_name);
+             *     });
+             *
+             */
+            $currentUser->fireEvent('model.auth.afterImpersonate', [$oldUser]);
+        }
+
+        Session::put($this->sessionKey, $oldSession);
+    }
+
+    /**
+     * Check to see if the current session is being impersonated
+     *
+     * @return bool
+     */
+    public function isImpersonator()
+    {
+        return !empty(Session::has($this->sessionKey.'_impersonate'));
+    }
+
+    /**
+     * Get the original user doing the impersonation
+     *
+     * @return mixed Returns the User model for the impersonator if able, false if not
+     */
+    public function getImpersonator()
+    {
+        $impersonateArray = Session::get($this->sessionKey.'_impersonate');
+
+        /*
+         * Check supplied session/cookie is an array (user id, persist code)
+         */
+        if (!is_array($impersonateArray) || count($impersonateArray) !== 2) {
+            return false;
+        }
+
+        $id = $impersonateArray[0];
+
+        return $this->createUserModel()->find($id);
     }
 }

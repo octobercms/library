@@ -6,7 +6,6 @@ use Symfony\Component\Console\Input\InputArgument;
 
 class CreateComponent extends GeneratorCommand
 {
-
     /**
      * The console command name.
      *
@@ -83,5 +82,4 @@ class CreateComponent extends GeneratorCommand
             ['force', null, InputOption::VALUE_NONE, 'Overwrite existing files with generated ones.']
         ];
     }
-
 }

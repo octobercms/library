@@ -117,7 +117,7 @@ class ExceptionBase extends Exception
     }
 
     /**
-     * This method is used when applying the mask exception to the face exception. 
+     * This method is used when applying the mask exception to the face exception.
      * It can be used as an override for child classes who may use different masking logic.
      * @param Exception $exception Face exception being masked.
      * @return void
@@ -132,7 +132,7 @@ class ExceptionBase extends Exception
 
     /**
      * If this exception is acting as a mask, return the face exception. Otherwise return
-     * this exception as the true one. 
+     * this exception as the true one.
      * @return Exception The underlying exception, or this exception if no mask is applied.
      */
     public function getTrueException()
@@ -160,7 +160,7 @@ class ExceptionBase extends Exception
         }
 
         if (!$this->fileContent && File::exists($this->file) && is_readable($this->file)) {
-            $this->fileContent = @file($this->file);
+            $this->fileContent = @file($this->file) ?: [];
         }
 
         $errorLine = $this->line - 1;
@@ -222,7 +222,6 @@ class ExceptionBase extends Exception
         $lastIndex = count($traceInfo) - 1;
 
         foreach ($traceInfo as $index => $event) {
-
             if (!isset($event['function'])) {
                 $event['function'] = null;
             }
@@ -232,7 +231,7 @@ class ExceptionBase extends Exception
                 : $event['function'];
 
             $file = isset($event['file']) ? '~'.File::localToPublic($event['file']) : null;
-            $line = isset($event['line']) ? $event['line'] : null;
+            $line = $event['line'] ?? null;
 
             $args = null;
             if (isset($event['args']) && count($event['args'])) {
@@ -325,7 +324,7 @@ class ExceptionBase extends Exception
                     elseif (is_object($obj)) {
                         $value = 'object('.get_class($obj).')';
                     }
-                    elseif (is_integer($obj)) {
+                    elseif (is_int($obj)) {
                         $value = $obj;
                     }
                     elseif ($obj === null) {
@@ -351,7 +350,7 @@ class ExceptionBase extends Exception
             elseif ($argument === null) {
                 $arg = "null";
             }
-            elseif (is_integer($argument)) {
+            elseif (is_int($argument)) {
                 $arg = $argument;
             }
             else {

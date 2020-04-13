@@ -1,7 +1,5 @@
 <?php namespace October\Rain\Database;
 
-use Exception;
-
 /**
  * Database driver dongle
  *
@@ -10,7 +8,7 @@ use Exception;
 class Dongle
 {
     /**
-     * @var DB Database helper object
+     * @var \Illuminate\Database\DatabaseManager Database helper object
      */
     protected $db;
 
@@ -26,20 +24,13 @@ class Dongle
 
     /**
      * Constructor.
+     * @param string $driver
+     * @param \Illuminate\Database\DatabaseManager $db
      */
     public function __construct($driver = 'mysql', $db = null)
     {
         $this->db = $db;
         $this->driver = $driver;
-    }
-
-    /**
-     * @deprecated use App::hasDatabase()
-     * Remove this method if year >= 2017
-     */
-    public function hasDatabase()
-    {
-        return \App::hasDatabase();
     }
 
     /**
@@ -73,9 +64,10 @@ class Dongle
      */
     public function parseGroupConcat($sql)
     {
-        $result = preg_replace_callback('/group_concat\(([^)]+)\)/i', function($matches){
-            if (!isset($matches[1]))
+        $result = preg_replace_callback('/group_concat\((.+)\)/i', function ($matches) {
+            if (!isset($matches[1])) {
                 return $matches[0];
+            }
 
             switch ($this->driver) {
                 default:
@@ -85,13 +77,21 @@ class Dongle
                 case 'pgsql':
                 case 'postgis':
                 case 'sqlite':
+                case 'sqlsrv':
                     return str_ireplace(' separator ', ', ', $matches[0]);
             }
         }, $sql);
 
         if ($this->driver == 'pgsql' || $this->driver == 'postgis') {
-            $result = preg_replace("/\\(([]a-zA-Z\\-\\_]+)\\,/i", "($1::VARCHAR,", $result);
+            $result = preg_replace("/\\(([]a-zA-Z\\-\\_\\.]+)\\,/i", "($1::VARCHAR,", $result);
             $result = str_ireplace('group_concat(', 'string_agg(', $result);
+        }
+
+        /*
+         * Requires https://groupconcat.codeplex.com/
+         */
+        if ($this->driver == 'sqlsrv') {
+            $result = str_ireplace('group_concat(', 'dbo.GROUP_CONCAT_D(', $result);
         }
 
         return $result;
@@ -104,7 +104,7 @@ class Dongle
      */
     public function parseConcat($sql)
     {
-        return preg_replace_callback('/(?:group_)?concat\(([^)]+)\)(?R)?/i', function($matches){
+        return preg_replace_callback('/(?:group_)?concat\((.+)\)(?R)?/i', function ($matches) {
             if (!isset($matches[1])) {
                 return $matches[0];
             }
@@ -136,11 +136,15 @@ class Dongle
      */
     public function parseIfNull($sql)
     {
-        if ($this->driver != 'pgsql' && $this->driver != 'postgis') {
-            return $sql;
+        if ($this->driver == 'pgsql' || $this->driver == 'postgis') {
+            return str_ireplace('ifnull(', 'coalesce(', $sql);
         }
 
-        return str_ireplace('ifnull(', 'coalesce(', $sql);
+        if ($this->driver == 'sqlsrv') {
+            return str_ireplace('ifnull(', 'isnull(', $sql);
+        }
+
+        return $sql;
     }
 
     /**
@@ -194,10 +198,12 @@ class Dongle
         if (!is_array($columns)) {
             $columns = is_null($columns) ? ['created_at', 'updated_at'] : [$columns];
         }
+        
+        $prefixedTable = $this->getTablePrefix() . $table;
 
         foreach ($columns as $column) {
-            $this->db->statement("ALTER TABLE {$table} MODIFY `{$column}` TIMESTAMP NULL DEFAULT NULL");
-            $this->db->update("UPDATE {$table} SET {$column} = null WHERE {$column} = 0");
+            $this->db->statement("ALTER TABLE {$prefixedTable} MODIFY `{$column}` TIMESTAMP NULL DEFAULT NULL");
+            $this->db->update("UPDATE {$prefixedTable} SET {$column} = null WHERE {$column} = 0");
         }
     }
 

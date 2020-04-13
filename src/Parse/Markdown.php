@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Parse;
 
 use Event;
-use ParsedownExtra;
+use October\Rain\Parse\Parsedown\Parsedown;
 
 /**
  * Markdown helper class.
@@ -32,11 +32,66 @@ class Markdown
     use \October\Rain\Support\Traits\Emitter;
 
     /**
+     * @var October\Rain\Parse\Parsedown\Parsedown Parsedown instance
+     */
+    protected $parser;
+
+    /**
      * Parse text using Markdown and Markdown-Extra
      * @param  string $text Markdown text to parse
      * @return string       Resulting HTML
      */
     public function parse($text)
+    {
+        return $this->parseInternal($text);
+    }
+
+    /**
+     * Enables safe mode
+     * @param  string $text Markdown text to parse
+     * @return string       Resulting HTML
+     */
+    public function parseClean($text)
+    {
+        $this->getParser()->setSafeMode(true);
+
+        $result = $this->parse($text);
+
+        $this->parser = null;
+
+        return $result;
+    }
+
+    /**
+     * Disables code blocks caused by indentation.
+     * @param  string $text Markdown text to parse
+     * @return string       Resulting HTML
+     */
+    public function parseSafe($text)
+    {
+        $this->getParser()->setUnmarkedBlockTypes([]);
+
+        $result = $this->parse($text);
+
+        $this->parser = null;
+
+        return $result;
+    }
+
+    /**
+     * Parse a single line
+     * @param  string $text Markdown text to parse
+     * @return string       Resulting HTML
+     */
+    public function parseLine($text)
+    {
+        return $this->parseInternal($text, 'line');
+    }
+
+    /**
+     * Internal method for parsing
+     */
+    protected function parseInternal($text, $method = 'text')
     {
         $data = new MarkdownData($text);
 
@@ -45,8 +100,7 @@ class Markdown
 
         $result = $data->text;
 
-        $instance = new ParsedownExtra;
-        $result = $instance->text($result);
+        $result = $this->getParser()->$method($result);
 
         $data->text = $result;
 
@@ -56,5 +110,14 @@ class Markdown
         Event::fire('markdown.parse', [$text, $data], false);
 
         return $data->text;
+    }
+
+    protected function getParser()
+    {
+        if ($this->parser === null) {
+            $this->parser = new Parsedown;
+        }
+
+        return $this->parser;
     }
 }

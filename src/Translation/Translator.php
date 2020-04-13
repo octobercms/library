@@ -1,8 +1,9 @@
 <?php namespace October\Rain\Translation;
 
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Collection;
 use Symfony\Component\Translation\MessageSelector;
-use Symfony\Component\Translation\TranslatorInterface;
+use Illuminate\Contracts\Translation\Translator as TranslatorContract;
 
 /**
  * October translator class.
@@ -10,7 +11,7 @@ use Symfony\Component\Translation\TranslatorInterface;
  * @package translation
  * @author Alexey Bobkov, Samuel Georges
  */
-class Translator implements TranslatorInterface
+class Translator implements TranslatorContract
 {
     use \October\Rain\Support\Traits\KeyParser;
 
@@ -43,6 +44,13 @@ class Translator implements TranslatorInterface
      * @var array
      */
     protected $loaded = [];
+
+    /**
+     * The event dispatcher instance.
+     *
+     * @var \Illuminate\Contracts\Events\Dispatcher|\October\Rain\Events\Dispatcher
+     */
+    protected $events;
 
     /**
      * Create a new translator instance.
@@ -79,6 +87,24 @@ class Translator implements TranslatorInterface
      */
     public function get($key, array $replace = [], $locale = null)
     {
+        /**
+         * @event translator.beforeResolve
+         * Fires before the translator resolves the requested language key
+         *
+         * Example usage (overrides the value returned for a specific language key):
+         *
+         *     Event::listen('translator.beforeResolve', function ((string) $key, (array) $replace, (string|null) $locale) {
+         *         if ($key === 'my.custom.key') {
+         *             return 'My overriding value';
+         *         }
+         *     });
+         *
+         */
+        if (isset($this->events) &&
+            ($line = $this->events->fire('translator.beforeResolve', [$key, $replace, $locale], true))) {
+            return $line;
+        }
+
         if ($line = $this->getValidationSpecific($key, $replace, $locale)) {
             return $line;
         }
@@ -96,7 +122,11 @@ class Translator implements TranslatorInterface
             $this->load($namespace, $group, $locale);
 
             $line = $this->getLine(
-                $namespace, $group, $locale, $item, $replace
+                $namespace,
+                $group,
+                $locale,
+                $item,
+                $replace
             );
 
             if (!is_null($line)) {
@@ -108,7 +138,7 @@ class Translator implements TranslatorInterface
         // that will be quick to spot in the UI if language keys are wrong or missing
         // from the application's language files. Otherwise we can return the line.
         if (!isset($line)) {
-            return $key;
+            return $this->makeReplacements($key, $replace);
         }
 
         return $line;
@@ -207,6 +237,12 @@ class Translator implements TranslatorInterface
 
         $replace['count'] = $number;
 
+        // Format locale for MessageSelector
+        if (strpos($locale, '-') !== false) {
+            $localeParts = explode('-', $locale, 2);
+            $locale = $localeParts[0] . '_' . strtoupper($localeParts[1]);
+        }
+
         return $this->makeReplacements($this->getSelector()->choose($line, $number, $locale), $replace);
     }
 
@@ -215,11 +251,10 @@ class Translator implements TranslatorInterface
      *
      * @param  string  $id
      * @param  array   $parameters
-     * @param  string  $domain
      * @param  string  $locale
      * @return string
      */
-    public function trans($id, array $parameters = [], $domain = 'messages', $locale = null)
+    public function trans($id, array $parameters = [], $locale = null)
     {
         return $this->get($id, $parameters, $locale);
     }
@@ -230,11 +265,10 @@ class Translator implements TranslatorInterface
      * @param  string  $id
      * @param  int     $number
      * @param  array   $parameters
-     * @param  string  $domain
      * @param  string  $locale
      * @return string
      */
-    public function transChoice($id, $number, array $parameters = [], $domain = 'messages', $locale = null)
+    public function transChoice($id, $number, array $parameters = [], $locale = null)
     {
         return $this->choice($id, $number, $parameters, $locale);
     }
@@ -388,4 +422,14 @@ class Translator implements TranslatorInterface
         $this->fallback = $fallback;
     }
 
+    /**
+     * Set the event dispatcher instance.
+     *
+     * @param  \Illuminate\Contracts\Events\Dispatcher  $events
+     * @return void
+     */
+    public function setEventDispatcher(Dispatcher $events)
+    {
+        $this->events = $events;
+    }
 }

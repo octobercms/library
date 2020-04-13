@@ -12,11 +12,14 @@ class Http extends Facade
 {
     /**
      * Get the registered name of the component.
-     * 
+     *
      * Resolves to:
      * - October\Rain\Network\Http
-     * 
+     *
      * @return string
      */
-    protected static function getFacadeAccessor() { return 'network.http'; }
+    protected static function getFacadeAccessor()
+    {
+        return 'network.http';
+    }
 }

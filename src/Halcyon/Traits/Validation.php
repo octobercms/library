@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Halcyon\Traits;
 
-use Input;
 use Illuminate\Support\MessageBag;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Validator;
 use October\Rain\Halcyon\Exception\ModelException;
 use Exception;
@@ -56,8 +56,8 @@ trait Validation
             throw new Exception(sprintf('You must define a $rules property in %s to use the Validation trait.', get_called_class()));
         }
 
-        static::extend(function($model) {
-            $model->bindEvent('model.saveInternal', function($data, $options) use ($model) {
+        static::extend(function ($model) {
+            $model->bindEvent('model.saveInternal', function ($data, $options) use ($model) {
                 /*
                  * If forcing the save event, the beforeValidate/afterValidate
                  * events should still fire for consistency. So validate an
@@ -74,7 +74,6 @@ trait Validation
                 if (!$valid) {
                     return false;
                 }
-
             }, 500);
         });
     }
@@ -125,9 +124,8 @@ trait Validation
             if ($throwOnValidation) {
                 throw new ModelException($this);
             }
-            else {
-                return false;
-            }
+
+            return false;
         }
 
         if ($this->methodExists('beforeValidate')) {
@@ -137,12 +135,11 @@ trait Validation
         /*
          * Perform validation
          */
-        $rules = (is_null($rules)) ? $this->rules : $rules;
+        $rules = is_null($rules) ? $this->rules : $rules;
         $rules = $this->processValidationRules($rules);
         $success = true;
 
         if (!empty($rules)) {
-
             $data = $this->getValidationAttributes();
 
             $lang = static::getModelValidator()->getTranslator();
@@ -159,7 +156,7 @@ trait Validation
             }
 
             $translatedCustomMessages = [];
-            foreach ($customMessages as $rule => $customMessage){
+            foreach ($customMessages as $rule => $customMessage) {
                 $translatedCustomMessages[$rule] = $lang->get($customMessage);
             }
 
@@ -177,7 +174,7 @@ trait Validation
             }
 
             $translatedAttributeNames = [];
-            foreach ($attributeNames as $attribute => $attributeName){
+            foreach ($attributeNames as $attribute => $attributeName) {
                 $translatedAttributeNames[$attribute] = $lang->get($attributeName);
             }
 
@@ -205,8 +202,16 @@ trait Validation
             }
             else {
                 $this->validationErrors = $validator->messages();
-                if (class_exists('Input') && Input::hasSession()) {
-                    Input::flash();
+
+                /*
+                 * Flash input, if available
+                 */
+                if (
+                    ($input = Input::getFacadeRoot()) &&
+                    method_exists($input, 'hasSession') &&
+                    $input->hasSession()
+                ) {
+                    $input->flash();
                 }
             }
         }
@@ -230,6 +235,11 @@ trait Validation
      */
     protected function processValidationRules($rules)
     {
+        /*
+         * Run through field names and convert array notation field names to dot notation
+         */
+        $rules = $this->processRuleFieldNames($rules);
+
         foreach ($rules as $field => $ruleParts) {
             /*
              * Trim empty rules
@@ -256,7 +266,7 @@ trait Validation
                 if (starts_with($rulePart, 'required:create') && $this->exists) {
                     unset($ruleParts[$key]);
                 }
-                else if (starts_with($rulePart, 'required:update') && !$this->exists) {
+                elseif (starts_with($rulePart, 'required:update') && !$this->exists) {
                     unset($ruleParts[$key]);
                 }
             }
@@ -265,6 +275,32 @@ trait Validation
         }
 
         return $rules;
+    }
+
+    /**
+     * Processes field names in a rule array.
+     *
+     * Converts any field names using array notation (ie. `field[child]`) into dot notation (ie. `field.child`)
+     *
+     * @param array $rules Rules array
+     * @return array
+     */
+    protected function processRuleFieldNames($rules)
+    {
+        $processed = [];
+
+        foreach ($rules as $field => $ruleParts) {
+            $fieldName = $field;
+
+            if (preg_match('/^.*?\[.*?\]/', $fieldName)) {
+                $fieldName = str_replace('[]', '.*', $fieldName);
+                $fieldName = str_replace(['[', ']'], ['.', ''], $fieldName);
+            }
+
+            $processed[$fieldName] = $ruleParts;
+        }
+
+        return $processed;
     }
 
     /**
@@ -364,5 +400,4 @@ trait Validation
     {
         static::$validator = null;
     }
-
 }

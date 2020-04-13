@@ -3,7 +3,6 @@
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphMany as MorphManyBase;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use October\Rain\Database\Attach\File as FileModel;
 
 class AttachMany extends MorphManyBase
@@ -35,19 +34,19 @@ class AttachMany extends MorphManyBase
         /*
          * Newly uploaded file(s)
          */
-        if ($value instanceof UploadedFile) {
-            $this->parent->bindEventOnce('model.afterSave', function() use ($value) {
+        if ($this->isValidFileData($value)) {
+            $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
                 $this->create(['data' => $value]);
             });
         }
         elseif (is_array($value)) {
             $files = [];
             foreach ($value as $_value) {
-                if ($_value instanceof UploadedFile) {
+                if ($this->isValidFileData($_value)) {
                     $files[] = $_value;
                 }
             }
-            $this->parent->bindEventOnce('model.afterSave', function() use ($files) {
+            $this->parent->bindEventOnce('model.afterSave', function () use ($files) {
                 foreach ($files as $file) {
                     $this->create(['data' => $file]);
                 }
@@ -57,7 +56,7 @@ class AttachMany extends MorphManyBase
          * Existing File model
          */
         elseif ($value instanceof FileModel) {
-            $this->parent->bindEventOnce('model.afterSave', function() use ($value) {
+            $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
                 $this->add($value);
             });
         }
@@ -71,14 +70,50 @@ class AttachMany extends MorphManyBase
     {
         $value = null;
 
+        $files = $this->getSimpleValueInternal();
+
+        if ($files) {
+            $value = [];
+            foreach ($value as $file) {
+                $value[] = $file->getPath();
+            }
+        }
+
+        return $value;
+    }
+
+    /**
+     * Helper for getting this relationship validation value.
+     */
+    public function getValidationValue()
+    {
+        if ($value = $this->getSimpleValueInternal()) {
+            $files = [];
+            foreach ($value as $file) {
+                $files[] = $this->makeValidationFile($file);
+            }
+
+            return $files;
+        }
+
+        return null;
+    }
+
+    /**
+     * Internal method used by `getSimpleValue` and `getValidationValue`
+     */
+    protected function getSimpleValueInternal()
+    {
+        $value = null;
+
         $files = ($sessionKey = $this->parent->sessionKey)
             ? $this->withDeferred($sessionKey)->get()
             : $this->parent->{$this->relationName};
 
         if ($files) {
             $value = [];
-            $files->each(function($file) use (&$value){
-                $value[] = $file->getPath();
+            $files->each(function ($file) use (&$value) {
+                $value[] = $file;
             });
         }
 

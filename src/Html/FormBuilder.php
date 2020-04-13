@@ -65,7 +65,7 @@ class FormBuilder
      * The reserved form open attributes.
      * @var array
      */
-    protected $reservedAjax = ['request', 'success', 'error', 'complete', 'confirm', 'redirect', 'update', 'data'];
+    protected $reservedAjax = ['request', 'success', 'error', 'complete', 'confirm', 'redirect', 'update', 'data', 'validate', 'flash'];
 
     /**
      * The form methods that should be spoofed, in uppercase.
@@ -149,7 +149,8 @@ class FormBuilder
         // format the array of attributes. We will also add on the appendage which
         // is used to spoof requests for this PUT, PATCH, etc. methods on forms.
         $attributes = array_merge(
-            $attributes, array_except($options, $this->reserved)
+            $attributes,
+            array_except($options, $this->reserved)
         );
 
         // Finally, we will concatenate all of the attributes into a single string so
@@ -168,19 +169,25 @@ class FormBuilder
      */
     public function ajax($handler, array $options = [])
     {
-        if (is_array($handler))
+        if (is_array($handler)) {
             $handler = implode('::', $handler);
+        }
 
         $attributes = array_merge(
-
             ['data-request' => $handler],
             array_except($options, $this->reservedAjax)
-
         );
 
         $ajaxAttributes = array_diff_key($options, $attributes);
         foreach ($ajaxAttributes as $property => $value) {
             $attributes['data-request-' . $property] = $value;
+        }
+
+        /*
+         * The `files` option is a hybrid
+         */
+        if (isset($options['files'])) {
+            $attributes['data-request-files'] = $options['files'];
         }
 
         return $this->open($attributes);
@@ -234,7 +241,7 @@ class FormBuilder
     {
         $token = !empty($this->csrfToken)
             ? $this->csrfToken
-            : $this->session->getToken();
+            : $this->session->token();
 
         return $this->hidden('_token', $token);
     }
@@ -1043,12 +1050,31 @@ class FormBuilder
     }
 
     /**
-     * Helper for getting form values. Tries to find the "old" value (Laravel),
-     * then looks at the form model values, then uses a postback value.
+     * Helper for getting form values. Tries to find the old value,
+     * then uses a postback/get value, then looks at the form model values.
+     * @param  string $name
+     * @param  string $value
+     * @return string
      */
     public function value($name, $value = null)
     {
-        return $this->getValueAttribute($name) ?: input($name, $value);
+        if (is_null($name)) {
+            return $value;
+        }
+
+        if (!is_null($this->old($name))) {
+            return $this->old($name);
+        }
+
+        if (!is_null(input($name, null))) {
+            return input($name);
+        }
+
+        if (isset($this->model)) {
+            return $this->getModelValueAttribute($name);
+        }
+
+        return $value;
     }
 
     /**
@@ -1057,8 +1083,9 @@ class FormBuilder
      */
     protected function requestHandler($name = null)
     {
-        if (!strlen($name))
+        if (!strlen($name)) {
             return '';
+        }
 
         return $this->hidden('_handler', $name);
     }
@@ -1069,8 +1096,9 @@ class FormBuilder
      */
     public function sessionKey($sessionKey = null)
     {
-        if (!$sessionKey)
+        if (!$sessionKey) {
             $sessionKey = post('_session_key', $this->sessionKey);
+        }
 
         return $this->hidden('_session_key', $sessionKey);
     }
@@ -1083,5 +1111,4 @@ class FormBuilder
     {
         return $this->sessionKey;
     }
-
 }

@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Argon;
 
-use October\Rain\Argon\Argon;
 use October\Rain\Support\ServiceProvider;
 
 class ArgonServiceProvider extends ServiceProvider
@@ -23,7 +22,7 @@ class ArgonServiceProvider extends ServiceProvider
 
         $this->setArgonLocale($locale);
 
-        $this->app['events']->listen('locale.changed', function($locale) {
+        $this->app['events']->listen('locale.changed', function ($locale) {
             $this->setArgonLocale($locale);
         });
     }
@@ -43,7 +42,11 @@ class ArgonServiceProvider extends ServiceProvider
     protected function getFallbackLocale($locale)
     {
         if ($position = strpos($locale, '-')) {
-            return substr($locale, 0, $position);
+            $target = substr($locale, 0, $position);
+            $resource = __DIR__ . '/../../../../jenssegers/date/src/Lang/'.$target.'.php';
+            if (file_exists($resource)) {
+                return $target;
+            }
         }
 
         return $this->app['config']->get('app.fallback_locale');

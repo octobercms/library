@@ -18,10 +18,11 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        'October\Rain\Exception\AjaxException',
-        'October\Rain\Exception\ValidationException',
-        'October\Rain\Exception\ApplicationException',
-        'Symfony\Component\HttpKernel\Exception\HttpException',
+        \October\Rain\Exception\AjaxException::class,
+        \October\Rain\Exception\ValidationException::class,
+        \October\Rain\Exception\ApplicationException::class,
+        \Illuminate\Database\Eloquent\ModelNotFoundException::class,
+        \Symfony\Component\HttpKernel\Exception\HttpException::class,
     ];
 
     /**
@@ -41,10 +42,41 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $exception)
     {
-        if ($this->shouldntReport($exception))
+        /**
+         * @event exception.beforeReport
+         * Fires before the exception has been reported
+         *
+         * Example usage (prevents the reporting of a given exception)
+         *
+         *     Event::listen('exception.report', function (\Exception $exception) {
+         *         if ($exception instanceof \My\Custom\Exception) {
+         *             return false;
+         *         }
+         *     });
+         */
+        if (Event::fire('exception.beforeReport', [$exception], true) === false) {
             return;
+        }
 
-        Log::error($exception);
+        if ($this->shouldntReport($exception)) {
+            return;
+        }
+
+        if (class_exists('Log')) {
+            Log::error($exception);
+        }
+
+        /**
+         * @event exception.report
+         * Fired after the exception has been reported
+         *
+         * Example usage (performs additional reporting on the exception)
+         *
+         *     Event::listen('exception.report', function (\Exception $exception) {
+         *         app('sentry')->captureException($exception);
+         *     });
+         */
+        Event::fire('exception.report', [$exception]);
     }
 
     /**
@@ -56,10 +88,18 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        if (!class_exists('Event')) {
+            return parent::render($request, $exception);
+        }
+
         $statusCode = $this->getStatusCode($exception);
         $response = $this->callCustomHandlers($exception);
 
         if (!is_null($response)) {
+            if ($response instanceof \Symfony\Component\HttpFoundation\Response) {
+                return $response;
+            }
+
             return Response::make($response, $statusCode);
         }
 
@@ -89,6 +129,16 @@ class Handler extends ExceptionHandler
         }
 
         return $code;
+    }
+
+    /**
+     * Get the default context variables for logging.
+     *
+     * @return array
+     */
+    protected function context()
+    {
+        return [];
     }
 
     //
@@ -131,8 +181,8 @@ class Handler extends ExceptionHandler
             try {
                 $response = $handler($exception, $code, $fromConsole);
             }
-            catch (\Exception $e) {
-                $response = $this->formatException($e);
+            catch (Exception $e) {
+                $response = $this->convertExceptionToResponse($e);
             }
             // If this handler returns a "non-null" response, we will return it so it will
             // get sent back to the browsers. Once the handler returns a valid response

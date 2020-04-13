@@ -15,8 +15,21 @@ class HtmlBuilderTest extends TestCase
         $result = with(new HtmlBuilder)->limit('<p>The quick brown fox jumped over the lazy dog</p>', 10);
         $this->assertEquals('<p>The quick ...</p>', $result);
 
-        $result = with(new HtmlBuilder)->limit('<p>The quick brown fox jumped over the lazy dog</p>', 20, '!!!');
-        $this->assertEquals('<p>The quick brown fox !!!</p>', $result);
+        $result = with(new HtmlBuilder)->limit('<p>The quick brown fox’s jumped over the lazy dog</p>', 25, '!!!');
+        $this->assertEquals('<p>The quick brown fox’s jum!!!</p>', $result);
+
+        $result = with(new HtmlBuilder)->limit("<p>The quick brown fox jumped over the lazy dog</p><p>The quick brown fox jumped over the lazy dog</p>", 50);
+        $this->assertEquals('<p>The quick brown fox jumped over the lazy dog</p><p>The qu...</p>', $result);
+
+        $result = with(new HtmlBuilder)->limit(trim("
+            <p>The quick brown fox jumped over the lazy dog</p>
+            <p>The quick brown fox jumped over the lazy dog</p>
+        "), 60);
+
+        $this->assertEquals(trim('
+            <p>The quick brown fox jumped over the lazy dog</p>
+            <p>The...</p>
+        '), $result);
     }
 
     public function testClean()

@@ -27,6 +27,25 @@ class QueryBuilder extends QueryBuilderBase
     protected $cacheTags;
 
     /**
+     * Indicates whether duplicate queries are being cached in memory.
+     *
+     * @var bool
+     */
+    protected $cachingDuplicateQueries = false;
+
+    /**
+     * Get an array with the values of a given column.
+     *
+     * @param  string  $column
+     * @param  string|null  $key
+     * @return array
+     */
+    public function lists($column, $key = null)
+    {
+        return $this->pluck($column, $key)->all();
+    }
+
+    /**
      * Indicate that the query results should be cached.
      *
      * @param  \DateTime|int  $minutes
@@ -65,15 +84,47 @@ class QueryBuilder extends QueryBuilderBase
     }
 
     /**
-      * {@inheritDoc}
-      */
-     public function get($columns = ['*'])
-     {
+     * @inheritDoc
+     */
+    public function get($columns = ['*'])
+    {
+        if ($this->cachingDuplicates()) {
+            return $this->getDuplicateCached($columns);
+        }
+
         if (!is_null($this->cacheMinutes)) {
             return $this->getCached($columns);
         }
 
         return parent::get($columns);
+    }
+
+    /**
+     * Check the memory cache before executing the query
+     *
+     * @param  array  $columns
+     * @return array
+     */
+    protected function getDuplicateCached($columns = ['*'])
+    {
+        if (is_null($this->columns)) {
+            $this->columns = $columns;
+        }
+
+        $cache = MemoryCache::instance();
+
+        if ($cache->has($this)) {
+            $results = collect($cache->get($this));
+        }
+        else {
+            $results = !is_null($this->cacheMinutes)
+                ? $this->getCached($columns)
+                : parent::get($columns);
+
+            $cache->put($this, $results->all());
+        }
+
+        return $results;
     }
 
     /**
@@ -101,10 +152,13 @@ class QueryBuilder extends QueryBuilderBase
         // that the value should be remembered values should be stored indefinitely
         // and if we have minutes we will use the typical remember function here.
         if ($minutes < 0) {
-            return $cache->rememberForever($key, $callback);
+            $results = $cache->rememberForever($key, $callback);
+        }
+        else {
+            $results = $cache->remember($key, $minutes, $callback);
         }
 
-        return $cache->remember($key, $minutes, $callback);
+        return collect($results);
     }
 
     /**
@@ -159,7 +213,9 @@ class QueryBuilder extends QueryBuilderBase
      */
     protected function getCacheCallback($columns)
     {
-        return function() use ($columns) { return parent::get($columns); };
+        return function () use ($columns) {
+            return parent::get($columns)->all();
+        };
     }
 
     /**
@@ -180,5 +236,129 @@ class QueryBuilder extends QueryBuilderBase
         $this->orders = $previousOrders;
 
         return $result;
+    }
+
+    /**
+     * Update a record in the database.
+     *
+     * @param  array $values
+     * @return int
+     */
+    public function update(array $values)
+    {
+        $this->clearDuplicateCache();
+
+        return parent::update($values);
+    }
+
+    /**
+     * Delete a record from the database.
+     *
+     * @param  mixed $id
+     * @return int
+     */
+    public function delete($id = null)
+    {
+        $this->clearDuplicateCache();
+
+        return parent::delete($id);
+    }
+
+    /**
+     * Insert a new record and get the value of the primary key.
+     *
+     * @param  array   $values
+     * @param  string  $sequence
+     * @return int
+     */
+    public function insertGetId(array $values, $sequence = null)
+    {
+        $this->clearDuplicateCache();
+
+        return parent::insertGetId($values, $sequence);
+    }
+
+    /**
+     * Insert a new record into the database.
+     *
+     * @param  array  $values
+     * @return bool
+     */
+    public function insert(array $values)
+    {
+        $this->clearDuplicateCache();
+
+        return parent::insert($values);
+    }
+
+    /**
+     * Run a truncate statement on the table.
+     *
+     * @return void
+     */
+    public function truncate()
+    {
+        $this->clearDuplicateCache();
+
+        parent::truncate();
+    }
+
+    /**
+     * Clear memory cache for the given table.
+     *
+     * @param  string|null  $table
+     * @return \Illuminate\Database\Query\Builder|static
+     */
+    public function clearDuplicateCache($table = null)
+    {
+        MemoryCache::instance()->forget($table ?: $this->from);
+
+        return $this;
+    }
+
+    /**
+     * Flush the memory cache.
+     *
+     * @return \Illuminate\Database\Query\Builder|static
+     */
+    public function flushDuplicateCache()
+    {
+        MemoryCache::instance()->flush();
+
+        return $this;
+    }
+
+    /**
+     * Enable the memory cache on the query.
+     *
+     * @return \Illuminate\Database\Query\Builder|static
+     */
+    public function enableDuplicateCache()
+    {
+        $this->cachingDuplicateQueries = true;
+
+        return $this;
+    }
+
+    /**
+     * Disable the memory cache on the query.
+     *
+     * @return \Illuminate\Database\Query\Builder|static
+     */
+    public function disableDuplicateCache()
+    {
+        $this->cachingDuplicateQueries = false;
+
+        return $this;
+    }
+
+    /**
+     * Determine whether we're caching duplicate queries.
+     *
+     * @return bool
+     */
+    public function cachingDuplicates()
+    {
+        return $this->cachingDuplicateQueries;
     }
 }

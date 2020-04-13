@@ -36,6 +36,13 @@ trait DefinedConstraints
         }
 
         /*
+         * Default models (belongsTo)
+         */
+        if ($defaultData = array_get($args, 'default')) {
+            $relation->withDefault($defaultData === true ? null : $defaultData);
+        }
+
+        /*
          * Pivot data (belongsToMany, morphToMany, morphByMany)
          */
         if ($pivotData = array_get($args, 'pivot')) {
@@ -62,6 +69,7 @@ trait DefinedConstraints
             $relation
                 ->select($relation->getForeignKey(), $countSql)
                 ->groupBy($relation->getForeignKey())
+                ->orderBy($relation->getForeignKey())
             ;
         }
     }
@@ -88,17 +96,20 @@ trait DefinedConstraints
         /*
          * Sort order
          */
-        if ($orderBy = array_get($args, 'order')) {
-            if (!is_array($orderBy))
+        $hasCountArg = array_get($args, 'count') !== null;
+        if (($orderBy = array_get($args, 'order')) && !$hasCountArg) {
+            if (!is_array($orderBy)) {
                 $orderBy = [$orderBy];
+            }
 
             foreach ($orderBy as $order) {
                 $column = $order;
                 $direction = 'asc';
 
                 $parts = explode(' ', $order);
-                if (count($parts) > 1)
+                if (count($parts) > 1) {
                     list($column, $direction) = $parts;
+                }
 
                 $query->orderBy($column, $direction);
             }
@@ -108,8 +119,7 @@ trait DefinedConstraints
          * Scope
          */
         if ($scope = array_get($args, 'scope')) {
-            $query->$scope();
+            $query->$scope($this->parent);
         }
     }
-
 }

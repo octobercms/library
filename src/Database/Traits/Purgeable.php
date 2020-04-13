@@ -6,7 +6,7 @@ trait Purgeable
 {
     /**
      * @var array List of attribute names which should not be saved to the database.
-     * 
+     *
      * protected $purgeable = [];
      */
 
@@ -21,19 +21,35 @@ trait Purgeable
      */
     public static function bootPurgeable()
     {
-        if (!property_exists(get_called_class(), 'purgeable'))
+        if (!property_exists(get_called_class(), 'purgeable')) {
             throw new Exception(sprintf(
-                'You must define a $purgeable property in %s to use the Purgeable trait.', get_called_class()
+                'You must define a $purgeable property in %s to use the Purgeable trait.',
+                get_called_class()
             ));
+        }
 
         /*
          * Remove any purge attributes from the data set
          */
-        static::extend(function($model){
-            $model->bindEvent('model.saveInternal', function() use ($model) {
+        static::extend(function ($model) {
+            $model->bindEvent('model.saveInternal', function () use ($model) {
                 $model->purgeAttributes();
             });
         });
+    }
+
+    /**
+     * Adds an attribute to the purgeable attributes list
+     * @param  array|string|null  $attributes
+     * @return $this
+     */
+    public function addPurgeable($attributes = null)
+    {
+        $attributes = is_array($attributes) ? $attributes : func_get_args();
+
+        $this->purgeable = array_merge($this->purgeable, $attributes);
+
+        return $this;
     }
 
     /**
@@ -43,19 +59,23 @@ trait Purgeable
      */
     public function purgeAttributes($attributesToPurge = null)
     {
-        if ($attributesToPurge !== null)
+        if ($attributesToPurge !== null) {
             $purgeable = is_array($attributesToPurge) ? $attributesToPurge : [$attributesToPurge];
-        else
+        }
+        else {
             $purgeable = $this->getPurgeableAttributes();
+        }
 
         $attributes = $this->getAttributes();
         $cleanAttributes = array_diff_key($attributes, array_flip($purgeable));
         $originalAttributes = array_diff_key($attributes, $cleanAttributes);
 
-        if (is_array($this->originalPurgeableValues))
+        if (is_array($this->originalPurgeableValues)) {
             $this->originalPurgeableValues = array_merge($this->originalPurgeableValues, $originalAttributes);
-        else
+        }
+        else {
             $this->originalPurgeableValues = $originalAttributes;
+        }
 
         return $this->attributes = $cleanAttributes;
     }
@@ -81,9 +101,7 @@ trait Purgeable
      */
     public function getOriginalPurgeValue($attribute)
     {
-        return isset($this->originalPurgeableValues[$attribute])
-            ? $this->originalPurgeableValues[$attribute]
-            : null;
+        return $this->originalPurgeableValues[$attribute] ?? null;
     }
 
     /**

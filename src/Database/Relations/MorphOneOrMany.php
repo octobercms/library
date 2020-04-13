@@ -20,10 +20,9 @@ trait MorphOneOrMany
         if ($sessionKey === null) {
             return parent::save($model);
         }
-        else {
-            $this->add($model, $sessionKey);
-            return $model->save() ? $model : false;
-        }
+
+        $this->add($model, $sessionKey);
+        return $model->save() ? $model : false;
     }
 
     /**
@@ -33,8 +32,9 @@ trait MorphOneOrMany
     {
         $model = parent::create($attributes);
 
-        if ($sessionKey !== null)
+        if ($sessionKey !== null) {
             $this->add($model, $sessionKey);
+        }
 
         return $model;
     }
@@ -45,8 +45,8 @@ trait MorphOneOrMany
     public function add(Model $model, $sessionKey = null)
     {
         if ($sessionKey === null) {
-            $model->setAttribute($this->getPlainForeignKey(), $this->parent->getKey());
-            $model->setAttribute($this->getPlainMorphType(), $this->morphClass);
+            $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
+            $model->setAttribute($this->getMorphType(), $this->morphClass);
             $model->save();
 
             /*
@@ -70,7 +70,6 @@ trait MorphOneOrMany
     public function remove(Model $model, $sessionKey = null)
     {
         if ($sessionKey === null) {
-
             $options = $this->parent->getRelationDefinition($this->relationName);
 
             if (array_get($options, 'delete', false)) {
@@ -80,24 +79,23 @@ trait MorphOneOrMany
                 /*
                  * Make this model an orphan ;~(
                  */
-                $model->setAttribute($this->getPlainForeignKey(), null);
-                $model->setAttribute($this->getPlainMorphType(), null);
+                $model->setAttribute($this->getForeignKeyName(), null);
+                $model->setAttribute($this->getMorphType(), null);
                 $model->save();
+            }
 
-                /*
-                 * Use the opportunity to set the relation in memory
-                 */
-                if ($this instanceof MorphOne) {
-                    $this->parent->setRelation($this->relationName, null);
-                }
-                else {
-                    $this->parent->reloadRelations($this->relationName);
-                }
+            /*
+             * Use the opportunity to set the relation in memory
+             */
+            if ($this instanceof MorphOne) {
+                $this->parent->setRelation($this->relationName, null);
+            }
+            else {
+                $this->parent->reloadRelations($this->relationName);
             }
         }
         else {
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);
         }
     }
-
 }

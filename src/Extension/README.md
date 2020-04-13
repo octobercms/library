@@ -2,7 +2,7 @@
 
 Adds the ability for classes to have *private traits*, also known as Behaviors. These are similar to native PHP Traits except they have some distinct benefits:
 
-1. Behaviors have their own contructor.
+1. Behaviors have their own constructor.
 1. Behaviors can have private or protected methods.
 1. Methods and property names can conflict safely.
 1. Class can be extended with behaviors dynamically.
@@ -135,7 +135,7 @@ Any class that uses the `Extendable` or `ExtendableTrait` can have its construct
     });
 
 ### Dynamically creating methods
-Methods can be aded to a `Model` through the use of `addDynamicMethod`.
+Methods can be added to a `Model` through the use of `addDynamicMethod`.
 
     Post::extend(function($model) {
         $model->addDynamicMethod('getTagsAttribute', function() use ($model) {

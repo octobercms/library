@@ -5,11 +5,9 @@ use Illuminate\Database\Migrations\Migration;
 
 class DbUsersGroups extends Migration
 {
-
     public function up()
     {
-        Schema::create('users_groups', function($table)
-        {
+        Schema::create('users_groups', function ($table) {
             $table->engine = 'InnoDB';
             $table->integer('user_id')->unsigned();
             $table->integer('group_id')->unsigned();
@@ -21,5 +19,4 @@ class DbUsersGroups extends Migration
     {
         Schema::drop('users_groups');
     }
-
 }

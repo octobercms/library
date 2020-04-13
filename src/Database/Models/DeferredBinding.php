@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Database\Models;
 
 use Db;
+use Carbon\Carbon;
 use October\Rain\Database\Model;
 use Exception;
 
@@ -30,12 +31,11 @@ class DeferredBinding extends Model
                 $existingRecord->deleteCancel();
                 return false;
             }
+
             /*
              * Skip repeating bindings
              */
-            else {
-                return false;
-            }
+            return false;
         }
     }
 
@@ -81,7 +81,7 @@ class DeferredBinding extends Model
      */
     public static function cleanUp($days = 5)
     {
-        $records = self::whereRaw('ADDDATE(created_at, INTERVAL :days DAY) < NOW()', ['days' => $days])->get();
+        $records = self::where('created_at', '<', Carbon::now()->subDays($days)->toDateTimeString())->get();
 
         foreach ($records as $record) {
             $record->deleteCancel();
@@ -96,8 +96,7 @@ class DeferredBinding extends Model
         /*
          * Try to delete unbound hasOne/hasMany records from the details table
          */
-        try
-        {
+        try {
             if (!$this->is_bind) {
                 return;
             }
@@ -127,7 +126,6 @@ class DeferredBinding extends Model
             if (!$relatedObj->$foreignKey) {
                 $relatedObj->delete();
             }
-
         }
         catch (Exception $ex) {
             // Do nothing

@@ -2,7 +2,7 @@
 
 use Closure;
 use ArrayAccess;
-use Illuminate\Contracts\Config\Repository as ConfigContract;
+use Illuminate\Contracts\Config\Repository as RepositoryContract;
 
 /**
  * October config repository class.
@@ -10,7 +10,7 @@ use Illuminate\Contracts\Config\Repository as ConfigContract;
  * @package config
  * @author Alexey Bobkov, Samuel Georges
  */
-class Repository implements ArrayAccess, ConfigContract
+class Repository implements ArrayAccess, RepositoryContract
 {
     use \October\Rain\Support\Traits\KeyParser;
 
@@ -112,26 +112,33 @@ class Repository implements ArrayAccess, ConfigContract
     /**
      * Set a given configuration value.
      *
-     * @param  string  $key
+     * @param  array|string  $key
      * @param  mixed   $value
      * @return void
      */
     public function set($key, $value = null)
     {
-        list($namespace, $group, $item) = $this->parseConfigKey($key);
-
-        $collection = $this->getCollection($group, $namespace);
-
-        // We'll need to go ahead and lazy load each configuration groups even when
-        // we're just setting a configuration item so that the set item does not
-        // get overwritten if a different item in the group is requested later.
-        $this->load($group, $namespace, $collection);
-
-        if (is_null($item)) {
-            $this->items[$collection] = $value;
+        if (is_array($key)) {
+            foreach ($key as $innerKey => $innerValue) {
+                $this->set($innerKey, $innerValue);
+            }
         }
         else {
-            array_set($this->items[$collection], $item, $value);
+            list($namespace, $group, $item) = $this->parseConfigKey($key);
+
+            $collection = $this->getCollection($group, $namespace);
+
+            // We'll need to go ahead and lazy load each configuration groups even when
+            // we're just setting a configuration item so that the set item does not
+            // get overwritten if a different item in the group is requested later.
+            $this->load($group, $namespace, $collection);
+
+            if (is_null($item)) {
+                $this->items[$collection] = $value;
+            }
+            else {
+                array_set($this->items[$collection], $item, $value);
+            }
         }
     }
 
@@ -239,7 +246,6 @@ class Repository implements ArrayAccess, ConfigContract
             return $this->keyParserCache[$key];
         }
 
-        $segments = explode('.', $key);
         $parsed = $this->parseNamespacedSegments($key);
         return $this->keyParserCache[$key] = $parsed;
     }
@@ -291,7 +297,6 @@ class Repository implements ArrayAccess, ConfigContract
      *
      * @param  string  $namespace
      * @param  string  $hint
-     * @param  string  $namespace
      * @return void
      */
     public function package($namespace, $hint)
@@ -303,7 +308,7 @@ class Repository implements ArrayAccess, ConfigContract
         // callback so that we can cascade an application package configuration.
         $this->addNamespace($namespace, $hint);
 
-        $this->afterLoading($namespace, function($me, $group, $items) use ($namespace) {
+        $this->afterLoading($namespace, function (Repository $me, $group, $items) use ($namespace) {
             $env = $me->getEnvironment();
 
             $loader = $me->getLoader();

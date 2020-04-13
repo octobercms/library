@@ -1,7 +1,6 @@
 <?php namespace October\Rain\Html;
 
 use Illuminate\Routing\UrlGenerator;
-use October\Rain\Support\Str as StrHelper;
 
 /**
  * Html builder
@@ -291,9 +290,8 @@ class HtmlBuilder
         if (is_array($value)) {
             return $this->nestedListing($key, $type, $value);
         }
-        else {
-            return '<li>'.e($value).'</li>';
-        }
+
+        return '<li>'.e($value).'</li>';
     }
 
     /**
@@ -301,7 +299,7 @@ class HtmlBuilder
      *
      * @param  mixed    $key
      * @param  string  $type
-     * @param  string  $value
+     * @param  array  $value
      * @return string
      */
     protected function nestedListing($key, $type, $value)
@@ -309,9 +307,8 @@ class HtmlBuilder
         if (is_int($key)) {
             return $this->listing($type, $value);
         }
-        else {
-            return '<li>'.$key.$this->listing($type, $value).'</li>';
-        }
+
+        return '<li>'.$key.$this->listing($type, $value).'</li>';
     }
 
     /**
@@ -343,7 +340,7 @@ class HtmlBuilder
      *
      * @param  string  $key
      * @param  string  $value
-     * @return string
+     * @return string|void
      */
     protected function attributeElement($key, $value)
     {
@@ -382,10 +379,12 @@ class HtmlBuilder
             // the randomly obfuscated letters out of the string on the responses.
             switch (rand(1, 3)) {
                 case 1:
-                    $safe .= '&#'.ord($letter).';'; break;
+                    $safe .= '&#'.ord($letter).';';
+                    break;
 
                 case 2:
-                    $safe .= '&#x'.dechex(ord($letter)).';'; break;
+                    $safe .= '&#x'.dechex(ord($letter)).';';
+                    break;
 
                 case 3:
                     $safe .= $letter;
@@ -414,26 +413,29 @@ class HtmlBuilder
      */
     public static function limit($html, $maxLength = 100, $end = '...')
     {
+        $isUtf8 = true;
         $printedLength = 0;
         $position = 0;
         $tags = [];
 
-        $re = '{</?([a-z]+)[^>]*>|&#?[a-zA-Z0-9]+;|[\x80-\xFF][\x80-\xBF]*}';
+        $regex = $isUtf8
+            ? '{</?([a-z]+)[^>]*>|&#?[a-zA-Z0-9]+;|[\x80-\xFF][\x80-\xBF]*}'
+            : '{</?([a-z]+)[^>]*>|&#?[a-zA-Z0-9]+;}';
 
         $result = '';
 
-        while ($printedLength < $maxLength && preg_match($re, $html, $match, PREG_OFFSET_CAPTURE, $position)) {
+        while ($printedLength < $maxLength && preg_match($regex, $html, $match, PREG_OFFSET_CAPTURE, $position)) {
             list($tag, $tagPosition) = $match[0];
 
-            $str = mb_substr($html, $position, $tagPosition - $position);
-            if ($printedLength + StrHelper::length($str) > $maxLength) {
-                $result .= mb_substr($str, 0, $maxLength - $printedLength) . $end;
+            $str = substr($html, $position, $tagPosition - $position);
+            if ($printedLength + strlen($str) > $maxLength) {
+                $result .= substr($str, 0, $maxLength - $printedLength) . $end;
                 $printedLength = $maxLength;
                 break;
             }
 
             $result .= $str;
-            $printedLength += StrHelper::length($str);
+            $printedLength += strlen($str);
             if ($printedLength >= $maxLength) {
                 $result .= $end;
                 break;
@@ -449,7 +451,7 @@ class HtmlBuilder
                     $openingTag = array_pop($tags);
                     $result .= $tag;
                 }
-                else if ($tag[StrHelper::length($tag) - 2] == '/') {
+                elseif ($tag[strlen($tag) - 2] == '/') {
                     $result .= $tag;
                 }
                 else {
@@ -458,10 +460,10 @@ class HtmlBuilder
                 }
             }
 
-            $position = $tagPosition + StrHelper::length($tag);
+            $position = $tagPosition + strlen($tag);
         }
 
-        if ($printedLength < $maxLength && $position < StrHelper::length($html)) {
+        if ($printedLength < $maxLength && $position < strlen($html)) {
             $result .= substr($html, $position, $maxLength - $printedLength);
         }
 
@@ -510,5 +512,4 @@ class HtmlBuilder
 
         return $html;
     }
-
 }

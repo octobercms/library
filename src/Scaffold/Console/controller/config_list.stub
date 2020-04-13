@@ -20,6 +20,9 @@ noRecordsMessage: backend::lang.list.no_records
 # Records to display per page
 recordsPerPage: 20
 
+# Display page numbers with pagination, disable to improve performance
+showPageNumbers: true
+
 # Displays the list column set up button
 showSetup: true
 
@@ -32,7 +35,7 @@ showSorting: true
 #     direction: desc
 
 # Display checkboxes next to each record
-# showCheckboxes: true
+showCheckboxes: true
 
 # Toolbar widget configuration
 toolbar:

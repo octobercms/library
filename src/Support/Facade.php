@@ -13,7 +13,7 @@ class Facade extends FacadeParent
 {
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     protected static function resolveFacadeInstance($name)
     {
@@ -37,5 +37,4 @@ class Facade extends FacadeParent
     {
         return null;
     }
-
 }

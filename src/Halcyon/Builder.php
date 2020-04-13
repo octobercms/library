@@ -1,12 +1,12 @@
 <?php namespace October\Rain\Halcyon;
 
-use October\Rain\Halcyon\Model;
 use October\Rain\Halcyon\Datasource\DatasourceInterface;
 use October\Rain\Halcyon\Processors\Processor;
 use October\Rain\Halcyon\Exception\MissingFileNameException;
 use October\Rain\Halcyon\Exception\InvalidFileNameException;
 use October\Rain\Halcyon\Exception\InvalidExtensionException;
 use BadMethodCallException;
+use ApplicationException;
 
 /**
  * Query builder
@@ -244,8 +244,8 @@ class Builder
      * @param  array  $columns
      * @return \October\Rain\Halcyon\Collection|static[]
      */
-     public function get($columns = ['*'])
-     {
+    public function get($columns = ['*'])
+    {
         if (!is_null($this->cacheMinutes)) {
             $results = $this->getCached($columns);
         }
@@ -269,9 +269,16 @@ class Builder
     {
         $select = is_null($key) ? [$column] : [$column, $key];
 
-        $results = new Collection($this->get($select));
+        if (!is_null($this->cacheMinutes)) {
+            $results = $this->getCached($select);
+        }
+        else {
+            $results = $this->getFresh($select);
+        }
 
-        return $results->lists($column, $key);
+        $collection = new Collection($results);
+
+        return $collection->lists($column, $key);
     }
 
     /**
@@ -298,16 +305,19 @@ class Builder
      */
     protected function runSelect()
     {
+        if (!is_string($this->from)) {
+            throw new ApplicationException(sprintf("The from property is invalid, make sure that %s has a string value for its \$dirName property (use '' if not using directories)", get_class($this->model)));
+        }
+
         if ($this->selectSingle) {
             list($name, $extension) = $this->selectSingle;
             return $this->datasource->selectOne($this->from, $name, $extension);
         }
-        else {
-            return $this->datasource->select($this->from, [
-                'columns' => $this->columns,
-                'extensions' => $this->extensions
-            ]);
-        }
+
+        return $this->datasource->select($this->from, [
+            'columns' => $this->columns,
+            'extensions' => $this->extensions
+        ]);
     }
 
     /**
@@ -325,6 +335,16 @@ class Builder
         $this->from($this->model->getObjectTypeDirName());
 
         return $this;
+    }
+
+    /**
+     * Get the compiled file content representation of the query.
+     *
+     * @return string
+     */
+    public function toCompiled()
+    {
+        return $this->processor->processUpdate($this, []);
     }
 
     /**
@@ -438,7 +458,7 @@ class Builder
          * Flag the models as loaded from cache, then reset the internal property.
          */
         if ($this->loadedFromCache) {
-            $models->each(function($model) {
+            $models->each(function ($model) {
                 $model->setLoadedFromCache($this->loadedFromCache);
             });
 
@@ -558,7 +578,7 @@ class Builder
      */
     public function remember($minutes, $key = null)
     {
-        list($this->cacheMinutes, $this->cacheKey) = array($minutes, $key);
+        list($this->cacheMinutes, $this->cacheKey) = [$minutes, $key];
 
         return $this;
     }
@@ -612,10 +632,6 @@ class Builder
 
         $key = $this->getCacheKey();
 
-        if (array_key_exists($key, MemoryCache::$cache)) {
-            return MemoryCache::$cache[$key];
-        }
-
         $minutes = $this->cacheMinutes;
         $cache = $this->getCache();
         $callback = $this->getCacheCallback($columns);
@@ -648,7 +664,7 @@ class Builder
 
         $this->loadedFromCache = !$isNewCache;
 
-        return MemoryCache::$cache[$key] = $result;
+        return $result;
     }
 
     /**
@@ -724,7 +740,9 @@ class Builder
      */
     protected function getCacheCallback($columns)
     {
-        return function() use ($columns) { return $this->processInitCacheData($this->getFresh($columns)); };
+        return function () use ($columns) {
+            return $this->processInitCacheData($this->getFresh($columns));
+        };
     }
 
     /**
@@ -750,7 +768,9 @@ class Builder
      */
     public static function clearInternalCache()
     {
-        MemoryCache::$cache = [];
+        if (MemoryCacheManager::isEnabled()) {
+            Model::getCacheManager()->driver()->flushInternalCache();
+        }
     }
 
     /**
