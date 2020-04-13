@@ -2,7 +2,7 @@
     <a
         href="<?= Backend::url('{{lower_author}}/{{lower_plugin}}/{{lower_name}}/create') ?>"
         class="btn btn-primary oc-icon-plus">
-        New {{title_singular_name}}
+        <?= e(trans('backend::lang.form.create_title', ['name' => '{{title_singular_name}}'])) ?>
     </a>
 
     <button
@@ -10,12 +10,12 @@
         disabled="disabled"
         onclick="$(this).data('request-data', { checked: $('.control-list').listWidget('getChecked') })"
         data-request="onDelete"
-        data-request-confirm="Are you sure you want to delete the selected {{title_plural_name}}?"
+        data-request-confirm="<?= e(trans('backend::lang.form.confirm_delete_multiple')) ?>"
         data-trigger-action="enable"
         data-trigger=".control-list input[type=checkbox]"
         data-trigger-condition="checked"
         data-request-success="$(this).prop('disabled', 'disabled')"
         data-stripe-load-indicator>
-        Delete selected
+        <?= e(trans('backend::lang.form.delete')) ?>
     </button>
 </div>

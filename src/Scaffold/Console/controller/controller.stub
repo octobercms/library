@@ -16,6 +16,9 @@ class {{studly_name}} extends Controller
     public $formConfig = 'config_form.yaml';
     public $listConfig = 'config_list.yaml';
 
+    {%~ if layout == 'sidebar' %}
+    public $bodyClass = 'compact-container';
+    {% endif ~%}
     public function __construct()
     {
         parent::__construct();

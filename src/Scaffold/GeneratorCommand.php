@@ -40,9 +40,8 @@ abstract class GeneratorCommand extends Command
     protected $vars = [];
 
     /**
-     * Create a new controller creator command instance.
+     * Create a new generator command instance.
      *
-     * @return void
      */
     public function __construct()
     {

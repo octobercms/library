@@ -37,12 +37,31 @@ class CreateController extends GeneratorCommand
         'controller/_list_toolbar.stub' => 'controllers/{{lower_name}}/_list_toolbar.htm',
         'controller/config_form.stub'   => 'controllers/{{lower_name}}/config_form.yaml',
         'controller/config_list.stub'   => 'controllers/{{lower_name}}/config_list.yaml',
-        'controller/create.stub'        => 'controllers/{{lower_name}}/create.htm',
         'controller/index.stub'         => 'controllers/{{lower_name}}/index.htm',
-        'controller/preview.stub'       => 'controllers/{{lower_name}}/preview.htm',
-        'controller/update.stub'        => 'controllers/{{lower_name}}/update.htm',
         'controller/controller.stub'    => 'controllers/{{studly_name}}.php',
     ];
+
+    /**
+     * Execute the console command.
+     *
+     * @return bool|null
+     */
+    public function handle()
+    {
+        /**
+         * Add the form stubs according to the selected layout
+         */
+        $layout = $this->option('layout');
+
+        $formStubs = [
+            'controller/create_' . $layout . '.stub' => 'controllers/{{lower_name}}/create.htm',
+            'controller/preview_' . $layout . '.stub' => 'controllers/{{lower_name}}/preview.htm',
+            'controller/update_' . $layout . '.stub' => 'controllers/{{lower_name}}/update.htm',
+        ];
+        $this->stubs = array_merge($this->stubs, $formStubs);
+
+        parent::handle();
+    }
 
     /**
      * Prepare variables for stubs.
@@ -58,6 +77,7 @@ class CreateController extends GeneratorCommand
         $author = array_pop($parts);
 
         $controller = $this->argument('controller');
+        $layout = $this->option('layout');
 
         /*
          * Determine the model name to use,
@@ -72,7 +92,8 @@ class CreateController extends GeneratorCommand
             'name' => $controller,
             'model' => $model,
             'author' => $author,
-            'plugin' => $plugin
+            'plugin' => $plugin,
+            'layout' => $layout
         ];
     }
 
@@ -98,6 +119,7 @@ class CreateController extends GeneratorCommand
     {
         return [
             ['force', null, InputOption::VALUE_NONE, 'Overwrite existing files with generated ones.'],
+            ['layout', null, InputOption::VALUE_OPTIONAL, 'Define the layout used for the forms. May be either "default" or "sidebar".', 'default'],
             ['model', null, InputOption::VALUE_OPTIONAL, 'Define which model name to use, otherwise the singular controller name is used.'],
         ];
     }
