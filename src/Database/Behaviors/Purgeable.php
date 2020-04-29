@@ -8,11 +8,11 @@ class Purgeable extends \October\Rain\Extension\ExtensionBase
      * public $purgeable = [];
      */
 
-    protected $parent;
+    protected $model;
 
     public function __construct($parent)
     {
-        $this->parent = $parent;
+        $this->model = $parent;
         $this->bootPurgeable();
     }
 
@@ -27,18 +27,18 @@ class Purgeable extends \October\Rain\Extension\ExtensionBase
      */
     public function bootPurgeable()
     {
-        if (!$this->parent->propertyExists('purgeable')) {
-            $this->parent->addDynamicProperty('purgeable', []);
+        if (!$this->model->propertyExists('purgeable')) {
+            $this->model->addDynamicProperty('purgeable', []);
         }
         
-        $this->parent->purgeable[] = 'purgeable';
-        $dynPropNames = array_keys(array_diff_key($this->parent->getDynamicProperties(), ['purgeable' => 0]));
-        $this->parent->purgeable = array_merge($this->parent->purgeable, $dynPropNames);
+        $this->model->purgeable[] = 'purgeable';
+        $dynPropNames = array_keys(array_diff_key($this->model->getDynamicProperties(), ['purgeable' => 0]));
+        $this->model->purgeable = array_merge($this->model->purgeable, $dynPropNames);
 
         /*
          * Remove any purge attributes from the data set
          */
-        $model = $this->parent;
+        $model = $this->model;
         $model->bindEvent('model.saveInternal', function () use ($model) {
             $model->purgeAttributes();
         });
@@ -53,9 +53,9 @@ class Purgeable extends \October\Rain\Extension\ExtensionBase
     {
         $attributes = is_array($attributes) ? $attributes : func_get_args();
 
-        $this->parent->purgeable = array_merge($this->parent->purgeable, $attributes);
+        $this->model->purgeable = array_merge($this->model->purgeable, $attributes);
 
-        return $this->parent;
+        return $this->model;
     }
 
     /**
@@ -72,7 +72,7 @@ class Purgeable extends \October\Rain\Extension\ExtensionBase
             $purgeable = $this->getPurgeableAttributes();
         }
 
-        $attributes = $this->parent->getAttributes();
+        $attributes = $this->model->getAttributes();
         $cleanAttributes = array_diff_key($attributes, array_flip($purgeable));
         $originalAttributes = array_diff_key($attributes, $cleanAttributes);
 
@@ -83,7 +83,7 @@ class Purgeable extends \October\Rain\Extension\ExtensionBase
             $this->originalPurgeableValues = $originalAttributes;
         }
 
-        return $this->parent->attributes = $cleanAttributes;
+        return $this->model->attributes = $cleanAttributes;
     }
 
     /**
@@ -91,7 +91,7 @@ class Purgeable extends \October\Rain\Extension\ExtensionBase
      */
     public function getPurgeableAttributes()
     {
-        return $this->parent->purgeable;
+        return $this->model->purgeable;
     }
 
     /**
@@ -115,7 +115,7 @@ class Purgeable extends \October\Rain\Extension\ExtensionBase
      */
     public function restorePurgedValues()
     {
-        $this->parent->attributes = array_merge($this->parent->getAttributes(), $this->originalPurgeableValues);
-        return $this->parent;
+        $this->model->attributes = array_merge($this->model->getAttributes(), $this->originalPurgeableValues);
+        return $this->model;
     }
 }
