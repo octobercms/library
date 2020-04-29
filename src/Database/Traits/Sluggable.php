@@ -37,7 +37,7 @@ trait Sluggable
         static::extend(function ($model) {
             $model->bindEvent('model.saveInternal', function () use ($model) {
                 $model->slugAttributes();
-            });
+            }, 600);
         });
     }
 
