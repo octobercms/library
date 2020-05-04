@@ -10,7 +10,7 @@ use October\Rain\Support\Facade;
  * @method static void set(string $name, string $content)
  * @method static void append(string $name, string $content)
  * @method static string placeholder(string $name, string $default = null)
- * @method static void get(string $name, string $default = null)
+ * @method static string get(string $name, string $default = null)
  * @method static void reset()
  *
  * @see \October\Rain\Html\BlockBuilder
