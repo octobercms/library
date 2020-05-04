@@ -22,7 +22,7 @@ use October\Rain\Support\Facade;
  * @method static string selectRange(string $name, string $begin, string $end, string $selected = null, array $options = [])
  * @method static string selectYear()
  * @method static string selectMonth(string $name, string $selected = null, array $options = [], string $format = '%B')
- * @method static string getSelectOption(string $display, string $value, string $selected)
+ * @method static string getSelectOption(string|array $display, string $value, string $selected)
  * @method static string checkbox(string $name, mixed $value = 1, bool $checked = null, array $options = [])
  * @method static string radio(string $name, mixed $value = null, bool $checked = null, array $options = [])
  * @method static string reset(string $value, array $attributes = [])
