@@ -36,7 +36,7 @@ use October\Rain\Support\Facade;
  * @method static void ensureDirectoryExists(string $path, int $mode = 0755, bool $recursive = true)
  * @method static bool makeDirectory(string $path, int $mode = 0755, bool $recursive = false, bool $force = false)
  * @method static bool moveDirectory(string $from, string $to, bool $overwrite = false)
- * @method static bool copyDirectory(string $directory, string $destination, int|null $options = null)
+ * @method static bool copyDirectory(string $directory, string $destination, int $options = null)
  * @method static bool deleteDirectory(string $directory, bool $preserve = false)
  * @method static bool cleanDirectory(string $directory)
  * @method static bool isDirectoryEmpty(string $directory)
