@@ -9,7 +9,7 @@ use October\Rain\Support\Facade;
  * @method static void endBlock(bool $append = false)
  * @method static void set(string $name, string $content)
  * @method static void append(string $name, string $content)
- * @method static void placeholder(string $name, string $default)
+ * @method static string placeholder(string $name, string $default = null)
  * @method static void get(string $name, string $default = null)
  * @method static void reset()
  *
