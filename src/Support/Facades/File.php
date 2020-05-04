@@ -48,7 +48,7 @@ use October\Rain\Support\Facade;
  * @method static string normalizePath(string $path)
  * @method static string symbolizePath(string $path, bool $default = false)
  * @method static bool isPathSymbol(string $path)
- * @method static void chmodRecursive(string $path, $fileMask = null, $directoryMask = null)
+ * @method static bool|void chmodRecursive(string $path, $fileMask = null, $directoryMask = null)
  * @method static string getFilePermissions()
  * @method static string getFolderPermissions()
  * @method static bool fileNameMatch(string|array $fileName, string $pattern)
