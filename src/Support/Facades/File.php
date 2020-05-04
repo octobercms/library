@@ -12,7 +12,7 @@ use October\Rain\Support\Facade;
  * @method static int put(string $path, string $contents, bool $lock = false)
  * @method static int prepend(string $path, string $data)
  * @method static int append(string $path, string $data)
- * @method static mixed chmod(string $path, int|null $mode = null)
+ * @method static bool|void chmod(string $path, int $mode = null)
  * @method static bool delete(string|array $paths)
  * @method static bool move(string $path, string $target)
  * @method static bool copy(string $path, string $target)
