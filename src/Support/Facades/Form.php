@@ -10,7 +10,6 @@ use October\Rain\Support\Facade;
  * @method static string close()
  * @method static string token()
  * @method static string label(string $name, string $value = null, array $options = [])
- * @method static string formatLabel(string $name, ?string $value)
  * @method static string input(string $type, string $name, string $value = null, array $options = [])
  * @method static string text(string $name, string $value, array $options = [])
  * @method static string password(string $name, array $options = [])
