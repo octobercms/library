@@ -9,7 +9,7 @@ use October\Rain\Support\Facade;
  * @method static mixed getRequire(string $path)
  * @method static mixed requireOnce(string $file)
  * @method static string hash(string $path)
- * @method static int put(string $path, string $contents)
+ * @method static int put(string $path, string $contents, bool $lock = false)
  * @method static int prepend(string $path, string $data)
  * @method static int append(string $path, string $data)
  * @method static mixed chmod(string $path, int|null $mode = null)
