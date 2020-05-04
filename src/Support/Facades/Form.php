@@ -24,7 +24,7 @@ use October\Rain\Support\Facade;
  * @method static string selectMonth(string $name, string $selected = null, array $options = [], string $format = '%B')
  * @method static string getSelectOption(string|array $display, string $value, string $selected)
  * @method static string checkbox(string $name, $value = 1, bool $checked = null, array $options = [])
- * @method static string radio(string $name, mixed $value = null, bool $checked = null, array $options = [])
+ * @method static string radio(string $name, $value = null, bool $checked = null, array $options = [])
  * @method static string reset(string $value, array $attributes = [])
  * @method static string image(string $url, string $name = null, array $attributes = [])
  * @method static string button(string $value = null, array $options = [])
