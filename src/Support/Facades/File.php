@@ -46,7 +46,7 @@ use October\Rain\Support\Facade;
  * @method static string fromClass($classname)
  * @method static string|false existsInsensitive(string $path)
  * @method static string normalizePath(string $path)
- * @method static string symbolizePath(string $path, mixed $default = false)
+ * @method static string symbolizePath(string $path, bool $default = false)
  * @method static bool isPathSymbol(string $path)
  * @method static void chmodRecursive(string $path, $fileMask = null, $directoryMask = null)
  * @method static string getFilePermissions()
