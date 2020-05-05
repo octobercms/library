@@ -39,7 +39,7 @@ class {{studly_name}} extends ReportWidgetBase
                 'default'           => '{{title_name}} Report Widget',
                 'type'              => 'string',
                 'validationPattern' => '^.+$',
-                'validationMessage' => 'backend::lang.dashboard.widget_title_error'
+                'validationMessage' => 'backend::lang.dashboard.widget_title_error',
             ],
         ];
     }
