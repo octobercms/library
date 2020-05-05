@@ -59,5 +59,4 @@ class {{studly_name}} extends ReportWidgetBase
     public function prepareVars()
     {
     }
-
 }
