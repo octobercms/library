@@ -36,12 +36,12 @@ class ScaffoldServiceProvider extends ServiceProvider
             return new CreateFormWidget;
         });
 
-        $this->app->singleton('command.create.command', function () {
-            return new CreateCommand;
-        });
-
         $this->app->singleton('command.create.reportwidget', function () {
             return new CreateReportWidget;
+        });
+
+        $this->app->singleton('command.create.command', function () {
+            return new CreateCommand;
         });
 
         $this->commands('command.create.plugin');
@@ -49,8 +49,8 @@ class ScaffoldServiceProvider extends ServiceProvider
         $this->commands('command.create.controller');
         $this->commands('command.create.component');
         $this->commands('command.create.formwidget');
-        $this->commands('command.create.command');
         $this->commands('command.create.reportwidget');
+        $this->commands('command.create.command');
     }
 
     /**
@@ -65,8 +65,8 @@ class ScaffoldServiceProvider extends ServiceProvider
             'command.create.controller',
             'command.create.component',
             'command.create.formwidget',
-            'command.create.command',
             'command.create.reportwidget',
+            'command.create.command',
         ];
     }
 }
