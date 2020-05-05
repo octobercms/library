@@ -40,6 +40,7 @@ class {{studly_name}} extends ReportWidgetBase
                 'type'              => 'string',
                 'validationPattern' => '^.+$',
                 'validationMessage' => 'backend::lang.dashboard.widget_title_error'
-            ];
+            ],
+        ];
     }
 }
