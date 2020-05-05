@@ -33,7 +33,7 @@ class CreateReportWidget extends GeneratorCommand
      * @var array
      */
     protected $stubs = [
-        'reportwidget/formwidget.stub'      => 'reportwidgets/{{studly_name}}.php',
+        'reportwidget/reportwidget.stub'      => 'reportwidgets/{{studly_name}}.php',
         'reportwidget/widget.stub'         => 'reportwidgets/{{lower_name}}/partials/_{{lower_name}}.htm',
     ];
 
