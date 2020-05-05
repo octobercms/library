@@ -28,19 +28,4 @@ class {{studly_name}} extends ReportWidgetBase
     {
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function defineProperties()
-    {
-        return [
-            'title' => [
-                'title'             => 'backend::lang.dashboard.widget_title_label',
-                'default'           => '{{title_name}} Report Widget',
-                'type'              => 'string',
-                'validationPattern' => '^.+$',
-                'validationMessage' => 'backend::lang.dashboard.widget_title_error',
-            ],
-        ];
-    }
 }
