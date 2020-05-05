@@ -9,14 +9,45 @@ use Exception;
 class {{studly_name}} extends ReportWidgetBase
 {
     /**
-     * @inheritDoc
+     * @var string The default alias to use for this widget
+     */
+    protected $defaultAlias = '{{studly_name}}ReportWidget';
+
+    /**
+     * Defines the widget's properties
+     * @return array
+     */
+    public function defineProperties()
+    {
+        return [
+            'title' => [
+                'title'             => 'backend::lang.dashboard.widget_title_label',
+                'default'           => '{{title_name}} Report Widget',
+                'type'              => 'string',
+                'validationPattern' => '^.+$',
+                'validationMessage' => 'backend::lang.dashboard.widget_title_error',
+            ],
+        ];
+    }
+    
+    /**
+     * Adds widget specific asset files. Use $this->addJs() and $this->addCss()
+     * to register new assets to include on the page.
+     * @return void
+     */
+    protected function loadAssets()
+    {
+    }
+    
+    /**
+     * Renders the widget's primary contents.
+     * @return string HTML markup supplied by this widget.
      */
     public function render()
     {
         try {
             $this->prepareVars();
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             $this->vars['error'] = $ex->getMessage();
         }
 
@@ -28,21 +59,5 @@ class {{studly_name}} extends ReportWidgetBase
      */
     public function prepareVars()
     {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function defineProperties()
-    {
-        return [
-            'title' => [
-                'title'             => 'backend::lang.dashboard.widget_title_label',
-                'default'           => '{{title_name}} Report Widget',
-                'type'              => 'string',
-                'validationPattern' => '^.+$',
-                'validationMessage' => 'backend::lang.dashboard.widget_title_error'
-            ]
-        ];
     }
 }
