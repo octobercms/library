@@ -13,7 +13,7 @@ class {{studly_name}} extends ReportWidgetBase
     public function render()
     {
         try {
-            $this->loadData();
+            $this->prepareVars();
         } catch (Exception $ex) {
             $this->vars['error'] = $ex->getMessage();
         }
