@@ -1,6 +1,7 @@
 <?php namespace {{studly_author}}\{{studly_plugin}}\ReportWidgets;
 
 use Backend\Classes\ReportWidgetBase;
+use Exception;
 
 /**
  * {{name}} Report Widget
@@ -13,7 +14,7 @@ class {{studly_name}} extends ReportWidgetBase
     public function render()
     {
         try {
-            $this->loadData();
+            $this->prepareVars();
         }
         catch (Exception $ex) {
             $this->vars['error'] = $ex->getMessage();
@@ -41,6 +42,7 @@ class {{studly_name}} extends ReportWidgetBase
                 'type'              => 'string',
                 'validationPattern' => '^.+$',
                 'validationMessage' => 'backend::lang.dashboard.widget_title_error'
-            ];
+            ]
+        ];
     }
 }
