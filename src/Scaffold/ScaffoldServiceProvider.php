@@ -7,6 +7,7 @@ use October\Rain\Scaffold\Console\CreateModel;
 use October\Rain\Scaffold\Console\CreateController;
 use October\Rain\Scaffold\Console\CreateComponent;
 use October\Rain\Scaffold\Console\CreateFormWidget;
+use October\Rain\Scaffold\Console\CreateReportWidget;
 
 class ScaffoldServiceProvider extends ServiceProvider
 {
