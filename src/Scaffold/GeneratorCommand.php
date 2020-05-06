@@ -42,6 +42,7 @@ abstract class GeneratorCommand extends Command
     /**
      * Create a new generator command instance.
      *
+     * @return void
      */
     public function __construct()
     {
