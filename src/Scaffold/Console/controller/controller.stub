@@ -1,6 +1,8 @@
 <?php namespace {{studly_author}}\{{studly_plugin}}\Controllers;
 
 use BackendMenu;
+use Backend\Behaviors\FormController;
+use Backend\Behaviors\ListController;
 use Backend\Classes\Controller;
 
 /**
@@ -9,8 +11,8 @@ use Backend\Classes\Controller;
 class {{studly_name}} extends Controller
 {
     public $implement = [
-        'Backend.Behaviors.FormController',
-        'Backend.Behaviors.ListController'
+        FormController::class,
+        ListController::class,
     ];
 
     public $formConfig = 'config_form.yaml';
