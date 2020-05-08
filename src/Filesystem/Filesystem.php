@@ -102,7 +102,7 @@ class Filesystem extends FilesystemBase
             $result = str_replace("\\", "/", substr($path, strlen($publicPath)));
         } else {
             /**
-             * Findd symlinks within base folder and work out if this path can be resolved to a symlinked directory.
+             * Find symlinks within base folder and work out if this path can be resolved to a symlinked directory.
              * This follows the `cms.restrictBaseDir` config and will not allow symlinks to external directories
              * if it's enabled.
              */
