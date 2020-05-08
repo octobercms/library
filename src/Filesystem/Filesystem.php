@@ -30,7 +30,7 @@ class Filesystem extends FilesystemBase
     public $pathSymbols = [];
 
     /**
-     * @var array|null Symlinks within project folder
+     * @var array|null Symlinks within base folder
      */
     protected $symlinks = null;
 
