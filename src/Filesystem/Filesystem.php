@@ -443,7 +443,5 @@ class Filesystem extends FilesystemBase
         $iterator($basePath);
 
         $this->symlinks = $symlinks;
-        print_r($this->symlinks);
-        die();
     }
 }
