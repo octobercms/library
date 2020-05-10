@@ -51,7 +51,7 @@ class CreateController extends GeneratorCommand
         /**
          * Add the form stubs according to the selected layout
          */
-        $layout = $this->option('layout');
+        $layout = $this->option('form-layout');
 
         $formStubs = [
             'controller/create_' . $layout . '.stub' => 'controllers/{{lower_name}}/create.htm',
@@ -77,7 +77,7 @@ class CreateController extends GeneratorCommand
         $author = array_pop($parts);
 
         $controller = $this->argument('controller');
-        $layout = $this->option('layout');
+        $layout = $this->option('form-layout');
 
         /*
          * Determine the model name to use,
@@ -119,7 +119,7 @@ class CreateController extends GeneratorCommand
     {
         return [
             ['force', null, InputOption::VALUE_NONE, 'Overwrite existing files with generated ones.'],
-            ['layout', null, InputOption::VALUE_OPTIONAL, 'Define the layout used for the forms. May be either "default" or "sidebar".', 'default'],
+            ['form-layout', null, InputOption::VALUE_OPTIONAL, 'Define the layout used for the forms. May be either "default" or "sidebar".', 'default'],
             ['model', null, InputOption::VALUE_OPTIONAL, 'Define which model name to use, otherwise the singular controller name is used.'],
         ];
     }
