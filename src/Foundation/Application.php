@@ -1,15 +1,22 @@
 <?php namespace October\Rain\Foundation;
 
 use Closure;
+use Config;
+use Str;
+use Throwable;
+use Carbon\Laravel\ServiceProvider as CarbonServiceProvider;
+use Jenssegers\Date\DateServiceProvider as JessengersDateServiceProvider;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Collection;
 use Illuminate\Foundation\Application as ApplicationBase;
+use Illuminate\Foundation\PackageManifest;
+use Illuminate\Foundation\ProviderRepository;
 use Symfony\Component\Debug\Exception\FatalErrorException;
 use October\Rain\Events\EventServiceProvider;
 use October\Rain\Router\RoutingServiceProvider;
 use October\Rain\Foundation\Providers\LogServiceProvider;
 use October\Rain\Foundation\Providers\MakerServiceProvider;
 use October\Rain\Foundation\Providers\ExecutionContextProvider;
-use Throwable;
-use Exception;
 
 class Application extends ApplicationBase
 {
@@ -63,6 +70,10 @@ class Application extends ApplicationBase
         $this->register(new MakerServiceProvider($this));
 
         $this->register(new ExecutionContextProvider($this));
+
+        $this->register(new CarbonServiceProvider($this));
+
+        $this->register(new JessengersDateServiceProvider($this));
     }
 
     /**
@@ -241,6 +252,27 @@ class Application extends ApplicationBase
 
         $this['events']->fire('locale.changed', [$locale]);
     }
+
+    /**
+     * Register all of the configured providers.
+     *
+     * @return void
+     */
+    public function registerConfiguredProviders()
+    {
+        $providers = Collection::make($this->config['app.providers'])
+                        ->partition(function ($provider) {
+                            return Str::startsWith($provider, 'Illuminate\\');
+                        });
+
+        if (Config::get('app.loadDiscoveredPackages', true)) {
+            $providers->splice(1, 0, [$this->make(PackageManifest::class)->providers()]);
+        }
+
+        (new ProviderRepository($this, new Filesystem, $this->getCachedServicesPath()))
+                    ->load($providers->collapse()->toArray());
+    }
+
 
     //
     // Core aliases
