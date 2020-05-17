@@ -180,7 +180,22 @@ if (!function_exists('uploads_path')) {
      */
     function uploads_path($path = '')
     {
-        return app('path.uploads').($path ? '/'.$path : $path);
+        $uploads_path = rtrim(Config::get('cms.storage.uploads.path', app('path.uploads')), '/');
+        return $uploads_path.($path ? '/'.ltrim($path, '/') : $path);
+    }
+}
+
+if (!function_exists('media_path')) {
+    /**
+     * Get the path to the media folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function media_path($path = '')
+    {
+        $media_path = rtrim(Config::get('cms.storage.media.path', app('path.media')), '/');
+        return $media_path.($path ? '/'.ltrim($path, '/') : $path);
     }
 }
 

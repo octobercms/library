@@ -77,6 +77,8 @@ class Application extends ApplicationBase
         $this->instance('path.plugins', $this->pluginsPath());
         $this->instance('path.themes', $this->themesPath());
         $this->instance('path.temp', $this->tempPath());
+        $this->instance('path.media', $this->mediaPath());
+        $this->instance('path.uploads', $this->uploadsPath());
     }
 
     /**
@@ -133,6 +135,26 @@ class Application extends ApplicationBase
     public function tempPath()
     {
         return $this->basePath.'/storage/temp';
+    }
+
+    /**
+     * Get the path to the uploads directory.
+     *
+     * @return string
+     */
+    public function uploadsPath()
+    {
+        return $this->basePath.'/storage/app/uploads';
+    }
+
+    /**
+     * Get the path to the media directory.
+     *
+     * @return string
+     */
+    public function mediaPath()
+    {
+        return $this->basePath.'/storage/app/media';
     }
 
     /**
