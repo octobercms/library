@@ -134,7 +134,19 @@ class Application extends ApplicationBase
      */
     public function tempPath()
     {
-        return $this->basePath.'/storage/temp';
+        return $this->tempPath ?: $this->basePath.'/storage/temp';
+    }
+
+    /**
+     * Set the temp path for the application.
+     *
+     * @return string
+     */
+    public function setTempPath($path)
+    {
+        $this->tempPath = $path;
+        $this->instance('path.temp', $path);
+        return $this;
     }
 
     /**
@@ -144,7 +156,19 @@ class Application extends ApplicationBase
      */
     public function uploadsPath()
     {
-        return $this->basePath.'/storage/app/uploads';
+        return $this->uploadsPath ?: $this->basePath.'/storage/app/uploads';
+    }
+
+    /**
+     * Set the uploads path for the application.
+     *
+     * @return string
+     */
+    public function setUploadsPath($path)
+    {
+        $this->uploadsPath = $path;
+        $this->instance('path.uploads', $path);
+        return $this;
     }
 
     /**
@@ -154,7 +178,19 @@ class Application extends ApplicationBase
      */
     public function mediaPath()
     {
-        return $this->basePath.'/storage/app/media';
+        return $this->mediaPath ?: $this->basePath.'/storage/app/media';
+    }
+
+    /**
+     * Set the media path for the application.
+     *
+     * @return string
+     */
+    public function setMediaPath($path)
+    {
+        $this->mediaPath = $path;
+        $this->instance('path.media', $path);
+        return $this;
     }
 
     /**
