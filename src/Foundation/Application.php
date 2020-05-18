@@ -28,6 +28,27 @@ class Application extends ApplicationBase
     protected $themesPath;
 
     /**
+     * The base temp path.
+     *
+     * @var string
+     */
+    protected $tempPath;
+
+    /**
+     * The base path for uploads.
+     *
+     * @var string
+     */
+    protected $uploadsPath;
+
+    /**
+     * The base path for media.
+     *
+     * @var string
+     */
+    protected $mediaPath;
+
+    /**
      * Get the path to the public / web directory.
      *
      * @return string
@@ -77,8 +98,8 @@ class Application extends ApplicationBase
         $this->instance('path.plugins', $this->pluginsPath());
         $this->instance('path.themes', $this->themesPath());
         $this->instance('path.temp', $this->tempPath());
-        $this->instance('path.media', $this->mediaPath());
         $this->instance('path.uploads', $this->uploadsPath());
+        $this->instance('path.media', $this->mediaPath());
     }
 
     /**
