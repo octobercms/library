@@ -7,6 +7,7 @@ use October\Rain\Scaffold\Console\CreateCommand;
 use October\Rain\Scaffold\Console\CreateComponent;
 use October\Rain\Scaffold\Console\CreateController;
 use October\Rain\Scaffold\Console\CreateFormWidget;
+use October\Rain\Scaffold\Console\CreateReportWidget;
 use Illuminate\Contracts\Support\DeferrableProvider;
 
 class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvider
@@ -22,6 +23,7 @@ class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvi
         'command.create.controller' => CreateController::class,
         'command.create.component' => CreateComponent::class,
         'command.create.formwidget' => CreateFormWidget::class,
+        'command.create.reportwidget' => CreateReportWidget::class,
         'command.create.command' => CreateCommand::class,
     ];
 
@@ -40,6 +42,7 @@ class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvi
                     'command.create.controller',
                     'command.create.component',
                     'command.create.formwidget',
+                    'command.create.reportwidget',
                     'command.create.command',
                 ]
             );
@@ -59,6 +62,7 @@ class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvi
             'command.create.controller',
             'command.create.component',
             'command.create.formwidget',
+            'command.create.reportwidget',
             'command.create.command',
         ];
     }
