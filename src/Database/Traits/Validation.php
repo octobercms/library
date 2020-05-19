@@ -5,7 +5,7 @@ use Lang;
 use Input;
 use October\Rain\Database\ModelException;
 use Illuminate\Support\MessageBag;
-use Illuminate\Support\Facades\Validator;
+use October\Rain\Support\Facades\Validator;
 use Exception;
 
 trait Validation
