@@ -380,7 +380,7 @@ ESC;
 
         $translator->expects($this->any())->method('get')->will($this->returnArgument(0));
 
-        $factory = new \Illuminate\Validation\Factory($translator);
+        $factory = new \October\Rain\Validation\Factory($translator);
 
         HalcyonTestPageWithValidation::setModelValidator($factory);
     }
