@@ -1,13 +1,10 @@
 <?php
-
-use October\Rain\Support\Facades\Validator;
-
 class EmailValidationTest extends TestCase
 {
     // This validation should fail, as per Laravel pre-5.8, as well as current expected October functionality.
     public function testDefaultFilter()
     {
-        $validator = Validator::make([
+        $validator = $this->app['validator']->make([
             'email' => 'test@localhost',
         ], [
             'email' => 'email'
@@ -15,7 +12,7 @@ class EmailValidationTest extends TestCase
 
         $this->assertTrue($validator->fails());
 
-        $validator = Validator::make([
+        $validator = $this->app['validator']->make([
             'email' => '$šte/-{st+email#@example.com',
         ], [
             'email' => 'email'
@@ -30,7 +27,7 @@ class EmailValidationTest extends TestCase
     // NOTE: It's possible this test may fail at a future point, when egulias/EmailValidator gets its act together.
     public function testRFCFilter()
     {
-        $validator = Validator::make([
+        $validator = $this->app['validator']->make([
             'email' => 'test@localhost',
         ], [
             'email' => 'email:rfc'
@@ -38,7 +35,7 @@ class EmailValidationTest extends TestCase
 
         $this->assertFalse($validator->fails());
 
-        $validator = Validator::make([
+        $validator = $this->app['validator']->make([
             'email' => '$šte/-{st+email#@example.com',
         ], [
             'email' => 'email:rfc'
