@@ -53,7 +53,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     public function getBaseQuery()
     {
-        return Db::table($this->table);
+        return Db::table($this->table)->enableDuplicateCache();;
     }
 
     /**
@@ -66,11 +66,9 @@ class DbDatasource extends Datasource implements DatasourceInterface
     {
         $query = $this->getBaseQuery();
 
-        $query->addSelect('id', 'source', 'path', 'updated_at', 'file_size');
         $query->where('source', $this->source);
 
         if ($ignoreDeleted) {
-            $query->addSelect('deleted_at');
             $query->whereNull('deleted_at');
         }
 
@@ -82,7 +80,6 @@ class DbDatasource extends Datasource implements DatasourceInterface
          *
          *     $datasource->bindEvent('halcyon.datasource.db.extendQuery', function ((QueryBuilder) $query, (bool) $ignoreDeleted) {
          *         // Apply a site filter in a multi-tenant application
-         *         $query->addSelect('site_id');
          *         $query->where('site_id', SiteManager::getSite()->id);
          *     });
          *
@@ -115,7 +112,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     public function selectOne(string $dirName, string $fileName, string $extension)
     {
-        $result = $this->getQuery()->addSelect('content')->where('path', $this->makeFilePath($dirName, $fileName, $extension))->first();
+        $result = $this->getQuery()->where('path', $this->makeFilePath($dirName, $fileName, $extension))->first();
 
         if ($result) {
             return [
@@ -177,24 +174,6 @@ class DbDatasource extends Datasource implements DatasourceInterface
                     }
                 }
             });
-        }
-
-        // Apply the columns filter on the query
-        if (!is_null($columns)) {
-            // Source required for the datasource filtering, path required for actually using data
-            $selects = ['source', 'path'];
-
-            if (in_array('content', $columns)) {
-                $selects[] = 'content';
-            }
-
-            if (in_array('mtime', $columns)) {
-                $selects[] = 'updated_at';
-            }
-
-            $query->addSelect(...$selects);
-        } else {
-            $query->addSelect('content');
         }
 
         // Retrieve the results
@@ -405,7 +384,6 @@ class DbDatasource extends Datasource implements DatasourceInterface
         try {
             return Carbon::parse($this->getQuery()
                     ->where('path', $this->makeFilePath($dirName, $fileName, $extension))
-                    ->addSelect('updated_at')
                     ->first()->updated_at)->timestamp;
         }
         catch (Exception $ex) {
@@ -475,7 +453,6 @@ class DbDatasource extends Datasource implements DatasourceInterface
                     },
                     array_flip(
                         $this->getQuery(false)
-                            ->addSelect('deleted_at')
                             ->whereNotNull('deleted_at')
                             ->get()
                             ->pluck('path')
