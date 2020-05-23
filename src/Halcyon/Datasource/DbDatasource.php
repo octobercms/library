@@ -53,7 +53,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     public function getBaseQuery()
     {
-        return Db::table($this->table)->enableDuplicateCache();;
+        return Db::table($this->table)->enableDuplicateCache();
     }
 
     /**
@@ -431,37 +431,19 @@ class DbDatasource extends Datasource implements DatasourceInterface
          *
          */
         if (!$pathsCache = $this->fireEvent('halcyon.datasource.db.beforeGetAvailablePaths', [], true)) {
-            // Get the valid paths that are retrievable
-            $pathsCache = array_map(
-                function () {
-                    return true;
-                },
-                array_flip(
-                    $this->getQuery()
-                        ->get()
-                        ->pluck('path')
-                        ->all()
-                )
-            );
+            // Only query for what is required
+            $this->bindEventOnce('halcyon.datasource.db.extendQuery', function ($query, $ignoreDeleted) {
+                $query->addSelect('source', 'path', 'deleted_at');
+            });
 
-            // Get the valid paths that are deleted
-            $pathsCache = array_merge(
-                $pathsCache,
-                array_map(
-                    function () {
-                        return false;
-                    },
-                    array_flip(
-                        $this->getQuery(false)
-                            ->whereNotNull('deleted_at')
-                            ->get()
-                            ->pluck('path')
-                            ->all()
-                    )
-                )
-            );
+            // Get all records stored in the DB
+            $records = $this->getQuery(false)->get();
+
+            foreach ($records as $record) {
+                $pathsCache[$record->path] = !$record->deleted_at;
+            }
         }
 
-        return $pathsCache;
+        return (array) $pathsCache;
     }
 }
