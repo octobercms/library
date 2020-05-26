@@ -264,8 +264,7 @@ class FieldParser
                 $params['options'] = $this->processOptionsToArray($params['options']);
             }
 
-            // allow trigger attribute to be converted in to array
-            // so it can be use with Js Trigger events API
+            // Convert trigger property to array
             if (isset($params['trigger'])) {
                 $params['trigger'] = $this->processOptionsToArray($params['trigger']);
             }
