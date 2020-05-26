@@ -23,10 +23,11 @@ class ScssCompiler extends ScssphpFilter implements HashableInterface, Dependenc
 
     protected $lastHash;
 
-    public function __construct(){
-        Event::listen('cms.combiner.beforePrepare', function($compiler, $assets) {
+    public function __construct()
+    {
+        Event::listen('cms.combiner.beforePrepare', function ($compiler, $assets) {
             foreach ($assets as $asset) {
-                if(pathinfo($asset)['extension'] == 'scss'){
+                if (pathinfo($asset)['extension'] == 'scss') {
                     $this->currentFiles[] = $asset;
                 }
             }
@@ -80,7 +81,7 @@ class ScssCompiler extends ScssphpFilter implements HashableInterface, Dependenc
 
         $modifieds = [];
         foreach ($allFiles as $file) {
-           $modifieds[] = $file->getLastModified();
+            $modifieds[] = $file->getLastModified();
         }
 
         return md5(implode('|', $modifieds));

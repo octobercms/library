@@ -161,7 +161,7 @@ class Model extends EloquentModel
                     $method .= 'e';
                 }
 
-                self::$eventMethod(function($model) use ($method) {
+                self::$eventMethod(function ($model) use ($method) {
                     $model->fireEvent('model.' . $method);
 
                     if ($model->methodExists($method)) {
@@ -174,7 +174,19 @@ class Model extends EloquentModel
         /*
          * Hook to boot events
          */
-        static::registerModelEvent('booted', function($model){
+        static::registerModelEvent('booted', function ($model) {
+            /**
+             * @event model.afterBoot
+             * Called after the model is booted
+             * > **Note:** also triggered in October\Rain\Halcyon\Model
+             *
+             * Example usage:
+             *
+             *     $model->bindEvent('model.afterBoot', function () use (\October\Rain\Database\Model $model) {
+             *         \Log::info(get_class($model) . ' has booted');
+             *     });
+             *
+             */
             $model->fireEvent('model.afterBoot');
 
             if ($model->methodExists('afterBoot')) {
@@ -197,6 +209,212 @@ class Model extends EloquentModel
     {
         parent::flushEventListeners();
         static::$eventsBooted = [];
+    }
+
+    /**
+     * Handle the "creating" model event
+     */
+    protected function beforeCreate()
+    {
+        /**
+         * @event model.beforeCreate
+         * Called before the model is created
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.beforeCreate', function () use (\October\Rain\Database\Model $model) {
+         *         if (!$model->isValid()) {
+         *             throw new \Exception("Invalid Model!");
+         *         }
+         *     });
+         *
+         */
+    }
+
+    /**
+     * Handle the "created" model event
+     */
+    protected function afterCreate()
+    {
+        /**
+         * @event model.afterCreate
+         * Called after the model is created
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.afterCreate', function () use (\October\Rain\Database\Model $model) {
+         *         \Log::info("{$model->name} was created!");
+         *     });
+         *
+         */
+    }
+
+    /**
+     * Handle the "updating" model event
+     */
+    protected function beforeUpdate()
+    {
+        /**
+         * @event model.beforeUpdate
+         * Called before the model is updated
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.beforeUpdate', function () use (\October\Rain\Database\Model $model) {
+         *         if (!$model->isValid()) {
+         *             throw new \Exception("Invalid Model!");
+         *         }
+         *     });
+         *
+         */
+    }
+
+    /**
+     * Handle the "updated" model event
+     */
+    protected function afterUpdate()
+    {
+        /**
+         * @event model.afterUpdate
+         * Called after the model is updated
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.afterUpdate', function () use (\October\Rain\Database\Model $model) {
+         *         if ($model->title !== $model->original['title']) {
+         *             \Log::info("{$model->name} updated its title!");
+         *         }
+         *     });
+         *
+         */
+    }
+
+    /**
+     * Handle the "saving" model event
+     */
+    protected function beforeSave()
+    {
+        /**
+         * @event model.beforeSave
+         * Called before the model is saved
+         * > **Note:** This is called both when creating and updating
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.beforeSave', function () use (\October\Rain\Database\Model $model) {
+         *         if (!$model->isValid()) {
+         *             throw new \Exception("Invalid Model!");
+         *         }
+         *     });
+         *
+         */
+    }
+
+    /**
+     * Handle the "saved" model event
+     */
+    protected function afterSave()
+    {
+        /**
+         * @event model.afterSave
+         * Called after the model is saved
+         * > **Note:** This is called both when creating and updating
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.afterSave', function () use (\October\Rain\Database\Model $model) {
+         *         if ($model->title !== $model->original['title']) {
+         *             \Log::info("{$model->name} updated its title!");
+         *         }
+         *     });
+         *
+         */
+    }
+
+    /**
+     * Handle the "deleting" model event
+     */
+    protected function beforeDelete()
+    {
+        /**
+         * @event model.beforeDelete
+         * Called before the model is deleted
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.beforeDelete', function () use (\October\Rain\Database\Model $model) {
+         *         if (!$model->isAllowedToBeDeleted()) {
+         *             throw new \Exception("You cannot delete me!");
+         *         }
+         *     });
+         *
+         */
+    }
+
+    /**
+     * Handle the "deleted" model event
+     */
+    protected function afterDelete()
+    {
+        /**
+         * @event model.afterDelete
+         * Called after the model is deleted
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.afterDelete', function () use (\October\Rain\Database\Model $model) {
+         *         \Log::info("{$model->name} was deleted");
+         *     });
+         *
+         */
+    }
+
+    /**
+     * Handle the "fetching" model event
+     */
+    protected function beforeFetch()
+    {
+        /**
+         * @event model.beforeFetch
+         * Called before the model is fetched
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.beforeFetch', function () use (\October\Rain\Database\Model $model) {
+         *         if (!\Auth::getUser()->hasAccess('fetch.this.model')) {
+         *             throw new \Exception("You shall not pass!");
+         *         }
+         *     });
+         *
+         */
+    }
+
+    /**
+     * Handle the "fetched" model event
+     */
+    protected function afterFetch()
+    {
+        /**
+         * @event model.afterFetch
+         * Called after the model is fetched
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.afterFetch', function () use (\October\Rain\Database\Model $model) {
+         *         \Log::info("{$model->name} was retrieved from the database");
+         *     });
+         *
+         */
     }
 
     /**
@@ -327,7 +545,8 @@ class Model extends EloquentModel
 
         if ($value instanceof DateTimeInterface) {
             return new Argon(
-                $value->format('Y-m-d H:i:s.u'), $value->getTimezone()
+                $value->format('Y-m-d H:i:s.u'),
+                $value->getTimezone()
             );
         }
 
@@ -340,7 +559,8 @@ class Model extends EloquentModel
         }
 
         return Argon::createFromFormat(
-            $this->getDateFormat(), $value
+            str_replace('.v', '.u', $this->getDateFormat()),
+            $value
         );
     }
 
@@ -449,7 +669,7 @@ class Model extends EloquentModel
      */
     public function offsetExists($offset)
     {
-        if ($result = isset($this->$offset)) {
+        if ($result = parent::offsetExists($offset)) {
             return $result;
         }
 
@@ -506,7 +726,19 @@ class Model extends EloquentModel
      */
     protected function saveInternal($options = [])
     {
-        // Event
+        /**
+         * @event model.saveInternal
+         * Called before the model is saved
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.saveInternal', function ((array) $attributes, (array) $options) use (\October\Rain\Database\Model $model) {
+         *         // Prevent anything from saving ever!
+         *         return false;
+         *     });
+         *
+         */
         if ($this->fireEvent('model.saveInternal', [$this->attributes, $options], true) === false) {
             return false;
         }
@@ -516,7 +748,7 @@ class Model extends EloquentModel
          */
         foreach ($this->attributes as $attribute => $value) {
             if (is_array($value)) {
-                throw new Exception(sprintf('Unexpected type of array, should attribute "%s" be jsonable?', $attribute));
+                throw new Exception(sprintf('Unexpected type of array when attempting to save attribute "%s", try adding it to the $jsonable property.', $attribute));
             }
         }
 
@@ -608,7 +840,7 @@ class Model extends EloquentModel
      * @param string $sessionKey
      * @return bool
      */
-    public function alwaysPush($options = null, $sessionKey)
+    public function alwaysPush($options, $sessionKey)
     {
         return $this->push(['always' => true] + (array) $options, $sessionKey);
     }
@@ -652,7 +884,7 @@ class Model extends EloquentModel
                     $relation->forceDelete();
                 }
                 elseif ($relation instanceof CollectionBase) {
-                    $relation->each(function($model) {
+                    $relation->each(function ($model) {
                         $model->forceDelete();
                     });
                 }
@@ -672,6 +904,17 @@ class Model extends EloquentModel
     //
     // Adders
     //
+
+    /**
+     * Add attribute casts for the model.
+     *
+     * @param  array $attributes
+     * @return void
+     */
+    public function addCasts($attributes)
+    {
+        $this->casts = array_merge($this->casts, $attributes);
+    }
 
     /**
      * Adds a datetime attribute to convert to an instance of Carbon/DateTime object.
@@ -744,8 +987,19 @@ class Model extends EloquentModel
      */
     public function getAttributeValue($key)
     {
-        /*
-         * Before Event
+        /**
+         * @event model.beforeGetAttribute
+         * Called before the model attribute is retrieved
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.beforeGetAttribute', function ((string) $key) use (\October\Rain\Database\Model $model) {
+         *         if ($key === 'not-for-you-to-look-at') {
+         *             return 'you are not allowed here';
+         *         }
+         *     });
+         *
          */
         if (($attr = $this->fireEvent('model.beforeGetAttribute', [$key], true)) !== null) {
             return $attr;
@@ -764,8 +1018,19 @@ class Model extends EloquentModel
             }
         }
 
-        /*
-         * After Event
+        /**
+         * @event model.getAttribute
+         * Called after the model attribute is retrieved
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.getAttribute', function ((string) $key, $value) use (\October\Rain\Database\Model $model) {
+         *         if ($key === 'not-for-you-to-look-at') {
+         *             return "Totally not $value";
+         *         }
+         *     });
+         *
          */
         if (($_attr = $this->fireEvent('model.getAttribute', [$key, $attr], true)) !== null) {
             return $_attr;
@@ -825,7 +1090,8 @@ class Model extends EloquentModel
             }
 
             $attributes[$key] = $this->mutateAttributeForArray(
-                $key, $attributes[$key]
+                $key,
+                $attributes[$key]
             );
         }
 
@@ -841,7 +1107,8 @@ class Model extends EloquentModel
             }
 
             $attributes[$key] = $this->castAttribute(
-                $key, $attributes[$key]
+                $key,
+                $attributes[$key]
             );
         }
 
@@ -860,6 +1127,11 @@ class Model extends EloquentModel
                 !array_key_exists($key, $attributes) ||
                 in_array($key, $mutatedAttributes)
             ) {
+                continue;
+            }
+
+            // Prevent double decoding of jsonable attributes.
+            if (!is_string($attributes[$key])) {
                 continue;
             }
 
@@ -903,12 +1175,23 @@ class Model extends EloquentModel
         /*
          * Handle direct relation setting
          */
-        if ($this->hasRelation($key)) {
+        if ($this->hasRelation($key) && !$this->hasSetMutator($key)) {
             return $this->setRelationValue($key, $value);
         }
 
-        /*
-         * Before Event
+        /**
+         * @event model.beforeSetAttribute
+         * Called before the model attribute is set
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.beforeSetAttribute', function ((string) $key, $value) use (\October\Rain\Database\Model $model) {
+         *         if ($key === 'not-for-you-to-touch') {
+         *             return '$value has been touched! The humanity!';
+         *         }
+         *     });
+         *
          */
         if (($_value = $this->fireEvent('model.beforeSetAttribute', [$key, $value], true)) !== null) {
             $value = $_value;
@@ -922,21 +1205,27 @@ class Model extends EloquentModel
         }
 
         /*
-         * Trim scalars
+         * Trim strings
          */
-        if (
-            !is_object($value) &&
-            !is_array($value) &&
-            !is_null($value) &&
-            !is_bool($value)
-        ) {
+        if (is_string($value)) {
             $value = trim($value);
         }
 
         $result = parent::setAttribute($key, $value);
 
-        /*
-         * After Event
+        /**
+         * @event model.setAttribute
+         * Called after the model attribute is set
+         * > **Note:** also triggered in October\Rain\Halcyon\Model
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.setAttribute', function ((string) $key, $value) use (\October\Rain\Database\Model $model) {
+         *         if ($key === 'not-for-you-to-touch') {
+         *             \Log::info("{$key} has been touched and set to {$value}!")
+         *         }
+         *     });
+         *
          */
         $this->fireEvent('model.setAttribute', [$key, $value]);
 

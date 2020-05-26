@@ -4,7 +4,9 @@ use October\Rain\Scaffold\GeneratorCommand;
 
 class ScaffoldBaseTestCommand extends GeneratorCommand
 {
-    public function __construct() { }
+    public function __construct()
+    {
+    }
 
     protected function prepareVars()
     {

@@ -23,14 +23,36 @@ trait SoftDelete
     {
         static::addGlobalScope(new SoftDeletingScope);
 
-        static::restoring(function($model) {
+        static::restoring(function ($model) {
+            /**
+             * @event model.beforeRestore
+             * Called before the model is restored from a soft delete
+             *
+             * Example usage:
+             *
+             *     $model->bindEvent('model.beforeRestore', function () use (\October\Rain\Database\Model $model) {
+             *         \Log::info("{$model->name} is going to be restored!");
+             *     });
+             *
+             */
             $model->fireEvent('model.beforeRestore');
             if ($model->methodExists('beforeRestore')) {
                 $model->beforeRestore();
             }
         });
 
-        static::restored(function($model) {
+        static::restored(function ($model) {
+            /**
+             * @event model.afterRestore
+             * Called after the model is restored from a soft delete
+             *
+             * Example usage:
+             *
+             *     $model->bindEvent('model.afterRestore', function () use (\October\Rain\Database\Model $model) {
+             *         \Log::info("{$model->name} has been brought back to life!");
+             *     });
+             *
+             */
             $model->fireEvent('model.afterRestore');
             if ($model->methodExists('afterRestore')) {
                 $model->afterRestore();
@@ -101,7 +123,7 @@ trait SoftDelete
                     $relation->delete();
                 }
                 elseif ($relation instanceof CollectionBase) {
-                    $relation->each(function($model) {
+                    $relation->each(function ($model) {
                         $model->delete();
                     });
                 }
@@ -174,7 +196,7 @@ trait SoftDelete
                     $relation->restore();
                 }
                 elseif ($relation instanceof CollectionBase) {
-                    $relation->each(function($model) {
+                    $relation->each(function ($model) {
                         $model->restore();
                     });
                 }
@@ -257,5 +279,4 @@ trait SoftDelete
     {
         return $this->getTable().'.'.$this->getDeletedAtColumn();
     }
-
 }

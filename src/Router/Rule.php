@@ -10,7 +10,6 @@ use InvalidArgumentException;
  */
 class Rule
 {
-
     /**
      * @var string A named reference for this rule.
      */
@@ -124,7 +123,6 @@ class Rule
             $patternSegmentLower = mb_strtolower($patternSegment);
 
             if (strpos($patternSegment, ':') !== 0) {
-
                 /*
                  * Static segment
                  */
@@ -136,7 +134,6 @@ class Rule
                 }
             }
             else {
-
                 /*
                  * Dynamic segment. Initialize the parameter
                  */
@@ -189,7 +186,8 @@ class Rule
                             return false;
                         }
                     }
-                    catch (\Exception $ex) {}
+                    catch (\Exception $ex) {
+                    }
                 }
 
                 /*
@@ -203,13 +201,11 @@ class Rule
                 if (Helper::segmentIsWildcard($patternSegment) && count($wildSegments)) {
                     $parameters[$paramName] .= Helper::rebuildUrl($wildSegments);
                 }
-
             }
         }
 
         return true;
     }
-
 
     /**
      * Captures and removes every segment of a URL after a wildcard
@@ -234,9 +230,8 @@ class Rule
                     unset($urlSegments[$index]);
                     continue;
                 }
-                else {
-                    break;
-                }
+
+                break;
             }
 
             $patternSegment = $patternSegments[$index];
@@ -259,10 +254,12 @@ class Rule
      */
     public function name($name = null)
     {
-        if ($name === null)
+        if ($name === null) {
             return $this->ruleName;
+        }
 
         $this->ruleName = $name;
+
         return $this;
     }
 
@@ -274,10 +271,12 @@ class Rule
      */
     public function pattern($pattern = null)
     {
-        if ($pattern === null)
+        if ($pattern === null) {
             return $this->rulePattern;
+        }
 
         $this->rulePattern = $pattern;
+
         return $this;
     }
 
@@ -291,20 +290,20 @@ class Rule
     public function condition($callback = null)
     {
         if ($callback !== null) {
-
             if (!is_callable($callback)) {
                 throw new InvalidArgumentException(sprintf(
-                    "Condition provided is not a valid callback. Given (%s)", gettype($callback)
+                    "Condition provided is not a valid callback. Given (%s)",
+                    gettype($callback)
                 ));
             }
 
             $this->conditionCallback = $callback;
+
             return $this;
         }
 
         return $this->conditionCallback;
     }
-
 
     /**
      * After match callback
@@ -316,14 +315,15 @@ class Rule
     public function afterMatch($callback = null)
     {
         if ($callback !== null) {
-
             if (!is_callable($callback)) {
                 throw new InvalidArgumentException(sprintf(
-                    "The after match callback provided is not valid. Given (%s)", gettype($callback)
+                    "The after match callback provided is not valid. Given (%s)",
+                    gettype($callback)
                 ));
             }
 
             $this->afterMatchCallback = $callback;
+
             return $this;
         }
 

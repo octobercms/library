@@ -75,11 +75,13 @@ class Maker
         $dependencies = $constructor->getParameters();
 
         $parameters = $this->keyParametersByArgument(
-            $dependencies, $parameters
+            $dependencies,
+            $parameters
         );
 
         $instances = $this->getDependencies(
-            $dependencies, $parameters
+            $dependencies,
+            $parameters
         );
 
         return $reflector->newInstanceArgs($instances);

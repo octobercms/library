@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Argon;
 
-use October\Rain\Argon\Argon;
 use October\Rain\Support\ServiceProvider;
 
 class ArgonServiceProvider extends ServiceProvider
@@ -23,7 +22,7 @@ class ArgonServiceProvider extends ServiceProvider
 
         $this->setArgonLocale($locale);
 
-        $this->app['events']->listen('locale.changed', function($locale) {
+        $this->app['events']->listen('locale.changed', function ($locale) {
             $this->setArgonLocale($locale);
         });
     }

@@ -78,4 +78,19 @@ class RouterHelperTest extends TestCase
         $value = Helper::getSegmentDefaultValue(':my_param_name?default value|^[a-z]+[0-9]?$');
         $this->assertEquals('default value', $value);
     }
+
+    public function testReplaceParameters()
+    {
+        $value = Helper::replaceParameters(['param1'=>'dynamic1'], 'static1/:param1/static2');
+        $this->assertEquals('static1/dynamic1/static2', $value);
+
+        $value = Helper::replaceParameters(['param1'=>'dynamic1'], 'static1/:param1/:param2');
+        $this->assertEquals('static1/dynamic1/:param2', $value);
+
+        $value = Helper::replaceParameters(['param1'=>'dynamic1', 'param2'=>'dynamic2'], 'static1/:param1/:param2');
+        $this->assertEquals('static1/dynamic1/dynamic2', $value);
+
+        $value = Helper::replaceParameters(['longer_param'=>'replacement'], 'Non-URL string: contains :longer_param, :other_param, and non-param colon');
+        $this->assertEquals('Non-URL string: contains replacement, :other_param, and non-param colon', $value);
+    }
 }

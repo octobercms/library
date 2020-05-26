@@ -30,7 +30,7 @@ class Updater
 
         Eloquent::unguard();
 
-        Db::transaction(function() use ($object) {
+        Db::transaction(function () use ($object) {
             if ($object instanceof Updates\Migration) {
                 $object->up();
             }
@@ -59,7 +59,7 @@ class Updater
 
         Eloquent::unguard();
 
-        Db::transaction(function() use ($object) {
+        Db::transaction(function () use ($object) {
             if ($object instanceof Updates\Migration) {
                 $object->down();
             }
@@ -132,14 +132,14 @@ class Updater
             }
 
             for (; $i < count($tokens); $i++) {
-
                 /*
                  * Namespace opening
                  */
                 if ($tokens[$i][0] === T_NAMESPACE) {
                     for ($j = $i + 1; $j < count($tokens); $j++) {
-                        if ($tokens[$j] === ';')
+                        if ($tokens[$j] === ';') {
                             break;
+                        }
 
                         $namespace .= is_array($tokens[$j]) ? $tokens[$j][1] : $tokens[$j];
                     }
@@ -148,15 +148,10 @@ class Updater
                 /*
                  * Class opening
                  */
-                if ($tokens[$i][0] === T_CLASS) {
-                    for ($j = $i + 1; $j < count($tokens); $j++) {
-                        if ($tokens[$j] === '{') {
-                            $class = $tokens[$i+2][1];
-                            break;
-                        }
-                    }
+                if ($tokens[$i][0] === T_CLASS && $tokens[$i-1][1] !== '::') {
+                    $class = $tokens[$i+2][1];
+                    break;
                 }
-
             }
         }
 

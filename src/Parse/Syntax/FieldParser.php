@@ -50,7 +50,9 @@ class FieldParser
         'dropdown',
         'radio',
         'checkbox',
+        'checkboxlist',
         'datepicker',
+        'balloon-selector',
         'repeater',
         'variable'
     ];
@@ -80,8 +82,8 @@ class FieldParser
 
         // Process registered tags
         list($tags, $fields) = $this->processTags($template);
-        $this->tags = $this->tags + $tags;
-        $this->fields = $this->fields + $fields;
+        $this->tags += $tags;
+        $this->fields += $fields;
 
         /*
          * Layer the repeater tags over the standard ones to retain
@@ -123,9 +125,7 @@ class FieldParser
      */
     public function getFieldTags($field)
     {
-        return isset($this->tags[$field])
-            ? $this->tags[$field]
-            : [];
+        return $this->tags[$field] ?? [];
     }
 
     /**
@@ -144,9 +144,7 @@ class FieldParser
      */
     public function getFieldParams($field)
     {
-        return isset($this->fields[$field])
-            ? $this->fields[$field]
-            : [];
+        return $this->fields[$field] ?? [];
     }
 
     /**
@@ -156,7 +154,7 @@ class FieldParser
      */
     public function getDefaultParams($fields = null)
     {
-        if (!$fields) {
+        if (is_null($fields)) {
             $fields = $this->fields;
         }
 
@@ -168,7 +166,7 @@ class FieldParser
                 $defaults[$field][] = $this->getDefaultParams(array_get($params, 'fields', []));
             }
             else {
-                $defaults[$field] = isset($params['default']) ? $params['default'] : null;
+                $defaults[$field] = $params['default'] ?? null;
             }
         }
 
@@ -234,6 +232,14 @@ class FieldParser
         $tagNames = $result[1];
         $paramStrings = $result[2];
 
+        // These fields take options for selection
+        $optionables = [
+            'dropdown',
+            'radio',
+            'checkboxlist',
+            'balloon-selector',
+        ];
+
         foreach ($tagStrings as $key => $tagString) {
             $tagName = $tagNames[$key];
             $params = $this->processParams($paramStrings[$key], $tagName);
@@ -254,9 +260,7 @@ class FieldParser
                 $params['type'] = $tagName;
             }
 
-            // allow options attribute to be converted in to array
-            // so it can be use with dropdown/radio options
-            if (in_array($tagName, ['dropdown', 'radio']) && isset($params['options'])) {
+            if (in_array($tagName, $optionables) && isset($params['options'])) {
                 $params['options'] = $this->processOptionsToArray($params['options']);
             }
 
@@ -303,7 +307,7 @@ class FieldParser
         // Convert all 'true' and 'false' string values to boolean values
         foreach ($paramValues as $key => $value) {
             if ($value === 'true' || $value === 'false') {
-                $paramValues[$key] = $value === 'true' ? true: false;
+                $paramValues[$key] = $value === 'true';
             }
         }
 
@@ -403,13 +407,14 @@ class FieldParser
         foreach ($options as $index => $optionStr) {
             $parts = explode(':', $optionStr, 2);
 
-            if (count($parts) > 1 ) {
+            if (count($parts) > 1) {
                 $key = trim($parts[0]);
 
                 if (strlen($key)) {
                     if (!preg_match('/^[0-9a-z-_]+$/i', $key)) {
                         throw new Exception(sprintf(
-                            'Invalid drop-down option key: %s. Option keys can contain only digits, Latin letters and characters _ and -', $key
+                            'Invalid drop-down option key: %s. Option keys can contain only digits, Latin letters and characters _ and -',
+                            $key
                         ));
                     }
 
@@ -426,5 +431,4 @@ class FieldParser
 
         return $result;
     }
-
 }

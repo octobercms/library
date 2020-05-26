@@ -94,7 +94,8 @@ class MemoryCache
     /**
      * Delete the cache for the given table.
      *
-     * @param $table
+     * @param string $table
+     * @return void
      */
     public function forget($table)
     {
@@ -111,6 +112,7 @@ class MemoryCache
 
     /**
      * Clear the memory cache.
+     * @return void
      */
     public function flush()
     {
@@ -128,7 +130,7 @@ class MemoryCache
     {
         // First we will cast all bindings to string, so we can ensure the same
         // hash format regardless of the binding type provided by the user.
-        $bindings = array_map(function($binding) {
+        $bindings = array_map(function ($binding) {
             return (string) $binding;
         }, $query->getBindings());
 

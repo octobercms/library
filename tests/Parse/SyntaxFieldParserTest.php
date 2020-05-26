@@ -385,5 +385,4 @@ class SyntaxFieldParserTest extends TestCase
         $property->setAccessible(true);
         return $property->setValue($object, $value);
     }
-
 }

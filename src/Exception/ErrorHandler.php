@@ -5,8 +5,6 @@ use Config;
 use Request;
 use Response;
 use Exception;
-use October\Rain\Exception\AjaxException;
-use October\Rain\Exception\ApplicationException;
 
 /**
  * System Error Handler, this class handles application exception events.
@@ -117,15 +115,15 @@ class ErrorHandler
          * Application Exceptions never display a detailed error
          */
         if (!($exception instanceof ApplicationException) && Config::get('app.debug', false)) {
-            return sprintf('"%s" on line %s of %s',
+            return sprintf(
+                '"%s" on line %s of %s',
                 $exception->getMessage(),
                 $exception->getLine(),
                 $exception->getFile()
             );
         }
-        else {
-            return $exception->getMessage();
-        }
+
+        return $exception->getMessage();
     }
 
     //

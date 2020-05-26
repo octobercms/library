@@ -7,14 +7,14 @@ class ExtensionTest extends TestCase
 {
     public function testExtendingBehavior()
     {
-        $subject = new ExtensionTest_ExampleExtendableClass;
+        $subject = new ExtensionTestExampleExtendableClass;
         $this->assertEquals('foo', $subject->behaviorAttribute);
 
-        ExtensionTest_ExampleBehaviorClass1::extend(function($extension) {
+        ExtensionTestExampleBehaviorClass1::extend(function ($extension) {
             $extension->behaviorAttribute = 'bar';
         });
 
-        $subject = new ExtensionTest_ExampleExtendableClass;
+        $subject = new ExtensionTestExampleExtendableClass;
         $this->assertEquals('bar', $subject->behaviorAttribute);
     }
 }
@@ -22,15 +22,15 @@ class ExtensionTest extends TestCase
 /*
  * Example class that has extensions enabled
  */
-class ExtensionTest_ExampleExtendableClass extends Extendable
+class ExtensionTestExampleExtendableClass extends Extendable
 {
-    public $implement = ['ExtensionTest_ExampleBehaviorClass1'];
+    public $implement = ['ExtensionTestExampleBehaviorClass1'];
 }
 
 /**
  * Example behavior classes
  */
-class ExtensionTest_ExampleBehaviorClass1 extends ExtensionBase
+class ExtensionTestExampleBehaviorClass1 extends ExtensionBase
 {
     public $behaviorAttribute = 'foo';
 }

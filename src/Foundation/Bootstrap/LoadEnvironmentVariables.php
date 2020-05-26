@@ -39,7 +39,8 @@ class LoadEnvironmentVariables
     {
         if ($app->runningInConsole() && ($input = new ArgvInput)->hasParameterOption('--env')) {
             $this->setEnvironmentFilePath(
-                $app, $app->environmentFile().'.'.$input->getParameterOption('--env')
+                $app,
+                $app->environmentFile().'.'.$input->getParameterOption('--env')
             );
         }
 
@@ -48,7 +49,8 @@ class LoadEnvironmentVariables
         }
 
         $this->setEnvironmentFilePath(
-            $app, $app->environmentFile().'.'.env('APP_ENV')
+            $app,
+            $app->environmentFile().'.'.env('APP_ENV')
         );
     }
 
