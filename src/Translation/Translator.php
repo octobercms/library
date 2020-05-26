@@ -44,7 +44,7 @@ class Translator extends TranslatorBase
      * @param  bool  $fallback
      * @return string|array|null
      */
-    public function get($key, array $replace = [], $locale = null,  $fallback = true)
+    public function get($key, array $replace = [], $locale = null, $fallback = true)
     {
         /**
          * @event translator.beforeResolve
@@ -166,7 +166,9 @@ class Translator extends TranslatorBase
     public function choice($key, $number, array $replace = [], $locale = null)
     {
         $line = $this->get(
-            $key, $replace, $locale = $this->localeForChoice($locale)
+            $key,
+            $replace,
+            $locale = $this->localeForChoice($locale)
         );
 
         // If the given "number" is actually an array or countable we will simply count the
