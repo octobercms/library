@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Database\Concerns;
 
-use October\Rain\Support\Arr;
 use October\Rain\Support\Str;
 use October\Rain\Database\Relations\BelongsTo;
 use October\Rain\Database\Relations\BelongsToMany;
@@ -125,7 +124,7 @@ trait HasRelationships
      */
     public function hasRelation($name)
     {
-        return $this->getRelationDefinition($name) !== null ? true : false;
+        return $this->getRelationDefinition($name) !== null;
     }
 
     /**
@@ -242,13 +241,17 @@ trait HasRelationships
 
         if (!isset($relation[0]) && $relationType != 'morphTo') {
             throw new InvalidArgumentException(sprintf(
-                "Relation '%s' on model '%s' should have at least a classname.", $relationName, get_called_class()
+                "Relation '%s' on model '%s' should have at least a classname.",
+                $relationName,
+                get_called_class()
             ));
         }
 
         if (isset($relation[0]) && $relationType == 'morphTo') {
             throw new InvalidArgumentException(sprintf(
-                "Relation '%s' on model '%s' is a morphTo relation and should not contain additional arguments.", $relationName, get_called_class()
+                "Relation '%s' on model '%s' is a morphTo relation and should not contain additional arguments.",
+                $relationName,
+                get_called_class()
             ));
         }
 
@@ -332,10 +335,11 @@ trait HasRelationships
         }
 
         if ($missingRequired) {
-            throw new InvalidArgumentException(sprintf('Relation "%s" on model "%s" should contain the following key(s): %s',
+            throw new InvalidArgumentException(sprintf(
+                'Relation "%s" on model "%s" should contain the following key(s): %s',
                 $relationName,
                 get_called_class(),
-                join(', ', $missingRequired)
+                implode(', ', $missingRequired)
             ));
         }
 
@@ -436,7 +440,12 @@ trait HasRelationships
     protected function morphEagerTo($name, $type, $id)
     {
         return new MorphTo(
-            $this->newQuery()->setEagerLoads([]), $this, $id, null, $type, $name
+            $this->newQuery()->setEagerLoads([]),
+            $this,
+            $id,
+            null,
+            $type,
+            $name
         );
     }
 
@@ -456,7 +465,12 @@ trait HasRelationships
         );
 
         return new MorphTo(
-            $instance->newQuery(), $this, $id, $instance->getKeyName(), $type, $name
+            $instance->newQuery(),
+            $this,
+            $id,
+            $instance->getKeyName(),
+            $type,
+            $name
         );
     }
 

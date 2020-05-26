@@ -37,5 +37,4 @@ class AjaxException extends ExceptionBase
     {
         return $this->contents;
     }
-
 }

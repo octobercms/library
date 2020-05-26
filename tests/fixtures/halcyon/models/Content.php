@@ -13,5 +13,4 @@ class HalcyonTestContent extends Model
      * @var array Allowable file extensions.
      */
     protected $allowedExtensions = ['htm', 'txt', 'md'];
-
 }

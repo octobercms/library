@@ -36,5 +36,4 @@ class ModelException extends ValidationException
     {
         return $this->model;
     }
-
 }

@@ -32,8 +32,9 @@ class TreeCollection extends Collection
          */
         $nestedKeys = [];
         foreach ($collection as $key => $model) {
-            if (!$parentKey = $model->getParentId())
+            if (!$parentKey = $model->getParentId()) {
                 continue;
+            }
 
             if (array_key_exists($parentKey, $collection)) {
                 $collection[$parentKey]->children[] = $model;
@@ -66,7 +67,7 @@ class TreeCollection extends Collection
         /*
          * Recursive helper function
          */
-        $buildCollection = function($items, $depth = 0) use (&$buildCollection, $value, $key, $indent) {
+        $buildCollection = function ($items, $depth = 0) use (&$buildCollection, $value, $key, $indent) {
             $result = [];
 
             $indentString = str_repeat($indent, $depth);
@@ -95,8 +96,6 @@ class TreeCollection extends Collection
          * Build a nested collection
          */
         $rootItems = $this->toNested();
-        $result = $buildCollection($rootItems);
-        return $result;
+        return $buildCollection($rootItems);
     }
-
 }

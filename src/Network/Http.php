@@ -1,5 +1,7 @@
 <?php namespace October\Rain\Network;
 
+use October\Rain\Exception\ApplicationException;
+
 /**
  * HTTP Network Access
  *
@@ -9,7 +11,7 @@
  * @author Alexey Bobkov, Samuel Georges
  *
  * Usage:
- * 
+ *
  *   Http::get('http://octobercms.com');
  *   Http::post('...');
  *   Http::delete('...');
@@ -50,7 +52,7 @@
  *       $http->toFile('some/path/to/a/file.txt');
  *
  *       // Sets a cURL option manually
- *       $http->setOption('CURLOPT_SSL_VERIFYHOST', false);
+ *       $http->setOption(CURLOPT_SSL_VERIFYHOST, false);
  *
  *   });
  *
@@ -266,7 +268,6 @@ class Http
          */
         if ($this->method == self::METHOD_POST) {
             curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, '');
         }
         elseif ($this->method !== self::METHOD_GET) {
             curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $this->method);
@@ -276,13 +277,11 @@ class Http
          * Set request data
          */
         if ($this->requestData) {
-            $requestDataQuery = http_build_query($this->requestData, '', $this->argumentSeparator);
-
             if (in_array($this->method, [self::METHOD_POST, self::METHOD_PATCH, self::METHOD_PUT])) {
-                curl_setopt($curl, CURLOPT_POSTFIELDS, $requestDataQuery);
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $this->getRequestData());
             }
             elseif ($this->method == self::METHOD_GET) {
-                curl_setopt($curl, CURLOPT_URL, $this->url . '?' . $requestDataQuery);
+                curl_setopt($curl, CURLOPT_URL, $this->url . '?' . $this->getRequestData());
             }
         }
 
@@ -352,6 +351,25 @@ class Http
     }
 
     /**
+     * Return the request data set.
+     * @return string
+     */
+    public function getRequestData()
+    {
+        if (
+            $this->method !== self::METHOD_GET
+            && isset($this->requestOptions[CURLOPT_POSTFIELDS])
+            && empty($this->requestData)
+        ) {
+            return $this->requestOptions[CURLOPT_POSTFIELDS];
+        }
+        if (!empty($this->requestData)) {
+            return http_build_query($this->requestData, '', $this->argumentSeparator);
+        }
+        return '';
+    }
+
+    /**
      * Turn a header string into an array.
      * @param string $header
      * @return array
@@ -408,7 +426,7 @@ class Http
             foreach ($key as $_key => $_value) {
                 $this->header($_key, $_value);
             }
-            return;
+            return $this;
         }
 
         $this->requestHeaders[$key] = $value;
@@ -517,10 +535,27 @@ class Http
             foreach ($option as $_option => $_value) {
                 $this->setOption($_option, $_value);
             }
-            return;
+            return $this;
         }
 
-        $this->requestOptions[$option] = $value;
+        if (is_string($option) && defined($option)) {
+            $optionKey = constant($option);
+            $this->requestOptions[$optionKey] = $value;
+        } elseif (is_int($option)) {
+            $constants = get_defined_constants(true);
+            $curlOptConstants = array_flip(array_filter($constants['curl'], function ($key) {
+                return strpos($key, 'CURLOPT_') === 0;
+            }, ARRAY_FILTER_USE_KEY));
+
+            if (isset($curlOptConstants[$option])) {
+                $this->requestOptions[$option] = $value;
+            } else {
+                throw new ApplicationException('$option parameter must be a CURLOPT constant or equivalent integer');
+            }
+        } else {
+            throw new ApplicationException('$option parameter must be a CURLOPT constant or equivalent integer');
+        }
+
         return $this;
     }
 

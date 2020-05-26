@@ -16,7 +16,6 @@ use Exception;
  */
 class DataFeed
 {
-
     /**
      * @var string The attribute to use for each model tag name.
      */
@@ -64,6 +63,10 @@ class DataFeed
 
     /**
      * Add a new Builder to the feed collection
+     * @param string $tag
+     * @param \Closure|EloquentModel|mixed $item
+     * @param string|null $orderBy
+     * @return DataFeed|void
      */
     public function add($tag, $item, $orderBy = null)
     {
@@ -71,8 +74,9 @@ class DataFeed
             $item = call_user_func($item);
         }
 
-        if (!$item)
+        if (!$item) {
             return;
+        }
 
         $keyName = $item instanceof EloquentModel
             ? $item->getKeyName()
@@ -88,16 +92,28 @@ class DataFeed
 
     /**
      * Count the number of results from the generic union query
+     * @return int
      */
     public function count()
     {
         $query = $this->processCollection();
-        $result = Db::table(Db::raw("(".$query->toSql().") as records"))->select(Db::raw("COUNT(*) as total"))->first();
+        $bindings = $query->bindings;
+        $records = sprintf("(%s) as records", $query->toSql());
+        $result = Db::table(Db::raw($records))->selectRaw("COUNT(*) as total");
+
+        // Set the bindings, if present
+        foreach ($bindings as $type => $params) {
+            $result = $result->setBindings($params, $type);
+        }
+
+        $result = $result->first();
         return $result->total;
     }
 
     /**
      * Executes the generic union query and eager loads the results in to the added models
+     * @return Collection
+     * @throws Exception if the model is not found in the collection
      */
     public function get()
     {
@@ -113,7 +129,6 @@ class DataFeed
         }
 
         $query->orderBy($this->sortVar, $this->sortDirection);
-
         $records = $query->get();
 
         /*
@@ -153,6 +168,7 @@ class DataFeed
 
     /**
      * Returns the SQL expression used in the generic union
+     * @return string
      */
     public function toSql()
     {
@@ -162,6 +178,9 @@ class DataFeed
 
     /**
      * Sets the default sorting field and direction.
+     * @param string $field
+     * @param string $direction
+     * @return DataFeed
      */
     public function orderBy($field, $direction = null)
     {
@@ -175,6 +194,9 @@ class DataFeed
 
     /**
      * Limits the number of results displayed.
+     * @param int $count
+     * @param int|null $offset
+     * @return DataFeed
      */
     public function limit($count, $offset = null)
     {
@@ -192,37 +214,45 @@ class DataFeed
 
     /**
      * Creates a generic union query of each added collection
+     * @return Builder
      */
     protected function processCollection()
     {
-        if ($this->queryCache !== null)
+        if ($this->queryCache !== null) {
             return $this->queryCache;
+        }
 
         $lastQuery = null;
-        foreach ($this->collection as $tag => $data)
-        {
-            extract($data);
+        foreach ($this->collection as $tag => $data) {
+            $item = $data['item'] ?? null;
+            $orderBy = $data['orderBy'] ?? null;
+            $keyName = $data['keyName'] ?? null;
+
             $cleanQuery = clone $item->getQuery();
             $model = $item->getModel();
 
             $sorting = $model->getTable() . '.';
             $sorting .= $orderBy ?: $this->sortField;
 
-            /*
-             * Flush the select, add ID and tag
-             */
-            $cleanQuery = $cleanQuery->select(Db::raw($keyName." as id"));
-            $cleanQuery = $cleanQuery->addSelect(Db::raw("(SELECT '".$tag."') as ".$this->tagVar));
-            $cleanQuery = $cleanQuery->addSelect(Db::raw("(SELECT ".$sorting.") as ".$this->sortVar));
+            // Flush the select and add ID and tag
+            $conditionalTagSelect = (Db::connection()->getDriverName() === 'pgsql') ?
+                "CAST('%s' as text) as %s" :
+                "'%s' as %s";
+            $idSelect = sprintf("%s as id", $keyName);
+            $tagSelect = sprintf($conditionalTagSelect, $tag, $this->tagVar);
+            $sortSelect = sprintf("%s as %s", $sorting, $this->sortVar);
 
-            /*
-             * Union this query with the previous one
-             */
+            $cleanQuery = $cleanQuery->select(Db::raw($idSelect))
+                ->addSelect(Db::raw($tagSelect))
+                ->addSelect(Db::raw($sortSelect));
+
+            // Union this query with the previous one
             if ($lastQuery) {
-                if ($this->removeDuplicates)
+                if ($this->removeDuplicates) {
                     $cleanQuery = $lastQuery->union($cleanQuery);
-                else
+                } else {
                     $cleanQuery = $lastQuery->unionAll($cleanQuery);
+                }
             }
 
             $lastQuery = $cleanQuery;
@@ -233,32 +263,36 @@ class DataFeed
 
     /**
      * Returns a prepared model by its tag name.
-     * @return Model
+     * @param string $tag
+     * @return EloquentModel|mixed|null
+     * @throws Exception if the model is not found in the collection
      */
     protected function getModelByTag($tag)
     {
-        extract($this->getDataByTag($tag));
-        return $item;
+        return $this->getDataByTag($tag)['item'] ?? null;
     }
 
     /**
      * Returns a model key name by its tag name.
-     * @return Model
+     * @param string $tag
+     * @return string|null
+     * @throws Exception if the model is not found in the collection
      */
     protected function getKeyNameByTag($tag)
     {
-        extract($this->getDataByTag($tag));
-        return $keyName;
+        return $this->getDataByTag($tag)['keyName'] ?? null;
     }
 
     /**
      * Returns a data stored about an item by its tag name.
+     * @param string $tag
      * @return array
+     * @throws Exception if the model is not found in the collection
      */
     protected function getDataByTag($tag)
     {
         if (!$data = array_get($this->collection, $tag)) {
-            throw new Exception('Unable to find model in collection with tag: '. $tag);
+            throw new Exception('Unable to find model in collection with tag: ' . $tag);
         }
 
         return $data;

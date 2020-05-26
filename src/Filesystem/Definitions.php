@@ -38,7 +38,7 @@ class Definitions
     }
 
     /**
-     * Determines if a path should be ignored, sourced from the ignoreFiles 
+     * Determines if a path should be ignored, sourced from the ignoreFiles
      * and ignorePatterns definitions.
      * @todo Efficiency of this method can be improved.
      * @param string $path Specifies a path to check.
@@ -114,6 +114,8 @@ class Definitions
             'odt',
             'doc',
             'docx',
+            'ppt',
+            'pptx',
             'pdf',
             'swf',
             'txt',
@@ -137,6 +139,7 @@ class Definitions
             'webm',
             'mkv',
             'rar',
+            'xml',
             'zip'
         ];
     }
@@ -167,7 +170,8 @@ class Definitions
             'md',
             'less',
             'sass',
-            'scss'
+            'scss',
+            'xml'
         ];
     }
 

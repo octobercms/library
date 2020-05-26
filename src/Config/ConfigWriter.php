@@ -83,14 +83,13 @@ class ConfigWriter
         $replaceValue = $this->writeValueToPhp($value);
 
         $count = 0;
-        $patterns = array();
+        $patterns = [];
 
         // this should be first
         // give buildEnvExpression the highest priority to match 'someKey'  => env('someKey', 'someValue')
         // because the preg_replace match limit one times, sometimes it lead the buildEnvExpression not work
         $patterns[] = $this->buildEnvExpression($key, $items, false);
         $patterns[] = $this->buildEnvExpression($key, $items);
-
         $patterns[] = $this->buildStringExpression($key, $items);
         $patterns[] = $this->buildStringExpression($key, $items, '"');
         $patterns[] = $this->buildConstantExpression($key, $items);
@@ -151,13 +150,11 @@ class ConfigWriter
         }
 
         return '['.implode(', ', $result).']';
-
-        return $result;
     }
 
-    protected function buildStringExpression($targetKey, $arrayItems = array(), $quoteChar = "'")
+    protected function buildStringExpression($targetKey, $arrayItems = [], $quoteChar = "'")
     {
-        $expression = array();
+        $expression = [];
 
         // Opening expression for array items ($1)
         $expression[] = $this->buildArrayOpeningExpression($arrayItems);
@@ -215,9 +212,9 @@ class ConfigWriter
     /**
      * Common constants only (true, false, null, integers)
      */
-    protected function buildConstantExpression($targetKey, $arrayItems = array())
+    protected function buildConstantExpression($targetKey, $arrayItems = [])
     {
-        $expression = array();
+        $expression = [];
 
         // Opening expression for array items ($1)
         $expression[] = $this->buildArrayOpeningExpression($arrayItems);
@@ -234,9 +231,9 @@ class ConfigWriter
     /**
      * Single level arrays only
      */
-    protected function buildArrayExpression($targetKey, $arrayItems = array())
+    protected function buildArrayExpression($targetKey, $arrayItems = [])
     {
-        $expression = array();
+        $expression = [];
 
         // Opening expression for array items ($1)
         $expression[] = $this->buildArrayOpeningExpression($arrayItems);
@@ -253,7 +250,7 @@ class ConfigWriter
     protected function buildArrayOpeningExpression($arrayItems)
     {
         if (count($arrayItems)) {
-            $itemOpen = array();
+            $itemOpen = [];
             foreach ($arrayItems as $item) {
                 // The left hand array assignment
                 $itemOpen[] = '[\'|"]'.$item.'[\'|"]\s*=>\s*(?:[aA][rR]{2}[aA][yY]\(|[\[])';

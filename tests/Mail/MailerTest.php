@@ -103,17 +103,25 @@ class MailerTest extends TestCase
     {
         return new Mailer(new FactoryMailerTest, new SwiftMailerTest, new DispatcherMailerTest);
     }
-
 }
 
-class FactoryMailerTest extends \Illuminate\View\Factory {
-    public function __construct(){}
+class FactoryMailerTest extends \Illuminate\View\Factory
+{
+    public function __construct()
+    {
+    }
 }
 
-class DispatcherMailerTest extends \Illuminate\Events\Dispatcher {
-    public function __construct(){}
+class DispatcherMailerTest extends \Illuminate\Events\Dispatcher
+{
+    public function __construct()
+    {
+    }
 }
 
-class SwiftMailerTest extends \Swift_Mailer {
-    public function __construct(){}
+class SwiftMailerTest extends \Swift_Mailer
+{
+    public function __construct()
+    {
+    }
 }

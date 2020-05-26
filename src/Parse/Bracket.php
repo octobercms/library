@@ -192,6 +192,6 @@ class Bracket
         $regex .='|s';
 
         preg_match($regex, $string, $match);
-        return ($match) ? $match : false;
+        return $match ?: false;
     }
 }

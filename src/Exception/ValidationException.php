@@ -76,5 +76,4 @@ class ValidationException extends Exception
     {
         return $this->fields;
     }
-
 }

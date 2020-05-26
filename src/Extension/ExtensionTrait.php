@@ -26,7 +26,7 @@ trait ExtensionTrait
 
     protected $extensionHidden = [
         'fields' => [],
-        'methods' => ['extensionIsHiddenField', 'extensionIsHiddenField']
+        'methods' => ['extensionIsHiddenField', 'extensionIsHiddenMethod']
     ];
 
     public function extensionApplyInitCallbacks()

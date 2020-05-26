@@ -146,11 +146,7 @@ class Role extends Model
             }
         }
 
-        if ($all === false) {
-            return false;
-        }
-
-        return true;
+        return !($all === false);
     }
 
     /**
@@ -174,7 +170,9 @@ class Role extends Model
         foreach ($permissions as $permission => $value) {
             if (!in_array($value = (int) $value, $this->allowedPermissionsValues)) {
                 throw new InvalidArgumentException(sprintf(
-                    'Invalid value "%s" for permission "%s" given.', $value, $permission
+                    'Invalid value "%s" for permission "%s" given.',
+                    $value,
+                    $permission
                 ));
             }
 
@@ -183,6 +181,6 @@ class Role extends Model
             }
         }
 
-        $this->attributes['permissions'] = (!empty($permissions)) ? json_encode($permissions) : '';
+        $this->attributes['permissions'] = !empty($permissions) ? json_encode($permissions) : '';
     }
 }

@@ -19,7 +19,7 @@ class TranslationServiceProvider extends ServiceProvider
     {
         $this->registerLoader();
 
-        $this->app->singleton('translator', function($app) {
+        $this->app->singleton('translator', function ($app) {
             $loader = $app['translation.loader'];
 
             // When registering the translator component, we'll need to set the default
@@ -28,7 +28,7 @@ class TranslationServiceProvider extends ServiceProvider
             $locale = $app['config']['app.locale'];
 
             $trans = new Translator($loader, $locale);
-
+            $trans->setEventDispatcher($app['events']);
             $trans->setFallback($app['config']['app.fallback_locale']);
 
             return $trans;
@@ -41,7 +41,7 @@ class TranslationServiceProvider extends ServiceProvider
      */
     protected function registerLoader()
     {
-        $this->app->singleton('translation.loader', function($app) {
+        $this->app->singleton('translation.loader', function ($app) {
             return new FileLoader($app['files'], $app['path'].'/lang');
         });
     }
@@ -54,5 +54,4 @@ class TranslationServiceProvider extends ServiceProvider
     {
         return ['translator', 'translation.loader'];
     }
-
 }

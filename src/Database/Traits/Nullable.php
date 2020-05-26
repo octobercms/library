@@ -19,12 +19,13 @@ trait Nullable
     {
         if (!property_exists(get_called_class(), 'nullable')) {
             throw new Exception(sprintf(
-                'You must define a $nullable property in %s to use the Nullable trait.', get_called_class()
+                'You must define a $nullable property in %s to use the Nullable trait.',
+                get_called_class()
             ));
         }
 
-        static::extend(function($model) {
-            $model->bindEvent('model.beforeSave', function() use ($model) {
+        static::extend(function ($model) {
+            $model->bindEvent('model.beforeSave', function () use ($model) {
                 $model->nullableBeforeSave();
             });
         });
@@ -51,7 +52,7 @@ trait Nullable
      */
     public function checkNullableValue($value)
     {
-        if ($value === 0 || $value === '0' || $value === false) {
+        if ($value === 0 || $value === '0' || $value === 0.0 || $value === false) {
             return false;
         }
 

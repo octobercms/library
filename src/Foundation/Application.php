@@ -7,6 +7,7 @@ use October\Rain\Events\EventServiceProvider;
 use October\Rain\Router\RoutingServiceProvider;
 use October\Rain\Foundation\Providers\LogServiceProvider;
 use October\Rain\Foundation\Providers\MakerServiceProvider;
+use October\Rain\Foundation\Providers\ExecutionContextProvider;
 use Throwable;
 use Exception;
 
@@ -25,13 +26,6 @@ class Application extends ApplicationBase
      * @var string
      */
     protected $themesPath;
-
-    /**
-     * The request execution context (front-end, back-end)
-     *
-     * @var string
-     */
-    protected $executionContext;
 
     /**
      * Get the path to the public / web directory.
@@ -67,6 +61,8 @@ class Application extends ApplicationBase
         $this->register(new RoutingServiceProvider($this));
 
         $this->register(new MakerServiceProvider($this));
+
+        $this->register(new ExecutionContextProvider($this));
     }
 
     /**
@@ -203,7 +199,7 @@ class Application extends ApplicationBase
      */
     public function fatal(Closure $callback)
     {
-        $this->error(function(FatalErrorException $e) use ($callback) {
+        $this->error(function (FatalErrorException $e) use ($callback) {
             return call_user_func($callback, $e);
         });
     }
@@ -215,18 +211,7 @@ class Application extends ApplicationBase
      */
     public function runningInBackend()
     {
-        return $this->executionContext == 'back-end';
-    }
-
-    /**
-     * Sets the execution context
-     *
-     * @param  string  $context
-     * @return void
-     */
-    public function setExecutionContext($context)
-    {
-        $this->executionContext = $context;
+        return $this['execution.context'] == 'back-end';
     }
 
     /**
@@ -241,11 +226,20 @@ class Application extends ApplicationBase
         catch (Throwable $ex) {
             return false;
         }
-        catch (Exception $ex) {
-            return false;
-        }
 
         return true;
+    }
+
+    /**
+     * Set the current application locale.
+     * @param  string  $locale
+     * @return void
+     */
+    public function setLocale($locale)
+    {
+        parent::setLocale($locale);
+
+        $this['events']->fire('locale.changed', [$locale]);
     }
 
     //
@@ -287,7 +281,7 @@ class Application extends ApplicationBase
             'router'               => [\Illuminate\Routing\Router::class, \Illuminate\Contracts\Routing\Registrar::class, \Illuminate\Contracts\Routing\BindingRegistrar::class],
             'session'              => [\Illuminate\Session\SessionManager::class],
             'session.store'        => [\Illuminate\Session\Store::class, \Illuminate\Contracts\Session\Session::class],
-            'url'                  => [\Illuminate\Routing\UrlGenerator::class, \Illuminate\Contracts\Routing\UrlGenerator::class],
+            'url'                  => [\October\Rain\Router\UrlGenerator::class, \Illuminate\Contracts\Routing\UrlGenerator::class],
             'validator'            => [\Illuminate\Validation\Factory::class, \Illuminate\Contracts\Validation\Factory::class],
             'view'                 => [\Illuminate\View\Factory::class, \Illuminate\Contracts\View\Factory::class],
         ];

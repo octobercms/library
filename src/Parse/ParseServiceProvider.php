@@ -16,19 +16,19 @@ class ParseServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('parse.markdown', function($app) {
+        $this->app->singleton('parse.markdown', function ($app) {
             return new Markdown;
         });
 
-        $this->app->singleton('parse.yaml', function($app) {
+        $this->app->singleton('parse.yaml', function ($app) {
             return new Yaml;
         });
 
-        $this->app->singleton('parse.twig', function($app) {
+        $this->app->singleton('parse.twig', function ($app) {
             return new Twig;
         });
 
-        $this->app->singleton('parse.ini', function($app) {
+        $this->app->singleton('parse.ini', function ($app) {
             return new Ini;
         });
     }

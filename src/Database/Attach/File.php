@@ -1,9 +1,10 @@
 <?php namespace October\Rain\Database\Attach;
 
+use Cache;
 use Storage;
 use File as FileHelper;
+use October\Rain\Network\Http;
 use October\Rain\Database\Model;
-use October\Rain\Database\Attach\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\File\File as FileObj;
 use Exception;
@@ -67,7 +68,8 @@ class File extends Model
         'jpg'  => 'image/jpeg',
         'jpeg' => 'image/jpeg',
         'webp' => 'image/webp',
-        'pdf'  => 'application/pdf'
+        'pdf'  => 'application/pdf',
+        'svg'  => 'image/svg+xml',
     ];
 
     //
@@ -120,7 +122,7 @@ class File extends Model
 
         return $this;
     }
-    
+
     /**
      * Creates a file object from raw data.
      *
@@ -142,6 +144,27 @@ class File extends Model
         FileHelper::delete($tempPath);
 
         return $file;
+    }
+
+    /**
+     * Creates a file object from url
+     * @param $url string URL
+     * @param $filename string Filename
+     * @return $this
+     */
+    public function fromUrl($url, $filename = null)
+    {
+        $data = Http::get($url);
+
+        if ($data->code != 200) {
+            throw new Exception(sprintf('Error getting file "%s", error code: %d', $data->url, $data->code));
+        }
+
+        if (empty($filename)) {
+            $filename = FileHelper::basename($url);
+        }
+
+        return $this->fromData($data, $filename);
     }
 
     //
@@ -175,51 +198,129 @@ class File extends Model
         $this->data = $value;
     }
 
+    /**
+     * Helper attribute for get image width.
+     * @return string
+     */
+    public function getWidthAttribute()
+    {
+        if ($this->isImage()) {
+            $dimensions = $this->getImageDimensions();
+
+            return $dimensions[0];
+        }
+    }
+
+    /**
+     * Helper attribute for get image height.
+     * @return string
+     */
+    public function getHeightAttribute()
+    {
+        if ($this->isImage()) {
+            $dimensions = $this->getImageDimensions();
+
+            return $dimensions[1];
+        }
+    }
+
+    /**
+     * Helper attribute for file size in human format.
+     * @return string
+     */
+    public function getSizeAttribute()
+    {
+        return $this->sizeToString();
+    }
+
     //
     // Raw output
     //
 
     /**
      * Outputs the raw file contents.
-     * @return void
+     *
+     * @param string $disposition The Content-Disposition to set, defaults to inline
+     * @param bool $returnResponse Defaults to false, returns a Response object instead of directly outputting to the browser
+     * @return Response | void
      */
-    public function output($disposition = 'inline')
+    public function output($disposition = 'inline', $returnResponse = false)
     {
-        header("Content-type: ".$this->getContentType());
-        header('Content-Disposition: '.$disposition.'; filename="'.$this->file_name.'"');
-        header('Cache-Control: private');
-        header('Cache-Control: no-store, no-cache, must-revalidate');
-        header('Cache-Control: pre-check=0, post-check=0, max-age=0');
-        header('Accept-Ranges: bytes');
-        header('Content-Length: '.$this->file_size);
-        echo $this->getContents();
+        $response = response($this->getContents())->withHeaders([
+            'Content-type'        => $this->getContentType(),
+            'Content-Disposition' => $disposition . '; filename="' . $this->file_name . '"',
+            'Cache-Control'       => 'private, no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0',
+            'Accept-Ranges'       => 'bytes',
+            'Content-Length'      => $this->file_size,
+        ]);
+
+        if ($returnResponse) {
+            return $response;
+        } else {
+            $response->sendHeaders();
+            $response->sendContent();
+        }
     }
 
     /**
      * Outputs the raw thumbfile contents.
-     * @return void
+     *
+     * @param integer $width
+     * @param integer $height
+     * @param array $options [
+     *                  'mode'      => 'auto',
+     *                  'offset'    => [0, 0],
+     *                  'quality'   => 90,
+     *                  'sharpen'   => 0,
+     *                  'interlace' => false,
+     *                  'extension' => 'auto',
+     *                  'disposition' => 'inline',
+     *              ]
+     * @param bool $returnResponse Defaults to false, returns a Response object instead of directly outputting to the browser
+     * @return Response | void
      */
-    public function outputThumb($width, $height, $options = [])
+    public function outputThumb($width, $height, $options = [], $returnResponse = false)
     {
         $disposition = array_get($options, 'disposition', 'inline');
-        $this->getThumb($width, $height, $options);
         $options = $this->getDefaultThumbOptions($options);
+        $this->getThumb($width, $height, $options);
         $thumbFile = $this->getThumbFilename($width, $height, $options);
         $contents = $this->getContents($thumbFile);
 
-        header("Content-type: ".$this->getContentType());
-        header('Content-Disposition: '.$disposition.'; filename="'.basename($thumbFile).'"');
-        header('Cache-Control: private');
-        header('Cache-Control: no-store, no-cache, must-revalidate');
-        header('Cache-Control: pre-check=0, post-check=0, max-age=0');
-        header('Accept-Ranges: bytes');
-        header('Content-Length: '.mb_strlen($contents, '8bit'));
-        echo $contents;
+        $response = response($contents)->withHeaders([
+            'Content-type'        => $this->getContentType(),
+            'Content-Disposition' => $disposition . '; filename="' . basename($thumbFile) . '"',
+            'Cache-Control'       => 'private, no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0',
+            'Accept-Ranges'       => 'bytes',
+            'Content-Length'      => mb_strlen($contents, '8bit'),
+        ]);
+
+        if ($returnResponse) {
+            return $response;
+        } else {
+            $response->sendHeaders();
+            $response->sendContent();
+        }
     }
 
     //
     // Getters
     //
+
+    /**
+     * Returns the cache key used for the hasFile method
+     *
+     * @param string $path The path to get the cache key for
+     * @return string
+     */
+    public function getCacheKey($path = null)
+    {
+        if (empty($path)) {
+            $path = $this->getDiskPath();
+        }
+
+        return 'file_exists::' . $path;
+    }
 
     /**
      * Returns the file name without path
@@ -243,11 +344,7 @@ class File extends Model
      */
     public function getLastModified($fileName = null)
     {
-        if (!$fileName) {
-            $fileName = $this->disk_name;
-        }
-
-        return $this->storageCmd('lastModified', $this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName);
+        return $this->storageCmd('lastModified', $this->getDiskPath($fileName));
     }
 
     /**
@@ -272,19 +369,18 @@ class File extends Model
      */
     public function getContents($fileName = null)
     {
-        if (!$fileName) {
-            $fileName = $this->disk_name;
-        }
-
-        return $this->storageCmd('get', $this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName);
+        return $this->storageCmd('get', $this->getDiskPath($fileName));
     }
 
     /**
      * Returns the public address to access the file.
      */
-    public function getPath()
+    public function getPath($fileName = null)
     {
-        return $this->getPublicPath() . $this->getPartitionDirectory() . $this->disk_name;
+        if (empty($fileName)) {
+            $fileName = $this->disk_name;
+        }
+        return $this->getPublicPath() . $this->getPartitionDirectory() . $fileName;
     }
 
     /**
@@ -296,26 +392,28 @@ class File extends Model
         if ($this->isLocalStorage()) {
             return $this->getLocalRootPath() . '/' . $this->getDiskPath();
         }
-        else {
-            $itemSignature = md5($this->getPath()) . $this->getLastModified();
 
-            $cachePath = $this->getLocalTempPath($itemSignature . '.' . $this->getExtension());
+        $itemSignature = md5($this->getPath()) . $this->getLastModified();
 
-            if (!FileHelper::exists($cachePath)) {
-                $this->copyStorageToLocal($this->getDiskPath(), $cachePath);
-            }
+        $cachePath = $this->getLocalTempPath($itemSignature . '.' . $this->getExtension());
 
-            return $cachePath;
+        if (!FileHelper::exists($cachePath)) {
+            $this->copyStorageToLocal($this->getDiskPath(), $cachePath);
         }
+
+        return $cachePath;
     }
 
     /**
      * Returns the path to the file, relative to the storage disk.
-     * @reutrn string
+     * @return string
      */
-    public function getDiskPath()
+    public function getDiskPath($fileName = null)
     {
-        return $this->getStorageDirectory() . $this->getPartitionDirectory() . $this->disk_name;
+        if (empty($fileName)) {
+            $fileName = $this->disk_name;
+        }
+        return $this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName;
     }
 
     /**
@@ -378,7 +476,8 @@ class File extends Model
             $this->deleteThumbs();
             $this->deleteFile();
         }
-        catch (Exception $ex) {}
+        catch (Exception $ex) {
+        }
     }
 
     //
@@ -394,7 +493,28 @@ class File extends Model
     }
 
     /**
+     * Get image dimensions
+     * @return array|bool
+     */
+    protected function getImageDimensions()
+    {
+        return getimagesize($this->getLocalPath());
+    }
+
+    /**
      * Generates and returns a thumbnail path.
+     *
+     * @param integer $width
+     * @param integer $height
+     * @param array $options [
+     *                  'mode'      => 'auto',
+     *                  'offset'    => [0, 0],
+     *                  'quality'   => 90,
+     *                  'sharpen'   => 0,
+     *                  'interlace' => false,
+     *                  'extension' => 'auto',
+     *              ]
+     * @return string The URL to the generated thumbnail
      */
     public function getThumb($width, $height, $options = [])
     {
@@ -408,18 +528,16 @@ class File extends Model
         $options = $this->getDefaultThumbOptions($options);
 
         $thumbFile = $this->getThumbFilename($width, $height, $options);
-        $thumbPath = $this->getStorageDirectory() . $this->getPartitionDirectory() . $thumbFile;
-        $thumbPublic = $this->getPublicPath() . $this->getPartitionDirectory() . $thumbFile;
+        $thumbPath = $this->getDiskPath($thumbFile);
+        $thumbPublic = $this->getPath($thumbFile);
 
         if (!$this->hasFile($thumbFile)) {
-
             if ($this->isLocalStorage()) {
                 $this->makeThumbLocal($thumbFile, $thumbPath, $width, $height, $options);
             }
             else {
                 $this->makeThumbStorage($thumbFile, $thumbPath, $width, $height, $options);
             }
-
         }
 
         return $thumbPublic;
@@ -429,8 +547,9 @@ class File extends Model
      * Generates a thumbnail filename.
      * @return string
      */
-    protected function getThumbFilename($width, $height, $options)
+    public function getThumbFilename($width, $height, $options)
     {
+        $options = $this->getDefaultThumbOptions($options);
         return 'thumb_' . $this->id . '_' . $width . '_' . $height . '_' . $options['offset'][0] . '_' . $options['offset'][1] . '_' . $options['mode'] . '.' . $options['extension'];
     }
 
@@ -457,7 +576,7 @@ class File extends Model
 
         $options['mode'] = strtolower($options['mode']);
 
-        if ((strtolower($options['extension'])) == 'auto') {
+        if (strtolower($options['extension']) == 'auto') {
             $options['extension'] = strtolower($this->getExtension());
         }
 
@@ -563,7 +682,7 @@ class File extends Model
                 FileHelper::delete($collection);
             }
             else {
-                Storage::delete($collection);
+                $this->getDisk()->delete($collection);
             }
         }
     }
@@ -577,13 +696,20 @@ class File extends Model
      */
     protected function getDiskName()
     {
-        if ($this->disk_name !== null)
+        if ($this->disk_name !== null) {
             return $this->disk_name;
+        }
 
         $ext = strtolower($this->getExtension());
+        
+        // If file was uploaded without extension, attempt to guess it
+        if (!$ext && $this->data instanceof UploadedFile) {
+            $ext = $this->data->guessExtension();
+        }
+        
         $name = str_replace('.', '', uniqid(null, true));
 
-        return $this->disk_name = $ext !== null ? $name.'.'.$ext : $name;
+        return $this->disk_name = !empty($ext) ? $name.'.'.$ext : $name;
     }
 
     /**
@@ -654,6 +780,7 @@ class File extends Model
             $this->storageCmd('delete', $filePath);
         }
 
+        Cache::forget($this->getCacheKey($filePath));
         $this->deleteEmptyDirectory($directory);
     }
 
@@ -663,8 +790,18 @@ class File extends Model
      */
     protected function hasFile($fileName = null)
     {
-        $filePath = $this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName;
-        return $this->storageCmd('exists', $filePath);
+        $filePath = $this->getDiskPath($fileName);
+
+        $result = Cache::rememberForever($this->getCacheKey($filePath), function () use ($filePath) {
+            return $this->storageCmd('exists', $filePath);
+        });
+
+        // Forget negative results
+        if (!$result) {
+            Cache::forget($this->getCacheKey($filePath));
+        }
+
+        return $result;
     }
 
     /**
@@ -724,19 +861,22 @@ class File extends Model
     {
         $args = func_get_args();
         $command = array_shift($args);
+        $result = null;
 
         if ($this->isLocalStorage()) {
             $interface = 'File';
             $path = $this->getLocalRootPath();
-            $args = array_map(function($value) use ($path) {
+            $args = array_map(function ($value) use ($path) {
                 return $path . '/' . $value;
             }, $args);
+
+            $result = forward_static_call_array([$interface, $command], $args);
         }
         else {
-            $interface = 'Storage';
+            $result = call_user_func_array([$this->getDisk(), $command], $args);
         }
 
-        return forward_static_call_array([$interface, $command], $args);
+        return $result;
     }
 
     /**
@@ -744,7 +884,7 @@ class File extends Model
      */
     protected function copyStorageToLocal($storagePath, $localPath)
     {
-        return FileHelper::put($localPath, Storage::get($storagePath));
+        return FileHelper::put($localPath, $this->getDisk()->get($storagePath));
     }
 
     /**
@@ -752,7 +892,7 @@ class File extends Model
      */
     protected function copyLocalToStorage($localPath, $storagePath)
     {
-        return Storage::put($storagePath, FileHelper::get($localPath), ($this->isPublic()) ? 'public' : null);
+        return $this->getDisk()->put($storagePath, FileHelper::get($localPath), $this->isPublic() ? 'public' : null);
     }
 
     //
@@ -776,9 +916,8 @@ class File extends Model
         if ($this->isPublic()) {
             return 'uploads/public/';
         }
-        else {
-            return 'uploads/protected/';
-        }
+
+        return 'uploads/protected/';
     }
 
     /**
@@ -789,9 +928,8 @@ class File extends Model
         if ($this->isPublic()) {
             return 'http://localhost/uploads/public/';
         }
-        else {
-            return 'http://localhost/uploads/protected/';
-        }
+
+        return 'http://localhost/uploads/protected/';
     }
 
     /**
@@ -806,6 +944,15 @@ class File extends Model
         }
 
         return $path;
+    }
+
+    /**
+     * Returns the storage disk the file is stored on
+     * @return FilesystemAdapter
+     */
+    public function getDisk()
+    {
+        return Storage::disk();
     }
 
     /**
