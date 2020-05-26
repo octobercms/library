@@ -141,7 +141,7 @@ class ConfigWriterTest extends TestCase
 
 
         /*
-         * Test env like 'key'=>env('KEY'')
+         * Test env like 'key'=>env('KEY')
          */
         $contents = $writer->toContent($contents, ['envkeystring' => 'env_string_value_new']);
         $contents = $writer->toContent($contents, ['envkeytrue' => true]);
