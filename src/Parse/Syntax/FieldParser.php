@@ -265,6 +265,11 @@ class FieldParser
                 $params['options'] = $this->processOptionsToArray($params['options']);
             }
 
+            // Convert trigger property to array
+            if (isset($params['trigger'])) {
+                $params['trigger'] = $this->processOptionsToArray($params['trigger']);
+            }
+
             $tags[$name] = $tagString;
             $fields[$name] = $params;
         }
