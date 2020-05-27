@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Exception;
 
-use Html;
 use Exception;
+use October\Rain\Html\HtmlBuilder;
 
 /**
  * This class represents an application exception.
@@ -22,7 +22,7 @@ class ApplicationException extends ExceptionBase
      */
     public function __construct($message = "", $code = 0, Exception $previous = null)
     {
-        $message = Html::clean($message);
+        $message = HtmlBuilder::clean($message);
 
         parent::__construct($message, $code, $previous);
     }
