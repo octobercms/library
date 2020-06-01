@@ -31,9 +31,6 @@ class {{studly_name}} extends Controller
      */
     public $requiredPermissions = ['{{lower_author}}.{{lower_plugin}}.{{lower_name}}'];
 
-    /**
-     * Constructor.
-     */
     public function __construct()
     {
         parent::__construct();
