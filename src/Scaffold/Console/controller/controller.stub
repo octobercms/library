@@ -8,14 +8,32 @@ use Backend\Classes\Controller;
  */
 class {{studly_name}} extends Controller
 {
+    /**
+     * @var array Extensions implemented by this controller.
+     */
     public $implement = [
         'Backend.Behaviors.FormController',
         'Backend.Behaviors.ListController'
     ];
 
+    /**
+     * @var array `FormController` configuration.
+     */
     public $formConfig = 'config_form.yaml';
+
+    /**
+     * @var array `ListController` configuration.
+     */
     public $listConfig = 'config_list.yaml';
 
+    /**
+     * @var array Permissions required to view this page.
+     */
+    public $requiredPermissions = ['{{lower_author}}.{{lower_plugin}}.{{lower_name}}'];
+
+    /**
+     * Constructor.
+     */
     public function __construct()
     {
         parent::__construct();
