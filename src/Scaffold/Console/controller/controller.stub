@@ -22,7 +22,7 @@ class {{studly_name}} extends Controller
     public $formConfig = 'config_form.yaml';
 
     /**
-     * @var array `ListController` configuration.
+     * @var string Configuration file for the `ListController` behavior.
      */
     public $listConfig = 'config_list.yaml';
 
