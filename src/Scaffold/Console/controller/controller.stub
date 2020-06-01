@@ -17,7 +17,7 @@ class {{studly_name}} extends Controller
     ];
 
     /**
-     * @var array `FormController` configuration.
+     * @var string Configuration file for the `FormController` behavior.
      */
     public $formConfig = 'config_form.yaml';
 
