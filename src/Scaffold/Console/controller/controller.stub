@@ -9,7 +9,7 @@ use Backend\Classes\Controller;
 class {{studly_name}} extends Controller
 {
     /**
-     * @var array Extensions implemented by this controller.
+     * @var array Behaviors that are implemented by this controller.
      */
     public $implement = [
         'Backend.Behaviors.FormController',
