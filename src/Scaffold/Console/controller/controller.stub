@@ -26,11 +26,6 @@ class {{studly_name}} extends Controller
      */
     public $listConfig = 'config_list.yaml';
 
-    /**
-     * @var array Permissions required to access this controller's actions.
-     */
-    public $requiredPermissions = ['{{lower_author}}.{{lower_plugin}}.{{lower_name}}'];
-
     public function __construct()
     {
         parent::__construct();
