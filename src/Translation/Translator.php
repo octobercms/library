@@ -142,6 +142,8 @@ class Translator extends TranslatorBase
             $localeParts = explode('-', $locale, 2);
             $locale = $localeParts[0] . '_' . strtoupper($localeParts[1]);
         }
+        
+        $replace['count'] = $number;
 
         return $this->makeReplacements($this->getSelector()->choose($line, $number, $locale), $replace);
     }
