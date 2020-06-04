@@ -50,7 +50,9 @@ class FieldParser
         'dropdown',
         'radio',
         'checkbox',
+        'checkboxlist',
         'datepicker',
+        'balloon-selector',
         'repeater',
         'variable'
     ];
@@ -159,11 +161,14 @@ class FieldParser
         $defaults = [];
 
         foreach ($fields as $field => $params) {
+            if (empty($params['type'])) {
+                continue;
+            }
+
             if ($params['type'] == 'repeater') {
                 $defaults[$field] = [];
                 $defaults[$field][] = $this->getDefaultParams(array_get($params, 'fields', []));
-            }
-            else {
+            } else {
                 $defaults[$field] = $params['default'] ?? null;
             }
         }
@@ -230,6 +235,14 @@ class FieldParser
         $tagNames = $result[1];
         $paramStrings = $result[2];
 
+        // These fields take options for selection
+        $optionables = [
+            'dropdown',
+            'radio',
+            'checkboxlist',
+            'balloon-selector',
+        ];
+
         foreach ($tagStrings as $key => $tagString) {
             $tagName = $tagNames[$key];
             $params = $this->processParams($paramStrings[$key], $tagName);
@@ -237,21 +250,24 @@ class FieldParser
             if (isset($params['name'])) {
                 $name = $params['name'];
                 unset($params['name']);
-            }
-            else {
+            } else {
                 $name = md5($tagString);
             }
 
             if ($tagName == 'variable') {
                 $params['X_OCTOBER_IS_VARIABLE'] = true;
                 $tagName = array_get($params, 'type', 'text');
-            }
-            else {
+            } else {
                 $params['type'] = $tagName;
             }
 
-            if (in_array($tagName, ['dropdown', 'radio']) && isset($params['options'])) {
+            if (in_array($tagName, $optionables) && isset($params['options'])) {
                 $params['options'] = $this->processOptionsToArray($params['options']);
+            }
+
+            // Convert trigger property to array
+            if (isset($params['trigger'])) {
+                $params['trigger'] = $this->processOptionsToArray($params['trigger']);
             }
 
             $tags[$name] = $tagString;
@@ -313,8 +329,8 @@ class FieldParser
      *  In: name="test" comment="This is a test"
      *  Out: ['name' => 'test', 'comment' => 'This is a test']
      *
-     * @param  [type] $string [description]
-     * @return [type]         [description]
+     * @param  string $string
+     * @return array
      */
     protected function processParamsRegex($string)
     {

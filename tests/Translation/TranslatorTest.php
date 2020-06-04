@@ -12,7 +12,7 @@ class TranslatorTest extends TestCase
      */
     private $translator;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -27,6 +27,37 @@ class TranslatorTest extends TestCase
         $this->assertEquals(
             'Displayed records: 1-100 of 10',
             $this->translator->get('lang.test.pagination', ['from' => 1, 'to' => 100, 'total' => 10])
+        );
+    }
+
+    public function testChoice()
+    {
+        $this->assertEquals(
+            'Page',
+            $this->translator->choice('lang.test.choice', 1)
+        );
+        $this->assertEquals(
+            'Pages',
+            $this->translator->choice('lang.test.choice', 2)
+        );
+    }
+
+    /**
+     * Test case for https://github.com/octobercms/october/issues/4858
+     *
+     * @return void
+     */
+    public function testChoiceSublocale()
+    {
+        $this->translator->setLocale('en-au');
+
+        $this->assertEquals(
+            'Page',
+            $this->translator->choice('lang.test.choice', 1)
+        );
+        $this->assertEquals(
+            'Pages',
+            $this->translator->choice('lang.test.choice', 2)
         );
     }
 

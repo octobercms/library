@@ -701,6 +701,12 @@ class File extends Model
         }
 
         $ext = strtolower($this->getExtension());
+        
+        // If file was uploaded without extension, attempt to guess it
+        if (!$ext && $this->data instanceof UploadedFile) {
+            $ext = $this->data->guessExtension();
+        }
+        
         $name = str_replace('.', '', uniqid(null, true));
 
         return $this->disk_name = !empty($ext) ? $name.'.'.$ext : $name;

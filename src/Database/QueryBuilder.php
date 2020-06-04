@@ -155,7 +155,8 @@ class QueryBuilder extends QueryBuilderBase
             $results = $cache->rememberForever($key, $callback);
         }
         else {
-            $results = $cache->remember($key, $minutes, $callback);
+            $expiresAt = now()->addMinutes($minutes);
+            $results = $cache->remember($key, $expiresAt, $callback);
         }
 
         return collect($results);

@@ -42,6 +42,22 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $exception)
     {
+        /**
+         * @event exception.beforeReport
+         * Fires before the exception has been reported
+         *
+         * Example usage (prevents the reporting of a given exception)
+         *
+         *     Event::listen('exception.report', function (\Exception $exception) {
+         *         if ($exception instanceof \My\Custom\Exception) {
+         *             return false;
+         *         }
+         *     });
+         */
+        if (Event::fire('exception.beforeReport', [$exception], true) === false) {
+            return;
+        }
+
         if ($this->shouldntReport($exception)) {
             return;
         }
@@ -49,6 +65,18 @@ class Handler extends ExceptionHandler
         if (class_exists('Log')) {
             Log::error($exception);
         }
+
+        /**
+         * @event exception.report
+         * Fired after the exception has been reported
+         *
+         * Example usage (performs additional reporting on the exception)
+         *
+         *     Event::listen('exception.report', function (\Exception $exception) {
+         *         app('sentry')->captureException($exception);
+         *     });
+         */
+        Event::fire('exception.report', [$exception]);
     }
 
     /**

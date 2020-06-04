@@ -43,4 +43,16 @@ class MailServiceProvider extends MailServiceProviderBase
             return $mailer;
         });
     }
+
+    /**
+     * Register the Swift Transport instance.
+     *
+     * @return void
+     */
+    protected function registerSwiftTransport()
+    {
+        $this->app->singleton('swift.transport', function ($app) {
+            return new TransportManager($app);
+        });
+    }
 }

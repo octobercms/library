@@ -1,8 +1,14 @@
 <?php namespace October\Rain\Validation;
 
+use Illuminate\Contracts\Validation\Factory as FactoryContract;
 use Illuminate\Validation\Factory as BaseFactory;
 
-class Factory extends BaseFactory
+/**
+ * October CMS wrapper for the Laravel Validation factory.
+ *
+ * Ensures that the default resolver is the October\Rain\Validation\Validator.
+ */
+class Factory extends BaseFactory implements FactoryContract
 {
     /**
      * Resolve a new Validator instance.

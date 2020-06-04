@@ -5,7 +5,7 @@ use Exception;
 use Input;
 use Lang;
 use Illuminate\Contracts\Validation\Rule;
-use Illuminate\Support\Facades\Validator;
+use October\Rain\Support\Facades\Validator;
 use Illuminate\Support\MessageBag;
 use October\Rain\Database\ModelException;
 
@@ -381,7 +381,7 @@ trait Validation
                 /*
                  * Remove primary key unique validation rule if the model already exists
                  */
-                if (starts_with($rulePart, 'unique') && $this->exists) {
+                if (($rulePart === 'unique' || starts_with($rulePart, 'unique:')) && $this->exists) {
                     $ruleParts[$key] = $this->processValidationUniqueRule($rulePart, $field);
                 }
                 /*
@@ -444,7 +444,7 @@ trait Validation
             $whereValue
         ) = array_pad(explode(',', $definition), 6, null);
 
-        $table = 'unique:' . $this->getTable();
+        $table = 'unique:' . $this->getConnectionName()  . '.' . $this->getTable();
         $column = $column ?: $fieldName;
         $key = $keyName ? $this->$keyName : $this->getKey();
         $keyName = $keyName ?: $this->getKeyName();

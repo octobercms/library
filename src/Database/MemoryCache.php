@@ -94,7 +94,8 @@ class MemoryCache
     /**
      * Delete the cache for the given table.
      *
-     * @param $table
+     * @param string $table
+     * @return void
      */
     public function forget($table)
     {
@@ -111,6 +112,7 @@ class MemoryCache
 
     /**
      * Clear the memory cache.
+     * @return void
      */
     public function flush()
     {

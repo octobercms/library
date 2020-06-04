@@ -8,7 +8,7 @@
 class Dongle
 {
     /**
-     * @var DB Database helper object
+     * @var \Illuminate\Database\DatabaseManager Database helper object
      */
     protected $db;
 
@@ -24,6 +24,8 @@ class Dongle
 
     /**
      * Constructor.
+     * @param string $driver
+     * @param \Illuminate\Database\DatabaseManager $db
      */
     public function __construct($driver = 'mysql', $db = null)
     {

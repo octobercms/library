@@ -1,8 +1,12 @@
 <?php namespace October\Rain\Validation;
 
+use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Validation\ValidationServiceProvider as BaseServiceProvider;
 
-class ValidationServiceProvider extends BaseServiceProvider
+/**
+ * October CMS wrapper for the Laravel Validation service provider.
+ */
+class ValidationServiceProvider extends BaseServiceProvider implements DeferrableProvider
 {
     /**
      * Register the validation factory.

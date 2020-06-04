@@ -18,7 +18,7 @@ class LoadEnvironmentVariables
         $this->checkForSpecificEnvironmentFile($app);
 
         try {
-            (new Dotenv($app->environmentPath(), $app->environmentFile()))->load();
+            DotEnv::create($app->environmentPath(), $app->environmentFile())->load();
         }
         catch (InvalidPathException $e) {
             //

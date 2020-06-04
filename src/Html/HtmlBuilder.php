@@ -299,7 +299,7 @@ class HtmlBuilder
      *
      * @param  mixed    $key
      * @param  string  $type
-     * @param  string  $value
+     * @param  array  $value
      * @return string
      */
     protected function nestedListing($key, $type, $value)
@@ -340,7 +340,7 @@ class HtmlBuilder
      *
      * @param  string  $key
      * @param  string  $value
-     * @return string
+     * @return string|void
      */
     protected function attributeElement($key, $value)
     {

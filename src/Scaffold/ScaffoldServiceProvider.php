@@ -1,55 +1,57 @@
 <?php namespace October\Rain\Scaffold;
 
 use Illuminate\Support\ServiceProvider;
-use October\Rain\Scaffold\Console\CreateCommand;
-use October\Rain\Scaffold\Console\CreatePlugin;
 use October\Rain\Scaffold\Console\CreateModel;
-use October\Rain\Scaffold\Console\CreateController;
+use October\Rain\Scaffold\Console\CreatePlugin;
+use October\Rain\Scaffold\Console\CreateCommand;
 use October\Rain\Scaffold\Console\CreateComponent;
+use October\Rain\Scaffold\Console\CreateController;
 use October\Rain\Scaffold\Console\CreateFormWidget;
+use October\Rain\Scaffold\Console\CreateReportWidget;
+use Illuminate\Contracts\Support\DeferrableProvider;
 
-class ScaffoldServiceProvider extends ServiceProvider
+class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvider
 {
     /**
+     * The container singletons that should be registered.
+     *
+     * @var array
+     */
+    public $singletons = [
+        'command.create.plugin' => CreatePlugin::class,
+        'command.create.model' => CreateModel::class,
+        'command.create.controller' => CreateController::class,
+        'command.create.component' => CreateComponent::class,
+        'command.create.formwidget' => CreateFormWidget::class,
+        'command.create.reportwidget' => CreateReportWidget::class,
+        'command.create.command' => CreateCommand::class,
+    ];
+
+    /**
      * Register the service provider.
+     *
      * @return void
      */
     public function register()
     {
-        $this->app->singleton('command.create.plugin', function () {
-            return new CreatePlugin;
-        });
-
-        $this->app->singleton('command.create.model', function () {
-            return new CreateModel;
-        });
-
-        $this->app->singleton('command.create.controller', function () {
-            return new CreateController;
-        });
-
-        $this->app->singleton('command.create.component', function () {
-            return new CreateComponent;
-        });
-
-        $this->app->singleton('command.create.formwidget', function () {
-            return new CreateFormWidget;
-        });
-
-        $this->app->singleton('command.create.command', function () {
-            return new CreateCommand;
-        });
-
-        $this->commands('command.create.plugin');
-        $this->commands('command.create.model');
-        $this->commands('command.create.controller');
-        $this->commands('command.create.component');
-        $this->commands('command.create.formwidget');
-        $this->commands('command.create.command');
+        if ($this->app->runningInConsole()) {
+            $this->commands(
+                [
+                    'command.create.plugin',
+                    'command.create.model',
+                    'command.create.controller',
+                    'command.create.component',
+                    'command.create.formwidget',
+                    'command.create.reportwidget',
+                    'command.create.command',
+                ]
+            );
+        }
     }
 
     /**
      * Get the services provided by the provider.
+     *
      * @return array
      */
     public function provides()
@@ -60,7 +62,8 @@ class ScaffoldServiceProvider extends ServiceProvider
             'command.create.controller',
             'command.create.component',
             'command.create.formwidget',
-            'command.create.command'
+            'command.create.reportwidget',
+            'command.create.command',
         ];
     }
 }

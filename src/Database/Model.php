@@ -445,6 +445,8 @@ class Model extends EloquentModel
 
         $instance->setConnection($connection ?: $this->connection);
 
+        $instance->fireModelEvent('retrieved', false);
+
         return $instance;
     }
 
