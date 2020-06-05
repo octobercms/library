@@ -488,7 +488,7 @@ class HtmlBuilder
             $html = str_replace(['&amp;','&lt;','&gt;'], ['&amp;amp;','&amp;lt;','&amp;gt;'], $html);
             $html = preg_replace('#(&\#*\w+)[\x00-\x20]+;#u', "$1;", $html);
             $html = preg_replace('#(&\#x*)([0-9A-F]+);*#iu', "$1$2;", $html);
-            $html = html_entity_decode($html, ENT_COMPAT, 'UTF-8');
+            $html = html_entity_decode($html, ENT_COMPAT|ENT_HTML5, 'UTF-8');
 
             // Remove any attribute starting with "on" or xmlns
             $html = preg_replace('#(<[^>]+[\x00-\x20\"\'\/])(on|xmlns)[^>]*>#iUu', "$1>", $html);
