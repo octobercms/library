@@ -2,6 +2,7 @@
 
 use Illuminate\Support\ServiceProvider;
 use October\Rain\Scaffold\Console\CreateModel;
+use October\Rain\Scaffold\Console\CreateTheme;
 use October\Rain\Scaffold\Console\CreatePlugin;
 use October\Rain\Scaffold\Console\CreateCommand;
 use October\Rain\Scaffold\Console\CreateComponent;
@@ -18,6 +19,7 @@ class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvi
      * @var array
      */
     public $singletons = [
+        'command.create.theme' => CreateTheme::class,
         'command.create.plugin' => CreatePlugin::class,
         'command.create.model' => CreateModel::class,
         'command.create.controller' => CreateController::class,
@@ -37,6 +39,7 @@ class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvi
         if ($this->app->runningInConsole()) {
             $this->commands(
                 [
+                    'command.create.theme',
                     'command.create.plugin',
                     'command.create.model',
                     'command.create.controller',
@@ -57,6 +60,7 @@ class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvi
     public function provides()
     {
         return [
+            'command.create.theme',
             'command.create.plugin',
             'command.create.model',
             'command.create.controller',

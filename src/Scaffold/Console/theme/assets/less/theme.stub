@@ -1,0 +1,5 @@
+.content {
+    margin: 2em;
+    max-width: 1080px;
+    text-align: center;
+}
