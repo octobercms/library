@@ -256,9 +256,8 @@ class FieldParser
                 $params['X_OCTOBER_IS_VARIABLE'] = true;
                 $tagName = array_get($params, 'type', 'text');
             }
-            else {
-                $params['type'] = $tagName;
-            }
+
+            $params['type'] = $tagName;
 
             if (in_array($tagName, $optionables) && isset($params['options'])) {
                 $params['options'] = $this->processOptionsToArray($params['options']);
