@@ -973,7 +973,7 @@ class File extends Model
     */
     protected function getPartitionDirectory()
     {
-        return implode('/', array_slice(str_split($this->disk_name, 3), 0, 3)) . '/';
+        return implode('/', array_slice(str_split(substr($this->disk_name, 13), 3), 0, 3)) . '/';
     }
 
     /**
