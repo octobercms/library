@@ -3,6 +3,7 @@
 use Cache;
 use Storage;
 use File as FileHelper;
+use October\Rain\Support\Str;
 use October\Rain\Network\Http;
 use October\Rain\Database\Model;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -707,7 +708,7 @@ class File extends Model
             $ext = $this->data->guessExtension();
         }
         
-        $name = str_replace('.', '', uniqid(null, true));
+        $name = Str::random();
 
         return $this->disk_name = !empty($ext) ? $name.'.'.$ext : $name;
     }
@@ -973,7 +974,7 @@ class File extends Model
     */
     protected function getPartitionDirectory()
     {
-        return implode('/', array_slice(str_split(substr($this->disk_name, 13), 3), 0, 3)) . '/';
+        return implode('/', array_slice(str_split($this->disk_name, 3), 0, 3)) . '/';
     }
 
     /**
