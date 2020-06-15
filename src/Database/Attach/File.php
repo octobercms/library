@@ -708,7 +708,7 @@ class File extends Model
             $ext = $this->data->guessExtension();
         }
         
-        $name = Str::random();
+        $name = strtolower(Str::random(22));
 
         return $this->disk_name = !empty($ext) ? $name.'.'.$ext : $name;
     }
