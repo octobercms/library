@@ -355,6 +355,19 @@ if (!function_exists('array_dot')) {
     }
 }
 
+if (!function_exists('array_undot')) {
+    /**
+     * Transform a dot-notated array into a normal array.
+     *
+     * @param array $dotArray
+     * @return array
+     */
+    function array_undot(array $dotArray)
+    {
+        return Arr::undot($dotArray);
+    }
+}
+
 if (!function_exists('array_except')) {
     /**
      * Get all of the given array except for a specified array of keys.
