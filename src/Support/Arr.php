@@ -33,6 +33,8 @@ class Arr extends ArrHelper
     /**
      * Transform a dot-notated array into a normal array.
      *
+     * Courtesy of https://github.com/laravel/framework/issues/1851#issuecomment-20796924
+     *
      * @param array $dotArray
      * @return array
      */
