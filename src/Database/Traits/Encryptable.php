@@ -36,7 +36,7 @@ trait Encryptable
         static::extend(function ($model) {
             $encryptable = $model->getEncryptableAttributes();
             $model->bindEvent('model.beforeSetAttribute', function ($key, $value) use ($model, $encryptable) {
-                if (in_array($key, $encryptable) && !empty($value)) {
+                if (in_array($key, $encryptable) && !is_null($value)) {
                     return $model->makeEncryptableValue($key, $value);
                 }
             });
