@@ -3,7 +3,6 @@
 use Cache;
 use Storage;
 use File as FileHelper;
-use October\Rain\Support\Str;
 use October\Rain\Network\Http;
 use October\Rain\Database\Model;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -551,7 +550,32 @@ class File extends Model
     public function getThumbFilename($width, $height, $options)
     {
         $options = $this->getDefaultThumbOptions($options);
-        return 'thumb_' . $this->id . '_' . $width . '_' . $height . '_' . $options['offset'][0] . '_' . $options['offset'][1] . '_' . $options['mode'] . '.' . $options['extension'];
+
+
+
+        $optionsAsString = array_map(function ($option) use ($options) {
+        // Remove falses (such as the default interlace) and extension
+            if ((is_bool($options[$option]) && ! $options[$option]) || $option === 'extension') {
+                return false;
+            }
+
+            // Handle options which need an array (offset)
+            if (is_array($options[$option])) {
+                return implode('_', $options[$option]);
+            }
+
+            return $options[$option];
+        }, array_keys($options));
+
+        $optionsInFilename = implode('_', array_filter($optionsAsString, function ($option) {
+            return ($option);
+        }));
+
+        // Remove double underscore when using
+        $optionsInFilename = str_replace('__', '_', $optionsInFilename);
+
+        $diskNameWithoutExtension = str_ireplace('.'.$this->getExtension(), '', $this->getDiskName());
+        return $diskNameWithoutExtension .'_thumb_' . $optionsInFilename . '_' . $width . '_' . $height . '.' . $options['extension'];
     }
 
     /**
@@ -664,13 +688,18 @@ class File extends Model
      */
     public function deleteThumbs()
     {
-        $pattern = 'thumb_'.$this->id.'_';
+        $diskNameWithoutExtension = str_ireplace('.'.$this->getExtension(), '', $this->disk_name);
+
+        $patterns = [
+            'thumb_'.$this->id.'_',
+            $diskNameWithoutExtension.'_thumb_'
+        ];
 
         $directory = $this->getStorageDirectory() . $this->getPartitionDirectory();
         $allFiles = $this->storageCmd('files', $directory);
         $collection = [];
         foreach ($allFiles as $file) {
-            if (starts_with(basename($file), $pattern)) {
+            if (starts_with(basename($file), $patterns)) {
                 $collection[] = $file;
             }
         }
@@ -702,13 +731,13 @@ class File extends Model
         }
 
         $ext = strtolower($this->getExtension());
-        
+
         // If file was uploaded without extension, attempt to guess it
         if (!$ext && $this->data instanceof UploadedFile) {
             $ext = $this->data->guessExtension();
         }
-        
-        $name = strtolower(Str::random(22));
+
+        $name = str_replace('.', '', uniqid(null, true));
 
         return $this->disk_name = !empty($ext) ? $name.'.'.$ext : $name;
     }
@@ -966,12 +995,12 @@ class File extends Model
     }
 
     /**
-    * Generates a partition for the file.
-    * return /ABC/DE1/234 for an name of ABCDE1234.
-    * @param Attachment $attachment
-    * @param string $styleName
-    * @return mixed
-    */
+     * Generates a partition for the file.
+     * return /ABC/DE1/234 for an name of ABCDE1234.
+     * @param Attachment $attachment
+     * @param string $styleName
+     * @return mixed
+     */
     protected function getPartitionDirectory()
     {
         return implode('/', array_slice(str_split($this->disk_name, 3), 0, 3)) . '/';
