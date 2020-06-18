@@ -989,7 +989,7 @@ class Model extends EloquentModel
     {
         /**
          * @event model.beforeGetAttribute
-         * Called before the model attribute is retrieved
+         * Called before the model attribute is retrieved (only when the attribute exists in `$model->attributes` or has a get mutator method defined; i.e. `getFooAttribute()`)
          * > **Note:** also triggered in October\Rain\Halcyon\Model
          *
          * Example usage:
@@ -1020,7 +1020,7 @@ class Model extends EloquentModel
 
         /**
          * @event model.getAttribute
-         * Called after the model attribute is retrieved
+         * Called after the model attribute is retrieved (only when the attribute exists in `$model->attributes` or has a get mutator method defined; i.e. `getFooAttribute()`)
          * > **Note:** also triggered in October\Rain\Halcyon\Model
          *
          * Example usage:
