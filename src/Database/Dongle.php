@@ -177,7 +177,7 @@ class Dongle
             return $sql;
         }
 
-        return 'CAST('.$sql.' AS '.$asType.')';
+        return $sql.'::'.$asType;
     }
 
     /**
