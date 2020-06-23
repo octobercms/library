@@ -1,14 +1,9 @@
 <?php namespace October\Rain\Database\Eloquent\Concerns;
 
-use Illuminate\Database\Eloquent\Concerns\QueriesRelationships as IlluminateQueriesRelationships;
 use Illuminate\Support\Str;
 
 trait QueriesRelationships
 {
-    use IlluminateQueriesRelationships {
-        IlluminateQueriesRelationships::withCount as IlluminateWithCount;
-    }
-
     /**
      * Add subselect queries to count the relations.
      *
