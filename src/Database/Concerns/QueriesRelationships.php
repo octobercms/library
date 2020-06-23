@@ -50,6 +50,8 @@ trait QueriesRelationships
 
             $query = $query->mergeConstraintsFrom($relation->getQuery())->toBase();
 
+            // This part will clear all the sorting from the query avoiding errors in mysql with strict_mode enabled.
+            // See https://github.com/octobercms/october/issues/5134 for context on the bug report.
             $query->orders = null;
             $query->setBindings([], 'order');
 
