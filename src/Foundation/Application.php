@@ -17,7 +17,6 @@ use October\Rain\Router\RoutingServiceProvider;
 use October\Rain\Foundation\Providers\LogServiceProvider;
 use October\Rain\Foundation\Providers\MakerServiceProvider;
 use October\Rain\Foundation\Providers\ExecutionContextProvider;
-use Throwable;
 
 class Application extends ApplicationBase
 {
