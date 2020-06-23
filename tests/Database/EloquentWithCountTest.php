@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-
 class EloquentWithCountTest extends TestCase
 {
     public function setUp()
@@ -46,8 +44,8 @@ class EloquentWithCountTest extends TestCase
         $two = $one->twos()->Create();
         $two->threes()->Create();
 
-        $results = Model1::withCount([
-            'twos' => function ($query) {
+        $results = Model1::query()->select(['id'])->withCount([
+            'twos' => static function ($query) {
                 $query->where('id', '>=', 1);
             },
         ]);
@@ -62,11 +60,8 @@ class EloquentWithCountTest extends TestCase
         $one = Model1::create();
         $one->fours()->create();
 
-        $result = Model1::withCount('fours')->first();
+        $result = Model1::query()->withCount('fours')->first();
         $this->assertEquals(0, $result->fours_count);
-
-        $result = Model1::withCount('allFours')->first();
-        $this->assertEquals(1, $result->all_fours_count);
     }
 
     public function testSortingScopes()
@@ -74,9 +69,12 @@ class EloquentWithCountTest extends TestCase
         $one = Model1::create();
         $one->twos()->create();
 
-        $result = Model1::withCount('twos')->toSql();
+        $result = Model1::query()->withCount('twos')->toSql();
 
-        $this->assertSame('select "one".*, (select count(*) from "two" where "one"."id" = "two"."one_id") as "twos_count" from "one"', $result);
+        $this->assertSame(
+            'select "one".*, (select count(*) from "two" where "one"."id" = "two"."one_id") as "twos_count" from "one"',
+            $result
+        );
     }
 }
 
@@ -87,8 +85,8 @@ class Model1 extends \October\Rain\Database\Model
     protected $guarded = ['id'];
 
     public $hasMany = [
-        'twos' => [Model2::class, 'one_id'],
-        'fours' => [Model4::class, 'one_id'],
+        'twos' => [Model2::class, 'key' => 'one_id'],
+        'fours' => [Model4::class, 'key' => 'one_id'],
     ];
 }
 
@@ -99,7 +97,7 @@ class Model2 extends \October\Rain\Database\Model
     protected $guarded = ['id'];
 
     public $hasMany = [
-        'threes' => [Model3::class, 'two_id']
+        'threes' => [Model3::class, 'key' => 'two_id']
     ];
 
     protected static function boot()
