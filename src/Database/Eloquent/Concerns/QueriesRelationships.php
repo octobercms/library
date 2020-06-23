@@ -3,9 +3,6 @@
 use Illuminate\Database\Eloquent\Concerns\QueriesRelationships as IlluminateQueriesRelationships;
 use Illuminate\Support\Str;
 
-/**
- * @mixin IlluminateQueriesRelationships
- */
 trait QueriesRelationships
 {
     use IlluminateQueriesRelationships {
@@ -48,7 +45,8 @@ trait QueriesRelationships
             // as a sub-select. First, we'll get the "has" query and use that to get the relation
             // count query. We will normalize the relation name then append _count as the name.
             $query = $relation->getRelationExistenceCountQuery(
-                $relation->getRelated()->newQuery(), $this
+                $relation->getRelated()->newQuery(),
+                $this
             );
 
             $query->callScope($constraints);
