@@ -118,11 +118,11 @@ class ConfigWriterTest extends TestCase
 
         $this->assertArrayHasKey('default', $result);
         $this->assertEquals('pgsql', $result['default']);
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
         $this->assertArrayHasKey('redis', $result);
-        $this->assertInternalType('array', $result['redis']);
+        $this->assertIsArray($result['redis']);
         $this->assertArrayHasKey('default', $result['redis']);
-        $this->assertInternalType('array', $result['redis']['default']);
+        $this->assertIsArray($result['redis']['default']);
         $this->assertArrayHasKey('host', $result['redis']['default']);
         $this->assertArrayHasKey('password', $result['redis']['default']);
         $this->assertArrayHasKey('port', $result['redis']['default']);

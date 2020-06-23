@@ -78,7 +78,7 @@ class Mailer extends MailerBase
         }
 
         if (isset($this->to['address'])) {
-            $this->setGlobalTo($message);
+            $this->setGlobalToAndRemoveCcAndBcc($message);
         }
 
          /**
