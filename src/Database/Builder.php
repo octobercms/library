@@ -14,7 +14,7 @@ use October\Rain\Support\Facades\DbDongle;
  */
 class Builder extends BuilderModel
 {
-    use Eloquent\Concerns\QueriesRelationships;
+    use \October\Rain\Database\Eloquent\Concerns\QueriesRelationships;
 
     /**
      * Get an array with the values of a given column.
