@@ -4,6 +4,8 @@ use Illuminate\Support\Str;
 
 trait QueriesRelationships
 {
+    use \Illuminate\Database\Eloquent\Concerns\QueriesRelationships;
+
     /**
      * Add subselect queries to count the relations.
      *
