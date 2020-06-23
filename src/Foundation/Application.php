@@ -296,7 +296,7 @@ class Application extends ApplicationBase
                             return Str::startsWith($provider, 'Illuminate\\');
                         });
 
-        if (Config::get('app.loadDiscoveredPackages', true)) {
+        if (Config::get('app.loadDiscoveredPackages', false)) {
             $providers->splice(1, 0, [$this->make(PackageManifest::class)->providers()]);
         }
 
