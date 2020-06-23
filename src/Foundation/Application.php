@@ -286,9 +286,10 @@ class Application extends ApplicationBase
     /**
      * Register all of the configured providers.
      *
+     * @var bool $isRetry If true, this is a second attempt without the cached packages.
      * @return void
      */
-    public function registerConfiguredProviders()
+    public function registerConfiguredProviders($isRetry = false)
     {
         $providers = Collection::make($this->config['app.providers'])
                         ->partition(function ($provider) {
@@ -299,8 +300,38 @@ class Application extends ApplicationBase
             $providers->splice(1, 0, [$this->make(PackageManifest::class)->providers()]);
         }
 
-        (new ProviderRepository($this, new Filesystem, $this->getCachedServicesPath()))
-                    ->load($providers->collapse()->toArray());
+        $filesystem = new Filesystem;
+        $repository = new ProviderRepository($this, $filesystem, $this->getCachedServicesPath());
+
+        try {
+            $repository->load($providers->collapse()->toArray());
+        } catch (Throwable $e) {
+            // If provider loading fails, we'll try it without the cached packages first, before failing completely
+            if ($isRetry) {
+                throw $e;
+            }
+
+            $this->clearPackageCache();
+            $this->registerConfiguredProviders(true);
+        }
+    }
+
+    /**
+     * Clears cached packages, services and classes.
+     *
+     * @return void
+     */
+    protected function clearPackageCache()
+    {
+        $filesystem = new Filesystem;
+        $filesystem->delete([
+            $this->getCachedPackagesPath(),
+            $this->getCachedServicesPath(),
+            $this->getCachedClassesPath(),
+        ]);
+
+        // Reset package manifest
+        $this->make(PackageManifest::class)->manifest = null;
     }
 
 
