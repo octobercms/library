@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Database\Eloquent\Concerns;
+<?php namespace October\Rain\Database\Concerns;
 
 use Illuminate\Support\Str;
 
@@ -10,7 +10,7 @@ trait QueriesRelationships
      * Add subselect queries to count the relations.
      *
      * @param  mixed  $relations
-     * @return \October\Rain\Database\Eloquent\Concerns\QueriesRelationships
+     * @return \October\Rain\Database\Concerns\QueriesRelationships
      */
     public function withCount($relations)
     {

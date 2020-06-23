@@ -25,7 +25,7 @@ class Model extends EloquentModel
     use \October\Rain\Support\Traits\Emitter;
     use \October\Rain\Extension\ExtendableTrait;
     use \October\Rain\Database\Traits\DeferredBinding;
-    use \October\Rain\Database\Eloquent\Concerns\QueriesRelationships;
+    use \October\Rain\Database\Concerns\QueriesRelationships;
 
     /**
      * @var array Behaviors implemented by this model.
