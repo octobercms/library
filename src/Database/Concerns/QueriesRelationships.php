@@ -1,6 +1,6 @@
 <?php namespace October\Rain\Database\Concerns;
 
-use Illuminate\Support\Str;
+use October\Rain\Support\Str;
 
 trait QueriesRelationships
 {
