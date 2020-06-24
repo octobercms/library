@@ -66,6 +66,36 @@ class Application extends ApplicationBase
     }
 
     /**
+     * Run the given array of bootstrap classes.
+     *
+     * @param  array  $bootstrappers
+     * @return void
+     */
+    public function bootstrapWith(array $bootstrappers)
+    {
+        $this->hasBeenBootstrapped = true;
+
+        $exceptions = [];
+        foreach ($bootstrappers as $bootstrapper) {
+            $this['events']->fire('bootstrapping: '.$bootstrapper, [$this]);
+
+            // Defer any exceptions until after the application has been
+            // bootstrapped so that the exception handler can run without issues
+            try {
+                $this->make($bootstrapper)->bootstrap($this);
+            } catch (\Exception $ex) {
+                $exceptions[] = $ex;
+            }
+
+            $this['events']->fire('bootstrapped: '.$bootstrapper, [$this]);
+        }
+
+        if (!empty($exceptions)) {
+            throw $exceptions[0];
+        }
+    }
+
+    /**
      * Bind all of the application paths in the container.
      *
      * @return void
