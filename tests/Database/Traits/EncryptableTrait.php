@@ -51,12 +51,15 @@ class TestModelEncryptable extends \October\Rain\Database\Model
  * that 'encrypts' and 'decrypts' the provided values.
  * Used internally in the Encryptable trait.
  */
-class Crypt {
-    public static function encrypt($value) {
+class Crypt
+{
+    public static function encrypt($value)
+    {
         return $value.'_encrypted';
     }
 
-    public static function decrypt($value) {
+    public static function decrypt($value)
+    {
         return substr($value, 0, strpos($value, '_encrypted'));
     }
 }
