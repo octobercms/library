@@ -31,6 +31,7 @@
         "phpunit/phpunit": "~5.7",
         "illuminate/database": "5.5.*",
         "illuminate/filesystem": "5.5.*",
+        "illuminate/encryption": "5.5.*",
         "illuminate/queue": "5.5.*",
         "illuminate/support": "5.5.*",
         "illuminate/log": "5.5.*",
