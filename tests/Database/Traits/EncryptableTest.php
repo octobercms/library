@@ -11,7 +11,7 @@ class EncryptableTest extends TestCase
      */
     protected $encrypter;
 
-    public function setUp()
+    public function setUp(): void
     {
         $capsule = new Illuminate\Database\Capsule\Manager;
         $capsule->addConnection([
