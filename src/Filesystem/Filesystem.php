@@ -102,7 +102,7 @@ class Filesystem extends FilesystemBase
 
         if (strpos($path, $publicPath) === 0) {
             $result = str_replace("\\", "/", substr($path, strlen($publicPath)));
-        } else {
+        } elseif (Config::get('develop.allowDeepSymlinks', false)) {
             /**
              * Find symlinks within base folder and work out if this path can be resolved to a symlinked directory.
              * This follows the `cms.restrictBaseDir` config and will not allow symlinks to external directories
@@ -118,6 +118,15 @@ class Filesystem extends FilesystemBase
                         $result = str_replace("\\", "/", substr($source, strlen($publicPath)) . $relativePath);
                         break;
                     }
+                }
+            }
+        } elseif ($directories = $this->glob($publicPath . '/*', GLOB_NOSORT | GLOB_ONLYDIR)) {
+            foreach ($directories as $dir) {
+                if (is_link($dir) && strpos($path, readlink($dir)) === 0) {
+                    // Get the path of the requested path relative to the symlink in the public path
+                    $relativeLinkedPath = substr($path, strlen(readlink($dir)));
+                    $result = str_replace("\\", "/", substr($dir, strlen($publicPath)) . $relativeLinkedPath);
+                    break;
                 }
             }
         }
@@ -161,14 +170,14 @@ class Filesystem extends FilesystemBase
      */
     public function existsInsensitive($path)
     {
-        if (self::exists($path)) {
+        if ($this->exists($path)) {
             return $path;
         }
 
         $directoryName = dirname($path);
         $pathLower = strtolower($path);
 
-        if (!$files = self::glob($directoryName . '/*', GLOB_NOSORT)) {
+        if (!$files = $this->glob($directoryName . '/*', GLOB_NOSORT)) {
             return false;
         }
 
@@ -425,7 +434,7 @@ class Filesystem extends FilesystemBase
                         $target = realpath(readlink($directory->getPathname()));
                         if (!$target) {
                             $target = realpath($directory->getPath() . '/' . readlink($directory->getPathname()));
-                            
+
                             if (!$target) {
                                 // Cannot resolve symlink
                                 continue;
