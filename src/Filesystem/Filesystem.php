@@ -1,11 +1,9 @@
 <?php namespace October\Rain\Filesystem;
 
 use Config;
-use Cache;
 use DirectoryIterator;
 use FilesystemIterator;
 use ReflectionClass;
-use Carbon\Carbon;
 use Illuminate\Filesystem\Filesystem as FilesystemBase;
 
 /**
@@ -416,45 +414,43 @@ class Filesystem extends FilesystemBase
      */
     protected function findSymlinks()
     {
-        $this->symlinks = Cache::remember('filesystem_symlinks', Carbon::now()->addHours(1), function () {
-            $restrictBaseDir = Config::get('cms.restrictBaseDir', true);
-            $basePath = base_path();
-            $symlinks = [];
+        $restrictBaseDir = Config::get('cms.restrictBaseDir', true);
+        $basePath = base_path();
+        $symlinks = [];
 
-            $iterator = function ($path) use (&$iterator, &$symlinks, $basePath, $restrictBaseDir) {
-                foreach (new DirectoryIterator($path) as $directory) {
-                    if (
-                        $directory->isDir() === false
-                        || $directory->isDot() === true
-                    ) {
-                        continue;
-                    }
-                    if ($directory->isLink()) {
-                        $source = $directory->getPathname();
-                        $target = realpath(readlink($directory->getPathname()));
+        $iterator = function ($path) use (&$iterator, &$symlinks, $basePath, $restrictBaseDir) {
+            foreach (new DirectoryIterator($path) as $directory) {
+                if (
+                    $directory->isDir() === false
+                    || $directory->isDot() === true
+                ) {
+                    continue;
+                }
+                if ($directory->isLink()) {
+                    $source = $directory->getPathname();
+                    $target = realpath(readlink($directory->getPathname()));
+                    if (!$target) {
+                        $target = realpath($directory->getPath() . '/' . readlink($directory->getPathname()));
+
                         if (!$target) {
-                            $target = realpath($directory->getPath() . '/' . readlink($directory->getPathname()));
-
-                            if (!$target) {
-                                // Cannot resolve symlink
-                                continue;
-                            }
-                        }
-
-                        if ($restrictBaseDir && strpos($target . '/', $basePath . '/') !== 0) {
+                            // Cannot resolve symlink
                             continue;
                         }
-                        $symlinks[$source] = $target;
-                        continue;
                     }
 
-                    // Get subfolders
-                    $iterator($directory->getPathname());
+                    if ($restrictBaseDir && strpos($target . '/', $basePath . '/') !== 0) {
+                        continue;
+                    }
+                    $symlinks[$source] = $target;
+                    continue;
                 }
-            };
-            $iterator($basePath);
 
-            return $symlinks;
-        });
+                // Get subfolders
+                $iterator($directory->getPathname());
+            }
+        };
+        $iterator($basePath);
+
+        $this->symlinks = $symlinks;
     }
 }
