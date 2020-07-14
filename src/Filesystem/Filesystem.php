@@ -100,11 +100,12 @@ class Filesystem extends FilesystemBase
 
         if (strpos($path, $publicPath) === 0) {
             $result = str_replace("\\", "/", substr($path, strlen($publicPath)));
-        } elseif (Config::get('develop.allowDeepSymlinks', false)) {
+        } else {
             /**
              * Find symlinks within base folder and work out if this path can be resolved to a symlinked directory.
-             * This follows the `cms.restrictBaseDir` config and will not allow symlinks to external directories
-             * if it's enabled.
+             *
+             * This abides by the `cms.restrictBaseDir` config and will not allow symlinks to external directories
+             * if the restriction is enabled.
              */
             if ($this->symlinks === null) {
                 $this->findSymlinks();
@@ -116,15 +117,6 @@ class Filesystem extends FilesystemBase
                         $result = str_replace("\\", "/", substr($source, strlen($publicPath)) . $relativePath);
                         break;
                     }
-                }
-            }
-        } elseif ($directories = $this->glob($publicPath . '/*', GLOB_NOSORT | GLOB_ONLYDIR)) {
-            foreach ($directories as $dir) {
-                if (is_link($dir) && strpos($path, readlink($dir)) === 0) {
-                    // Get the path of the requested path relative to the symlink in the public path
-                    $relativeLinkedPath = substr($path, strlen(readlink($dir)));
-                    $result = str_replace("\\", "/", substr($dir, strlen($publicPath)) . $relativeLinkedPath);
-                    break;
                 }
             }
         }
@@ -415,10 +407,11 @@ class Filesystem extends FilesystemBase
     protected function findSymlinks()
     {
         $restrictBaseDir = Config::get('cms.restrictBaseDir', true);
+        $deep = Config::get('develop.allowDeepSymlinks', false);
         $basePath = base_path();
         $symlinks = [];
 
-        $iterator = function ($path) use (&$iterator, &$symlinks, $basePath, $restrictBaseDir) {
+        $iterator = function ($path) use (&$iterator, &$symlinks, $basePath, $restrictBaseDir, $deep) {
             foreach (new DirectoryIterator($path) as $directory) {
                 if (
                     $directory->isDir() === false
@@ -445,8 +438,10 @@ class Filesystem extends FilesystemBase
                     continue;
                 }
 
-                // Get subfolders
-                $iterator($directory->getPathname());
+                // Get subfolders if "develop.allowDeepSymlinks" is enabled.
+                if ($deep) {
+                    $iterator($directory->getPathname());
+                }
             }
         };
         $iterator($basePath);
