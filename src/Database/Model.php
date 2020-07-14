@@ -1204,13 +1204,6 @@ class Model extends EloquentModel
             $value = json_encode($value);
         }
 
-        /*
-         * Trim strings
-         */
-        if (is_string($value)) {
-            $value = trim($value);
-        }
-
         $result = parent::setAttribute($key, $value);
 
         /**
