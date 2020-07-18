@@ -164,7 +164,7 @@ class Http
     /**
      * Make a HTTP GET call.
      * @param string $url
-     * @param array  $options
+     * @param callable $options
      * @return self
      */
     public static function get($url, $options = null)
@@ -176,7 +176,7 @@ class Http
     /**
      * Make a HTTP POST call.
      * @param string $url
-     * @param array  $options
+     * @param callable $options
      * @return self
      */
     public static function post($url, $options = null)
@@ -188,7 +188,7 @@ class Http
     /**
      * Make a HTTP DELETE call.
      * @param string $url
-     * @param array  $options
+     * @param callable $options
      * @return self
      */
     public static function delete($url, $options = null)
@@ -200,7 +200,7 @@ class Http
     /**
      * Make a HTTP PATCH call.
      * @param string $url
-     * @param array  $options
+     * @param callable $options
      * @return self
      */
     public static function patch($url, $options = null)
@@ -212,7 +212,7 @@ class Http
     /**
      * Make a HTTP PUT call.
      * @param string $url
-     * @param array  $options
+     * @param callable $options
      * @return self
      */
     public static function put($url, $options = null)
@@ -224,7 +224,7 @@ class Http
     /**
      * Make a HTTP OPTIONS call.
      * @param string $url
-     * @param array  $options
+     * @param callable $options
      * @return self
      */
     public static function options($url, $options = null)
