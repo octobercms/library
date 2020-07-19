@@ -18,6 +18,7 @@
         {
             "name": "Luke Towers",
             "email": "octobercms@luketowers.ca",
+            "homepage": "https://luketowers.ca",
             "role": "Maintainer"
         }
     ],
@@ -43,6 +44,7 @@
         "twig/twig": "~2.0",
         "league/csv": "~9.1",
         "jenssegers/date": "~3.5",
+        "laravel/framework": "~6.0",
         "laravel/tinker": "~2.0"
     },
     "require-dev": {
