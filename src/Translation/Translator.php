@@ -23,6 +23,13 @@ class Translator extends TranslatorBase
     protected $events;
 
     /**
+     * Namespaces to look into for validation messages.
+     *
+     * @var array
+     */
+    protected $validationNamespaces = [];
+
+    /**
      * Get the translation for the given key.
      *
      * @param  string  $key
@@ -103,10 +110,12 @@ class Translator extends TranslatorBase
             !starts_with($key, 'validation.custom.') &&
             !starts_with($key, 'validation.attributes.')
         ) {
-            $nativeKey = 'system::'.$key;
-            $line = $this->get($nativeKey, $replace, $locale);
-            if ($line !== $nativeKey) {
-                return $line;
+            foreach ($this->validationNamespaces as $namespace) {
+                $nativeKey = $namespace.'::'.$key;
+                $line = $this->get($nativeKey, $replace, $locale);
+                if ($line !== $nativeKey) {
+                    return $line;
+                }
             }
         }
 
@@ -173,5 +182,16 @@ class Translator extends TranslatorBase
     public function setEventDispatcher(Dispatcher $events)
     {
         $this->events = $events;
+    }
+
+    /**
+     * Add a namespace to be used for fetching validation messages.
+     *
+     * @param  string  $namespace
+     * @return void
+     */
+    public function addValidationNamespace($namespace)
+    {
+        $this->validationNamespaces[] = $namespace;
     }
 }
