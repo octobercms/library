@@ -20,7 +20,7 @@ class AttachMany extends MorphManyBase
 
         $this->public = $isPublic;
 
-        if($keyType !== null) {
+        if ($keyType !== null) {
             $parent->setKeyType($keyType);
         }
 

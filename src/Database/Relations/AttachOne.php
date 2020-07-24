@@ -20,7 +20,7 @@ class AttachOne extends MorphOneBase
 
         $this->public = $isPublic;
 
-        if($keyType !== null) {
+        if ($keyType !== null) {
             $parent->setKeyType($keyType);
         }
 
