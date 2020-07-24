@@ -14,11 +14,15 @@ class AttachMany extends MorphManyBase
      * Create a new has many relationship instance.
      * @return void
      */
-    public function __construct(Builder $query, Model $parent, $type, $id, $isPublic, $localKey, $relationName = null)
+    public function __construct(Builder $query, Model $parent, $type, $id, $isPublic, $localKey, $relationName = null, $keyType = null)
     {
         $this->relationName = $relationName;
 
         $this->public = $isPublic;
+
+        if($keyType !== null) {
+            $parent->setKeyType($keyType);
+        }
 
         parent::__construct($query, $parent, $type, $id, $localKey);
 

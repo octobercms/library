@@ -675,9 +675,14 @@ trait HasRelationships
 
         $table = $instance->getTable();
 
+        $keyType = data_get(
+            $instance->getRelationDefinitions(),
+            'morphTo.attachment.keyType'
+        );
+
         $localKey = $localKey ?: $this->getKeyName();
 
-        return new AttachMany($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $isPublic, $localKey, $relationName);
+        return new AttachMany($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $isPublic, $localKey, $relationName, $keyType);
     }
 
     /**
