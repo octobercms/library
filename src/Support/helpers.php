@@ -12,7 +12,7 @@ if (!function_exists('input')) {
      * Booleans are converted from strings
      * @param string $name
      * @param string $default
-     * @return string
+     * @return mixed
      */
     function input($name = null, $default = null)
     {
