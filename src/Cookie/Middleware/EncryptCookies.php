@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Cookie\Middleware;
 
 use Config;
+use Session;
 use October\Rain\Cookie\CookieValuePrefix;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -83,12 +84,14 @@ class EncryptCookies extends EncryptCookiesBase
                 $value = CookieValuePrefix::getVerifiedValue($key, $decryptedValue, $this->encrypter->getKey());
 
                 /**
-                 * If the cookie is for the session, then allow it to pass through even
-                 * if the validation failed (most likely because the upgrade just occurred)
+                 * If the cookie is for the session and the value is a valid Session ID,
+                 * then allow it to pass through even if the validation failed (most likely
+                 * because the upgrade just occurred)
+                 *
                  * The cookie will be adjusted on the next request
                  * @todo Remove if year >= 2021 or build >= 475
                  */
-                if (empty($value) && $key === Config::get('session.cookie')) {
+                if (empty($value) && $key === Config::get('session.cookie') && Session::isValidId($decryptedValue)) {
                     $value = $decryptedValue;
                 }
 
