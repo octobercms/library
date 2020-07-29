@@ -10,8 +10,8 @@ if (!function_exists('input')) {
      * $name = input('contact[location][city]');
      * </pre>
      * Booleans are converted from strings
-     * @param string $name
-     * @param string $default
+     * @param string|null $name
+     * @param string|null $default
      * @return mixed
      */
     function input($name = null, $default = null)
