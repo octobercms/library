@@ -33,6 +33,9 @@ class EncryptCookies extends EncryptCookiesBase
 
         try {
             $result = $this->encrypter->decrypt($cookie, true);
+            if (!is_string($result)) {
+                $result = json_encode($result);
+            }
         }
         catch (\Exception $ex) {
             $result = $this->encrypter->decrypt($cookie, false);
@@ -52,7 +55,11 @@ class EncryptCookies extends EncryptCookiesBase
         foreach ($cookie as $key => $value) {
             if (is_string($value)) {
                 try {
-                    $decrypted[$key] = $this->encrypter->decrypt($value, true);
+                    $result = $this->encrypter->decrypt($value, true);
+                    if (!is_string($result)) {
+                        $result = json_encode($result);
+                    }
+                    $decrypted[$key] = $result;
                 }
                 catch (\Exception $ex) {
                     $decrypted[$key] = $this->encrypter->decrypt($value, false);
