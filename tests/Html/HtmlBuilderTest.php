@@ -32,6 +32,12 @@ class HtmlBuilderTest extends TestCase
         '), $result);
     }
 
+    public function testLimitEncoding()
+    {
+        $result = with(new HtmlBuilder)->limit('<p>Er hörte leise Schritte hinter sich. Das bedeutete nichts Gutes.</p>', 10);
+        $this->assertEquals('<p>Er hörte l...</p>', $result);
+    }
+
     public function testClean()
     {
         $result = with(new HtmlBuilder)->clean('<script>window.location = "http://google.com"</script>');
