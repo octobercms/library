@@ -908,7 +908,7 @@ if (!function_exists('title_case')) {
     }
 }
 
-if (!function_exists('canonical_path')) {
+if (!function_exists('resolve_path')) {
     /**
      * Resolves a path to its canonical location.
      *
@@ -924,9 +924,20 @@ if (!function_exists('canonical_path')) {
      * @param  string  $path
      * @return string|bool
      */
-    function canonical_path($path)
+    function resolve_path($path)
     {
-        $pathSegments = explode('/', str_replace('\\', '/', $path));
+        // Normalise directory separators
+        $path = str_replace('\\', '/', $path);
+
+        // Check for a relative or absolute path, and prepend the working directory if relative
+        if (substr($path, 0, 1) === '/') {
+            $pathSegments = explode('/', $path);
+        } else {
+            $path = getcwd() . '/' . $path;
+            $pathSegments = explode('/', $path);
+        }
+        array_shift($pathSegments);
+
         $canonSegments = [];
 
         foreach ($pathSegments as $segment) {
@@ -938,7 +949,11 @@ if (!function_exists('canonical_path')) {
                 continue;
             }
 
-            $currentPath = '/' . implode('/', $canonSegments) . '/' . $segment;
+            $currentPath = '/'
+                . ((count($canonSegments))
+                    ? implode('/', $canonSegments) . '/'
+                    : '')
+                . $segment;
 
             if (is_link($currentPath)) {
                 $stat = linkinfo($currentPath);
@@ -947,20 +962,11 @@ if (!function_exists('canonical_path')) {
                 }
                 $symlink = readlink($currentPath);
 
-                // Determine leftover path segments and append them to the symlinked path
-                $leftoverSegments = array_diff($pathSegments, $canonSegments);
-                // Drop the current segment (the symlink)
-                array_shift($leftoverSegments);
-
                 // Handle relative vs. absolute symlinks
                 if (substr($symlink, 0, 1) === '/') {
-                    $canonSegments = explode('/', canonical_path($symlink . '/' . implode('/', $leftoverSegments)));
+                    $canonSegments = explode('/', resolve_path($symlink));
                 } else {
-                    $canonSegments = explode('/', canonical_path(
-                        '/' . implode('/', $canonSegments)
-                        . '/' . $symlink
-                        . '/' . implode('/', $leftoverSegments)
-                    ));
+                    $canonSegments = explode('/', resolve_path('/' . implode('/', $canonSegments). '/' . $symlink));
                 }
 
                 continue;
@@ -969,6 +975,8 @@ if (!function_exists('canonical_path')) {
             $canonSegments[] = $segment;
         }
 
-        return '/' . implode('/', $canonSegments);
+        return '/' . implode('/', array_filter($canonSegments, function ($item) {
+            return $item !== '';
+        }));
     }
 }
