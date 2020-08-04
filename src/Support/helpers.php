@@ -968,6 +968,7 @@ if (!function_exists('resolve_path')) {
                 } else {
                     $canonSegments = explode('/', resolve_path('/' . implode('/', $canonSegments). '/' . $symlink));
                 }
+                array_shift($pathSegments);
 
                 continue;
             }
