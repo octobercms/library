@@ -907,3 +907,68 @@ if (!function_exists('title_case')) {
         return Str::title($value);
     }
 }
+
+if (!function_exists('canonical_path')) {
+    /**
+     * Resolves a path to its canonical location.
+     *
+     * This expands all symbolic links and resolves references to /./, /../ and extra / characters in the input path
+     * and returns the canonicalized absolute pathname.
+     *
+     * This function operates very similar to the PHP `realpath` function, except it will also work for missing files
+     * and directories.
+     *
+     * Returns canonical path if it can be resolved, otherwise `false`. Note that this function will always return
+     * UNIX-style paths.
+     *
+     * @param  string  $path
+     * @return string|bool
+     */
+    function canonical_path($path)
+    {
+        $pathSegments = explode('/', str_replace('\\', '/', $path));
+        $canonSegments = [];
+
+        foreach ($pathSegments as $segment) {
+            if ($segment === '' || $segment === '.') {
+                continue;
+            }
+            if ($segment === '..' && count($canonSegments)) {
+                array_pop($canonSegments);
+                continue;
+            }
+
+            $currentPath = '/' . implode('/', $canonSegments) . '/' . $segment;
+
+            if (is_link($currentPath)) {
+                $stat = linkinfo($currentPath);
+                if ($stat === -1 || $stat === false) {
+                    return false;
+                }
+                $symlink = readlink($currentPath);
+
+                // Determine leftover path segments and append them to the symlinked path
+                $leftoverSegments = array_diff($pathSegments, $canonSegments);
+                // Drop the current segment (the symlink)
+                array_shift($leftoverSegments);
+
+                // Handle relative vs. absolute symlinks
+                if (substr($symlink, 0, 1) === '/') {
+                    $canonSegments = explode('/', canonical_path($symlink . '/' . implode('/', $leftoverSegments)));
+                } else {
+                    $canonSegments = explode('/', canonical_path(
+                        '/' . implode('/', $canonSegments)
+                        . '/' . $symlink
+                        . '/' . implode('/', $leftoverSegments)
+                    ));
+                }
+
+                continue;
+            }
+
+            $canonSegments[] = $segment;
+        }
+
+        return '/' . implode('/', $canonSegments);
+    }
+}
