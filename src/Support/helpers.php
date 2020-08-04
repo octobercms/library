@@ -940,7 +940,7 @@ if (!function_exists('resolve_path')) {
 
         $canonSegments = [];
 
-        foreach ($pathSegments as $segment) {
+        foreach ($pathSegments as $i => $segment) {
             if ($segment === '' || $segment === '.') {
                 continue;
             }
@@ -971,6 +971,10 @@ if (!function_exists('resolve_path')) {
                 array_shift($pathSegments);
 
                 continue;
+            } elseif (is_file($currentPath) && $i < (count($pathSegments) - 1)) {
+                // If we've hit a file and we're trying to relatively traverse the path further, we need to fail at this
+                // point.
+                return false;
             }
 
             $canonSegments[] = $segment;
