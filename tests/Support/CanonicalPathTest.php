@@ -170,42 +170,46 @@ class CanonicalPathTest extends TestCase
 
     public function testRelativeToWorkingDirPaths()
     {
-        // Working directory would be the root folder in this instance
+        if (class_exists('System\ServiceProvider')) {
+            $baseWorkingDir = './vendor/october/rain/';
+        } else {
+            $baseWorkingDir = './';
+        }
 
         $this->assertEquals(
             dirname(dirname(__DIR__)) . '/tests/fixtures/paths/dir1/subdir1',
-            resolve_path('./tests/fixtures/paths/dir1/subdir1')
+            resolve_path($baseWorkingDir . 'tests/fixtures/paths/dir1/subdir1')
         );
         $this->assertEquals(
             dirname(dirname(__DIR__)) . '/tests/fixtures/paths/dir1/subdir1',
-            realpath('./tests/fixtures/paths/dir1/subdir1')
+            realpath($baseWorkingDir . 'tests/fixtures/paths/dir1/subdir1')
         );
 
         $this->assertEquals(
             dirname(dirname(__DIR__)) . '/tests/fixtures/paths/dir1/subdir1',
-            resolve_path('./tests/../tests/fixtures/paths/dir1/subdir1')
+            resolve_path($baseWorkingDir . 'tests/../tests/fixtures/paths/dir1/subdir1')
         );
         $this->assertEquals(
             dirname(dirname(__DIR__)) . '/tests/fixtures/paths/dir1/subdir1',
-            realpath('./tests/../tests/fixtures/paths/dir1/subdir1')
+            realpath($baseWorkingDir . 'tests/../tests/fixtures/paths/dir1/subdir1')
         );
 
         $this->assertEquals(
             dirname(dirname(dirname(__DIR__))),
-            resolve_path('./..')
+            resolve_path($baseWorkingDir . '..')
         );
         $this->assertEquals(
             dirname(dirname(dirname(__DIR__))),
-            realpath('./..')
+            realpath($baseWorkingDir . '..')
         );
 
         // realpath() won't work for this, as it does not resolve missing directories and files
         $this->assertEquals(
             dirname(dirname(__DIR__)) . '/tests/fixtures/paths/dir1/missing',
-            resolve_path('./tests/fixtures/paths/dir1/missing')
+            resolve_path($baseWorkingDir . 'tests/fixtures/paths/dir1/missing')
         );
         $this->assertFalse(
-            realpath('./tests/fixtures/paths/dir1/missing')
+            realpath($baseWorkingDir . 'tests/fixtures/paths/dir1/missing')
         );
     }
 
