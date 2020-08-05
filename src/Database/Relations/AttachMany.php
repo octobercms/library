@@ -12,7 +12,14 @@ class AttachMany extends MorphManyBase
 
     /**
      * Create a new has many relationship instance.
-     * @return void
+     * @param Builder $query
+     * @param Model $parent
+     * @param $type
+     * @param $id
+     * @param $isPublic
+     * @param $localKey
+     * @param null|string $relationName
+     * @param null|string $keyType
      */
     public function __construct(Builder $query, Model $parent, $type, $id, $isPublic, $localKey, $relationName = null, $keyType = null)
     {
