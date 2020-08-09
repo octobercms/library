@@ -1,15 +1,22 @@
 <?php namespace October\Rain\Foundation;
 
 use Closure;
+use Config;
+use Str;
+use Throwable;
+use Carbon\Laravel\ServiceProvider as CarbonServiceProvider;
+use Jenssegers\Date\DateServiceProvider as JessengersDateServiceProvider;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Collection;
 use Illuminate\Foundation\Application as ApplicationBase;
+use Illuminate\Foundation\PackageManifest;
+use Illuminate\Foundation\ProviderRepository;
 use Symfony\Component\Debug\Exception\FatalErrorException;
 use October\Rain\Events\EventServiceProvider;
 use October\Rain\Router\RoutingServiceProvider;
 use October\Rain\Foundation\Providers\LogServiceProvider;
 use October\Rain\Foundation\Providers\MakerServiceProvider;
 use October\Rain\Foundation\Providers\ExecutionContextProvider;
-use Throwable;
-use Exception;
 
 class Application extends ApplicationBase
 {
@@ -63,6 +70,10 @@ class Application extends ApplicationBase
         $this->register(new MakerServiceProvider($this));
 
         $this->register(new ExecutionContextProvider($this));
+
+        $this->register(new CarbonServiceProvider($this));
+
+        $this->register(new JessengersDateServiceProvider($this));
     }
 
     /**
@@ -272,6 +283,58 @@ class Application extends ApplicationBase
         $this['events']->fire('locale.changed', [$locale]);
     }
 
+    /**
+     * Register all of the configured providers.
+     *
+     * @var bool $isRetry If true, this is a second attempt without the cached packages.
+     * @return void
+     */
+    public function registerConfiguredProviders($isRetry = false)
+    {
+        $providers = Collection::make($this->config['app.providers'])
+                        ->partition(function ($provider) {
+                            return Str::startsWith($provider, 'Illuminate\\');
+                        });
+
+        if (Config::get('app.loadDiscoveredPackages', false)) {
+            $providers->splice(1, 0, [$this->make(PackageManifest::class)->providers()]);
+        }
+
+        $filesystem = new Filesystem;
+        $repository = new ProviderRepository($this, $filesystem, $this->getCachedServicesPath());
+
+        try {
+            $repository->load($providers->collapse()->toArray());
+        } catch (Throwable $e) {
+            // If provider loading fails, we'll try it without the cached packages first, before failing completely
+            if ($isRetry) {
+                throw $e;
+            }
+
+            $this->clearPackageCache();
+            $this->registerConfiguredProviders(true);
+        }
+    }
+
+    /**
+     * Clears cached packages, services and classes.
+     *
+     * @return void
+     */
+    protected function clearPackageCache()
+    {
+        $filesystem = new Filesystem;
+        $filesystem->delete([
+            $this->getCachedPackagesPath(),
+            $this->getCachedServicesPath(),
+            $this->getCachedClassesPath(),
+        ]);
+
+        // Reset package manifest
+        $this->make(PackageManifest::class)->manifest = null;
+    }
+
+
     //
     // Core aliases
     //
@@ -295,12 +358,12 @@ class Application extends ApplicationBase
             'db.connection'        => [\Illuminate\Database\Connection::class, \Illuminate\Database\ConnectionInterface::class],
             'events'               => [\Illuminate\Events\Dispatcher::class, \Illuminate\Contracts\Events\Dispatcher::class],
             'files'                => [\Illuminate\Filesystem\Filesystem::class],
-            'filesystem'           => [\Illuminate\Filesystem\FilesystemManager::class, \Illuminate\Contracts\Filesystem\Factory::class],
+            'filesystem'           => [\October\Rain\Filesystem\FilesystemManager::class, \Illuminate\Contracts\Filesystem\Factory::class],
             'filesystem.disk'      => [\Illuminate\Contracts\Filesystem\Filesystem::class],
             'filesystem.cloud'     => [\Illuminate\Contracts\Filesystem\Cloud::class],
             'hash'                 => [\Illuminate\Contracts\Hashing\Hasher::class],
             'translator'           => [\Illuminate\Translation\Translator::class, \Illuminate\Contracts\Translation\Translator::class],
-            'log'                  => [\Illuminate\Log\Writer::class, \Illuminate\Contracts\Logging\Log::class, \Psr\Log\LoggerInterface::class],
+            'log'                  => [\Illuminate\Log\Logger::class, \Psr\Log\LoggerInterface::class],
             'mailer'               => [\Illuminate\Mail\Mailer::class, \Illuminate\Contracts\Mail\Mailer::class, \Illuminate\Contracts\Mail\MailQueue::class],
             'queue'                => [\Illuminate\Queue\QueueManager::class, \Illuminate\Contracts\Queue\Factory::class, \Illuminate\Contracts\Queue\Monitor::class],
             'queue.connection'     => [\Illuminate\Contracts\Queue\Queue::class],
@@ -312,7 +375,7 @@ class Application extends ApplicationBase
             'session'              => [\Illuminate\Session\SessionManager::class],
             'session.store'        => [\Illuminate\Session\Store::class, \Illuminate\Contracts\Session\Session::class],
             'url'                  => [\October\Rain\Router\UrlGenerator::class, \Illuminate\Contracts\Routing\UrlGenerator::class],
-            'validator'            => [\Illuminate\Validation\Factory::class, \Illuminate\Contracts\Validation\Factory::class],
+            'validator'            => [\October\Rain\Validation\Factory::class, \Illuminate\Contracts\Validation\Factory::class],
             'view'                 => [\Illuminate\View\Factory::class, \Illuminate\Contracts\View\Factory::class],
         ];
 

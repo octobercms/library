@@ -1,15 +1,10 @@
 <?php namespace October\Rain\Html;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Contracts\Support\DeferrableProvider;
 
-class HtmlServiceProvider extends ServiceProvider
+class HtmlServiceProvider extends ServiceProvider implements DeferrableProvider
 {
-
-    /**
-     * @var bool Indicates if loading of the provider is deferred.
-     */
-    protected $defer = true;
-
     /**
      * Register the service provider.
      * @return void

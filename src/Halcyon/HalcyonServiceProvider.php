@@ -34,6 +34,11 @@ class HalcyonServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        Model::clearBootedModels();
+        Model::clearExtendedClasses();
+        Model::flushDuplicateCache();
+        Model::flushEventListeners();
+
         // The halcyon resolver is used to resolve various datasources,
         // since multiple datasources might be managed.
         $this->app->singleton('halcyon', function ($app) {

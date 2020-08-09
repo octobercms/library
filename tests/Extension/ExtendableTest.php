@@ -110,12 +110,11 @@ class ExtendableTest extends TestCase
         $this->assertEquals('baby', $result);
     }
 
-    /**
-     * @expectedException        BadMethodCallException
-     * @expectedExceptionMessage Call to undefined method ExtendableTestExampleExtendableClass::undefinedMethod()
-     */
     public function testCallingUndefinedStaticMethod()
     {
+        $this->expectException(BadMethodCallException::class);
+        $this->expectExceptionMessage('Call to undefined method ExtendableTestExampleExtendableClass::undefinedMethod()');
+
         $result = ExtendableTestExampleExtendableClass::undefinedMethod();
         $this->assertEquals('bar', $result);
     }
@@ -129,31 +128,28 @@ class ExtendableTest extends TestCase
         $this->assertEquals('bar', $subject->getProtectedFooAttribute());
     }
 
-    /**
-     * @expectedException        BadMethodCallException
-     * @expectedExceptionMessage Call to undefined method ExtendableTestExampleExtendableClass::protectedBar()
-     */
     public function testAccessingProtectedMethod()
     {
+        $this->expectException(BadMethodCallException::class);
+        $this->expectExceptionMessage('Call to undefined method ExtendableTestExampleExtendableClass::protectedBar()');
+
         $subject = new ExtendableTestExampleExtendableClass;
         echo $subject->protectedBar();
     }
 
-    /**
-     * @expectedException        BadMethodCallException
-     * @expectedExceptionMessage Call to undefined method ExtendableTestExampleExtendableClass::protectedMars()
-     */
     public function testAccessingProtectedStaticMethod()
     {
+        $this->expectException(BadMethodCallException::class);
+        $this->expectExceptionMessage('Call to undefined method ExtendableTestExampleExtendableClass::protectedMars()');
+
         echo ExtendableTestExampleExtendableClass::protectedMars();
     }
 
-    /**
-     * @expectedException        Exception
-     * @expectedExceptionMessage Class ExtendableTestInvalidExtendableClass contains an invalid $implement value
-     */
     public function testInvalidImplementValue()
     {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Class ExtendableTestInvalidExtendableClass contains an invalid $implement value');
+        
         $result = new ExtendableTestInvalidExtendableClass;
     }
 

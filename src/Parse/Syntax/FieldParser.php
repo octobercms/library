@@ -161,11 +161,14 @@ class FieldParser
         $defaults = [];
 
         foreach ($fields as $field => $params) {
+            if (empty($params['type'])) {
+                continue;
+            }
+
             if ($params['type'] == 'repeater') {
                 $defaults[$field] = [];
                 $defaults[$field][] = $this->getDefaultParams(array_get($params, 'fields', []));
-            }
-            else {
+            } else {
                 $defaults[$field] = $params['default'] ?? null;
             }
         }
@@ -247,8 +250,7 @@ class FieldParser
             if (isset($params['name'])) {
                 $name = $params['name'];
                 unset($params['name']);
-            }
-            else {
+            } else {
                 $name = md5($tagString);
             }
 
@@ -327,8 +329,8 @@ class FieldParser
      *  In: name="test" comment="This is a test"
      *  Out: ['name' => 'test', 'comment' => 'This is a test']
      *
-     * @param  [type] $string [description]
-     * @return [type]         [description]
+     * @param  string $string
+     * @return array
      */
     protected function processParamsRegex($string)
     {

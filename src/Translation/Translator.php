@@ -23,6 +23,19 @@ class Translator extends TranslatorBase
     protected $events;
 
     /**
+     * Get the translation for a given key.
+     *
+     * @param  string  $key
+     * @param  array   $replace
+     * @param  string  $locale
+     * @return string|array|null
+     */
+    public function trans($key, array $replace = [], $locale = null)
+    {
+        return $this->get($key, $replace, $locale);
+    }
+
+    /**
      * Get the translation for the given key.
      *
      * @param  string  $key
@@ -51,30 +64,44 @@ class Translator extends TranslatorBase
             return $line;
         }
 
-        if ($line = $this->getValidationSpecific($key, $replace, $locale)) {
-            return $line;
-        }
+        $locale = $locale ?: $this->locale;
 
-        list($namespace, $group, $item) = $this->parseKey($key);
+        // For JSON translations, there is only one file per locale, so we will simply load
+        // that file and then we will be ready to check the array for the key. These are
+        // only one level deep so we do not need to do any fancy searching through it.
+        $this->load('*', '*', $locale);
 
-        if (is_null($namespace)) {
-            $namespace = '*';
-        }
+        $line = $this->loaded['*']['*'][$locale][$key] ?? null;
 
-        // Here we will get the locale that should be used for the language line. If one
-        // was not passed, we will use the default locales which was given to us when
-        // the translator was instantiated. Then, we can load the lines and return.
-        foreach ($this->parseLocale($locale, $fallback) as $locale) {
-            $line = $this->getLine(
-                $namespace,
-                $group,
-                $locale,
-                $item,
-                $replace
-            );
+        // If we can't find a translation for the JSON key, we will attempt to translate it
+        // using the typical translation file. This way developers can always just use a
+        // helper such as __ instead of having to pick between trans or __ with views.
+        if (!isset($line)) {
+            if ($line = $this->getValidationSpecific($key, $replace, $locale)) {
+                return $line;
+            }
 
-            if (!is_null($line)) {
-                break;
+            list($namespace, $group, $item) = $this->parseKey($key);
+
+            if (is_null($namespace)) {
+                $namespace = '*';
+            }
+
+            // Here we will get the locale that should be used for the language line. If one
+            // was not passed, we will use the default locales which was given to us when
+            // the translator was instantiated. Then, we can load the lines and return.
+            foreach ($this->parseLocale($locale, $fallback) as $locale) {
+                $line = $this->getLine(
+                    $namespace,
+                    $group,
+                    $locale,
+                    $item,
+                    $replace
+                );
+
+                if (!is_null($line)) {
+                    break;
+                }
             }
         }
 
@@ -86,6 +113,20 @@ class Translator extends TranslatorBase
         }
 
         return $line;
+    }
+
+    /**
+     * Get a translation according to an integer value.
+     *
+     * @param  string  $key
+     * @param  int|array|\Countable  $number
+     * @param  array   $replace
+     * @param  string  $locale
+     * @return string
+     */
+    public function transChoice($key, $number, array $replace = [], $locale = null)
+    {
+        return $this->choice($key, $number, $replace, $locale);
     }
 
     /**
