@@ -1,5 +1,7 @@
 <?php namespace October\Rain\Database;
 
+use Db;
+use Input;
 use Closure;
 use October\Rain\Support\Arr;
 use October\Rain\Support\Str;
@@ -19,7 +21,6 @@ use Exception;
  */
 class Model extends EloquentModel
 {
-    use Concerns\GuardsAttributes;
     use Concerns\HasRelationships;
     use \October\Rain\Support\Traits\Emitter;
     use \October\Rain\Extension\ExtendableTrait;
