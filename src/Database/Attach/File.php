@@ -32,9 +32,24 @@ class File extends Model
     ];
 
     /**
+     * @var array The attributes that are mass assignable.
+     */
+    protected $fillable = [
+        'file_name',
+        'title',
+        'description',
+        'field',
+        'attachment_id',
+        'attachment_type',
+        'is_public',
+        'sort_order',
+        'data',
+    ];
+
+    /**
      * @var array The attributes that aren't mass assignable.
      */
-    protected $guarded = ['disk_name'];
+    protected $guarded = [];
 
     /**
      * @var array Known image extensions.
