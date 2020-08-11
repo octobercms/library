@@ -60,8 +60,8 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --no-progress --no-suggest
 
-      - name: Configure log matcher
-        uses: mheap/phpunit-matcher-action@master
+      - name: Setup problem matchers for PHPUnit
+        run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
       - name: Run tests
-        run: ./vendor/bin/phpunit --teamcity ./tests
+        run: ./vendor/bin/phpunit ./tests
