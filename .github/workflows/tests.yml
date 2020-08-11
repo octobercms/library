@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.operatingSystem }}
     name: ${{ matrix.operatingSystem }} / PHP ${{ matrix.phpVersion }}
     env:
-      extensions: curl, fileinfo, gd, mbstring, openssl, pdo, sqlite, xml
+      extensions: curl, fileinfo, gd, mbstring, openssl, pdo_sqlite, sqlite, xml
       key: october-rain-cache-v1
     steps:
       - name: Checkout changes
@@ -61,6 +61,7 @@ jobs:
         run: composer install --no-interaction --no-progress --no-suggest
 
       - name: Setup problem matchers for PHPUnit
+        if: matrix.phpVersion == '7.4'
         run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
       - name: Run tests
