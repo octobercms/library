@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.operatingSystem }}
     name: ${{ matrix.operatingSystem }} / PHP ${{ matrix.phpVersion }}
     env:
-      extensions: curl, fileinfo, gd, mbstring, openssl, sqlite, xml
+      extensions: curl, fileinfo, gd, mbstring, openssl, pdo, sqlite, xml
       key: october-rain-cache-v1
     steps:
       - name: Checkout changes
