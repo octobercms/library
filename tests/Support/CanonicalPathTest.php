@@ -2,10 +2,20 @@
 
 /**
  * The tests below will test both the resolve_path() method, and the original realpath() method to ensure we maintain
- * parity with the expected functionality of realpath(), unless where we've deviated for flexibility.
+ * parity with the expected functionality of realpath(), except for where we've deviated for flexibility.
  */
 class CanonicalPathTest extends TestCase
 {
+    /** @var bool Whether we are testing on Windows, as Windows has some unique quirks for symlinks */
+    protected $onWindows = false;
+
+    public function setUp(): void
+    {
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $this->onWindows = true;
+        }
+    }
+
     public function testDirectPaths()
     {
         $dir = dirname(__DIR__) . '/fixtures/paths';
@@ -50,7 +60,7 @@ class CanonicalPathTest extends TestCase
         );
 
         // realpath() won't work for this (on Linux), as it does not normalise Windows directory separators
-        if (DIRECTORY_SEPARATOR === '/') {
+        if (!$this->onWindows) {
             $this->assertEquals(
                 str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir1/subdir1/file1'),
                 resolve_path($dir . '\\dir1\\subdir1\\file1')
@@ -205,7 +215,12 @@ class CanonicalPathTest extends TestCase
 
         // Create an absolute symlink
         if (file_exists(str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link2'))) {
-            unlink(str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link2'));
+            if ($this->onWindows) {
+                // Windows treats this symlink as a directory
+                rmdir(str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link2'));
+            } else {
+                unlink(str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link2'));
+            }
         }
         symlink(
             str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir1/subdir1'),
@@ -240,11 +255,20 @@ class CanonicalPathTest extends TestCase
         );
 
         // Remove test symlink
-        unlink(str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link2'));
+        if ($this->onWindows) {
+            // Windows treats this symlink as a directory
+            rmdir(str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link2'));
+        } else {
+            unlink(str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link2'));
+        }
     }
 
     public function testRelativeSymlinks()
     {
+        if ($this->onWindows) {
+            $this->markTestSkipped('Relative symlinks do not work in Windows');
+        }
+
         $dir = dirname(__DIR__) . '/fixtures/paths';
 
         $this->assertEquals(
