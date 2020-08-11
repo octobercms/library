@@ -918,8 +918,7 @@ if (!function_exists('resolve_path')) {
      * This function operates very similar to the PHP `realpath` function, except it will also work for missing files
      * and directories.
      *
-     * Returns canonical path if it can be resolved, otherwise `false`. Note that this function will always return
-     * UNIX-style paths.
+     * Returns canonical path if it can be resolved, otherwise `false`.
      *
      * @param  string  $path
      * @return string|bool
@@ -927,17 +926,20 @@ if (!function_exists('resolve_path')) {
     function resolve_path($path)
     {
         // Normalise directory separators
-        $path = str_replace('\\', '/', $path);
+        $path = str_replace(['\\', '/'], '/', $path);
+        $drive = (preg_match('/^([A-Z]:)/', __FILE__, $matches) === 1)
+            ? $matches[1]
+            : null;
 
         // Check for a relative or absolute path, and prepend the working directory if relative, then split up the
         // path into segments
-        if (substr($path, 0, 1) === '/') {
+        if (substr($path, 0, 1) === '/' || !is_null($drive)) {
             $pathSegments = explode('/', $path);
         } else {
-            $path = getcwd() . '/' . $path;
+            $path = str_replace(['\\', '/'], '/', getcwd()) . '/' . $path;
             $pathSegments = explode('/', $path);
         }
-        // Remove initial empty segment
+        // Remove initial empty segment (or drive)
         array_shift($pathSegments);
 
         $canonSegments = [];
@@ -989,8 +991,10 @@ if (!function_exists('resolve_path')) {
         }
 
         // Generate final resolved path, removing any leftover empty segments
-        return '/' . implode('/', array_filter($canonSegments, function ($item) {
-            return $item !== '';
-        }));
+        return ((!is_null($drive)) ? $drive : '')
+            . DIRECTORY_SEPARATOR
+            . implode(DIRECTORY_SEPARATOR, array_filter($canonSegments, function ($item) {
+                return $item !== '';
+            }));
     }
 }
