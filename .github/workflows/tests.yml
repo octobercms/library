@@ -9,14 +9,14 @@ on:
 
 jobs:
   unitTests:
-    runs-on: ubuntu-latest
     strategy:
       max-parallel: 6
       matrix:
-        operating-system: [ubuntu-latest, windows-latest]
-        phpVersions: ['7.2', '7.3', '7.4']
+        operatingSystem: [ubuntu-latest, windows-latest]
+        phpVersion: ['7.2', '7.3', '7.4']
       fail-fast: false
-    name: ${{ matrix.operating-system }} / PHP ${{ matrix.phpVersions }}
+    runs-on: ${{ maxtrix.operatingSystem }}
+    name: ${{ matrix.operatingSystem }} / PHP ${{ matrix.phpVersion }}
     env:
       extensions: curl, gd, xml, mbstring, openssl
       key: october-rain-cache-v1
@@ -28,7 +28,7 @@ jobs:
         id: extcache
         uses: shivammathur/cache-extensions@v1
         with:
-          php-version: ${{ matrix.php-versions }}
+          php-version: ${{ matrix.phpVersion }}
           extensions: ${{ env.extensions }}
           key: ${{ env.key }}
 
@@ -42,12 +42,9 @@ jobs:
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.phpVersions }}
+          php-version: ${{ matrix.phpVersion }}
           tools: composer
           extensions: ${{ env.extensions }}
-
-      - name: Setup problem matchers for PHPUnit
-        run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
       - name: Setup dependency cache
         id: composercache
