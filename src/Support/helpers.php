@@ -978,7 +978,9 @@ if (!function_exists('resolve_path')) {
                 if (substr($symlink, 0, 1) === '/' || !is_null($symlinkDrive)) {
                     $canonSegments = explode('/', resolve_path($symlink));
                 } else {
-                    $canonSegments = explode('/', resolve_path('/' . implode('/', $canonSegments). '/' . $symlink));
+                    $canonSegments = explode('/', resolve_path(
+                        ($drive ?? '' ) . '/' . implode('/', $canonSegments) . '/' . $symlink
+                    ));
                 }
                 // Remove initial empty segment
                 array_shift($pathSegments);
