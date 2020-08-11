@@ -10,6 +10,8 @@ jobs:
     steps:
       - name: Checkout changes
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Install PHP and PHP Code Sniffer
         uses: shivammathur/setup-php@v2
         with:
