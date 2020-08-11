@@ -969,10 +969,13 @@ if (!function_exists('resolve_path')) {
                     return false;
                 }
                 $symlink = readlink($currentPath);
+                $symlinkDrive = (preg_match('/^([A-Z]:)/', $symlink, $matches) === 1)
+                    ? $matches[1]
+                    : null;
 
                 // Handle relative vs. absolute symlinks and switch the collated segments to use the symlink target path
                 // instead
-                if (substr($symlink, 0, 1) === '/') {
+                if (substr($symlink, 0, 1) === '/' || !is_null($symlinkDrive)) {
                     $canonSegments = explode('/', resolve_path($symlink));
                 } else {
                     $canonSegments = explode('/', resolve_path('/' . implode('/', $canonSegments). '/' . $symlink));
