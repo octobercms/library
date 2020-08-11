@@ -927,7 +927,7 @@ if (!function_exists('resolve_path')) {
     {
         // Normalise directory separators
         $path = str_replace(['\\', '/'], '/', $path);
-        $drive = (preg_match('/^([A-Z]:)/', __FILE__, $matches) === 1)
+        $drive = (preg_match('/^([A-Z]:)/', $path, $matches) === 1)
             ? $matches[1]
             : null;
 
@@ -937,6 +937,9 @@ if (!function_exists('resolve_path')) {
             $pathSegments = explode('/', $path);
         } else {
             $path = str_replace(['\\', '/'], '/', getcwd()) . '/' . $path;
+            $drive = (preg_match('/^([A-Z]:)/', getcwd(), $matches) === 1)
+                ? $matches[1]
+                : null;
             $pathSegments = explode('/', $path);
         }
         // Remove initial empty segment (or drive)
