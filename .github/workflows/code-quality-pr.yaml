@@ -9,9 +9,9 @@ jobs:
     name: PHP
     steps:
       - name: Checkout changes
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Install PHP and PHP Code Sniffer
-        uses: shivammathur/setup-php@v1
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '7.3'
           tools: phpcs
