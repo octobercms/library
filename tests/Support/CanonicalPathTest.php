@@ -46,14 +46,16 @@ class CanonicalPathTest extends TestCase
             realpath($dir . '/dir2/file2')
         );
 
-        // realpath() won't work for this, as it does not normalise directory separators
-        $this->assertEquals(
-            str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir1/subdir1/file1'),
-            resolve_path($dir . '\\dir1\\subdir1\\file1')
-        );
-        $this->assertFalse(
-            realpath($dir . '\\dir1\\subdir1\\file1')
-        );
+        // realpath() won't work for this (on Linux), as it does not normalise Windows directory separators
+        if (DIRECTORY_SEPARATOR === '/') {
+            $this->assertEquals(
+                str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir1/subdir1/file1'),
+                resolve_path($dir . '\\dir1\\subdir1\\file1')
+            );
+            $this->assertFalse(
+                realpath($dir . '\\dir1\\subdir1\\file1')
+            );
+        }
 
         // realpath() won't work for this, as it does not resolve missing directories and files
         $this->assertEquals(
