@@ -15,7 +15,7 @@ jobs:
         operatingSystem: [ubuntu-latest, windows-latest]
         phpVersion: ['7.2', '7.3', '7.4']
       fail-fast: false
-    runs-on: ${{ maxtrix.operatingSystem }}
+    runs-on: ${{ matrix.operatingSystem }}
     name: ${{ matrix.operatingSystem }} / PHP ${{ matrix.phpVersion }}
     env:
       extensions: curl, gd, xml, mbstring, openssl
