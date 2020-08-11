@@ -63,7 +63,5 @@ jobs:
       - name: Configure log matcher
         uses: mheap/phpunit-matcher-action@master
 
-      - name: Run Linting and Tests
-        run: |
-          ./vendor/bin/parallel-lint --exclude vendor .
-          ./vendor/bin/phpunit --teamcity ./tests
+      - name: Run tests
+        run: ./vendor/bin/phpunit --teamcity ./tests
