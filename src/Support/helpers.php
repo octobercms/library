@@ -976,14 +976,14 @@ if (!function_exists('resolve_path')) {
                 // Handle relative vs. absolute symlinks and switch the collated segments to use the symlink target path
                 // instead
                 if (substr($symlink, 0, 1) === '/' || !is_null($symlinkDrive)) {
-                    $canonSegments = explode('/', resolve_path($symlink));
+                    $canonSegments = explode(DIRECTORY_SEPARATOR, resolve_path($symlink));
                 } else {
-                    $canonSegments = explode('/', resolve_path(
-                        ($drive ?? '' ) . '/' . implode('/', $canonSegments) . '/' . $symlink
+                    $canonSegments = explode(DIRECTORY_SEPARATOR, resolve_path(
+                        ($drive ?? '' ) . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $canonSegments) . DIRECTORY_SEPARATOR . $symlink
                     ));
                 }
-                // Remove initial empty segment
-                array_shift($pathSegments);
+                // Remove initial empty segment (or drive)
+                array_shift($canonSegments);
 
                 continue;
             } elseif (is_file($currentPath) && $i < (count($pathSegments) - 1)) {
