@@ -9,6 +9,9 @@ class CanonicalPathTest extends TestCase
     public function testDirectPaths()
     {
         $dir = dirname(__DIR__) . '/fixtures/paths';
+        $drive = (preg_match('/^([A-Z]:)/', __FILE__, $matches) === 1)
+            ? $matches[1]
+            : null;
 
         $this->assertEquals(
             str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir1'),
@@ -75,18 +78,18 @@ class CanonicalPathTest extends TestCase
         );
 
         $this->assertEquals(
-            str_replace('/', DIRECTORY_SEPARATOR, '/tmp'),
+            str_replace('/', DIRECTORY_SEPARATOR, ($drive ?? '') . '/tmp'),
             resolve_path('/tmp/')
         );
         $this->assertEquals(
-            str_replace('/', DIRECTORY_SEPARATOR, '/tmp'),
+            str_replace('/', DIRECTORY_SEPARATOR, ($drive ?? '') . '/tmp'),
             realpath('/tmp/')
         );
 
         // Path /dev/null technically doesn't exist - we do return a result, but realpath() won't. This is a fringe case
         // that's unlikely to come up.
         $this->assertEquals(
-            str_replace('/', DIRECTORY_SEPARATOR, '/dev/null'),
+            str_replace('/', DIRECTORY_SEPARATOR, ($drive ?? '') . '/dev/null'),
             resolve_path('\\dev\\null')
         );
         $this->assertFalse(
