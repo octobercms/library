@@ -484,7 +484,6 @@ class HtmlBuilder
      */
     protected static function getReadableLength($str)
     {
-        $str = str_replace(["\n", "\r"], "\n", $str);
         return strlen(preg_replace('/\s+/', ' ', $str));
     }
 
