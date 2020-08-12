@@ -111,9 +111,13 @@ class PathResolver
      */
     protected function resolvePath($path)
     {
+        // Split path into segments
         $pathSegments = explode('/', $path);
-        $resolvedSegments = [];
+
+        // Store Windows drive, if available, for final resolved path.
         $drive = array_shift($pathSegments) ?: null;
+
+        $resolvedSegments = [];
 
         foreach ($pathSegments as $i => $segment) {
             // Ignore current directory markers or empty segments
