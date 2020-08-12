@@ -1,5 +1,6 @@
 <?php
 
+use October\Rain\Filesystem\PathResolver;
 use October\Rain\Support\Arr;
 use October\Rain\Support\Str;
 use October\Rain\Support\Collection;
@@ -925,84 +926,6 @@ if (!function_exists('resolve_path')) {
      */
     function resolve_path($path)
     {
-        // Normalise directory separators
-        $path = str_replace(['\\', '/'], '/', $path);
-        $drive = (preg_match('/^([A-Z]:)/', $path, $matches) === 1)
-            ? $matches[1]
-            : null;
-
-        // Check for a relative or absolute path, and prepend the working directory if relative, then split up the
-        // path into segments
-        if (substr($path, 0, 1) === '/' || !is_null($drive)) {
-            $pathSegments = explode('/', $path);
-        } else {
-            $path = str_replace(['\\', '/'], '/', getcwd()) . '/' . $path;
-            $drive = (preg_match('/^([A-Z]:)/', getcwd(), $matches) === 1)
-                ? $matches[1]
-                : null;
-            $pathSegments = explode('/', $path);
-        }
-        // Remove initial empty segment (or drive)
-        array_shift($pathSegments);
-
-        $canonSegments = [];
-
-        foreach ($pathSegments as $i => $segment) {
-            // Ignore current directory markers or empty segments
-            if ($segment === '' || $segment === '.') {
-                continue;
-            }
-            // Traverse back one segment in the collated segments
-            if ($segment === '..' && count($canonSegments)) {
-                array_pop($canonSegments);
-                continue;
-            }
-
-            // Generate current path
-            $currentPath = '/'
-                . ((count($canonSegments))
-                    ? implode('/', $canonSegments) . '/'
-                    : '')
-                . $segment;
-
-            if (is_link($currentPath)) {
-                // Check that the symlink is valid and the target exists
-                $stat = linkinfo($currentPath);
-                if ($stat === -1 || $stat === false) {
-                    return false;
-                }
-                $symlink = readlink($currentPath);
-                $symlinkDrive = (preg_match('/^([A-Z]:)/', $symlink, $matches) === 1)
-                    ? $matches[1]
-                    : null;
-
-                // Handle relative vs. absolute symlinks and switch the collated segments to use the symlink target path
-                // instead
-                if (substr($symlink, 0, 1) === '/' || !is_null($symlinkDrive)) {
-                    $canonSegments = explode(DIRECTORY_SEPARATOR, resolve_path($symlink));
-                } else {
-                    $canonSegments = explode(DIRECTORY_SEPARATOR, resolve_path(
-                        ($drive ?? '' ) . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $canonSegments) . DIRECTORY_SEPARATOR . $symlink
-                    ));
-                }
-                // Remove initial empty segment (or drive)
-                array_shift($canonSegments);
-
-                continue;
-            } elseif (is_file($currentPath) && $i < (count($pathSegments) - 1)) {
-                // If we've hit a file and we're trying to relatively traverse the path further, we need to fail at this
-                // point.
-                return false;
-            }
-
-            $canonSegments[] = $segment;
-        }
-
-        // Generate final resolved path, removing any leftover empty segments
-        return ((!is_null($drive)) ? $drive : '')
-            . DIRECTORY_SEPARATOR
-            . implode(DIRECTORY_SEPARATOR, array_filter($canonSegments, function ($item) {
-                return $item !== '';
-            }));
+        return PathResolver::with($path)->resolve();
     }
 }
