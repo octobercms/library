@@ -131,7 +131,8 @@ class PathResolver
                 continue;
             }
 
-            $currentPath = '/'
+            $currentPath = ($drive ?? '')
+                . '/'
                 . ((count($resolvedSegments))
                     ? implode('/', $resolvedSegments) . '/'
                     : '')
@@ -145,6 +146,7 @@ class PathResolver
                 }
 
                 $resolvedSegments = explode('/', $resolvedSymlink);
+                $drive = array_shift($resolvedSegments) ?: null;
                 continue;
             } elseif (is_file($currentPath) && $i < (count($pathSegments) - 1)) {
                 // If we've hit a file and we're trying to relatively traverse the path further, we need to fail at this
@@ -189,6 +191,6 @@ class PathResolver
             $target = $this->resolvePath($directory . $target);
         }
 
-        return $target;
+        return $this->normalisePath($target);
     }
 }
