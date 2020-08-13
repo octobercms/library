@@ -961,7 +961,6 @@ trait NestedTree
          * Validate move
          */
         if (!$this->validateMove($this, $target, $position)) {
-            dd('failed');
             return $this;
         }
 
