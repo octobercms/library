@@ -1,5 +1,6 @@
 <?php
 
+use October\Rain\Filesystem\PathResolver;
 use October\Rain\Support\Arr;
 use October\Rain\Support\Str;
 use October\Rain\Support\Collection;
@@ -918,79 +919,13 @@ if (!function_exists('resolve_path')) {
      * This function operates very similar to the PHP `realpath` function, except it will also work for missing files
      * and directories.
      *
-     * Returns canonical path if it can be resolved, otherwise `false`. Note that this function will always return
-     * UNIX-style paths.
+     * Returns canonical path if it can be resolved, otherwise `false`.
      *
      * @param  string  $path
      * @return string|bool
      */
     function resolve_path($path)
     {
-        // Normalise directory separators
-        $path = str_replace('\\', '/', $path);
-
-        // Check for a relative or absolute path, and prepend the working directory if relative, then split up the
-        // path into segments
-        if (substr($path, 0, 1) === '/') {
-            $pathSegments = explode('/', $path);
-        } else {
-            $path = getcwd() . '/' . $path;
-            $pathSegments = explode('/', $path);
-        }
-        // Remove initial empty segment
-        array_shift($pathSegments);
-
-        $canonSegments = [];
-
-        foreach ($pathSegments as $i => $segment) {
-            // Ignore current directory markers or empty segments
-            if ($segment === '' || $segment === '.') {
-                continue;
-            }
-            // Traverse back one segment in the collated segments
-            if ($segment === '..' && count($canonSegments)) {
-                array_pop($canonSegments);
-                continue;
-            }
-
-            // Generate current path
-            $currentPath = '/'
-                . ((count($canonSegments))
-                    ? implode('/', $canonSegments) . '/'
-                    : '')
-                . $segment;
-
-            if (is_link($currentPath)) {
-                // Check that the symlink is valid and the target exists
-                $stat = linkinfo($currentPath);
-                if ($stat === -1 || $stat === false) {
-                    return false;
-                }
-                $symlink = readlink($currentPath);
-
-                // Handle relative vs. absolute symlinks and switch the collated segments to use the symlink target path
-                // instead
-                if (substr($symlink, 0, 1) === '/') {
-                    $canonSegments = explode('/', resolve_path($symlink));
-                } else {
-                    $canonSegments = explode('/', resolve_path('/' . implode('/', $canonSegments). '/' . $symlink));
-                }
-                // Remove initial empty segment
-                array_shift($pathSegments);
-
-                continue;
-            } elseif (is_file($currentPath) && $i < (count($pathSegments) - 1)) {
-                // If we've hit a file and we're trying to relatively traverse the path further, we need to fail at this
-                // point.
-                return false;
-            }
-
-            $canonSegments[] = $segment;
-        }
-
-        // Generate final resolved path, removing any leftover empty segments
-        return '/' . implode('/', array_filter($canonSegments, function ($item) {
-            return $item !== '';
-        }));
+        return PathResolver::resolve($path);
     }
 }
