@@ -1,7 +1,5 @@
 <?php namespace October\Rain\Filesystem;
 
-use October\Rain\Exception\ApplicationException;
-
 /**
  * A utility to resolve paths to their canonical location and handle path queries.
  *
@@ -87,7 +85,6 @@ class PathResolver
      * @param string $path
      * @param string $directory
      * @return bool
-     * @throws ApplicationException If the path is not specified
      */
     public static function within($path, $directory)
     {
