@@ -22,14 +22,36 @@ class HtmlBuilderTest extends TestCase
         $this->assertEquals('<p>The quick brown fox jumped over the lazy dog</p><p>The qu...</p>', $result);
 
         $result = with(new HtmlBuilder)->limit(trim("
-            <p>The quick brown fox jumped over the lazy dog</p>
-            <p>The quick brown fox jumped over the lazy dog</p>
+            <p>The quick brown fox jumped over the lazy dog</p>\n<p>The quick brown fox jumped over the lazy dog</p>
         "), 60);
 
-        $this->assertEquals(trim('
-            <p>The quick brown fox jumped over the lazy dog</p>
-            <p>The...</p>
-        '), $result);
+        $this->assertEquals(trim("
+            <p>The quick brown fox jumped over the lazy dog</p>\n<p>The quick brown...</p>
+        "), $result);
+
+        $result = with(new HtmlBuilder)->limit(trim("
+            <p>The quick brown fox jumped over the lazy dog</p>\r\n<p>The quick brown fox jumped over the lazy dog</p>
+        "), 60);
+
+        $this->assertEquals(trim("
+            <p>The quick brown fox jumped over the lazy dog</p>\r\n<p>The quick brown...</p>
+        "), $result);
+
+        $result = with(new HtmlBuilder)->limit(trim("
+            <p>The quick brown fox jumped          over the lazy dog</p>\r\n<p>The quick brown fox jumped over the lazy dog</p>
+        "), 60);
+
+        $this->assertEquals(trim("
+            <p>The quick brown fox jumped          over the lazy dog</p>\r\n<p>The quick brown...</p>
+        "), $result);
+
+        $result = with(new HtmlBuilder)->limit(trim("
+            <p>The quick brown fox jumped over&nbsp;&nbsp;the lazy dog</p>\n<p>The quick brown fox jumped over the lazy dog</p>
+        "), 60);
+
+        $this->assertEquals(trim("
+            <p>The quick brown fox jumped over&nbsp;&nbsp;the lazy dog</p>\n<p>The quick brow...</p>
+        "), $result);
     }
 
     public function testLimitEncoding()
