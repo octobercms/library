@@ -269,14 +269,6 @@ trait HasRelationships
             ));
         }
 
-        if (isset($relation[0]) && $relationType == 'morphTo') {
-            throw new InvalidArgumentException(sprintf(
-                "Relation '%s' on model '%s' is a morphTo relation and should not contain additional arguments.",
-                $relationName,
-                get_called_class()
-            ));
-        }
-
         switch ($relationType) {
             case 'hasOne':
             case 'hasMany':
