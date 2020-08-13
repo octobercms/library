@@ -428,7 +428,7 @@ class HtmlBuilder
             list($tag, $tagPosition) = $match[0];
 
             $str = substr($html, $position, $tagPosition - $position);
-            if ($printedLength + self::getReadableLength($str) > $maxLength) {
+            if ($printedLength + static::getReadableLength($str) > $maxLength) {
                 $result .= substr($str, 0, $maxLength - $printedLength) . $end;
                 $printedLength = $maxLength;
                 break;
