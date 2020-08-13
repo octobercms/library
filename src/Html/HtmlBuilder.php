@@ -435,7 +435,7 @@ class HtmlBuilder
             }
 
             $result .= $str;
-            $printedLength += self::getReadableLength($str);
+            $printedLength += static::getReadableLength($str);
             if ($printedLength >= $maxLength) {
                 $result .= $end;
                 break;
