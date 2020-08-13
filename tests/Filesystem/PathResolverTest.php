@@ -310,26 +310,26 @@ class PathResolverTest extends TestCase
         // --- Succeeding paths
 
         // Normal paths
-        $this->assertTrue(PathResolver::with($dir . '/dir1/subdir1/file1')->within($dir));
-        $this->assertTrue(PathResolver::with($dir . '/dir1/subdir1/missing')->within($dir));
-        $this->assertTrue(PathResolver::with($dir . '/dir1/subdir1')->within($dir));
-        $this->assertTrue(PathResolver::with($dir . '/dir1')->within($dir));
-        $this->assertTrue(PathResolver::with($dir)->within($dir));
-        $this->assertTrue(PathResolver::with($dir . '/./')->within($dir));
-        $this->assertTrue(PathResolver::with($dir . '/../paths')->within($dir));
+        $this->assertTrue(PathResolver::within($dir . '/dir1/subdir1/file1', $dir));
+        $this->assertTrue(PathResolver::within($dir . '/dir1/subdir1/missing', $dir));
+        $this->assertTrue(PathResolver::within($dir . '/dir1/subdir1', $dir));
+        $this->assertTrue(PathResolver::within($dir . '/dir1', $dir));
+        $this->assertTrue(PathResolver::within($dir, $dir));
+        $this->assertTrue(PathResolver::within($dir . '/./', $dir));
+        $this->assertTrue(PathResolver::within($dir . '/../paths', $dir));
         // Symlinks
-        $this->assertTrue(PathResolver::with($dir . '/dir3/link3')->within($dir));
+        $this->assertTrue(PathResolver::within($dir . '/dir3/link3', $dir));
 
         // --- Failing paths
 
         // Normal paths
-        $this->assertFalse(PathResolver::with('./')->within($dir));
-        $this->assertFalse(PathResolver::with($dir . '/../')->within($dir));
-        $this->assertFalse(PathResolver::with($dir . '/../parse')->within($dir));
-        $this->assertFalse(PathResolver::with($dir . '/dir1/subdir1/missing/../../../../')->within($dir));
+        $this->assertFalse(PathResolver::within('./', $dir));
+        $this->assertFalse(PathResolver::within($dir . '/../', $dir));
+        $this->assertFalse(PathResolver::within($dir . '/../parse', $dir));
+        $this->assertFalse(PathResolver::within($dir . '/dir1/subdir1/missing/../../../../', $dir));
 
         // Symlinks
-        $this->assertFalse(PathResolver::with($dir . '/dir3/link3/../../../')->within($dir));
+        $this->assertFalse(PathResolver::within($dir . '/dir3/link3/../../../', $dir));
 
         // Create an absolute symlink to the fixtures directory
         if (file_exists(str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link2'))) {
@@ -345,7 +345,15 @@ class PathResolverTest extends TestCase
             str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link2')
         );
 
-        $this->assertFalse(PathResolver::with($dir . '/dir2/link2')->within($dir));
-        $this->assertTrue(PathResolver::with($dir . '/dir2/link2/paths')->within($dir));
+        $this->assertFalse(PathResolver::within($dir . '/dir2/link2', $dir));
+        $this->assertTrue(PathResolver::within($dir . '/dir2/link2/paths', $dir));
+
+        // Remove test symlink
+        if ($this->onWindows) {
+            // Windows treats this symlink as a directory
+            rmdir(str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link2'));
+        } else {
+            unlink(str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link2'));
+        }
     }
 }

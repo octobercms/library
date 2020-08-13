@@ -926,6 +926,6 @@ if (!function_exists('resolve_path')) {
      */
     function resolve_path($path)
     {
-        return PathResolver::with($path)->resolve();
+        return PathResolver::resolve($path);
     }
 }
