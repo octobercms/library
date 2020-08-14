@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Attach;
 
+use Log;
 use Cache;
 use Storage;
 use File as FileHelper;
@@ -641,6 +642,7 @@ class File extends Model
                 ;
             }
             catch (Exception $ex) {
+                Log::error($ex);
                 BrokenImage::copyTo($thumbPath);
             }
         }
@@ -675,6 +677,7 @@ class File extends Model
                 ;
             }
             catch (Exception $ex) {
+                Log::error($ex);
                 BrokenImage::copyTo($tempThumb);
             }
 
