@@ -142,6 +142,17 @@ class Filesystem extends FilesystemBase
     }
 
     /**
+     * Returns true if the provided disk is using the "local" driver
+     *
+     * @param Illuminate\Filesystem\FilesystemAdapter $disk
+     * @return boolean
+     */
+    public function isLocalDisk($disk)
+    {
+        return ($disk->getDriver()->getAdapter() instanceof \League\Flysystem\Adapter\Local);
+    }
+
+    /**
      * Finds the path to a class
      * @param  mixed  $className Class name or object
      * @return string The file path

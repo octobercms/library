@@ -994,7 +994,7 @@ class File extends Model
      */
     protected function isLocalStorage()
     {
-        return Storage::getDefaultDriver() == 'local';
+        return FileHelper::isLocalDisk($this->getDisk());
     }
 
     /**
