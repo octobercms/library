@@ -521,8 +521,14 @@ class Resizer
                 $this->retainImageTransparency($img);
                 break;
             case 'image/webp':
-                $img = @imagecreatefromwebp($filePath);
-                $this->retainImageTransparency($img);
+                if (function_exists('imagecreatefromwebp'))
+				{
+					$img = @imagecreatefromwebp($filePath);
+					$this->retainImageTransparency($img);
+				}
+				else {
+					$img = '';
+				}
                 break;
             default:
                 throw new Exception(sprintf('Invalid mime type: %s. Accepted types: image/jpeg, image/gif, image/png, image/webp.', $this->mime));
