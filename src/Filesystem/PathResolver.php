@@ -1,5 +1,7 @@
 <?php namespace October\Rain\Filesystem;
 
+use Throwable;
+
 /**
  * A utility to resolve paths to their canonical location and handle path queries.
  *
@@ -24,6 +26,11 @@ class PathResolver
      */
     public static function resolve($path)
     {
+        // Check if path is within any "open_basedir" restrictions
+        if (!static::withinOpenBaseDir($path)) {
+            return false;
+        }
+
         // Split path into segments
         $pathSegments = explode('/', static::normalisePath($path));
 
@@ -51,20 +58,33 @@ class PathResolver
                     : '')
                 . $segment;
             
-            if (is_link($currentPath)) {
-                // Resolve the symlink and replace the resolved segments with the symlink's segments
-                $resolvedSymlink = static::resolveSymlink($currentPath);
-                if (!$resolvedSymlink) {
-                    return false;
+            /**
+             * We'll check to see if the current path is within "open_basedir" restrictions. Given that the full path
+             * IS within the restrictions at this point - if the current path is not, we'll assume it makes up part of
+             * the path and add it as a resolved segment.
+             */
+            if (static::withinOpenBaseDir($currentPath)) {
+                try {
+                    if (is_link($currentPath)) {
+                        // Resolve the symlink and replace the resolved segments with the symlink's segments
+                        $resolvedSymlink = static::resolveSymlink($currentPath);
+                        if (!$resolvedSymlink) {
+                            return false;
+                        }
+    
+                        $resolvedSegments = explode('/', $resolvedSymlink);
+                        $drive = array_shift($resolvedSegments) ?: null;
+                        continue;
+                    } elseif (is_file($currentPath) && $i < (count($pathSegments) - 1)) {
+                        // If we've hit a file and we're trying to relatively traverse the path further, we need to fail at this
+                        // point.
+                        return false;
+                    }
+                } catch (Throwable $e) {
+                    if (str_contains($e->getMessage(), 'open_basedir')) {
+                        return false;
+                    }
                 }
-
-                $resolvedSegments = explode('/', $resolvedSymlink);
-                $drive = array_shift($resolvedSegments) ?: null;
-                continue;
-            } elseif (is_file($currentPath) && $i < (count($pathSegments) - 1)) {
-                // If we've hit a file and we're trying to relatively traverse the path further, we need to fail at this
-                // point.
-                return false;
             }
 
             $resolvedSegments[] = $segment;
@@ -136,6 +156,13 @@ class PathResolver
         }
 
         $target = readlink($symlink);
+
+        // If "open_basedir" restrictions are in effect, we will not allow symlinks that target outside the
+        // restrictions.
+        if (!$target || !static::withinOpenBaseDir($target)) {
+            return false;
+        }
+
         $targetDrive = (preg_match('/^([A-Z]:)/', $symlink, $matches) === 1)
             ? $matches[1]
             : null;
@@ -147,5 +174,32 @@ class PathResolver
         }
 
         return static::normalisePath($target);
+    }
+
+    /**
+     * Checks if a given path is within "open_basedir" restrictions.
+     *
+     * @param string $path
+     * @return bool
+     */
+    protected static function withinOpenBaseDir($path)
+    {
+        $baseDirs = ini_get('open_basedir');
+
+        if (!$baseDirs) {
+            return true;
+        }
+
+        $baseDirs = explode(PATH_SEPARATOR, $baseDirs);
+        $found = false;
+
+        foreach ($baseDirs as $baseDir) {
+            if (starts_with(static::normalisePath($path), static::normalisePath($baseDir))) {
+                $found = true;
+                break;
+            }
+        }
+
+        return $found;
     }
 }
