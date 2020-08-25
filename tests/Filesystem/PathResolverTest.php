@@ -356,4 +356,80 @@ class PathResolverTest extends TestCase
             unlink(str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link2'));
         }
     }
+
+    public function testWithOpenBaseDirRestrictions()
+    {
+        $this->markTestSkipped(
+            'This test is skipped because it applies open_basedir restrictions which prevent it'
+            . ' from cleaning up after itself. You can manually run this test by removing this'
+            . ' call and the return underneath it.'
+        );
+        return;
+
+        $dir = dirname(__DIR__) . '/fixtures/paths';
+        $outsideDir = dirname(dirname(dirname(__DIR__)));
+
+        // Create an absolute symlink to an outside location
+        if (file_exists(str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link3'))) {
+            if ($this->onWindows) {
+                // Windows treats this symlink as a directory
+                rmdir(str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link3'));
+            } else {
+                unlink(str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link3'));
+            }
+        }
+        symlink(
+            str_replace('/', DIRECTORY_SEPARATOR, $outsideDir),
+            str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link3')
+        );
+
+        // Apply a base directory restriction
+        ini_set('open_basedir', dirname(dirname(__DIR__)));
+
+        // Check a normal location
+        $this->assertEquals(
+            str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir1'),
+            resolve_path($dir . '/dir1')
+        );
+
+        // Check a valid, but missing, location
+        $this->assertEquals(
+            str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir1/subdir1/missing'),
+            resolve_path($dir . '/dir1/subdir1/missing')
+        );
+
+        // Create an absolute symlink to a valid location
+        if (file_exists(str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link2'))) {
+            if ($this->onWindows) {
+                // Windows treats this symlink as a directory
+                rmdir(str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link2'));
+            } else {
+                unlink(str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link2'));
+            }
+        }
+        symlink(
+            str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir1/subdir1'),
+            str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link2')
+        );
+
+        // Check an absolute symlink to a valid location
+        $this->assertEquals(
+            str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir1/subdir1'),
+            resolve_path($dir . '/dir2/link2')
+        );
+
+        // Remove test symlink
+        if ($this->onWindows) {
+            // Windows treats this symlink as a directory
+            rmdir(str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link2'));
+        } else {
+            unlink(str_replace('/', DIRECTORY_SEPARATOR, $dir . '/dir2/link2'));
+        }
+
+        // Check an outside location fails
+        $this->assertFalse(resolve_path($outsideDir));
+
+        // Check an absolute symlink to an outside location fails
+        $this->assertFalse(resolve_path($dir . '/dir2/link3'));
+    }
 }
