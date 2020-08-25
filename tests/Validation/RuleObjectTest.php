@@ -20,6 +20,7 @@ class RuleObjectTest extends TestCase
     public function setUp(): void
     {
         include_once __DIR__ . '/../fixtures/validation/FailRule.php';
+        include_once __DIR__ . '/../fixtures/validation/PassRule.php';
         include_once __DIR__ . '/../fixtures/validation/TranslatedFailRule.php';
 
         parent::setUp();
@@ -42,6 +43,17 @@ class RuleObjectTest extends TestCase
 
         $this->assertTrue($validator->fails());
         $this->assertEquals('Fallback message', $validator->errors()->first('test'));
+    }
+
+    public function testRuleObjectPasses()
+    {
+        $validator = $this->validation->make([
+            'test' => 'value',
+        ], [
+            'test' => new PassRule
+        ]);
+
+        $this->assertFalse($validator->fails());
     }
 
     public function testRuleObjectTranslatedMessage()
