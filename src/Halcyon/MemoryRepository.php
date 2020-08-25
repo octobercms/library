@@ -56,10 +56,8 @@ class MemoryRepository extends Repository
             $this->putMany($key, $value);
         }
 
-        if (!is_null($seconds = $this->getSeconds($seconds))) {
-            $this->putInMemoryCache($key, $value);
-            parent::put($key, $value, $seconds);
-        }
+        $this->putInMemoryCache($key, $value);
+        parent::put($key, $value, $seconds);
     }
 
     /**

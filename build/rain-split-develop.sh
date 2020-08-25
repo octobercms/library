@@ -31,6 +31,6 @@ split()
     popd
 }
 
-split backend      modules/backend:git@github.com:octoberrain/backend.git                 "wip/laravel-6"
-split cms          modules/cms:git@github.com:octoberrain/cms.git                         "wip/laravel-6"
-split system       modules/system:git@github.com:octoberrain/system.git                   "wip/laravel-6"
+split backend      modules/backend:git@github.com:octoberrain/backend.git                 "develop"
+split cms          modules/cms:git@github.com:octoberrain/cms.git                         "develop"
+split system       modules/system:git@github.com:octoberrain/system.git                   "develop"

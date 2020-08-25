@@ -1,14 +1,22 @@
 <?php namespace October\Rain\Foundation;
 
 use Closure;
+use Config;
+use Str;
+use Throwable;
+use Carbon\Laravel\ServiceProvider as CarbonServiceProvider;
+use Jenssegers\Date\DateServiceProvider as JessengersDateServiceProvider;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Collection;
 use Illuminate\Foundation\Application as ApplicationBase;
+use Illuminate\Foundation\PackageManifest;
+use Illuminate\Foundation\ProviderRepository;
 use Symfony\Component\Debug\Exception\FatalErrorException;
 use October\Rain\Events\EventServiceProvider;
 use October\Rain\Router\RoutingServiceProvider;
 use October\Rain\Foundation\Providers\LogServiceProvider;
 use October\Rain\Foundation\Providers\MakerServiceProvider;
 use October\Rain\Foundation\Providers\ExecutionContextProvider;
-use Throwable;
 
 class Application extends ApplicationBase
 {
@@ -62,6 +70,40 @@ class Application extends ApplicationBase
         $this->register(new MakerServiceProvider($this));
 
         $this->register(new ExecutionContextProvider($this));
+
+        $this->register(new CarbonServiceProvider($this));
+
+        $this->register(new JessengersDateServiceProvider($this));
+    }
+
+    /**
+     * Run the given array of bootstrap classes.
+     *
+     * @param  array  $bootstrappers
+     * @return void
+     */
+    public function bootstrapWith(array $bootstrappers)
+    {
+        $this->hasBeenBootstrapped = true;
+
+        $exceptions = [];
+        foreach ($bootstrappers as $bootstrapper) {
+            $this['events']->fire('bootstrapping: '.$bootstrapper, [$this]);
+
+            // Defer any exceptions until after the application has been
+            // bootstrapped so that the exception handler can run without issues
+            try {
+                $this->make($bootstrapper)->bootstrap($this);
+            } catch (\Exception $ex) {
+                $exceptions[] = $ex;
+            }
+
+            $this['events']->fire('bootstrapped: '.$bootstrapper, [$this]);
+        }
+
+        if (!empty($exceptions)) {
+            throw $exceptions[0];
+        }
     }
 
     /**
@@ -240,6 +282,58 @@ class Application extends ApplicationBase
 
         $this['events']->fire('locale.changed', [$locale]);
     }
+
+    /**
+     * Register all of the configured providers.
+     *
+     * @var bool $isRetry If true, this is a second attempt without the cached packages.
+     * @return void
+     */
+    public function registerConfiguredProviders($isRetry = false)
+    {
+        $providers = Collection::make($this->config['app.providers'])
+                        ->partition(function ($provider) {
+                            return Str::startsWith($provider, 'Illuminate\\');
+                        });
+
+        if (Config::get('app.loadDiscoveredPackages', false)) {
+            $providers->splice(1, 0, [$this->make(PackageManifest::class)->providers()]);
+        }
+
+        $filesystem = new Filesystem;
+        $repository = new ProviderRepository($this, $filesystem, $this->getCachedServicesPath());
+
+        try {
+            $repository->load($providers->collapse()->toArray());
+        } catch (Throwable $e) {
+            // If provider loading fails, we'll try it without the cached packages first, before failing completely
+            if ($isRetry) {
+                throw $e;
+            }
+
+            $this->clearPackageCache();
+            $this->registerConfiguredProviders(true);
+        }
+    }
+
+    /**
+     * Clears cached packages, services and classes.
+     *
+     * @return void
+     */
+    protected function clearPackageCache()
+    {
+        $filesystem = new Filesystem;
+        $filesystem->delete([
+            $this->getCachedPackagesPath(),
+            $this->getCachedServicesPath(),
+            $this->getCachedClassesPath(),
+        ]);
+
+        // Reset package manifest
+        $this->make(PackageManifest::class)->manifest = null;
+    }
+
 
     //
     // Core aliases

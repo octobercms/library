@@ -25,8 +25,8 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
      */
     public $rules = [
         'email' => 'required|between:3,255|email|unique:users',
-        'password' => 'required:create|min:2|confirmed',
-        'password_confirmation' => 'required_with:password|min:2'
+        'password' => 'required:create|min:4|confirmed',
+        'password_confirmation' => 'required_with:password|min:4'
     ];
 
     /**

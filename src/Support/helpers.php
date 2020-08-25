@@ -1,5 +1,6 @@
 <?php
 
+use October\Rain\Filesystem\PathResolver;
 use October\Rain\Support\Arr;
 use October\Rain\Support\Str;
 use October\Rain\Support\Collection;
@@ -14,9 +15,9 @@ if (!function_exists('input')) {
      * $name = input('contact[location][city]');
      * </pre>
      * Booleans are converted from strings
-     * @param string $name
-     * @param string $default
-     * @return string
+     * @param string|null $name
+     * @param string|null $default
+     * @return mixed
      */
     function input($name = null, $default = null)
     {
@@ -352,6 +353,19 @@ if (!function_exists('array_dot')) {
     function array_dot($array, $prepend = '')
     {
         return Arr::dot($array, $prepend);
+    }
+}
+
+if (!function_exists('array_undot')) {
+    /**
+     * Transform a dot-notated array into a normal array.
+     *
+     * @param array $dotArray
+     * @return array
+     */
+    function array_undot(array $dotArray)
+    {
+        return Arr::undot($dotArray);
     }
 }
 
@@ -892,5 +906,26 @@ if (!function_exists('title_case')) {
     function title_case($value)
     {
         return Str::title($value);
+    }
+}
+
+if (!function_exists('resolve_path')) {
+    /**
+     * Resolves a path to its canonical location.
+     *
+     * This expands all symbolic links and resolves references to /./, /../ and extra / characters in the input path
+     * and returns the canonicalized absolute pathname.
+     *
+     * This function operates very similar to the PHP `realpath` function, except it will also work for missing files
+     * and directories.
+     *
+     * Returns canonical path if it can be resolved, otherwise `false`.
+     *
+     * @param  string  $path
+     * @return string|bool
+     */
+    function resolve_path($path)
+    {
+        return PathResolver::resolve($path);
     }
 }
