@@ -15,6 +15,7 @@ class BlockBuilder
 
     /**
      * Helper for startBlock
+     *
      * @param string $name Specifies the block name.
      * @return void
      */
@@ -25,6 +26,9 @@ class BlockBuilder
 
     /**
      * Begins the layout block.
+     *
+     * This method enables output buffering, so all output will be captured as a part of this block.
+     *
      * @param string $name Specifies the block name.
      * @return void
      */
@@ -36,6 +40,7 @@ class BlockBuilder
 
     /**
      * Helper for endBlock and also clears the output buffer.
+     *
      * @param boolean $append Indicates that the new content should be appended to the existing block content.
      * @return void
      * @throws \Exception if there are no items in the block stack
@@ -47,6 +52,9 @@ class BlockBuilder
 
     /**
      * Closes the layout block.
+     *
+     * This captures all buffered output as the block's content, and ends output buffering.
+     *
      * @param boolean $append Indicates that the new content should be appended to the existing block content.
      * @return void
      * @throws \Exception if there are no items in the block stack
@@ -69,6 +77,9 @@ class BlockBuilder
 
     /**
      * Sets a content of the layout block.
+     *
+     * Output buffering is not used for this method.
+     *
      * @param string $name Specifies the block name.
      * @param string $content Specifies the block content.
      * @return void
@@ -76,15 +87,14 @@ class BlockBuilder
      */
     public function set($name, $content)
     {
-        if (!isset($this->blocks[$name])) {
-            $this->blocks[$name] = null;
-        }
-
         $this->blocks[$name] = $content;
     }
 
     /**
      * Appends a content of the layout block.
+     *
+     * Output buffering is not used for this method.
+     *
      * @param string $name Specifies the block name.
      * @param string $content Specifies the block content.
      * @return void
@@ -92,7 +102,7 @@ class BlockBuilder
     public function append($name, $content)
     {
         if (!isset($this->blocks[$name])) {
-            $this->blocks[$name] = null;
+            $this->blocks[$name] = '';
         }
 
         $this->blocks[$name] .= $content;
@@ -100,6 +110,7 @@ class BlockBuilder
 
     /**
      * Returns the layout block contents and deletes the block from memory.
+     *
      * @param string $name Specifies the block name.
      * @param string $default Specifies a default block value to use if the block requested is not exists.
      * @return string
@@ -118,6 +129,7 @@ class BlockBuilder
 
     /**
      * Returns the layout block contents but not deletes the block from memory.
+     *
      * @param string $name Specifies the block name.
      * @param string $default Specifies a default block value to use if the block requested is not exists.
      * @return string
@@ -133,11 +145,22 @@ class BlockBuilder
 
     /**
      * Clears all the registered blocks.
+     *
      * @return void
      */
     public function reset()
     {
         $this->blockStack = [];
         $this->blocks = [];
+    }
+
+    /**
+     * Gets the block stack at this point.
+     *
+     * @return array
+     */
+    public function getBlockStack()
+    {
+        return $this->blockStack;
     }
 }
