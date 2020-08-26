@@ -186,4 +186,47 @@ class BlockBuilderTest extends TestCase
             $this->Block->get('inner')
         );
     }
+
+    public function testContainBetweenBlocks()
+    {
+        ob_start();
+
+        $this->Block->put('test');
+
+        echo ''
+            . '<div>' . "\n"
+            . '    Test' . "\n"
+            . '</div>';
+
+        $this->Block->endPut();
+
+        echo 'In between';
+
+        $this->Block->put('test2');
+
+        echo ''
+            . '<div>' . "\n"
+            . '    Test2' . "\n"
+            . '</div>';
+
+        $this->Block->endPut();
+
+        $content = ob_get_clean();
+
+        $this->assertEquals(
+            ''
+            . '<div>' . "\n"
+            . '    Test' . "\n"
+            . '</div>',
+            $this->Block->get('test')
+        );
+        $this->assertEquals(
+            ''
+            . '<div>' . "\n"
+            . '    Test2' . "\n"
+            . '</div>',
+            $this->Block->get('test2')
+        );
+        $this->assertEquals('In between', $content);
+    }
 }
