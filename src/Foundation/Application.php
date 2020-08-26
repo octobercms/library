@@ -55,6 +55,18 @@ class Application extends ApplicationBase
     }
 
     /**
+     * Register the basic bindings into the container.
+     *
+     * @return void
+     */
+    protected function registerBaseBindings()
+    {
+        parent::registerBaseBindings();
+
+        $this->bind('Illuminate\Foundation\Application', static::class);
+    }
+
+    /**
      * Register all of the base service providers.
      *
      * @return void
