@@ -43,7 +43,7 @@
         "symfony/yaml": "^3.4",
         "twig/twig": "~2.0",
         "league/csv": "~9.1",
-        "jenssegers/date": "~3.5",
+        "jenssegers/date": "~3.5 || ~4.0",
         "laravel/framework": "~6.0",
         "laravel/tinker": "~2.0"
     },
