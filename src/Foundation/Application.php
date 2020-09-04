@@ -1,11 +1,9 @@
 <?php namespace October\Rain\Foundation;
 
-use Closure;
-use Config;
 use Str;
+use Config;
+use Closure;
 use Throwable;
-use Carbon\Laravel\ServiceProvider as CarbonServiceProvider;
-use Jenssegers\Date\DateServiceProvider as JessengersDateServiceProvider;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
 use Illuminate\Foundation\Application as ApplicationBase;
@@ -16,6 +14,7 @@ use October\Rain\Events\EventServiceProvider;
 use October\Rain\Router\RoutingServiceProvider;
 use October\Rain\Foundation\Providers\LogServiceProvider;
 use October\Rain\Foundation\Providers\MakerServiceProvider;
+use Carbon\Laravel\ServiceProvider as CarbonServiceProvider;
 use October\Rain\Foundation\Providers\ExecutionContextProvider;
 
 class Application extends ApplicationBase
@@ -84,8 +83,6 @@ class Application extends ApplicationBase
         $this->register(new ExecutionContextProvider($this));
 
         $this->register(new CarbonServiceProvider($this));
-
-        $this->register(new JessengersDateServiceProvider($this));
     }
 
     /**

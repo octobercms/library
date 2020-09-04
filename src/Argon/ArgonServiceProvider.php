@@ -5,6 +5,11 @@ use October\Rain\Support\ServiceProvider;
 class ArgonServiceProvider extends ServiceProvider
 {
     /**
+     * @var bool Indicates if loading of the provider is deferred.
+     */
+    protected $defer = false;
+
+    /**
      * Bootstrap the application events.
      *
      * @return void
@@ -30,18 +35,28 @@ class ArgonServiceProvider extends ServiceProvider
     }
 
     /**
-     * Split the locale and use it as the fallback.
+     * Get the locale to use as the fallback
      */
     protected function getFallbackLocale($locale)
     {
         if ($position = strpos($locale, '-')) {
             $target = substr($locale, 0, $position);
-            $resource = __DIR__ . '/../../../../jenssegers/date/src/Lang/'.$target.'.php';
+            $resource = __DIR__ . '/../../../../nesbot/carbon/src/Carbon/Lang/'.$target.'.php';
             if (file_exists($resource)) {
                 return $target;
             }
         }
 
         return $this->app['config']->get('app.fallback_locale');
+    }
+
+    /**
+     * Get the services provided by the provider.
+     *
+     * @return array
+     */
+    public function provides()
+    {
+        return ['Date'];
     }
 }
