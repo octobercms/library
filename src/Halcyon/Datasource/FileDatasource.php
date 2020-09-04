@@ -1,10 +1,12 @@
 <?php namespace October\Rain\Halcyon\Datasource;
 
 use October\Rain\Filesystem\Filesystem;
+use October\Rain\Filesystem\PathResolver;
 use October\Rain\Halcyon\Processors\Processor;
 use October\Rain\Halcyon\Exception\CreateFileException;
 use October\Rain\Halcyon\Exception\DeleteFileException;
 use October\Rain\Halcyon\Exception\FileExistsException;
+use October\Rain\Halcyon\Exception\InvalidFileNameException;
 use October\Rain\Halcyon\Exception\CreateDirectoryException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -95,7 +97,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
         ], $options));
 
         $result = [];
-        $dirPath = $this->basePath . '/' . $dirName;
+        $dirPath = $this->makeDirectoryPath($dirName);
 
         if (!$this->files->isDirectory($dirPath)) {
             return $result;
@@ -142,7 +144,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
 
             $item = [];
 
-            $path = $this->basePath . '/' . $dirName . '/' . $fileName;
+            $path = $this->makeDirectoryPath($dirName, $fileName);
 
             $item['fileName'] = $fileName;
 
@@ -286,7 +288,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
     protected function validateDirectoryForSave(string $dirName, string $fileName, string $extension)
     {
         $path = $this->makeFilePath($dirName, $fileName, $extension);
-        $dirPath = $this->basePath . '/' . $dirName;
+        $dirPath = $this->makeDirectoryPath($dirName);
 
         /*
          * Create base directory
@@ -314,6 +316,31 @@ class FileDatasource extends Datasource implements DatasourceInterface
     }
 
     /**
+     * Helper to generate the absolute path to the provided relative path within the provided directory
+     *
+     * @param string $dirName
+     * @param string $relativePath Optional, if not provided the absolute path to the provided directory will be returned
+     * @throws InvalidFileNameException If the path is outside of the basePath of the datasource
+     * @return string
+     */
+    protected function makeDirectoryPath($dirName, $relativePath = '')
+    {
+        $base = $this->basePath . '/' . $dirName;
+        if (!empty($relativePath)) {
+            $path = $base . '/' . $relativePath;
+        } else {
+            $path = $base;
+        }
+
+        // Limit paths to those under the configured basePath + directory combo
+        if (!PathResolver::within($path, $base)) {
+            throw (new InvalidFileNameException)->setInvalidFileName($path);
+        }
+
+        return PathResolver::resolve($path);
+    }
+
+    /**
      * Helper to make file path.
      *
      * @param  string  $dirName
@@ -323,7 +350,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
      */
     protected function makeFilePath(string $dirName, string $fileName, string $extension)
     {
-        return $this->basePath . '/' . $dirName . '/' .$fileName . '.' . $extension;
+        return $this->makeDirectoryPath($dirName, $fileName . '.' . $extension);
     }
 
     /**
