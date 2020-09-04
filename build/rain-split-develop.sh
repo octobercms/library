@@ -31,6 +31,6 @@ split()
     popd
 }
 
-split backend      modules/backend:git@github.com:octoberrain/backend.git                 "develop"
-split cms          modules/cms:git@github.com:octoberrain/cms.git                         "develop"
-split system       modules/system:git@github.com:octoberrain/system.git                   "develop"
+split backend modules/backend:git@github.com:octoberrain/backend.git "develop"
+split cms     modules/cms:git@github.com:octoberrain/cms.git         "develop"
+split system  modules/system:git@github.com:octoberrain/system.git   "develop"
