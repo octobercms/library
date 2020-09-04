@@ -13,9 +13,11 @@ split()
     for HEAD in $HEADS
     do
 
-        mkdir -p $HEAD
+        HEADDIR="${HEAD//\/}"
 
-        pushd $HEAD
+        mkdir -p $HEADDIR
+
+        pushd $HEADDIR
 
         ./../../git-subsplit.sh init git@github.com:octobercms/october.git
         ./../../git-subsplit.sh update
@@ -29,6 +31,6 @@ split()
     popd
 }
 
-split backend      modules/backend:git@github.com:octoberrain/backend.git                 "master develop"
-split cms          modules/cms:git@github.com:octoberrain/cms.git                         "master develop"
-split system       modules/system:git@github.com:octoberrain/system.git                   "master develop"
+split backend modules/backend:git@github.com:octoberrain/backend.git "develop"
+split cms     modules/cms:git@github.com:octoberrain/cms.git         "develop"
+split system  modules/system:git@github.com:octoberrain/system.git   "develop"
