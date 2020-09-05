@@ -232,7 +232,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
 
         $user = $query->first();
         if (!$this->validateUserModel($user)) {
-            throw new AuthException('A user was not found with the given credentials.');
+            throw new AuthException('Username or Password is incorrect.');
         }
 
         /*
@@ -243,13 +243,12 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
                 // Incorrect password
                 if ($credential == 'password') {
                     throw new AuthException(sprintf(
-                        'A user was found to match all plain text credentials however hashed credential "%s" did not match.',
-                        $credential
+                        'Given Username or Password is incorrect. Please try again.'
                     ));
                 }
 
                 // User not found
-                throw new AuthException('A user was not found with the given credentials.');
+                throw new AuthException('Username or Password is incorrect.');
             }
         }
 
@@ -293,7 +292,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     {
         $user = $this->findUserByLogin($loginName);
         if (!$user) {
-            throw new AuthException("A user was not found with the given credentials.");
+            throw new AuthException("Username or Password is incorrect.");
         }
 
         $userId = $user->getKey();
