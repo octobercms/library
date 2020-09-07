@@ -202,7 +202,7 @@ class Ini
                     }
                 }
             }
-            elseif (strlen($value)) {
+            elseif ($value . '' !== '') {
                 $content .= $key.' = '.$this->evalValue($value).PHP_EOL;
             }
         }
