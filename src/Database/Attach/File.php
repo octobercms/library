@@ -50,7 +50,7 @@ class File extends Model
      * @var array The attributes that aren't mass assignable.
      */
     protected $guarded = [];
-    
+
     /**
      * @var array Known image extensions.
      */
