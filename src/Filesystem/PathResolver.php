@@ -32,7 +32,7 @@ class PathResolver
         }
 
         // Split path into segments
-        $pathSegments = explode('/', static::normalisePath($path));
+        $pathSegments = explode('/', static::normalizePath($path));
 
         // Store Windows drive, if available, for final resolved path.
         $drive = array_shift($pathSegments) ?: null;
@@ -115,7 +115,7 @@ class PathResolver
     }
 
     /**
-     * Normalises a given path.
+     * Normalizes a given path.
      *
      * Converts any type of path (Unix or Windows) into a Unix-style path, so that we have a consistent format to work
      * with.
@@ -123,7 +123,7 @@ class PathResolver
      * @param string $path
      * @return string
      */
-    protected static function normalisePath($path)
+    protected static function normalizePath($path)
     {
         // Change directory separators to Unix-based
         $path = str_replace('\\', '/', $path);
@@ -135,7 +135,7 @@ class PathResolver
 
         // Prepend current working directory for relative paths
         if (substr($path, 0, 1) !== '/' && is_null($drive)) {
-            $path = static::normalisePath(getcwd()) . '/' . $path;
+            $path = static::normalizePath(getcwd()) . '/' . $path;
         }
 
         return $path;
@@ -173,7 +173,7 @@ class PathResolver
             $target = static::resolve($directory . $target);
         }
 
-        return static::normalisePath($target);
+        return static::normalizePath($target);
     }
 
     /**
@@ -194,7 +194,7 @@ class PathResolver
         $found = false;
 
         foreach ($baseDirs as $baseDir) {
-            if (starts_with(static::normalisePath($path), static::normalisePath($baseDir))) {
+            if (starts_with(static::normalizePath($path), static::normalizePath($baseDir))) {
                 $found = true;
                 break;
             }
