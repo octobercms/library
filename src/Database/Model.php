@@ -469,9 +469,31 @@ class Model extends EloquentModel
     }
 
     /**
-     * Checks if an attribute is jsonable or not.
+     * Get the cast type for an attribute
+     *
+     * @param string $key
+     * @return string|null
+     */
+    public function getCast($key)
+    {
+        return array_get($this->casts, $key);
+    }
+
+    /**
+     * Get the casts attributes array
      *
      * @return array
+     */
+    public function getCasts()
+    {
+        return $this->casts;
+    }
+
+    /**
+     * Checks if an attribute is jsonable or not.
+     *
+     * @param string $key
+     * @return bool
      */
     public function isJsonable($key)
     {
