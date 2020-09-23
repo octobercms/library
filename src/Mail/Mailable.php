@@ -33,10 +33,10 @@ class Mailable extends MailableBase
     {
         $data = $this->viewData;
 
-        // retrieved saved locale
-        if (isset($data['_saved_locale'])) {
-            App::setLocale($data['_saved_locale']);
-            unset($data['_saved_locale']);
+        // retrieve saved locale
+        if (isset($data['_current_locale'])) {
+            App::setLocale($data['_current_locale']);
+            unset($data['_current_locale']);
         }
 
         foreach ($data as $param => $value) {
@@ -54,8 +54,12 @@ class Mailable extends MailableBase
      */
     public function withSerializedData($data)
     {
-        // save current locale in $data to be serialized
-        $data['_saved_locale'] = App::getLocale());
+        // save current locale to be serialized
+        $defaultData = [
+            '_current_locale' => App::getLocale(),
+        ];
+
+        $data = array_merge($defaultData, $data);
 
         foreach ($data as $param => $value) {
             $this->viewData[$param] = $this->getSerializedPropertyValue($value);
