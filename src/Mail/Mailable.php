@@ -33,12 +33,6 @@ class Mailable extends MailableBase
     {
         $data = $this->viewData;
 
-        // retrieve saved locale
-        if (isset($data['_current_locale'])) {
-            App::setLocale($data['_current_locale']);
-            unset($data['_current_locale']);
-        }
-
         foreach ($data as $param => $value) {
             $data[$param] = $this->getRestoredPropertyValue($value);
         }
