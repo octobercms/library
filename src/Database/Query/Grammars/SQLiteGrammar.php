@@ -25,7 +25,7 @@ class SQLiteGrammar extends BaseSQLiteGrammar
             if (preg_match('/^[a-z_@#][a-z0-9@$#_]*$/', $part)) {
                 $compileParts[] = $this->wrap($part);
             } else {
-                $compileParts[] = $this->wrap(new Expression('\'' .trim($part, '\'"') . '\''));
+                $compileParts[] = $this->wrap(new Expression('\'' . trim($part, '\'"') . '\''));
             }
         }
 
