@@ -22,7 +22,17 @@ class SelectConcatTest extends TestCase
             ->selectConcat(['field', ' ', 'cast'], 'full_cast');
 
         $this->assertEquals(
-            'select `id`, CONCAT(`field`, " ", `cast`) AS `full_cast` from `revisions`',
+            'select `id`, concat(`field`, " ", `cast`) as `full_cast` from `revisions`',
+            $query->toSql()
+        );
+
+        $query = $model
+            ->newQuery()
+            ->select(['id'])
+            ->selectConcat(['"field"', ' ', 'cast'], 'full_cast');
+
+        $this->assertEquals(
+            'select `id`, concat("field", " ", `cast`) as `full_cast` from `revisions`',
             $query->toSql()
         );
     }
@@ -46,7 +56,17 @@ class SelectConcatTest extends TestCase
             ->selectConcat(['field', ' ', 'cast'], 'full_cast');
 
         $this->assertEquals(
-            'select "id", "field" || " " || "cast" AS "full_cast" from "revisions"',
+            'select "id", "field" || \' \' || "cast" as "full_cast" from "revisions"',
+            $query->toSql()
+        );
+
+        $query = $model
+            ->newQuery()
+            ->select(['id'])
+            ->selectConcat(['"field"', ' ', 'cast'], 'full_cast');
+
+        $this->assertEquals(
+            'select "id", \'field\' || \' \' || "cast" as "full_cast" from "revisions"',
             $query->toSql()
         );
     }
