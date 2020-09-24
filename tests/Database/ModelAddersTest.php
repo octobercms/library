@@ -6,6 +6,8 @@ class ModelAddersTest extends TestCase
     {
         $model = new TestModel();
 
+        $model->addCasts(['id' => 'int']);
+
         $this->assertEquals(['id' => 'int'], $model->getCasts());
 
         $model->addCasts(['foo' => 'int']);
