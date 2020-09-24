@@ -1,6 +1,6 @@
 <?php
 
-use October\Rain\Foundation\Application
+use October\Rain\Foundation\Application;
 
 class ApplicationTest extends TestCase
 {
@@ -19,7 +19,7 @@ class ApplicationTest extends TestCase
     {
         $app = new Application();
 
-        foreach (['plugins', 'themes', 'temp', 'uploads', 'media'] as $type) { 
+        foreach (['plugins', 'themes', 'temp', 'uploads', 'media'] as $type) {
             $getter = $type . 'Path';
             $setter = 'set' . ucfirst($type) . 'Path';
             $path = '/my' . ucfirst($type) . 'Path';
