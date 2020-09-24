@@ -19,10 +19,11 @@ class SelectConcatTest extends TestCase
         $query = $model
             ->newQuery()
             ->select(['id'])
-            ->selectConcat(['field', ' ', 'cast'], 'full_cast');
+            ->selectConcat(['field', ' ', 'cast'], 'full_cast')
+            ->selectConcat(['field2', ' ', 'cast2'], 'full_cast2');
 
         $this->assertEquals(
-            'select `id`, concat(`field`, \' \', `cast`) as `full_cast` from `revisions`',
+            'select `id`, concat(`field`, \' \', `cast`) as `full_cast`, concat(`field2`, \' \', `cast2`) as `full_cast2` from `revisions`',
             $query->toSql()
         );
 
@@ -53,10 +54,11 @@ class SelectConcatTest extends TestCase
         $query = $model
             ->newQuery()
             ->select(['id'])
-            ->selectConcat(['field', ' ', 'cast'], 'full_cast');
+            ->selectConcat(['field', ' ', 'cast'], 'full_cast')
+            ->selectConcat(['field2', ' ', 'cast2'], 'full_cast2');
 
         $this->assertEquals(
-            'select "id", "field" || \' \' || "cast" as "full_cast" from "revisions"',
+            'select "id", "field" || \' \' || "cast" as "full_cast", "field2" || \' \' || "cast2" as "full_cast2" from "revisions"',
             $query->toSql()
         );
 
@@ -87,10 +89,11 @@ class SelectConcatTest extends TestCase
         $query = $model
             ->newQuery()
             ->select(['id'])
-            ->selectConcat(['field', ' ', 'cast'], 'full_cast');
+            ->selectConcat(['field', ' ', 'cast'], 'full_cast')
+            ->selectConcat(['field2', ' ', 'cast2'], 'full_cast2');
 
         $this->assertEquals(
-            'select "id", concat("field", \' \', "cast") as "full_cast" from "revisions"',
+            'select "id", concat("field", \' \', "cast") as "full_cast", concat("field2", \' \', "cast2") as "full_cast2" from "revisions"',
             $query->toSql()
         );
 
@@ -121,10 +124,11 @@ class SelectConcatTest extends TestCase
         $query = $model
             ->newQuery()
             ->select(['id'])
-            ->selectConcat(['field', ' ', 'cast'], 'full_cast');
+            ->selectConcat(['field', ' ', 'cast'], 'full_cast')
+            ->selectConcat(['field2', ' ', 'cast2'], 'full_cast2');
 
         $this->assertEquals(
-            'select [id], concat([field], \' \', [cast]) as [full_cast] from [revisions]',
+            'select [id], concat([field], \' \', [cast]) as [full_cast], concat([field2], \' \', [cast2]) as [full_cast2] from [revisions]',
             $query->toSql()
         );
 
