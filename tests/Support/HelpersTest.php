@@ -1,6 +1,6 @@
 <?php
 
-use Config;
+use October\Rain\Support\Facades\Config;
 use October\Rain\Foundation\Application;
 
 class HelpersTest extends TestCase
