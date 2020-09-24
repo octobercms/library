@@ -16,11 +16,11 @@ class HelpersTest extends TestCase
 
     public function testUploadsPath()
     {
-        $this->assertEquals(uploads_path(), $app->uploadsPath());
+        $this->assertEquals(uploads_path(), $this->app->uploadsPath());
     }
 
     public function testMediaPath()
     {
-        $this->assertEquals(media_path(), $app->pluginsPath());
+        $this->assertEquals(media_path(), $this->app->pluginsPath());
     }
 }
