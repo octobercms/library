@@ -22,7 +22,7 @@ class SelectConcatTest extends TestCase
             ->selectConcat(['field', ' ', 'cast'], 'full_cast');
 
         $this->assertEquals(
-            'select `id`, concat(`field`, " ", `cast`) as `full_cast` from `revisions`',
+            'select `id`, concat(`field`, \' \', `cast`) as `full_cast` from `revisions`',
             $query->toSql()
         );
 
@@ -32,7 +32,7 @@ class SelectConcatTest extends TestCase
             ->selectConcat(['"field"', ' ', 'cast'], 'full_cast');
 
         $this->assertEquals(
-            'select `id`, concat("field", " ", `cast`) as `full_cast` from `revisions`',
+            'select `id`, concat(\'field\', \' \', `cast`) as `full_cast` from `revisions`',
             $query->toSql()
         );
     }
@@ -67,6 +67,74 @@ class SelectConcatTest extends TestCase
 
         $this->assertEquals(
             'select "id", \'field\' || \' \' || "cast" as "full_cast" from "revisions"',
+            $query->toSql()
+        );
+    }
+
+    public function testPostgresqlConcat()
+    {
+        $capsule = new October\Rain\Database\Capsule\Manager;
+        $capsule->addConnection([
+            'driver'   => 'pgsql',
+            'database' => ':memory:',
+            'prefix'   => ''
+        ]);
+        $capsule->setAsGlobal();
+        $capsule->bootEloquent();
+
+        $model = new Revision;
+
+        $query = $model
+            ->newQuery()
+            ->select(['id'])
+            ->selectConcat(['field', ' ', 'cast'], 'full_cast');
+
+        $this->assertEquals(
+            'select "id", concat("field", \' \', "cast") as "full_cast" from "revisions"',
+            $query->toSql()
+        );
+
+        $query = $model
+            ->newQuery()
+            ->select(['id'])
+            ->selectConcat(['"field"', ' ', 'cast'], 'full_cast');
+
+        $this->assertEquals(
+            'select "id", concat(\'field\', \' \', "cast") as "full_cast" from "revisions"',
+            $query->toSql()
+        );
+    }
+
+    public function testSqlServerConcat()
+    {
+        $capsule = new October\Rain\Database\Capsule\Manager;
+        $capsule->addConnection([
+            'driver'   => 'sqlsrv',
+            'database' => ':memory:',
+            'prefix'   => ''
+        ]);
+        $capsule->setAsGlobal();
+        $capsule->bootEloquent();
+
+        $model = new Revision;
+
+        $query = $model
+            ->newQuery()
+            ->select(['id'])
+            ->selectConcat(['field', ' ', 'cast'], 'full_cast');
+
+        $this->assertEquals(
+            'select [id], concat([field], \' \', [cast]) as [full_cast] from [revisions]',
+            $query->toSql()
+        );
+
+        $query = $model
+            ->newQuery()
+            ->select(['id'])
+            ->selectConcat(['"field"', ' ', 'cast'], 'full_cast');
+
+        $this->assertEquals(
+            'select [id], concat(\'field\', \' \', [cast]) as [full_cast] from [revisions]',
             $query->toSql()
         );
     }
