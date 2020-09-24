@@ -42,6 +42,11 @@ class Model extends EloquentModel
     protected $jsonable = [];
 
     /**
+     * @var array List of attribute names which are casts
+     */
+    protected $casts = [];
+
+    /**
      * @var array List of datetime attributes to convert to an instance of Carbon/DateTime objects.
      */
     protected $dates = [];
