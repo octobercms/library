@@ -10,7 +10,7 @@ class SQLiteGrammar extends BaseSQLiteGrammar
 
     /**
      * Compiles a single CONCAT value.
-     * 
+     *
      * SQLite uses slightly different concatenation syntax.
      *
      * @param array $parts The concatenation parts.

@@ -7,7 +7,7 @@ trait SelectConcatenations
 {
     /**
      * Compile the "select *" portion of the query.
-     * 
+     *
      * This particular method will call the original compileColumns() method provided by the grammar, then append
      * the concatenated columns to the query.
      *
