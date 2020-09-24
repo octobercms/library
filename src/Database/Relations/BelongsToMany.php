@@ -214,7 +214,7 @@ class BelongsToMany extends BelongsToManyBase
             $sessionKey = null;
         }
 
-        if ($sessionKey === null) {
+        if ($sessionKey === null || $sessionKey === false) {
             $this->attach($model->getKey(), $pivotData);
             $this->parent->reloadRelations($this->relationName);
         }
@@ -317,7 +317,10 @@ class BelongsToMany extends BelongsToManyBase
             }
         }
 
-        if (!is_array($value)) {
+        /*
+         * Convert scalar to array
+         */
+        if (!is_array($value) && !$value instanceof CollectionBase) {
             $value = [$value];
         }
 

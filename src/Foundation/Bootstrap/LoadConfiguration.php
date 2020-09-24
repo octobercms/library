@@ -15,7 +15,7 @@ class LoadConfiguration
      */
     public function bootstrap(Application $app)
     {
-        $fileLoader = new FileLoader(new Filesystem, base_path().'/config');
+        $fileLoader = new FileLoader(new Filesystem, $app['path.config']);
 
         $app->detectEnvironment(function () use ($app) {
             return $this->getEnvironmentFromHost($app);

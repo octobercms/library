@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Halcyon\Traits;
 
 use Illuminate\Support\MessageBag;
-use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Validator;
+use October\Rain\Support\Facades\Validator;
+use October\Rain\Support\Facades\Input;
 use October\Rain\Halcyon\Exception\ModelException;
 use Exception;
 

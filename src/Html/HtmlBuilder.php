@@ -299,7 +299,7 @@ class HtmlBuilder
      *
      * @param  mixed    $key
      * @param  string  $type
-     * @param  string  $value
+     * @param  array  $value
      * @return string
      */
     protected function nestedListing($key, $type, $value)
@@ -340,7 +340,7 @@ class HtmlBuilder
      *
      * @param  string  $key
      * @param  string  $value
-     * @return string
+     * @return string|void
      */
     protected function attributeElement($key, $value)
     {
@@ -428,14 +428,14 @@ class HtmlBuilder
             list($tag, $tagPosition) = $match[0];
 
             $str = substr($html, $position, $tagPosition - $position);
-            if ($printedLength + strlen($str) > $maxLength) {
+            if ($printedLength + static::getReadableLength($str) > $maxLength) {
                 $result .= substr($str, 0, $maxLength - $printedLength) . $end;
                 $printedLength = $maxLength;
                 break;
             }
 
             $result .= $str;
-            $printedLength += strlen($str);
+            $printedLength += static::getReadableLength($str);
             if ($printedLength >= $maxLength) {
                 $result .= $end;
                 break;
@@ -475,6 +475,19 @@ class HtmlBuilder
     }
 
     /**
+     * Gets the readable length of a string for limit calculations.
+     *
+     * Considers multiple spaces and line breaks to be 1 character, regardless of OS.
+     *
+     * @param string $str
+     * @return int
+     */
+    protected static function getReadableLength($str)
+    {
+        return strlen(preg_replace('/\s+/', ' ', $str));
+    }
+
+    /**
      * Cleans HTML to prevent most XSS attacks.
      * @param  string $html HTML
      * @return string Cleaned HTML
@@ -488,7 +501,7 @@ class HtmlBuilder
             $html = str_replace(['&amp;','&lt;','&gt;'], ['&amp;amp;','&amp;lt;','&amp;gt;'], $html);
             $html = preg_replace('#(&\#*\w+)[\x00-\x20]+;#u', "$1;", $html);
             $html = preg_replace('#(&\#x*)([0-9A-F]+);*#iu', "$1$2;", $html);
-            $html = html_entity_decode($html, ENT_COMPAT, 'UTF-8');
+            $html = html_entity_decode($html, ENT_COMPAT|ENT_HTML5, 'UTF-8');
 
             // Remove any attribute starting with "on" or xmlns
             $html = preg_replace('#(<[^>]+[\x00-\x20\"\'\/])(on|xmlns)[^>]*>#iUu', "$1>", $html);

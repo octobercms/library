@@ -1,16 +1,10 @@
 <?php namespace October\Rain\Config;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Filesystem\Filesystem;
 
 class ConfigServiceProvider extends ServiceProvider
 {
-
-    /**
-     * Indicates if loading of the provider is deferred.
-     * @var bool
-     */
-    protected $defer = false;
-
     /**
      * Register the service provider.
      * @return void
@@ -38,6 +32,6 @@ class ConfigServiceProvider extends ServiceProvider
      */
     public function getConfigLoader()
     {
-        return new FileLoader(new Filesystem, $this->app['path'].'/config');
+        return new FileLoader(new Filesystem, $this->app['path.config']);
     }
 }

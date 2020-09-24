@@ -5,6 +5,8 @@ use October\Rain\Network\Http;
 
 class HttpTest extends TestCase
 {
+    use \DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+
     /**
      * Http object fixture
      *
@@ -12,7 +14,7 @@ class HttpTest extends TestCase
      */
     protected $Http;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->Http = new Http;
     }
@@ -141,5 +143,36 @@ class HttpTest extends TestCase
             41 => true, //CURLOPT_VERBOSE
             99999 => true // Invalid CURLOPT integer
         ]);
+    }
+
+    public function testSetRequestData()
+    {
+        $this->Http->data('foo', 'bar');
+        $this->assertEquals('foo=bar', $this->Http->getRequestData());
+    }
+
+    public function testSetRequestDataArray()
+    {
+        $this->Http->data([
+            'foo' => 'bar',
+            'bar' => 'foo'
+        ]);
+        $this->assertEquals('foo=bar&bar=foo', $this->Http->getRequestData());
+    }
+
+    public function testSetPostFields()
+    {
+        $this->Http->setOption(CURLOPT_POSTFIELDS, 'foobar');
+        $this->assertEquals('foobar', $this->Http->getRequestData());
+    }
+
+    public function testRequestDataOverridePostFields()
+    {
+        $this->Http->data([
+            'foo' => 'bar',
+            'bar' => 'foo'
+        ]);
+        $this->Http->setOption(CURLOPT_POSTFIELDS, 'foobar');
+        $this->assertEquals('foo=bar&bar=foo', $this->Http->getRequestData());
     }
 }

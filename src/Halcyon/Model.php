@@ -250,6 +250,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
         /*
          * Hook to boot events
+         * @see October\Rain\Database\Model::registerModelEvent
          */
         static::registerModelEvent('booted', function ($model) {
             $model->fireEvent('model.afterBoot');
@@ -540,7 +541,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      * Begin querying the model on a given datasource.
      *
      * @param  string|null  $datasource
-     * @return \October\Rain\Halcyon\Builder
+     * @return \October\Rain\Halcyon\Model
      */
     public static function on($datasource = null)
     {
@@ -678,7 +679,9 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function getAttribute($key)
     {
-        // Before Event
+        /**
+         * @see October\Rain\Database\Model::getAttributeValue
+         */
         if (($attr = $this->fireEvent('model.beforeGetAttribute', [$key], true)) !== null) {
             return $attr;
         }
@@ -692,8 +695,10 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
             return $this->mutateAttribute($key, $value);
         }
 
-        // After Event
-        if (($_attr = $this->fireEvent('model.getAttribute', [$key, $attr], true)) !== null) {
+        /**
+         * @see October\Rain\Database\Model::getAttributeValue
+         */
+        if (($_attr = $this->fireEvent('model.getAttribute', [$key, $value], true)) !== null) {
             return $_attr;
         }
 
@@ -759,6 +764,9 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function setAttribute($key, $value)
     {
+        /**
+         * @see October\Rain\Database\Model::setAttributeValue
+         */
         // Before Event
         if (($_value = $this->fireEvent('model.beforeSetAttribute', [$key, $value], true)) !== null) {
             $value = $_value;
@@ -779,6 +787,9 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
             $this->attributes[$key] = $value;
         }
 
+        /**
+         * @see October\Rain\Database\Model::setAttributeValue
+         */
         // After Event
         $this->fireEvent('model.setAttribute', [$key, $value]);
 
@@ -1215,6 +1226,9 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function saveInternal(array $options = [])
     {
+        /**
+         * @see October\Rain\Database\Model::saveInternal
+         */
         // Event
         if ($this->fireEvent('model.saveInternal', [$this->attributes, $options], true) === false) {
             return false;
@@ -1345,7 +1359,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * Get a new query builder for the object
-     * @return CmsObjectQuery
+     * @return \October\Rain\Halcyon\Builder
      */
     public function newQuery()
     {
@@ -1532,6 +1546,17 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public static function initCacheItem(&$item)
     {
+    }
+
+    /**
+     * Flush the memory cache.
+     * @return void
+     */
+    public static function flushDuplicateCache()
+    {
+        if (MemoryCacheManager::isEnabled() && self::getCacheManager() !== null) {
+            self::getCacheManager()->driver()->flushInternalCache();
+        }
     }
 
     /**

@@ -1,12 +1,13 @@
 <?php namespace October\Rain\Database\Traits;
 
 use App;
-use Lang;
-use Input;
-use October\Rain\Database\ModelException;
-use Illuminate\Support\MessageBag;
-use Illuminate\Support\Facades\Validator;
 use Exception;
+use Input;
+use Lang;
+use Illuminate\Contracts\Validation\Rule;
+use October\Rain\Support\Facades\Validator;
+use Illuminate\Support\MessageBag;
+use October\Rain\Database\ModelException;
 
 trait Validation
 {
@@ -373,10 +374,14 @@ trait Validation
              * Analyse each rule individually
              */
             foreach ($ruleParts as $key => $rulePart) {
+                if ($rulePart instanceof Rule) {
+                    continue;
+                }
+
                 /*
                  * Remove primary key unique validation rule if the model already exists
                  */
-                if (starts_with($rulePart, 'unique') && $this->exists) {
+                if (($rulePart === 'unique' || starts_with($rulePart, 'unique:')) && $this->exists) {
                     $ruleParts[$key] = $this->processValidationUniqueRule($rulePart, $field);
                 }
                 /*
@@ -439,7 +444,7 @@ trait Validation
             $whereValue
         ) = array_pad(explode(',', $definition), 6, null);
 
-        $table = 'unique:' . $this->getTable();
+        $table = 'unique:' . $this->getConnectionName()  . '.' . $this->getTable();
         $column = $column ?: $fieldName;
         $key = $keyName ? $this->$keyName : $this->getKey();
         $keyName = $keyName ?: $this->getKeyName();
@@ -460,9 +465,10 @@ trait Validation
     /**
      * Determines if an attribute is required based on the validation rules.
      * @param  string  $attribute
+     * @param boolean $checkDependencies Checks the attribute dependencies (for required_if & required_with rules). Note that it will only be checked up to the next level, if another dependent rule is found then it will just assume the field is required
      * @return boolean
      */
-    public function isAttributeRequired($attribute)
+    public function isAttributeRequired($attribute, $checkDependencies = true)
     {
         if (!isset($this->rules[$attribute])) {
             return false;
@@ -483,17 +489,25 @@ trait Validation
         }
 
         if (strpos($ruleset, 'required_with') !== false) {
-            $requiredWith = substr($ruleset, strpos($ruleset, 'required_with') + 14);
-            if (strpos($requiredWith, '|') !== false) {
-                $requiredWith = substr($requiredWith, 0, strpos($requiredWith, '|'));
+            if ($checkDependencies) {
+                $requiredWith = substr($ruleset, strpos($ruleset, 'required_with') + 14);
+                if (strpos($requiredWith, '|') !== false) {
+                    $requiredWith = substr($requiredWith, 0, strpos($requiredWith, '|'));
+                }
+                return $this->isAttributeRequired($requiredWith, false);
+            } else {
+                return true;
             }
-            return $this->isAttributeRequired($requiredWith);
         }
 
         if (strpos($ruleset, 'required_if') !== false) {
-            $requiredIf = substr($ruleset, strpos($ruleset, 'required_if') + 12);
-            $requiredIf = substr($requiredIf, 0, strpos($requiredIf, ','));
-            return $this->isAttributeRequired($requiredIf);
+            if ($checkDependencies) {
+                $requiredIf = substr($ruleset, strpos($ruleset, 'required_if') + 12);
+                $requiredIf = substr($requiredIf, 0, strpos($requiredIf, ','));
+                return $this->isAttributeRequired($requiredIf, false);
+            } else {
+                return true;
+            }
         }
 
         return strpos($ruleset, 'required') !== false;

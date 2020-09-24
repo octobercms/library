@@ -57,7 +57,10 @@ trait HasOneOrMany
     {
         if ($sessionKey === null) {
             $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
-            $model->save();
+
+            if (!$model->exists || $model->isDirty()) {
+                $model->save();
+            }
 
             /*
              * Use the opportunity to set the relation in memory
