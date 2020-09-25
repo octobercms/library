@@ -71,7 +71,7 @@ class Application extends ApplicationBase
      */
     public function langPath()
     {
-        return $this->basePath.'/lang';
+        return $this->buildPath($this->basePath, '/lang');
     }
 
     /**
@@ -159,7 +159,7 @@ class Application extends ApplicationBase
      */
     public function pluginsPath()
     {
-        return $this->pluginsPath ?: $this->basePath.'/plugins';
+        return $this->pluginsPath ?: $this->buildPath($this->basePath, '/plugins');
     }
 
     /**
@@ -182,7 +182,7 @@ class Application extends ApplicationBase
      */
     public function themesPath()
     {
-        return $this->themesPath ?: $this->basePath.'/themes';
+        return $this->themesPath ?: $this->buildPath($this->basePath, '/themes');
     }
 
     /**
@@ -205,7 +205,7 @@ class Application extends ApplicationBase
      */
     public function tempPath()
     {
-        return $this->tempPath ?: $this->basePath.'/storage/temp';
+        return $this->tempPath ?: $this->buildPath($this->basePath, '/storage/temp');
     }
 
     /**
@@ -227,7 +227,7 @@ class Application extends ApplicationBase
      */
     public function uploadsPath()
     {
-        return $this->uploadsPath ?: $this->basePath.'/storage/app/uploads';
+        return $this->uploadsPath ?: $this->buildPath($this->basePath, '/storage/app/uploads');
     }
 
     /**
@@ -249,7 +249,7 @@ class Application extends ApplicationBase
      */
     public function mediaPath()
     {
-        return $this->mediaPath ?: $this->basePath.'/storage/app/media';
+        return $this->mediaPath ?: $this->buildPath($this->basePath, '/storage/app/media');
     }
 
     /**
@@ -485,7 +485,7 @@ class Application extends ApplicationBase
      */
     public function getCachedConfigPath()
     {
-        return $this['path.storage'].'/framework/config.php';
+        return $this->buildPath($this['path.storage'], '/framework/config.php');
     }
 
     /**
@@ -505,7 +505,7 @@ class Application extends ApplicationBase
      */
     public function getCachedCompilePath()
     {
-        return $this->storagePath().'/framework/compiled.php';
+        return $this->buildPath($this->storagePath(), '/framework/compiled.php');
     }
 
     /**
@@ -515,7 +515,7 @@ class Application extends ApplicationBase
      */
     public function getCachedServicesPath()
     {
-        return $this->storagePath().'/framework/services.php';
+        return $this->buildPath($this->storagePath(), '/framework/services.php');
     }
 
     /**
@@ -525,7 +525,7 @@ class Application extends ApplicationBase
      */
     public function getCachedPackagesPath()
     {
-        return $this->storagePath().'/framework/packages.php';
+        return $this->buildPath($this->storagePath(), '/framework/packages.php');
     }
 
     /**
@@ -535,6 +535,18 @@ class Application extends ApplicationBase
      */
     public function getCachedClassesPath()
     {
-        return $this->storagePath().'/framework/classes.php';
+        return $this->buildPath($this->storagePath(), '/framework/classes.php');
+    }
+
+    /**
+     * Build path with portable directory seperator
+     *
+     * @param string $prefix
+     * @param string $path
+     * @return string
+     */
+    public function buildPath($prefix, $path)
+    {
+        return $prefix . implode(DIRECTORY_SEPARATOR, explode('/', $path));
     }
 }
