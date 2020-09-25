@@ -172,7 +172,7 @@ if (!function_exists('config_path')) {
      */
     function config_path($path = '')
     {
-        return app('path.config').($path ? '/'.$path : $path);
+        return app('path.config').($path ? DIRECTORY_SEPARATOR.$path : $path);
     }
 }
 
@@ -185,7 +185,7 @@ if (!function_exists('plugins_path')) {
      */
     function plugins_path($path = '')
     {
-        return app('path.plugins').($path ? '/'.$path : $path);
+        return app('path.plugins').($path ? DIRECTORY_SEPARATOR.$path : $path);
     }
 }
 
@@ -198,8 +198,8 @@ if (!function_exists('uploads_path')) {
      */
     function uploads_path($path = '')
     {
-        $uploads_path = rtrim(Config::get('cms.storage.uploads.path', app('path.uploads')), '/');
-        return $uploads_path.($path ? '/'.ltrim($path, '/') : $path);
+        $uploads_path = rtrim(Config::get('cms.storage.uploads.path', app('path.uploads')), DIRECTORY_SEPARATOR);
+        return $uploads_path.($path ? DIRECTORY_SEPARATOR.ltrim($path, DIRECTORY_SEPARATOR) : $path);
     }
 }
 
@@ -212,8 +212,8 @@ if (!function_exists('media_path')) {
      */
     function media_path($path = '')
     {
-        $media_path = rtrim(Config::get('cms.storage.media.path', app('path.media')), '/');
-        return $media_path.($path ? '/'.ltrim($path, '/') : $path);
+        $media_path = rtrim(Config::get('cms.storage.media.path', app('path.media')), DIRECTORY_SEPARATOR);
+        return $media_path.($path ? DIRECTORY_SEPARATOR.ltrim($path, DIRECTORY_SEPARATOR) : $path);
     }
 }
 
@@ -226,7 +226,7 @@ if (!function_exists('themes_path')) {
      */
     function themes_path($path = '')
     {
-        return app('path.themes').($path ? '/'.$path : $path);
+        return app('path.themes').($path ? DIRECTORY_SEPARATOR.$path : $path);
     }
 }
 
@@ -239,7 +239,7 @@ if (!function_exists('temp_path')) {
      */
     function temp_path($path = '')
     {
-        return app('path.temp').($path ? '/'.$path : $path);
+        return app('path.temp').($path ? DIRECTORY_SEPARATOR.$path : $path);
     }
 }
 

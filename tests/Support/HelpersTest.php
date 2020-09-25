@@ -38,7 +38,7 @@ class HelpersTest extends TestCase
         $types = ['config', 'temp', 'plugins', 'themes'];
         foreach ($types as $type) {
             $method = $type.'_path';
-            $this->assertEquals($method($path), app('path.'.$type).'/'.$path);
+            $this->assertEquals($method($path), app('path.'.$type).DIRECTORY_SEPARATOR.$path);
         }
     }
     public function testPathSuffixWithConfig()
@@ -48,7 +48,7 @@ class HelpersTest extends TestCase
         foreach ($types as $type) {
             $method = $type.'_path';
             $config = 'cms.storage.'.$type.'.path';
-            $this->assertEquals($method($path), Config::get($config, app('path.'.$type)).'/'.$path);
+            $this->assertEquals($method($path), Config::get($config, app('path.'.$type)).DIRECTORY_SEPARATOR.$path);
         }
     }
 }
