@@ -4,6 +4,13 @@ use October\Rain\Foundation\Application;
 
 class HelpersTest extends TestCase
 {
+    protected $basePath;
+    protected $app;
+
+    /**
+     * Setup application
+     * @return void
+     */
     public function setUp()
     {
         $this->basePath = realpath(__DIR__.'/../fixtures');

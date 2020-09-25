@@ -4,6 +4,12 @@ use October\Rain\Foundation\Application;
 
 class ApplicationTest extends TestCase
 {
+    protected $app;
+
+    /**
+     * Setup application
+     * @return void
+     */
     public function setUp()
     {
         $this->app = new Application();
@@ -24,7 +30,7 @@ class ApplicationTest extends TestCase
             $getter = $type . 'Path';
             $setter = 'set' . ucfirst($type) . 'Path';
             $path = '/my' . ucfirst($type) . 'Path';
-            $app->{$setter}($path);
+            $this->app->{$setter}($path);
             $this->assertEquals($this->app->{$getter}(), $path);
         }
     }
