@@ -36,11 +36,12 @@ class HelpersTest extends TestCase
 
     public function testUploadsPath()
     {
-        $this->assertEquals(uploads_path(), Config::get('cms.storage.uploads.path'));
+        $this->assertEquals(uploads_path(), $this->app['config']->get('cms.storage.uploads.path'));
     }
 
     public function testMediaPath()
     {
-        $this->assertEquals(media_path(), Config::get('cms.storage.media.path'));
+        $this->assertEquals(media_path(), $this->app['config']->get('cms.storage.media.path'));
     }
+
 }
