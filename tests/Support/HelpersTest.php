@@ -4,27 +4,27 @@ class HelpersTest extends TestCase
 {
     public function testPluginsPath()
     {
-        $this->assertEquals(plugins_path(), $this->app->pluginsPath());
+        $this->assertEquals(plugins_path(), app('path.plugins'));
     }
 
     public function testThemesPath()
     {
-        $this->assertEquals(themes_path(), $this->app->themesPath());
+        $this->assertEquals(themes_path(), app('path.themes'));
     }
 
     public function testTempPath()
     {
-        $this->assertEquals(temp_path(), $this->app->tempPath());
+        $this->assertEquals(temp_path(), app('path.temp'));
     }
 
     public function testUploadsPath()
     {
-        $this->assertEquals(uploads_path(), Config::get('cms.storage.uploads.path', $this->app->uploadsPath()));
+        $this->assertEquals(uploads_path(), Config::get('cms.storage.uploads.path', app('path.uploads')));
     }
 
     public function testMediaPath()
     {
-        $this->assertEquals(media_path(), Config::get('cms.storage.media.path', $this->app->mediaPath()));
+        $this->assertEquals(media_path(), Config::get('cms.storage.media.path', app('path.media')));
     }
 }
 
