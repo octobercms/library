@@ -1,28 +1,22 @@
 <?php namespace October\Rain\Flash;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Contracts\Support\DeferrableProvider;
 
-class FlashServiceProvider extends ServiceProvider
+class FlashServiceProvider extends ServiceProvider implements DeferrableProvider
 {
     /**
-     * Indicates if loading of the provider is deferred.
-     * @var bool
+     * The container singletons that should be registered.
+     *
+     * @var array
      */
-    protected $defer = false;
-
-    /**
-     * Register the service provider.
-     * @return void
-     */
-    public function register()
-    {
-        $this->app->singleton('flash', function ($app) {
-            return new FlashBag;
-        });
-    }
+    public $singletons = [
+        'flash' => FlashBag::class,
+    ];
 
     /**
      * Get the services provided by the provider.
+     *
      * @return array
      */
     public function provides()

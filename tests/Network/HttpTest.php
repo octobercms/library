@@ -5,6 +5,8 @@ use October\Rain\Network\Http;
 
 class HttpTest extends TestCase
 {
+    use \DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+
     /**
      * Http object fixture
      *
@@ -12,7 +14,7 @@ class HttpTest extends TestCase
      */
     protected $Http;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->Http = new Http;
     }

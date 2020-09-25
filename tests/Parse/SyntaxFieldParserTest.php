@@ -4,7 +4,6 @@ use October\Rain\Parse\Syntax\FieldParser;
 
 class SyntaxFieldParserTest extends TestCase
 {
-
     public function testParse()
     {
         $content = '';
@@ -79,6 +78,49 @@ class SyntaxFieldParserTest extends TestCase
 
         $this->assertEquals('textarea', $fields['field1']['type']);
         $this->assertEquals('oc:text', $fields['field2']['type']);
+    }
+
+    public function testParseJsTriggerApiAttribute()
+    {
+        $content = '';
+        $content .= '{radio name="field1" label="Field 1" type="dropdown" options="y:Yes|n:No|m:Maybe" }{/radio}'.PHP_EOL;
+        $content .= '{variable name="field2" label="Field 2" type="text" trigger="action:enable|field:field1|condition:value[m]" }{/variable}'.PHP_EOL;
+        $content .= '{checkbox name="field3" label="Field 3" trigger="action:show|field:field2|condition:value[enableit]" }{/checkbox}'.PHP_EOL;
+        $content .= '{variable name="field4" label="Field 4" type="dropdown" options="Yes|No" trigger="action:show|field:field3|condition:checked" }{/variable}'.PHP_EOL;
+
+        $result = FieldParser::parse($content);
+        $fields = $result->getFields();
+
+        $this->assertArrayHasKey('field1', $fields);
+        $this->assertArrayHasKey('field2', $fields);
+        $this->assertArrayHasKey('field3', $fields);
+        $this->assertArrayHasKey('field4', $fields);
+
+        $this->assertArrayHasKey('trigger', $fields['field2']);
+        $this->assertArrayHasKey('trigger', $fields['field3']);
+        $this->assertArrayHasKey('trigger', $fields['field4']);
+
+        $this->assertCount(3, $fields['field2']['trigger']);
+        $this->assertCount(3, $fields['field3']['trigger']);
+        $this->assertCount(3, $fields['field4']['trigger']);
+
+        $this->assertEquals([
+            'action' => 'enable',
+            'field' => 'field1',
+            'condition' => 'value[m]',
+        ], $fields['field2']['trigger']);
+
+        $this->assertEquals([
+            'action' => 'show',
+            'field' => 'field2',
+            'condition' => 'value[enableit]',
+        ], $fields['field3']['trigger']);
+
+        $this->assertEquals([
+            'action' => 'show',
+            'field' => 'field3',
+            'condition' => 'checked',
+        ], $fields['field4']['trigger']);
     }
 
     public function testParseDropdownAndRadio()

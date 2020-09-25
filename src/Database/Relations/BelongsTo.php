@@ -75,7 +75,7 @@ class BelongsTo extends BelongsToBase
             $this->child->setRelation($this->relationName, $value);
         }
         else {
-            $this->child->setAttribute($this->getForeignKey(), $value);
+            $this->child->setAttribute($this->getForeignKeyName(), $value);
             $this->child->reloadRelations($this->relationName);
         }
     }
@@ -86,7 +86,7 @@ class BelongsTo extends BelongsToBase
      */
     public function getSimpleValue()
     {
-        return $this->child->getAttribute($this->getForeignKey());
+        return $this->child->getAttribute($this->getForeignKeyName());
     }
 
     /**

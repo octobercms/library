@@ -161,11 +161,14 @@ class FieldParser
         $defaults = [];
 
         foreach ($fields as $field => $params) {
+            if (empty($params['type'])) {
+                continue;
+            }
+
             if ($params['type'] == 'repeater') {
                 $defaults[$field] = [];
                 $defaults[$field][] = $this->getDefaultParams(array_get($params, 'fields', []));
-            }
-            else {
+            } else {
                 $defaults[$field] = $params['default'] ?? null;
             }
         }
@@ -247,8 +250,7 @@ class FieldParser
             if (isset($params['name'])) {
                 $name = $params['name'];
                 unset($params['name']);
-            }
-            else {
+            } else {
                 $name = md5($tagString);
             }
 
@@ -256,12 +258,16 @@ class FieldParser
                 $params['X_OCTOBER_IS_VARIABLE'] = true;
                 $tagName = array_get($params, 'type', 'text');
             }
-            else {
-                $params['type'] = $tagName;
-            }
+
+            $params['type'] = $tagName;
 
             if (in_array($tagName, $optionables) && isset($params['options'])) {
                 $params['options'] = $this->processOptionsToArray($params['options']);
+            }
+
+            // Convert trigger property to array
+            if (isset($params['trigger'])) {
+                $params['trigger'] = $this->processOptionsToArray($params['trigger']);
             }
 
             $tags[$name] = $tagString;
@@ -323,8 +329,8 @@ class FieldParser
      *  In: name="test" comment="This is a test"
      *  Out: ['name' => 'test', 'comment' => 'This is a test']
      *
-     * @param  [type] $string [description]
-     * @return [type]         [description]
+     * @param  string $string
+     * @return array
      */
     protected function processParamsRegex($string)
     {
@@ -387,17 +393,36 @@ class FieldParser
     /**
      * Splits an option string to an array.
      *
-     * one|two           -> [one, two]
-     * one:One|two:Two   -> [one => 'One', two => 'Two']
+     * one|two                -> [one, two]
+     * one:One|two:Two        -> [one => 'One', two => 'Two']
+     * \Path\To\Class::method -> \Path\To\Class::method(): array
      *
      * @param  string $optionsString
+     * @throws Exception
      * @return array
      */
     protected function processOptionsToArray($optionsString)
     {
+        $result = [];
+
+        if (str_contains($optionsString, '::')) {
+            $options = explode('::', $optionsString);
+            if (count($options) === 2 && class_exists($options[0]) && method_exists($options[0], $options[1])) {
+                $result = $options[0]::{$options[1]}();
+                if (!is_array($result)) {
+                    throw new ApplicationException(sprintf(
+                        'Invalid dropdown option array returned by `%s::%s`',
+                        $options[0],
+                        $options[1]
+                    ));
+                }
+
+                return $result;
+            }
+        }
+
         $options = explode('|', $optionsString);
 
-        $result = [];
         foreach ($options as $index => $optionStr) {
             $parts = explode(':', $optionStr, 2);
 

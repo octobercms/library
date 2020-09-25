@@ -1,8 +1,10 @@
 <?php namespace October\Rain\Filesystem;
 
-use Illuminate\Filesystem\Filesystem as FilesystemBase;
-use ReflectionClass;
+use Config;
+use DirectoryIterator;
 use FilesystemIterator;
+use ReflectionClass;
+use Illuminate\Filesystem\Filesystem as FilesystemBase;
 
 /**
  * File helper
@@ -26,6 +28,11 @@ class Filesystem extends FilesystemBase
      * @var array Known path symbols and their prefixes.
      */
     public $pathSymbols = [];
+
+    /**
+     * @var array|null Symlinks within base folder
+     */
+    protected $symlinks = null;
 
     /**
      * Determine if the given path contains no files.
@@ -93,14 +100,23 @@ class Filesystem extends FilesystemBase
 
         if (strpos($path, $publicPath) === 0) {
             $result = str_replace("\\", "/", substr($path, strlen($publicPath)));
-        }
-        // Attempt to support first level symlinks
-        elseif ($directories = self::glob($publicPath . '/*', GLOB_NOSORT | GLOB_ONLYDIR)) {
-            foreach ($directories as $dir) {
-                if (is_link($dir) && strpos($path, readlink($dir)) === 0) {
-                    // Get the path of the requested path relative to the symlink in the public path
-                    $relativeLinkedPath = substr($path, strlen(readlink($dir)));
-                    return str_replace("\\", "/", substr($dir, strlen($publicPath)) . $relativeLinkedPath);
+        } else {
+            /**
+             * Find symlinks within base folder and work out if this path can be resolved to a symlinked directory.
+             *
+             * This abides by the `cms.restrictBaseDir` config and will not allow symlinks to external directories
+             * if the restriction is enabled.
+             */
+            if ($this->symlinks === null) {
+                $this->findSymlinks();
+            }
+            if (count($this->symlinks) > 0) {
+                foreach ($this->symlinks as $source => $target) {
+                    if (strpos($path, $target) === 0) {
+                        $relativePath = substr($path, strlen($target));
+                        $result = str_replace("\\", "/", substr($source, strlen($publicPath)) . $relativePath);
+                        break;
+                    }
                 }
             }
         }
@@ -126,6 +142,17 @@ class Filesystem extends FilesystemBase
     }
 
     /**
+     * Returns true if the provided disk is using the "local" driver
+     *
+     * @param Illuminate\Filesystem\FilesystemAdapter $disk
+     * @return boolean
+     */
+    public function isLocalDisk($disk)
+    {
+        return ($disk->getDriver()->getAdapter() instanceof \League\Flysystem\Adapter\Local);
+    }
+
+    /**
      * Finds the path to a class
      * @param  mixed  $className Class name or object
      * @return string The file path
@@ -144,14 +171,14 @@ class Filesystem extends FilesystemBase
      */
     public function existsInsensitive($path)
     {
-        if (self::exists($path)) {
+        if ($this->exists($path)) {
             return $path;
         }
 
         $directoryName = dirname($path);
         $pathLower = strtolower($path);
 
-        if (!$files = self::glob($directoryName . '/*', GLOB_NOSORT)) {
+        if (!$files = $this->glob($directoryName . '/*', GLOB_NOSORT)) {
             return false;
         }
 
@@ -381,5 +408,55 @@ class Filesystem extends FilesystemBase
         $regex = strtr(preg_quote($pattern, '#'), ['\*' => '.*', '\?' => '.']);
 
         return (bool) preg_match('#^' . $regex . '$#i', $fileName);
+    }
+
+    /**
+     * Finds symlinks within the base path and provides a source => target array of symlinks.
+     *
+     * @return void
+     */
+    protected function findSymlinks()
+    {
+        $restrictBaseDir = Config::get('cms.restrictBaseDir', true);
+        $deep = Config::get('develop.allowDeepSymlinks', false);
+        $basePath = base_path();
+        $symlinks = [];
+
+        $iterator = function ($path) use (&$iterator, &$symlinks, $basePath, $restrictBaseDir, $deep) {
+            foreach (new DirectoryIterator($path) as $directory) {
+                if (
+                    $directory->isDir() === false
+                    || $directory->isDot() === true
+                ) {
+                    continue;
+                }
+                if ($directory->isLink()) {
+                    $source = $directory->getPathname();
+                    $target = realpath(readlink($directory->getPathname()));
+                    if (!$target) {
+                        $target = realpath($directory->getPath() . '/' . readlink($directory->getPathname()));
+
+                        if (!$target) {
+                            // Cannot resolve symlink
+                            continue;
+                        }
+                    }
+
+                    if ($restrictBaseDir && strpos($target . '/', $basePath . '/') !== 0) {
+                        continue;
+                    }
+                    $symlinks[$source] = $target;
+                    continue;
+                }
+
+                // Get subfolders if "develop.allowDeepSymlinks" is enabled.
+                if ($deep) {
+                    $iterator($directory->getPathname());
+                }
+            }
+        };
+        $iterator($basePath);
+
+        $this->symlinks = $symlinks;
     }
 }

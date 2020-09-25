@@ -151,11 +151,16 @@ class QueryBuilder extends QueryBuilderBase
         // If the "minutes" value is less than zero, we will use that as the indicator
         // that the value should be remembered values should be stored indefinitely
         // and if we have minutes we will use the typical remember function here.
-        if ($minutes < 0) {
+        if (is_int($minutes) && $minutes < 0) {
             $results = $cache->rememberForever($key, $callback);
         }
         else {
-            $results = $cache->remember($key, $minutes, $callback);
+            if (is_int($minutes)) {
+                $expiresAt = now()->addMinutes($minutes);
+            } else {
+                $expiresAt = $minutes;
+            }
+            $results = $cache->remember($key, $expiresAt, $callback);
         }
 
         return collect($results);

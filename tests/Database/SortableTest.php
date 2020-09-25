@@ -2,7 +2,7 @@
 
 class SortableTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $capsule = new Illuminate\Database\Capsule\Manager;
         $capsule->addConnection([

@@ -4,12 +4,6 @@ use Illuminate\Support\ServiceProvider;
 
 class UrlServiceProvider extends ServiceProvider
 {
-
-    /**
-     * @var bool Indicates if loading of the provider is deferred.
-     */
-    protected $defer = false;
-
     /**
      * Register the service provider.
      * @return void
