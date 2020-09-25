@@ -31,7 +31,7 @@ class HelpersTest extends TestCase
 // stub class for config facade
 class Config
 {
-    public static function get($key, $default=null)
+    public static function get($key, $default = null)
     {
         switch ($key) {
             case 'cms.storage.uploads.path':
