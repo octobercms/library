@@ -1,53 +1,29 @@
 <?php
 
-use October\Rain\Foundation\Application;
-
 class HelpersTest extends TestCase
 {
-    protected $basePath;
-    protected $app;
-
-    /**
-     * Setup application
-     * @return void
-     */
-    public function setUp():void
-    {
-        $this->basePath = realpath(__DIR__.'/../fixtures');
-        $app = new Application($this->basePath);
-
-        $app->singleton(
-            Illuminate\Contracts\Console\Kernel::class,
-            October\Rain\Foundation\Console\Kernel::class
-        );
-
-        $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
-
-        $this->app = $app;
-    }
-
     public function testPluginsPath()
     {
-        $this->assertEquals(plugins_path(), $this->basePath . '/plugins');
+        $this->assertEquals(plugins_path(), $this->app->pluginsPath());
     }
 
     public function testThemesPath()
     {
-        $this->assertEquals(themes_path(), $this->basePath . '/themes');
+        $this->assertEquals(themes_path(), $this->app->themesPath());
     }
 
     public function testTempPath()
     {
-        $this->assertEquals(temp_path(), $this->basePath . '/storage/temp');
+        $this->assertEquals(temp_path(), $this->app->tempPath());
     }
 
     public function testUploadsPath()
     {
-        $this->assertEquals(uploads_path(), $this->app['config']->get('cms.storage.uploads.path'));
+        $this->assertEquals(uploads_path(), $this->app['config']->get('cms.storage.uploads.path', $this->app->uploadsPath()));
     }
 
     public function testMediaPath()
     {
-        $this->assertEquals(media_path(), $this->app['config']->get('cms.storage.media.path'));
+        $this->assertEquals(media_path(), $this->app['config']->get('cms.storage.media.path', $this->app->mediaPath()));
     }
 }
