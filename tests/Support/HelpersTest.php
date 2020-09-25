@@ -4,7 +4,7 @@ use October\Rain\Foundation\Application;
 
 class HelpersTest extends TestCase
 {
-    public function createApplication()
+    public function setUp()
     {
         $this->basePath = realpath(__DIR__.'/../fixtures');
         $app = new Application($this->basePath);
@@ -16,7 +16,7 @@ class HelpersTest extends TestCase
 
         $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
 
-        return $app;
+        $this->app = $app;
     }
 
     public function testPluginsPath()
@@ -43,4 +43,5 @@ class HelpersTest extends TestCase
     {
         $this->assertEquals(media_path(), $this->app['config']->get('cms.storage.media.path'));
     }
+
 }
