@@ -11,7 +11,7 @@ class HelpersTest extends TestCase
      * Setup application
      * @return void
      */
-    public function setUp()
+    public function setUp():void
     {
         $this->basePath = realpath(__DIR__.'/../fixtures');
         $app = new Application($this->basePath);

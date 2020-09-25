@@ -6,11 +6,7 @@ class ApplicationTest extends TestCase
 {
     protected $app;
 
-    /**
-     * Setup application
-     * @return void
-     */
-    public function setUp()
+    protected function setUp():void
     {
         $this->app = new Application();
     }
