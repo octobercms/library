@@ -2,6 +2,11 @@
 
 class HelpersTest extends TestCase
 {
+    public function testConfigPath()
+    {
+        $this->assertEquals(config_path(), app('path.config'));
+    }
+
     public function testPluginsPath()
     {
         $this->assertEquals(plugins_path(), app('path.plugins'));
@@ -25,6 +30,26 @@ class HelpersTest extends TestCase
     public function testMediaPath()
     {
         $this->assertEquals(media_path(), Config::get('cms.storage.media.path', app('path.media')));
+    }
+
+    public function testPathSuffix()
+    {
+        $path = 'extra-path';
+        $types = ['config', 'temp', 'plugins', 'themes'];
+        foreach ($types as $type) {
+            $method = $type.'_path';
+            $this->assertEquals($method($path), app('path.'.$type).'/'.$path);
+        }
+    }
+    public function testPathSuffixWithConfig()
+    {
+        $path = 'extra-path';
+        $types = ['uploads', 'media'];
+        foreach ($types as $type) {
+            $method = $type.'_path';
+            $config = 'cms.storage.'.$type.'.path';
+            $this->assertEquals($method($path), Config::get($config, app('path.'.$type)).'/'.$path);
+        }
     }
 }
 
