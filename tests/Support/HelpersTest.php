@@ -43,5 +43,4 @@ class HelpersTest extends TestCase
     {
         $this->assertEquals(media_path(), $this->app['config']->get('cms.storage.media.path'));
     }
-
 }
