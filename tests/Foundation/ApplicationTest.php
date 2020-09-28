@@ -43,9 +43,12 @@ class ApplicationTest extends TestCase
         foreach (['plugins', 'themes', 'temp', 'uploads', 'media'] as $type) {
             $getter = $type . 'Path';
             $setter = 'set' . ucfirst($type) . 'Path';
-            $path = $this->app->buildPath('/my' . ucfirst($type) . '/custom/path');
+
+            $path = '/my' . ucfirst($type) . '/custom/path';
+            $expected = str_replace('/', DIRECTORY_SEPARATOR, $path);
             $this->app->{$setter}($path);
-            $this->assertEquals($path, $this->app->{$getter}());
+
+            $this->assertEquals($expected, $this->app->{$getter}());
         }
     }
 }
