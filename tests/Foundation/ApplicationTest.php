@@ -4,7 +4,7 @@ use October\Rain\Foundation\Application;
 
 class ApplicationTest extends TestCase
 {
-    protected function setUp():void
+    protected function setUp(): void
     {
         $this->basePath = 'custom-path';
         $this->app = new Application($this->basePath);
