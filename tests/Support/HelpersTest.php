@@ -38,7 +38,8 @@ class HelpersTest extends TestCase
         $types = ['temp', 'plugins', 'themes'];
         foreach ($types as $type) {
             $method = $type . '_path';
-            $this->assertEquals(app('path.' . $type), $method($path));
+            $this->assertEquals(app('path.' . $type) . $path, $method($path));
+            $this->assertNotEquals(app('path.' . $type) . DIRECTORY_SEPARATOR . $path, $method($path));
         }
     }
 
