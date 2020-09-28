@@ -485,7 +485,7 @@ class Application extends ApplicationBase
      */
     public function getCachedConfigPath()
     {
-        return $this->buildPath('/framework/config.php', $this['path.storage']);
+        return $this->buildPath('/framework/config.php', $this->storagePath());
     }
 
     /**
@@ -550,6 +550,9 @@ class Application extends ApplicationBase
         if (!isset($prefix)) {
             $prefix = $this->basePath;
         }
-        return $prefix . implode(DIRECTORY_SEPARATOR, explode('/', $path));
+        $prefix = str_replace('/', DIRECTORY_SEPARATOR, $prefix);
+        $path = str_replace('/', DIRECTORY_SEPARATOR, $path);
+
+        return rtrim($prefix, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR);
     }
 }

@@ -163,6 +163,27 @@ if (!function_exists('traceSql')) {
     }
 }
 
+if (!function_exists('join_paths')) {
+    /**
+     * joins two paths, making sure they use DIRECTORY_SEPARATOR
+     *
+     * @param  string  $prefix
+     * @param  string  $path
+     * @return string
+     */
+    function join_paths($prefix, $path)
+    {
+        if ($path) {
+            $path = str_replace('/', DIRECTORY_SEPARATOR, $path);
+            $path = ltrim($path, DIRECTORY_SEPARATOR);
+        }
+
+        $prefix = str_replace('/', DIRECTORY_SEPARATOR, $prefix);
+
+        return rtrim($prefix, DIRECTORY_SEPARATOR) . ($path ? DIRECTORY_SEPARATOR . $path : '');
+    }
+}
+
 if (!function_exists('config_path')) {
     /**
      * Get the path to the plugins folder.
@@ -172,7 +193,7 @@ if (!function_exists('config_path')) {
      */
     function config_path($path = '')
     {
-        return app('path.config') . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return join_paths(app('path.config'), $path);
     }
 }
 
@@ -185,7 +206,7 @@ if (!function_exists('plugins_path')) {
      */
     function plugins_path($path = '')
     {
-        return app('path.plugins') . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return join_paths(app('path.plugins'), $path);
     }
 }
 
@@ -198,8 +219,9 @@ if (!function_exists('uploads_path')) {
      */
     function uploads_path($path = '')
     {
-        $uploads_path = rtrim(Config::get('cms.storage.uploads.path', app('path.uploads')), DIRECTORY_SEPARATOR);
-        return $uploads_path . ($path ? DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR) : $path);
+        $uploads_path = Config::get('cms.storage.uploads.path', app('path.uploads'));
+
+        return join_paths($uploads_path, $path);
     }
 }
 
@@ -212,8 +234,9 @@ if (!function_exists('media_path')) {
      */
     function media_path($path = '')
     {
-        $media_path = rtrim(Config::get('cms.storage.media.path', app('path.media')), DIRECTORY_SEPARATOR);
-        return $media_path . ($path ? DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR) : $path);
+        $media_path = Config::get('cms.storage.media.path', app('path.media'));
+
+        return join_paths($media_path, $path);
     }
 }
 
@@ -226,7 +249,7 @@ if (!function_exists('themes_path')) {
      */
     function themes_path($path = '')
     {
-        return app('path.themes') . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return join_paths(app('path.themes'), $path);
     }
 }
 
@@ -239,7 +262,7 @@ if (!function_exists('temp_path')) {
      */
     function temp_path($path = '')
     {
-        return app('path.temp') . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return join_paths(app('path.temp'), $path);
     }
 }
 
@@ -941,6 +964,7 @@ if (!function_exists('resolve_path')) {
      */
     function resolve_path($path)
     {
+        $path = str_replace('/', DIRECTORY_SEPARATOR, $path);
         return PathResolver::resolve($path);
     }
 }
