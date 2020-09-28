@@ -10,6 +10,19 @@ class ApplicationTest extends TestCase
         $this->app = new Application($this->basePath);
     }
 
+    public function testBuildPath()
+    {
+        $path = 'dir/subdir';
+        $this->assertEquals($this->basePath . DIRECTORY_SEPARATOR . $path, $this->app->buildPath($path));
+        $this->assertEquals($this->basePath . DIRECTORY_SEPARATOR . $path, $this->app->buildPath('/' . $path));
+        $this->assertEquals($this->basePath . DIRECTORY_SEPARATOR . $path, $this->app->buildPath('//' . $path));
+
+        $prefix = '/prefix_path';
+        $this->assertEquals($prefix . DIRECTORY_SEPARATOR . $path, $this->app->buildPath($path, $prefix));
+        $this->assertEquals($prefix . DIRECTORY_SEPARATOR . $path, $this->app->buildPath('/' . $path, $prefix));
+        $this->assertEquals($prefix . DIRECTORY_SEPARATOR . $path, $this->app->buildPath('//' . $path, $prefix));
+    }
+
     public function testPathMethods()
     {
         $this->assertEquals($this->app->buildPath('/plugins'), $this->app->pluginsPath());
