@@ -24,12 +24,18 @@ class HelpersTest extends TestCase
 
     public function testUploadsPath()
     {
-        $this->assertEquals(Config::get('cms.storage.uploads.path', app('path.uploads')), uploads_path());
+        $expected = Config::get('cms.storage.uploads.path', app('path.uploads'));
+        $expected = str_replace('/', DIRECTORY_SEPARATOR, $expected);
+
+        $this->assertEquals($expected, uploads_path());
     }
 
     public function testMediaPath()
     {
-        $this->assertEquals(Config::get('cms.storage.media.path', app('path.media')), media_path());
+        $expected = Config::get('cms.storage.media.path', app('path.media'));
+        $expected = str_replace('/', DIRECTORY_SEPARATOR, $expected);
+
+        $this->assertEquals($expected, media_path());
     }
 
     public function testPathSuffix()
@@ -38,8 +44,9 @@ class HelpersTest extends TestCase
         $types = ['temp', 'plugins', 'themes'];
         foreach ($types as $type) {
             $method = $type . '_path';
-            $this->assertEquals(app('path.' . $type) . $path, $method($path));
-            $this->assertNotEquals(app('path.' . $type) . DIRECTORY_SEPARATOR . $path, $method($path));
+            $expected_path = str_replace('/', DIRECTORY_SEPARATOR, $path);
+            $this->assertEquals(app('path.' . $type) . $expected_path, $method($path));
+            $this->assertNotEquals(app('path.' . $type) . DIRECTORY_SEPARATOR . $expected_path, $method($path));
         }
     }
 
@@ -50,7 +57,11 @@ class HelpersTest extends TestCase
         foreach ($types as $type) {
             $method = $type . '_path';
             $config = 'cms.storage.' . $type . '.path';
-            $this->assertEquals(Config::get($config, app('path.' . $type)) . DIRECTORY_SEPARATOR . $path, $method($path));
+
+            $expected = Config::get($config, app('path.' . $type)) . '/' . $path;
+            $expected = str_replace('/', DIRECTORY_SEPARATOR, $expected);
+
+            $this->assertEquals($expected, $method($path));
         }
     }
 }

@@ -13,14 +13,20 @@ class ApplicationTest extends TestCase
     public function testBuildPath()
     {
         $path = 'dir/subdir';
-        $this->assertEquals($this->basePath . DIRECTORY_SEPARATOR . $path, $this->app->buildPath($path));
-        $this->assertEquals($this->basePath . DIRECTORY_SEPARATOR . $path, $this->app->buildPath('/' . $path));
-        $this->assertEquals($this->basePath . DIRECTORY_SEPARATOR . $path, $this->app->buildPath('//' . $path));
+        $expected = $this->basePath . '/' . $path;
+        $expected = str_replace('/', DIRECTORY_SEPARATOR, $expected);
+
+        $this->assertEquals($expected, $this->app->buildPath($path));
+        $this->assertEquals($expected, $this->app->buildPath('/' . $path));
+        $this->assertEquals($expected, $this->app->buildPath('//' . $path));
 
         $prefix = '/prefix_path';
-        $this->assertEquals($prefix . DIRECTORY_SEPARATOR . $path, $this->app->buildPath($path, $prefix));
-        $this->assertEquals($prefix . DIRECTORY_SEPARATOR . $path, $this->app->buildPath('/' . $path, $prefix));
-        $this->assertEquals($prefix . DIRECTORY_SEPARATOR . $path, $this->app->buildPath('//' . $path, $prefix));
+        $expected = $prefix . '/' . $path;
+        $expected = str_replace('/', DIRECTORY_SEPARATOR, $expected);
+
+        $this->assertEquals($expected, $this->app->buildPath($path, $prefix));
+        $this->assertEquals($expected, $this->app->buildPath('/' . $path, $prefix));
+        $this->assertEquals($expected, $this->app->buildPath('//' . $path, $prefix));
     }
 
     public function testPathMethods()
