@@ -4,43 +4,44 @@ class HelpersTest extends TestCase
 {
     public function testConfigPath()
     {
-        $this->assertEquals(config_path(), app('path.config'));
+        $this->assertEquals(app('path.config'), config_path());
     }
 
     public function testPluginsPath()
     {
-        $this->assertEquals(plugins_path(), app('path.plugins'));
+        $this->assertEquals(app('path.plugins'), plugins_path());
     }
 
     public function testThemesPath()
     {
-        $this->assertEquals(themes_path(), app('path.themes'));
+        $this->assertEquals(app('path.themes'), themes_path());
     }
 
     public function testTempPath()
     {
-        $this->assertEquals(temp_path(), app('path.temp'));
+        $this->assertEquals(app('path.temp'), temp_path());
     }
 
     public function testUploadsPath()
     {
-        $this->assertEquals(uploads_path(), Config::get('cms.storage.uploads.path', app('path.uploads')));
+        $this->assertEquals(Config::get('cms.storage.uploads.path', app('path.uploads')), uploads_path());
     }
 
     public function testMediaPath()
     {
-        $this->assertEquals(media_path(), Config::get('cms.storage.media.path', app('path.media')));
+        $this->assertEquals(Config::get('cms.storage.media.path', app('path.media')), media_path());
     }
 
     public function testPathSuffix()
     {
-        $path = 'extra-path';
-        $types = ['config', 'temp', 'plugins', 'themes'];
+        $path = '/extra-path';
+        $types = ['temp', 'plugins', 'themes'];
         foreach ($types as $type) {
             $method = $type . '_path';
-            $this->assertEquals($method($path), app('path.' . $type) . DIRECTORY_SEPARATOR . $path);
+            $this->assertEquals(app('path.' . $type), $method($path));
         }
     }
+
     public function testPathSuffixWithConfig()
     {
         $path = 'extra-path';
@@ -48,7 +49,7 @@ class HelpersTest extends TestCase
         foreach ($types as $type) {
             $method = $type . '_path';
             $config = 'cms.storage.' . $type . '.path';
-            $this->assertEquals($method($path), Config::get($config, app('path.' . $type)) . DIRECTORY_SEPARATOR . $path);
+            $this->assertEquals(Config::get($config, app('path.' . $type)) . DIRECTORY_SEPARATOR . $path, $method($path));
         }
     }
 }

@@ -12,11 +12,11 @@ class ApplicationTest extends TestCase
 
     public function testPathMethods()
     {
-        $this->assertEquals($this->app->pluginsPath(), $this->app->buildPath('/plugins'));
-        $this->assertEquals($this->app->themesPath(), $this->app->buildPath('/themes'));
-        $this->assertEquals($this->app->tempPath(), $this->app->buildPath('/storage/temp'));
-        $this->assertEquals($this->app->uploadsPath(), $this->app->buildPath('/storage/app/uploads'));
-        $this->assertEquals($this->app->mediaPath(), $this->app->buildPath('/storage/app/media'));
+        $this->assertEquals($this->app->buildPath('/plugins'), $this->app->pluginsPath());
+        $this->assertEquals($this->app->buildPath('/themes'), $this->app->themesPath());
+        $this->assertEquals($this->app->buildPath('/storage/temp'), $this->app->tempPath());
+        $this->assertEquals($this->app->buildPath('/storage/app/uploads'), $this->app->uploadsPath());
+        $this->assertEquals($this->app->buildPath('/storage/app/media'), $this->app->mediaPath());
     }
 
     public function testSetPathMethods()
@@ -26,7 +26,7 @@ class ApplicationTest extends TestCase
             $setter = 'set' . ucfirst($type) . 'Path';
             $path = $this->app->buildPath('/my' . ucfirst($type) . '/custom/path');
             $this->app->{$setter}($path);
-            $this->assertEquals($this->app->{$getter}(), $path);
+            $this->assertEquals($path, $this->app->{$getter}());
         }
     }
 }
