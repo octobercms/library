@@ -34,7 +34,7 @@ trait SortableRelation
      */
     public function initializeSortableRelation()
     {
-        $this->bindEvent('model.relation.afterAttach', function($relationName, $attached, $data) {
+        $this->bindEvent('model.relation.afterAttach', function ($relationName, $attached, $data) {
             if (array_key_exists($relationName, $this->getSortableRelations())) {
                 $column = $this->getRelationSortOrderColumn($relationName);
 
