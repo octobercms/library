@@ -115,6 +115,25 @@ class PathResolver
     }
 
     /**
+     * join two paths, making sure they use DIRECTORY_SEPARATOR
+     *
+     * @param  string  $prefix
+     * @param  string  $path
+     * @return string
+     */
+    public static function join($prefix, $path)
+    {
+        if ($path) {
+            $path = str_replace('/', DIRECTORY_SEPARATOR, $path);
+            $path = ltrim($path, DIRECTORY_SEPARATOR);
+        }
+
+        $prefix = str_replace('/', DIRECTORY_SEPARATOR, $prefix);
+
+        return rtrim($prefix, DIRECTORY_SEPARATOR) . ($path ? DIRECTORY_SEPARATOR . $path : '');
+    }
+
+    /**
      * Normalizes a given path.
      *
      * Converts any type of path (Unix or Windows) into a Unix-style path, so that we have a consistent format to work

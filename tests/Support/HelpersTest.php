@@ -87,6 +87,10 @@ class Config
         return $value;
     }
 
+    public static function set($name, $value)
+    {
+    }
+
     public static function package($namespace, $hint)
     {
     }
