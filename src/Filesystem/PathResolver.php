@@ -115,7 +115,7 @@ class PathResolver
     }
 
     /**
-     * join two paths, making sure they use DIRECTORY_SEPARATOR
+     * Join two paths, making sure they use DIRECTORY_SEPARATOR
      *
      * @param  string  $prefix
      * @param  string  $path
