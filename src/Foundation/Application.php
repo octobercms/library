@@ -12,6 +12,7 @@ use Illuminate\Foundation\ProviderRepository;
 use Symfony\Component\Debug\Exception\FatalErrorException;
 use October\Rain\Events\EventServiceProvider;
 use October\Rain\Router\RoutingServiceProvider;
+use October\Rain\Filesystem\PathResolver;
 use October\Rain\Foundation\Providers\LogServiceProvider;
 use October\Rain\Foundation\Providers\MakerServiceProvider;
 use Carbon\Laravel\ServiceProvider as CarbonServiceProvider;
@@ -555,9 +556,6 @@ class Application extends ApplicationBase
         if (!isset($prefix)) {
             $prefix = $this->basePath;
         }
-        $prefix = str_replace('/', DIRECTORY_SEPARATOR, $prefix);
-        $path = str_replace('/', DIRECTORY_SEPARATOR, $path);
-
-        return rtrim($prefix, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR);
+        return PathResolver::join($prefix, $path);
     }
 }
