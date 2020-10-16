@@ -1,8 +1,11 @@
 <?php
 
+namespace October\Rain\Tests\Halcyon;
+
 use October\Rain\Filesystem\Filesystem;
 use October\Rain\Halcyon\Datasource\Resolver;
 use October\Rain\Halcyon\Datasource\FileDatasource;
+use October\Rain\Tests\TestCase;
 
 class DatasourceResolverTest extends TestCase
 {

@@ -1,5 +1,9 @@
 <?php
 
+namespace October\Rain\Tests\Support;
+
+use October\Rain\Tests\TestCase;
+
 class EmitterTest extends TestCase
 {
     /**

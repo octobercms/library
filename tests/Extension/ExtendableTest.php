@@ -2,6 +2,7 @@
 
 use October\Rain\Extension\Extendable;
 use October\Rain\Extension\ExtensionBase;
+use October\Rain\Tests\TestCase;
 
 class ExtendableTest extends TestCase
 {
@@ -149,7 +150,7 @@ class ExtendableTest extends TestCase
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Class ExtendableTestInvalidExtendableClass contains an invalid $implement value');
-        
+
         $result = new ExtendableTestInvalidExtendableClass;
     }
 

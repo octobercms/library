@@ -1,6 +1,9 @@
 <?php
 
+namespace October\Rain\Tests\Database;
+
 use October\Rain\Database\Dongle;
+use October\Rain\Tests\TestCase;
 
 class DongleTest extends TestCase
 {

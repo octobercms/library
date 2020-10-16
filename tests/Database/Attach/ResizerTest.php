@@ -1,6 +1,9 @@
 <?php
 
+namespace October\Rain\Tests\Database\Attach;
+
 use October\Rain\Database\Attach\Resizer;
+use October\Rain\Tests\TestCase;
 
 class ResizerTest extends TestCase
 {

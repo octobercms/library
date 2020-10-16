@@ -1,6 +1,9 @@
 <?php
 
+namespace October\Rain\Tests\Parse;
+
 use October\Rain\Parse\Bracket as TextParser;
+use October\Rain\Tests\TestCase;
 
 class BracketTest extends TestCase
 {

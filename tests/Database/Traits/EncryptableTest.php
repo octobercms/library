@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Encryption\Encrypter;
+use October\Rain\Tests\TestCase;
 
 class EncryptableTest extends TestCase
 {

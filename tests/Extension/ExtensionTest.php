@@ -2,6 +2,7 @@
 
 use October\Rain\Extension\Extendable;
 use October\Rain\Extension\ExtensionBase;
+use October\Rain\Tests\TestCase;
 
 class ExtensionTest extends TestCase
 {

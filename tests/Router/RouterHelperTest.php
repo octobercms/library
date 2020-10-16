@@ -1,6 +1,9 @@
 <?php
 
+namespace October\Rain\Tests\Router;
+
 use October\Rain\Router\Helper;
+use October\Rain\Tests\TestCase;
 
 class RouterHelperTest extends TestCase
 {

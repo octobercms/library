@@ -1,6 +1,9 @@
 <?php
 
+namespace October\Rain\Tests\Halcyon;
+
 use October\Rain\Halcyon\Processors\SectionParser;
+use October\Rain\Tests\TestCase;
 
 class SectionParserTest extends TestCase
 {

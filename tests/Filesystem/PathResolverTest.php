@@ -1,6 +1,9 @@
 <?php
 
+namespace October\Rain\Tests\Filesystem;
+
 use October\Rain\Filesystem\PathResolver;
+use October\Rain\Tests\TestCase;
 
 /**
  * The tests below will test both the resolve_path() method (and wrapped PathResolver::resolve() method),

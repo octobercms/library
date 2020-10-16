@@ -1,5 +1,9 @@
 <?php
 
+namespace October\Rain\Tests\Halcyon;
+
+use October\Rain\Tests\TestCase;
+
 class ValidationTraitTest extends TestCase
 {
     public function testArrayFieldNames()

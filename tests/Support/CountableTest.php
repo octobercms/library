@@ -1,4 +1,9 @@
 <?php
+
+namespace October\Rain\Tests\Support;
+
+use October\Rain\Tests\TestCase;
+
 class CountableTest extends TestCase
 {
     public function testCountable()
@@ -17,7 +22,7 @@ class CountableTest extends TestCase
 
         $this->assertTrue(is_countable($collection));
 
-        $arrayObj = new ArrayObject([
+        $arrayObj = new \ArrayObject([
             'foo' => 'bar',
             'foo2' => 'bar2'
         ]);

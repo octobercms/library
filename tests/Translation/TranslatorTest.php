@@ -1,9 +1,12 @@
 <?php
 
+namespace October\Rain\Tests\Translation;
+
 use Illuminate\Filesystem\Filesystem;
 use October\Rain\Events\Dispatcher;
 use October\Rain\Translation\FileLoader;
 use October\Rain\Translation\Translator;
+use October\Rain\Tests\TestCase;
 
 class TranslatorTest extends TestCase
 {

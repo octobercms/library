@@ -1,6 +1,9 @@
 <?php
 
+namespace October\Rain\Tests\Scaffold;
+
 use October\Rain\Scaffold\GeneratorCommand;
+use October\Rain\Tests\TestCase;
 
 class ScaffoldBaseTestCommand extends GeneratorCommand
 {
@@ -23,7 +26,7 @@ class ScaffoldBaseTest extends TestCase
     protected static function callProtectedMethod($object, $name, $params = [])
     {
         $className = get_class($object);
-        $class = new ReflectionClass($className);
+        $class = new \ReflectionClass($className);
         $method = $class->getMethod($name);
         $method->setAccessible(true);
         return $method->invokeArgs($object, $params);
@@ -32,7 +35,7 @@ class ScaffoldBaseTest extends TestCase
     public static function getProtectedProperty($object, $name)
     {
         $className = get_class($object);
-        $class = new ReflectionClass($className);
+        $class = new \ReflectionClass($className);
         $property = $class->getProperty($name);
         $property->setAccessible(true);
         return $property->getValue($object);
@@ -41,7 +44,7 @@ class ScaffoldBaseTest extends TestCase
     public static function setProtectedProperty($object, $name, $value)
     {
         $className = get_class($object);
-        $class = new ReflectionClass($className);
+        $class = new \ReflectionClass($className);
         $property = $class->getProperty($name);
         $property->setAccessible(true);
         return $property->setValue($object, $value);

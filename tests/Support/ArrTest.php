@@ -1,6 +1,9 @@
 <?php
 
+namespace October\Rain\Tests\Support;
+
 use October\Rain\Support\Arr;
+use October\Rain\Tests\TestCase;
 
 class ArrTest extends TestCase
 {

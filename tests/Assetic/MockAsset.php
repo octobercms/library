@@ -1,5 +1,7 @@
 <?php
 
+namespace October\Rain\Tests\Assetic;
+
 use October\Rain\Assetic\Asset\AssetInterface;
 use October\Rain\Assetic\Filter\FilterInterface;
 

@@ -1,5 +1,6 @@
 <?php
 
+use October\Rain\Tests\TestCase;
 use October\Rain\Database\Updater;
 
 class UpdaterTest extends TestCase
@@ -13,7 +14,7 @@ class UpdaterTest extends TestCase
 
     public function testClassNameGetsParsedCorrectly()
     {
-        $reflector = new ReflectionClass(TestPlugin\SampleClass::class);
+        $reflector = new \ReflectionClass(TestPlugin\SampleClass::class);
         $filePath = $reflector->getFileName();
 
         $classFullName = $this->updater->getClassFromFile($filePath);

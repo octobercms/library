@@ -4,6 +4,7 @@ use October\Rain\Halcyon\Model;
 use October\Rain\Halcyon\Datasource\Resolver;
 use October\Rain\Halcyon\Datasource\FileDatasource;
 use October\Rain\Filesystem\Filesystem;
+use October\Rain\Tests\TestCase;
 
 class HalcyonModelTest extends TestCase
 {

@@ -1,11 +1,13 @@
 <?php
 
+use October\Rain\Tests\TestCase;
+
 class SluggableTest extends TestCase
 {
 
     public function setUp(): void
     {
-        $capsule = new Illuminate\Database\Capsule\Manager;
+        $capsule = new \Illuminate\Database\Capsule\Manager;
         $capsule->addConnection([
             'driver'   => 'sqlite',
             'database' => ':memory:',

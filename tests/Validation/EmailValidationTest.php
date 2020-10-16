@@ -1,9 +1,12 @@
 <?php
 
+namespace October\Rain\Tests\Validation;
+
 use Illuminate\Filesystem\Filesystem;
 use October\Rain\Translation\FileLoader;
 use October\Rain\Translation\Translator;
 use October\Rain\Validation\Factory;
+use October\Rain\Tests\TestCase;
 
 class EmailValidationTest extends TestCase
 {

@@ -1,6 +1,9 @@
 <?php
 
+namespace October\Rain\Tests\Parse;
+
 use October\Rain\Parse\Ini as IniParser;
+use October\Rain\Tests\TestCase;
 
 class IniTest extends TestCase
 {

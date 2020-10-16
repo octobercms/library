@@ -1,6 +1,9 @@
 <?php
 
+namespace October\Rain\Tests\Parse;
+
 use October\Rain\Parse\Syntax\FieldParser;
+use October\Rain\Tests\TestCase;
 
 class SyntaxFieldParserTest extends TestCase
 {
@@ -362,7 +365,7 @@ class SyntaxFieldParserTest extends TestCase
     protected static function callProtectedMethod($object, $name, $params = [])
     {
         $className = get_class($object);
-        $class = new ReflectionClass($className);
+        $class = new \ReflectionClass($className);
         $method = $class->getMethod($name);
         $method->setAccessible(true);
         return $method->invokeArgs($object, $params);
@@ -371,7 +374,7 @@ class SyntaxFieldParserTest extends TestCase
     public static function getProtectedProperty($object, $name)
     {
         $className = get_class($object);
-        $class = new ReflectionClass($className);
+        $class = new \ReflectionClass($className);
         $property = $class->getProperty($name);
         $property->setAccessible(true);
         return $property->getValue($object);
@@ -380,7 +383,7 @@ class SyntaxFieldParserTest extends TestCase
     public static function setProtectedProperty($object, $name, $value)
     {
         $className = get_class($object);
-        $class = new ReflectionClass($className);
+        $class = new \ReflectionClass($className);
         $property = $class->getProperty($name);
         $property->setAccessible(true);
         return $property->setValue($object, $value);

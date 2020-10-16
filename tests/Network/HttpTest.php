@@ -1,7 +1,10 @@
 <?php
 
+namespace October\Rain\Tests\Network;
+
 use October\Rain\Exception\ApplicationException;
 use October\Rain\Network\Http;
+use October\Rain\Tests\TestCase;
 
 class HttpTest extends TestCase
 {

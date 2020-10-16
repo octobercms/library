@@ -1,6 +1,9 @@
 <?php
 
+namespace October\Rain\Tests\Config;
+
 use October\Rain\Config\ConfigWriter;
+use October\Rain\Tests\TestCase;
 
 class ConfigWriterTest extends TestCase
 {

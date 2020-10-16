@@ -4,6 +4,7 @@ use Illuminate\Filesystem\Filesystem;
 use October\Rain\Translation\FileLoader;
 use October\Rain\Translation\Translator;
 use October\Rain\Validation\Factory;
+use October\Rain\Tests\TestCase;
 
 class RuleObjectTest extends TestCase
 {

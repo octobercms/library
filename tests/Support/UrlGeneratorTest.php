@@ -1,5 +1,9 @@
 <?php
+
+namespace October\Rain\Tests\Support;
+
 use October\Rain\Router\UrlGenerator;
+use October\Rain\Tests\TestCase;
 
 class UrlGeneratorTest extends TestCase
 {

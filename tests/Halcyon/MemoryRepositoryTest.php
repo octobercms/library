@@ -1,7 +1,10 @@
 <?php
 
+namespace October\Rain\Tests\Halcyon;
+
 use October\Rain\Halcyon\MemoryRepository;
 use Illuminate\Cache\ArrayStore;
+use October\Rain\Tests\TestCase;
 
 class MemoryRepositoryTest extends TestCase
 {

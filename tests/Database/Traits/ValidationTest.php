@@ -1,5 +1,9 @@
 <?php
 
+namespace October\Rain\Tests\Database\Traits;
+
+use October\Rain\Tests\TestCase;
+
 class ValidationTest extends TestCase
 {
     use \October\Rain\Database\Traits\Validation;
@@ -70,7 +74,7 @@ class ValidationTest extends TestCase
             'email' => ['unique:users,email_address,NULL,id,account_id,1']
         ], $this->processValidationRules($rules));
     }
-    
+
     protected function getConnectionName()
     {
         return 'mysql';

@@ -1,6 +1,9 @@
 <?php
 
+namespace October\Rain\Tests\Html;
+
 use October\Rain\Html\Helper as HtmlHelper;
+use October\Rain\Tests\TestCase;
 
 class HtmlHelperTest extends TestCase
 {

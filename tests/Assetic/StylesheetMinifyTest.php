@@ -1,6 +1,9 @@
 <?php
 
+namespace October\Rain\Tests\Assetic;
+
 use October\Rain\Assetic\Filter\StylesheetMinify;
+use October\Rain\Tests\TestCase;
 
 class StylesheetMinifyTest extends TestCase
 {

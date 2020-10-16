@@ -1,6 +1,9 @@
 <?php
 
+namespace October\Rain\Tests\Database\Behaviors;
+
 use October\Rain\Database\Model;
+use October\Rain\Tests\TestCase;
 
 class PurgeableTest extends TestCase
 {
@@ -48,7 +51,7 @@ class TestModelDirect extends Model
     public $implement = [
         'October.Rain.Database.Behaviors.Purgeable'
     ];
-    
+
     public $purgeable = [];
 }
 

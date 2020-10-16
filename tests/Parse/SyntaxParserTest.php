@@ -1,6 +1,7 @@
 <?php
 
 use October\Rain\Parse\Syntax\Parser;
+use October\Rain\Tests\TestCase;
 
 class DropDownOptions
 {

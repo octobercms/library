@@ -1,6 +1,9 @@
 <?php
 
+namespace October\Rain\Tests\Mail;
+
 use October\Rain\Mail\Mailer;
+use October\Rain\Tests\TestCase;
 
 class MailerTest extends TestCase
 {
@@ -11,7 +14,7 @@ class MailerTest extends TestCase
     protected static function callProtectedMethod($object, $name, $params = [])
     {
         $className = get_class($object);
-        $class = new ReflectionClass($className);
+        $class = new \ReflectionClass($className);
         $method = $class->getMethod($name);
         $method->setAccessible(true);
         return $method->invokeArgs($object, $params);

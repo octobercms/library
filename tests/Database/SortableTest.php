@@ -1,10 +1,12 @@
 <?php
 
+use October\Rain\Tests\TestCase;
+
 class SortableTest extends TestCase
 {
     public function setUp(): void
     {
-        $capsule = new Illuminate\Database\Capsule\Manager;
+        $capsule = new \Illuminate\Database\Capsule\Manager;
         $capsule->addConnection([
             'driver'   => 'sqlite',
             'database' => ':memory:',
