@@ -47,7 +47,7 @@ class HelpersTest extends TestCase
     public function testPathSuffix()
     {
         $path = '/extra-path';
-        $types = ['temp', 'plugins', 'themes'];
+        $types = ['temp'];
         foreach ($types as $type) {
             $method = $type . '_path';
             $expected_path = str_replace('/', DIRECTORY_SEPARATOR, $path);
@@ -59,10 +59,10 @@ class HelpersTest extends TestCase
     public function testPathSuffixWithConfig()
     {
         $path = 'extra-path';
-        $types = ['uploads', 'media'];
+        $types = ['uploads', 'media', 'plugins', 'themes'];
         foreach ($types as $type) {
             $method = $type . '_path';
-            $config = 'cms.storage.' . $type . '.path';
+            $config = in_array($type, ['uploads', 'media']) ? 'cms.storage.' . $type . '.path' : 'cms.' . $type . 'Path';
 
             $expected = Config::get($config, app('path.' . $type)) . '/' . $path;
             $expected = str_replace('/', DIRECTORY_SEPARATOR, $expected);
@@ -78,6 +78,12 @@ class Config
     public static function get($key, $default = null)
     {
         switch ($key) {
+            case 'cms.pluginsPath':
+                $value = '/custom-plugins-path';
+                break;
+            case 'cms.themesPath':
+                $value = '/custom-themes-path';
+                break;
             case 'cms.storage.uploads.path':
                 $value = '/storage/app/custom-uploads-path';
                 break;
