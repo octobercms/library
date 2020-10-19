@@ -9,12 +9,18 @@ class HelpersTest extends TestCase
 
     public function testPluginsPath()
     {
-        $this->assertEquals(app('path.plugins'), plugins_path());
+        $expected = Config::get('cms.pluginsPath', app('path.plugins'));
+        $expected = str_replace('/', DIRECTORY_SEPARATOR, $expected);
+
+        $this->assertEquals($expected, plugins_path());
     }
 
     public function testThemesPath()
     {
-        $this->assertEquals(app('path.themes'), themes_path());
+        $expected = Config::get('cms.themesPath', app('path.themes'));
+        $expected = str_replace('/', DIRECTORY_SEPARATOR, $expected);
+
+        $this->assertEquals($expected, themes_path());
     }
 
     public function testTempPath()
