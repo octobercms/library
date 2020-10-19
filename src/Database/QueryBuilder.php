@@ -34,6 +34,13 @@ class QueryBuilder extends QueryBuilderBase
     protected $cachingDuplicateQueries = false;
 
     /**
+     * The aliased concatenation columns.
+     *
+     * @var array
+     */
+    public $concats = [];
+
+    /**
      * Get an array with the values of a given column.
      *
      * @param  string  $column
@@ -365,5 +372,19 @@ class QueryBuilder extends QueryBuilderBase
     public function cachingDuplicates()
     {
         return $this->cachingDuplicateQueries;
+    }
+
+    /**
+     * Adds a concatenated column as an alias.
+     *
+     * @param  array $parts The concatenation parts.
+     * @param  string $as The name of the alias for the compiled concatenation.
+     * @return $this
+     */
+    public function selectConcat(array $parts, string $as)
+    {
+        $this->concats[$as] = $parts;
+
+        return $this;
     }
 }

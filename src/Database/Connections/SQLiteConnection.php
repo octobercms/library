@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\SQLiteBuilder;
 use Illuminate\Database\Query\Processors\SQLiteProcessor;
 use Doctrine\DBAL\Driver\PDOSqlite\Driver as DoctrineDriver;
-use Illuminate\Database\Query\Grammars\SQLiteGrammar as QueryGrammar;
+use October\Rain\Database\Query\Grammars\SQLiteGrammar as QueryGrammar;
 use Illuminate\Database\Schema\Grammars\SQLiteGrammar as SchemaGrammar;
 
 class SQLiteConnection extends Connection
@@ -11,7 +11,7 @@ class SQLiteConnection extends Connection
     /**
      * Get the default query grammar instance.
      *
-     * @return \Illuminate\Database\Query\Grammars\SQLiteGrammar
+     * @return \October\Rain\Database\Query\Grammars\SQLiteGrammar
      */
     protected function getDefaultQueryGrammar()
     {
@@ -35,7 +35,7 @@ class SQLiteConnection extends Connection
     /**
      * Get the default schema grammar instance.
      *
-     * @return \Illuminate\Database\Schema\Grammars\SQLiteGrammar
+     * @return \October\Rain\Database\Query\Grammars\SQLiteGrammar
      */
     protected function getDefaultSchemaGrammar()
     {
