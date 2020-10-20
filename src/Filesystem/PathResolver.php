@@ -160,8 +160,8 @@ class PathResolver
 
     /**
      * Standardizes the path separators of a path back to the expected separator for the operating system.
-     * 
-     * @param string $path 
+     *
+     * @param string $path
      * @return string
      */
     public static function standardize($path)
