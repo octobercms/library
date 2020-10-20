@@ -1,5 +1,7 @@
 <?php
 
+use October\Rain\Filesystem\PathResolver;
+
 class HelpersTest extends TestCase
 {
     public function testConfigPath()
@@ -9,17 +11,25 @@ class HelpersTest extends TestCase
 
     public function testPluginsPath()
     {
-        $this->assertEquals(app('path.plugins'), plugins_path());
+        $expected = app('path.plugins');
+
+        $this->assertEquals($expected, plugins_path());
+        $this->assertEquals(PathResolver::join($expected, '/extra'), plugins_path('/extra'));
     }
 
     public function testThemesPath()
     {
-        $this->assertEquals(app('path.themes'), themes_path());
+        $expected = app('path.themes');
+
+        $this->assertEquals($expected, themes_path());
+        $this->assertEquals(PathResolver::join($expected, '/extra'), themes_path('/extra'));
     }
 
     public function testTempPath()
     {
-        $this->assertEquals(app('path.temp'), temp_path());
+        $expected = app('path.temp');
+        $this->assertEquals($expected, temp_path());
+        $this->assertEquals(PathResolver::join($expected, '/extra'), temp_path('/extra'));
     }
 
     public function testUploadsPath()
@@ -28,6 +38,7 @@ class HelpersTest extends TestCase
         $expected = str_replace('/', DIRECTORY_SEPARATOR, $expected);
 
         $this->assertEquals($expected, uploads_path());
+        $this->assertEquals(PathResolver::join($expected, '/extra'), uploads_path('/extra'));
     }
 
     public function testMediaPath()
@@ -36,33 +47,7 @@ class HelpersTest extends TestCase
         $expected = str_replace('/', DIRECTORY_SEPARATOR, $expected);
 
         $this->assertEquals($expected, media_path());
-    }
-
-    public function testPathSuffix()
-    {
-        $path = '/extra-path';
-        $types = ['temp', 'plugins', 'themes'];
-        foreach ($types as $type) {
-            $method = $type . '_path';
-            $expected_path = str_replace('/', DIRECTORY_SEPARATOR, $path);
-            $this->assertEquals(app('path.' . $type) . $expected_path, $method($path));
-            $this->assertNotEquals(app('path.' . $type) . DIRECTORY_SEPARATOR . $expected_path, $method($path));
-        }
-    }
-
-    public function testPathSuffixWithConfig()
-    {
-        $path = 'extra-path';
-        $types = ['uploads', 'media'];
-        foreach ($types as $type) {
-            $method = $type . '_path';
-            $config = 'cms.storage.' . $type . '.path';
-
-            $expected = Config::get($config, app('path.' . $type)) . '/' . $path;
-            $expected = str_replace('/', DIRECTORY_SEPARATOR, $expected);
-
-            $this->assertEquals($expected, $method($path));
-        }
+        $this->assertEquals(PathResolver::join($expected, '/extra'), media_path('/extra'));
     }
 }
 
@@ -72,6 +57,12 @@ class Config
     public static function get($key, $default = null)
     {
         switch ($key) {
+            case 'cms.pluginsPath':
+                $value = '/custom-plugins-path';
+                break;
+            case 'cms.themesPath':
+                $value = '/custom-themes-path';
+                break;
             case 'cms.storage.uploads.path':
                 $value = '/storage/app/custom-uploads-path';
                 break;

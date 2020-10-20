@@ -185,7 +185,8 @@ if (!function_exists('plugins_path')) {
      */
     function plugins_path($path = '')
     {
-        return PathResolver::join(app('path.plugins'), $path);
+        $plugins_path = app('path.plugins');
+        return PathResolver::join($plugins_path, $path);
     }
 }
 
@@ -228,7 +229,8 @@ if (!function_exists('themes_path')) {
      */
     function themes_path($path = '')
     {
-        return PathResolver::join(app('path.themes'), $path);
+        $themes_path = app('path.themes');
+        return PathResolver::join($themes_path, $path);
     }
 }
 
@@ -943,7 +945,6 @@ if (!function_exists('resolve_path')) {
      */
     function resolve_path($path)
     {
-        $path = str_replace('/', DIRECTORY_SEPARATOR, $path);
         return PathResolver::resolve($path);
     }
 }
