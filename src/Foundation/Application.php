@@ -171,7 +171,7 @@ class Application extends ApplicationBase
      */
     public function setPluginsPath($path)
     {
-        $path = str_replace('/', DIRECTORY_SEPARATOR, $path);
+        $path = PathResolver::standardize($path);
         $this->pluginsPath = $path;
         $this->instance('path.plugins', $path);
         return $this;
@@ -195,7 +195,7 @@ class Application extends ApplicationBase
      */
     public function setThemesPath($path)
     {
-        $path = str_replace('/', DIRECTORY_SEPARATOR, $path);
+        $path = PathResolver::standardize($path);
         $this->themesPath = $path;
         $this->instance('path.themes', $path);
         return $this;
@@ -218,7 +218,7 @@ class Application extends ApplicationBase
      */
     public function setTempPath($path)
     {
-        $path = str_replace('/', DIRECTORY_SEPARATOR, $path);
+        $path = PathResolver::standardize($path);
         $this->tempPath = $path;
         $this->instance('path.temp', $path);
         return $this;
@@ -241,7 +241,7 @@ class Application extends ApplicationBase
      */
     public function setUploadsPath($path)
     {
-        $path = str_replace('/', DIRECTORY_SEPARATOR, $path);
+        $path = PathResolver::standardize($path);
         $this->uploadsPath = $path;
         $this->instance('path.uploads', $path);
         return $this;
@@ -264,7 +264,7 @@ class Application extends ApplicationBase
      */
     public function setMediaPath($path)
     {
-        $path = str_replace('/', DIRECTORY_SEPARATOR, $path);
+        $path = PathResolver::standardize($path);
         $this->mediaPath = $path;
         $this->instance('path.media', $path);
         return $this;

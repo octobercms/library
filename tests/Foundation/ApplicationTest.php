@@ -1,6 +1,7 @@
 <?php
 
 use October\Rain\Foundation\Application;
+use October\Rain\Filesystem\PathResolver;
 
 class ApplicationTest extends TestCase
 {
@@ -13,16 +14,14 @@ class ApplicationTest extends TestCase
     public function testBuildPath()
     {
         $path = 'dir/subdir';
-        $expected = $this->basePath . '/' . $path;
-        $expected = str_replace('/', DIRECTORY_SEPARATOR, $expected);
+        $expected = PathResolver::join($this->basePath, $path);
 
         $this->assertEquals($expected, $this->app->buildPath($path));
         $this->assertEquals($expected, $this->app->buildPath('/' . $path));
         $this->assertEquals($expected, $this->app->buildPath('//' . $path));
 
         $prefix = '/prefix_path';
-        $expected = $prefix . '/' . $path;
-        $expected = str_replace('/', DIRECTORY_SEPARATOR, $expected);
+        $expected = PathResolver::join($prefix, $path);
 
         $this->assertEquals($expected, $this->app->buildPath($path, $prefix));
         $this->assertEquals($expected, $this->app->buildPath('/' . $path, $prefix));
@@ -45,7 +44,7 @@ class ApplicationTest extends TestCase
             $setter = 'set' . ucfirst($type) . 'Path';
 
             $path = '/my' . ucfirst($type) . '/custom/path';
-            $expected = str_replace('/', DIRECTORY_SEPARATOR, $path);
+            $expected = PathResolver::standardize($path);
             $this->app->{$setter}($path);
 
             $this->assertEquals($expected, $this->app->{$getter}());
