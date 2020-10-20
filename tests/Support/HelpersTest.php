@@ -11,8 +11,7 @@ class HelpersTest extends TestCase
 
     public function testPluginsPath()
     {
-        $path = Config::get('cms.pluginsPath');
-        $expected = $path ? $this->app->buildPath($path) : app('path.plugins');
+        $expected = app('path.plugins');
 
         $this->assertEquals($expected, plugins_path());
         $this->assertEquals(PathResolver::join($expected, '/extra'), plugins_path('/extra'));
@@ -20,8 +19,7 @@ class HelpersTest extends TestCase
 
     public function testThemesPath()
     {
-        $path = Config::get('cms.themesPath');
-        $expected = $path ? $this->app->buildPath($path) : app('path.themes');
+        $expected = app('path.themes');
 
         $this->assertEquals($expected, themes_path());
         $this->assertEquals(PathResolver::join($expected, '/extra'), themes_path('/extra'));
