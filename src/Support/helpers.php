@@ -1,6 +1,5 @@
 <?php
 
-use App;
 use October\Rain\Filesystem\PathResolver;
 use October\Rain\Support\Arr;
 use October\Rain\Support\Str;
@@ -186,9 +185,8 @@ if (!function_exists('plugins_path')) {
      */
     function plugins_path($path = '')
     {
-        $app = App::make('app');
         $plugins_path = Config::get('cms.pluginsPath');
-        $plugins_path = $plugins_path ? $app->buildPath($plugins_path) : app('path.plugins');
+        $plugins_path = $plugins_path ? app::buildPath($plugins_path) : app('path.plugins');
         return PathResolver::join($plugins_path, $path);
     }
 }
@@ -232,9 +230,8 @@ if (!function_exists('themes_path')) {
      */
     function themes_path($path = '')
     {
-        $app = App::make('app');
         $themes_path = Config::get('cms.themesPath');
-        $themes_path = $themes_path ? $app->buildPath($themes_path) : app('path.themes');
+        $themes_path = $themes_path ? app::buildPath($themes_path) : app('path.themes');
         return PathResolver::join($themes_path, $path);
     }
 }
