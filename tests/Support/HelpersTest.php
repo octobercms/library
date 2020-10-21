@@ -4,6 +4,14 @@ use October\Rain\Filesystem\PathResolver;
 
 class HelpersTest extends TestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        Config::set('cms.storage.media.path', '/storage/app/custom-media-path');
+        Config::set('cms.storage.uploads.path', '/storage/app/custom-uploads-path');
+    }
+
     public function testConfigPath()
     {
         $this->assertEquals(app('path.config'), config_path());
@@ -48,41 +56,5 @@ class HelpersTest extends TestCase
 
         $this->assertEquals($expected, media_path());
         $this->assertEquals(PathResolver::join($expected, '/extra'), media_path('/extra'));
-    }
-}
-
-// stub class for config facade
-class Config
-{
-    public static function get($key, $default = null)
-    {
-        switch ($key) {
-            case 'cms.pluginsPath':
-                $value = '/custom-plugins-path';
-                break;
-            case 'cms.themesPath':
-                $value = '/custom-themes-path';
-                break;
-            case 'cms.storage.uploads.path':
-                $value = '/storage/app/custom-uploads-path';
-                break;
-            case 'cms.storage.media.path':
-                $value = '/storage/app/custom-media-path';
-                break;
-            case 'filesystems.disks':
-                $value = [];
-                break;
-            default:
-                $value = $default;
-        }
-        return $value;
-    }
-
-    public static function set($name, $value)
-    {
-    }
-
-    public static function package($namespace, $hint)
-    {
     }
 }
