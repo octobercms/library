@@ -72,7 +72,7 @@ class Application extends ApplicationBase
      */
     public function langPath()
     {
-        return $this->buildPath('/lang');
+        return PathResolver::join($this->basePath, '/lang');
     }
 
     /**
@@ -160,7 +160,7 @@ class Application extends ApplicationBase
      */
     public function pluginsPath()
     {
-        return $this->pluginsPath ?: $this->buildPath('/plugins');
+        return $this->pluginsPath ?: PathResolver::join($this->basePath, '/plugins');
     }
 
     /**
@@ -184,7 +184,7 @@ class Application extends ApplicationBase
      */
     public function themesPath()
     {
-        return $this->themesPath ?: $this->buildPath('/themes');
+        return $this->themesPath ?: PathResolver::join($this->basePath, '/themes');
     }
 
     /**
@@ -208,7 +208,7 @@ class Application extends ApplicationBase
      */
     public function tempPath()
     {
-        return $this->tempPath ?: $this->buildPath('/storage/temp');
+        return $this->tempPath ?: PathResolver::join($this->basePath, '/storage/temp');
     }
 
     /**
@@ -231,7 +231,7 @@ class Application extends ApplicationBase
      */
     public function uploadsPath()
     {
-        return $this->uploadsPath ?: $this->buildPath('/storage/app/uploads');
+        return $this->uploadsPath ?: PathResolver::join($this->basePath, '/storage/app/uploads');
     }
 
     /**
@@ -254,7 +254,7 @@ class Application extends ApplicationBase
      */
     public function mediaPath()
     {
-        return $this->mediaPath ?: $this->buildPath('/storage/app/media');
+        return $this->mediaPath ?: PathResolver::join($this->basePath, '/storage/app/media');
     }
 
     /**
@@ -491,7 +491,7 @@ class Application extends ApplicationBase
      */
     public function getCachedConfigPath()
     {
-        return $this->buildPath('/framework/config.php', $this->storagePath());
+        return PathResolver::join($this->storagePath(), '/framework/config.php');
     }
 
     /**
@@ -511,7 +511,7 @@ class Application extends ApplicationBase
      */
     public function getCachedCompilePath()
     {
-        return $this->buildPath('/framework/compiled.php', $this->storagePath());
+        return PathResolver::join($this->storagePath(), '/framework/compiled.php');
     }
 
     /**
@@ -521,7 +521,7 @@ class Application extends ApplicationBase
      */
     public function getCachedServicesPath()
     {
-        return $this->buildPath('/framework/services.php', $this->storagePath());
+        return PathResolver::join($this->storagePath(), '/framework/services.php');
     }
 
     /**
@@ -531,7 +531,7 @@ class Application extends ApplicationBase
      */
     public function getCachedPackagesPath()
     {
-        return $this->buildPath('/framework/packages.php', $this->storagePath());
+        return PathResolver::join($this->storagePath(), '/framework/packages.php');
     }
 
     /**
@@ -541,21 +541,6 @@ class Application extends ApplicationBase
      */
     public function getCachedClassesPath()
     {
-        return $this->buildPath('/framework/classes.php', $this->storagePath());
-    }
-
-    /**
-     * Build path with portable directory seperator
-     *
-     * @param string $path
-     * @param string $prefix
-     * @return string
-     */
-    public function buildPath($path, $prefix = null)
-    {
-        if (!isset($prefix)) {
-            $prefix = $this->basePath;
-        }
-        return PathResolver::join($prefix, $path);
+        return PathResolver::join($this->storagePath(), '/framework/classes.php');
     }
 }

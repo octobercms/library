@@ -36,6 +36,7 @@ class HelpersTest extends TestCase
     public function testTempPath()
     {
         $expected = app('path.temp');
+
         $this->assertEquals($expected, temp_path());
         $this->assertEquals(PathResolver::join($expected, '/extra'), temp_path('/extra'));
     }
