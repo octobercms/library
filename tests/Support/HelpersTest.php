@@ -43,7 +43,7 @@ class HelpersTest extends TestCase
 
     public function testUploadsPath()
     {
-        $expected = PathResolver::standardize( Config::get('cms.storage.uploads.path') );
+        $expected = PathResolver::standardize(Config::get('cms.storage.uploads.path'));
 
         $this->assertEquals($expected, uploads_path());
         $this->assertEquals(PathResolver::join($expected, '/extra'), uploads_path('/extra'));
@@ -51,7 +51,7 @@ class HelpersTest extends TestCase
 
     public function testMediaPath()
     {
-        $expected = PathResolver::standardize( Config::get('cms.storage.media.path') );
+        $expected = PathResolver::standardize(Config::get('cms.storage.media.path'));
 
         $this->assertEquals($expected, media_path());
         $this->assertEquals(PathResolver::join($expected, '/extra'), media_path('/extra'));
