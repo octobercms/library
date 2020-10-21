@@ -172,8 +172,7 @@ if (!function_exists('config_path')) {
      */
     function config_path($path = '')
     {
-        $config_path = app('path.config');
-        return PathResolver::join($config_path, $path);
+        return PathResolver::join(app('path.config'), $path);
     }
 }
 
@@ -186,8 +185,7 @@ if (!function_exists('plugins_path')) {
      */
     function plugins_path($path = '')
     {
-        $plugins_path = app('path.plugins');
-        return PathResolver::join($plugins_path, $path);
+        return PathResolver::join(app('path.plugins'), $path);
     }
 }
 
@@ -200,8 +198,7 @@ if (!function_exists('uploads_path')) {
      */
     function uploads_path($path = '')
     {
-        $uploads_path = Config::get('cms.storage.uploads.path', app('path.uploads'));
-        return PathResolver::join($uploads_path, $path);
+        return PathResolver::join(Config::get('cms.storage.uploads.path', app('path.uploads')), $path);
     }
 }
 
@@ -214,8 +211,7 @@ if (!function_exists('media_path')) {
      */
     function media_path($path = '')
     {
-        $media_path = Config::get('cms.storage.media.path', app('path.media'));
-        return PathResolver::join($media_path, $path);
+        return PathResolver::join(Config::get('cms.storage.media.path', app('path.media')), $path);
     }
 }
 
@@ -228,8 +224,7 @@ if (!function_exists('themes_path')) {
      */
     function themes_path($path = '')
     {
-        $themes_path = app('path.themes');
-        return PathResolver::join($themes_path, $path);
+        return PathResolver::join(app('path.themes'), $path);
     }
 }
 
@@ -242,8 +237,7 @@ if (!function_exists('temp_path')) {
      */
     function temp_path($path = '')
     {
-        $temp_path = app('path.temp');
-        return PathResolver::join($temp_path, $path);
+        return PathResolver::join(app('path.temp'), $path);
     }
 }
 
