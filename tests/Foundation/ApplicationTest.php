@@ -27,7 +27,6 @@ class ApplicationTest extends TestCase
         $this->assertEquals(PathResolver::join($storagePath, '/framework/services.php'), $this->app->getCachedServicesPath());
         $this->assertEquals(PathResolver::join($storagePath, '/framework/packages.php'), $this->app->getCachedPackagesPath());
         $this->assertEquals(PathResolver::join($storagePath, '/framework/classes.php'), $this->app->getCachedClassesPath());
-
     }
 
     public function testSetPathMethods()
