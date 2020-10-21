@@ -23,8 +23,6 @@ class HelpersTest extends TestCase
                     return '/storage/app/custom-uploads-path';
                 case 'cms.storage.media.path':
                     return '/storage/app/custom-media-path';
-                case 'filesystems.disks':
-                    return [];
             }
         });
     }
