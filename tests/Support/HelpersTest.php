@@ -6,7 +6,7 @@ class HelpersTest extends TestCase
 {
     public function setUp(): void
     {
-        parent::setUp();
+        //parent::setUp();
 
         $this->app = $this->createApplication();
 
