@@ -165,14 +165,15 @@ if (!function_exists('traceSql')) {
 
 if (!function_exists('config_path')) {
     /**
-     * Get the path to the plugins folder.
+     * Get the path to the config folder.
      *
      * @param  string  $path
      * @return string
      */
     function config_path($path = '')
     {
-        return PathResolver::join(app('path.config'), $path);
+        $config_path = app('path.config');
+        return PathResolver::join($config_path, $path);
     }
 }
 
@@ -200,7 +201,6 @@ if (!function_exists('uploads_path')) {
     function uploads_path($path = '')
     {
         $uploads_path = Config::get('cms.storage.uploads.path', app('path.uploads'));
-
         return PathResolver::join($uploads_path, $path);
     }
 }
@@ -215,7 +215,6 @@ if (!function_exists('media_path')) {
     function media_path($path = '')
     {
         $media_path = Config::get('cms.storage.media.path', app('path.media'));
-
         return PathResolver::join($media_path, $path);
     }
 }
@@ -243,7 +242,8 @@ if (!function_exists('temp_path')) {
      */
     function temp_path($path = '')
     {
-        return PathResolver::join(app('path.temp'), $path);
+        $temp_path = app('path.temp');
+        return PathResolver::join($temp_path, $path);
     }
 }
 
