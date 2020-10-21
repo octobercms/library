@@ -19,7 +19,7 @@ class ApplicationTest extends TestCase
         $this->assertEquals(PathResolver::join($this->basePath, '/storage/app/uploads'), $this->app->uploadsPath());
         $this->assertEquals(PathResolver::join($this->basePath, '/storage/app/media'), $this->app->mediaPath());
 
-        $storagePath = $this->app->storagePath();
+        $storagePath = $this->basePath . '/storage';
 
         $this->assertEquals(PathResolver::join($storagePath, '/framework/config.php'), $this->app->getCachedConfigPath());
         $this->assertEquals(PathResolver::join($storagePath, '/framework/routes.php'), $this->app->getCachedRoutesPath());
