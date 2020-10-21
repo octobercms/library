@@ -7,6 +7,7 @@ class ApplicationTest extends TestCase
 {
     protected function setUp(): void
     {
+        // Mock application
         $this->basePath = '/tmp/custom-path';
         $this->app = new Application($this->basePath);
     }

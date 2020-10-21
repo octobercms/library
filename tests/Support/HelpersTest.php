@@ -2,15 +2,13 @@
 
 use October\Rain\Foundation\Application;
 use October\Rain\Filesystem\PathResolver;
-use October\Rain\Support\Facades\Config;
 
 class HelpersTest extends TestCase
 {
     protected function setUp(): void
     {
         // Mock application
-        $this->basePath = '/tmp/custom-path';
-        $this->app = new Application($this->basePath);
+        $this->app = new Application('/tmp/custom-path');
 
         // Mock Config facade
         if (!class_exists('Config')) {
