@@ -8,8 +8,8 @@ class HelpersTest extends TestCase
     {
         parent::setUp();
 
-        Config::set('cms.storage.media.path', '/storage/app/custom-media-path');
-        Config::set('cms.storage.uploads.path', '/storage/app/custom-uploads-path');
+        $this->app['config']->set('cms.storage.media.path', '/storage/app/custom-media-path');
+        $this->app['config']->set('cms.storage.uploads.path', '/storage/app/custom-uploads-path');
     }
 
     public function testConfigPath()
