@@ -4,16 +4,6 @@ use October\Rain\Filesystem\PathResolver;
 
 class HelpersTest extends TestCase
 {
-    public function setUp(): void
-    {
-        //parent::setUp();
-
-        $this->app = $this->createApplication();
-
-        $this->app['config']->set('cms.storage.media.path', '/storage/app/custom-media-path');
-        $this->app['config']->set('cms.storage.uploads.path', '/storage/app/custom-uploads-path');
-    }
-
     public function testConfigPath()
     {
         $this->assertEquals(app('path.config'), config_path());
@@ -45,6 +35,8 @@ class HelpersTest extends TestCase
 
     public function testUploadsPath()
     {
+        Config::set('cms.storage.uploads.path', '/storage/app/custom-uploads-path');
+
         $expected = PathResolver::standardize(Config::get('cms.storage.uploads.path'));
 
         $this->assertEquals($expected, uploads_path());
@@ -53,6 +45,8 @@ class HelpersTest extends TestCase
 
     public function testMediaPath()
     {
+        Config::set('cms.storage.media.path', '/storage/app/custom-media-path');
+
         $expected = PathResolver::standardize(Config::get('cms.storage.media.path'));
 
         $this->assertEquals($expected, media_path());
