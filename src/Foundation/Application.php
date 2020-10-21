@@ -501,7 +501,7 @@ class Application extends ApplicationBase
      */
     public function getCachedRoutesPath()
     {
-        return $this['path.storage'].'/framework/routes.php';
+        return PathResolver::join($this->storagePath(), '/framework/routes.php');
     }
 
     /**

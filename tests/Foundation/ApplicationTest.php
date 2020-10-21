@@ -18,6 +18,16 @@ class ApplicationTest extends TestCase
         $this->assertEquals(PathResolver::join($this->basePath, '/storage/temp'), $this->app->tempPath());
         $this->assertEquals(PathResolver::join($this->basePath, '/storage/app/uploads'), $this->app->uploadsPath());
         $this->assertEquals(PathResolver::join($this->basePath, '/storage/app/media'), $this->app->mediaPath());
+
+        $storagePath = $this->app->storagePath();
+
+        $this->assertEquals(PathResolver::join($storagePath, '/framework/config.php'), $this->app->getCachedConfigPath());
+        $this->assertEquals(PathResolver::join($storagePath, '/framework/routes.php'), $this->app->getCachedRoutesPath());
+        $this->assertEquals(PathResolver::join($storagePath, '/framework/compiled.php'), $this->app->getCachedCompilePath());
+        $this->assertEquals(PathResolver::join($storagePath, '/framework/services.php'), $this->app->getCachedServicesPath());
+        $this->assertEquals(PathResolver::join($storagePath, '/framework/packages.php'), $this->app->getCachedPackagesPath());
+        $this->assertEquals(PathResolver::join($storagePath, '/framework/classes.php'), $this->app->getCachedClassesPath());
+
     }
 
     public function testSetPathMethods()
