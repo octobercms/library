@@ -1,17 +1,42 @@
 <?php
 
+use October\Rain\Foundation\Application;
 use October\Rain\Filesystem\PathResolver;
+use October\Rain\Support\Facades\Config;
 
 class HelpersTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        // Mock application
+        $this->basePath = '/tmp/custom-path';
+        $this->app = new Application($this->basePath);
+
+        // Mock Config facade
+        if (!class_exists('Config')) {
+            class_alias('October\Rain\Support\Facades\Config', 'Config');
+        }
+
+        Config::shouldReceive('get')->andreturnUsing(function ($key) {
+            switch ($key) {
+                case 'cms.storage.uploads.path':
+                    return '/storage/app/custom-uploads-path';
+                case 'cms.storage.media.path':
+                    return '/storage/app/custom-media-path';
+                case 'filesystems.disks':
+                    return [];
+            }
+        });
+    }
+    
     public function testConfigPath()
     {
-        $this->assertEquals(app('path.config'), config_path());
+        $this->assertEquals($this->app['path.config'], config_path());
     }
 
     public function testPluginsPath()
     {
-        $expected = app('path.plugins');
+        $expected = $this->app['path.plugins'];
 
         $this->assertEquals($expected, plugins_path());
         $this->assertEquals(PathResolver::join($expected, '/extra'), plugins_path('/extra'));
@@ -19,7 +44,7 @@ class HelpersTest extends TestCase
 
     public function testThemesPath()
     {
-        $expected = app('path.themes');
+        $expected = $this->app['path.themes'];
 
         $this->assertEquals($expected, themes_path());
         $this->assertEquals(PathResolver::join($expected, '/extra'), themes_path('/extra'));
@@ -27,7 +52,7 @@ class HelpersTest extends TestCase
 
     public function testTempPath()
     {
-        $expected = app('path.temp');
+        $expected = $this->app['path.temp'];
 
         $this->assertEquals($expected, temp_path());
         $this->assertEquals(PathResolver::join($expected, '/extra'), temp_path('/extra'));
@@ -47,34 +72,5 @@ class HelpersTest extends TestCase
 
         $this->assertEquals($expected, media_path());
         $this->assertEquals(PathResolver::join($expected, '/extra'), media_path('/extra'));
-    }
-}
-
-class Config
-{
-    public static function get($key, $default = null)
-    {
-        switch ($key) {
-            case 'cms.storage.uploads.path':
-                $value = '/storage/app/custom-uploads-path';
-                break;
-            case 'cms.storage.media.path':
-                $value = '/storage/app/custom-media-path';
-                break;
-            case 'filesystems.disks':
-                $value = [];
-                break;
-            default:
-                $value = $default;
-        }
-        return $value;
-    }
-
-    public static function set($name, $value)
-    {
-    }
-
-    public static function package($namespace, $hint)
-    {
     }
 }
