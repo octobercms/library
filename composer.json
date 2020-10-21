@@ -88,10 +88,7 @@
     "autoload-dev": {
         "classmap": [
             "tests/TestCase.php"
-        ],
-        "psr-4": {
-            "October\\Rain\\Tests\\": "tests/"
-        }
+        ]
     },
     "scripts": {
         "test": [
