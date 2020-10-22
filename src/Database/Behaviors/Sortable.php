@@ -73,8 +73,9 @@ class Sortable extends \October\Rain\Extension\ExtensionBase
         $model = $this->model;
         $sortOrderColumn = $model->getSortOrderColumn();
         foreach ($itemIds as $index => $id) {
-            $order = $itemOrders[$index];
-            $model->newQuery()->where($model->getKeyName(), $id)->update([$sortOrderColumn => $order]);
+            if ($order = $itemOrders[$index]) {
+                $model->newQuery()->where($model->getKeyName(), $id)->update([$sortOrderColumn => $order]);
+            }
         }
     }
 }
