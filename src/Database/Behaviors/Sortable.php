@@ -92,7 +92,8 @@ class Sortable extends ExtensionBase
      *
      * @return string
      */
-    public function getSortOrderColumn() {
+    public function getSortOrderColumn()
+    {
         $class = get_class($this->model);
         return defined($class.'::SORT_ORDER') ? $class::SORT_ORDER : 'sort_order';
     }
