@@ -19,9 +19,9 @@ use October\Rain\Extension\ExtensionBase;
  *
  *   $model->setSortableOrder($recordIds, $recordOrders);
  *
- * You can change the sort field used by setting:
+ * You can change the sort field used by declaring this in your model:
  *
- *   $model->sort_order = 'my_sort_order';
+ *   const SORT_ORDER = 'my_sort_order';
  *
  */
 class Sortable extends ExtensionBase
