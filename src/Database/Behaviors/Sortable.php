@@ -2,6 +2,7 @@
 
 use Exception;
 use October\Rain\Database\SortableScope;
+use October\Rain\Extension\ExtensionBase;
 
 /**
  * Sortable model behavior
@@ -23,7 +24,7 @@ use October\Rain\Database\SortableScope;
  *   $model->sort_order = 'my_sort_order';
  *
  */
-class Sortable extends \October\Rain\Extension\ExtensionBase
+class Sortable extends ExtensionBase
 {
     protected $model;
 
@@ -33,25 +34,32 @@ class Sortable extends \October\Rain\Extension\ExtensionBase
         $this->bootSortable();
     }
 
+    /**
+     * Boot the sortable behavior for this model.
+     *
+     * @return void
+     */
     public function bootSortable()
     {
+        $self = $this;
         $model = $this->model;
-        $model->addDynamicMethod('getSortOrderColumn', function () use ($model) {
-            return isset($model->sort_order) ? $model->sort_order : 'sort_order';
+        $class = get_class($model);
+
+        $class::created(function ($model) use ($self) {
+            $sortOrderColumn = $self->getSortOrderColumn();
+
+            if (is_null($model->$sortOrderColumn)) {
+                $self->setSortableOrder($model->getKey());
+            }
         });
 
-        $sortOrderColumn = $model->getSortOrderColumn();
-
-        if (is_null($model->$sortOrderColumn)) {
-            $this->setSortableOrder($model->getKey());
-        }
-
-        $model->addGlobalScope(new SortableScope);
+        $class::addGlobalScope(new SortableScope);
     }
 
     /**
      * Sets the sort order of records to the specified orders. If the orders is
      * undefined, the record identifier is used.
+     *
      * @param  mixed $itemIds
      * @param  array $itemOrders
      * @return void
@@ -72,10 +80,20 @@ class Sortable extends \October\Rain\Extension\ExtensionBase
 
         $model = $this->model;
         $sortOrderColumn = $model->getSortOrderColumn();
+
         foreach ($itemIds as $index => $id) {
-            if ($order = $itemOrders[$index]) {
-                $model->newQuery()->where($model->getKeyName(), $id)->update([$sortOrderColumn => $order]);
-            }
+            $order = $itemOrders[$index];
+            $model->newQuery()->where($model->getKeyName(), $id)->update([$sortOrderColumn => $order]);
         }
+    }
+
+    /**
+     * Get the name of the "sort order" column.
+     *
+     * @return string
+     */
+    public function getSortOrderColumn() {
+        $class = get_class($this->model);
+        return defined($class.'::SORT_ORDER') ? $class::SORT_ORDER : 'sort_order';
     }
 }
