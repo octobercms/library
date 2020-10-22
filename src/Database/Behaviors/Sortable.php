@@ -41,19 +41,15 @@ class Sortable extends ExtensionBase
      */
     public function bootSortable()
     {
-        $self = $this;
-        $model = $this->model;
-        $class = get_class($model);
-
-        $class::created(function ($model) use ($self) {
-            $sortOrderColumn = $self->getSortOrderColumn();
+        $this->model::created(function ($model) {
+            $sortOrderColumn = $model->getSortOrderColumn();
 
             if (is_null($model->$sortOrderColumn)) {
-                $self->setSortableOrder($model->getKey());
+                $model->setSortableOrder($model->getKey());
             }
         });
 
-        $class::addGlobalScope(new SortableScope);
+        $this->model::addGlobalScope(new SortableScope);
     }
 
     /**
@@ -78,12 +74,11 @@ class Sortable extends ExtensionBase
             throw new Exception('Invalid setSortableOrder call - count of itemIds do not match count of itemOrders');
         }
 
-        $model = $this->model;
-        $sortOrderColumn = $model->getSortOrderColumn();
+        $sortOrderColumn = $this->model->getSortOrderColumn();
 
         foreach ($itemIds as $index => $id) {
             $order = $itemOrders[$index];
-            $model->newQuery()->where($model->getKeyName(), $id)->update([$sortOrderColumn => $order]);
+            $this->model->newQuery()->where($this->model->getKeyName(), $id)->update([$sortOrderColumn => $order]);
         }
     }
 
@@ -94,7 +89,6 @@ class Sortable extends ExtensionBase
      */
     public function getSortOrderColumn()
     {
-        $class = get_class($this->model);
-        return defined($class.'::SORT_ORDER') ? $class::SORT_ORDER : 'sort_order';
+        return defined($this->model.'::SORT_ORDER') ? $this->model::SORT_ORDER : 'sort_order';
     }
 }
