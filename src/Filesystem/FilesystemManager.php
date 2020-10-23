@@ -19,6 +19,24 @@ class FilesystemManager extends BaseFilesystemManager
     }
 
     /**
+     * Identify the provided disk and return the name of its config
+     *
+     * @param \Illuminate\Contracts\Filesystem\Filesystem $disk
+     * @return string|null Returns the disk config name if successful, null otherwise.
+     */
+    public function identify($disk)
+    {
+        $configName = null;
+        foreach ($this->disks as $name => $instantiatedDisk) {
+            if ($disk === $instantiatedDisk) {
+                $configName = $name;
+                break;
+            }
+        }
+        return $configName;
+    }
+
+    /**
      * Create an instance of the Rackspace driver.
      *
      * @param  array  $config
