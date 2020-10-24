@@ -275,7 +275,9 @@ class BelongsToMany extends BelongsToManyBase
          * Laravel looks to the related model
          */
         if (empty($pivot)) {
-            $pivot = $this->related->newPivot($this->parent, $attributes, $this->table, $exists);
+            $pivot = $this->related->newPivot(
+                $this->parent, $attributes, $this->table, $exists, $this->using
+            );
         }
 
         return $pivot->setPivotKeys($this->foreignPivotKey, $this->relatedPivotKey);
