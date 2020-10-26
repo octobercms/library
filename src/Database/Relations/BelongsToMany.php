@@ -409,4 +409,53 @@ class BelongsToMany extends BelongsToManyBase
         traceLog('Method BelongsToMany::allRelatedIds has been deprecated, use BelongsToMany::allRelatedIds instead.');
         return $this->allRelatedIds($sessionKey)->all();
     }
+
+    /**
+     * Sync the intermediate tables with a list of IDs or collection of models.
+     *
+     * @param  \Illuminate\Support\Collection|\Illuminate\Database\Eloquent\Model|array  $ids
+     * @param  bool  $detaching
+     * @return array
+     */
+    public function sync($ids, $detaching = true)
+    {
+        $changes = [
+            'attached' => [], 'detached' => [], 'updated' => [],
+        ];
+
+        // First we need to attach any of the associated models that are not currently
+        // in this joining table. We'll spin through the given IDs, checking to see
+        // if they exist in the array of current ones, and if not we will insert.
+        $current = $this->allRelatedIds()->all();
+
+        $detach = array_diff($current, array_keys(
+            $records = $this->formatRecordsList($this->parseIds($ids))
+        ));
+
+        // Next, we will take the differences of the currents and given IDs and detach
+        // all of the entities that exist in the "current" array but are not in the
+        // array of the new IDs given to the method which will complete the sync.
+        if ($detaching && count($detach) > 0) {
+            $this->detach($detach);
+
+            $changes['detached'] = $this->castKeys($detach);
+        }
+
+        // Now we are finally ready to attach the new records. Note that we'll disable
+        // touching until after the entire operation is complete so we don't fire a
+        // ton of touch operations until we are totally done syncing the records.
+        $changes = array_merge(
+            $changes, $this->attachNew($records, $current, false)
+        );
+
+        // Once we have finished attaching or detaching the records, we will see if we
+        // have done any attaching or detaching, and if we have we will touch these
+        // relationships if they are configured to touch on any database updates.
+        if (count($changes['attached']) ||
+            count($changes['updated'])) {
+            $this->touchIfTouching();
+        }
+
+        return $changes;
+    }
 }
