@@ -437,16 +437,13 @@ class BelongsToMany extends BelongsToManyBase
         // array of the new IDs given to the method which will complete the sync.
         if ($detaching && count($detach) > 0) {
             $this->detach($detach);
-
             $changes['detached'] = $this->castKeys($detach);
         }
 
         // Now we are finally ready to attach the new records. Note that we'll disable
         // touching until after the entire operation is complete so we don't fire a
         // ton of touch operations until we are totally done syncing the records.
-        $changes = array_merge(
-            $changes, $this->attachNew($records, $current, false)
-        );
+        $changes = array_merge($changes, $this->attachNew($records, $current, false));
 
         // Once we have finished attaching or detaching the records, we will see if we
         // have done any attaching or detaching, and if we have we will touch these
