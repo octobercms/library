@@ -423,9 +423,7 @@ class BelongsToMany extends BelongsToManyBase
             'attached' => [], 'detached' => [], 'updated' => [],
         ];
 
-        // First we need to attach any of the associated models that are not currently
-        // in this joining table. We'll spin through the given IDs, checking to see
-        // if they exist in the array of current ones, and if not we will insert.
+        // Get all the IDs for the related model
         $current = $this->allRelatedIds()->all();
 
         $detach = array_diff($current, array_keys(
