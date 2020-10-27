@@ -28,12 +28,40 @@ class BelongsTo extends BelongsToBase
      */
     public function add(Model $model, $sessionKey = null)
     {
+        /**
+         * @event model.relation.beforeAssociate
+         * Called before associating a relation to the model (only for BelongsTo/MorphTo relations)
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.relation.beforeAssociate', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
+         *         TODO: add example code
+         *     });
+         *
+         */
+        if ($this->parent->fireEvent('model.relation.beforeAssociate', [$this->relationName, $this->related], true) === false) {
+            return;
+        }
+
         if ($sessionKey === null) {
             $this->associate($model);
         }
         else {
             $this->child->bindDeferred($this->relationName, $model, $sessionKey);
         }
+
+        /**
+         * @event model.relation.afterAssociate
+         * Called after associating a relation to the model (only for BelongsTo/MorphTo relations)
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.relation.afterAssociate', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
+         *         TODO: add example code
+         *     });
+         *
+         */
+        $this->parent->fireEvent('model.relation.afterAssociate', [$this->relationName, $this->related]);
     }
 
     /**
@@ -41,12 +69,40 @@ class BelongsTo extends BelongsToBase
      */
     public function remove(Model $model, $sessionKey = null)
     {
+        /**
+         * @event model.relation.beforeDissociate
+         * Called before dissociating a relation to the model (only for BelongsTo/MorphTo relations)
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.relation.beforeDissociate', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
+         *         TODO: add example code
+         *     });
+         *
+         */
+        if ($this->parent->fireEvent('model.relation.beforeDissociate', [$this->relationName, $this->related], true) === false) {
+            return;
+        }
+
         if ($sessionKey === null) {
             $this->dissociate();
         }
         else {
             $this->child->unbindDeferred($this->relationName, $model, $sessionKey);
         }
+
+        /**
+         * @event model.relation.afterDissociate
+         * Called after dissociating a relation to the model (only for BelongsTo/MorphTo relations)
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.relation.afterDissociate', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
+         *         TODO: add example code
+         *     });
+         *
+         */
+        $this->parent->fireEvent('model.relation.afterDissociate', [$this->relationName, $this->related]);
     }
 
     /**
