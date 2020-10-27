@@ -16,42 +16,12 @@ trait HasOneOrMany
      */
     public function save(Model $model, $sessionKey = null)
     {
-        /**
-         * @event model.relation.beforeSave
-         * Called before saving a relation (only for HasOneOrMany relation)
-         *
-         * Example usage:
-         *
-         *     $model->bindEvent('model.relation.beforeSave', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
-         *         TODO: add example code
-         *     });
-         *
-         */
-        if ($this->parent->fireEvent('model.relation.beforeSave', [$this->relationName, $this->related], true) === false) {
-            return;
-        }
-
         if ($sessionKey === null) {
             return parent::save($model);
         }
 
         $this->add($model, $sessionKey);
-        $result = $model->save() ? $model : false;
-
-        /**
-         * @event model.relation.afterSave
-         * Called after saving a relation (only for HasOneOrMany relation)
-         *
-         * Example usage:
-         *
-         *     $model->bindEvent('model.relation.afterSave', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
-         *         TODO: add example code
-         *     });
-         *
-         */
-        $this->parent->fireEvent('model.relation.afterSave', [$this->relationName, $this->related]);
-
-        return $result;
+        return $model->save() ? $model : false;
     }
 
     /**
@@ -71,39 +41,11 @@ trait HasOneOrMany
      */
     public function create(array $attributes = [], $sessionKey = null)
     {
-        /**
-         * @event model.relation.beforeCreate
-         * Called before creating a new relation between models (only for HasOneOrMany relation)
-         *
-         * Example usage:
-         *
-         *     $model->bindEvent('model.relation.beforeCreate', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
-         *         TODO: add example code
-         *     });
-         *
-         */
-        if ($this->parent->fireEvent('model.relation.beforeCreate', [$this->relationName, $this->related], true) === false) {
-            return;
-        }
-
         $model = parent::create($attributes);
 
         if ($sessionKey !== null) {
             $this->add($model, $sessionKey);
         }
-
-        /**
-         * @event model.relation.afterCreate
-         * Called after creating a new relation between models (only for HasOneOrMany relation)
-         *
-         * Example usage:
-         *
-         *     $model->bindEvent('model.relation.afterCreate', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
-         *         TODO: add example code
-         *     });
-         *
-         */
-        $this->parent->fireEvent('model.relation.afterCreate', [$this->relationName, $this->related]);
 
         return $model;
     }
