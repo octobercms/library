@@ -39,9 +39,7 @@ class BelongsTo extends BelongsToBase
          *     });
          *
          */
-        if ($this->parent->fireEvent('model.relation.beforeAssociate', [$this->relationName, $this->related], true) === false) {
-            return;
-        }
+        $this->parent->fireEvent('model.relation.beforeAssociate', [$this->relationName, $this->related]);
 
         if ($sessionKey === null) {
             $this->associate($model);
@@ -80,9 +78,7 @@ class BelongsTo extends BelongsToBase
          *     });
          *
          */
-        if ($this->parent->fireEvent('model.relation.beforeDissociate', [$this->relationName, $this->related], true) === false) {
-            return;
-        }
+        $this->parent->fireEvent('model.relation.beforeDissociate', [$this->relationName, $this->related], true);
 
         if ($sessionKey === null) {
             $this->dissociate();

@@ -90,9 +90,7 @@ class MorphTo extends MorphToBase
          *     });
          *
          */
-        if ($this->parent->fireEvent('model.relation.beforeAssociate', [$this->relationName, $this->related], true) === false) {
-            return;
-        }
+        $this->parent->fireEvent('model.relation.beforeAssociate', [$this->relationName, $this->related], true);
 
         $result = parent::associate($model);
 
@@ -130,9 +128,7 @@ class MorphTo extends MorphToBase
          *     });
          *
          */
-        if ($this->parent->fireEvent('model.relation.beforeDissociate', [$this->relationName, $this->related], true) === false) {
-            return;
-        }
+        $this->parent->fireEvent('model.relation.beforeDissociate', [$this->relationName, $this->related]);
 
         $result = parent::dissociate();
 
