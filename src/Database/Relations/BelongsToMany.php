@@ -164,7 +164,7 @@ class BelongsToMany extends BelongsToManyBase
     {
         $attachedIdList = $this->parseIds($ids);
         if (empty($attachedIdList)) {
-            $attachedIdList = $this->newPivotQuery()->lists($this->relatedPivotKey);
+            $attachedIdList = $this->allRelatedIds()->all();
         }
 
         /**
@@ -188,7 +188,7 @@ class BelongsToMany extends BelongsToManyBase
         /*
          * See Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
          */
-        parent::detach($ids, $touch);
+        parent::detach($attachedIdList, $touch);
 
         /**
          * @event model.relation.afterDetach
