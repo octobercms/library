@@ -406,7 +406,7 @@ class BelongsToMany extends BelongsToManyBase
      */
     public function getRelatedIds($sessionKey = null)
     {
-        traceLog('Method BelongsToMany::allRelatedIds has been deprecated, use BelongsToMany::allRelatedIds instead.');
+        traceLog('Method BelongsToMany::getRelatedIds has been deprecated, use BelongsToMany::allRelatedIds instead.');
         return $this->allRelatedIds($sessionKey)->all();
     }
 
