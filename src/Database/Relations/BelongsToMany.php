@@ -126,9 +126,7 @@ class BelongsToMany extends BelongsToManyBase
          *     });
          *
          */
-        if ($this->parent->fireEvent('model.relation.beforeAttach', [$this->relationName, $attachedIdList, $insertData], true) === false) {
-            return;
-        }
+        $this->parent->fireEvent('model.relation.beforeAttach', [$this->relationName, $attachedIdList, $insertData]);
 
         // Here we will insert the attachment records into the pivot table. Once we have
         // inserted the records, we will touch the relationships if necessary and the
@@ -181,9 +179,7 @@ class BelongsToMany extends BelongsToManyBase
          *     });
          *
          */
-        if ($this->parent->fireEvent('model.relation.beforeDetach', [$this->relationName, $attachedIdList], true) === false) {
-            return;
-        }
+        $this->parent->fireEvent('model.relation.beforeDetach', [$this->relationName, $attachedIdList]);
 
         /*
          * See Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
