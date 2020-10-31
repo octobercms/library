@@ -417,9 +417,6 @@ class BelongsToMany extends BelongsToManyBase
      */
     protected function getCurrentlyAttachedPivots()
     {
-        $fullKey = $this->getRelated()->getQualifiedKeyName();
-        $pivotKey = $this->relatedPivotKey;
-
-        return $this->getQuery()->select($fullKey . ' as ' . $pivotKey)->get();
+        return $this->getQuery()->get();
     }
 }
