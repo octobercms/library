@@ -3,6 +3,7 @@
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as CollectionBase;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany as BelongsToManyBase;
 
 class BelongsToMany extends BelongsToManyBase
@@ -411,46 +412,16 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
-     * Sync the intermediate tables with a list of IDs or collection of models.
+     * Get the pivot models that are currently attached (taking conditions & scopes into account).
      *
-     * @param  \Illuminate\Support\Collection|\Illuminate\Database\Eloquent\Model|array  $ids
-     * @param  bool  $detaching
-     * @return array
+     * @return \Illuminate\Support\Collection
      */
-    public function sync($ids, $detaching = true)
+    protected function getCurrentlyAttachedPivots()
     {
-        $changes = [
-            'attached' => [], 'detached' => [], 'updated' => [],
-        ];
+        $related = $this->getRelated();
+        $fullKey = $related->getQualifiedKeyName();
+        $pivotKey = $this->relatedPivotKey;
 
-        // Get all the IDs for the related model
-        $current = $this->allRelatedIds()->all();
-
-        $detach = array_diff($current, array_keys(
-            $records = $this->formatRecordsList($this->parseIds($ids))
-        ));
-
-        // Next, we will take the differences of the currents and given IDs and detach
-        // all of the entities that exist in the "current" array but are not in the
-        // array of the new IDs given to the method which will complete the sync.
-        if ($detaching && count($detach) > 0) {
-            $this->detach($detach);
-            $changes['detached'] = $this->castKeys($detach);
-        }
-
-        // Now we are finally ready to attach the new records. Note that we'll disable
-        // touching until after the entire operation is complete so we don't fire a
-        // ton of touch operations until we are totally done syncing the records.
-        $changes = array_merge($changes, $this->attachNew($records, $current, false));
-
-        // Once we have finished attaching or detaching the records, we will see if we
-        // have done any attaching or detaching, and if we have we will touch these
-        // relationships if they are configured to touch on any database updates.
-        if (count($changes['attached']) ||
-            count($changes['updated'])) {
-            $this->touchIfTouching();
-        }
-
-        return $changes;
+        return $this->getQuery()->select($fullKey . ' as ' . $pivotKey)->get();
     }
 }
