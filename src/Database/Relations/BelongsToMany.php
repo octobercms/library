@@ -103,9 +103,11 @@ class BelongsToMany extends BelongsToManyBase
     /**
      * Override attach() method of BelongToMany relation.
      * This is necessary in order to fire 'model.relation.beforeAttach', 'model.relation.afterAttach' events
+     *
      * @param mixed $id
      * @param array $attributes
      * @param bool  $touch
+     * @return void
      */
     public function attach($id, array $attributes = [], $touch = true)
     {
@@ -154,9 +156,10 @@ class BelongsToMany extends BelongsToManyBase
     /**
      * Override detach() method of BelongToMany relation.
      * This is necessary in order to fire 'model.relation.beforeDetach', 'model.relation.afterDetach' events
+     *
      * @param null $ids
      * @param bool $touch
-     * @return int|void
+     * @return int
      */
     public function detach($ids = null, $touch = true)
     {
@@ -184,7 +187,7 @@ class BelongsToMany extends BelongsToManyBase
         /*
          * See Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
          */
-        parent::detach($ids, $touch);
+        $result = parent::detach($ids, $touch);
 
         /**
          * @event model.relation.afterDetach
@@ -198,6 +201,8 @@ class BelongsToMany extends BelongsToManyBase
          *
          */
         $this->parent->fireEvent('model.relation.afterDetach', [$this->relationName, $attachedIdList]);
+
+        return $result;
     }
 
     /**
