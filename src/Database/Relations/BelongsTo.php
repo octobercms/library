@@ -28,6 +28,22 @@ class BelongsTo extends BelongsToBase
      */
     public function add(Model $model, $sessionKey = null)
     {
+        if ($sessionKey === null) {
+            $this->associate($model);
+        }
+        else {
+            $this->child->bindDeferred($this->relationName, $model, $sessionKey);
+        }
+    }
+
+    /**
+     * Associate the model instance to the given parent.
+     *
+     * @param  \Illuminate\Database\Eloquent\Model|int|string  $model
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function associate($model)
+    {
         /**
          * @event model.relation.beforeAssociate
          * Called before associating a relation to the model (only for BelongsTo/MorphTo relations)
@@ -41,12 +57,7 @@ class BelongsTo extends BelongsToBase
          */
         $this->parent->fireEvent('model.relation.beforeAssociate', [$this->relationName, $this->related]);
 
-        if ($sessionKey === null) {
-            $this->associate($model);
-        }
-        else {
-            $this->child->bindDeferred($this->relationName, $model, $sessionKey);
-        }
+        $result = parent::associate($model);
 
         /**
          * @event model.relation.afterAssociate
@@ -60,12 +71,29 @@ class BelongsTo extends BelongsToBase
          *
          */
         $this->parent->fireEvent('model.relation.afterAssociate', [$this->relationName, $this->related]);
+
+        return $result;
     }
 
     /**
      * Removes a model from this relationship type.
      */
     public function remove(Model $model, $sessionKey = null)
+    {
+        if ($sessionKey === null) {
+            $this->dissociate();
+        }
+        else {
+            $this->child->unbindDeferred($this->relationName, $model, $sessionKey);
+        }
+    }
+
+    /**
+     * Dissociate previously associated model from the given parent.
+     *
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function dissociate()
     {
         /**
          * @event model.relation.beforeDissociate
@@ -78,14 +106,9 @@ class BelongsTo extends BelongsToBase
          *     });
          *
          */
-        $this->parent->fireEvent('model.relation.beforeDissociate', [$this->relationName, $this->related], true);
+        $this->parent->fireEvent('model.relation.beforeDissociate', [$this->relationName, $this->related]);
 
-        if ($sessionKey === null) {
-            $this->dissociate();
-        }
-        else {
-            $this->child->unbindDeferred($this->relationName, $model, $sessionKey);
-        }
+        $result = parent::dissociate();
 
         /**
          * @event model.relation.afterDissociate
@@ -99,6 +122,8 @@ class BelongsTo extends BelongsToBase
          *
          */
         $this->parent->fireEvent('model.relation.afterDissociate', [$this->relationName, $this->related]);
+
+        return $result;
     }
 
     /**
