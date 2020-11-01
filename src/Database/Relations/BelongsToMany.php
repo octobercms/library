@@ -194,12 +194,12 @@ class BelongsToMany extends BelongsToManyBase
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.afterDetach', function (string $relationName, array $attachedIdList) use (\October\Rain\Database\Model $model) {
-         *         traceLog("Relation {$relationName} was removed", $attachedIdList);
+         *     $model->bindEvent('model.relation.afterDetach', function (string $relationName, array $attachedIdList, int $result) use (\October\Rain\Database\Model $model) {
+         *         traceLog("{$result} entries were detached for Relation {$relationName}");
          *     });
          *
          */
-        $this->parent->fireEvent('model.relation.afterDetach', [$this->relationName, $attachedIdList]);
+        $this->parent->fireEvent('model.relation.afterDetach', [$this->relationName, $attachedIdList, $result]);
 
         return $result;
     }
