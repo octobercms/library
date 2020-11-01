@@ -17,7 +17,9 @@ trait BelongsOrMorphTo
          * Example usage:
          *
          *     $model->bindEvent('model.relation.beforeAssociate', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
-         *         TODO: add example code
+         *         if ($relationName === 'dummyRelation') {
+         *             throw new \Exception("Invalid relation!");
+         *         }
          *     });
          *
          */
@@ -32,7 +34,8 @@ trait BelongsOrMorphTo
          * Example usage:
          *
          *     $model->bindEvent('model.relation.afterAssociate', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
-         *         TODO: add example code
+         *         $relatedClass = get_class($relatedModel);
+         *         traceLog("Relation {$relationName} was associated to model {$relatedClass}.");
          *     });
          *
          */
@@ -55,7 +58,9 @@ trait BelongsOrMorphTo
          * Example usage:
          *
          *     $model->bindEvent('model.relation.beforeDissociate', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
-         *         TODO: add example code
+         *         if ($relationName === 'permanentRelation') {
+         *             throw new \Exception("Cannot dissociate a permanent relation!");
+         *         }
          *     });
          *
          */
@@ -70,7 +75,8 @@ trait BelongsOrMorphTo
          * Example usage:
          *
          *     $model->bindEvent('model.relation.afterDissociate', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
-         *         TODO: add example code
+         *         $relatedClass = get_class($relatedModel);
+         *         traceLog("Relation {$relationName} was dissociated from model {$relatedClass}.");
          *     });
          *
          */

@@ -123,7 +123,6 @@ class BelongsToMany extends BelongsToManyBase
          *     $model->bindEvent('model.relation.beforeAttach', function (string $relationName, array $attachedIdList, array $insertData) use (\October\Rain\Database\Model $model) {
          *         if (!$model->isRelationValid($attachedIdList)) {
          *             throw new \Exception("Invalid relation!");
-         *             return false;
          *         }
          *     });
          *
