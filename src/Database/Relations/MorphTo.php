@@ -90,7 +90,7 @@ class MorphTo extends MorphToBase
          *     });
          *
          */
-        $this->parent->fireEvent('model.relation.beforeAssociate', [$this->relationName, $this->related], true);
+        $this->parent->fireEvent('model.relation.beforeAssociate', [$this->relationName, $this->related]);
 
         $result = parent::associate($model);
 
