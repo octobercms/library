@@ -1,7 +1,5 @@
 <?php namespace October\Rain\Database\Relations;
 
-use Illuminate\Database\Eloquent\Model;
-
 trait BelongsOrMorphTo
 {
     /**
