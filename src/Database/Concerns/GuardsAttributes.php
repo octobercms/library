@@ -16,16 +16,18 @@ trait GuardsAttributes
      */
     public function isGuarded($key)
     {
-        // Normalize the variables for comparison
-        $key = trim(strtolower($key));
-        $guarded = array_map(function ($column) {
-            return trim(strtolower($column));
-        }, $this->getGuarded());
-
+        $guarded = $this->getGuarded();
+        
         // Nothing's guarded so just return early
         if (empty($guarded) || $guarded === ['*']) {
             return false;
         }
+        
+        // Normalize the variables for comparison
+        $key = trim(strtolower($key));
+        $guarded = array_map(function ($column) {
+            return trim(strtolower($column));
+        }, $guarded);
 
         // JSON columns are tricksy, we only guard base level columns though
         if (strpos($key, '->') !== false) {
