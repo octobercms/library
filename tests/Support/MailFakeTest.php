@@ -5,6 +5,14 @@ class MailFakeTest extends TestCase
     public function setUp(): void
     {
         $this->mailer = new \October\Rain\Support\Testing\Fakes\MailFake();
+
+        // Mock App facade
+        if (!class_exists('App')) {
+            class_alias('\Illuminate\Support\Facades\App', 'App');
+        }
+
+        App::shouldReceive('getLocale')->andreturn('en/US');
+
         $this->view = 'mail-test-view';
         $this->recipient = 'fake@localhost';
         $this->subject = 'MailFake test';
@@ -41,7 +49,7 @@ class MailFakeTest extends TestCase
             return $mailer->hasTo($this->recipient);
         });
 
-        $this->mailer->assertSent($this->view, function ($mailer) {
+        $this->mailer->assertQueued($this->view, function ($mailer) {
             return $mailer->subject === $this->subject;
         });
     }
