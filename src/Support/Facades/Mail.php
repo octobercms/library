@@ -29,7 +29,7 @@ class Mail extends Facade
     /**
      * Replace the bound instance with a fake.
      *
-     * @return \Illuminate\Support\Testing\Fakes\MailFake
+     * @return \October\Rain\Support\Testing\Fakes\MailFake
      */
     public static function fake()
     {
