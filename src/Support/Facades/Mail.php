@@ -24,7 +24,7 @@ use October\Rain\Support\Testing\Fakes\MailFake;
  * @see \October\Rain\Mail\Mailer
  * @see \October\Rain\Support\Testing\Fakes\MailFake
  */
-class Mail extends Facade
+class Mail extends \October\Rain\Support\Facade
 {
     /**
      * Replace the bound instance with a fake.

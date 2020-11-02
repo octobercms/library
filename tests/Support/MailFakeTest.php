@@ -1,17 +1,22 @@
 <?php
 
+use October\Rain\Support\Testing\Fakes\MailFake;
+
 class MailFakeTest extends TestCase
 {
     public function setUp(): void
     {
-        $this->mailer = new \October\Rain\Support\Testing\Fakes\MailFake();
-
         // Mock App facade
         if (!class_exists('App')) {
             class_alias('\Illuminate\Support\Facades\App', 'App');
         }
-
         App::shouldReceive('getLocale')->andreturn('en/US');
+
+        // Mock Mail facade
+        if (!class_exists('Mail')) {
+            class_alias('\October\Rain\Support\Facades\Mail', 'Mail');
+        }
+        Mail::swap(new MailFake());
 
         $this->view = 'mail-test-view';
         $this->recipient = 'fake@localhost';
@@ -20,36 +25,35 @@ class MailFakeTest extends TestCase
 
     public function testSend()
     {
-        $this->mailer->send($this->view, [], function ($mailer) {
+        Mail::send($this->view, [], function ($mailer) {
             $mailer->to($this->recipient);
             $mailer->subject('MailFake test');
         });
+        Mail::assertSent($this->view, 1);
 
-        $this->mailer->assertSent($this->view, 1);
-
-        $this->mailer->assertSent($this->view, function ($mailer) {
+        Mail::assertSent($this->view, function ($mailer) {
             return $mailer->hasTo($this->recipient);
         });
 
-        $this->mailer->assertSent($this->view, function ($mailer) {
+        Mail::assertSent($this->view, function ($mailer) {
             return $mailer->subject === $this->subject;
         });
     }
 
     public function testQueue()
     {
-        $this->mailer->queue($this->view, [], function ($mailer) {
+        Mail::queue($this->view, [], function ($mailer) {
             $mailer->to($this->recipient);
             $mailer->subject($this->subject);
         });
 
-        $this->mailer->assertQueued($this->view, 1);
+        Mail::assertQueued($this->view, 1);
 
-        $this->mailer->assertQueued($this->view, function ($mailer) {
+        Mail::assertQueued($this->view, function ($mailer) {
             return $mailer->hasTo($this->recipient);
         });
 
-        $this->mailer->assertQueued($this->view, function ($mailer) {
+        Mail::assertQueued($this->view, function ($mailer) {
             return $mailer->subject === $this->subject;
         });
     }
