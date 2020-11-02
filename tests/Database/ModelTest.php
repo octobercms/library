@@ -35,7 +35,7 @@ class ModelTest extends TestCase
 
 class TestModel extends Model
 {
-    protected $guarded = ['id', 'ID', 'data'];
+    protected $guarded = ['id', 'ID', 'NAME', 'data'];
 
     public $table = 'test_model';
 }
