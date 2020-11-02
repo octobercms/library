@@ -69,7 +69,7 @@ class MailFake extends \Illuminate\Support\Testing\Fakes\MailFake
     {
         $mailable = new Mailable;
 
-        if($queued) {
+        if ($queued) {
             $mailable->view($view)->withSerializedData($data);
         } else {
             $mailable->view($view, $data);
