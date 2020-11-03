@@ -18,7 +18,7 @@ class MailFake extends \Illuminate\Support\Testing\Fakes\MailFake
     }
 
     /**
-     * Get all of the mailed mailables for a given type.
+     * Get all of the queued mailables for a given type.
      *
      * @param  string  $type
      * @return \Illuminate\Support\Collection
@@ -65,6 +65,15 @@ class MailFake extends \Illuminate\Support\Testing\Fakes\MailFake
         return parent::queue($view, $data = null, $callback = null, $queue = null);
     }
 
+    /**
+     * Create a Mailable object from a view file.
+     *
+     * @param  string|array  $view
+     * @param  array  $data
+     * @param  \Closure|string  $callback
+     * @param  bool  $queued
+     * @return \October\Rain\Mail\Mailable
+     */
     public function buildMailable($view, $data, $callback, $queued = false)
     {
         $mailable = new Mailable;

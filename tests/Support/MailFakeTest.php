@@ -27,7 +27,7 @@ class MailFakeTest extends TestCase
     {
         Mail::send($this->view, [], function ($mailer) {
             $mailer->to($this->recipient);
-            $mailer->subject('MailFake test');
+            $mailer->subject($this->subject);
         });
         Mail::assertSent($this->view, 1);
 
