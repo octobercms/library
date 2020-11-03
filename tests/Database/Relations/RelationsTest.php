@@ -31,7 +31,6 @@ class RelationsTest extends TestCase
             $table->string('type');
             $table->string('name');
             $table->timestamps();
-
         });
 
         $this->capsule->schema()->create('posts_terms', function ($table) {
