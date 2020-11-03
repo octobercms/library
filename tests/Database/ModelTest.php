@@ -26,7 +26,7 @@ class ModelTest extends TestCase
 
         // Test variations on casing
         $this->assertTrue($model->isGuarded('DATA'));
-        $this->assertTrue($module->isGuarded('name'));
+        $this->assertTrue($model->isGuarded('name'));
 
         // Test JSON columns
         $this->assertTrue($model->isGuarded('data->key'));
