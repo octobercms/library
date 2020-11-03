@@ -59,11 +59,26 @@ class RelationsTest extends DbTestCase
         $this->assertEquals(2, Term::where('type', 'category')->count());
     }
 
-    public function testBelongsToMany()
+    public function testBelongsToManyCount()
     {
         $post = Post::first();
         $this->assertEquals(2, $post->tags()->count());
         $this->assertEquals(2, $post->categories()->count());
+    }
+
+    public function testBelongsToManySync()
+    {
+        $post = Post::first();
+
+        $id = $post->categories()->first()->id;
+        $post->categories()->sync([$id]);
+        $this->assertEquals(1, $post->categories()->count());
+        $this->assertEquals($id, $post->categories()->first()->id);
+
+        $id = $post->tags()->first()->id;
+        $post->tags()->sync([$id]);
+        $this->assertEquals(1, $post->tags()->count());
+        $this->assertEquals($id, $post->tags()->first()->id);
     }
 }
 
