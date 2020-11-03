@@ -1,18 +1,10 @@
 <?php
 
-class RelationsTest extends TestCase
+class RelationsTest extends DbTestCase
 {
     public function setUp(): void
     {
-        $this->capsule = $capsule = new Illuminate\Database\Capsule\Manager;
-        $capsule->addConnection([
-            'driver'   => 'sqlite',
-            'database' => ':memory:',
-            'prefix'   => ''
-        ]);
-
-        $capsule->setAsGlobal();
-        $capsule->bootEloquent();
+        parent::setUp();
 
         $this->create_tables();
         $this->seed_tables();
@@ -20,20 +12,20 @@ class RelationsTest extends TestCase
 
     public function create_tables()
     {
-        $this->capsule->schema()->create('posts', function ($table) {
+        $this->db->schema()->create('posts', function ($table) {
             $table->increments('id');
             $table->string('title')->default('');
             $table->timestamps();
         });
 
-        $this->capsule->schema()->create('terms', function ($table) {
+        $this->db->schema()->create('terms', function ($table) {
             $table->increments('id');
             $table->string('type');
             $table->string('name');
             $table->timestamps();
         });
 
-        $this->capsule->schema()->create('posts_terms', function ($table) {
+        $this->db->schema()->create('posts_terms', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('post_id');
             $table->unsignedInteger('term_id');
@@ -46,35 +38,17 @@ class RelationsTest extends TestCase
             'title' => 'A Post',
         ]);
 
-        $category = Term::create([
-            'type' => 'category',
-            'name' => 'A Category',
-        ]);
-        $category2 = Term::create([
-            'type' => 'category',
-            'name' => 'Second Category',
-        ]);
-
-        $tag = Term::create([
-            'type' => 'tag',
-            'name' => 'A Tag',
-        ]);
-        $tag2 = Term::create([
-            'type' => 'tag',
-            'name' => 'Second Tag',
-        ]);
-
-        $post->tags()->add($tag);
-        $post->tags()->add($tag2);
-        $post->categories()->add($category);
-        $post->categories()->add($category2);
+        $post->tags()->create(['type'=>'tag', 'name'=>'A Tag']);
+        $post->tags()->create(['type'=>'tag', 'name'=>'Second Tag']);
+        $post->categories()->create(['type'=>'category', 'name'=>'A Category']);
+        $post->categories()->create(['type'=>'category', 'name'=>'Second Category']);
     }
 
     public function testTablesExist()
     {
-        $this->assertTrue($this->capsule->schema()->hasTable('posts'));
-        $this->assertTrue($this->capsule->schema()->hasTable('terms'));
-        $this->assertTrue($this->capsule->schema()->hasTable('posts_terms'));
+        $this->assertTrue($this->db->schema()->hasTable('posts'));
+        $this->assertTrue($this->db->schema()->hasTable('terms'));
+        $this->assertTrue($this->db->schema()->hasTable('posts_terms'));
     }
 
     public function testTablesProperlySeeded()

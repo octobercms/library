@@ -2,7 +2,7 @@
 
 use Illuminate\Encryption\Encrypter;
 
-class EncryptableTest extends TestCase
+class EncryptableTest extends DbTestCase
 {
     const TEST_CRYPT_KEY = 'gBmM1S5bxZ5ePRj5';
 
@@ -13,17 +13,9 @@ class EncryptableTest extends TestCase
 
     public function setUp(): void
     {
-        $capsule = new Illuminate\Database\Capsule\Manager;
-        $capsule->addConnection([
-            'driver'   => 'sqlite',
-            'database' => ':memory:',
-            'prefix'   => ''
-        ]);
+        parent::setUp();
 
-        $capsule->setAsGlobal();
-        $capsule->bootEloquent();
-
-        $capsule->schema()->create('secrets', function ($table) {
+        $this->db->schema()->create('secrets', function ($table) {
             $table->increments('id');
             $table->string('secret');
             $table->timestamps();
