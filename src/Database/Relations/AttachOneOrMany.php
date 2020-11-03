@@ -166,6 +166,21 @@ trait AttachOneOrMany
         }
 
         if ($sessionKey === null) {
+            /**
+             * @event model.relation.beforeAdd
+             * Called before adding a relation to the model (only for AttachOne/AttachMany relations)
+             *
+             * Example usage:
+             *
+             *     $model->bindEvent('model.relation.beforeAdd', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
+             *         if ($relationName === 'dummyRelation') {
+             *             throw new \Exception("Invalid relation!");
+             *         }
+             *     });
+             *
+             */
+            $this->parent->fireEvent('model.relation.beforeAdd', [$this->relationName, $this->related]);
+
             // Delete siblings for single attachments
             if ($this instanceof AttachOne) {
                 $this->delete();
@@ -185,6 +200,20 @@ trait AttachOneOrMany
             else {
                 $this->parent->reloadRelations($this->relationName);
             }
+
+            /**
+             * @event model.relation.afterAdd
+             * Called after adding a relation to the model (only for AttachOne/AttachMany relations)
+             *
+             * Example usage:
+             *
+             *     $model->bindEvent('model.relation.afterAdd', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
+             *         $relatedClass = get_class($relatedModel);
+             *         traceLog("Relation {$relationName} was added to model {$relatedClass}.");
+             *     });
+             *
+             */
+            $this->parent->fireEvent('model.relation.afterAdd', [$this->relationName, $this->related]);
         }
         else {
             $this->parent->bindDeferred($this->relationName, $model, $sessionKey);
