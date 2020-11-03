@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Support\Facades;
 
+use October\Rain\Support\Facade;
 use October\Rain\Support\Testing\Fakes\MailFake;
 
 /**
@@ -24,7 +25,7 @@ use October\Rain\Support\Testing\Fakes\MailFake;
  * @see \October\Rain\Mail\Mailer
  * @see \October\Rain\Support\Testing\Fakes\MailFake
  */
-class Mail extends \October\Rain\Support\Facade
+class Mail extends Facade
 {
     /**
      * Replace the bound instance with a fake.
