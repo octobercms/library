@@ -209,7 +209,7 @@ trait AttachOneOrMany
              *
              *     $model->bindEvent('model.relation.afterAdd', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
              *         $relatedClass = get_class($relatedModel);
-             *         $modelClass = get_class($relatedModel);
+             *         $modelClass = get_class($model);
              *         traceLog("{$relatedClass} was added as {$relationName} to {$modelClass}.");
              *     });
              *
