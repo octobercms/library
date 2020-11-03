@@ -66,19 +66,56 @@ class RelationsTest extends DbTestCase
         $this->assertEquals(2, $post->categories()->count());
     }
 
-    public function testBelongsToManySync()
+    public function testBelongsToManySyncAll()
     {
         $post = Post::first();
 
         $id = $post->categories()->first()->id;
         $post->categories()->sync([$id]);
-        $this->assertEquals(1, $post->categories()->count());
+        $this->assertEquals(1, $post->categories->count());
         $this->assertEquals($id, $post->categories()->first()->id);
 
         $id = $post->tags()->first()->id;
         $post->tags()->sync([$id]);
-        $this->assertEquals(1, $post->tags()->count());
+        $this->assertEquals(1, $post->tags->count());
         $this->assertEquals($id, $post->tags()->first()->id);
+    }
+
+    public function testBelongsToManySyncTags()
+    {
+        $post = Post::first();
+
+        $post->categories()->detach();
+        $this->assertEquals(0, $post->categories->count());
+
+        $id = $post->tags()->first()->id;
+        $post->tags()->sync([$id]);
+        $this->assertEquals(1, $post->tags->count());
+        $this->assertEquals($id, $post->tags()->first()->id);
+    }
+
+    public function testBelongsToManySyncCategories()
+    {
+        $post = Post::first();
+
+        $id = $post->categories()->first()->id;
+        $post->categories()->sync([$id]);
+        $this->assertEquals(1, $post->categories->count());
+        $this->assertEquals($id, $post->categories()->first()->id);
+
+        $post->tags()->detach();
+        $this->assertEquals(0, $post->tags->count());
+    }
+
+    public function testBelongsToManyDetach()
+    {
+        $post = Post::first();
+
+        $post->categories()->detach();
+        $this->assertEquals(0, $post->categories->count());
+
+        $post->tags()->detach();
+        $this->assertEquals(0, $post->tags->count());
     }
 }
 
