@@ -35,7 +35,8 @@ trait BelongsOrMorphTo
          *
          *     $model->bindEvent('model.relation.afterAssociate', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
          *         $relatedClass = get_class($relatedModel);
-         *         traceLog("Relation {$relationName} was associated to model {$relatedClass}.");
+         *         $modelClass = get_class($model);
+         *         traceLog("{$relatedClass} was associated as {$relationName} to {$modelClass}.");
          *     });
          *
          */
@@ -76,7 +77,8 @@ trait BelongsOrMorphTo
          *
          *     $model->bindEvent('model.relation.afterDissociate', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
          *         $relatedClass = get_class($relatedModel);
-         *         traceLog("Relation {$relationName} was dissociated from model {$relatedClass}.");
+         *         $modelClass = get_class($model);
+         *         traceLog("{$relatedClass} was dissociated from {$modelClass}.");
          *     });
          *
          */
