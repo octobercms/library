@@ -42,6 +42,8 @@ class RelationsTest extends DbTestCase
         $post->tags()->create(['type'=>'tag', 'name'=>'Second Tag']);
         $post->categories()->create(['type'=>'category', 'name'=>'A Category']);
         $post->categories()->create(['type'=>'category', 'name'=>'Second Category']);
+
+        $post->flushEventListeners();
     }
 
     public function testTablesExist()
@@ -62,8 +64,10 @@ class RelationsTest extends DbTestCase
     public function testBelongsToManyCount()
     {
         $post = Post::first();
-        $this->assertEquals(2, $post->tags()->count());
-        $this->assertEquals(2, $post->categories()->count());
+        $this->assertEquals(2, $post->tags->count());
+        $this->assertEquals(2, $post->categories->count());
+
+        $post->flushEventListeners();
     }
 
     public function testBelongsToManySyncAll()
@@ -79,6 +83,8 @@ class RelationsTest extends DbTestCase
         $post->tags()->sync([$id]);
         $this->assertEquals(1, $post->tags->count());
         $this->assertEquals($id, $post->tags()->first()->id);
+
+        $post->flushEventListeners();
     }
 
     public function testBelongsToManySyncTags()
@@ -92,6 +98,8 @@ class RelationsTest extends DbTestCase
         $post->tags()->sync([$id]);
         $this->assertEquals(1, $post->tags->count());
         $this->assertEquals($id, $post->tags()->first()->id);
+
+        $post->flushEventListeners();
     }
 
     public function testBelongsToManySyncCategories()
@@ -105,6 +113,8 @@ class RelationsTest extends DbTestCase
 
         $post->tags()->detach();
         $this->assertEquals(0, $post->tags->count());
+
+        $post->flushEventListeners();
     }
 
     public function testBelongsToManyDetach()
@@ -116,6 +126,8 @@ class RelationsTest extends DbTestCase
 
         $post->tags()->detach();
         $this->assertEquals(0, $post->tags->count());
+
+        $post->flushEventListeners();
     }
 }
 
