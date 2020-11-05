@@ -6,11 +6,11 @@ class RelationsTest extends DbTestCase
     {
         parent::setUp();
 
-        $this->create_tables();
-        $this->seed_tables();
+        $this->createTables();
+        $this->seedTables();
     }
 
-    public function create_tables()
+    public function createTables()
     {
         $this->db->schema()->create('posts', function ($table) {
             $table->increments('id');
@@ -32,7 +32,7 @@ class RelationsTest extends DbTestCase
         });
     }
 
-    public function seed_tables()
+    public function seedTables()
     {
         $post = Post::create([
             'title' => 'A Post',
