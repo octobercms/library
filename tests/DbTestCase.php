@@ -1,12 +1,14 @@
 <?php
 
-use October\Rain\Database\Model as ActiveRecord;
+use October\Rain\Database\Model;
+use October\Rain\Database\Pivot;
+use Illuminate\Database\Capsule\Manager as CapsuleManager;
 
 class DbTestCase extends TestCase
 {
     public function setUp(): void
     {
-        $this->db = new Illuminate\Database\Capsule\Manager;
+        $this->db = new CapsuleManager;
         $this->db->addConnection([
             'driver'   => 'sqlite',
             'database' => ':memory:',
@@ -33,15 +35,15 @@ class DbTestCase extends TestCase
     protected function flushModelEventListeners()
     {
         foreach (get_declared_classes() as $class) {
-            if ($class == 'October\Rain\Database\Pivot') {
+            if ($class === Pivot::class) {
                 continue;
             }
 
             $reflectClass = new ReflectionClass($class);
             if (
                 !$reflectClass->isInstantiable() ||
-                !$reflectClass->isSubclassOf('October\Rain\Database\Model') ||
-                $reflectClass->isSubclassOf('October\Rain\Database\Pivot')
+                !$reflectClass->isSubclassOf(Model::class) ||
+                $reflectClass->isSubclassOf(Pivot::class)
             ) {
                 continue;
             }
@@ -49,6 +51,6 @@ class DbTestCase extends TestCase
             $class::flushEventListeners();
         }
 
-        ActiveRecord::flushEventListeners();
+        Model::flushEventListeners();
     }
 }
