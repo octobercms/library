@@ -70,7 +70,7 @@ class BelongsTo extends BelongsToBase
          *     });
          *
          */
-        $this->parent->fireEvent('model.relation.beforeAssociate', [$this->relationName, $this->related]);
+        $this->parent->fireEvent('model.relation.beforeAssociate', [$this->relationName, $model]);
 
         $result = parent::associate($model);
 
@@ -87,7 +87,7 @@ class BelongsTo extends BelongsToBase
          *     });
          *
          */
-        $this->parent->fireEvent('model.relation.afterAssociate', [$this->relationName, $this->related]);
+        $this->parent->fireEvent('model.relation.afterAssociate', [$this->relationName, $model]);
 
         return $result;
     }

@@ -69,7 +69,7 @@ trait HasOneOrMany
              *     });
              *
              */
-            $this->parent->fireEvent('model.relation.beforeAdd', [$this->relationName, $this->related]);
+            $this->parent->fireEvent('model.relation.beforeAdd', [$this->relationName, $model]);
 
             $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
 
@@ -100,7 +100,7 @@ trait HasOneOrMany
              *     });
              *
              */
-            $this->parent->fireEvent('model.relation.afterAdd', [$this->relationName, $this->related]);
+            $this->parent->fireEvent('model.relation.afterAdd', [$this->relationName, $model]);
         }
         else {
             $this->parent->bindDeferred($this->relationName, $model, $sessionKey);
@@ -138,7 +138,7 @@ trait HasOneOrMany
              *     });
              *
              */
-            $this->parent->fireEvent('model.relation.beforeRemove', [$this->relationName, $this->related]);
+            $this->parent->fireEvent('model.relation.beforeRemove', [$this->relationName, $model]);
 
             $model->setAttribute($this->getForeignKeyName(), null);
             $model->save();
@@ -165,7 +165,7 @@ trait HasOneOrMany
              *     });
              *
              */
-            $this->parent->fireEvent('model.relation.afterRemove', [$this->relationName, $this->related]);
+            $this->parent->fireEvent('model.relation.afterRemove', [$this->relationName, $model]);
         }
         else {
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);

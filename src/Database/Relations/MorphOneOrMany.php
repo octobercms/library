@@ -58,7 +58,7 @@ trait MorphOneOrMany
              *     });
              *
              */
-            $this->parent->fireEvent('model.relation.beforeAdd', [$this->relationName, $this->related]);
+            $this->parent->fireEvent('model.relation.beforeAdd', [$this->relationName, $model]);
 
             $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
             $model->setAttribute($this->getMorphType(), $this->morphClass);
@@ -87,7 +87,7 @@ trait MorphOneOrMany
              *     });
              *
              */
-            $this->parent->fireEvent('model.relation.afterAdd', [$this->relationName, $this->related]);
+            $this->parent->fireEvent('model.relation.afterAdd', [$this->relationName, $model]);
         }
         else {
             $this->parent->bindDeferred($this->relationName, $model, $sessionKey);
@@ -113,7 +113,7 @@ trait MorphOneOrMany
              *     });
              *
              */
-            $this->parent->fireEvent('model.relation.beforeRemove', [$this->relationName, $this->related]);
+            $this->parent->fireEvent('model.relation.beforeRemove', [$this->relationName, $model]);
 
             $options = $this->parent->getRelationDefinition($this->relationName);
 
@@ -152,7 +152,7 @@ trait MorphOneOrMany
              *     });
              *
              */
-            $this->parent->fireEvent('model.relation.afterRemove', [$this->relationName, $this->related]);
+            $this->parent->fireEvent('model.relation.afterRemove', [$this->relationName, $model]);
         }
         else {
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);
