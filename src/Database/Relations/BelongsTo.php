@@ -105,14 +105,14 @@ class BelongsTo extends BelongsToBase
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.beforeDissociate', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
+         *     $model->bindEvent('model.relation.beforeDissociate', function (string $relationName) use (\October\Rain\Database\Model $model) {
          *         if ($relationName === 'permanentRelation') {
          *             throw new \Exception("Cannot dissociate a permanent relation!");
          *         }
          *     });
          *
          */
-        $this->parent->fireEvent('model.relation.beforeDissociate', [$this->relationName, $this->related]);
+        $this->parent->fireEvent('model.relation.beforeDissociate', [$this->relationName]);
 
         $result = parent::dissociate();
 
@@ -122,14 +122,13 @@ class BelongsTo extends BelongsToBase
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.afterDissociate', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
-         *         $relatedClass = get_class($relatedModel);
+         *     $model->bindEvent('model.relation.afterDissociate', function (string $relationName) use (\October\Rain\Database\Model $model) {
          *         $modelClass = get_class($model);
-         *         traceLog("{$relatedClass} was dissociated from {$modelClass}.");
+         *         traceLog("{$relationName} was dissociated from {$modelClass}.");
          *     });
          *
          */
-        $this->parent->fireEvent('model.relation.afterDissociate', [$this->relationName, $this->related]);
+        $this->parent->fireEvent('model.relation.afterDissociate', [$this->relationName]);
 
         return $result;
     }
