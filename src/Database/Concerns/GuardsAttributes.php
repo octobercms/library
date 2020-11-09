@@ -21,7 +21,6 @@ trait GuardsAttributes
         if (empty($guarded) || $guarded === ['*']) {
             return false;
         }
-        
         // Normalize the variables for comparison
         $key = trim(strtolower($key));
         $guarded = array_map(function ($column) {
