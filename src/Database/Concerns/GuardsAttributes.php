@@ -17,7 +17,6 @@ trait GuardsAttributes
     public function isGuarded($key)
     {
         $guarded = $this->getGuarded();
-        
         // Nothing's guarded so just return early
         if (empty($guarded) || $guarded === ['*']) {
             return false;
