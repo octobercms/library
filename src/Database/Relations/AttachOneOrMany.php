@@ -179,7 +179,7 @@ trait AttachOneOrMany
              *     });
              *
              */
-            $this->parent->fireEvent('model.relation.beforeAdd', [$this->relationName, $this->model]);
+            $this->parent->fireEvent('model.relation.beforeAdd', [$this->relationName, $model]);
 
             // Delete siblings for single attachments
             if ($this instanceof AttachOne) {
@@ -214,7 +214,7 @@ trait AttachOneOrMany
              *     });
              *
              */
-            $this->parent->fireEvent('model.relation.afterAdd', [$this->relationName, $this->model]);
+            $this->parent->fireEvent('model.relation.afterAdd', [$this->relationName, $model]);
         }
         else {
             $this->parent->bindDeferred($this->relationName, $model, $sessionKey);
@@ -252,7 +252,7 @@ trait AttachOneOrMany
              *     });
              *
              */
-            $this->parent->fireEvent('model.relation.beforeRemove', [$this->relationName, $this->model]);
+            $this->parent->fireEvent('model.relation.beforeRemove', [$this->relationName, $model]);
 
             $options = $this->parent->getRelationDefinition($this->relationName);
 
@@ -292,7 +292,7 @@ trait AttachOneOrMany
              *     });
              *
              */
-            $this->parent->fireEvent('model.relation.afterRemove', [$this->relationName, $this->model]);
+            $this->parent->fireEvent('model.relation.afterRemove', [$this->relationName, $model]);
         }
         else {
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);
