@@ -14,12 +14,7 @@ class EncryptableTest extends DbTestCase
     public function setUp(): void
     {
         parent::setUp();
-
-        $this->db->schema()->create('secrets', function ($table) {
-            $table->increments('id');
-            $table->string('secret');
-            $table->timestamps();
-        });
+        $this->createTable();
 
         $this->encrypter = new Encrypter(self::TEST_CRYPT_KEY, 'AES-128-CBC');
     }
@@ -52,6 +47,15 @@ class EncryptableTest extends DbTestCase
         $testModel->secret = null;
         $this->assertNull($testModel->secret);
         $this->assertNull($testModel->attributes['secret']);
+    }
+
+    protected function createTable()
+    {
+        $this->db->schema()->create('secrets', function ($table) {
+            $table->increments('id');
+            $table->string('secret');
+            $table->timestamps();
+        });
     }
 }
 
