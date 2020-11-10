@@ -3,6 +3,7 @@
 use October\Rain\Database\Model;
 use October\Rain\Database\Pivot;
 use October\Rain\Database\Capsule\Manager as CapsuleManager;
+use October\Rain\Events\Dispatcher;
 
 class DbTestCase extends TestCase
 {
@@ -17,6 +18,8 @@ class DbTestCase extends TestCase
 
         $this->db->setAsGlobal();
         $this->db->bootEloquent();
+
+        Model::setEventDispatcher(new Dispatcher());
     }
 
     public function tearDown(): void
