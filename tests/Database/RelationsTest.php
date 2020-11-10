@@ -38,8 +38,12 @@ class RelationsTest extends DbTestCase
             'title' => 'A Post',
         ]);
 
+        Term::create(['type' => 'category', 'name' => 'category tag #1']);
+        Term::create(['type' => 'category', 'name' => 'category tag #2']);
+
         $post->tags()->create(['type' => 'tag', 'name' => 'A Tag']);
         $post->tags()->create(['type' => 'tag', 'name' => 'Second Tag']);
+
         $post->categories()->create(['type' => 'category', 'name' => 'A Category']);
         $post->categories()->create(['type' => 'category', 'name' => 'Second Category']);
     }
@@ -54,9 +58,9 @@ class RelationsTest extends DbTestCase
     public function testTablesProperlySeeded()
     {
         $this->assertEquals(1, Post::count());
-        $this->assertEquals(4, Term::count());
+        $this->assertEquals(6, Term::count());
         $this->assertEquals(2, Term::where('type', 'tag')->count());
-        $this->assertEquals(2, Term::where('type', 'category')->count());
+        $this->assertEquals(4, Term::where('type', 'category')->count());
     }
 
     public function testBelongsToManyCount()
@@ -116,6 +120,25 @@ class RelationsTest extends DbTestCase
 
         $post->tags()->detach();
         $this->assertEquals(0, $post->tags->count());
+    }
+
+    public function testBelongsToManySyncMultipleCategories()
+    {
+        $post = Post::first();
+
+        $category_ids = Term::where('type', 'category')->lists('id');
+        $this->assertEquals(4, count($category_ids));
+
+        $post->categories()->sync($category_ids);
+        $this->assertEquals(4, $post->categories()->count());
+    }
+
+    public function testBelongsToManyDetachOneCategory()
+    {
+        $post = Post::first();
+
+        $post->categories()->detach([6]);
+        $this->assertEquals(1, $post->categories->count());
     }
 }
 
