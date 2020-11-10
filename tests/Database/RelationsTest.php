@@ -38,10 +38,10 @@ class RelationsTest extends DbTestCase
             'title' => 'A Post',
         ]);
 
-        $post->tags()->create(['type'=>'tag', 'name'=>'A Tag']);
-        $post->tags()->create(['type'=>'tag', 'name'=>'Second Tag']);
-        $post->categories()->create(['type'=>'category', 'name'=>'A Category']);
-        $post->categories()->create(['type'=>'category', 'name'=>'Second Category']);
+        $post->tags()->create(['type' => 'tag', 'name' => 'A Tag']);
+        $post->tags()->create(['type' => 'tag', 'name' => 'Second Tag']);
+        $post->categories()->create(['type' => 'category', 'name' => 'A Category']);
+        $post->categories()->create(['type' => 'category', 'name' => 'Second Category']);
     }
 
     public function testTablesExist()
