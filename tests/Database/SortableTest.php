@@ -1,19 +1,7 @@
 <?php
 
-class SortableTest extends TestCase
+class SortableTest extends DbTestCase
 {
-    public function setUp(): void
-    {
-        $capsule = new Illuminate\Database\Capsule\Manager;
-        $capsule->addConnection([
-            'driver'   => 'sqlite',
-            'database' => ':memory:',
-            'prefix'   => ''
-        ]);
-        $capsule->setAsGlobal();
-        $capsule->bootEloquent();
-    }
-
     public function testOrderByIsAutomaticallyAdded()
     {
         $model = new TestSortableModel();
