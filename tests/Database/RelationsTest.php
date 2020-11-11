@@ -137,7 +137,8 @@ class RelationsTest extends DbTestCase
     {
         $post = Post::first();
 
-        $post->categories()->detach([6]);
+        $id = Term::where('type', 'category')->get()->last()->id;
+        $post->categories()->detach([$id]);
         $this->assertEquals(1, $post->categories->count());
     }
 }
