@@ -489,5 +489,4 @@ class QueryBuilder extends QueryBuilderBase
 
         return (int) array_change_key_case((array) $results[0])['aggregate'];
     }
-
 }
