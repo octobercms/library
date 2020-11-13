@@ -447,9 +447,8 @@ class QueryBuilder extends QueryBuilderBase
             $query = $this->cloneWithout(['orders', 'limit', 'offset'])
                 ->cloneWithoutBindings(['order']);
 
-            // We don't need simple columns, only specials
-            // like subselects which is why we're using
-            // havings after all.
+            // We don't need simple columns, only specials like subselects which is why
+            // we're using havings after all.
             foreach ($query->columns as $key => $value) {
                 if (is_string($value)) {
                     unset($query->columns[$key]);
@@ -460,10 +459,8 @@ class QueryBuilder extends QueryBuilderBase
                 Db::raw('('.$query->toSql().') as x')
             )->mergeBindings($query);
 
-            // Using a aggregate here won't work when
-            // groups are present because the
-            // getCountForPagination() is
-            // checking for it.
+            // Using a aggregate here won't work when groups are present because the
+            // getCountForPagination() is checking for it.
             if (!$this->groups) {
                 $countQuery->setAggregate('count', $this->withoutSelectAliases($columns));
             }
