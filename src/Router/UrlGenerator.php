@@ -14,8 +14,8 @@ class UrlGenerator extends UrlGeneratorBase
      *
      * Based off of the implentation at https://github.com/jakeasmith/http_build_url/blob/master/src/http_build_url.php.
      *
-     * @param array $url The URL parts, as an array. Must match the structure returned from a `parse_url` call.
-     * @param array $replace The URL replacement parts. Allows a developer to replace certain sections of the URL with
+     * @param mixed $url The URL parts, as an array. Must match the structure returned from a `parse_url` call.
+     * @param mixed $replace The URL replacement parts. Allows a developer to replace certain sections of the URL with
      *                       a different value.
      * @param mixed $flags A bitmask of binary or'ed HTTP_URL constants. By default, this is set to HTTP_URL_REPLACE.
      * @param array $newUrl If set, this will be filled with the array parts of the composed URL, similar to the return
@@ -23,8 +23,15 @@ class UrlGenerator extends UrlGeneratorBase
      *
      * @return string The generated URL as a string
      */
-    public static function buildUrl(array $url, array $replace = [], $flags = HTTP_URL_REPLACE, &$newUrl = []): string
+    public static function buildUrl($url, $replace = [], $flags = HTTP_URL_REPLACE, &$newUrl = []): string
     {
+        if (is_string($url)) {
+            $url = parse_url($url);
+        }
+        if (is_string($replace)) {
+            $replace = parse_url($replace);
+        }
+
         $urlSegments = ['scheme', 'host', 'user', 'pass', 'port', 'path', 'query', 'fragment'];
 
         // Set flags - HTTP_URL_STRIP_ALL and HTTP_URL_STRIP_AUTH cover several other flags.
