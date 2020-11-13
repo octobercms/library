@@ -4,6 +4,7 @@ use App;
 use Db;
 use October\Rain\Support\Arr;
 use Illuminate\Database\Query\Builder as QueryBuilderBase;
+use Illuminate\Database\Query\Expression;
 
 class QueryBuilder extends QueryBuilderBase
 {
@@ -443,31 +444,27 @@ class QueryBuilder extends QueryBuilderBase
      */
     protected function runPaginationCountQuery($columns = ['*'])
     {
-        if ($this->havings) {
-            $query = $this->cloneWithout(['orders', 'limit', 'offset'])
-                ->cloneWithoutBindings(['order']);
+        if ($this->groups || $this->havings) {
+            $clone = $this->cloneForPaginationCount();
 
-            // We don't need simple columns, only specials like subselects which is why
-            // we're using havings after all.
-            foreach ($query->columns as $key => $value) {
-                if (is_string($value)) {
-                    unset($query->columns[$key]);
-                }
-            }
-
-            $countQuery = Db::connection($this->getConnection()->getName())->table(
-                Db::raw('('.$query->toSql().') as x')
-            )->mergeBindings($query);
-
-            // Using a aggregate here won't work when groups are present because the
-            // getCountForPagination() is checking for it.
-            if (!$this->groups) {
-                $countQuery->setAggregate('count', $this->withoutSelectAliases($columns));
-            }
-
-            return $countQuery->get()->all();
+            return $this->newQuery()
+                ->from(new Expression('('.$clone->toSql().') as '.$this->grammar->wrap('aggregate_table')))
+                ->mergeBindings($clone)
+                ->setAggregate('count', $this->withoutSelectAliases($columns))
+                ->get()->all();
         }
 
         return parent::runPaginationCountQuery($columns);
+    }
+
+    /**
+     * Clone the existing query instance for usage in a pagination subquery.
+     *
+     * @return self
+     */
+    protected function cloneForPaginationCount()
+    {
+        return $this->cloneWithout(['orders', 'limit', 'offset'])
+            ->cloneWithoutBindings(['order']);
     }
 }
