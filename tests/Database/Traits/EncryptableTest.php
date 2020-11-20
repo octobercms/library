@@ -2,7 +2,7 @@
 
 use Illuminate\Encryption\Encrypter;
 
-class EncryptableTest extends TestCase
+class EncryptableTest extends DbTestCase
 {
     const TEST_CRYPT_KEY = 'gBmM1S5bxZ5ePRj5';
 
@@ -13,21 +13,8 @@ class EncryptableTest extends TestCase
 
     public function setUp()
     {
-        $capsule = new Illuminate\Database\Capsule\Manager;
-        $capsule->addConnection([
-            'driver'   => 'sqlite',
-            'database' => ':memory:',
-            'prefix'   => ''
-        ]);
-
-        $capsule->setAsGlobal();
-        $capsule->bootEloquent();
-
-        $capsule->schema()->create('secrets', function ($table) {
-            $table->increments('id');
-            $table->string('secret');
-            $table->timestamps();
-        });
+        parent::setUp();
+        $this->createTable();
 
         $this->encrypter = new Encrypter(self::TEST_CRYPT_KEY, 'AES-128-CBC');
     }
@@ -60,6 +47,15 @@ class EncryptableTest extends TestCase
         $testModel->secret = null;
         $this->assertNull($testModel->secret);
         $this->assertNull($testModel->attributes['secret']);
+    }
+
+    protected function createTable()
+    {
+        $this->db->schema()->create('secrets', function ($table) {
+            $table->increments('id');
+            $table->string('secret');
+            $table->timestamps();
+        });
     }
 }
 

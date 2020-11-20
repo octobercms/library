@@ -78,7 +78,8 @@
     },
     "autoload-dev": {
         "classmap": [
-            "tests/TestCase.php"
+            "tests/TestCase.php",
+            "tests/DbTestCase.php"
         ],
         "psr-4": {
             "October\\Rain\\Tests\\": "tests/"

@@ -1,22 +1,10 @@
 <?php
 
-class SortableTest extends TestCase
+class SortableTest extends DbTestCase
 {
-    public function setUp()
-    {
-        $capsule = new Illuminate\Database\Capsule\Manager;
-        $capsule->addConnection([
-            'driver'   => 'sqlite',
-            'database' => ':memory:',
-            'prefix'   => ''
-        ]);
-        $capsule->setAsGlobal();
-        $capsule->bootEloquent();
-    }
-
     public function testOrderByIsAutomaticallyAdded()
     {
-        $model = new TestModel();
+        $model = new TestSortableModel();
         $query = $model->newQuery()->toSql();
 
         $this->assertEquals('select * from "test" order by "sort_order" asc', $query);
@@ -24,7 +12,7 @@ class SortableTest extends TestCase
 
     public function testOrderByCanBeOverridden()
     {
-        $model = new TestModel();
+        $model = new TestSortableModel();
         $query1 = $model->newQuery()->orderBy('name')->orderBy('email', 'desc')->toSql();
         $query2 = $model->newQuery()->orderBy('sort_order')->orderBy('name')->toSql();
 
@@ -33,7 +21,7 @@ class SortableTest extends TestCase
     }
 }
 
-class TestModel extends \October\Rain\Database\Model
+class TestSortableModel extends \October\Rain\Database\Model
 {
     use \October\Rain\Database\Traits\Sortable;
 
