@@ -40,13 +40,13 @@ if (!function_exists('http_build_url')) {
      * Polyfill for `http_build_url` method provided by PECL HTTP extension.
      *
      * @see \October\Rain\Router\UrlGenerator::buildUrl()
-     * @param array $url
-     * @param array $replace
+     * @param mixed $url
+     * @param mixed $replace
      * @param mixed $flags
      * @param array $newUrl
      * @return string
      */
-    function http_build_url(array $url, array $replace = [], $flags = HTTP_URL_REPLACE, array &$newUrl = [])
+    function http_build_url($url, $replace = [], $flags = HTTP_URL_REPLACE, array &$newUrl = [])
     {
         return \October\Rain\Router\UrlGenerator::buildUrl($url, $replace, $flags, $newUrl);
     }
