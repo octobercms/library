@@ -132,7 +132,7 @@ class BelongsToMany extends BelongsToManyBase
         /*
          * See Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
          */
-        $result = parent::attach($ids, $attributes, $touch);
+        parent::attach($ids, $attributes, $touch);
 
         /**
          * @event model.relation.afterAttach
