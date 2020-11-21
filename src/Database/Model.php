@@ -57,6 +57,11 @@ class Model extends EloquentModel
     protected static $eventsBooted = [];
 
     /**
+     * @var bool Indicates if string properties should be trimmed
+     */
+    public $trimStrings = true;
+
+    /**
      * Constructor
      */
     public function __construct(array $attributes = [])
@@ -1207,7 +1212,7 @@ class Model extends EloquentModel
         /*
          * Trim strings
          */
-        if (is_string($value)) {
+        if ($this->trimStrings && is_string($value)) {
             $value = trim($value);
         }
 
