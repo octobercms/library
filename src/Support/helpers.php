@@ -165,14 +165,14 @@ if (!function_exists('traceSql')) {
 
 if (!function_exists('config_path')) {
     /**
-     * Get the path to the plugins folder.
+     * Get the path to the config folder.
      *
      * @param  string  $path
      * @return string
      */
     function config_path($path = '')
     {
-        return app('path.config').($path ? '/'.$path : $path);
+        return PathResolver::join(app('path.config'), $path);
     }
 }
 
@@ -185,7 +185,7 @@ if (!function_exists('plugins_path')) {
      */
     function plugins_path($path = '')
     {
-        return app('path.plugins').($path ? '/'.$path : $path);
+        return PathResolver::join(app('path.plugins'), $path);
     }
 }
 
@@ -198,7 +198,20 @@ if (!function_exists('uploads_path')) {
      */
     function uploads_path($path = '')
     {
-        return app('path.uploads').($path ? '/'.$path : $path);
+        return PathResolver::join(Config::get('cms.storage.uploads.path', app('path.uploads')), $path);
+    }
+}
+
+if (!function_exists('media_path')) {
+    /**
+     * Get the path to the media folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function media_path($path = '')
+    {
+        return PathResolver::join(Config::get('cms.storage.media.path', app('path.media')), $path);
     }
 }
 
@@ -211,7 +224,7 @@ if (!function_exists('themes_path')) {
      */
     function themes_path($path = '')
     {
-        return app('path.themes').($path ? '/'.$path : $path);
+        return PathResolver::join(app('path.themes'), $path);
     }
 }
 
@@ -224,7 +237,7 @@ if (!function_exists('temp_path')) {
      */
     function temp_path($path = '')
     {
-        return app('path.temp').($path ? '/'.$path : $path);
+        return PathResolver::join(app('path.temp'), $path);
     }
 }
 
