@@ -40,7 +40,7 @@ class MailFake extends \Illuminate\Support\Testing\Fakes\MailFake
      */
     public function send($view, $data = [], $callback = null)
     {
-        if (! $view instanceof Mailable) {
+        if (!$view instanceof Mailable) {
             $view = $this->buildMailable($view, $data, $callback);
         }
 
