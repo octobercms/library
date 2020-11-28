@@ -1,6 +1,6 @@
 <?php namespace October\Rain\Parse\Syntax;
 
-use Exception;
+use October\Rain\Exception\ApplicationException;
 
 /**
  * Dynamic Syntax parser
@@ -48,6 +48,7 @@ class FieldParser
         'fileupload',
         'mediafinder',
         'dropdown',
+        'colorpicker',
         'radio',
         'checkbox',
         'checkboxlist',
@@ -243,6 +244,11 @@ class FieldParser
             'balloon-selector',
         ];
 
+        // These fields take available colors for selection
+        $availableColors = [
+            'colorpicker',
+        ];
+
         foreach ($tagStrings as $key => $tagString) {
             $tagName = $tagNames[$key];
             $params = $this->processParams($paramStrings[$key], $tagName);
@@ -263,6 +269,10 @@ class FieldParser
 
             if (in_array($tagName, $optionables) && isset($params['options'])) {
                 $params['options'] = $this->processOptionsToArray($params['options']);
+            }
+
+            if (in_array($tagName, $availableColors) && isset($params['availableColors'])) {
+                $params['availableColors'] = $this->processOptionsToArray($params['availableColors']);
             }
 
             // Convert trigger property to array
@@ -398,7 +408,7 @@ class FieldParser
      * \Path\To\Class::method -> \Path\To\Class::method(): array
      *
      * @param  string $optionsString
-     * @throws Exception
+     * @throws ApplicationException if an invalid array is returned when using the callback method.
      * @return array
      */
     protected function processOptionsToArray($optionsString)
@@ -431,7 +441,7 @@ class FieldParser
 
                 if (strlen($key)) {
                     if (!preg_match('/^[0-9a-z-_]+$/i', $key)) {
-                        throw new Exception(sprintf(
+                        throw new ApplicationException(sprintf(
                             'Invalid drop-down option key: %s. Option keys can contain only digits, Latin letters and characters _ and -',
                             $key
                         ));
