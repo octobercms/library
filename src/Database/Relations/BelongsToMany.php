@@ -417,5 +417,4 @@ class BelongsToMany extends BelongsToManyBase
 
         return $query->join($this->related->getTable(), $this->relatedPivotKey, '=', $this->relatedKey);
     }
-
 }
