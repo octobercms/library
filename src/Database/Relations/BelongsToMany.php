@@ -411,6 +411,8 @@ class BelongsToMany extends BelongsToManyBase
     public function newPivotQuery()
     {
         $query = parent::newPivotQuery();
+
+        // add relation's conditions and scopes to the query
         $this->addDefinedConstraintsToQuery($query);
 
         return $query->join($this->related->getTable(), $this->relatedPivotKey, '=', $this->relatedKey);
