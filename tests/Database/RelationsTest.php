@@ -26,7 +26,6 @@ class RelationsTest extends DbTestCase
         });
 
         $this->db->schema()->create('posts_terms', function ($table) {
-            #$table->increment('id');
             $table->primary(['post_id', 'term_id']);
             $table->unsignedInteger('post_id');
             $table->unsignedInteger('term_id');
