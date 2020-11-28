@@ -130,14 +130,7 @@ class BelongsToMany extends BelongsToManyBase
             return;
         }
 
-        // Here we will insert the attachment records into the pivot table. Once we have
-        // inserted the records, we will touch the relationships if necessary and the
-        // function will return. We can parse the IDs before inserting the records.
-        $this->newPivotStatement()->insert($insertData);
-
-        if ($touch) {
-            $this->touchIfTouching();
-        }
+        parent::attach($id, $attributes, $touch);
 
         /**
          * @event model.relation.afterAttach
@@ -164,7 +157,7 @@ class BelongsToMany extends BelongsToManyBase
     {
         $attachedIdList = $this->parseIds($ids);
         if (empty($attachedIdList)) {
-            $attachedIdList = $this->allRelatedIds()->all();
+            $attachedIdList = $this->newPivotQuery()->lists($this->relatedPivotKey);
         }
 
         /**
@@ -411,12 +404,16 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
-     * Get the pivot models that are currently attached (taking conditions & scopes into account).
+     * Create a new query builder for the pivot table.
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Database\Query\Builder
      */
-    protected function getCurrentlyAttachedPivots()
+    public function newPivotQuery()
     {
-        return $this->getQuery()->get();
+        $query = parent::newPivotQuery();
+        $this->addDefinedConstraintsToQuery($query);
+
+        return $query->join($this->related->getTable(), $this->relatedPivotKey, '=', $this->relatedKey);
     }
+
 }
