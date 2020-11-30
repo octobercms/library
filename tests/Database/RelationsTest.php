@@ -66,8 +66,9 @@ class RelationsTest extends DbTestCase
     public function testBelongsToManyCount()
     {
         $post = Post::first();
-        $this->assertEquals(2, $post->tags->count());
-        $this->assertEquals(2, $post->categories->count());
+        $this->assertEquals(2, $post->tags()->count());
+        $this->assertEquals(2, $post->categories()->count());
+        $this->assertEquals(4, $post->terms()->count());
     }
 
     public function testBelongsToManySyncAll()
@@ -77,14 +78,21 @@ class RelationsTest extends DbTestCase
         $catid = $post->categories()->first()->id;
         $tagid = $post->tags()->first()->id;
 
+        $this->assertEquals(2, $post->categories()->count());
+        $this->assertEquals(2, $post->tags()->count());
+
         $post->categories()->sync([$catid]);
         $post->tags()->sync([$tagid]);
+
+        $post->reloadRelations();
 
         $this->assertEquals(1, $post->categories()->count());
         $this->assertEquals($catid, $post->categories()->first()->id);
 
         $this->assertEquals(1, $post->tags()->count());
         $this->assertEquals($tagid, $post->tags()->first()->id);
+
+        $this->assertEquals(2, $post->terms()->count());
     }
 
     public function testBelongsToManySyncTags()
@@ -99,6 +107,8 @@ class RelationsTest extends DbTestCase
         $this->assertEquals(0, $post->categories()->count());
         $this->assertEquals(1, $post->tags()->count());
         $this->assertEquals($id, $post->tags()->first()->id);
+
+        $this->assertEquals(1, $post->terms()->count());
     }
 
     public function testBelongsToManySyncCategories()
@@ -113,6 +123,8 @@ class RelationsTest extends DbTestCase
         $this->assertEquals(1, $post->categories()->count());
         $this->assertEquals($id, $post->categories()->first()->id);
         $this->assertEquals(0, $post->tags()->count());
+
+        $this->assertEquals(1, $post->terms()->count());
     }
 
     public function testBelongsToManyDetach()
@@ -124,6 +136,7 @@ class RelationsTest extends DbTestCase
 
         $this->assertEquals(0, $post->categories()->count());
         $this->assertEquals(0, $post->tags()->count());
+        $this->assertEquals(0, $post->terms()->count());
     }
 
     public function testBelongsToManySyncMultipleCategories()
@@ -135,6 +148,8 @@ class RelationsTest extends DbTestCase
 
         $post->categories()->sync($category_ids);
         $this->assertEquals(4, $post->categories()->count());
+        $this->assertEquals(2, $post->tags()->count());
+        $this->assertEquals(6, $post->terms()->count());
     }
 
     public function testBelongsToManyDetachOneCategory()
@@ -143,8 +158,16 @@ class RelationsTest extends DbTestCase
 
         $id = $post->categories()->get()->last()->id;
 
+        $this->assertEquals(2, $post->categories()->count());
+        $this->assertEquals(2, $post->tags()->count());
+        $this->assertEquals(4, $post->terms()->count());
+
         $post->categories()->detach([$id]);
+        $post->reloadRelations();
+
         $this->assertEquals(1, $post->categories()->count());
+        $this->assertEquals(2, $post->tags()->count());
+        $this->assertEquals(3, $post->terms()->count());
     }
 
     public function testTerms()
@@ -165,7 +188,6 @@ class RelationsTest extends DbTestCase
         $this->assertTrue($post->terms->contains($term2->id));
 
         // Set by Model object
-
         $post->terms = $term1;
         $this->assertEquals(1, $post->terms->count());
         $this->assertEquals('term #1', $post->terms->first()->name);
