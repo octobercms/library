@@ -402,19 +402,4 @@ class BelongsToMany extends BelongsToManyBase
         traceLog('Method BelongsToMany::getRelatedIds has been deprecated, use BelongsToMany::allRelatedIds instead.');
         return $this->allRelatedIds($sessionKey)->all();
     }
-
-    /**
-     * Create a new query builder for the pivot table.
-     *
-     * @return \Illuminate\Database\Query\Builder
-     */
-    public function newPivotQuery()
-    {
-        $query = parent::newPivotQuery();
-
-        // add relation's conditions and scopes to the query
-        $this->addDefinedConstraintsToQuery($query);
-
-        return $query->join($this->related->getTable(), $this->relatedPivotKey, '=', $this->relatedKey);
-    }
 }
