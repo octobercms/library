@@ -11,36 +11,8 @@ use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use Illuminate\Contracts\Broadcasting\Factory as BroadcastFactory;
 use Illuminate\Contracts\Container\Container as ContainerContract;
 
-class Dispatcher implements DispatcherContract
+class Dispatcher extends \Illuminate\Events\Dispatcher
 {
-    /**
-     * The IoC container instance.
-     *
-     * @var \Illuminate\Contracts\Container\Container
-     */
-    protected $container;
-
-    /**
-     * The registered event listeners.
-     *
-     * @var array
-     */
-    protected $listeners = [];
-
-    /**
-     * The wildcard listeners.
-     *
-     * @var array
-     */
-    protected $wildcards = [];
-
-    /**
-     * The cached wildcard listeners.
-     *
-     * @var array
-     */
-    protected $wildcardsCache = [];
-
     /**
      * The sorted event listeners.
      *
@@ -54,24 +26,6 @@ class Dispatcher implements DispatcherContract
      * @var array
      */
     protected $firing = [];
-
-    /**
-     * The queue resolver instance.
-     *
-     * @var callable
-     */
-    protected $queueResolver;
-
-    /**
-     * Create a new event dispatcher instance.
-     *
-     * @param  \Illuminate\Contracts\Container\Container|null  $container
-     * @return void
-     */
-    public function __construct(ContainerContract $container = null)
-    {
-        $this->container = $container ?: new Container;
-    }
 
     /**
      * Register an event listener with the dispatcher.
@@ -92,103 +46,6 @@ class Dispatcher implements DispatcherContract
                 unset($this->sorted[$event]);
             }
         }
-    }
-
-    /**
-     * Setup a wildcard listener callback.
-     *
-     * @param  string  $event
-     * @param  mixed  $listener
-     * @return void
-     */
-    protected function setupWildcardListen($event, $listener)
-    {
-        $this->wildcards[$event][] = $this->makeListener($listener, true);
-
-        $this->wildcardsCache = [];
-    }
-
-    /**
-     * Determine if a given event has listeners.
-     *
-     * @param  string  $eventName
-     * @return bool
-     */
-    public function hasListeners($eventName)
-    {
-        return isset($this->listeners[$eventName]) ||
-               isset($this->wildcards[$eventName]) ||
-               $this->hasWildcardListeners($eventName);
-    }
-
-    /**
-     * Determine if the given event has any wildcard listeners.
-     *
-     * @param  string  $eventName
-     * @return bool
-     */
-    public function hasWildcardListeners($eventName)
-    {
-        foreach ($this->wildcards as $key => $listeners) {
-            if (Str::is($key, $eventName)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Register an event and payload to be fired later.
-     *
-     * @param  string  $event
-     * @param  array  $payload
-     * @return void
-     */
-    public function push($event, $payload = [])
-    {
-        $this->listen($event.'_pushed', function () use ($event, $payload) {
-            $this->fire($event, $payload);
-        });
-    }
-
-    /**
-     * Register an event subscriber with the dispatcher.
-     *
-     * @param  object|string  $subscriber
-     * @return void
-     */
-    public function subscribe($subscriber)
-    {
-        $subscriber = $this->resolveSubscriber($subscriber);
-
-        $subscriber->subscribe($this);
-    }
-
-    /**
-     * Resolve the subscriber instance.
-     *
-     * @param  object|string  $subscriber
-     * @return mixed
-     */
-    protected function resolveSubscriber($subscriber)
-    {
-        if (is_string($subscriber)) {
-            return $this->container->make($subscriber);
-        }
-
-        return $subscriber;
-    }
-
-    /**
-     * Flush a set of pushed events.
-     *
-     * @param  string  $event
-     * @return void
-     */
-    public function flush($event)
-    {
-        $this->fire($event.'_pushed');
     }
 
     /**
@@ -284,33 +141,6 @@ class Dispatcher implements DispatcherContract
     }
 
     /**
-     * Parse the given event and payload and prepare them for dispatching.
-     *
-     * @param  mixed  $event
-     * @param  mixed  $payload
-     * @return array
-     */
-    protected function parseEventAndPayload($event, $payload)
-    {
-        if (is_object($event)) {
-            list($payload, $event) = [[$event], get_class($event)];
-        }
-
-        return [$event, Arr::wrap($payload)];
-    }
-
-    /**
-     * Broadcast the given event class.
-     *
-     * @param  \Illuminate\Contracts\Broadcasting\ShouldBroadcast  $event
-     * @return void
-     */
-    protected function broadcastEvent($event)
-    {
-        $this->container->make(BroadcastFactory::class)->queue($event);
-    }
-
-    /**
      * Get all of the listeners for a given event name.
      *
      * @param  string  $eventName
@@ -335,25 +165,6 @@ class Dispatcher implements DispatcherContract
     }
 
     /**
-     * Get the wildcard listeners for the event.
-     *
-     * @param  string  $eventName
-     * @return array
-     */
-    protected function getWildcardListeners($eventName)
-    {
-        $wildcards = [];
-
-        foreach ($this->wildcards as $key => $listeners) {
-            if (Str::is($key, $eventName)) {
-                $wildcards = array_merge($wildcards, $listeners);
-            }
-        }
-
-        return $this->wildcardsCache[$eventName] = $wildcards;
-    }
-
-    /**
      * Sort the listeners for a given event by priority.
      *
      * @param  string  $eventName
@@ -373,111 +184,6 @@ class Dispatcher implements DispatcherContract
                 'array_merge',
                 $this->listeners[$eventName]
             );
-        }
-    }
-
-    /**
-     * Add the listeners for the event's interfaces to the given array.
-     *
-     * @param  string  $eventName
-     * @param  array  $listeners
-     * @return array
-     */
-    protected function addInterfaceListeners($eventName, array $listeners = [])
-    {
-        foreach (class_implements($eventName) as $interface) {
-            if (isset($this->listeners[$interface])) {
-                foreach ($this->listeners[$interface] as $names) {
-                    $listeners = array_merge($listeners, (array) $names);
-                }
-            }
-        }
-
-        return $listeners;
-    }
-
-    /**
-     * Register an event listener with the dispatcher.
-     *
-     * @param  \Closure|string  $listener
-     * @param  bool  $wildcard
-     * @return \Closure
-     */
-    public function makeListener($listener, $wildcard = false)
-    {
-        if (is_string($listener)) {
-            return $this->createClassListener($listener, $wildcard);
-        }
-
-        return function ($event, $payload) use ($listener, $wildcard) {
-            if ($wildcard) {
-                return $listener($event, $payload);
-            }
-
-            return $listener(...array_values($payload));
-        };
-    }
-
-    /**
-     * Create a class based listener using the IoC container.
-     *
-     * @param  string  $listener
-     * @param  bool  $wildcard
-     * @return \Closure
-     */
-    public function createClassListener($listener, $wildcard = false)
-    {
-        return function ($event, $payload) use ($listener, $wildcard) {
-            if ($wildcard) {
-                return call_user_func($this->createClassCallable($listener), $event, $payload);
-            }
-
-            return call_user_func_array($this->createClassCallable($listener), $payload);
-        };
-    }
-
-    /**
-     * Create the class based event callable.
-     *
-     * @param  string  $listener
-     * @return callable
-     */
-    protected function createClassCallable($listener)
-    {
-        list($class, $method) = $this->parseClassCallable($listener);
-
-        if ($this->handlerShouldBeQueued($class)) {
-            return $this->createQueuedHandlerCallable($class, $method);
-        }
-
-        return [$this->container->make($class), $method];
-    }
-
-    /**
-     * Parse the class listener into class and method.
-     *
-     * @param  string  $listener
-     * @return array
-     */
-    protected function parseClassCallable($listener)
-    {
-        return Str::parseCallback($listener, 'handle');
-    }
-
-    /**
-     * Determine if the event handler class should be queued.
-     *
-     * @param  string  $class
-     * @return bool
-     */
-    protected function handlerShouldBeQueued($class)
-    {
-        try {
-            return (new ReflectionClass($class))->implementsInterface(
-                'Illuminate\Contracts\Queue\ShouldQueue'
-            );
-        } catch (Exception $e) {
-            return false;
         }
     }
 
@@ -531,57 +237,5 @@ class Dispatcher implements DispatcherContract
         $handler->queue($this->resolveQueue(), 'October\Rain\Events\CallQueuedHandler@call', [
             'class' => $class, 'method' => $method, 'data' => serialize($arguments),
         ]);
-    }
-
-    /**
-     * Remove a set of listeners from the dispatcher.
-     *
-     * @param  string  $event
-     * @return void
-     */
-    public function forget($event)
-    {
-        if (Str::contains($event, '*')) {
-            unset($this->wildcards[$event]);
-        } else {
-            unset($this->listeners[$event], $this->sorted[$event]);
-        }
-    }
-
-    /**
-     * Forget all of the pushed listeners.
-     *
-     * @return void
-     */
-    public function forgetPushed()
-    {
-        foreach ($this->listeners as $key => $value) {
-            if (Str::endsWith($key, '_pushed')) {
-                $this->forget($key);
-            }
-        }
-    }
-
-    /**
-     * Get the queue implementation from the resolver.
-     *
-     * @return \Illuminate\Contracts\Queue\Queue
-     */
-    protected function resolveQueue()
-    {
-        return call_user_func($this->queueResolver);
-    }
-
-    /**
-     * Set the queue resolver implementation.
-     *
-     * @param  callable  $resolver
-     * @return $this
-     */
-    public function setQueueResolver(callable $resolver)
-    {
-        $this->queueResolver = $resolver;
-
-        return $this;
     }
 }
