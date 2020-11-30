@@ -130,6 +130,9 @@ class BelongsToMany extends BelongsToManyBase
             return;
         }
 
+        /**
+         * @see Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
+         */
         parent::attach($id, $attributes, $touch);
 
         /**
@@ -178,8 +181,8 @@ class BelongsToMany extends BelongsToManyBase
             return;
         }
 
-        /*
-         * See Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
+        /**
+         * @see Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
          */
         parent::detach($attachedIdList, $touch);
 
