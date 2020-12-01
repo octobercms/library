@@ -130,14 +130,10 @@ class BelongsToMany extends BelongsToManyBase
             return;
         }
 
-        // Here we will insert the attachment records into the pivot table. Once we have
-        // inserted the records, we will touch the relationships if necessary and the
-        // function will return. We can parse the IDs before inserting the records.
-        $this->newPivotStatement()->insert($insertData);
-
-        if ($touch) {
-            $this->touchIfTouching();
-        }
+        /**
+         * @see Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
+         */
+        parent::attach($id, $attributes, $touch);
 
         /**
          * @event model.relation.afterAttach
@@ -164,7 +160,7 @@ class BelongsToMany extends BelongsToManyBase
     {
         $attachedIdList = $this->parseIds($ids);
         if (empty($attachedIdList)) {
-            $attachedIdList = $this->allRelatedIds()->all();
+            $attachedIdList = $this->allRelatedIds();
         }
 
         /**
@@ -185,8 +181,8 @@ class BelongsToMany extends BelongsToManyBase
             return;
         }
 
-        /*
-         * See Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
+        /**
+         * @see Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
          */
         parent::detach($attachedIdList, $touch);
 
@@ -408,15 +404,5 @@ class BelongsToMany extends BelongsToManyBase
     {
         traceLog('Method BelongsToMany::getRelatedIds has been deprecated, use BelongsToMany::allRelatedIds instead.');
         return $this->allRelatedIds($sessionKey)->all();
-    }
-
-    /**
-     * Get the pivot models that are currently attached (taking conditions & scopes into account).
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    protected function getCurrentlyAttachedPivots()
-    {
-        return $this->getQuery()->get();
     }
 }
