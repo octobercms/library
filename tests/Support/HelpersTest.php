@@ -24,18 +24,16 @@ class HelpersTest extends TestCase
             }
         });
     }
-    
+
     public function testConfigPath()
     {
-        $this->assertEquals($this->app['path.config'], config_path());
+        $this->assertEquals(PathResolver::standardize($this->app['path.config']), config_path());
     }
 
     public function testPluginsPath()
     {
-        $expected = $this->app['path.plugins'];
-
-        $this->assertEquals($expected, plugins_path());
-        $this->assertEquals(PathResolver::join($expected, '/extra'), plugins_path('/extra'));
+        $this->assertEquals(PathResolver::standardize($this->app['path.plugins']), plugins_path());
+        $this->assertEquals(PathResolver::join($this->app['path.plugins'], '/extra'), plugins_path('/extra'));
     }
 
     public function testThemesPath()
