@@ -1,10 +1,8 @@
-<?php
+<?php namespace October\Rain\Support\Facades;
 
-namespace October\Rain\Support\Facades;
-
+use Illuminate\Support\Facades\Cache;
 use October\Rain\Database\Model;
 use October\Rain\Support\Testing\Fakes\EventFake;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * @see \Illuminate\Support\Facades\Event
