@@ -1,6 +1,4 @@
-<?php
-
-namespace October\Rain\Support\Testing\Fakes;
+<?php namespace October\Rain\Support\Testing\Fakes;
 
 use October\Rain\Events\Dispatcher;
 use October\Rain\Support\Arr;
