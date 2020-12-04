@@ -356,20 +356,20 @@ class ResizerTest extends TestCase
 
     public function testGetExtension()
     {
-        $this->setSource(self::SRC_SQUARE); // jpeg extension
+        $this->setSource(self::SRC_PORTRAIT); // gif extension
         $this->createFixtureResizer();
 
         // no extension provided in path, no extension provided in options, should return source extension.
         $extension = $this->callProtectedMethod($this->resizer, 'getExtension', ['dummy']);
-        $this->assertEquals('jpeg', $extension);
+        $this->assertEquals('gif', $extension);
 
         // no extension provided in options, extension provided in path, should return path extension
-        $extension = $this->callProtectedMethod($this->resizer, 'getExtension', ['dummy.gif']);
-        $this->assertEquals('gif', $extension);
+        $extension = $this->callProtectedMethod($this->resizer, 'getExtension', ['dummy.jpg']);
+        $this->assertEquals('jpg', $extension);
 
         // extension provided in options and in path, should return extension from options
         $this->resizer->setOptions(['extension' => 'png']);
-        $extension = $this->callProtectedMethod($this->resizer, 'getExtension', ['dummy.gif']);
+        $extension = $this->callProtectedMethod($this->resizer, 'getExtension', ['dummy.jpg']);
         $this->assertEquals('png', $extension);
     }
 
