@@ -77,10 +77,4 @@ class Mailable extends MailableBase
         }
         return $this;
     }
-
-    public function __toString()
-    {
-        return get_class($this);
-    }
-
 }
