@@ -93,12 +93,12 @@ class MailFakeTest extends TestCase
         $this->arrayTests($views, $subject, true);
     }
 
-    public function arrayTests($views, $subject, $queued=false)
+    public function arrayTests($views, $subject, $queued = false)
     {
         $sendMethod = $queued ? 'queue' : 'send';
         $assertMethod = $queued ? 'assertQueued' : 'assertSent';
 
-        Mail::{$sendMethod}($views, [], function ($mailer) {
+        Mail::{$sendMethod}($views, [], function ($mailer) use ($subject) {
             $mailer->to($this->recipient);
             $mailer->subject = $subject;
         });
@@ -109,7 +109,7 @@ class MailFakeTest extends TestCase
             Mail::{$assertMethod}($view, function ($mailer) {
                 return $mailer->hasTo($this->recipient);
             });
-            Mail::{$assertMethod}($view, function ($mailer) {
+            Mail::{$assertMethod}($view, function ($mailer) use ($subject) {
                 return $mailer->subject === $subject;
             });
         }
