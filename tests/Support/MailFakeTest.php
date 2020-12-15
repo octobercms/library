@@ -18,43 +18,100 @@ class MailFakeTest extends TestCase
         }
         Mail::swap(new MailFake());
 
-        $this->view = 'mail-test-view';
         $this->recipient = 'fake@localhost';
         $this->subject = 'MailFake test';
     }
 
     public function testSend()
     {
-        Mail::send($this->view, [], function ($mailer) {
+        $view = 'mail-test-view';
+
+        Mail::send($view, [], function ($mailer) {
             $mailer->to($this->recipient);
             $mailer->subject($this->subject);
         });
-        Mail::assertSent($this->view, 1);
+        Mail::assertSent($view, 1);
 
-        Mail::assertSent($this->view, function ($mailer) {
+        Mail::assertSent($view, function ($mailer) {
             return $mailer->hasTo($this->recipient);
         });
 
-        Mail::assertSent($this->view, function ($mailer) {
+        Mail::assertSent($view, function ($mailer) {
             return $mailer->subject === $this->subject;
         });
     }
 
     public function testQueue()
     {
-        Mail::queue($this->view, [], function ($mailer) {
+        $view = 'mail-test-queued-view';
+
+        Mail::queue($view, [], function ($mailer) {
             $mailer->to($this->recipient);
             $mailer->subject($this->subject);
         });
 
-        Mail::assertQueued($this->view, 1);
+        Mail::assertQueued($view, 1);
 
-        Mail::assertQueued($this->view, function ($mailer) {
+        Mail::assertQueued($view, function ($mailer) {
             return $mailer->hasTo($this->recipient);
         });
 
-        Mail::assertQueued($this->view, function ($mailer) {
+        Mail::assertQueued($view, function ($mailer) {
             return $mailer->subject === $this->subject;
         });
+    }
+
+    public function testIndexedArrayViews()
+    {
+        $views = ['html-view', 'plain-view'];
+        $subject = 'test indexed array views';
+
+        $this->arrayTests($views, $subject);
+    }
+
+    public function testNamedArrayViews()
+    {
+        $views = ['html' => 'html-view', 'text' => 'plain-view'];
+        $subject = 'test named array views';
+
+        $this->arrayTests($views, $subject);
+    }
+
+    public function testIndexedArrayViews_Queued()
+    {
+        $views = ['html-view', 'plain-view'];
+        $subject = 'test indexed array views queued';
+
+        $this->arrayTests($views, $subject, true);
+    }
+
+    public function testNamedArrayViews_Queued()
+    {
+        $views = ['html' => 'html-view', 'text' => 'plain-view'];
+        $subject = 'test named array views queued';
+
+        $this->arrayTests($views, $subject, true);
+    }
+
+    public function arrayTests($views, $subject, $queued=false)
+    {
+        $sendMethod = $queued ? 'queue' : 'send';
+        $assertMethod = $queued ? 'assertQueued' : 'assertSent';
+
+        Mail::{$sendMethod}($views, [], function ($mailer) {
+            $mailer->to($this->recipient);
+            $mailer->subject = $subject;
+        });
+
+        foreach (array_values($views) as $view) {
+            Mail::{$assertMethod}($view, 1);
+
+            Mail::{$assertMethod}($view, function ($mailer) {
+                return $mailer->hasTo($this->recipient);
+            });
+            Mail::{$assertMethod}($view, function ($mailer) {
+                return $mailer->subject === $subject;
+            });
+        }
     }
 }
