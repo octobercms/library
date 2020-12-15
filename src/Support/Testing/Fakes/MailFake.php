@@ -26,7 +26,7 @@ class MailFake extends \Illuminate\Support\Testing\Fakes\MailFake
     protected function queuedMailablesOf($type)
     {
         return collect($this->queuedMailables)->filter(function ($mailable) use ($type) {
-            return $mailable->view === $type;
+            return $mailable instanceof $type || $mailable->view === $type || $mailable->textView === $type;
         });
     }
 
