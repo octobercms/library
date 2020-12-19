@@ -31,7 +31,7 @@ class CheckForTrustedHost extends BaseMiddleware
         if (is_array($hosts)) {
             foreach ($hosts as &$host) {
                 // Allow for people including protocol in their configured hosts
-                if (starts_with($host, 'http')) {
+                if (starts_with($host, 'http://') || starts_with($host, 'https://') {
                     $host = parse_url($host, PHP_URL_HOST);
                 }
 
