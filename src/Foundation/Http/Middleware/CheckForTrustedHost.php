@@ -42,9 +42,7 @@ class CheckForTrustedHost extends BaseMiddleware
                     $host = '^' . preg_quote($host) . '$';
                 }
             }
-        }
-
-        if ($hosts === true) {
+        } elseif ($hosts === true) {
             // Use app.url config value, and all subdomains, as the trusted host
             $url = Config::get('app.url', null);
 
