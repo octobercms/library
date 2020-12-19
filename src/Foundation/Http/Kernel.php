@@ -27,7 +27,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
-        \October\Rain\Foundation\Http\Middleware\TrustHosts::class,
+        \October\Rain\Foundation\Http\Middleware\CheckForTrustedHost::class,
         \October\Rain\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
     ];
 
