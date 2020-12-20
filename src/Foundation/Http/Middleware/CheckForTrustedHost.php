@@ -26,36 +26,53 @@ class CheckForTrustedHost extends BaseMiddleware
      */
     public function hosts()
     {
-        $hosts = Config::get('app.trustedHosts', []);
+        return self::processTrustedHosts(Config::get('app.trustedHosts', []));
+    }
 
-        if (is_array($hosts)) {
-            foreach ($hosts as &$host) {
-                // Allow for people including protocol in their configured hosts
-                if (starts_with($host, 'http://') || starts_with($host, 'https://')) {
-                    $host = parse_url($host, PHP_URL_HOST);
-                }
-
-                // Ensure that trusted hosts specified as just a plain hostname are
-                // properly converted into a strict hostname matching pattern,
-                // otherwise example.com allows sub.example.com
-                if (filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
-                    $host = '^' . preg_quote($host) . '$';
-                }
-            }
-        } elseif ($hosts === true) {
-            // Use app.url config value, and all subdomains, as the trusted host
+    /**
+     * Processes the trusted hosts into an array of patterns the match for host header checks.
+     *
+     * @param array|bool $hosts
+     * @return array
+     */
+    public static function processTrustedHosts($hosts)
+    {
+        if ($hosts === true) {
             $url = Config::get('app.url', null);
 
+            // If no app URL is set, then disable trusted hosts.
             if (is_null($url)) {
                 return [];
             }
 
-            return [
-                '^(.+\.)?' . preg_quote(parse_url($url, PHP_URL_HOST)) . '$',
-            ];
+            $hosts = [$url];
         } elseif ($hosts === false) {
             return [];
         }
+
+        $hosts = array_map(function ($host) {
+            // If a URL is provided, extract the host
+            if (filter_var($host, FILTER_VALIDATE_URL)) {
+                $host = parse_url($host, PHP_URL_HOST);
+            }
+
+            // Do strict checks for IP address hosts
+            if (filter_var($host, FILTER_VALIDATE_IP)) {
+                return '^' . preg_quote($host) . '$';
+            }
+
+            // Allow domains to be matched against a www subdomain
+            if (filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+                if (preg_match('/^www\.(.*?)$/i', $host, $matches)) {
+                    return '^(www\.)?' . preg_quote($matches[1]) . '$';
+                } else {
+                    return '^(www\.)?' . preg_quote($host) . '$';
+                }
+            }
+
+            // Allow everything else through as is
+            return $host;
+        }, $hosts);
 
         return $hosts;
     }
