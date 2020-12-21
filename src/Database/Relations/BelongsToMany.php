@@ -160,7 +160,7 @@ class BelongsToMany extends BelongsToManyBase
     {
         $attachedIdList = $this->parseIds($ids);
         if (empty($attachedIdList)) {
-            $attachedIdList = $this->allRelatedIds();
+            $attachedIdList = $this->allRelatedIds()->all();
         }
 
         /**
