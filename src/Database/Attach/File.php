@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Attach;
 
+use Log;
 use Cache;
 use Storage;
 use File as FileHelper;
@@ -32,9 +33,24 @@ class File extends Model
     ];
 
     /**
+     * @var array The attributes that are mass assignable.
+     */
+    protected $fillable = [
+        'file_name',
+        'title',
+        'description',
+        'field',
+        'attachment_id',
+        'attachment_type',
+        'is_public',
+        'sort_order',
+        'data',
+    ];
+
+    /**
      * @var array The attributes that aren't mass assignable.
      */
-    protected $guarded = ['disk_name'];
+    protected $guarded = [];
 
     /**
      * @var array Known image extensions.
@@ -626,6 +642,7 @@ class File extends Model
                 ;
             }
             catch (Exception $ex) {
+                Log::error($ex);
                 BrokenImage::copyTo($thumbPath);
             }
         }
@@ -660,6 +677,7 @@ class File extends Model
                 ;
             }
             catch (Exception $ex) {
+                Log::error($ex);
                 BrokenImage::copyTo($tempThumb);
             }
 
@@ -976,7 +994,7 @@ class File extends Model
      */
     protected function isLocalStorage()
     {
-        return Storage::getDefaultDriver() == 'local';
+        return FileHelper::isLocalDisk($this->getDisk());
     }
 
     /**

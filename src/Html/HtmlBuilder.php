@@ -428,14 +428,14 @@ class HtmlBuilder
             list($tag, $tagPosition) = $match[0];
 
             $str = substr($html, $position, $tagPosition - $position);
-            if ($printedLength + strlen($str) > $maxLength) {
+            if ($printedLength + static::getReadableLength($str) > $maxLength) {
                 $result .= substr($str, 0, $maxLength - $printedLength) . $end;
                 $printedLength = $maxLength;
                 break;
             }
 
             $result .= $str;
-            $printedLength += strlen($str);
+            $printedLength += static::getReadableLength($str);
             if ($printedLength >= $maxLength) {
                 $result .= $end;
                 break;
@@ -472,6 +472,19 @@ class HtmlBuilder
         }
 
         return $result;
+    }
+
+    /**
+     * Gets the readable length of a string for limit calculations.
+     *
+     * Considers multiple spaces and line breaks to be 1 character, regardless of OS.
+     *
+     * @param string $str
+     * @return int
+     */
+    protected static function getReadableLength($str)
+    {
+        return strlen(preg_replace('/\s+/', ' ', $str));
     }
 
     /**

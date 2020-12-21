@@ -78,7 +78,7 @@ class Mailer extends MailerBase
         }
 
         if (isset($this->to['address'])) {
-            $this->setGlobalTo($message);
+            $this->setGlobalToAndRemoveCcAndBcc($message);
         }
 
          /**
@@ -387,13 +387,13 @@ class Mailer extends MailerBase
          *
          * Example usage (stops the content adding process):
          *
-         *     Event::listen('mailer.beforeAddContent', function ((\October\Rain\Mail\Mailer) $mailerInstance, (\Illuminate\Mail\Message) $message, (string) $view, (string) $plain, (string) $raw, (array) $data) {
+         *     Event::listen('mailer.beforeAddContent', function ((\October\Rain\Mail\Mailer) $mailerInstance, (\Illuminate\Mail\Message) $message, (string) $view, (array) $data, (string) $raw, (string) $plain) {
          *         return false;
          *     });
          *
          * Or
          *
-         *     $mailerInstance->bindEvent('mailer.beforeAddContent', function ((\Illuminate\Mail\Message) $message, (string) $view, (string) $plain, (string) $raw, (array) $data) {
+         *     $mailerInstance->bindEvent('mailer.beforeAddContent', function ((\Illuminate\Mail\Message) $message, (string) $view, (array) $data, (string) $raw, (string) $plain) {
          *         return false;
          *     });
          *

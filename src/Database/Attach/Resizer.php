@@ -78,8 +78,7 @@ class Resizer
     public function __construct($file)
     {
         if (!extension_loaded('gd')) {
-            echo 'GD PHP library required.'.PHP_EOL;
-            exit(1);
+            throw new Exception('The GD PHP extension is required to resize images.');
         }
 
         if (is_string($file)) {
@@ -323,8 +322,7 @@ class Resizer
         // Get optimal width and height - based on supplied mode.
         list($optimalWidth, $optimalHeight) = $this->getDimensions($newWidth, $newHeight);
 
-
-        // get the rotated the original image according to exif orientation
+        // Get the original image rotated according to exif orientation
         $rotatedOriginal = $this->getRotatedOriginal();
 
         if ($this->mime === 'image/gif') {
@@ -350,7 +348,6 @@ class Resizer
                 $this->height
             );
         }
-
 
         $this->image = $imageResized;
 

@@ -1,5 +1,4 @@
-<?php
-namespace TestPlugin;
+<?php namespace TestPlugin;
 
 use October\Rain\Supports\Arr;
 

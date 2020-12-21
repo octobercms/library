@@ -7,81 +7,101 @@
     "authors": [
         {
             "name": "Alexey Bobkov",
-            "email": "aleksey.bobkov@gmail.com"
+            "email": "aleksey.bobkov@gmail.com",
+            "role": "Co-founder"
         },
         {
             "name": "Samuel Georges",
-            "email": "daftspunky@gmail.com"
+            "email": "daftspunky@gmail.com",
+            "role": "Co-founder"
+        },
+        {
+            "name": "Luke Towers",
+            "email": "octobercms@luketowers.ca",
+            "homepage": "https://luketowers.ca",
+            "role": "Maintainer"
         }
     ],
     "require": {
-        "php": ">=7.0",
-        "doctrine/dbal": "2.5.*",
+        "php": ">=7.2",
+        "ext-ctype": "*",
+        "ext-curl": "*",
+        "ext-dom": "*",
+        "ext-fileinfo": "*",
+        "ext-gd": "*",
+        "ext-json": "*",
+        "ext-libxml": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "ext-PDO": "*",
+        "ext-zip": "*",
+        "doctrine/dbal": "^2.6",
         "erusev/parsedown-extra": "~0.7",
-        "kriswallsmith/assetic": "~1.3",
         "linkorb/jsmin-php": "~1.0",
-        "leafo/scssphp": "~0.6",
-        "symfony/yaml": "~3.2",
+        "wikimedia/less.php": "~2.0",
+        "scssphp/scssphp": "~1.0",
+        "symfony/yaml": "^3.4",
         "twig/twig": "~2.0",
-        "league/csv": "~8.0",
-        "jenssegers/date": "~3.0",
-        "laravel/tinker": "~1.0"
+        "league/csv": "~9.1",
+        "nesbot/carbon": "^2.0",
+        "laravel/framework": "~6.0",
+        "laravel/tinker": "~2.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "~5.7",
-        "illuminate/database": "5.5.*",
-        "illuminate/filesystem": "5.5.*",
-        "illuminate/queue": "5.5.*",
-        "illuminate/support": "5.5.*",
-        "illuminate/log": "5.5.*",
-        "illuminate/mail": "5.5.*",
-        "illuminate/events": "5.5.*",
-        "illuminate/pagination": "5.5.*",
-        "illuminate/routing": "5.5.*",
-        "illuminate/validation": "5.5.*",
-        "illuminate/view": "5.5.*",
-        "illuminate/cache": "5.5.*",
-        "symfony/dom-crawler": "~3.1",
-        "symfony/css-selector": "~3.1",
-        "meyfa/phpunit-assert-gd": "1.1.0",
+        "phpunit/phpunit": "^8.4|^9.3.3",
+        "mockery/mockery": "~1.3.3|^1.4.2",
+        "illuminate/database": "^6.0",
+        "illuminate/encryption": "^6.0",
+        "illuminate/filesystem": "^6.0",
+        "illuminate/queue": "^6.0",
+        "illuminate/support": "^6.0",
+        "illuminate/log": "^6.0",
+        "illuminate/mail": "^6.0",
+        "illuminate/events": "^6.0",
+        "illuminate/pagination": "^6.0",
+        "illuminate/redis": "^6.0",
+        "illuminate/routing": "^6.0",
+        "illuminate/validation": "^6.0",
+        "illuminate/view": "^6.0",
+        "illuminate/cache": "^6.0",
         "squizlabs/php_codesniffer": "3.*",
-        "php-parallel-lint/php-parallel-lint": "^1.0"
+        "php-parallel-lint/php-parallel-lint": "^1.0",
+        "meyfa/phpunit-assert-gd": "^2.0.0",
+        "dms/phpunit-arraysubset-asserts": "^0.1.0"
     },
-    "replace": {
-        "october/auth": "self.version",
-        "october/config": "self.version",
-        "october/database": "self.version",
-        "october/extension": "self.version",
-        "october/filesystem": "self.version",
-        "october/halcyon": "self.version",
-        "october/html": "self.version",
-        "october/mail": "self.version",
-        "october/network": "self.version",
-        "october/parse": "self.version",
-        "october/router": "self.version",
-        "october/support": "self.version",
-        "october/translation": "self.version"
+    "suggest": {
+        "ext-pdo_dblib": "Required to use MS SQL Server databases",
+        "ext-pdo_mysql": "Required to use MySQL databases",
+        "ext-PDO_ODBC": "Required to use databases accessed through ODBC drivers",
+        "ext-pdo_pgsql": "Required to use PostgreSQL databases",
+        "ext-pdo_sqlite": "Required to use SQLite databases"
     },
     "autoload": {
         "files": [
             "src/Support/helpers.php",
-            "src/Html/helpers.php",
-            "src/Parse/Assetic/Less/lessc.inc.php"
+            "src/Router/helpers.php",
+            "src/Html/helpers.php"
         ],
         "psr-4": {
             "October\\Rain\\": "src/"
-        },
-        "psr-0": {
-            "Less": "src/Parse/Assetic/Less/lib/"
         }
     },
     "autoload-dev": {
         "classmap": [
-            "tests/TestCase.php"
+            "tests/TestCase.php",
+            "tests/DbTestCase.php"
+        ]
+    },
+    "scripts": {
+        "test": [
+            "phpunit --stop-on-failure"
         ],
-        "psr-4": {
-            "October\\Rain\\Tests\\": "tests/"
-        }
+        "lint": [
+            "parallel-lint --exclude vendor --exclude storage --exclude tests/fixtures/plugins/testvendor/goto/Plugin.php ."
+        ],
+        "sniff": [
+            "phpcs --colors -nq --report=\"full\" --extensions=\"php\""
+        ]
     },
     "extra": {
         "branch-alias": {
