@@ -1,41 +1,11 @@
 <?php
 
-class EloquentWithCountTest extends TestCase
+class EloquentWithCountTest extends DbTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
-        $capsule = new Illuminate\Database\Capsule\Manager;
-        $capsule->addConnection([
-            'driver'   => 'sqlite',
-            'database' => ':memory:',
-            'prefix'   => ''
-        ]);
-
-        # Create the dataset in the connection with the tables
-        $capsule->setAsGlobal();
-        $capsule->bootEloquent();
-
-        $capsule->schema()->create('one', static function ($table) {
-            $table->increments('id');
-            $table->timestamps();
-        });
-
-        $capsule->schema()->create('two', static function ($table) {
-            $table->increments('id');
-            $table->integer('one_id');
-            $table->timestamps();
-        });
-
-        $capsule->schema()->create('three', static function ($table) {
-            $table->increments('id');
-            $table->integer('two_id');
-            $table->timestamps();
-        });
-
-        $capsule->schema()->create('four', static function ($table) {
-            $table->increments('id');
-            $table->integer('one_id');
-        });
+        parent::setUp();
+        $this->createTable();
     }
 
     public function testItBasic()
@@ -75,6 +45,31 @@ class EloquentWithCountTest extends TestCase
             'select "one".*, (select count(*) from "two" where "one"."id" = "two"."one_id") as "twos_count" from "one"',
             $result
         );
+    }
+
+    protected function createTable(): void
+    {
+        $this->db->schema()->create('one', static function ($table) {
+            $table->increments('id');
+            $table->timestamps();
+        });
+
+        $this->db->schema()->create('two', static function ($table) {
+            $table->increments('id');
+            $table->integer('one_id');
+            $table->timestamps();
+        });
+
+        $this->db->schema()->create('three', static function ($table) {
+            $table->increments('id');
+            $table->integer('two_id');
+            $table->timestamps();
+        });
+
+        $this->db->schema()->create('four', static function ($table) {
+            $table->increments('id');
+            $table->integer('one_id');
+        });
     }
 }
 
