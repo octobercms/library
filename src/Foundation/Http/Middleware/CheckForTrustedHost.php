@@ -45,7 +45,16 @@ class CheckForTrustedHost extends BaseMiddleware
                 return [];
             }
 
-            $hosts = [$url];
+            // If app.url is used, allow both the domain and the `www` subdomain
+            $host = parse_url($url, PHP_URL_HOST);
+
+            if (preg_match('/^www\.(.*?)$/i', $host, $matches)) {
+                return '^(www\.)?' . preg_quote($matches[1]) . '$';
+            } else {
+                return '^(www\.)?' . preg_quote($host) . '$';
+            }
+
+            $hosts = [$host];
         } elseif ($hosts === false) {
             return [];
         }
@@ -57,17 +66,11 @@ class CheckForTrustedHost extends BaseMiddleware
             }
 
             // Do strict checks for IP address hosts
-            if (filter_var($host, FILTER_VALIDATE_IP)) {
+            if (
+                filter_var($host, FILTER_VALIDATE_IP)
+                || filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
+            ) {
                 return '^' . preg_quote($host) . '$';
-            }
-
-            // Allow domains to be matched against a www subdomain
-            if (filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
-                if (preg_match('/^www\.(.*?)$/i', $host, $matches)) {
-                    return '^(www\.)?' . preg_quote($matches[1]) . '$';
-                } else {
-                    return '^(www\.)?' . preg_quote($host) . '$';
-                }
             }
 
             // Allow everything else through as is
