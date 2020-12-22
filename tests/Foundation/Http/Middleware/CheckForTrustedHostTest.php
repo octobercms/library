@@ -34,16 +34,6 @@ class CheckForTrustedHostTest extends TestCase
         $this->assertEquals('http://octobercms.com', $url);
     }
 
-    public function testTrustedHostWwwSubdomain()
-    {
-        $trustedHosts = ['octobercms.com'];
-        $headers = ['HOST' => 'www.octobercms.com'];
-        $urlGenerator = $this->createUrlGenerator($trustedHosts, $headers);
-        $url = $urlGenerator->to('/');
-
-        $this->assertEquals('http://www.octobercms.com', $url);
-    }
-
     public function testTrustedIpHost()
     {
         $trustedHosts = ['127.0.0.1'];
@@ -62,16 +52,6 @@ class CheckForTrustedHostTest extends TestCase
         $url = $urlGenerator->to('/');
 
         $this->assertEquals('http://malicious.com', $url);
-    }
-
-    public function testTrustedIpHostWwwSubdomain()
-    {
-        $this->expectException(SuspiciousOperationException::class);
-
-        $trustedHosts = ['127.0.0.1'];
-        $headers = ['HOST' => 'www.127.0.0.1'];
-        $urlGenerator = $this->createUrlGenerator($trustedHosts, $headers);
-        $urlGenerator->to('/');
     }
 
     public function testThrowExceptionForUntrustedHosts()
