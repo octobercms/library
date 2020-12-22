@@ -71,7 +71,7 @@ class CheckForTrustedHostTest extends TestCase
         $trustedHosts = ['127.0.0.1'];
         $headers = ['HOST' => 'www.127.0.0.1'];
         $urlGenerator = $this->createUrlGenerator($trustedHosts, $headers);
-        $url = $urlGenerator->to('/');
+        $urlGenerator->to('/');
     }
 
     public function testThrowExceptionForUntrustedHosts()
@@ -102,6 +102,62 @@ class CheckForTrustedHostTest extends TestCase
         $trustedHosts = ['octobercms.com'];
         $headers = [];
         $servers = ['SERVER_ADDR' => 'malicious.com'];
+        $urlGenerator = $this->createUrlGenerator($trustedHosts, $headers, $servers);
+        $urlGenerator->to('/');
+    }
+
+    public function testRegexTrustedHost()
+    {
+        $trustedHosts = ['^[a-z0-9]+\.octobercms\.com$'];
+        $headers = ['HOST' => 'test123.octobercms.com'];
+        $servers = [];
+        $urlGenerator = $this->createUrlGenerator($trustedHosts, $headers, $servers);
+        $url = $urlGenerator->to('/');
+
+        $this->assertEquals('http://test123.octobercms.com', $url);
+
+        $headers = ['HOST' => 'test456.octobercms.com'];
+        $urlGenerator = $this->createUrlGenerator($trustedHosts, $headers, $servers);
+        $url = $urlGenerator->to('/');
+
+        $this->assertEquals('http://test456.octobercms.com', $url);
+    }
+
+    public function testRegexFailTrustedHost()
+    {
+        $this->expectException(SuspiciousOperationException::class);
+
+        $trustedHosts = ['^[a-z0-9]+\.octobercms\.com$'];
+        $headers = ['HOST' => 'test.123.octobercms.com'];
+        $servers = [];
+        $urlGenerator = $this->createUrlGenerator($trustedHosts, $headers, $servers);
+        $urlGenerator->to('/');
+    }
+
+    public function testArrayTrustedHost()
+    {
+        $trustedHosts = ['test1.octobercms.com', 'test2.octobercms.com'];
+        $headers = ['HOST' => 'test1.octobercms.com'];
+        $servers = [];
+        $urlGenerator = $this->createUrlGenerator($trustedHosts, $headers, $servers);
+        $url = $urlGenerator->to('/');
+
+        $this->assertEquals('http://test1.octobercms.com', $url);
+
+        $headers = ['HOST' => 'test2.octobercms.com'];
+        $urlGenerator = $this->createUrlGenerator($trustedHosts, $headers, $servers);
+        $url = $urlGenerator->to('/');
+
+        $this->assertEquals('http://test2.octobercms.com', $url);
+    }
+
+    public function testArrayFailTrustedHost()
+    {
+        $this->expectException(SuspiciousOperationException::class);
+
+        $trustedHosts = ['test1.octobercms.com', 'test2.octobercms.com'];
+        $headers = ['HOST' => 'test3.octobercms.com'];
+        $servers = [];
         $urlGenerator = $this->createUrlGenerator($trustedHosts, $headers, $servers);
         $urlGenerator->to('/');
     }
