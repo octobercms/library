@@ -101,7 +101,7 @@ class CheckForTrustedHostTest extends TestCase
 
         $trustedHosts = ['octobercms.com'];
         $headers = [];
-        $servers = ['SERVER_NAME' => 'malicious.com'];
+        $servers = ['SERVER_ADDR' => 'malicious.com'];
         $urlGenerator = $this->createUrlGenerator($trustedHosts, $headers, $servers);
         $urlGenerator->to('/');
     }
