@@ -34,6 +34,42 @@ class CheckForTrustedHostTest extends TestCase
         $this->assertEquals('http://octobercms.com', $url);
     }
 
+    public function testTrustedHostWwwSubdomain()
+    {
+        $trustedHosts = ['www.octobercms.com'];
+        $headers = ['HOST' => 'www.octobercms.com'];
+        $urlGenerator = $this->createUrlGenerator($trustedHosts, $headers);
+        $url = $urlGenerator->to('/');
+
+        $this->assertEquals('http://www.octobercms.com', $url);
+    }
+
+    public function testTrustedHostWwwSubdomainFailure()
+    {
+        $this->expectException(SuspiciousOperationException::class);
+
+        $trustedHosts = ['octobercms.com'];
+        $headers = ['HOST' => 'www.octobercms.com'];
+        $urlGenerator = $this->createUrlGenerator($trustedHosts, $headers);
+        $urlGenerator->to('/');
+    }
+
+    public function testTrustedHostWwwRegex()
+    {
+        $trustedHosts = ['^(www\.)?octobercms\.com$'];
+        $headers = ['HOST' => 'octobercms.com'];
+        $urlGenerator = $this->createUrlGenerator($trustedHosts, $headers);
+        $url = $urlGenerator->to('/');
+
+        $this->assertEquals('http://octobercms.com', $url);
+
+        $headers = ['HOST' => 'www.octobercms.com'];
+        $urlGenerator = $this->createUrlGenerator($trustedHosts, $headers);
+        $url = $urlGenerator->to('/');
+
+        $this->assertEquals('http://www.octobercms.com', $url);
+    }
+
     public function testTrustedIpHost()
     {
         $trustedHosts = ['127.0.0.1'];
