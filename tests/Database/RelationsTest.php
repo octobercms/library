@@ -29,6 +29,8 @@ class RelationsTest extends DbTestCase
             $table->primary(['post_id', 'term_id']);
             $table->unsignedInteger('post_id');
             $table->unsignedInteger('term_id');
+            $table->string('data')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -170,6 +172,19 @@ class RelationsTest extends DbTestCase
         $this->assertEquals(3, $post->terms()->count());
     }
 
+    public function testPivotData()
+    {
+        $data = 'My Pivot Data';
+        $post = Post::first();
+
+        $id = $post->categories()->get()->last()->id;
+        $updated = $post->categories()->updateExistingPivot($id, [ 'data' => $data ]);
+        $this->assertTrue($updated === 1);
+
+        $category = $post->categories()->find($id);
+        $this->assertEquals($data, $category->pivot->data);
+    }
+
     public function testTerms()
     {
         $post = Post::create([
@@ -227,26 +242,37 @@ class Post extends \October\Rain\Database\Model
 
     public $fillable = ['title'];
 
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'episode_at'
+    ];
+
     public $belongsToMany = [
         'tags' => [
             Term::class,
             'table'     => 'posts_terms',
             'key'       => 'post_id',
             'otherKey'  => 'term_id',
-            'conditions' => 'type = "tag"'
+            'pivot'     => ['data'],
+            'timestamps' => true,
+            'conditions' => 'type = "tag"',
         ],
         'categories' => [
             Term::class,
             'table'     => 'posts_terms',
             'key'       => 'post_id',
             'otherKey'  => 'term_id',
-            'conditions' => 'type = "category"'
+            'pivot'     => ['data'],
+            'timestamps' => true,
+            'conditions' => 'type = "category"',
         ],
         'terms' => [
             Term::class,
             'table'     => 'posts_terms',
             'key'       => 'post_id',
             'otherKey'  => 'term_id',
+            'timestamps' => true,
         ],
     ];
 }
@@ -257,13 +283,21 @@ class Term extends \October\Rain\Database\Model
 
     public $fillable = ['type', 'name'];
 
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'episode_at'
+    ];
+
     public $belongsToMany = [
         'posts' => [
             'Post',
             'table'      => 'posts_terms',
             'key'        => 'term_id',
             'otherKey'   => 'post_id',
-            'conditions' => 'type = "post"'
+            'pivot'     => ['data'],
+            'timestamps' => true,
+            'conditions' => 'type = "post"',
         ],
     ];
 }

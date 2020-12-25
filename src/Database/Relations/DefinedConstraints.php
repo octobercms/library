@@ -138,6 +138,9 @@ trait DefinedConstraints
         $this->addDefinedConstraintsToQuery($query);
 
         $related = $this->getRelated();
-        return $query->join($related->getTable(), $related->getQualifiedKeyName(), '=', $this->getOtherKey());
+
+        return $query
+            ->join($related->getTable(), $related->getQualifiedKeyName(), '=', $this->getOtherKey())
+            ->select($this->getTable().'.*');
     }
 }
