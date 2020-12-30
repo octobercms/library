@@ -49,9 +49,9 @@ class CheckForTrustedHost extends BaseMiddleware
             $host = parse_url($url, PHP_URL_HOST);
 
             if (preg_match('/^www\.(.*?)$/i', $host, $matches)) {
-                return '^(www\.)?' . preg_quote($matches[1]) . '$';
+                $host = '^(www\.)?' . preg_quote($matches[1]) . '$';
             } else {
-                return '^(www\.)?' . preg_quote($host) . '$';
+                $host = '^(www\.)?' . preg_quote($host) . '$';
             }
 
             $hosts = [$host];
