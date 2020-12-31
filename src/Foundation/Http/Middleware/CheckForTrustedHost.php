@@ -45,9 +45,9 @@ class CheckForTrustedHost extends BaseMiddleware
                 return [];
             }
 
-            // If app.url is used, allow both the domain and the `www` subdomain
+            // Allow both the domain and the `www` subdomain for app.url
+            // regardless of the presence of www in the app.url value
             $host = parse_url($url, PHP_URL_HOST);
-
             if (preg_match('/^www\.(.*?)$/i', $host, $matches)) {
                 $host = '^(www\.)?' . preg_quote($matches[1]) . '$';
             } else {
