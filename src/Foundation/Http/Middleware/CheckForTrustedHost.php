@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Foundation\Http\Middleware;
 
 use Config;
-use Illuminate\Http\Middleware\TrustHosts as BaseMiddleware;
+use October\Rain\Http\Middleware\TrustHosts as BaseMiddleware;
 
 class CheckForTrustedHost extends BaseMiddleware
 {
