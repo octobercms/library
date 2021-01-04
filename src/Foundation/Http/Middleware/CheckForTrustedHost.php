@@ -65,7 +65,7 @@ class CheckForTrustedHost extends BaseMiddleware
                 $host = parse_url($host, PHP_URL_HOST);
             }
 
-            // Do strict checks for IP address hosts
+            // Prepare IP address & plain hostname values to be processed by the regex filter
             if (
                 filter_var($host, FILTER_VALIDATE_IP)
                 || filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
