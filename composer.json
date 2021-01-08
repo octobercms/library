@@ -88,7 +88,8 @@
     },
     "autoload-dev": {
         "classmap": [
-            "tests/TestCase.php"
+            "tests/TestCase.php",
+            "tests/DbTestCase.php"
         ]
     },
     "scripts": {

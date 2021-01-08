@@ -27,6 +27,10 @@ class HelpersTest extends TestCase
     
     public function testConfigPath()
     {
+        if (PHP_OS_FAMILY === 'Windows') {
+            $this->markTestIncomplete('Need to fix Windows testing here');
+        }
+
         $this->assertEquals($this->app['path.config'], config_path());
     }
 
