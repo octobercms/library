@@ -223,7 +223,7 @@ class Handler extends ExceptionHandler
         try {
             return (new ReflectionClass($expected->getType()->getName()))
                 ->isInstance($exception);
-        } catch(Throwable $t) {
+        } catch (Throwable $t) {
             return false;
         }
     }
