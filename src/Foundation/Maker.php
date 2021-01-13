@@ -119,8 +119,9 @@ class Maker
     {
         $dependencies = [];
 
+        /** @var ReflectionParameter $parameter */
         foreach ($parameters as $parameter) {
-            $dependency = $parameter->getClass();
+            $dependency = $parameter->getType();
 
             if (array_key_exists($parameter->name, $primitives)) {
                 $dependencies[] = $primitives[$parameter->name];
@@ -145,7 +146,7 @@ class Maker
     protected function resolveClass(ReflectionParameter $parameter)
     {
         try {
-            return $this->getFromContainer($parameter->getClass()->name);
+            return $this->getFromContainer($parameter->getType()->getName());
         }
         catch (BindingResolutionException $e) {
             if ($parameter->isOptional()) {
