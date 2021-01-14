@@ -39,7 +39,7 @@ jobs:
           path: ${{ steps.extcache.outputs.dir }}
           key: ${{ steps.extcache.outputs.key }}
           restore-keys: ${{ steps.extcache.outputs.key }}
-    
+
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -50,7 +50,7 @@ jobs:
       - name: Setup dependency cache
         id: composercache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-        
+
       - name: Cache dependencies
         uses: actions/cache@v2
         with:
@@ -58,8 +58,13 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-
 
-      - name: Install Composer dependencies
-        run: composer install --no-interaction --no-progress --no-suggest
+      - name: Install Composer dependencies (< 8.0)
+        if: matrix.phpVersion < '8.0'
+        run: composer install --no-interaction --no-progress --no-suggest --no-scripts
+
+      - name: Install Composer dependencies (8.0)
+        if: matrix.phpVersion == '8.0'
+        run: composer install --no-interaction --no-progress --no-suggest --no-scripts --ignore-platform-reqs
 
       - name: Setup problem matchers for PHPUnit
         if: matrix.phpVersion == '7.4'
