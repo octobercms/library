@@ -142,7 +142,7 @@ trait HasRelationships
     /**
      * Returns all defined relations of given type.
      * @param string $type Relation type
-     * @return array
+     * @return array|string|null
      */
     public function getRelationTypeDefinitions($type)
     {
