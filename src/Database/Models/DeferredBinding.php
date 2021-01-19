@@ -13,10 +13,22 @@ use Exception;
  */
 class DeferredBinding extends Model
 {
+    use \October\Rain\Database\Traits\Nullable;
+
     /**
      * @var string The database table used by the model.
      */
     public $table = 'deferred_bindings';
+
+    /**
+     * @var array List of attribute names which are json encoded and decoded from the database.
+     */
+    protected $jsonable = ['pivot_data'];
+
+    /**
+     * @var array List of attribute names which should be set to null when empty.
+     */
+    protected $nullable = ['pivot_data'];
 
     /**
      * Prevents duplicates and conflicting binds.
