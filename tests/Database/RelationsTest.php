@@ -219,6 +219,20 @@ class RelationsTest extends DbTestCase
         $this->assertEquals(2, $post->terms->count());
         $this->assertEquals('term #2', $post->terms->first()->name);
     }
+
+    public function testUndefinedMorphsRelation()
+    {
+        $this->expectException('BadMethodCallException');
+
+        $morphs = new Morphs;
+        $morphs->unknownRelation();
+    }
+
+    public function testDefinedMorphsRelation()
+    {
+        $morphs = new Morphs;
+        $value = $morphs->related();
+    }
 }
 
 class Post extends \October\Rain\Database\Model
@@ -265,5 +279,14 @@ class Term extends \October\Rain\Database\Model
             'otherKey'   => 'post_id',
             'conditions' => 'type = "post"'
         ],
+    ];
+}
+
+class Morphs extends \October\Rain\Database\Model
+{
+    public $table = 'morphs';
+
+    public $morphTo = [
+        'related' => [],
     ];
 }
