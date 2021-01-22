@@ -157,7 +157,36 @@ trait HasRelationships
     public function getRelationDefinition($name)
     {
         if (($type = $this->getRelationType($name)) !== null) {
-            return (array) $this->{$type}[$name] + $this->getRelationDefaults($type);
+            return (array) $this->getRelationTypeDefinition($type, $name) + $this->getRelationDefaults($type);
+        }
+    }
+
+    /**
+     * Returns all defined relations of given type.
+     * @param string $type Relation type
+     * @return array|string|null
+     */
+    public function getRelationTypeDefinitions($type)
+    {
+        if (in_array($type, static::$relationTypes)) {
+            return $this->{$type};
+        }
+
+        return [];
+    }
+
+    /**
+     * Returns the given relation definition.
+     * @param string $type Relation type
+     * @param string $name Relation name
+     * @return array
+     */
+    public function getRelationTypeDefinition($type, $name)
+    {
+        $definitions = $this->getRelationTypeDefinitions($type);
+
+        if (isset($definitions[$name])) {
+            return $definitions[$name];
         }
     }
 
@@ -170,7 +199,7 @@ trait HasRelationships
         $result = [];
 
         foreach (static::$relationTypes as $type) {
-            $result[$type] = $this->{$type};
+            $result[$type] = $this->getRelationTypeDefinitions($type);
 
             /*
              * Apply default values for the relation type
@@ -193,7 +222,7 @@ trait HasRelationships
     public function getRelationType($name)
     {
         foreach (static::$relationTypes as $type) {
-            if (isset($this->{$type}[$name])) {
+            if ($this->getRelationTypeDefinition($type, $name)) {
                 return $type;
             }
         }
