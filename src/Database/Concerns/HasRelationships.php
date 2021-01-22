@@ -222,7 +222,7 @@ trait HasRelationships
     public function getRelationType($name)
     {
         foreach (static::$relationTypes as $type) {
-            if ($this->getRelationTypeDefinition($type, $name)) {
+            if ($this->getRelationTypeDefinition($type, $name) !== null) {
                 return $type;
             }
         }
