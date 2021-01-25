@@ -523,7 +523,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
 
                     // Otherwise, we'll fallback to standard permissions checking where
                     // we match that permissions explicitly exist.
-                    elseif ($permission == $mergedPermission && $mergedPermissions[$permission] == 1) {
+                    elseif ($permission == $mergedPermission && isset($mergedPermissions[$permission]) && $mergedPermissions[$permission] == 1) {
                         $matched = true;
                         break;
                     }
