@@ -22,6 +22,27 @@ class ModelTest extends DbTestCase
         $this->assertEquals(['id' => 'int', 'foo' => 'int'], $model->getCasts());
     }
 
+    public function testStringIsTrimmed(){
+        $name = "Name";
+        $nameWithSpace = "  ${name}  ";
+        $model = new TestModelGuarded();
+
+        $model->name = $nameWithSpace;
+        $model->save();
+
+        // Make sure we load the database saved model
+        $model->refresh();
+        $this->assertEquals($name, $model->name);
+
+        $model->trimStrings = false;
+        $model->name = $nameWithSpace;
+        $model->save();
+
+        // Refresh the model from the database
+        $model->refresh();
+        $this->assertEquals($nameWithSpace, $model->name);
+    }
+
     public function testIsGuarded()
     {
         $model = new TestModelGuarded();
