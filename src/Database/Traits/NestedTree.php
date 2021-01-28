@@ -333,6 +333,7 @@ trait NestedTree
 
     /**
      * Returns true if this is a root node.
+     *
      * @return boolean
      */
     public function isRoot()
@@ -342,6 +343,7 @@ trait NestedTree
 
     /**
      * Returns true if this is a child node.
+     *
      * @return boolean
      */
     public function isChild()
@@ -351,6 +353,7 @@ trait NestedTree
 
     /**
      * Returns true if this is a leaf node (end of a branch).
+     *
      * @return boolean
      */
     public function isLeaf()
@@ -360,7 +363,8 @@ trait NestedTree
 
     /**
      * Checks if the supplied node is inside the subtree of this model.
-     * @param \Model
+     *
+     * @param \October\Rain\Database\Model $node
      * @return boolean
      */
     public function isInsideSubtree($node)
@@ -390,6 +394,8 @@ trait NestedTree
 
     /**
      * Query scope which extracts a certain node object from the current query expression.
+     *
+     * @param \Illuminate\Database\Query\Builder $query
      * @return \Illuminate\Database\Query\Builder
      */
     public function scopeWithoutNode($query, $node)
@@ -399,6 +405,8 @@ trait NestedTree
 
     /**
      * Extracts current node (self) from current query expression.
+     *
+     * @param \Illuminate\Database\Query\Builder $query
      * @return \Illuminate\Database\Query\Builder
      */
     public function scopeWithoutSelf($query)
@@ -408,6 +416,8 @@ trait NestedTree
 
     /**
      * Extracts first root (from the current node context) from current query expression.
+     *
+     * @param \Illuminate\Database\Query\Builder $query
      * @return \Illuminate\Database\Query\Builder
      */
     public function scopeWithoutRoot($query)
@@ -417,6 +427,8 @@ trait NestedTree
 
     /**
      * Set of all children & nested children.
+     *
+     * @param \Illuminate\Database\Query\Builder $query
      * @return \Illuminate\Database\Query\Builder
      */
     public function scopeAllChildren($query, $includeSelf = false)
@@ -431,6 +443,8 @@ trait NestedTree
 
     /**
      * Returns a prepared query with all parents up the tree.
+     *
+     * @param \Illuminate\Database\Query\Builder $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeParents($query, $includeSelf = false)
@@ -445,6 +459,8 @@ trait NestedTree
 
     /**
      * Filter targeting all children of the parent, except self.
+     *
+     * @param \Illuminate\Database\Query\Builder $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeSiblings($query, $includeSelf = false)
@@ -456,6 +472,8 @@ trait NestedTree
 
     /**
      * Returns all final nodes without children.
+     *
+     * @param \Illuminate\Database\Query\Builder $query
      * @return \Illuminate\Database\Query\Builder
      */
     public function scopeLeaves($query)
@@ -473,6 +491,8 @@ trait NestedTree
 
     /**
      * Returns a list of all root nodes, without eager loading
+     *
+     * @param \Illuminate\Database\Query\Builder $query
      * @return \October\Rain\Database\Collection
      */
     public function scopeGetAllRoot($query)
@@ -489,6 +509,8 @@ trait NestedTree
     /**
      * Non chaining scope, returns an eager loaded hierarchy tree. Children are
      * eager loaded inside the $model->children relation.
+     *
+     * @param \Illuminate\Database\Query\Builder $query
      * @return Collection A collection
      */
     public function scopeGetNested($query)
@@ -498,6 +520,8 @@ trait NestedTree
 
     /**
      * Gets an array with values of a given column. Values are indented according to their depth.
+     *
+     * @param  \Illuminate\Database\Query\Builder $query
      * @param  string $column Array values
      * @param  string $key    Array keys
      * @param  string $indent Character to indent depth
@@ -537,6 +561,7 @@ trait NestedTree
 
     /**
      * Returns all nodes and children.
+     *
      * @return \October\Rain\Database\Collection
      */
     public function getAll($columns = ['*'])
@@ -546,6 +571,7 @@ trait NestedTree
 
     /**
      * Returns the root node starting from the current node.
+     *
      * @return \October\Rain\Database\Model
      */
     public function getRoot()
@@ -571,6 +597,7 @@ trait NestedTree
 
     /**
      * Returns a list of all root nodes, with children eager loaded.
+     *
      * @return \October\Rain\Database\Collection
      */
     public function getEagerRoot()
@@ -580,6 +607,7 @@ trait NestedTree
 
     /**
      * Returns an array column/key pair of all root nodes, with children eager loaded.
+     *
      * @return array
      */
     public function getRootList($column, $key = null, $indent = '&nbsp;&nbsp;&nbsp;')
@@ -589,7 +617,8 @@ trait NestedTree
 
     /**
      * The direct parent node.
-     * @return \October\Rain\Database\Collection
+     *
+     * @return \October\Rain\Database\Model
      */
     public function getParent()
     {
@@ -598,6 +627,7 @@ trait NestedTree
 
     /**
      * Returns all parents up the tree.
+     *
      * @return \October\Rain\Database\Collection
      */
     public function getParents()
@@ -607,6 +637,7 @@ trait NestedTree
 
     /**
      * Returns all parents up the tree and self.
+     *
      * @return \October\Rain\Database\Collection
      */
     public function getParentsAndSelf()
@@ -616,6 +647,7 @@ trait NestedTree
 
     /**
      * Returns direct child nodes.
+     *
      * @return \October\Rain\Database\Collection
      */
     public function getChildren()
@@ -625,6 +657,7 @@ trait NestedTree
 
     /**
      * Returns direct child nodes, with ->children eager loaded.
+     *
      * @return \October\Rain\Database\Collection
      */
     public function getEagerChildren()
@@ -634,6 +667,7 @@ trait NestedTree
 
     /**
      * Returns all children down the tree.
+     *
      * @return \October\Rain\Database\Collection
      */
     public function getAllChildren()
@@ -643,6 +677,7 @@ trait NestedTree
 
     /**
      * Returns all children and self.
+     *
      * @return \October\Rain\Database\Collection
      */
     public function getAllChildrenAndSelf()
@@ -652,6 +687,7 @@ trait NestedTree
 
     /**
      * Return all siblings (parent's children).
+     *
      * @return \October\Rain\Database\Collection
      */
     public function getSiblings()
@@ -661,6 +697,7 @@ trait NestedTree
 
     /**
      * Return all siblings and self.
+     *
      * @return \October\Rain\Database\Collection
      */
     public function getSiblingsAndSelf()
@@ -670,6 +707,7 @@ trait NestedTree
 
     /**
      * Return left sibling
+     *
      * @return \October\Rain\Database\Model
      */
     public function getLeftSibling()
@@ -679,15 +717,17 @@ trait NestedTree
 
     /**
      * Return right sibling
+     *
      * @return \October\Rain\Database\Model
      */
     public function getRightSibling()
     {
         return $this->siblings()->where($this->getLeftColumnName(), '=', $this->getRight() + 1)->first();
     }
-    
+
     /**
      * Returns all final nodes without children.
+     *
      * @return \October\Rain\Database\Collection
      */
     public function getLeaves()
@@ -698,6 +738,7 @@ trait NestedTree
     /**
      * Returns the level of this node in the tree.
      * Root level is 0.
+     *
      * @return int
      */
     public function getLevel()
@@ -711,6 +752,7 @@ trait NestedTree
 
     /**
      * Returns number of all children below it.
+     *
      * @return int
      */
     public function getChildCount()
@@ -724,6 +766,7 @@ trait NestedTree
 
     /**
      * Sets the depth attribute
+     *
      * @return \October\Rain\Database\Model
      */
     public function setDepth()
@@ -746,6 +789,7 @@ trait NestedTree
 
     /**
      * Set defaults for left and right columns.
+     *
      * @return void
      */
     public function setDefaultLeftAndRight()
@@ -772,6 +816,7 @@ trait NestedTree
 
     /**
      * Get parent column name.
+     *
      * @return string
      */
     public function getParentColumnName()
@@ -781,6 +826,7 @@ trait NestedTree
 
     /**
      * Get fully qualified parent column name.
+     *
      * @return string
      */
     public function getQualifiedParentColumnName()
@@ -790,6 +836,7 @@ trait NestedTree
 
     /**
      * Get value of the model parent_id column.
+     *
      * @return int
      */
     public function getParentId()
@@ -799,6 +846,7 @@ trait NestedTree
 
     /**
      * Get left column name.
+     *
      * @return string
      */
     public function getLeftColumnName()
@@ -808,6 +856,7 @@ trait NestedTree
 
     /**
      * Get fully qualified left column name.
+     *
      * @return string
      */
     public function getQualifiedLeftColumnName()
@@ -817,6 +866,7 @@ trait NestedTree
 
     /**
      * Get value of the left column.
+     *
      * @return int
      */
     public function getLeft()
@@ -826,6 +876,7 @@ trait NestedTree
 
     /**
      * Get right column name.
+     *
      * @return string
      */
     public function getRightColumnName()
@@ -835,6 +886,7 @@ trait NestedTree
 
     /**
      * Get fully qualified right column name.
+     *
      * @return string
      */
     public function getQualifiedRightColumnName()
@@ -844,6 +896,7 @@ trait NestedTree
 
     /**
      * Get value of the right column.
+     *
      * @return int
      */
     public function getRight()
@@ -853,6 +906,7 @@ trait NestedTree
 
     /**
      * Get depth column name.
+     *
      * @return string
      */
     public function getDepthColumnName()
@@ -862,6 +916,7 @@ trait NestedTree
 
     /**
      * Get fully qualified depth column name.
+     *
      * @return string
      */
     public function getQualifiedDepthColumnName()
@@ -871,6 +926,7 @@ trait NestedTree
 
     /**
      * Get value of the depth column.
+     *
      * @return int
      */
     public function getDepth()
@@ -884,8 +940,9 @@ trait NestedTree
 
     /**
      * Handler for all node alignments.
-     * @param mixed  $target
-     * @param string $position
+     *
+     * @param mixed  $target The ID or model instance of the target node
+     * @param string $position One of the following values: child, left, right
      * @return \October\Rain\Database\Model
      */
     protected function moveTo($target, $position)
@@ -931,6 +988,10 @@ trait NestedTree
     /**
      * Executes the SQL query associated with the update of the indexes affected
      * by the move operation.
+     *
+     * @param October\Rain\Database\Model $node The node to be moved
+     * @param October\Rain\Database\Model $target The target node to be moved relative to
+     * @param string $position One of the following values: child, left, right
      * @return int
      */
     protected function performMove($node, $target, $position)
@@ -994,7 +1055,12 @@ trait NestedTree
 
     /**
      * Validates a proposed move and returns true if changes are needed.
-     * @return void
+     *
+     * @param October\Rain\Database\Model $node The node to be moved
+     * @param October\Rain\Database\Model $target The target node to be moved relative to
+     * @param string $position One of the following values: child, left, right
+     * @throws Exception If the validation fails
+     * @return bool
      */
     protected function validateMove($node, $target, $position)
     {
@@ -1020,11 +1086,11 @@ trait NestedTree
             throw new Exception('Cannot resolve target node.');
         }
 
-        if ($node == $target) {
+        if ($node->getKey() === $target->getKey()) {
             throw new Exception('A node cannot be moved to itself.');
         }
 
-        if ($target->isInsideSubtree($node)) {
+        if (!$target->isRoot() && $target->isInsideSubtree($node)) {
             throw new Exception('A node cannot be moved to a descendant of itself.');
         }
 
@@ -1036,7 +1102,11 @@ trait NestedTree
 
     /**
      * Calculates the boundary.
-     * @return int
+     *
+     * @param October\Rain\Database\Model $node The node to be moved
+     * @param October\Rain\Database\Model $target The target node to be moved relative to
+     * @param string $position One of the following values: child, left, right
+     * @return int|null
      */
     protected function getPrimaryBoundary($node, $target, $position)
     {
@@ -1062,6 +1132,10 @@ trait NestedTree
 
     /**
      * Calculates the other boundary.
+     *
+     * @param October\Rain\Database\Model $node The node to be moved
+     * @param October\Rain\Database\Model $target The target node to be moved relative to
+     * @param string $position One of the following values: child, left, right
      * @return int
      */
     protected function getOtherBoundary($node, $target, $position)
@@ -1073,6 +1147,10 @@ trait NestedTree
 
     /**
      * Calculates a sorted boundaries array.
+     *
+     * @param October\Rain\Database\Model $node The node to be moved
+     * @param October\Rain\Database\Model $target The target node to be moved relative to
+     * @param string $position One of the following values: child, left, right
      * @return array
      */
     protected function getSortedBoundaries($node, $target, $position)
@@ -1091,6 +1169,9 @@ trait NestedTree
 
     /**
      * Return a custom TreeCollection collection
+     *
+     * @param array $models
+     * @return TreeCollection
      */
     public function newCollection(array $models = [])
     {

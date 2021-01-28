@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany as BelongsToManyBase;
  */
 trait DefinedConstraints
 {
-
     /**
      * Set the defined constraints on the relation query.
      *
@@ -121,5 +120,23 @@ trait DefinedConstraints
         if ($scope = array_get($args, 'scope')) {
             $query->$scope($this->parent);
         }
+    }
+
+    /**
+     * Create a new query builder for the pivot table.
+     *
+     * This is an extension of Laravel's `newPivotQuery` method that allows `belongsToMany` and `morphToMany` relations
+     * to have conditions.
+     *
+     * @return \Illuminate\Database\Query\Builder
+     */
+    public function newPivotQuery()
+    {
+        $query = parent::newPivotQuery();
+
+        // add relation's conditions and scopes to the query
+        $this->addDefinedConstraintsToQuery($query);
+
+        return $query->join($this->related->getTable(), $this->relatedPivotKey, '=', $this->relatedKey);
     }
 }

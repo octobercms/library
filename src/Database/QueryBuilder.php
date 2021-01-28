@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Database;
 
 use App;
+use October\Rain\Support\Arr;
 use Illuminate\Database\Query\Builder as QueryBuilderBase;
 
 class QueryBuilder extends QueryBuilderBase
@@ -32,6 +33,13 @@ class QueryBuilder extends QueryBuilderBase
      * @var bool
      */
     protected $cachingDuplicateQueries = false;
+
+    /**
+     * The aliased concatenation columns.
+     *
+     * @var array
+     */
+    public $concats = [];
 
     /**
      * Get an array with the values of a given column.
@@ -151,11 +159,16 @@ class QueryBuilder extends QueryBuilderBase
         // If the "minutes" value is less than zero, we will use that as the indicator
         // that the value should be remembered values should be stored indefinitely
         // and if we have minutes we will use the typical remember function here.
-        if ($minutes < 0) {
+        if (is_int($minutes) && $minutes < 0) {
             $results = $cache->rememberForever($key, $callback);
         }
         else {
-            $results = $cache->remember($key, $minutes, $callback);
+            if (is_int($minutes)) {
+                $expiresAt = now()->addMinutes($minutes);
+            } else {
+                $expiresAt = $minutes;
+            }
+            $results = $cache->remember($key, $expiresAt, $callback);
         }
 
         return collect($results);
@@ -292,6 +305,51 @@ class QueryBuilder extends QueryBuilderBase
     }
 
     /**
+     * Insert new records or update the existing ones.
+     *
+     * @param  array  $values
+     * @param  array|string  $uniqueBy
+     * @param  array|null  $update
+     * @return int
+     */
+    public function upsert(array $values, $uniqueBy, $update = null)
+    {
+        if (empty($values)) {
+            return 0;
+        }
+
+        if ($update === []) {
+            return (int) $this->insert($values);
+        }
+
+        if (!is_array(reset($values))) {
+            $values = [$values];
+        } else {
+            foreach ($values as $key => $value) {
+                ksort($value);
+
+                $values[$key] = $value;
+            }
+        }
+
+        if (is_null($update)) {
+            $update = array_keys(reset($values));
+        }
+
+        $bindings = $this->cleanBindings(array_merge(
+            Arr::flatten($values, 1),
+            collect($update)->reject(function ($value, $key) {
+                return is_int($key);
+            })->all()
+        ));
+
+        return $this->connection->affectingStatement(
+            $this->grammar->compileUpsert($this, $values, (array) $uniqueBy, $update),
+            $bindings
+        );
+    }
+
+    /**
      * Run a truncate statement on the table.
      *
      * @return void
@@ -360,5 +418,19 @@ class QueryBuilder extends QueryBuilderBase
     public function cachingDuplicates()
     {
         return $this->cachingDuplicateQueries;
+    }
+
+    /**
+     * Adds a concatenated column as an alias.
+     *
+     * @param  array $parts The concatenation parts.
+     * @param  string $as The name of the alias for the compiled concatenation.
+     * @return $this
+     */
+    public function selectConcat(array $parts, string $as)
+    {
+        $this->concats[$as] = $parts;
+
+        return $this;
     }
 }

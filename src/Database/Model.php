@@ -1,7 +1,5 @@
 <?php namespace October\Rain\Database;
 
-use Db;
-use Input;
 use Closure;
 use October\Rain\Support\Arr;
 use October\Rain\Support\Str;
@@ -21,6 +19,7 @@ use Exception;
  */
 class Model extends EloquentModel
 {
+    use Concerns\GuardsAttributes;
     use Concerns\HasRelationships;
     use \October\Rain\Support\Traits\Emitter;
     use \October\Rain\Extension\ExtendableTrait;
@@ -450,6 +449,8 @@ class Model extends EloquentModel
 
         $instance->setConnection($connection ?: $this->connection);
 
+        $instance->fireModelEvent('retrieved', false);
+
         return $instance;
     }
 
@@ -544,10 +545,16 @@ class Model extends EloquentModel
      */
     protected function asDateTime($value)
     {
+        // If this value is already a Argon instance, we shall just return it as is.
+        // This prevents us having to re-instantiate a Argon instance when we know
+        // it already is one, which wouldn't be fulfilled by the DateTime check.
         if ($value instanceof Argon) {
             return $value;
         }
 
+        // If the value is already a DateTime instance, we will just skip the rest of
+        // these checks since they will be a waste of time, and hinder performance
+        // when checking the field. We will just return the DateTime right away.
         if ($value instanceof DateTimeInterface) {
             return new Argon(
                 $value->format('Y-m-d H:i:s.u'),
@@ -555,18 +562,44 @@ class Model extends EloquentModel
             );
         }
 
+        // If this value is an integer, we will assume it is a UNIX timestamp's value
+        // and format a Carbon object from this timestamp. This allows flexibility
+        // when defining your date fields as they might be UNIX timestamps here.
         if (is_numeric($value)) {
             return Argon::createFromTimestamp($value);
         }
 
+        // If the value is in simply year, month, day format, we will instantiate the
+        // Carbon instances from that format. Again, this provides for simple date
+        // fields on the database, while still supporting Carbonized conversion.
         if ($this->isStandardDateFormat($value)) {
             return Argon::createFromFormat('Y-m-d', $value)->startOfDay();
         }
 
-        return Argon::createFromFormat(
-            str_replace('.v', '.u', $this->getDateFormat()),
-            $value
-        );
+        $format = $this->getDateFormat();
+
+        // https://bugs.php.net/bug.php?id=75577
+        if (version_compare(PHP_VERSION, '7.3.0-dev', '<')) {
+            $format = str_replace('.v', '.u', $format);
+        }
+
+        // If the value is expected to end in milli or micro seconds but doesn't
+        // then we should attempt to fix it as it's most likely from the datepicker
+        // which doesn't support sending micro or milliseconds
+        // @see https://github.com/rainlab/blog-plugin/issues/334
+        if (str_contains($format, '.') && !str_contains($value, '.')) {
+            if (ends_with($format, '.u')) {
+                $value .= '.000000';
+            }
+            if (ends_with($format, '.v')) {
+                $value .= '.000';
+            }
+        }
+
+        // Finally, we will just assume this date is in the format used by default on
+        // the database connection and use that format to create the Carbon object
+        // that is returned back out to the developers after we convert it here.
+        return Argon::createFromFormat($format, $value);
     }
 
     /**

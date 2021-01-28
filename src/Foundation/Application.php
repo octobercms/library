@@ -1,15 +1,22 @@
 <?php namespace October\Rain\Foundation;
 
+use Str;
+use Config;
 use Closure;
+use Throwable;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Collection;
 use Illuminate\Foundation\Application as ApplicationBase;
+use Illuminate\Foundation\PackageManifest;
+use Illuminate\Foundation\ProviderRepository;
 use Symfony\Component\Debug\Exception\FatalErrorException;
 use October\Rain\Events\EventServiceProvider;
 use October\Rain\Router\RoutingServiceProvider;
+use October\Rain\Filesystem\PathResolver;
 use October\Rain\Foundation\Providers\LogServiceProvider;
 use October\Rain\Foundation\Providers\MakerServiceProvider;
+use Carbon\Laravel\ServiceProvider as CarbonServiceProvider;
 use October\Rain\Foundation\Providers\ExecutionContextProvider;
-use Throwable;
-use Exception;
 
 class Application extends ApplicationBase
 {
@@ -28,6 +35,27 @@ class Application extends ApplicationBase
     protected $themesPath;
 
     /**
+     * The base temp path.
+     *
+     * @var string
+     */
+    protected $tempPath;
+
+    /**
+     * The base path for uploads.
+     *
+     * @var string
+     */
+    protected $uploadsPath;
+
+    /**
+     * The base path for media.
+     *
+     * @var string
+     */
+    protected $mediaPath;
+
+    /**
      * Get the path to the public / web directory.
      *
      * @return string
@@ -44,7 +72,19 @@ class Application extends ApplicationBase
      */
     public function langPath()
     {
-        return $this->basePath.'/lang';
+        return PathResolver::join($this->basePath, '/lang');
+    }
+
+    /**
+     * Register the basic bindings into the container.
+     *
+     * @return void
+     */
+    protected function registerBaseBindings()
+    {
+        parent::registerBaseBindings();
+
+        $this->bind('Illuminate\Foundation\Application', static::class);
     }
 
     /**
@@ -63,6 +103,8 @@ class Application extends ApplicationBase
         $this->register(new MakerServiceProvider($this));
 
         $this->register(new ExecutionContextProvider($this));
+
+        $this->register(new CarbonServiceProvider($this));
     }
 
     /**
@@ -107,6 +149,8 @@ class Application extends ApplicationBase
         $this->instance('path.plugins', $this->pluginsPath());
         $this->instance('path.themes', $this->themesPath());
         $this->instance('path.temp', $this->tempPath());
+        $this->instance('path.uploads', $this->uploadsPath());
+        $this->instance('path.media', $this->mediaPath());
     }
 
     /**
@@ -116,7 +160,7 @@ class Application extends ApplicationBase
      */
     public function pluginsPath()
     {
-        return $this->pluginsPath ?: $this->basePath.'/plugins';
+        return $this->pluginsPath ?: PathResolver::join($this->basePath, '/plugins');
     }
 
     /**
@@ -127,6 +171,7 @@ class Application extends ApplicationBase
      */
     public function setPluginsPath($path)
     {
+        $path = PathResolver::standardize($path);
         $this->pluginsPath = $path;
         $this->instance('path.plugins', $path);
         return $this;
@@ -139,7 +184,7 @@ class Application extends ApplicationBase
      */
     public function themesPath()
     {
-        return $this->themesPath ?: $this->basePath.'/themes';
+        return $this->themesPath ?: PathResolver::join($this->basePath, '/themes');
     }
 
     /**
@@ -150,6 +195,7 @@ class Application extends ApplicationBase
      */
     public function setThemesPath($path)
     {
+        $path = PathResolver::standardize($path);
         $this->themesPath = $path;
         $this->instance('path.themes', $path);
         return $this;
@@ -162,7 +208,66 @@ class Application extends ApplicationBase
      */
     public function tempPath()
     {
-        return $this->basePath.'/storage/temp';
+        return $this->tempPath ?: PathResolver::join($this->basePath, '/storage/temp');
+    }
+
+    /**
+     * Set the temp path for the application.
+     *
+     * @return string
+     */
+    public function setTempPath($path)
+    {
+        $path = PathResolver::standardize($path);
+        $this->tempPath = $path;
+        $this->instance('path.temp', $path);
+        return $this;
+    }
+
+    /**
+     * Get the path to the uploads directory.
+     *
+     * @return string
+     */
+    public function uploadsPath()
+    {
+        return $this->uploadsPath ?: PathResolver::join($this->basePath, '/storage/app/uploads');
+    }
+
+    /**
+     * Set the uploads path for the application.
+     *
+     * @return string
+     */
+    public function setUploadsPath($path)
+    {
+        $path = PathResolver::standardize($path);
+        $this->uploadsPath = $path;
+        $this->instance('path.uploads', $path);
+        return $this;
+    }
+
+    /**
+     * Get the path to the media directory.
+     *
+     * @return string
+     */
+    public function mediaPath()
+    {
+        return $this->mediaPath ?: PathResolver::join($this->basePath, '/storage/app/media');
+    }
+
+    /**
+     * Set the media path for the application.
+     *
+     * @return string
+     */
+    public function setMediaPath($path)
+    {
+        $path = PathResolver::standardize($path);
+        $this->mediaPath = $path;
+        $this->instance('path.media', $path);
+        return $this;
     }
 
     /**
@@ -272,6 +377,58 @@ class Application extends ApplicationBase
         $this['events']->fire('locale.changed', [$locale]);
     }
 
+    /**
+     * Register all of the configured providers.
+     *
+     * @var bool $isRetry If true, this is a second attempt without the cached packages.
+     * @return void
+     */
+    public function registerConfiguredProviders($isRetry = false)
+    {
+        $providers = Collection::make($this->config['app.providers'])
+                        ->partition(function ($provider) {
+                            return Str::startsWith($provider, 'Illuminate\\');
+                        });
+
+        if (Config::get('app.loadDiscoveredPackages', false)) {
+            $providers->splice(1, 0, [$this->make(PackageManifest::class)->providers()]);
+        }
+
+        $filesystem = new Filesystem;
+        $repository = new ProviderRepository($this, $filesystem, $this->getCachedServicesPath());
+
+        try {
+            $repository->load($providers->collapse()->toArray());
+        } catch (Throwable $e) {
+            // If provider loading fails, we'll try it without the cached packages first, before failing completely
+            if ($isRetry) {
+                throw $e;
+            }
+
+            $this->clearPackageCache();
+            $this->registerConfiguredProviders(true);
+        }
+    }
+
+    /**
+     * Clears cached packages, services and classes.
+     *
+     * @return void
+     */
+    protected function clearPackageCache()
+    {
+        $filesystem = new Filesystem;
+        $filesystem->delete([
+            $this->getCachedPackagesPath(),
+            $this->getCachedServicesPath(),
+            $this->getCachedClassesPath(),
+        ]);
+
+        // Reset package manifest
+        $this->make(PackageManifest::class)->manifest = null;
+    }
+
+
     //
     // Core aliases
     //
@@ -291,16 +448,16 @@ class Application extends ApplicationBase
             'config'               => [\Illuminate\Config\Repository::class, \Illuminate\Contracts\Config\Repository::class],
             'cookie'               => [\Illuminate\Cookie\CookieJar::class, \Illuminate\Contracts\Cookie\Factory::class, \Illuminate\Contracts\Cookie\QueueingFactory::class],
             'encrypter'            => [\Illuminate\Encryption\Encrypter::class, \Illuminate\Contracts\Encryption\Encrypter::class],
-            'db'                   => [\October\Rain\Database\DatabaseManager::class],
+            'db'                   => [\Illuminate\Database\DatabaseManager::class, \Illuminate\Database\ConnectionResolverInterface::class],
             'db.connection'        => [\Illuminate\Database\Connection::class, \Illuminate\Database\ConnectionInterface::class],
             'events'               => [\Illuminate\Events\Dispatcher::class, \Illuminate\Contracts\Events\Dispatcher::class],
             'files'                => [\Illuminate\Filesystem\Filesystem::class],
-            'filesystem'           => [\Illuminate\Filesystem\FilesystemManager::class, \Illuminate\Contracts\Filesystem\Factory::class],
+            'filesystem'           => [\October\Rain\Filesystem\FilesystemManager::class, \Illuminate\Contracts\Filesystem\Factory::class],
             'filesystem.disk'      => [\Illuminate\Contracts\Filesystem\Filesystem::class],
             'filesystem.cloud'     => [\Illuminate\Contracts\Filesystem\Cloud::class],
             'hash'                 => [\Illuminate\Contracts\Hashing\Hasher::class],
             'translator'           => [\Illuminate\Translation\Translator::class, \Illuminate\Contracts\Translation\Translator::class],
-            'log'                  => [\Illuminate\Log\Writer::class, \Illuminate\Contracts\Logging\Log::class, \Psr\Log\LoggerInterface::class],
+            'log'                  => [\Illuminate\Log\Logger::class, \Psr\Log\LoggerInterface::class],
             'mailer'               => [\Illuminate\Mail\Mailer::class, \Illuminate\Contracts\Mail\Mailer::class, \Illuminate\Contracts\Mail\MailQueue::class],
             'queue'                => [\Illuminate\Queue\QueueManager::class, \Illuminate\Contracts\Queue\Factory::class, \Illuminate\Contracts\Queue\Monitor::class],
             'queue.connection'     => [\Illuminate\Contracts\Queue\Queue::class],
@@ -312,7 +469,7 @@ class Application extends ApplicationBase
             'session'              => [\Illuminate\Session\SessionManager::class],
             'session.store'        => [\Illuminate\Session\Store::class, \Illuminate\Contracts\Session\Session::class],
             'url'                  => [\October\Rain\Router\UrlGenerator::class, \Illuminate\Contracts\Routing\UrlGenerator::class],
-            'validator'            => [\Illuminate\Validation\Factory::class, \Illuminate\Contracts\Validation\Factory::class],
+            'validator'            => [\October\Rain\Validation\Factory::class, \Illuminate\Contracts\Validation\Factory::class],
             'view'                 => [\Illuminate\View\Factory::class, \Illuminate\Contracts\View\Factory::class],
         ];
 
@@ -334,7 +491,7 @@ class Application extends ApplicationBase
      */
     public function getCachedConfigPath()
     {
-        return $this['path.storage'].'/framework/config.php';
+        return PathResolver::join($this->storagePath(), '/framework/config.php');
     }
 
     /**
@@ -344,7 +501,7 @@ class Application extends ApplicationBase
      */
     public function getCachedRoutesPath()
     {
-        return $this['path.storage'].'/framework/routes.php';
+        return PathResolver::join($this->storagePath(), '/framework/routes.php');
     }
 
     /**
@@ -354,7 +511,7 @@ class Application extends ApplicationBase
      */
     public function getCachedCompilePath()
     {
-        return $this->storagePath().'/framework/compiled.php';
+        return PathResolver::join($this->storagePath(), '/framework/compiled.php');
     }
 
     /**
@@ -364,7 +521,7 @@ class Application extends ApplicationBase
      */
     public function getCachedServicesPath()
     {
-        return $this->storagePath().'/framework/services.php';
+        return PathResolver::join($this->storagePath(), '/framework/services.php');
     }
 
     /**
@@ -374,7 +531,7 @@ class Application extends ApplicationBase
      */
     public function getCachedPackagesPath()
     {
-        return $this->storagePath().'/framework/packages.php';
+        return PathResolver::join($this->storagePath(), '/framework/packages.php');
     }
 
     /**
@@ -384,6 +541,6 @@ class Application extends ApplicationBase
      */
     public function getCachedClassesPath()
     {
-        return $this->storagePath().'/framework/classes.php';
+        return PathResolver::join($this->storagePath(), '/framework/classes.php');
     }
 }

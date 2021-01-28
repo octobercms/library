@@ -160,6 +160,23 @@ class SyntaxFieldParserTest extends TestCase
         ], $fields['radio']['options']);
     }
 
+    public function testParseColorPicker()
+    {
+        $content = '';
+        $content .= '{colorpicker name="field1" label="Field 1" availableColors="#ffffff|#000000" allowEmpty="false"}{/colorpicker}'.PHP_EOL;
+        $content .= '{variable type="colorpicker" name="field2" label="Field 2" allowEmpty="true"}{/variable}';
+
+        $result = FieldParser::parse($content);
+        $fields = $result->getFields();
+
+        $this->assertArrayNotHasKey('availableColors', $fields['field2']);
+        $this->assertCount(2, $fields['field1']['availableColors']);
+        $this->assertEquals(['#ffffff', '#000000'], $fields['field1']['availableColors']);
+
+        $this->assertFalse($fields['field1']['allowEmpty']);
+        $this->assertTrue($fields['field2']['allowEmpty']);
+    }
+
     public function testParseRepeater()
     {
         $content = '';

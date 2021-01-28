@@ -43,6 +43,10 @@ class RoutingServiceProvider extends RoutingServiceProviderBase
                 return $this->app['session'];
             });
 
+            $url->setKeyResolver(function () {
+                return $this->app->make('config')->get('app.key');
+            });
+
             // If the route collection is "rebound", for example, when the routes stay
             // cached for the application, we will need to rebind the routes on the
             // URL generator instance so it has the latest version of the routes.
