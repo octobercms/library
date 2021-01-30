@@ -686,7 +686,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
 
         $this->user = null;
 
-        Session::flush();
+        Session::invalidate();
         Cookie::queue(Cookie::forget($this->sessionKey));
     }
 
