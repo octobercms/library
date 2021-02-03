@@ -89,6 +89,18 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
+     * Override sync() method of BelongToMany relation in order to flush the query cache.
+     * @param array $ids
+     * @param bool $detaching
+     * @return array
+     */
+    public function sync($ids, $detaching = true)
+    {
+        parent::sync($ids, $detaching);
+        $this->flushDuplicateCache();
+    }
+
+    /**
      * Create a new instance of this related model with deferred binding support.
      */
     public function create(array $attributes = [], array $pivotData = [], $sessionKey = null)
@@ -160,7 +172,7 @@ class BelongsToMany extends BelongsToManyBase
     {
         $attachedIdList = $this->parseIds($ids);
         if (empty($attachedIdList)) {
-            $attachedIdList = $this->allRelatedIds();
+            $attachedIdList = $this->allRelatedIds()->all();
         }
 
         /**

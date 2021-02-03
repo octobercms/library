@@ -137,6 +137,10 @@ trait DefinedConstraints
         // add relation's conditions and scopes to the query
         $this->addDefinedConstraintsToQuery($query);
 
-        return $query->join($this->related->getTable(), $this->relatedPivotKey, '=', $this->relatedKey);
+        $related = $this->getRelated();
+
+        return $query
+            ->join($related->getTable(), $related->getQualifiedKeyName(), '=', $this->getOtherKey())
+            ->select($this->getTable().'.*');
     }
 }
