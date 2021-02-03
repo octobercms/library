@@ -29,7 +29,9 @@ class File extends Model
      * Relations
      */
     public $morphTo = [
-        'attachment' => []
+        'attachment' => [
+            'keyType' => 'string'
+        ],
     ];
 
     /**
