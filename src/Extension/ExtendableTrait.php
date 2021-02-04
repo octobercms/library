@@ -410,8 +410,8 @@ trait ExtendableTrait
             $extension = $this->extensionData['methods'][$name];
             $extensionObject = $this->extensionData['extensions'][$extension];
 
-            if (method_exists($extension, $name) && is_callable([$extension, $name])) {
-                return call_user_func_array([$extensionObject, $name], $params);
+            if (method_exists($extension, $name)) {
+                return call_user_func_array([$extensionObject, $name], array_values($params));
             }
         }
 
@@ -419,7 +419,7 @@ trait ExtendableTrait
             $dynamicCallable = $this->extensionData['dynamicMethods'][$name];
 
             if (is_callable($dynamicCallable)) {
-                return call_user_func_array($dynamicCallable, $params);
+                return call_user_func_array($dynamicCallable, array_values($params));
             }
         }
 
