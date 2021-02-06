@@ -66,15 +66,9 @@
         "illuminate/cache": "^6.0",
         "squizlabs/php_codesniffer": "3.*",
         "php-parallel-lint/php-parallel-lint": "^1.0",
-        "meyfa/phpunit-assert-gd": "^2.0.0|dev-master",
+        "meyfa/phpunit-assert-gd": "^2.0.0|^3.0.0",
         "dms/phpunit-arraysubset-asserts": "^0.1.0|^0.2.1"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/bennothommo/phpunit-assert-gd"
-        }
-    ],
     "suggest": {
         "ext-pdo_dblib": "Required to use MS SQL Server databases",
         "ext-pdo_mysql": "Required to use MySQL databases",
