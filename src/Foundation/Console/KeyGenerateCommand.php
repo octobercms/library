@@ -45,10 +45,13 @@ class KeyGenerateCommand extends KeyGenerateCommandBase
             return $this->line('<comment>'.$key.'</comment>');
         }
 
-        // Next, we will replace the application key in the config file so it is
-        // automatically setup for this developer. This key gets generated using a
+        // Next, we will replace the application key in the env file (if it exists) or config file
+        // so it is automatically setup for this developer. This key gets generated using a
         // secure random byte generator and is later base64 encoded for storage.
-        if (!$this->setKeyInConfigFile($key)) {
+        if (
+            ($this->files->exists($this->laravel->environmentFilePath()) && ! $this->setKeyInEnvironmentFile($key))
+            || ! $this->setKeyInConfigFile($key)
+        ) {
             return;
         }
 
