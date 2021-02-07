@@ -49,8 +49,8 @@ class KeyGenerateCommand extends KeyGenerateCommandBase
         // so it is automatically setup for this developer. This key gets generated using a
         // secure random byte generator and is later base64 encoded for storage.
         if (
-            ($this->files->exists($this->laravel->environmentFilePath()) && !$this->setKeyInEnvironmentFile($key))
-            || !$this->setKeyInConfigFile($key)
+            ($this->files->exists($this->laravel->environmentFilePath()) && !$this->setKeyInEnvironmentFile($key)) ||
+            !$this->setKeyInConfigFile($key)
         ) {
             return;
         }
