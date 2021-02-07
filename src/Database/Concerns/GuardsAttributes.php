@@ -17,10 +17,17 @@ trait GuardsAttributes
     public function isGuarded($key)
     {
         $guarded = $this->getGuarded();
+
         // Nothing's guarded so just return early
-        if (empty($guarded) || $guarded === ['*']) {
+        if (empty($guarded)) {
             return false;
         }
+
+        // Everything's guarded, return early
+        if ($guarded === ['*']) {
+            return true;
+        }
+
         // Normalize the variables for comparison
         $key = trim(strtolower($key));
         $guarded = array_map(function ($column) {

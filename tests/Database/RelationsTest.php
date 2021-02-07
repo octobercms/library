@@ -20,15 +20,17 @@ class RelationsTest extends DbTestCase
 
         $this->db->schema()->create('terms', function ($table) {
             $table->increments('id');
-            $table->string('type');
+            $table->string('type')->index();
             $table->string('name');
             $table->timestamps();
         });
 
         $this->db->schema()->create('posts_terms', function ($table) {
-            $table->increments('id');
+            $table->primary(['post_id', 'term_id']);
             $table->unsignedInteger('post_id');
             $table->unsignedInteger('term_id');
+            $table->string('data')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -66,8 +68,9 @@ class RelationsTest extends DbTestCase
     public function testBelongsToManyCount()
     {
         $post = Post::first();
-        $this->assertEquals(2, $post->tags->count());
-        $this->assertEquals(2, $post->categories->count());
+        $this->assertEquals(2, $post->tags()->count());
+        $this->assertEquals(2, $post->categories()->count());
+        $this->assertEquals(4, $post->terms()->count());
     }
 
     public function testBelongsToManySyncAll()
@@ -77,17 +80,21 @@ class RelationsTest extends DbTestCase
         $catid = $post->categories()->first()->id;
         $tagid = $post->tags()->first()->id;
 
-        Post::flushDuplicateCache();
+        $this->assertEquals(2, $post->categories()->count());
+        $this->assertEquals(2, $post->tags()->count());
 
         $post->categories()->sync([$catid]);
-
-        $this->assertEquals(1, $post->categories->count());
-        $this->assertEquals($catid, $post->categories()->first()->id);
-
         $post->tags()->sync([$tagid]);
 
-        $this->assertEquals(1, $post->tags->count());
+        $post->reloadRelations();
+
+        $this->assertEquals(1, $post->categories()->count());
+        $this->assertEquals($catid, $post->categories()->first()->id);
+
+        $this->assertEquals(1, $post->tags()->count());
         $this->assertEquals($tagid, $post->tags()->first()->id);
+
+        $this->assertEquals(2, $post->terms()->count());
     }
 
     public function testBelongsToManySyncTags()
@@ -96,15 +103,14 @@ class RelationsTest extends DbTestCase
 
         $id = $post->tags()->first()->id;
 
-        Post::flushDuplicateCache();
-
         $post->categories()->detach();
-        $this->assertEquals(0, $post->categories()->count());
-
         $post->tags()->sync([$id]);
 
-        $this->assertEquals(1, $post->tags->count());
+        $this->assertEquals(0, $post->categories()->count());
+        $this->assertEquals(1, $post->tags()->count());
         $this->assertEquals($id, $post->tags()->first()->id);
+
+        $this->assertEquals(1, $post->terms()->count());
     }
 
     public function testBelongsToManySyncCategories()
@@ -113,15 +119,14 @@ class RelationsTest extends DbTestCase
 
         $id = $post->categories()->first()->id;
 
-        Post::flushDuplicateCache();
-
         $post->categories()->sync([$id]);
+        $post->tags()->detach();
 
         $this->assertEquals(1, $post->categories()->count());
         $this->assertEquals($id, $post->categories()->first()->id);
+        $this->assertEquals(0, $post->tags()->count());
 
-        $post->tags()->detach();
-        $this->assertEquals(0, $post->tags->count());
+        $this->assertEquals(1, $post->terms()->count());
     }
 
     public function testBelongsToManyDetach()
@@ -129,10 +134,11 @@ class RelationsTest extends DbTestCase
         $post = Post::first();
 
         $post->categories()->detach();
-        $this->assertEquals(0, $post->categories()->count());
-
         $post->tags()->detach();
+
+        $this->assertEquals(0, $post->categories()->count());
         $this->assertEquals(0, $post->tags()->count());
+        $this->assertEquals(0, $post->terms()->count());
     }
 
     public function testBelongsToManySyncMultipleCategories()
@@ -144,6 +150,8 @@ class RelationsTest extends DbTestCase
 
         $post->categories()->sync($category_ids);
         $this->assertEquals(4, $post->categories()->count());
+        $this->assertEquals(2, $post->tags()->count());
+        $this->assertEquals(6, $post->terms()->count());
     }
 
     public function testBelongsToManyDetachOneCategory()
@@ -151,10 +159,94 @@ class RelationsTest extends DbTestCase
         $post = Post::first();
 
         $id = $post->categories()->get()->last()->id;
-        Post::flushDuplicateCache();
+
+        $this->assertEquals(2, $post->categories()->count());
+        $this->assertEquals(2, $post->tags()->count());
+        $this->assertEquals(4, $post->terms()->count());
 
         $post->categories()->detach([$id]);
+        $post->reloadRelations();
+
         $this->assertEquals(1, $post->categories()->count());
+        $this->assertEquals(2, $post->tags()->count());
+        $this->assertEquals(3, $post->terms()->count());
+    }
+
+    public function testPivotData()
+    {
+        $data = 'My Pivot Data';
+        $post = Post::first();
+
+        $id = $post->categories()->get()->last()->id;
+        $updated = $post->categories()->updateExistingPivot($id, [ 'data' => $data ]);
+        $this->assertTrue($updated === 1);
+
+        $category = $post->categories()->find($id);
+        $this->assertEquals($data, $category->pivot->data);
+    }
+
+    public function testTerms()
+    {
+        $post = Post::create([
+            'title' => 'B Post',
+        ]);
+
+        $term1 = Term::create(['name' => 'term #1', 'type' => 'any']);
+        $term2 = Term::create(['name' => 'term #2', 'type' => 'any']);
+        $term3 = Term::create(['name' => 'term #3', 'type' => 'any']);
+
+        // Add/remove to collection
+        $this->assertFalse($post->terms->contains($term1->id));
+        $post->terms()->add($term1);
+        $post->terms()->add($term2);
+        $this->assertTrue($post->terms->contains($term1->id));
+        $this->assertTrue($post->terms->contains($term2->id));
+
+        // Set by Model object
+        $post->terms = $term1;
+        $this->assertEquals(1, $post->terms->count());
+        $this->assertEquals('term #1', $post->terms->first()->name);
+
+        $post->terms = [$term1, $term2, $term3];
+        $this->assertEquals(3, $post->terms->count());
+
+        // Set by primary key
+        $post->terms = $term2->id;
+        $this->assertEquals(1, $post->terms->count());
+        $this->assertEquals('term #2', $post->terms->first()->name);
+
+        $post->terms = [$term2->id, $term3->id];
+        $this->assertEquals(2, $post->terms->count());
+
+        // Nullify
+        $post->terms = null;
+        $this->assertEquals(0, $post->terms->count());
+
+        // Extra nullify checks (still exists in DB until saved)
+        $post->reloadRelations('terms');
+        $this->assertEquals(2, $post->terms->count());
+        $post->save();
+        $post->reloadRelations('terms');
+        $this->assertEquals(0, $post->terms->count());
+
+        // Deferred in memory
+        $post->terms = [$term2->id, $term3->id];
+        $this->assertEquals(2, $post->terms->count());
+        $this->assertEquals('term #2', $post->terms->first()->name);
+    }
+
+    public function testUndefinedMorphsRelation()
+    {
+        $this->expectException('BadMethodCallException');
+
+        $morphs = new Morphs;
+        $morphs->unknownRelation();
+    }
+
+    public function testDefinedMorphsRelation()
+    {
+        $morphs = new Morphs;
+        $value = $morphs->related();
     }
 }
 
@@ -164,20 +256,37 @@ class Post extends \October\Rain\Database\Model
 
     public $fillable = ['title'];
 
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'episode_at'
+    ];
+
     public $belongsToMany = [
         'tags' => [
             Term::class,
             'table'     => 'posts_terms',
             'key'       => 'post_id',
             'otherKey'  => 'term_id',
-            'conditions' => 'type = "tag"'
+            'pivot'     => ['data'],
+            'timestamps' => true,
+            'conditions' => 'type = "tag"',
         ],
         'categories' => [
             Term::class,
             'table'     => 'posts_terms',
             'key'       => 'post_id',
             'otherKey'  => 'term_id',
-            'conditions' => 'type = "category"'
+            'pivot'     => ['data'],
+            'timestamps' => true,
+            'conditions' => 'type = "category"',
+        ],
+        'terms' => [
+            Term::class,
+            'table'     => 'posts_terms',
+            'key'       => 'post_id',
+            'otherKey'  => 'term_id',
+            'timestamps' => true,
         ],
     ];
 }
@@ -188,13 +297,30 @@ class Term extends \October\Rain\Database\Model
 
     public $fillable = ['type', 'name'];
 
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'episode_at'
+    ];
+
     public $belongsToMany = [
         'posts' => [
             'Post',
             'table'      => 'posts_terms',
             'key'        => 'term_id',
             'otherKey'   => 'post_id',
-            'conditions' => 'type = "post"'
+            'pivot'     => ['data'],
+            'timestamps' => true,
+            'conditions' => 'type = "post"',
         ],
+    ];
+}
+
+class Morphs extends \October\Rain\Database\Model
+{
+    public $table = 'morphs';
+
+    public $morphTo = [
+        'related' => [],
     ];
 }

@@ -89,6 +89,18 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
+     * Override sync() method of BelongToMany relation in order to flush the query cache.
+     * @param array $ids
+     * @param bool $detaching
+     * @return array
+     */
+    public function sync($ids, $detaching = true)
+    {
+        parent::sync($ids, $detaching);
+        $this->flushDuplicateCache();
+    }
+
+    /**
      * Create a new instance of this related model with deferred binding support.
      */
     public function create(array $attributes = [], array $pivotData = [], $sessionKey = null)
@@ -130,7 +142,7 @@ class BelongsToMany extends BelongsToManyBase
         $this->parent->fireEvent('model.relation.beforeAttach', [$this->relationName, $attachedIdList, $insertData]);
 
         /*
-         * See Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
+         * @See Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
          */
         parent::attach($id, $attributes, $touch);
 
@@ -179,8 +191,8 @@ class BelongsToMany extends BelongsToManyBase
          */
         $this->parent->fireEvent('model.relation.beforeDetach', [$this->relationName, $attachedIdList]);
 
-        /*
-         * See Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
+        /**
+         * @see Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
          */
 
         $result = parent::detach($ids, $touch);
@@ -405,15 +417,5 @@ class BelongsToMany extends BelongsToManyBase
     {
         traceLog('Method BelongsToMany::getRelatedIds has been deprecated, use BelongsToMany::allRelatedIds instead.');
         return $this->allRelatedIds($sessionKey)->all();
-    }
-
-    /**
-     * Get the pivot models that are currently attached (taking conditions & scopes into account).
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    protected function getCurrentlyAttachedPivots()
-    {
-        return $this->getQuery()->get();
     }
 }
