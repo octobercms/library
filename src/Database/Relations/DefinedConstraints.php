@@ -121,5 +121,4 @@ trait DefinedConstraints
             $query->$scope($this->parent);
         }
     }
-
 }
