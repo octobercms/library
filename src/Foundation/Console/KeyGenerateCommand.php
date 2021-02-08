@@ -90,7 +90,11 @@ class KeyGenerateCommand extends KeyGenerateCommandBase
      */
     protected function getKeyFile()
     {
-        $env = $this->option('env') ? $this->option('env').'/' : '';
+        $env = $this->option('env') ? $this->option('env').'/' : $this->laravel->environment().'/';
+
+        if (!$this->files->exists($this->laravel['path.config']."/{$env}app.php")) {
+            $env = '';
+        }
 
         $contents = $this->files->get($path = $this->laravel['path.config']."/{$env}app.php");
 
