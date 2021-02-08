@@ -141,8 +141,8 @@ class BelongsToMany extends BelongsToManyBase
          */
         $this->parent->fireEvent('model.relation.beforeAttach', [$this->relationName, $attachedIdList, $insertData]);
 
-        /*
-         * @See Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
+        /**
+         * @see \Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
          */
         parent::attach($id, $attributes, $touch);
 
