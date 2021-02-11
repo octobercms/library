@@ -54,7 +54,7 @@ class KeyGenerateCommand extends KeyGenerateCommandBase
         // Next, we will replace the application key in the env file (if it exists) or config file
         // so it is automatically setup for this developer. This key gets generated using a
         // secure random byte generator and is later base64 encoded for storage.
-        if (!$this->setKeyInEnvironmentFile($key)) {
+        if (! $this->setKeyInEnvironmentFile($key)) {
             $this->setKeyInConfigFile($key);
         }
 
@@ -116,8 +116,10 @@ class KeyGenerateCommand extends KeyGenerateCommandBase
     {
         $env = $this->option('env') ? $this->option('env').'/' : $this->laravel->environment().'/';
 
-        if ($this->files->exists($this->laravel['path.config']."/{$env}app.php")) {
-            $config = include $this->laravel['path.config']."/{$env}app.php";
+        $path = $this->laravel['path.config']."/{$env}app.php";
+
+        if ($this->files->exists($path)) {
+            $config = include $path;
 
             if (!isset($config['key'])) {
                 $env = '';
