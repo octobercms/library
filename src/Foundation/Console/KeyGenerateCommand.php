@@ -47,7 +47,7 @@ class KeyGenerateCommand extends KeyGenerateCommandBase
 
         $currentKey = $this->laravel['config']['app.key'];
 
-        if (strlen($currentKey) !== 0 && (! $this->confirmToProceed())) {
+        if (!empty($currentKey) && (!$this->confirmToProceed())) {
             return;
         }
 
