@@ -35,4 +35,5 @@
     <exclude-pattern>*/vendor/*</exclude-pattern>
     <!-- Ignore test config fixture -->
     <exclude-pattern>*/tests/fixtures/config/sample-config.php</exclude-pattern>
+    <exclude-pattern>*/tests/fixtures/config/sample-config-with-env.php</exclude-pattern>
 </ruleset>
