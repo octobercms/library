@@ -17,6 +17,7 @@ use Exception;
  * - booleans
  * - nulls
  * - single-dimension arrays
+ * - default values in env function calls
  *
  * To do:
  * - When an entry does not exist, provide a way to create it
@@ -25,15 +26,16 @@ use Exception;
  */
 class ConfigWriter
 {
-    public function toFile($filePath, $newValues, $useValidation = true)
+    public function toFile(string $filePath, array $newValues, bool $useValidation = true): string
     {
         $contents = file_get_contents($filePath);
         $contents = $this->toContent($contents, $newValues, $useValidation);
         file_put_contents($filePath, $contents);
+
         return $contents;
     }
 
-    public function toContent($contents, $newValues, $useValidation = true)
+    public function toContent(string $contents, array $newValues, bool $useValidation = true): string
     {
         $contents = $this->parseContent($contents, $newValues);
 
@@ -64,7 +66,7 @@ class ConfigWriter
         return $contents;
     }
 
-    protected function parseContent($contents, $newValues)
+    protected function parseContent(string $contents, array $newValues): string
     {
         $result = $contents;
 
@@ -75,7 +77,7 @@ class ConfigWriter
         return $result;
     }
 
-    protected function parseContentValue($contents, $path, $value)
+    protected function parseContentValue(string $contents, string $path, $value): string
     {
         $result = $contents;
         $items = explode('.', $path);
@@ -84,13 +86,14 @@ class ConfigWriter
 
         $count = 0;
         $patterns = [];
-        $patterns[] = $this->buildStringExpression($key, $items);
-        $patterns[] = $this->buildStringExpression($key, $items, '"');
-        $patterns[] = $this->buildConstantExpression($key, $items);
-        $patterns[] = $this->buildArrayExpression($key, $items);
+        $patterns[$this->buildEnvCallExpression($key, $items)] = '${1}${2}${4}' . $replaceValue . '${8}';
+        $patterns[$this->buildStringExpression($key, $items)] = '${1}${2}'.$replaceValue;
+        $patterns[$this->buildStringExpression($key, $items, '"')] = '${1}${2}'.$replaceValue;
+        $patterns[$this->buildConstantExpression($key, $items)] = '${1}${2}'.$replaceValue;
+        $patterns[$this->buildArrayExpression($key, $items)] = '${1}${2}'.$replaceValue;
 
-        foreach ($patterns as $pattern) {
-            $result = preg_replace($pattern, '${1}${2}'.$replaceValue, $result, 1, $count);
+        foreach ($patterns as $pattern => $patternReplacement) {
+            $result = preg_replace($pattern, $patternReplacement, $result, 1, $count);
 
             if ($count > 0) {
                 break;
@@ -100,7 +103,7 @@ class ConfigWriter
         return $result;
     }
 
-    protected function writeValueToPhp($value)
+    protected function writeValueToPhp($value): string
     {
         if (is_string($value) && strpos($value, "'") === false) {
             $replaceValue = "'".$value."'";
@@ -126,7 +129,7 @@ class ConfigWriter
         return $replaceValue;
     }
 
-    protected function writeArrayToPhp($array)
+    protected function writeArrayToPhp(array $array): array
     {
         $result = [];
 
@@ -139,7 +142,7 @@ class ConfigWriter
         return '['.implode(', ', $result).']';
     }
 
-    protected function buildStringExpression($targetKey, $arrayItems = [], $quoteChar = "'")
+    protected function buildStringExpression(string $targetKey, array $arrayItems = [], string $quoteChar = "'"): string
     {
         $expression = [];
 
@@ -158,10 +161,26 @@ class ConfigWriter
         return '/' . implode('', $expression) . '/';
     }
 
+    protected function buildEnvCallExpression(string $targetKey, array $arrayItems = [])
+    {
+        $expression = array();
+
+        // Opening expression for array items ($1)
+        $expression[] = $this->buildArrayOpeningExpression($arrayItems);
+
+        // The target key opening
+        $expression[] = '(([\'"])' . $targetKey . '\3\s*=>\s*)';
+
+        // The method call
+        $expression[] = '(env\(([\'"]).*\5,\s*)([\'"]?)(.*)\6(\))';
+
+        return '/' . implode('', $expression) . '/';
+    }
+
     /**
      * Common constants only (true, false, null, integers)
      */
-    protected function buildConstantExpression($targetKey, $arrayItems = [])
+    protected function buildConstantExpression(string $targetKey, array $arrayItems = []): string
     {
         $expression = [];
 
@@ -180,7 +199,7 @@ class ConfigWriter
     /**
      * Single level arrays only
      */
-    protected function buildArrayExpression($targetKey, $arrayItems = [])
+    protected function buildArrayExpression(string $targetKey, array $arrayItems = []): string
     {
         $expression = [];
 
@@ -196,7 +215,7 @@ class ConfigWriter
         return '/' . implode('', $expression) . '/';
     }
 
-    protected function buildArrayOpeningExpression($arrayItems)
+    protected function buildArrayOpeningExpression(array $arrayItems): string
     {
         if (count($arrayItems)) {
             $itemOpen = [];
@@ -206,7 +225,7 @@ class ConfigWriter
             }
 
             // Capture all opening array (non greedy)
-            $result = '(' . implode('[\s\S]*', $itemOpen) . '[\s\S]*?)';
+            $result = '(' . implode('[\s\S]*?', $itemOpen) . '[\s\S]*?)';
         }
         else {
             // Gotta capture something for $1

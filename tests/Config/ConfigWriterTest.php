@@ -130,4 +130,98 @@ class ConfigWriterTest extends TestCase
         $this->assertEquals('127.0.0.1', $result['redis']['default']['host']);
         $this->assertEquals(null, $result['redis']['default']['password']);
     }
+
+    public function testToContentWithEnvCall()
+    {
+        $writer = new ConfigWriter;
+
+        /*
+         * Rewrite a single level string
+         */
+        $contents = file_get_contents(__DIR__ . '/../fixtures/config/sample-config-with-env.php');
+        $contents = $writer->toContent($contents, ['default' => 'sqlite']);
+        $result = eval('?>'.$contents);
+
+        $this->assertTrue(is_array($result));
+        $this->assertArrayHasKey('default', $result);
+        $this->assertEquals('sqlite', $result['default']);
+
+        /*
+         * Rewrite a second level string
+         */
+        $contents = $writer->toContent($contents, ['memcached.host' => '69.69.69.69']);
+        $result = eval('?>'.$contents);
+
+        $this->assertArrayHasKey('memcached', $result);
+        $this->assertArrayHasKey('host', $result['memcached']);
+        $this->assertEquals('69.69.69.69', $result['memcached']['host']);
+
+        /*
+         * Rewrite a third level string
+         */
+        $contents = $writer->toContent($contents, ['connections.mysql.host' => '127.0.0.1']);
+        $result = eval('?>'.$contents);
+
+        $this->assertArrayHasKey('connections', $result);
+        $this->assertArrayHasKey('mysql', $result['connections']);
+        $this->assertArrayHasKey('host', $result['connections']['mysql']);
+        $this->assertEquals('127.0.0.1', $result['connections']['mysql']['host']);
+
+        /*
+         * Test alternative quoting
+         */
+        $contents = $writer->toContent($contents, ['redis.default.password' => 'password123!']);
+        $result = eval('?>'.$contents);
+
+        $this->assertArrayHasKey('redis', $result);
+        $this->assertArrayHasKey('default', $result['redis']);
+        $this->assertArrayHasKey('password', $result['redis']['default']);
+        $this->assertEquals('password123!', $result['redis']['default']['password']);
+
+        /*
+         * Rewrite a boolean
+         */
+        $contents = $writer->toContent($contents, ['encrypt_cookies' => true]);
+        $contents = $writer->toContent($contents, ['encrypt_cookies_again' => false]);
+        $contents = $writer->toContent($contents, ['redis.cluster' => true]);
+        $result = eval('?>'.$contents);
+
+        $this->assertArrayHasKey('encrypt_cookies', $result);
+        $this->assertArrayHasKey('encrypt_cookies_again', $result);
+        $this->assertTrue($result['encrypt_cookies']);
+        $this->assertFalse($result['encrypt_cookies_again']);
+
+        $this->assertArrayHasKey('redis', $result);
+        $this->assertArrayHasKey('cluster', $result['redis']);
+        $this->assertTrue($result['redis']['cluster']);
+
+        /*
+         * Rewrite an integer
+         */
+        $contents = $writer->toContent($contents, ['session_timeout' => 99999]);
+        $result = eval('?>'.$contents);
+
+        $this->assertArrayHasKey('session_timeout', $result);
+        $this->assertEquals(99999, $result['session_timeout']);
+
+        /*
+         * Only first match should be replaced
+         */
+        $contents = $writer->toContent($contents, ['default' => 'pgsql']);
+        $result = eval('?>'.$contents);
+
+        $this->assertArrayHasKey('default', $result);
+        $this->assertEquals('pgsql', $result['default']);
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('redis', $result);
+        $this->assertIsArray($result['redis']);
+        $this->assertArrayHasKey('default', $result['redis']);
+        $this->assertIsArray($result['redis']['default']);
+        $this->assertArrayHasKey('host', $result['redis']['default']);
+        $this->assertArrayHasKey('password', $result['redis']['default']);
+        $this->assertArrayHasKey('port', $result['redis']['default']);
+        $this->assertArrayHasKey('database', $result['redis']['default']);
+        $this->assertEquals('127.0.0.1', $result['redis']['default']['host']);
+        $this->assertEquals('password123!', $result['redis']['default']['password']);
+    }
 }
