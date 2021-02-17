@@ -2,6 +2,7 @@
 
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Console\KeyGenerateCommand as KeyGenerateCommandBase;
+use October\Rain\Config\ConfigWriter;
 
 class KeyGenerateCommand extends KeyGenerateCommandBase
 {
@@ -98,11 +99,10 @@ class KeyGenerateCommand extends KeyGenerateCommandBase
      */
     protected function setKeyInConfigFile($key): bool
     {
-        [$path, $contents] = $this->getKeyFile();
+        [$path] = $this->getKeyFile();
 
-        $contents = preg_replace($this->configKeyReplacementPattern(), "$1{$key}$3", $contents);
-
-        $this->files->put($path, $contents);
+        $writer = new ConfigWriter();
+        $writer->toFile($path, ['key' => $key]);
 
         return true;
     }
@@ -119,7 +119,7 @@ class KeyGenerateCommand extends KeyGenerateCommandBase
         $path = $this->laravel['path.config']."/{$env}app.php";
 
         if ($this->files->exists($path)) {
-            $config = include $path;
+            $config = eval('?>'.$this->files->get($path));
 
             if (!isset($config['key'])) {
                 $env = '';
@@ -131,17 +131,5 @@ class KeyGenerateCommand extends KeyGenerateCommandBase
         $contents = $this->files->get($path = $this->laravel['path.config']."/{$env}app.php");
 
         return [$path, $contents];
-    }
-
-    /**
-     * Get a regex pattern that will match config APP_KEY with any random key
-     *
-     * @return string
-     */
-    protected function configKeyReplacementPattern(): string
-    {
-        $escaped = preg_quote($this->laravel['config']['app.key'], '/');
-
-        return "/(['\"]key['\"]\s*=>.*['\"])({$escaped})(['\"])/s";
     }
 }
