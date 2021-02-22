@@ -279,7 +279,7 @@ class Post extends \October\Rain\Database\Model
             'otherKey'  => 'term_id',
             'pivot'     => ['data'],
             'timestamps' => true,
-            'conditions' => 'type = "category"',
+            'scope'     => 'isCategory',
         ],
         'terms' => [
             Term::class,
@@ -314,6 +314,16 @@ class Term extends \October\Rain\Database\Model
             'conditions' => 'type = "post"',
         ],
     ];
+
+    public function scopeIsTag($query)
+    {
+        return $query->where('type', 'tag');
+    }
+
+    public function scopeIsCategory($query)
+    {
+        return $query->where('type', 'category');
+    }
 }
 
 class Morphs extends \October\Rain\Database\Model
