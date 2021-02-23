@@ -1,175 +1,177 @@
 <?php
 
+use Carbon\Carbon;
+
 class RelationsTest extends DbTestCase
 {
+    protected $seeded = [];
+
     public function setUp(): void
     {
         parent::setUp();
 
+        $this->seeded = [
+            'posts' => [],
+            'categories' => [],
+            'labels' => [],
+            'tags' => []
+        ];
+
         $this->createTables();
-        $this->seedTables();
-    }
-
-    public function createTables()
-    {
-        $this->db->schema()->create('posts', function ($table) {
-            $table->increments('id');
-            $table->string('title')->default('');
-            $table->timestamps();
-        });
-
-        $this->db->schema()->create('terms', function ($table) {
-            $table->increments('id');
-            $table->string('type')->index();
-            $table->string('name');
-            $table->timestamps();
-        });
-
-        $this->db->schema()->create('posts_terms', function ($table) {
-            $table->primary(['post_id', 'term_id']);
-            $table->unsignedInteger('post_id');
-            $table->unsignedInteger('term_id');
-            $table->string('data')->nullable();
-            $table->timestamps();
-        });
-    }
-
-    public function seedTables()
-    {
-        $post = Post::create([
-            'title' => 'A Post',
-        ]);
-
-        Term::create(['type' => 'category', 'name' => 'category tag #1']);
-        Term::create(['type' => 'category', 'name' => 'category tag #2']);
-
-        $post->tags()->create(['type' => 'tag', 'name' => 'A Tag']);
-        $post->tags()->create(['type' => 'tag', 'name' => 'Second Tag']);
-
-        $post->categories()->create(['type' => 'category', 'name' => 'A Category']);
-        $post->categories()->create(['type' => 'category', 'name' => 'Second Category']);
-    }
-
-    public function testTablesExist()
-    {
-        $this->assertTrue($this->db->schema()->hasTable('posts'));
-        $this->assertTrue($this->db->schema()->hasTable('terms'));
-        $this->assertTrue($this->db->schema()->hasTable('posts_terms'));
-    }
-
-    public function testTablesProperlySeeded()
-    {
-        $this->assertEquals(1, Post::count());
-        $this->assertEquals(6, Term::count());
-        $this->assertEquals(2, Term::where('type', 'tag')->count());
-        $this->assertEquals(4, Term::where('type', 'category')->count());
     }
 
     public function testBelongsToManyCount()
     {
-        $post = Post::first();
+        $post = $this->seeded['posts'][0];
+        $this->assertEquals(1, $post->categories()->count());
         $this->assertEquals(2, $post->tags()->count());
-        $this->assertEquals(2, $post->categories()->count());
-        $this->assertEquals(4, $post->terms()->count());
+        $this->assertEquals(1, $post->labels()->count());
+        $this->assertEquals(3, $post->terms()->count());
+
+        $post = $this->seeded['posts'][1];
+        $this->assertEquals(1, $post->categories()->count());
+        $this->assertEquals(0, $post->tags()->count());
+        $this->assertEquals(1, $post->labels()->count());
+        $this->assertEquals(1, $post->terms()->count());
     }
 
     public function testBelongsToManySyncAll()
     {
-        $post = Post::first();
-
-        $catid = $post->categories()->first()->id;
-        $tagid = $post->tags()->first()->id;
-
-        $this->assertEquals(2, $post->categories()->count());
-        $this->assertEquals(2, $post->tags()->count());
-
-        $post->categories()->sync([$catid]);
-        $post->tags()->sync([$tagid]);
-
-        $post->reloadRelations();
+        $post = $this->seeded['posts'][0];
 
         $this->assertEquals(1, $post->categories()->count());
-        $this->assertEquals($catid, $post->categories()->first()->id);
+        $this->assertEquals(1, $post->labels()->count());
 
-        $this->assertEquals(1, $post->tags()->count());
-        $this->assertEquals($tagid, $post->tags()->first()->id);
+        $post->categories()->sync([
+            $this->seeded['categories'][0]->id,
+            $this->seeded['categories'][1]->id,
+        ]);
+        $post->labels()->sync([
+            $this->seeded['labels'][0]->id,
+            $this->seeded['labels'][1]->id,
+        ]);
 
-        $this->assertEquals(2, $post->terms()->count());
+        $this->assertEquals(2, $post->categories()->count());
+        $this->assertEquals(2, $post->labels()->count());
     }
 
     public function testBelongsToManySyncTags()
     {
-        $post = Post::first();
+        $post = $this->seeded['posts'][0];
 
-        $id = $post->tags()->first()->id;
+        $this->assertEquals(1, $post->labels()->count());
+        $this->assertEquals(2, $post->tags()->count());
 
-        $post->categories()->detach();
-        $post->tags()->sync([$id]);
+        $post->labels()->detach();
+        $post->tags()->sync([
+            $this->seeded['tags'][0]->id,
+        ]);
 
-        $this->assertEquals(0, $post->categories()->count());
+        $this->assertEquals(0, $post->labels()->count());
         $this->assertEquals(1, $post->tags()->count());
-        $this->assertEquals($id, $post->tags()->first()->id);
+        $this->assertEquals($this->seeded['tags'][0]->id, $post->tags()->first()->id);
 
         $this->assertEquals(1, $post->terms()->count());
     }
 
-    public function testBelongsToManySyncCategories()
+    public function testBelongsToManySyncLabels()
     {
-        $post = Post::first();
+        $post = $this->seeded['posts'][0];
 
-        $id = $post->categories()->first()->id;
+        $this->assertEquals(1, $post->labels()->count());
+        $this->assertEquals(2, $post->tags()->count());
 
-        $post->categories()->sync([$id]);
+        $post->labels()->sync([
+            $this->seeded['labels'][0]->id,
+            $this->seeded['labels'][1]->id,
+        ]);
         $post->tags()->detach();
 
-        $this->assertEquals(1, $post->categories()->count());
-        $this->assertEquals($id, $post->categories()->first()->id);
+        $this->assertEquals(2, $post->labels()->count());
         $this->assertEquals(0, $post->tags()->count());
+        $this->assertEquals([
+            $this->seeded['labels'][0]->id,
+            $this->seeded['labels'][1]->id,
+        ], $post->labels()->pluck('id')->toArray());
 
-        $this->assertEquals(1, $post->terms()->count());
+        $this->assertEquals(2, $post->terms()->count());
     }
 
     public function testBelongsToManyDetach()
     {
-        $post = Post::first();
+        $post = $this->seeded['posts'][0];
 
-        $post->categories()->detach();
+        $post->labels()->detach();
         $post->tags()->detach();
 
-        $this->assertEquals(0, $post->categories()->count());
+        $this->assertEquals(0, $post->labels()->count());
         $this->assertEquals(0, $post->tags()->count());
         $this->assertEquals(0, $post->terms()->count());
     }
 
-    public function testBelongsToManySyncMultipleCategories()
+    public function testBelongsToManyDetachOneTag()
     {
-        $post = Post::first();
+        $post = $this->seeded['posts'][0];
 
-        $category_ids = Term::where('type', 'category')->lists('id');
-        $this->assertEquals(4, count($category_ids));
+        $id = $post->tags()->get()->last()->id;
+        $post->tags()->detach([$id]);
 
-        $post->categories()->sync($category_ids);
-        $this->assertEquals(4, $post->categories()->count());
-        $this->assertEquals(2, $post->tags()->count());
-        $this->assertEquals(6, $post->terms()->count());
+        $this->assertEquals(1, $post->labels()->count());
+        $this->assertEquals(1, $post->tags()->count());
+        $this->assertEquals(2, $post->terms()->count());
     }
 
-    public function testBelongsToManyDetachOneCategory()
+    public function testBelongsToManyDetachAllWithScope()
     {
-        $post = Post::first();
+        $category = $this->seeded['categories'][0];
+        $post = $this->seeded['posts'][0];
 
-        $id = $post->categories()->get()->last()->id;
-
-        $this->assertEquals(2, $post->categories()->count());
-        $this->assertEquals(2, $post->tags()->count());
-        $this->assertEquals(4, $post->terms()->count());
-
-        $post->categories()->detach([$id]);
+        $category->posts()->detach();
         $post->reloadRelations();
 
+        $this->assertEquals(0, $category->posts()->count());
+        $this->assertEquals(0, $post->categories()->count());
+    }
+
+    public function testBelongsToManyDetachAllWithScopeUnpublished()
+    {
+        $category = $this->seeded['categories'][1];
+        $post = $this->seeded['posts'][1];
+
+        $this->assertEquals(0, $category->posts()->count());
         $this->assertEquals(1, $post->categories()->count());
-        $this->assertEquals(2, $post->tags()->count());
-        $this->assertEquals(3, $post->terms()->count());
+
+        // Post won't detach because it doesn't pass the scope ...
+        $category->posts()->detach();
+        $post->reloadRelations();
+
+        $this->assertEquals(0, $category->posts()->count());
+        $this->assertEquals(1, $post->categories()->count());
+
+        // ... even when its ID is directly used.
+        $category->posts()->detach([$post->id]);
+        $post->reloadRelations();
+
+        $this->assertEquals(0, $category->posts()->count());
+        $this->assertEquals(1, $post->categories()->count());
+
+        // Publish the post
+        $post->published = true;
+        $post->published_at = Carbon::now()->sub('minutes', 10);
+        $post->save();
+
+        $post->reloadRelations();
+        $category->reloadRelations();
+
+        $this->assertEquals(1, $category->posts()->count());
+        $this->assertEquals(1, $post->categories()->count());
+
+        // Detach post
+        $category->posts()->detach();
+        $post->reloadRelations();
+
+        $this->assertEquals(0, $category->posts()->count());
+        $this->assertEquals(0, $post->categories()->count());
     }
 
     public function testPivotData()
@@ -178,7 +180,7 @@ class RelationsTest extends DbTestCase
         $post = Post::first();
 
         $id = $post->categories()->get()->last()->id;
-        $updated = $post->categories()->updateExistingPivot($id, [ 'data' => $data ]);
+        $updated = $post->categories()->updateExistingPivot($id, ['data' => $data]);
         $this->assertTrue($updated === 1);
 
         $category = $post->categories()->find($id);
@@ -237,7 +239,7 @@ class RelationsTest extends DbTestCase
 
     public function testUndefinedMorphsRelation()
     {
-        $this->expectException('BadMethodCallException');
+        $this->expectException(BadMethodCallException::class);
 
         $morphs = new Morphs;
         $morphs->unknownRelation();
@@ -246,23 +248,124 @@ class RelationsTest extends DbTestCase
     public function testDefinedMorphsRelation()
     {
         $morphs = new Morphs;
-        $value = $morphs->related();
+        $this->assertNotEmpty($morphs->related());
     }
+
+    protected function createTables()
+    {
+        $this->db->schema()->create('posts', function ($table) {
+            $table->increments('id');
+            $table->string('title')->default('');
+            $table->boolean('published')->nullable();
+            $table->dateTime('published_at')->nullable();
+            $table->timestamps();
+        });
+
+        $this->db->schema()->create('terms', function ($table) {
+            $table->increments('id');
+            $table->string('type')->index();
+            $table->string('name');
+            $table->timestamps();
+        });
+
+        $this->db->schema()->create('posts_terms', function ($table) {
+            $table->primary(['post_id', 'term_id']);
+            $table->unsignedInteger('post_id');
+            $table->unsignedInteger('term_id');
+            $table->string('data')->nullable();
+            $table->timestamps();
+        });
+
+        $this->db->schema()->create('categories', function ($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->timestamps();
+        });
+
+        $this->db->schema()->create('posts_categories', function ($table) {
+            $table->primary(['post_id', 'category_id']);
+            $table->unsignedInteger('post_id');
+            $table->unsignedInteger('category_id');
+            $table->string('data')->nullable();
+            $table->timestamps();
+        });
+
+        $this->seedTables();
+    }
+
+    protected function seedTables()
+    {
+        $this->seeded['posts'][] = Post::create([
+            'title' => 'A Post',
+            'published' => true,
+            'published_at' => Carbon::now()->sub('minutes', 10),
+        ]);
+        $this->seeded['posts'][] = Post::create([
+            'title' => 'A Second Post',
+            'published' => false,
+            'published_at' => null
+        ]);
+
+        $this->seeded['categories'][] = Category::create([
+            'name' => 'Category 1'
+        ]);
+        $this->seeded['categories'][] = Category::create([
+            'name' => 'Category 2'
+        ]);
+
+        $this->seeded['labels'][] = Term::create(['type' => 'label', 'name' => 'Announcement']);
+        $this->seeded['labels'][] = Term::create(['type' => 'label', 'name' => 'News']);
+
+        $this->seeded['posts'][0]->labels()->attach($this->seeded['labels'][0]);
+        $this->seeded['posts'][0]->categories()->attach($this->seeded['categories'][0]);
+        $this->seeded['posts'][1]->labels()->attach($this->seeded['labels'][1]);
+        $this->seeded['posts'][1]->categories()->attach($this->seeded['categories'][1]);
+
+        $this->seeded['tags'][] = $this->seeded['posts'][0]->tags()->create(['type' => 'tag', 'name' => 'A Tag']);
+        $this->seeded['tags'][] = $this->seeded['posts'][0]->tags()->create(['type' => 'tag', 'name' => 'Second Tag']);
+    }
+}
+
+class Category extends \October\Rain\Database\Model
+{
+    public $table = 'categories';
+
+    public $fillable = ['name'];
+
+    protected $dates = [
+        'created_at',
+        'updated_at',
+    ];
+
+    public $belongsToMany = [
+        'posts' => [
+            Post::class,
+            'table' => 'posts_categories',
+            'order' => 'published_at desc',
+            'scope' => 'isPublished'
+        ]
+    ];
 }
 
 class Post extends \October\Rain\Database\Model
 {
     public $table = 'posts';
 
-    public $fillable = ['title'];
+    public $fillable = ['title', 'published', 'published_at'];
 
     protected $dates = [
         'created_at',
         'updated_at',
-        'episode_at'
+        'published_at',
     ];
 
     public $belongsToMany = [
+        'categories' => [
+            Category::class,
+            'table' => 'posts_categories',
+            'order' => 'name',
+            'pivot' => ['data'],
+        ],
         'tags' => [
             Term::class,
             'table'     => 'posts_terms',
@@ -272,14 +375,14 @@ class Post extends \October\Rain\Database\Model
             'timestamps' => true,
             'conditions' => 'type = "tag"',
         ],
-        'categories' => [
+        'labels' => [
             Term::class,
             'table'     => 'posts_terms',
             'key'       => 'post_id',
             'otherKey'  => 'term_id',
             'pivot'     => ['data'],
             'timestamps' => true,
-            'conditions' => 'type = "category"',
+            'conditions' => 'type = "label"',
         ],
         'terms' => [
             Term::class,
@@ -289,6 +392,16 @@ class Post extends \October\Rain\Database\Model
             'timestamps' => true,
         ],
     ];
+
+    public function scopeIsPublished($query)
+    {
+        return $query
+            ->whereNotNull('published')
+            ->where('published', true)
+            ->whereNotNull('published_at')
+            ->where('published_at', '<', Carbon::now())
+        ;
+    }
 }
 
 class Term extends \October\Rain\Database\Model
