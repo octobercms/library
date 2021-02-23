@@ -118,7 +118,8 @@ trait DefinedConstraints
          * Scope
          */
         if ($scope = array_get($args, 'scope')) {
-            $query->$scope($this->parent);
+            $scopeMethod = 'scope' . ucfirst($scope);
+            $this->getRelated()->{$scopeMethod}($query, $this->parent);
         }
     }
 
@@ -141,6 +142,6 @@ trait DefinedConstraints
 
         return $query
             ->join($related->getTable(), $related->getQualifiedKeyName(), '=', $this->getOtherKey())
-            ->select($this->getTable().'.*');
+            ->select($this->getTable() . '.*');
     }
 }
