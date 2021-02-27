@@ -2,15 +2,15 @@
 
 use Log;
 use Event;
-use ReflectionClass;
+use Closure;
 use Response;
+use Exception;
+use Throwable;
+use ReflectionClass;
+use ReflectionFunction;
+use October\Rain\Exception\AjaxException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
-use October\Rain\Exception\AjaxException;
-use ReflectionFunction;
-use Exception;
-use Closure;
-use Throwable;
 
 class Handler extends ExceptionHandler
 {
