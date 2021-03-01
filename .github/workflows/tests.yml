@@ -14,13 +14,13 @@ jobs:
       max-parallel: 6
       matrix:
         operatingSystem: [ubuntu-latest, windows-latest]
-        phpVersion: ['7.2', '7.3', '7.4']
+        phpVersion: ['7.2', '7.3', '7.4', '8.0']
       fail-fast: false
     runs-on: ${{ matrix.operatingSystem }}
     name: ${{ matrix.operatingSystem }} / PHP ${{ matrix.phpVersion }}
     env:
       extensions: curl, fileinfo, gd, mbstring, openssl, pdo, pdo_sqlite, sqlite3, xml
-      key: october-rain-cache-v1
+      key: october-rain-cache-v1.1.2
     steps:
       - name: Checkout changes
         uses: actions/checkout@v2
@@ -39,18 +39,18 @@ jobs:
           path: ${{ steps.extcache.outputs.dir }}
           key: ${{ steps.extcache.outputs.key }}
           restore-keys: ${{ steps.extcache.outputs.key }}
-    
+
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.phpVersion }}
-          tools: composer:v1
+          tools: composer:v2
           extensions: ${{ env.extensions }}
 
       - name: Setup dependency cache
         id: composercache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-        
+
       - name: Cache dependencies
         uses: actions/cache@v2
         with:
@@ -59,7 +59,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install Composer dependencies
-        run: composer install --no-interaction --no-progress --no-suggest
+        run: composer install --no-interaction --no-progress --no-scripts
 
       - name: Setup problem matchers for PHPUnit
         if: matrix.phpVersion == '7.4'
