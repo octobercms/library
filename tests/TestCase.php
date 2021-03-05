@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\Assert;
+
 class TestCase extends PHPUnit\Framework\TestCase
 {
     /**
@@ -18,5 +20,22 @@ class TestCase extends PHPUnit\Framework\TestCase
         $method = $class->getMethod($name);
         $method->setAccessible(true);
         return $method->invokeArgs($object, $params);
+    }
+
+    /**
+     * Stub for `assertFileNotExists` to allow compatibility with both PHPUnit 8 and 9.
+     *
+     * @param string $filename
+     * @param string $message
+     * @return void
+     */
+    public static function assertFileNotExists(string $filename, string $message = ''): void
+    {
+        if (method_exists(Assert::class, 'assertFileDoesNotExist')) {
+            Assert::assertFileDoesNotExist($filename, $message);
+            return;
+        }
+
+        Assert::assertFileNotExists($filename, $message);
     }
 }

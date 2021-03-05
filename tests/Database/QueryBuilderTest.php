@@ -180,8 +180,12 @@ class QueryBuilderTest extends TestCase
         $this->assertEquals(2, $result);
     }
 
-    protected function getConnection()
+    protected function getConnection($connection = null)
     {
+        if ($connection) {
+            return parent::getConnection($connection);
+        }
+        
         $connection = $this->getMockBuilder(ConnectionInterface::class)
             ->disableOriginalConstructor()
             ->disableOriginalClone()

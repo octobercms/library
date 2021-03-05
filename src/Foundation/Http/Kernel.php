@@ -10,13 +10,13 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $bootstrappers = [
-        '\October\Rain\Foundation\Bootstrap\RegisterClassLoader',
-        '\October\Rain\Foundation\Bootstrap\LoadEnvironmentVariables',
-        '\October\Rain\Foundation\Bootstrap\LoadConfiguration',
-        '\October\Rain\Foundation\Bootstrap\LoadTranslation',
+        \October\Rain\Foundation\Bootstrap\RegisterClassLoader::class,
+        \October\Rain\Foundation\Bootstrap\LoadEnvironmentVariables::class,
+        \October\Rain\Foundation\Bootstrap\LoadConfiguration::class,
+        \October\Rain\Foundation\Bootstrap\LoadTranslation::class,
         \Illuminate\Foundation\Bootstrap\HandleExceptions::class,
         \Illuminate\Foundation\Bootstrap\RegisterFacades::class,
-        '\October\Rain\Foundation\Bootstrap\RegisterOctober',
+        \October\Rain\Foundation\Bootstrap\RegisterOctober::class,
         \Illuminate\Foundation\Bootstrap\RegisterProviders::class,
         \Illuminate\Foundation\Bootstrap\BootProviders::class,
     ];
@@ -27,7 +27,8 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
-        '\October\Rain\Foundation\Http\Middleware\CheckForMaintenanceMode',
+        \October\Rain\Foundation\Http\Middleware\CheckForTrustedHost::class,
+        \October\Rain\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
     ];
 
     /**
