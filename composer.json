@@ -14,12 +14,6 @@
             "name": "Samuel Georges",
             "email": "daftspunky@gmail.com",
             "role": "Co-founder"
-        },
-        {
-            "name": "Luke Towers",
-            "email": "octobercms@luketowers.ca",
-            "homepage": "https://luketowers.ca",
-            "role": "Maintainer"
         }
     ],
     "require": {
@@ -38,7 +32,7 @@
         "doctrine/dbal": "^2.6",
         "erusev/parsedown-extra": "~0.7",
         "linkorb/jsmin-php": "~1.0",
-        "wikimedia/less.php": "~2.0",
+        "wikimedia/less.php": "~3.0",
         "scssphp/scssphp": "~1.0",
         "symfony/yaml": "^3.4",
         "twig/twig": "~2.0",
