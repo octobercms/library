@@ -89,6 +89,13 @@ class Sortable extends ExtensionBase
      */
     public function getSortOrderColumn()
     {
-        return defined($this->model.'::SORT_ORDER') ? $this->model::SORT_ORDER : 'sort_order';
+        if (defined(get_class($this->model).'::SORT_ORDER')) {
+            $column = $this->model::SORT_ORDER;
+        } else if (isset($this->model->sort_order_column)) {
+            $column = $this->model->sort_order_column;
+        } else {
+            $column = 'sort_order';
+        }
+        return $column;
     }
 }
