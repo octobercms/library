@@ -57,7 +57,8 @@ class MemoryRepository extends Repository
         }
 
         $this->putInMemoryCache($key, $value);
-        parent::put($key, $value, $seconds);
+
+        return parent::put($key, $value, $seconds);
     }
 
     /**
