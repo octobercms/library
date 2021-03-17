@@ -227,7 +227,7 @@ class BelongsToMany extends BelongsToManyBase
             $this->parent->reloadRelations($this->relationName);
         }
         else {
-            $this->parent->bindDeferred($this->relationName, $model, $sessionKey);
+            $this->parent->bindDeferred($this->relationName, $model, $sessionKey, $pivotData);
         }
     }
 
