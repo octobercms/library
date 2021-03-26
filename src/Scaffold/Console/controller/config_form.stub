@@ -16,16 +16,16 @@ defaultRedirect: {{lower_author}}/{{lower_plugin}}/{{lower_name}}
 
 # Create page
 create:
-    title: Create {{title_singular_name}}
+    title: backend::lang.form.create_title
     redirect: {{lower_author}}/{{lower_plugin}}/{{lower_name}}/update/:id
     redirectClose: {{lower_author}}/{{lower_plugin}}/{{lower_name}}
 
 # Update page
 update:
-    title: Edit {{title_singular_name}}
+    title: backend::lang.form.update_title
     redirect: {{lower_author}}/{{lower_plugin}}/{{lower_name}}
     redirectClose: {{lower_author}}/{{lower_plugin}}/{{lower_name}}
 
 # Preview page
 preview:
-    title: Preview {{title_singular_name}}
+    title: backend::lang.form.preview_title
