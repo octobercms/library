@@ -6,9 +6,9 @@ mkdir -p october
 pushd october
 ./../git-subsplit.sh init git@github.com:octobercms/october.git
 ./../git-subsplit.sh update
-./../git-subsplit.sh publish --heads="1.1" --tags="v1.1.3" modules/backend:git@github.com:octoberrain/backend.git
-./../git-subsplit.sh publish --heads="1.1" --tags="v1.1.3" modules/cms:git@github.com:octoberrain/cms.git
-./../git-subsplit.sh publish --heads="1.1" --tags="v1.1.3" modules/system:git@github.com:octoberrain/system.git
-./../git-subsplit.sh publish --heads="1.1" --tags="v1.1.3" themes/demo:git@github.com:octoberrain/demo-theme.git
-./../git-subsplit.sh publish --heads="1.1" --tags="v1.1.3" plugins/october/demo:git@github.com:octoberrain/demo-plugin.git
+./../git-subsplit.sh publish --heads="1.1" --tags="v1.1.4" modules/backend:git@github.com:octoberrain/backend.git
+./../git-subsplit.sh publish --heads="1.1" --tags="v1.1.4" modules/cms:git@github.com:octoberrain/cms.git
+./../git-subsplit.sh publish --heads="1.1" --tags="v1.1.4" modules/system:git@github.com:octoberrain/system.git
+./../git-subsplit.sh publish --heads="1.1" --tags="v1.1.4" themes/demo:git@github.com:octoberrain/demo-theme.git
+./../git-subsplit.sh publish --heads="1.1" --tags="v1.1.4" plugins/october/demo:git@github.com:octoberrain/demo-plugin.git
 popd
