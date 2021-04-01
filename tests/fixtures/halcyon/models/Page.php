@@ -4,6 +4,10 @@ use October\Rain\Halcyon\Model;
 
 class HalcyonTestPage extends Model
 {
+    /**
+     * @var int maxNesting
+     */
+    protected $maxNesting = 2;
 
     /**
      * The attributes that are mass assignable.
