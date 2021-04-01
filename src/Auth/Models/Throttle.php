@@ -99,7 +99,7 @@ class Throttle extends Model
         // anything either as clearing login attempts
         // makes us unsuspended. We need to manually
         // call unsuspend() in order to unsuspend.
-        if ($this->getLoginAttempts() == 0 or $this->is_suspended) {
+        if ($this->getLoginAttempts() === 0 or $this->is_suspended) {
             return;
         }
 
