@@ -84,7 +84,7 @@ class Role extends Model
 
                     // We will make sure that the merged permission does not
                     // exactly match our permission, but starts with it.
-                    if ($checkPermission != $rolePermission && starts_with($rolePermission, $checkPermission) && $value === 1) {
+                    if ($checkPermission != $rolePermission && starts_with($rolePermission, $checkPermission) && (int) $value === 1) {
                         $matched = true;
                         break;
                     }
@@ -102,7 +102,7 @@ class Role extends Model
 
                     // We will make sure that the merged permission does not
                     // exactly match our permission, but ends with it.
-                    if ($checkPermission != $rolePermission && ends_with($rolePermission, $checkPermission) && $value === 1) {
+                    if ($checkPermission != $rolePermission && ends_with($rolePermission, $checkPermission) && (int) $value === 1) {
                         $matched = true;
                         break;
                     }
@@ -121,14 +121,14 @@ class Role extends Model
 
                         // We will make sure that the merged permission does not
                         // exactly match our permission, but starts with it.
-                        if ($checkGroupPermission != $permission && starts_with($permission, $checkGroupPermission) && $value === 1) {
+                        if ($checkGroupPermission != $permission && starts_with($permission, $checkGroupPermission) && (int) $value === 1) {
                             $matched = true;
                             break;
                         }
                     }
                     // Otherwise, we'll fallback to standard permissions checking where
                     // we match that permissions explicitly exist.
-                    elseif ($permission === $rolePermission && $rolePermissions[$permission] === 1) {
+                    elseif ($permission === $rolePermission && (int) $rolePermissions[$permission] === 1) {
                         $matched = true;
                         break;
                     }
