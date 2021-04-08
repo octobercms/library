@@ -10,7 +10,7 @@ class StylesheetMinifyTest extends TestCase
     public function testUnitRemoval()
     {
         $input  = 'body {width: calc(99.9% * 1/1 - 0px); height: 0px;}';
-        $output = 'body {width:calc(99.9% * 1/1 - 0px);height:0}';
+        $output = 'body {width:calc(99.9% * 1/1 - 0px);height:0px}';
 
         $mockAsset = new MockAsset($input);
         $result    = new StylesheetMinify();
