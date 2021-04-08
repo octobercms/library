@@ -7,7 +7,7 @@ include __DIR__ . '/MockAsset.php';
 class StylesheetMinifyTest extends TestCase
 {
 
-    public function testUnitRemoval()
+    public function testSpaceRemoval()
     {
         $input  = 'body {width: calc(99.9% * 1/1 - 0px); height: 0px;}';
         $output = 'body {width:calc(99.9% * 1/1 - 0px);height:0px}';
