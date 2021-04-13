@@ -3,7 +3,6 @@ name: Tests
 on:
   push:
     branches:
-      - master
       - develop
   pull_request:
 
@@ -13,7 +12,7 @@ jobs:
     strategy:
       max-parallel: 6
       matrix:
-        phpVersions: ['7.2', '7.3', '7.4']
+        phpVersions: ['7.2', '7.3', '7.4', '8.0']
       fail-fast: false
     name: PHP ${{ matrix.phpVersions }}
     steps:
@@ -24,8 +23,6 @@ jobs:
         with:
           php-version: ${{ matrix.phpVersions }}
       - name: Install Composer dependencies
-        run: composer install --no-interaction --no-progress --no-suggest
-      - name: Run Linting and Tests
-        run: |
-          ./vendor/bin/parallel-lint --exclude vendor .
-          ./vendor/bin/phpunit ./tests
+        run: composer install --no-interaction --no-progress --no-suggest --no-scripts
+      - name: Run Tests
+        run: ./vendor/bin/phpunit ./tests
