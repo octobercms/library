@@ -6,6 +6,11 @@ use Illuminate\Routing\Router as RouterBase;
 class CoreRouter extends RouterBase
 {
     /**
+     * @var bool Router registered
+     */
+    protected $routerEventsBooted = false;
+
+    /**
      * Dispatch the request to the application.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -44,5 +49,22 @@ class CoreRouter extends RouterBase
     public function after($callback)
     {
         $this->events->listen('router.after', $callback);
+    }
+
+    /**
+     * Register routers found within "before" filter, some are registered here.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return void
+     */
+    public function registerLateRoutes()
+    {
+        if (!$this->routerEventsBooted) {
+            $this->events->fire('router.before', [new Request]);
+        }
+
+        $this->routerEventsBooted = true;
+
+        return $this;
     }
 }

@@ -42,7 +42,7 @@ class Router
      * Match given URL string
      *
      * @param string $url Request URL to match for
-     * @return array $parameters A reference to a PHP array variable to return the parameter list fetched from URL.
+     * @return bool
      */
     public function match($url)
     {

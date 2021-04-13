@@ -11,31 +11,31 @@ class Role extends Model
     use \October\Rain\Database\Traits\Validation;
 
     /**
-     * @var string The table associated with the model.
+     * @var string table associated with the model
      */
     protected $table = 'roles';
 
     /**
-     * @var array Validation rules
+     * @var array rules for validation
      */
     public $rules = [
         'name' => 'required|between:4,16|unique:role',
     ];
 
     /**
-     * @var array Relations
+     * @var array hasMany relationship
      */
     public $hasMany = [
         'users' => User::class
     ];
 
     /**
-     * @var array List of attribute names which are json encoded and decoded from the database.
+     * @var array jsonable attribute names that are json encoded and decoded from the database
      */
     protected $jsonable = ['permissions'];
 
     /**
-     * @var array Allowed permissions values.
+     * @var array allowedPermissionsValues
      *
      * Possible options:
      *    0 => Remove.
@@ -44,12 +44,12 @@ class Role extends Model
     protected $allowedPermissionsValues = [0, 1];
 
     /**
-     * @var array The attributes that aren't mass assignable.
+     * @var array guarded attributes aren't mass assignable
      */
     protected $guarded = [];
 
     /**
-     * See if a role has access to the passed permission(s).
+     * hasAccess will see if a role has access to the passed permission(s)
      *
      * If multiple permissions are passed, the role must
      * have access to all permissions passed through, unless the
@@ -84,7 +84,11 @@ class Role extends Model
 
                     // We will make sure that the merged permission does not
                     // exactly match our permission, but starts with it.
-                    if ($checkPermission != $rolePermission && starts_with($rolePermission, $checkPermission) && (int) $value === 1) {
+                    if (
+                        $checkPermission !== $rolePermission &&
+                        starts_with($rolePermission, $checkPermission) &&
+                        (int) $value === 1
+                    ) {
                         $matched = true;
                         break;
                     }
@@ -102,7 +106,11 @@ class Role extends Model
 
                     // We will make sure that the merged permission does not
                     // exactly match our permission, but ends with it.
-                    if ($checkPermission != $rolePermission && ends_with($rolePermission, $checkPermission) && (int) $value === 1) {
+                    if (
+                        $checkPermission !== $rolePermission &&
+                        ends_with($rolePermission, $checkPermission) &&
+                        (int) $value === 1
+                    ) {
                         $matched = true;
                         break;
                     }
@@ -121,14 +129,21 @@ class Role extends Model
 
                         // We will make sure that the merged permission does not
                         // exactly match our permission, but starts with it.
-                        if ($checkGroupPermission != $permission && starts_with($permission, $checkGroupPermission) && (int) $value === 1) {
+                        if (
+                            $checkGroupPermission !== $permission &&
+                            starts_with($permission, $checkGroupPermission) &&
+                            (int) $value === 1
+                        ) {
                             $matched = true;
                             break;
                         }
                     }
                     // Otherwise, we'll fallback to standard permissions checking where
                     // we match that permissions explicitly exist.
-                    elseif ($permission === $rolePermission && (int) $rolePermissions[$permission] === 1) {
+                    elseif (
+                        $permission === $rolePermission &&
+                        (int) $rolePermissions[$permission] === 1
+                    ) {
                         $matched = true;
                         break;
                     }
@@ -150,7 +165,7 @@ class Role extends Model
     }
 
     /**
-     * Returns if the user has access to any of the given permissions.
+     * hasAnyAccess returns if the user has access to any of the given permissions
      * @param array $permissions
      * @return bool
      */
@@ -160,7 +175,7 @@ class Role extends Model
     }
 
     /**
-     * Validate the permissions when set.
+     * setPermissionsAttribute validates the permissions when set
      * @param  array  $permissions
      * @return void
      */

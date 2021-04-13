@@ -1,28 +1,25 @@
 <?php namespace October\Rain\Halcyon\Datasource;
 
+/**
+ * ResolverInterface
+ *
+ * @package october\halcyon
+ * @author Alexey Bobkov, Samuel Georges
+ */
 interface ResolverInterface
 {
+    /**
+     * datasource instance
+     */
+    public function datasource(string $name = null): DatasourceInterface;
 
     /**
-     * Get a datasource instance.
-     *
-     * @param  string  $name
-     * @return \October\Rain\Halcyon\Datasource\DatasourceInterface
+     * getDefaultDatasource name
      */
-    public function datasource($name = null);
+    public function getDefaultDatasource(): ?string;
 
     /**
-     * Get the default datasource name.
-     *
-     * @return string
+     * setDefaultDatasource name
      */
-    public function getDefaultDatasource();
-
-    /**
-     * Set the default datasource name.
-     *
-     * @param  string  $name
-     * @return void
-     */
-    public function setDefaultDatasource($name);
+    public function setDefaultDatasource(string $name);
 }

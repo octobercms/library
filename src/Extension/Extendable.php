@@ -1,13 +1,13 @@
 <?php namespace October\Rain\Extension;
 
 /**
- * Extension class
+ * Extendable class
  *
  * If a class extends this class, it will enable support for using "Private traits".
  *
  * Usage:
  *
- *     public $implement = ['Path.To.Some.Namespace.Class'];
+ *     public $implement = [\Path\To\Some\Namespace\Class::class];
  *
  * See the `ExtensionBase` class for creating extension classes.
  *

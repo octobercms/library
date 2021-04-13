@@ -83,6 +83,15 @@ class ExceptionBase extends Exception
     }
 
     /**
+     * Returns a file that is suitable for sharing.
+     * @return string
+     */
+    public function getNiceFile()
+    {
+        return str_replace(base_path(), '~', $this->getFile());
+    }
+
+    /**
      * Masks an exception with the called class. This should catch fatal and php errors.
      * It should always be followed by the unmask() method to remove the mask.
      * @param string $message Error message.
@@ -191,7 +200,7 @@ class ExceptionBase extends Exception
 
         return $this->highlight = (object)$result;
     }
-    
+
     /**
      * Returns an array of line numbers used for highlighting the problem area of code.
      * This will be six (6) lines before and after the error line number.
@@ -267,8 +276,8 @@ class ExceptionBase extends Exception
         foreach ($traceInfo as $event) {
             if (
                 isset($event['class']) &&
-                $event['class'] == 'Illuminate\Foundation\Bootstrap\HandleExceptions' &&
-                $event['function'] == 'handleError'
+                $event['class'] === 'Illuminate\Foundation\Bootstrap\HandleExceptions' &&
+                $event['function'] === 'handleError'
             ) {
                 $useFilter = true;
             }
@@ -286,8 +295,8 @@ class ExceptionBase extends Exception
              */
             if (
                 isset($event['class']) &&
-                $event['class'] == 'Illuminate\Foundation\Bootstrap\HandleExceptions' &&
-                $event['function'] == 'handleError'
+                $event['class'] === 'Illuminate\Foundation\Bootstrap\HandleExceptions' &&
+                $event['function'] === 'handleError'
             ) {
                 $pruneResult = false;
                 continue;

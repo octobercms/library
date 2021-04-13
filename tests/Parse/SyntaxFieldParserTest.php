@@ -4,6 +4,7 @@ use October\Rain\Parse\Syntax\FieldParser;
 
 class SyntaxFieldParserTest extends TestCase
 {
+
     public function testParse()
     {
         $content = '';
@@ -80,49 +81,6 @@ class SyntaxFieldParserTest extends TestCase
         $this->assertEquals('oc:text', $fields['field2']['type']);
     }
 
-    public function testParseJsTriggerApiAttribute()
-    {
-        $content = '';
-        $content .= '{radio name="field1" label="Field 1" type="dropdown" options="y:Yes|n:No|m:Maybe" }{/radio}'.PHP_EOL;
-        $content .= '{variable name="field2" label="Field 2" type="text" trigger="action:enable|field:field1|condition:value[m]" }{/variable}'.PHP_EOL;
-        $content .= '{checkbox name="field3" label="Field 3" trigger="action:show|field:field2|condition:value[enableit]" }{/checkbox}'.PHP_EOL;
-        $content .= '{variable name="field4" label="Field 4" type="dropdown" options="Yes|No" trigger="action:show|field:field3|condition:checked" }{/variable}'.PHP_EOL;
-
-        $result = FieldParser::parse($content);
-        $fields = $result->getFields();
-
-        $this->assertArrayHasKey('field1', $fields);
-        $this->assertArrayHasKey('field2', $fields);
-        $this->assertArrayHasKey('field3', $fields);
-        $this->assertArrayHasKey('field4', $fields);
-
-        $this->assertArrayHasKey('trigger', $fields['field2']);
-        $this->assertArrayHasKey('trigger', $fields['field3']);
-        $this->assertArrayHasKey('trigger', $fields['field4']);
-
-        $this->assertCount(3, $fields['field2']['trigger']);
-        $this->assertCount(3, $fields['field3']['trigger']);
-        $this->assertCount(3, $fields['field4']['trigger']);
-
-        $this->assertEquals([
-            'action' => 'enable',
-            'field' => 'field1',
-            'condition' => 'value[m]',
-        ], $fields['field2']['trigger']);
-
-        $this->assertEquals([
-            'action' => 'show',
-            'field' => 'field2',
-            'condition' => 'value[enableit]',
-        ], $fields['field3']['trigger']);
-
-        $this->assertEquals([
-            'action' => 'show',
-            'field' => 'field3',
-            'condition' => 'checked',
-        ], $fields['field4']['trigger']);
-    }
-
     public function testParseDropdownAndRadio()
     {
         $content = '';
@@ -158,23 +116,6 @@ class SyntaxFieldParserTest extends TestCase
             'n' => 'Nah',
             'm' => 'Mebbe',
         ], $fields['radio']['options']);
-    }
-
-    public function testParseColorPicker()
-    {
-        $content = '';
-        $content .= '{colorpicker name="field1" label="Field 1" availableColors="#ffffff|#000000" allowEmpty="false"}{/colorpicker}'.PHP_EOL;
-        $content .= '{variable type="colorpicker" name="field2" label="Field 2" allowEmpty="true"}{/variable}';
-
-        $result = FieldParser::parse($content);
-        $fields = $result->getFields();
-
-        $this->assertArrayNotHasKey('availableColors', $fields['field2']);
-        $this->assertCount(2, $fields['field1']['availableColors']);
-        $this->assertEquals(['#ffffff', '#000000'], $fields['field1']['availableColors']);
-
-        $this->assertFalse($fields['field1']['allowEmpty']);
-        $this->assertTrue($fields['field2']['allowEmpty']);
     }
 
     public function testParseRepeater()
@@ -259,7 +200,7 @@ class SyntaxFieldParserTest extends TestCase
         $parser = new FieldParser;
         $content = '';
         $content .= '{text name="websiteName" label="Website Name" size="large"}{/text}'.PHP_EOL;
-        $content .= '{text name="blogName" label="Blog Name" color="re\"d"}OctoberCMS{/text}'.PHP_EOL;
+        $content .= '{text name="blogName" label="Blog Name" color="re\"d"}October CMS{/text}'.PHP_EOL;
         $content .= '{text name="storeName" label="Store Name" shape="circle"}{/text}';
         $content .= '{text label="Unnamed" distance="400m"}Foobar{/text}';
         $content .= '{foobar name="nullName" label="Valid tag, not searched by this test"}{/foobar}';
@@ -294,7 +235,7 @@ class SyntaxFieldParserTest extends TestCase
         $this->assertEquals('re\"d', $fields['blogName']['color']);
         $this->assertEquals('text', $fields['blogName']['type']);
         $this->assertNotNull($fields['blogName']['default']);
-        $this->assertEquals('OctoberCMS', $fields['blogName']['default']);
+        $this->assertEquals('October CMS', $fields['blogName']['default']);
 
         $this->assertArrayNotHasKey('name', $fields['storeName']);
         $this->assertArrayHasKey('label', $fields['storeName']);
@@ -331,7 +272,7 @@ class SyntaxFieldParserTest extends TestCase
         $parser = new FieldParser;
         $content = '';
         $content .= '{text name="websiteName" label="Website Name"}{/text}'.PHP_EOL;
-        $content .= '{text name="blogName" label="Blog Name"}OctoberCMS{/text}'.PHP_EOL;
+        $content .= '{text name="blogName" label="Blog Name"}October CMS{/text}'.PHP_EOL;
         $content .= '{text name="storeName" label="Store Name"}{/text}';
         $result = self::callProtectedMethod($parser, 'processTagsRegex', [$content, ['text']]);
 
@@ -340,7 +281,7 @@ class SyntaxFieldParserTest extends TestCase
         $this->assertArrayHasKey(2, $result[2]);
 
         $this->assertEquals('name="websiteName" label="Website Name"}', $result[2][0]);
-        $this->assertEquals('name="blogName" label="Blog Name"}OctoberCMS', $result[2][1]);
+        $this->assertEquals('name="blogName" label="Blog Name"}October CMS', $result[2][1]);
         $this->assertEquals('name="storeName" label="Store Name"}', $result[2][2]);
     }
 

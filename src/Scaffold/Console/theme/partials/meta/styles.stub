@@ -1,4 +1,0 @@
-<link rel="stylesheet" href="{{ ['assets/less/theme.less'] | theme }}">
-
-{% styles %}
-{% placeholder head %}

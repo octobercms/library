@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Halcyon\Traits;
 
 use Illuminate\Support\MessageBag;
-use October\Rain\Support\Facades\Validator;
+use Illuminate\Support\Facades\Validator;
 use October\Rain\Support\Facades\Input;
 use October\Rain\Halcyon\Exception\ModelException;
 use Exception;
@@ -244,7 +244,7 @@ trait Validation
             /*
              * Trim empty rules
              */
-            if (is_string($ruleParts) && trim($ruleParts) == '') {
+            if (is_string($ruleParts) && trim($ruleParts) === '') {
                 unset($rules[$field]);
                 continue;
             }

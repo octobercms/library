@@ -145,11 +145,11 @@ trait DeferredBinding
              * deferred bindings it might have and delete the binding action
              */
             $relationObj = $this->$relationName();
-
             if ($binding->is_bind) {
                 if (in_array($relationType, ['belongsToMany', 'morphToMany', 'morphedByMany'])) {
                     $relationObj->add($slaveModel, null, (array) $binding->pivot_data);
-                } else {
+                }
+                else {
                     $relationObj->add($slaveModel);
                 }
             }

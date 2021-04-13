@@ -2,6 +2,12 @@
 
 use October\Rain\Halcyon\Builder;
 
+/**
+ * Processor
+ *
+ * @package october\halcyon
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class Processor
 {
     /**

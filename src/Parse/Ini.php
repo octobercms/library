@@ -62,13 +62,13 @@ class Ini
             }
 
             $varName = $parts[0];
-            if ($lastName != $varName) {
+            if ($lastName !== $varName) {
                 $count = 0;
                 $lastName = null;
             }
 
             if (
-                ($lastName === null || $lastName == $varName) &&
+                ($lastName === null || $lastName === $varName) &&
                 strpos($varName, '[]') !== false
             ) {
                 $varName = str_replace('[]', '['.$count.']', $varName);

@@ -1,26 +1,25 @@
 <?php namespace October\Rain\Halcyon\Datasource;
 
+/**
+ * Resolver
+ *
+ * @package october\halcyon
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class Resolver implements ResolverInterface
 {
     /**
-     * All of the registered datasources.
-     *
-     * @var array
+     * @var array datasources registrations
      */
     protected $datasources = [];
 
     /**
-     * The default datasource name.
-     *
-     * @var string
+     * @var string default datasource name
      */
     protected $default;
 
     /**
-     * Create a new datasource resolver instance.
-     *
-     * @param  array  $datasources
-     * @return void
+     * __construct a new datasource resolver instance
      */
     public function __construct(array $datasources = [])
     {
@@ -30,12 +29,9 @@ class Resolver implements ResolverInterface
     }
 
     /**
-     * Get a database datasource instance.
-     *
-     * @param  string  $name
-     * @return \October\Rain\Halcyon\Datasource\DatasourceInterface
+     * datasource instance
      */
-    public function datasource($name = null)
+    public function datasource(string $name = null): DatasourceInterface
     {
         if (is_null($name)) {
             $name = $this->getDefaultDatasource();
@@ -45,45 +41,33 @@ class Resolver implements ResolverInterface
     }
 
     /**
-     * Add a datasource to the resolver.
-     *
-     * @param  string  $name
-     * @param  \October\Rain\Halcyon\Datasource\DatasourceInterface  $datasource
-     * @return void
+     * addDatasource to the resolver
      */
-    public function addDatasource($name, DatasourceInterface $datasource)
+    public function addDatasource(string $name, DatasourceInterface $datasource)
     {
         $this->datasources[$name] = $datasource;
     }
 
     /**
-     * Check if a datasource has been registered.
-     *
-     * @param  string  $name
-     * @return bool
+     * hasDatasource checks if a datasource has been registered
      */
-    public function hasDatasource($name)
+    public function hasDatasource(string $name): bool
     {
         return isset($this->datasources[$name]);
     }
 
     /**
-     * Get the default datasource name.
-     *
-     * @return string
+     * getDefaultDatasource name
      */
-    public function getDefaultDatasource()
+    public function getDefaultDatasource(): ?string
     {
         return $this->default;
     }
 
     /**
-     * Set the default datasource name.
-     *
-     * @param  string  $name
-     * @return void
+     * setDefaultDatasource name
      */
-    public function setDefaultDatasource($name)
+    public function setDefaultDatasource(string $name)
     {
         $this->default = $name;
     }

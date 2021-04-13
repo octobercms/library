@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Database\Models;
 
-use Db;
 use Carbon\Carbon;
 use October\Rain\Database\Model;
 use Exception;
@@ -16,22 +15,22 @@ class DeferredBinding extends Model
     use \October\Rain\Database\Traits\Nullable;
 
     /**
-     * @var string The database table used by the model.
+     * @var string table associated with the model
      */
     public $table = 'deferred_bindings';
 
     /**
-     * @var array List of attribute names which are json encoded and decoded from the database.
+     * @var array jsonable attribute names that are json encoded and decoded from the database
      */
     protected $jsonable = ['pivot_data'];
 
     /**
-     * @var array List of attribute names which should be set to null when empty.
+     * @var array nullable attribute names which should be set to null when empty
      */
     protected $nullable = ['pivot_data'];
 
     /**
-     * Prevents duplicates and conflicting binds.
+     * beforeCreate prevents duplicates and conflicting binds
      */
     public function beforeCreate()
     {
@@ -39,7 +38,7 @@ class DeferredBinding extends Model
             /*
              * Remove add-delete pairs
              */
-            if ($this->is_bind != $existingRecord->is_bind) {
+            if ((bool) $this->is_bind !== (bool) $existingRecord->is_bind) {
                 $existingRecord->deleteCancel();
                 return false;
             }
@@ -52,7 +51,7 @@ class DeferredBinding extends Model
     }
 
     /**
-     * Finds a duplicate binding record.
+     * findBindingRecord finds a duplicate binding record
      */
     protected function findBindingRecord()
     {
@@ -66,7 +65,7 @@ class DeferredBinding extends Model
     }
 
     /**
-     * Cancel all deferred bindings to this model.
+     * cancelDeferredActions cancels all deferred bindings to this model
      */
     public static function cancelDeferredActions($masterType, $sessionKey)
     {
@@ -80,7 +79,7 @@ class DeferredBinding extends Model
     }
 
     /**
-     * Delete this binding and cancel is actions
+     * deleteCancel deletes this binding and cancel is actions
      */
     public function deleteCancel()
     {
@@ -89,7 +88,7 @@ class DeferredBinding extends Model
     }
 
     /**
-     * Clean up orphan bindings.
+     * cleanUp orphan bindings
      */
     public static function cleanUp($days = 5)
     {
@@ -101,7 +100,7 @@ class DeferredBinding extends Model
     }
 
     /**
-     * Logic to cancel a bindings action.
+     * deleteSlaveRecord is logic to cancel a bindings action
      */
     protected function deleteSlaveRecord()
     {

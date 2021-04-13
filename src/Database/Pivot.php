@@ -6,36 +6,27 @@ use Illuminate\Database\Eloquent\Builder as BuilderBase;
 class Pivot extends Model
 {
     /**
-     * The parent model of the relationship.
-     *
-     * @var \Illuminate\Database\Eloquent\Model
+     * @var \Illuminate\Database\Eloquent\Model parent model of the relationship.
      */
     protected $parent;
 
     /**
-     * The name of the foreign key column.
-     *
-     * @var string
+     * @var string foreignKey is the name of the foreign key column
      */
     protected $foreignKey;
 
     /**
-     * The name of the "other key" column.
-     *
-     * @var string
+     * @var string otherKey is the name of the "other key" column
      */
     protected $otherKey;
 
     /**
-     * The attributes that aren't mass assignable.
-     *
-     * @var array
+     * @var array guarded attributes aren't mass assignable
      */
     protected $guarded = [];
 
     /**
-     * Create a new pivot model instance.
-     *
+     * __construct creates a new pivot model instance
      * @param  \Illuminate\Database\Eloquent\Model  $parent
      * @param  array   $attributes
      * @param  string  $table
@@ -66,8 +57,7 @@ class Pivot extends Model
     }
 
     /**
-     * Set the keys for a save update query.
-     *
+     * setKeysForSaveQuery sets the keys for a save update query
      * @param  \Illuminate\Database\Eloquent\Builder
      * @return \Illuminate\Database\Eloquent\Builder
      */
@@ -79,8 +69,7 @@ class Pivot extends Model
     }
 
     /**
-     * Delete the pivot model record from the database.
-     *
+     * delete the pivot model record from the database.
      * @return int
      */
     public function delete()
@@ -89,8 +78,7 @@ class Pivot extends Model
     }
 
     /**
-     * Get the query builder for a delete operation on the pivot.
-     *
+     * getDeleteQuery gets the query builder for a delete operation on the pivot
      * @return \Illuminate\Database\Eloquent\Builder
      */
     protected function getDeleteQuery()
@@ -103,8 +91,7 @@ class Pivot extends Model
     }
 
     /**
-     * Get the foreign key column name.
-     *
+     * getForeignKey column name
      * @return string
      */
     public function getForeignKey()
@@ -113,8 +100,7 @@ class Pivot extends Model
     }
 
     /**
-     * Get the "other key" column name.
-     *
+     * getOtherKey column name
      * @return string
      */
     public function getOtherKey()
@@ -123,8 +109,7 @@ class Pivot extends Model
     }
 
     /**
-     * Set the key names for the pivot model instance.
-     *
+     * setPivotKeys sets the key names for the pivot model instance
      * @param  string  $foreignKey
      * @param  string  $otherKey
      * @return $this
@@ -139,8 +124,7 @@ class Pivot extends Model
     }
 
     /**
-     * Determine if the pivot model has timestamp attributes.
-     *
+     * hasTimestampAttributes determines if the pivot model has timestamp attributes
      * @return bool
      */
     public function hasTimestampAttributes()
@@ -149,8 +133,7 @@ class Pivot extends Model
     }
 
     /**
-     * Get the name of the "created at" column.
-     *
+     * getCreatedAtColumn gets the name of the "created at" column
      * @return string
      */
     public function getCreatedAtColumn()
@@ -159,8 +142,7 @@ class Pivot extends Model
     }
 
     /**
-     * Get the name of the "updated at" column.
-     *
+     * getUpdatedAtColumn gets the name of the "updated at" column
      * @return string
      */
     public function getUpdatedAtColumn()

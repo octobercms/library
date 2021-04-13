@@ -119,7 +119,6 @@ class Maker
     {
         $dependencies = [];
 
-        /** @var ReflectionParameter $parameter */
         foreach ($parameters as $parameter) {
             $dependency = $parameter->getType();
 

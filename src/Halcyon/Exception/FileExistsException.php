@@ -2,22 +2,23 @@
 
 use RuntimeException;
 
+/**
+ * FileExistsException
+ *
+ * @package october\halcyon
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class FileExistsException extends RuntimeException
 {
     /**
-     * Name of the affected directory path.
-     *
-     * @var string
+     * @var string invalidPath of the affected directory path
      */
     protected $invalidPath;
 
     /**
-     * Set the affected directory path.
-     *
-     * @param  string   $model
-     * @return $this
+     * setInvalidPath sets the affected directory path
      */
-    public function setInvalidPath($path)
+    public function setInvalidPath(string $path): FileExistsException
     {
         $this->invalidPath = $path;
 
@@ -27,11 +28,9 @@ class FileExistsException extends RuntimeException
     }
 
     /**
-     * Get the affected directory path.
-     *
-     * @return string
+     * getInvalidPath is the affected directory path
      */
-    public function getInvalidPath()
+    public function getInvalidPath(): string
     {
         return $this->invalidPath;
     }

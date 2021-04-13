@@ -50,7 +50,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     protected $appends = [];
 
     /**
-     * @var array The attributes that are mass assignable.
+     * @var array fillable attributes are mass assignable
      */
     protected $fillable = [];
 
@@ -80,9 +80,9 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     protected $wrapCode = true;
 
     /**
-     * @var int The maximum allowed path nesting level. The default value is 5,
-     * meaning that files can only exist in the root directory, or in a
-     * subdirectory. Set to null if any level is allowed.
+     * @var int maxNesting is the maximum allowed path nesting level. The default value is 5,
+     * meaning that files can only exist in the root directory, or in a subdirectory.
+     * Set to null if any level is allowed.
      */
     protected $maxNesting = 5;
 
@@ -234,7 +234,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
             foreach ($hooks as $hook => $event) {
                 $eventMethod = $radical . $event; // saving / saved
                 $method = $hook . ucfirst($radical); // beforeSave / afterSave
-                if ($radical != 'fetch') {
+                if ($radical !== 'fetch') {
                     $method .= 'e';
                 }
 
@@ -250,7 +250,6 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
         /*
          * Hook to boot events
-         * @see October\Rain\Database\Model::registerModelEvent
          */
         static::registerModelEvent('booted', function ($model) {
             $model->fireEvent('model.afterBoot');
@@ -679,9 +678,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function getAttribute($key)
     {
-        /**
-         * @see October\Rain\Database\Model::getAttributeValue
-         */
+        // Before Event
         if (($attr = $this->fireEvent('model.beforeGetAttribute', [$key], true)) !== null) {
             return $attr;
         }
@@ -695,9 +692,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
             return $this->mutateAttribute($key, $value);
         }
 
-        /**
-         * @see October\Rain\Database\Model::getAttributeValue
-         */
+        // After Event
         if (($_attr = $this->fireEvent('model.getAttribute', [$key, $value], true)) !== null) {
             return $_attr;
         }
@@ -764,9 +759,6 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function setAttribute($key, $value)
     {
-        /**
-         * @see October\Rain\Database\Model::setAttributeValue
-         */
         // Before Event
         if (($_value = $this->fireEvent('model.beforeSetAttribute', [$key, $value], true)) !== null) {
             $value = $_value;
@@ -787,9 +779,6 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
             $this->attributes[$key] = $value;
         }
 
-        /**
-         * @see October\Rain\Database\Model::setAttributeValue
-         */
         // After Event
         $this->fireEvent('model.setAttribute', [$key, $value]);
 
@@ -1226,9 +1215,6 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function saveInternal(array $options = [])
     {
-        /**
-         * @see October\Rain\Database\Model::saveInternal
-         */
         // Event
         if ($this->fireEvent('model.saveInternal', [$this->attributes, $options], true) === false) {
             return false;
@@ -1405,7 +1391,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Get the datasource for the model.
      *
-     * @return \October\Rain\Halcyon\Datasource
+     * @return \October\Rain\Halcyon\DatasourceInterface
      */
     public function getDatasource()
     {
@@ -1554,8 +1540,11 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public static function flushDuplicateCache()
     {
-        if (MemoryCacheManager::isEnabled() && self::getCacheManager() !== null) {
-            self::getCacheManager()->driver()->flushInternalCache();
+        if (
+            MemoryCacheManager::isEnabled() &&
+            ($cache = static::getCacheManager())
+        ) {
+            $cache->driver()->flushInternalCache();
         }
     }
 

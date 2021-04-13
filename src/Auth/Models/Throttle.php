@@ -10,46 +10,44 @@ use October\Rain\Database\Model;
 class Throttle extends Model
 {
     /**
-     * @var bool Throttling status.
+     * @var bool enabled throttling status
      */
     protected $enabled = true;
 
     /**
-     * @var string The table associated with the model.
+     * @var string table associated with the model
      */
     protected $table = 'throttle';
 
     /**
-     * @var array Relations
+     * @var array belongsTo relation
      */
     public $belongsTo = [
         'user' => [User::class, 'key' => 'user_id']
     ];
 
     /**
-     * @var bool Indicates if the model should be timestamped.
+     * @var bool timestamps indicates if the model should be timestamped
      */
     public $timestamps = false;
 
     /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
+     * @var array dates attributes that should be mutated to dates
      */
     protected $dates = ['last_attempt_at', 'suspended_at', 'banned_at'];
 
     /**
-     * @var int Attempt limit.
+     * @var int attemptLimit
      */
     protected static $attemptLimit = 5;
 
     /**
-     * @var int Suspensions time in minutes.
+     * @var int suspensionTime in minutes
      */
     protected static $suspensionTime = 15;
 
     /**
-     * Returns the associated user with the throttler.
+     * getUser returns the associated user with the throttler
      * @return User
      */
     public function getUser()
@@ -58,21 +56,20 @@ class Throttle extends Model
     }
 
     /**
-     * Get the current amount of attempts.
+     * getLoginAttempts
      * @return int
      */
     public function getLoginAttempts()
     {
-        if ($this->attempts > 0 and $this->last_attempt_at) {
+        if ($this->attempts > 0 && $this->last_attempt_at) {
             $this->clearLoginAttemptsIfAllowed();
         }
 
-        return $this->attempts;
+        return (int) $this->attempts;
     }
 
     /**
-     * Add a new login attempt.
-     * @return void
+     * addLoginAttempt
      */
     public function addLoginAttempt()
     {
@@ -88,18 +85,14 @@ class Throttle extends Model
     }
 
     /**
-     * Clear all login attempts
-     * @return void
+     * clearLoginAttempts
      */
     public function clearLoginAttempts()
     {
-        // If our login attempts is already at zero
-        // we do not need to do anything. Additionally,
-        // if we are suspended, we are not going to do
-        // anything either as clearing login attempts
-        // makes us unsuspended. We need to manually
-        // call unsuspend() in order to unsuspend.
-        if ($this->getLoginAttempts() === 0 or $this->is_suspended) {
+        // If our login attempts is already at zero we do not need to do anything. Additionally,
+        // if we are suspended, we are not going to do anything either as clearing login attempts
+        // makes us unsuspended. We need to manually call unsuspend() in order to unsuspend.
+        if ($this->getLoginAttempts() === 0 || $this->is_suspended) {
             return;
         }
 
@@ -111,8 +104,7 @@ class Throttle extends Model
     }
 
     /**
-     * Suspend the user associated with the throttle
-     * @return void
+     * suspend the user associated with the throttle
      */
     public function suspend()
     {
@@ -124,8 +116,7 @@ class Throttle extends Model
     }
 
     /**
-     * Unsuspend the user.
-     * @return void
+     * unsuspend the user
      */
     public function unsuspend()
     {
@@ -139,7 +130,7 @@ class Throttle extends Model
     }
 
     /**
-     * Check if the user is suspended.
+     * checkSuspended checks if the user is suspended
      * @return bool
      */
     public function checkSuspended()
@@ -153,7 +144,7 @@ class Throttle extends Model
     }
 
     /**
-     * Ban the user.
+     * ban the user
      * @return void
      */
     public function ban()
@@ -166,7 +157,7 @@ class Throttle extends Model
     }
 
     /**
-     * Unban the user.
+     * unban the user
      * @return void
      */
     public function unban()
@@ -179,7 +170,7 @@ class Throttle extends Model
     }
 
     /**
-     * Check user throttle status.
+     * check user throttle status
      * @return bool
      * @throws AuthException
      */
@@ -203,10 +194,9 @@ class Throttle extends Model
     }
 
     /**
-     * Inspects the last attempt vs the suspension time
-     * (the time in which attempts must space before the
-     * account is suspended). If we can clear our attempts
-     * now, we'll do so and save.
+     * clearLoginAttemptsIfAllowed inspects the last attempt vs the suspension time
+     * (the time in which attempts must space before the account is suspended).
+     * If we can clear our attempts now, we'll do so and save.
      *
      * @return void
      */
@@ -227,11 +217,8 @@ class Throttle extends Model
     }
 
     /**
-     * Inspects to see if the user can become unsuspended
-     * or not, based on the suspension time provided. If so,
-     * unsuspends.
-     *
-     * @return void
+     * removeSuspensionIfAllowed inspects to see if the user can become unsuspended
+     * or not, based on the suspension time provided. If so, unsuspends.
      */
     public function removeSuspensionIfAllowed()
     {
@@ -249,7 +236,7 @@ class Throttle extends Model
     }
 
     /**
-     * Get mutator for the suspended property.
+     * getIsSuspendedAttribute is a get mutator for the suspended property
      * @param  mixed  $suspended
      * @return bool
      */
@@ -259,7 +246,7 @@ class Throttle extends Model
     }
 
     /**
-     * Get mutator for the banned property.
+     * getIsBannedAttribute is a get mutator for the banned property
      * @param  mixed  $banned
      * @return bool
      */

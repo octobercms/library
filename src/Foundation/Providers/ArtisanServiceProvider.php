@@ -1,6 +1,8 @@
 <?php namespace October\Rain\Foundation\Providers;
 
-use October\Rain\Foundation\Console\KeyGenerateCommand;
+use October\Rain\Foundation\Console\ServeCommand;
+use October\Rain\Foundation\Console\RouteListCommand;
+use October\Rain\Foundation\Console\RouteCacheCommand;
 use October\Rain\Foundation\Console\ClearCompiledCommand;
 use Illuminate\Foundation\Providers\ArtisanServiceProvider as ArtisanServiceProviderBase;
 
@@ -65,10 +67,34 @@ class ArtisanServiceProvider extends ArtisanServiceProviderBase
      *
      * @return void
      */
-    protected function registerKeyGenerateCommand()
+    protected function registerRouteCacheCommand()
     {
-        $this->app->singleton('command.key.generate', function ($app) {
-            return new KeyGenerateCommand($app['files']);
+        $this->app->singleton('command.route.cache', function ($app) {
+            return new RouteCacheCommand($app['files']);
+        });
+    }
+
+    /**
+     * Register the command.
+     *
+     * @return void
+     */
+    protected function registerRouteListCommand()
+    {
+        $this->app->singleton('command.route.list', function ($app) {
+            return new RouteListCommand($app['router']);
+        });
+    }
+
+    /**
+     * Register the command.
+     *
+     * @return void
+     */
+    protected function registerServeCommand()
+    {
+        $this->app->singleton('command.serve', function () {
+            return new ServeCommand;
         });
     }
 

@@ -3,7 +3,10 @@
 use October\Rain\Parse\Bracket as TextParser;
 
 /**
- * Dynamic Syntax parser
+ * Parser for Dynamic Syntax
+ *
+ * @package october\parse
+ * @author Alexey Bobkov, Samuel Georges
  */
 class Parser
 {
@@ -152,7 +155,7 @@ class Parser
          * Replace the opening tag
          */
         $openTag = array_get($tagDetails, 'open', '{repeater}');
-        $openReplacement = $engine == 'Twig' ? '{% for fields in '.$prefixField.' %}' : '{'.$prefixField.'}';
+        $openReplacement = $engine === 'Twig' ? '{% for fields in '.$prefixField.' %}' : '{'.$prefixField.'}';
         $openReplacement = $openReplacement . PHP_EOL;
         $innerTemplate = str_replace($openTag, $openReplacement, $innerTemplate);
 
@@ -160,7 +163,7 @@ class Parser
          * Replace the closing tag
          */
         $closeTag = array_get($tagDetails, 'close', '{/repeater}');
-        $closeReplacement = $engine == 'Twig' ? '{% endfor %}' : '{/'.$prefixField.'}';
+        $closeReplacement = $engine === 'Twig' ? '{% endfor %}' : '{/'.$prefixField.'}';
         $closeReplacement = PHP_EOL . $closeReplacement;
         $innerTemplate = str_replace($closeTag, $closeReplacement, $innerTemplate);
 

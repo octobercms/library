@@ -10,3 +10,4 @@ composer.lock
 # Other files
 .DS_Store
 php_errors.log
+.phpunit.result.cache

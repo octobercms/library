@@ -1,55 +1,53 @@
 <?php namespace October\Rain\Database\Traits;
 
 use App;
-use Exception;
-use Input;
 use Lang;
-use Illuminate\Contracts\Validation\Rule;
-use October\Rain\Support\Facades\Validator;
-use Illuminate\Support\MessageBag;
+use Input;
 use October\Rain\Database\ModelException;
+use Illuminate\Support\MessageBag;
+use Illuminate\Support\Facades\Validator;
+use Exception;
 
 trait Validation
 {
     /**
-     * @var array The rules to be applied to the data.
+     * @var array rules for validation
      *
      * public $rules = [];
      */
 
     /**
-     * @var array The array of custom attribute names.
+     * @var array attributeNames of custom attributes
      *
      * public $attributeNames = [];
      */
 
     /**
-     * @var array The array of custom error messages.
+     * @var array customMessages of custom error messages
      *
      * public $customMessages = [];
      */
 
     /**
-     * @var bool Makes the validation procedure throw an {@link October\Rain\Database\ModelException}
-     * instead of returning false when validation fails.
+     * @var bool throwOnValidation makes the validation procedure throw an {@link October\Rain\Database\ModelException}
+     * instead of returning false when validation fails
      *
      * public $throwOnValidation = true;
      */
 
     /**
-     * @var \Illuminate\Support\MessageBag The message bag instance containing validation error messages
+     * @var \Illuminate\Support\MessageBag validationErrors message bag instance containing
+     * validation error messages
      */
     protected $validationErrors;
 
     /**
-     * @var array Default custom attribute names.
+     * @var array validationDefaultAttrNames default custom attribute names
      */
     protected $validationDefaultAttrNames = [];
 
     /**
-     * Boot the validation trait for this model.
-     *
-     * @return void
+     * bootValidation for this model
      */
     public static function bootValidation()
     {
@@ -83,9 +81,8 @@ trait Validation
     }
 
     /**
-     * Programatically sets multiple validation attribute names.
+     * setValidationAttributeNames programatically sets multiple validation attribute names
      * @param array $attributeNames
-     * @return void
      */
     public function setValidationAttributeNames($attributeNames)
     {
@@ -93,8 +90,8 @@ trait Validation
     }
 
     /**
-     * Programatically sets the validation attribute names, will take lower priority
-     * to model defined attribute names found in `$attributeNames`.
+     * setValidationAttributeName programatically sets the validation attribute names, will take
+     * lower priority to model defined attribute names found in `$attributeNames`
      * @param string $attr
      * @param string $name
      * @return void
@@ -105,7 +102,7 @@ trait Validation
     }
 
     /**
-     * Returns the model data used for validation.
+     * getValidationAttributes returns the model data used for validation
      * @return array
      */
     protected function getValidationAttributes()
@@ -114,7 +111,7 @@ trait Validation
     }
 
     /**
-     * Attachments validate differently to their simple values.
+     * getRelationValidationValue handles attachments that validate differently to their simple values
      */
     protected function getRelationValidationValue($relationName)
     {
@@ -128,8 +125,8 @@ trait Validation
     }
 
     /**
-     * Instantiates the validator used by the validation process, depending if the class
-     * is being used inside or outside of Laravel. Optional connection string to make
+     * makeValidator instantiates the validator used by the validation process, depending if the
+     * class is being used inside or outside of Laravel. Optional connection string to make
      * the validator use a different database connection than the default connection.
      * @return \Illuminate\Validation\Validator
      */
@@ -147,7 +144,7 @@ trait Validation
     }
 
     /**
-     * Force save the model even if validation fails.
+     * forceSave the model even if validation fails
      * @return bool
      */
     public function forceSave($options = null, $sessionKey = null)
@@ -157,7 +154,7 @@ trait Validation
     }
 
     /**
-     * Validate the model instance
+     * validate the model instance
      * @return bool
      */
     public function validate($rules = null, $customMessages = null, $attributeNames = null)
@@ -226,7 +223,7 @@ trait Validation
             }
 
             /*
-             * Compatibility with Hashable trait:
+             * Compatibility with Hashable trait
              * Remove all hashable values regardless, add the original values back
              * only if they are part of the data being validated.
              */
@@ -237,7 +234,7 @@ trait Validation
             }
 
             /*
-             * Compatibility with Encryptable trait:
+             * Compatibility with Encryptable trait
              * Remove all encryptable values regardless, add the original values back
              * only if they are part of the data being validated.
              */
@@ -345,7 +342,7 @@ trait Validation
     }
 
     /**
-     * Process rules
+     * processValidationRules
      */
     protected function processValidationRules($rules)
     {
@@ -358,7 +355,7 @@ trait Validation
             /*
              * Trim empty rules
              */
-            if (is_string($ruleParts) && trim($ruleParts) == '') {
+            if (is_string($ruleParts) && trim($ruleParts) === '') {
                 unset($rules[$field]);
                 continue;
             }
@@ -374,14 +371,10 @@ trait Validation
              * Analyse each rule individually
              */
             foreach ($ruleParts as $key => $rulePart) {
-                if ($rulePart instanceof Rule) {
-                    continue;
-                }
-
                 /*
                  * Remove primary key unique validation rule if the model already exists
                  */
-                if (($rulePart === 'unique' || starts_with($rulePart, 'unique:')) && $this->exists) {
+                if (starts_with($rulePart, 'unique') && $this->exists) {
                     $ruleParts[$key] = $this->processValidationUniqueRule($rulePart, $field);
                 }
                 /*
@@ -402,7 +395,7 @@ trait Validation
     }
 
     /**
-     * Processes field names in a rule array.
+     * processRuleFieldNames processes field names in a rule array
      *
      * Converts any field names using array notation (ie. `field[child]`) into dot notation (ie. `field.child`)
      *
@@ -428,7 +421,7 @@ trait Validation
     }
 
     /**
-     * Rebuilds the unique validation rule to force for the existing ID
+     * processValidationUniqueRule rebuilds the unique validation rule to force for the existing ID
      * @param string $definition
      * @param string $fieldName
      * @return string
@@ -444,7 +437,7 @@ trait Validation
             $whereValue
         ) = array_pad(explode(',', $definition), 6, null);
 
-        $table = 'unique:' . $this->getConnectionName()  . '.' . $this->getTable();
+        $table = 'unique:' . $this->getTable();
         $column = $column ?: $fieldName;
         $key = $keyName ? $this->$keyName : $this->getKey();
         $keyName = $keyName ?: $this->getKeyName();
@@ -463,9 +456,12 @@ trait Validation
     }
 
     /**
-     * Determines if an attribute is required based on the validation rules.
+     * isAttributeRequired determines if an attribute is required based on the validation rules.
+     * checkDependencies checks the attribute dependencies (for required_if & required_with rules).
+     * Note that it will only be checked up to the next level, if another dependent rule is found
+     * then it will just assume the field is required.
      * @param  string  $attribute
-     * @param boolean $checkDependencies Checks the attribute dependencies (for required_if & required_with rules). Note that it will only be checked up to the next level, if another dependent rule is found then it will just assume the field is required
+     * @param boolean $checkDependencies
      * @return boolean
      */
     public function isAttributeRequired($attribute, $checkDependencies = true)
@@ -489,32 +485,35 @@ trait Validation
         }
 
         if (strpos($ruleset, 'required_with') !== false) {
-            if ($checkDependencies) {
-                $requiredWith = substr($ruleset, strpos($ruleset, 'required_with') + 14);
-                if (strpos($requiredWith, '|') !== false) {
-                    $requiredWith = substr($requiredWith, 0, strpos($requiredWith, '|'));
-                }
-                return $this->isAttributeRequired($requiredWith, false);
-            } else {
+            if (!$checkDependencies) {
                 return true;
             }
+
+            $requiredWith = substr($ruleset, strpos($ruleset, 'required_with') + 14);
+
+            if (strpos($requiredWith, '|') !== false) {
+                $requiredWith = substr($requiredWith, 0, strpos($requiredWith, '|'));
+            }
+
+            return $this->isAttributeRequired($requiredWith, false);
         }
 
         if (strpos($ruleset, 'required_if') !== false) {
-            if ($checkDependencies) {
-                $requiredIf = substr($ruleset, strpos($ruleset, 'required_if') + 12);
-                $requiredIf = substr($requiredIf, 0, strpos($requiredIf, ','));
-                return $this->isAttributeRequired($requiredIf, false);
-            } else {
+            if (!$checkDependencies) {
                 return true;
             }
+
+            $requiredIf = substr($ruleset, strpos($ruleset, 'required_if') + 12);
+            $requiredIf = substr($requiredIf, 0, strpos($requiredIf, ','));
+
+            return $this->isAttributeRequired($requiredIf, false);
         }
 
         return strpos($ruleset, 'required') !== false;
     }
 
     /**
-     * Get validation error message collection for the Model
+     * errors gets validation error message collection for the Model
      * @return \Illuminate\Support\MessageBag
      */
     public function errors()
@@ -523,7 +522,7 @@ trait Validation
     }
 
     /**
-     * Create a new native event for handling beforeValidate().
+     * validating creates a new native event for handling beforeValidate()
      * @param Closure|string $callback
      * @return void
      */
@@ -533,7 +532,7 @@ trait Validation
     }
 
     /**
-     * Create a new native event for handling afterValidate().
+     * validated create a new native event for handling afterValidate()
      * @param Closure|string $callback
      * @return void
      */

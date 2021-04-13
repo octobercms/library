@@ -3,7 +3,7 @@
 use Illuminate\Database\Eloquent\Relations\BelongsToMany as BelongsToManyBase;
 
 /*
- * Handles the constraints and filters defined by a relation.
+ * DefinedConstraints handles the constraints and filters defined by a relation
  * eg: 'conditions' => 'is_published = 1'
  */
 trait DefinedConstraints

@@ -3,7 +3,7 @@
 use Illuminate\Support\Str as StrHelper;
 
 /**
- * String helper
+ * Str helper
  *
  * @package october\support
  * @author Alexey Bobkov, Samuel Georges
@@ -11,7 +11,7 @@ use Illuminate\Support\Str as StrHelper;
 class Str extends StrHelper
 {
     /**
-     * Converts number to its ordinal English form.
+     * ordinal converts number to its ordinal English form
      *
      * This method converts 13 to 13th, 2 to 2nd ...
      *
@@ -37,7 +37,7 @@ class Str extends StrHelper
     }
 
     /**
-     * Converts line breaks to a standard \r\n pattern.
+     * normalizeEol converts line breaks to a standard \r\n pattern
      */
     public static function normalizeEol($string)
     {
@@ -45,7 +45,7 @@ class Str extends StrHelper
     }
 
     /**
-     * Removes the starting slash from a class namespace \
+     * normalizeClassName removes the starting slash from a class namespace \
      */
     public static function normalizeClassName($name)
     {
@@ -58,7 +58,7 @@ class Str extends StrHelper
     }
 
     /**
-     * Generates a class ID from either an object or a string of the class name.
+     * getClassId generates a class ID from either an object or a string of the class name
      */
     public static function getClassId($name)
     {
@@ -73,7 +73,7 @@ class Str extends StrHelper
     }
 
     /**
-     * Returns a class namespace
+     * getClassNamespace returns a class namespace
      */
     public static function getClassNamespace($name)
     {
@@ -82,14 +82,10 @@ class Str extends StrHelper
     }
 
     /**
-     * If $string begins with any number of consecutive symbols,
+     * getPrecedingSymbols checks if $string begins with any number of consecutive symbols,
      * returns the number, otherwise returns 0
-     *
-     * @param string $string
-     * @param string $symbol
-     * @return int
      */
-    public static function getPrecedingSymbols($string, $symbol)
+    public static function getPrecedingSymbols(string $string, string $symbol): int
     {
         return strlen($string) - strlen(ltrim($string, $symbol));
     }

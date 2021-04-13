@@ -1,13 +1,11 @@
 <?php namespace October\Rain\Extension;
 
 /**
- * Extension class
- * Allows for "Private traits"
+ * ExtensionBase allows for "private traits"
  *
  * @package october\extension
  * @author Alexey Bobkov, Samuel Georges
  */
-
 class ExtensionBase
 {
     use ExtensionTrait;

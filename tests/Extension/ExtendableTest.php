@@ -27,10 +27,11 @@ class ExtendableTest extends TestCase
 
     public function testSettingUndeclaredPropertyOnClass()
     {
+        $this->expectException(\BadMethodCallException::class);
+        $this->expectExceptionMessage("Call to undefined property ExtendableTestExampleExtendableClass::newAttribute");
+
         $subject = new ExtendableTestExampleExtendableClass;
         $subject->newAttribute = 'Test';
-        $this->assertNull($subject->newAttribute);
-        $this->assertFalse(property_exists($subject, 'newAttribute'));
     }
 
     public function testSettingDeclaredPropertyOnBehavior()
@@ -121,6 +122,9 @@ class ExtendableTest extends TestCase
 
     public function testAccessingProtectedProperty()
     {
+        $this->expectException(BadMethodCallException::class);
+        $this->expectExceptionMessage('Call to undefined property ExtendableTestExampleExtendableClass::protectedFoo');
+
         $subject = new ExtendableTestExampleExtendableClass;
         $this->assertEmpty($subject->protectedFoo);
 
@@ -149,7 +153,7 @@ class ExtendableTest extends TestCase
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Class ExtendableTestInvalidExtendableClass contains an invalid $implement value');
-        
+
         $result = new ExtendableTestInvalidExtendableClass;
     }
 

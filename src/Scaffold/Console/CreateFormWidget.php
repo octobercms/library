@@ -7,30 +7,22 @@ use Symfony\Component\Console\Input\InputArgument;
 class CreateFormWidget extends GeneratorCommand
 {
     /**
-     * The console command name.
-     *
-     * @var string
+     * @var string name of console command
      */
     protected $name = 'create:formwidget';
 
     /**
-     * The console command description.
-     *
-     * @var string
+     * @var string description of the console command
      */
     protected $description = 'Creates a new form widget.';
 
     /**
-     * The type of class being generated.
-     *
-     * @var string
+     * @var string type of class being generated
      */
     protected $type = 'FormWidget';
 
     /**
-     * A mapping of stub to generated file.
-     *
-     * @var array
+     * @var array stubs is a mapping of stub to generated file
      */
     protected $stubs = [
         'formwidget/formwidget.stub'      => 'formwidgets/{{studly_name}}.php',
@@ -40,11 +32,9 @@ class CreateFormWidget extends GeneratorCommand
     ];
 
     /**
-     * Prepare variables for stubs.
-     *
-     * return @array
+     * prepareVars prepares variables for stubs
      */
-    protected function prepareVars()
+    protected function prepareVars(): array
     {
         $pluginCode = $this->argument('plugin');
 
@@ -62,9 +52,7 @@ class CreateFormWidget extends GeneratorCommand
     }
 
     /**
-     * Get the console command arguments.
-     *
-     * @return array
+     * getArguments get the console command arguments
      */
     protected function getArguments()
     {
@@ -75,9 +63,7 @@ class CreateFormWidget extends GeneratorCommand
     }
 
     /**
-     * Get the console command options.
-     *
-     * @return array
+     * getOptions get the console command options
      */
     protected function getOptions()
     {

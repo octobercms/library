@@ -104,15 +104,4 @@ trait Hashable
     {
         return $this->originalHashableValues[$attribute] ?? null;
     }
-
-    /**
-     * @deprecated use self::addHashable()
-     * Remove this method if year >= 2018
-     */
-    public function addHashableAttribute($attribute)
-    {
-        traceLog('The addHashableAttribute() method is deprecated, use addHashable() instead.');
-
-        return $this->addHashable($attribute);
-    }
 }

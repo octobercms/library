@@ -5,7 +5,9 @@ use October\Rain\Support\ServiceProvider;
 class ArgonServiceProvider extends ServiceProvider
 {
     /**
-     * @var bool Indicates if loading of the provider is deferred.
+     * Indicates if loading of the provider is deferred.
+     *
+     * @var bool
      */
     protected $defer = false;
 
@@ -35,7 +37,7 @@ class ArgonServiceProvider extends ServiceProvider
     }
 
     /**
-     * Get the locale to use as the fallback
+     * Split the locale and use it as the fallback.
      */
     protected function getFallbackLocale($locale)
     {
@@ -48,6 +50,15 @@ class ArgonServiceProvider extends ServiceProvider
         }
 
         return $this->app['config']->get('app.fallback_locale');
+    }
+
+    /**
+     * Register the service provider.
+     *
+     * @return void
+     */
+    public function register()
+    {
     }
 
     /**

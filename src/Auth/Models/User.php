@@ -16,74 +16,75 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     use \October\Rain\Database\Traits\Validation;
 
     /**
-     * @var string The table associated with the model.
+     * @var string table associated with the model
      */
     protected $table = 'users';
 
     /**
-     * @var array Validation rules
+     * @var array rules for validation
      */
     public $rules = [
         'email' => 'required|between:3,255|email|unique:users',
-        'password' => 'required:create|min:4|confirmed',
-        'password_confirmation' => 'required_with:password|min:4'
+        'password' => 'required:create|min:2|confirmed',
+        'password_confirmation' => 'required_with:password|min:2'
     ];
 
     /**
-     * @var array Relations
+     * @var array belongsToMany relation
      */
     public $belongsToMany = [
         'groups' => [Group::class, 'table' => 'users_groups']
     ];
 
+    /**
+     * @var array belongsTo relation
+     */
     public $belongsTo = [
         'role' => Role::class
     ];
 
     /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
+     * @var array dates attributes that should be mutated to dates
      */
     protected $dates = ['activated_at', 'last_login'];
 
     /**
-     * @var array The attributes that should be hidden for arrays.
+     * @var array hidden attributes removed from the API representation of the model (ex. toArray())
      */
     protected $hidden = ['password', 'reset_password_code', 'activation_code', 'persist_code'];
 
     /**
-     * @var array The attributes that aren't mass assignable.
+     * @var array guarded attributes aren't mass assignable
      */
     protected $guarded = ['is_superuser', 'reset_password_code', 'activation_code', 'persist_code', 'role_id'];
 
     /**
-     * @var array List of attribute names which should be hashed using the Bcrypt hashing algorithm.
+     * @var array hashable list of attribute names which should be hashed using the Bcrypt hashing algorithm
      */
     protected $hashable = ['password', 'persist_code'];
 
     /**
-     * @var array List of attribute names which should not be saved to the database.
+     * @var array purgeable list of attribute names which should not be saved to the database
      */
     protected $purgeable = ['password_confirmation'];
 
     /**
-     * @var array The array of custom attribute names.
+     * @var array attributeNames array of custom attribute names
      */
     public $attributeNames = [];
 
     /**
-     * @var array The array of custom error messages.
+     * @var array customMessages array of custom error messages
      */
     public $customMessages = [];
 
     /**
-     * @var array List of attribute names which are json encoded and decoded from the database.
+     * @var array jsonable attribute names that are json encoded and decoded from the database
      */
     protected $jsonable = ['permissions'];
 
     /**
-     * Allowed permissions values.
+     * allowedPermissionsValues
      *
      * Possible options:
      *   -1 => Deny (adds to array, but denies regardless of user's group).
@@ -95,22 +96,22 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     protected $allowedPermissionsValues = [-1, 0, 1];
 
     /**
-     * @var string The login attribute.
+     * @var string loginAttribute
      */
     public static $loginAttribute = 'email';
 
     /**
-     * @var string The column name of the "remember me" token.
+     * @var string rememberTokenName is the column name of the "remember me" token
      */
     protected $rememberTokenName = 'persist_code';
 
     /**
-     * @var array The user merged permissions.
+     * @var array mergedPermissions for the user
      */
     protected $mergedPermissions;
 
     /**
-     * @return string Returns the name for the user's login.
+     * @return string getLoginName returns the name for the user's login
      */
     public function getLoginName()
     {
@@ -118,7 +119,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * @return mixed Returns the user's login.
+     * @return mixed getLogin returns the user's login
      */
     public function getLogin()
     {
@@ -126,7 +127,8 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Checks if the user is a super user - has access to everything regardless of permissions.
+     * isSuperUser checks if the user is a super user - has access to everything
+     * regardless of permissions
      * @return bool
      */
     public function isSuperUser()
@@ -138,10 +140,16 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     // Events
     //
 
+    /**
+     * beforeLogin event
+     */
     public function beforeLogin()
     {
     }
 
+    /**
+     * afterLogin event
+     */
     public function afterLogin()
     {
         $this->last_login = $this->freshTimestamp();
@@ -149,7 +157,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Delete the user groups
+     * afterDelete deletes the user groups
      * @return bool
      */
     public function afterDelete()
@@ -164,7 +172,8 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     //
 
     /**
-     * Gets a code for when the user is persisted to a cookie or session which identifies the user.
+     * getPersistCode gets a code for when the user is persisted to a cookie or session
+     * which identifies the user
      * @return string
      */
     public function getPersistCode()
@@ -180,7 +189,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Checks the given persist code.
+     * checkPersistCode checks the given persist code
      * @param string $persistCode
      * @return bool
      */
@@ -198,7 +207,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     //
 
     /**
-     * Get mutator for giving the activated property.
+     * getIsActivatedAttribute is a get mutator for giving the activated property
      * @param mixed $activated
      * @return bool
      */
@@ -208,7 +217,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Get an activation code for the given user.
+     * getActivationCode for the given user
      * @return string
      */
     public function getActivationCode()
@@ -221,7 +230,8 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Attempts to activate the given user by checking the activate code. If the user is activated already, an Exception is thrown.
+     * attemptActivation the given user by checking the activate code. If the user
+     * is activated already, an Exception is thrown
      * @param string $activationCode
      * @return bool
      */
@@ -247,7 +257,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     //
 
     /**
-     * Checks the password passed matches the user's password.
+     * checkPassword checks the password passed matches the user's password
      * @param string $password
      * @return bool
      */
@@ -257,7 +267,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Get a reset password code for the given user.
+     * getResetPasswordCode gets a reset password code for the given user
      * @return string
      */
     public function getResetPasswordCode()
@@ -268,7 +278,8 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Checks if the provided user reset password code is valid without actually resetting the password.
+     * checkResetPasswordCode checks if the provided user reset password code is
+     * valid without actually resetting the password
      * @param string $resetCode
      * @return bool
      */
@@ -282,7 +293,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Attempts to reset a user's password by matching the reset code generated with the user's.
+     * attemptResetPassword a user's password by matching the reset code generated with the users
      * @param string $resetCode
      * @param string $newPassword
      * @return bool
@@ -299,7 +310,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Wipes out the data associated with resetting a password.
+     * clearResetPassword wipes out the data associated with resetting a password
      * @return void
      */
     public function clearResetPassword()
@@ -311,7 +322,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Protects the password from being reset to null.
+     * setPasswordAttribute protects the password from being reset to null
      */
     public function setPasswordAttribute($value)
     {
@@ -331,7 +342,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     //
 
     /**
-     * Returns an array of groups which the given user belongs to.
+     * getGroups returns an array of groups which the given user belongs to
      * @return array
      */
     public function getGroups()
@@ -340,7 +351,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Returns the role assigned to this user.
+     * getRole returns the role assigned to this user
      * @return October\Rain\Auth\Models\Role
      */
     public function getRole()
@@ -349,7 +360,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Adds the user to the given group.
+     * addGroup adds the user to the given group
      * @param Group $group
      * @return bool
      */
@@ -364,7 +375,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Removes the user from the given group.
+     * removeGroup removes the user from the given group
      * @param Group $group
      * @return bool
      */
@@ -379,7 +390,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * See if the user is in the given group.
+     * inGroup see if the user is in the given group
      * @param Group $group
      * @return bool
      */
@@ -395,7 +406,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Returns an array of merged permissions for each group the user is in.
+     * getMergedPermissions returns an array of merged permissions for each group the user is in
      * @return array
      */
     public function getMergedPermissions()
@@ -418,13 +429,11 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * See if a user has access to the passed permission(s).
-     * Permissions are merged from all groups the user belongs to
-     * and then are checked against the passed permission(s).
+     * hasAccess sees if a user has access to the passed permission(s). Permissions are merged
+     * from all groups the user belongs to and then are checked against the passed permission(s).
      *
-     * If multiple permissions are passed, the user must
-     * have access to all permissions passed through, unless the
-     * "all" flag is set to false.
+     * If multiple permissions are passed, the user must have access to all permissions passed
+     * through, unless the "all" flag is set to false.
      *
      * Super users have access no matter what.
      *
@@ -442,15 +451,13 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * See if a user has access to the passed permission(s).
-     * Permissions are merged from all groups the user belongs to
-     * and then are checked against the passed permission(s).
+     * hasPermission sees if a user has access to the passed permission(s). Permissions are merged
+     * from all groups the user belongs to and then are checked against the passed permission(s).
      *
-     * If multiple permissions are passed, the user must
-     * have access to all permissions passed through, unless the
-     * "all" flag is set to false.
+     * If multiple permissions are passed, the user must have access to all permissions passed
+     * through, unless the "all" flag is set to false.
      *
-     * Super users DON'T have access no matter what.
+     * Super users don't have access no matter what.
      *
      * @param  string|array  $permissions
      * @param  bool  $all
@@ -481,7 +488,11 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
 
                     // We will make sure that the merged permission does not
                     // exactly match our permission, but starts with it.
-                    if ($checkPermission != $mergedPermission && starts_with($mergedPermission, $checkPermission) && (int) $value === 1) {
+                    if (
+                        $checkPermission !== $mergedPermission &&
+                        starts_with($mergedPermission, $checkPermission) &&
+                        (int) $value === 1
+                    ) {
                         $matched = true;
                         break;
                     }
@@ -496,7 +507,11 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
 
                     // We will make sure that the merged permission does not
                     // exactly match our permission, but ends with it.
-                    if ($checkPermission != $mergedPermission && ends_with($mergedPermission, $checkPermission) && (int) $value === 1) {
+                    if (
+                        $checkPermission !== $mergedPermission &&
+                        ends_with($mergedPermission, $checkPermission) &&
+                        (int) $value === 1
+                    ) {
                         $matched = true;
                         break;
                     }
@@ -515,23 +530,28 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
 
                         // We will make sure that the merged permission does not
                         // exactly match our permission, but starts with it.
-                        if ($checkMergedPermission != $permission && starts_with($permission, $checkMergedPermission) && (int) $value === 1) {
+                        if (
+                            $checkMergedPermission !== $permission &&
+                            starts_with($permission, $checkMergedPermission) &&
+                            (int) $value === 1
+                        ) {
                             $matched = true;
                             break;
                         }
                     }
-
                     // Otherwise, we'll fallback to standard permissions checking where
                     // we match that permissions explicitly exist.
-                    elseif ($permission === $mergedPermission && (int) $mergedPermissions[$permission] === 1) {
+                    elseif (
+                        $permission === $mergedPermission &&
+                        (int) $mergedPermissions[$permission] === 1
+                    ) {
                         $matched = true;
                         break;
                     }
                 }
             }
 
-            // Now, we will check if we have to match all
-            // permissions or any permission and return
+            // Now, we will check if we have to match all permissions or any permission and return
             // accordingly.
             if ($all === true && $matched === false) {
                 return false;
@@ -545,7 +565,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Returns if the user has access to any of the given permissions.
+     * hasAnyAccess returns if the user has access to any of the given permissions
      * @param  array  $permissions
      * @return bool
      */
@@ -555,7 +575,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Validate any set permissions.
+     * setPermissionsAttribute validates any set permissions
      * @param array $permissions
      * @return void
      */
@@ -584,7 +604,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     //
 
     /**
-     * Get the name of the unique identifier for the user.
+     * getAuthIdentifierName gets the name of the unique identifier for the user
      * @return string
      */
     public function getAuthIdentifierName()
@@ -593,7 +613,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Get the unique identifier for the user.
+     * getAuthIdentifier gets the unique identifier for the user
      * @return mixed
      */
     public function getAuthIdentifier()
@@ -602,7 +622,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Get the password for the user.
+     * getAuthPassword gets the password for the user
      * @return string
      */
     public function getAuthPassword()
@@ -611,7 +631,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Get the e-mail address where password reminders are sent.
+     * getReminderEmail gets the e-mail address where password reminders are sent
      * @return string
      */
     public function getReminderEmail()
@@ -620,7 +640,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Get the token value for the "remember me" session.
+     * getRememberToken gets the token value for the "remember me" session
      * @return string
      */
     public function getRememberToken()
@@ -629,7 +649,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Set the token value for the "remember me" session.
+     * setRememberToken sets the token value for the "remember me" session
      * @param  string $value
      * @return void
      */
@@ -639,7 +659,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
-     * Get the column name for the "remember me" token.
+     * getRememberTokenName gets the column name for the "remember me" token
      * @return string
      */
     public function getRememberTokenName()
@@ -652,7 +672,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     //
 
     /**
-     * Generate a random string
+     * getRandomString generates a random string
      * @return string
      */
     public function getRandomString($length = 42)

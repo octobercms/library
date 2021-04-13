@@ -3,7 +3,6 @@
 use App;
 use Config;
 use Request;
-use Response;
 use Exception;
 
 /**
@@ -58,7 +57,7 @@ class ErrorHandler
         }
 
         // If the exception is already our brand, use it.
-        if ($proposedException instanceof BaseException) {
+        if ($proposedException instanceof ExceptionBase) {
             $exception = $proposedException;
         }
         // If there is an active mask prepared, use that.

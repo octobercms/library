@@ -2,29 +2,28 @@
 
 use RuntimeException;
 
+/**
+ * InvalidExtensionException
+ *
+ * @package october\halcyon
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class InvalidExtensionException extends RuntimeException
 {
     /**
-     * Name of the affected file extension.
-     *
-     * @var string
+     * @var string invalidExtension
      */
     protected $invalidExtension;
 
     /**
-     * A list of allowable extensions.
-     *
-     * @var array
+     * @var array allowedExtensions
      */
     protected $allowedExtensions;
 
     /**
-     * Set the affected file extension.
-     *
-     * @param  string   $invalidExtension
-     * @return $this
+     * setInvalidExtension sets the affected file extension
      */
-    public function setInvalidExtension($invalidExtension)
+    public function setInvalidExtension(string $invalidExtension): InvalidExtensionException
     {
         $this->invalidExtension = $invalidExtension;
 
@@ -34,22 +33,17 @@ class InvalidExtensionException extends RuntimeException
     }
 
     /**
-     * Get the affected file extension.
-     *
-     * @return string
+     * getInvalidExtension gets the affected file extension
      */
-    public function getInvalidExtension()
+    public function getInvalidExtension(): string
     {
         return $this->invalidExtension;
     }
 
     /**
-     * Set the list of allowed extensions.
-     *
-     * @param  array   $allowedExtensions
-     * @return $this
+     * setAllowedExtensions sets the list of allowed extensions
      */
-    public function setAllowedExtensions(array $allowedExtensions)
+    public function setAllowedExtensions(array $allowedExtensions): InvalidExtensionException
     {
         $this->allowedExtensions = $allowedExtensions;
 
@@ -57,11 +51,9 @@ class InvalidExtensionException extends RuntimeException
     }
 
     /**
-     * Get the list of allowed extensions.
-     *
-     * @return string
+     * getAllowedExtensions gets the list of allowed extensions
      */
-    public function getAllowedExtensions()
+    public function getAllowedExtensions(): array
     {
         return $this->allowedExtensions;
     }

@@ -101,6 +101,7 @@ class Rule
         $patternSegments = $this->segments;
         $patternSegmentNum = count($patternSegments);
         $urlSegments = Helper::segmentizeUrl($url);
+        $wildSegments = [];
 
         /*
          * Only one wildcard can be used, if found, pull out the excess segments
@@ -128,7 +129,7 @@ class Rule
                  */
                 if (
                     !array_key_exists($index, $urlSegments) ||
-                    $patternSegmentLower != mb_strtolower($urlSegments[$index])
+                    $patternSegmentLower !== mb_strtolower($urlSegments[$index])
                 ) {
                     return false;
                 }

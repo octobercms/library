@@ -6,7 +6,7 @@ use Request;
 use Illuminate\Contracts\Auth\Authenticatable;
 
 /**
- * Authentication manager
+ * Manager for authentication
  */
 class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
 {
@@ -283,7 +283,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Find a throttle record by login and ip address
+     * findThrottleByLogin and ip address
      *
      * @param string $loginName
      * @param string $ipAddress
@@ -301,7 +301,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Find a throttle record by user id and ip address
+     * findThrottleByUserId and ip address
      *
      * @param integer $userId
      * @param string $ipAddress
@@ -337,12 +337,30 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
         return $this->throttle[$cacheKey] = $throttle;
     }
 
+    /**
+     * clearThrottleForUserId unsuspends and clears all throttles records for a user
+     */
+    public function clearThrottleForUserId($userId): void
+    {
+        if (!$userId) {
+            return;
+        }
+
+        $model = $this->createThrottleModel();
+
+        $throttles = $model->where('user_id', $userId)->get();
+
+        foreach ($throttles as $throttle) {
+            $throttle->unsuspend();
+        }
+    }
+
     //
     // Business Logic
     //
 
     /**
-     * Attempt to authenticate a user using the given credentials.
+     * attempt to authenticate a user using the given credentials.
      *
      * @param array $credentials The user login details
      * @param bool $remember Store a non-expire cookie for the user
@@ -355,9 +373,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Validate a user's credentials.
-     *
-     * @param  array  $credentials
+     * validate a user's credentials.
      * @return bool
      */
     public function validate(array $credentials = [])
@@ -366,9 +382,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Validate a user's credentials, method used internally.
-     *
-     * @param  array  $credentials
+     * validateInternal a user's credentials, method used internally.
      * @return User
      */
     protected function validateInternal(array $credentials = [])
@@ -426,10 +440,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Attempts to authenticate the given user according to the passed credentials.
-     *
-     * @param array $credentials The user login details
-     * @param bool $remember Store a non-expire cookie for the user
+     * authenticate the given user according to the passed credentials
      */
     public function authenticate(array $credentials, $remember = true)
     {
@@ -458,16 +469,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
             }
             elseif ($cookieArray = Cookie::get($this->sessionKey)) {
                 $this->viaRemember = true;
-                /*
-                 * Shift gracefully to unserialized cookies
-                 * @todo Remove if statement below if year >= 2021 or build >= 475
-                 */
-                if (is_array($cookieArray)) {
-                    $userArray = $cookieArray;
-                }
-                else {
-                    $userArray = @json_decode($cookieArray, true);
-                }
+                $userArray = @json_decode($cookieArray, true);
             }
             else {
                 return false;
@@ -593,8 +595,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Logs in the given user and sets properties
-     * in the session.
+     * login the given user and sets properties in the session.
      * @throws AuthException If the user is not activated and $this->requireActivation = true
      */
     public function login(Authenticatable $user, $remember = true)

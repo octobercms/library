@@ -1,100 +1,55 @@
 <?php namespace October\Rain\Halcyon\Datasource;
 
+/**
+ * DatasourceInterface
+ *
+ * @package october\halcyon
+ * @author Alexey Bobkov, Samuel Georges
+ */
 interface DatasourceInterface
 {
+    /**
+     * hasTemplate checks if a template is found in the datasource
+     */
+    public function hasTemplate(string $dirName, string $fileName, string $extension): bool;
 
     /**
-     * Returns a single template.
-     *
-     * @param  string  $dirName
-     * @param  string  $fileName
-     * @param  string  $extension
-     * @return mixed
+     * selectOne returns a single template
      */
     public function selectOne(string $dirName, string $fileName, string $extension);
 
     /**
-     * Returns all templates.
-     *
-     * @param  string  $dirName
-     * @param  array   $options
-     * @return array
+     * select returns all templates
      */
-    public function select(string $dirName, array $options = []);
+    public function select(string $dirName, array $options = []): array;
 
     /**
-     * Creates a new template.
-     *
-     * @param  string  $dirName
-     * @param  string  $fileName
-     * @param  string  $extension
-     * @param  array   $content
-     * @return bool
+     * insert creates a new template
      */
-    public function insert(string $dirName, string $fileName, string $extension, string $content);
+    public function insert(string $dirName, string $fileName, string $extension, string $content): bool;
 
     /**
-     * Updates an existing template.
-     *
-     * @param  string  $dirName
-     * @param  string  $fileName
-     * @param  string  $extension
-     * @param  array   $content
-     * @param  string  $oldFileName Defaults to null
-     * @param  string  $oldExtension Defaults to null
-     * @return int
+     * update an existing template
      */
-    public function update(string $dirName, string $fileName, string $extension, string $content, $oldFileName = null, $oldExtension = null);
+    public function update(string $dirName, string $fileName, string $extension, string $content, $oldFileName = null, $oldExtension = null): int;
 
     /**
-     * Run a delete statement against the datasource.
-     *
-     * @param  string  $dirName
-     * @param  string  $fileName
-     * @param  string  $extension
-     * @return bool
+     * delete against the datasource
      */
-    public function delete(string $dirName, string $fileName, string $extension);
+    public function delete(string $dirName, string $fileName, string $extension): bool;
 
     /**
-     * Run a delete statement against the datasource, forcing the complete removal of the template
-     *
-     * @param  string  $dirName
-     * @param  string  $fileName
-     * @param  string  $extension
-     * @return bool
+     * forceDelete against the datasource, forcing the complete removal of the template
      */
-    public function forceDelete(string $dirName, string $fileName, string $extension);
+    public function forceDelete(string $dirName, string $fileName, string $extension): bool;
 
     /**
-     * Return the last modified date of an object
-     *
-     * @param  string  $dirName
-     * @param  string  $fileName
-     * @param  string  $extension
-     * @return int
+     * lastModified returns the last modified date of an object
      */
-    public function lastModified(string $dirName, string $fileName, string $extension);
+    public function lastModified(string $dirName, string $fileName, string $extension): ?int;
 
     /**
-     * Generate a cache key unique to this datasource.
-     *
-     * @param  string  $name
-     * @return string
+     * makeCacheKey unique to this datasource
      */
-    public function makeCacheKey($name = '');
-
-    /**
-     * Generate a paths cache key unique to this datasource
-     *
-     * @return string
-     */
-    public function getPathsCacheKey();
-
-    /**
-     * Get all available paths within this datastore
-     *
-     * @return array $paths ['path/to/file1.md' => true (path can be handled and exists), 'path/to/file2.md' => false (path can be handled but doesn't exist)]
-     */
-    public function getAvailablePaths();
+    public function makeCacheKey(string $name = ''): string;
 }

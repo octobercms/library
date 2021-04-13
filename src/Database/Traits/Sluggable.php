@@ -5,7 +5,6 @@ use Exception;
 
 trait Sluggable
 {
-
     /**
      * @var array List of attributes to automatically generate unique URL names (slugs) for.
      *
@@ -37,7 +36,7 @@ trait Sluggable
         static::extend(function ($model) {
             $model->bindEvent('model.saveInternal', function () use ($model) {
                 $model->slugAttributes();
-            }, 600);
+            });
         });
     }
 
@@ -94,9 +93,10 @@ trait Sluggable
         $counter = 1;
         $separator = $this->getSluggableSeparator();
         $_value = $value;
-        while (($this->methodExists('withTrashed') && $this->allowTrashedSlugs) ?
-            $this->newSluggableQuery()->where($name, $_value)->withTrashed()->count() > 0 :
-            $this->newSluggableQuery()->where($name, $_value)->count() > 0
+
+        while (($this->methodExists('withTrashed') && $this->allowTrashedSlugs)
+            ? $this->newSluggableQuery()->where($name, $_value)->withTrashed()->count() > 0
+            : $this->newSluggableQuery()->where($name, $_value)->count() > 0
         ) {
             $counter++;
             $_value = $value . $separator . $counter;

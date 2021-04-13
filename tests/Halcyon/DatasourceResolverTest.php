@@ -6,7 +6,6 @@ use October\Rain\Halcyon\Datasource\FileDatasource;
 
 class DatasourceResolverTest extends TestCase
 {
-
     public function testConstruct()
     {
         $theme1 = new FileDatasource('themes/theme1', new Filesystem);

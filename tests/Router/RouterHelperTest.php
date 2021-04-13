@@ -4,6 +4,60 @@ use October\Rain\Router\Helper;
 
 class RouterHelperTest extends TestCase
 {
+    public function testSegmentize()
+    {
+        // Single param
+        $value = Helper::segmentizeUrl("/:my_param_name");
+        $this->assertEquals([':my_param_name'], $value);
+
+        // Single param with regex
+        $value = Helper::segmentizeUrl('/:my_param_name|^[a-z]+[0-9]?$|^[a-z]{3}$');
+        $this->assertEquals([':my_param_name|^[a-z]+[0-9]?$|^[a-z]{3}$'], $value);
+
+        // Multiple params
+        $value = Helper::segmentizeUrl("/param1/:my_param_name");
+        $this->assertEquals(['param1', ':my_param_name'], $value);
+
+        // Skip empty params
+        $value = Helper::segmentizeUrl("/param1//:my_param_name");
+        $this->assertEquals(['param1', ':my_param_name'], $value);
+
+        // Multiple params with regex
+        $value = Helper::segmentizeUrl('/:my_param_name|^[a-z]+[0-9]?$|^[a-z]{3}$/param2');
+        $this->assertEquals([':my_param_name|^[a-z]+[0-9]?$|^[a-z]{3}$', 'param2'], $value);
+
+        // // Escaped regex
+        // $value = Helper::segmentizeUrl('/:my_param_name*|^[a-z]+\/\d+$');
+        // $this->assertEquals([':my_param_name*|^[a-z]+\/\d+$'], $value);
+
+        // // Escaped regex with multiple params
+        // $value = Helper::segmentizeUrl('/:my_param_name*|^[a-z]+\/\d+$/param2');
+        // $this->assertEquals([':my_param_name*|^[a-z]+\/\d+$', 'param2'], $value);
+    }
+
+    public function testSegmentIsWildcard()
+    {
+        // Non wildcard no regex
+        $value = Helper::segmentIsWildcard(":my_param_name");
+        $this->assertFalse($value);
+
+        // Wildcard no regex
+        $value = Helper::segmentIsWildcard(":my_param_name*");
+        $this->assertTrue($value);
+
+        // // Non wildcard with regex
+        // $value = Helper::segmentIsWildcard(":my_param_name|^[a-z]+[0-9]?$");
+        // $this->assertFalse($value);
+
+        // // Wildcard with regex
+        // $value = Helper::segmentIsWildcard(":my_param_name*|^[a-z]+[0-9]?$");
+        // $this->assertTrue($value);
+
+        // // Non Wildcard with regex ending in *
+        // $value = Helper::segmentIsWildcard(":my_param_name|^[a-z]+[0-9]*");
+        // $this->assertFalse($value);
+    }
+
     public function testSegmentIsOptional()
     {
         $value = Helper::segmentIsOptional(':my_param_name');

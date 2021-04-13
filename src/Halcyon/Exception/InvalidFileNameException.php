@@ -2,22 +2,23 @@
 
 use RuntimeException;
 
+/**
+ * InvalidFileNameException
+ *
+ * @package october\halcyon
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class InvalidFileNameException extends RuntimeException
 {
     /**
-     * Name of the affected file name.
-     *
-     * @var string
+     * @var string invalidFileName
      */
     protected $invalidFileName;
 
     /**
-     * Set the affected file name.
-     *
-     * @param  string   $invalidFileName
-     * @return $this
+     * setInvalidFileName the affected file name
      */
-    public function setInvalidFileName($invalidFileName)
+    public function setInvalidFileName(string $invalidFileName): InvalidFileNameException
     {
         $this->invalidFileName = $invalidFileName;
 
@@ -27,11 +28,9 @@ class InvalidFileNameException extends RuntimeException
     }
 
     /**
-     * Get the affected file name.
-     *
-     * @return string
+     * getInvalidFileName gets the affected file name
      */
-    public function getInvalidFileName()
+    public function getInvalidFileName(): string
     {
         return $this->invalidFileName;
     }

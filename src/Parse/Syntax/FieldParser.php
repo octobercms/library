@@ -1,13 +1,15 @@
 <?php namespace October\Rain\Parse\Syntax;
 
-use October\Rain\Exception\ApplicationException;
+use Exception;
 
 /**
- * Dynamic Syntax parser
+ * FieldParser for dynamic syntax parser
+ *
+ * @package october\parse
+ * @author Alexey Bobkov, Samuel Georges
  */
 class FieldParser
 {
-
     /**
      * @var string Template contents
      */
@@ -162,14 +164,15 @@ class FieldParser
         $defaults = [];
 
         foreach ($fields as $field => $params) {
-            if (empty($params['type'])) {
+            if (!isset($params['type'])) {
                 continue;
             }
 
-            if ($params['type'] == 'repeater') {
+            if ($params['type'] === 'repeater') {
                 $defaults[$field] = [];
                 $defaults[$field][] = $this->getDefaultParams(array_get($params, 'fields', []));
-            } else {
+            }
+            else {
                 $defaults[$field] = $params['default'] ?? null;
             }
         }
@@ -236,19 +239,6 @@ class FieldParser
         $tagNames = $result[1];
         $paramStrings = $result[2];
 
-        // These fields take options for selection
-        $optionables = [
-            'dropdown',
-            'radio',
-            'checkboxlist',
-            'balloon-selector',
-        ];
-
-        // These fields take available colors for selection
-        $availableColors = [
-            'colorpicker',
-        ];
-
         foreach ($tagStrings as $key => $tagString) {
             $tagName = $tagNames[$key];
             $params = $this->processParams($paramStrings[$key], $tagName);
@@ -256,28 +246,26 @@ class FieldParser
             if (isset($params['name'])) {
                 $name = $params['name'];
                 unset($params['name']);
-            } else {
+            }
+            else {
                 $name = md5($tagString);
             }
 
-            if ($tagName == 'variable') {
+            if ($tagName === 'variable') {
                 $params['X_OCTOBER_IS_VARIABLE'] = true;
                 $tagName = array_get($params, 'type', 'text');
             }
 
             $params['type'] = $tagName;
 
-            if (in_array($tagName, $optionables) && isset($params['options'])) {
-                $params['options'] = $this->processOptionsToArray($params['options']);
-            }
+            // Convert known properties to array
+            $arrayProps = ['trigger', 'options', 'availableColors'];
+            foreach ($arrayProps as $prop) {
+                if (!isset($params[$prop])) {
+                    continue;
+                }
 
-            if (in_array($tagName, $availableColors) && isset($params['availableColors'])) {
-                $params['availableColors'] = $this->processOptionsToArray($params['availableColors']);
-            }
-
-            // Convert trigger property to array
-            if (isset($params['trigger'])) {
-                $params['trigger'] = $this->processOptionsToArray($params['trigger']);
+                $params[$prop] = $this->processOptionsToArray($params[$prop]);
             }
 
             $tags[$name] = $tagString;
@@ -302,7 +290,7 @@ class FieldParser
         if ($closePos === false) {
             $paramString = $value;
         }
-        elseif (substr($value, -1) == $close) {
+        elseif (substr($value, -1) === $close) {
             $paramString = substr($value, 0, -1);
         }
         else {
@@ -323,7 +311,7 @@ class FieldParser
 
         $params = array_combine($paramNames, $paramValues);
 
-        if ($tagName == 'checkbox') {
+        if ($tagName === 'checkbox') {
             $params['_content'] = $defaultValue;
         }
         else {
@@ -403,24 +391,27 @@ class FieldParser
     /**
      * Splits an option string to an array.
      *
-     * one|two                -> [one, two]
-     * one:One|two:Two        -> [one => 'One', two => 'Two']
-     * \Path\To\Class::method -> \Path\To\Class::method(): array
+     * one|two           -> [one, two]
+     * one:One|two:Two   -> [one => 'One', two => 'Two']
+     * ClassName::method -> [...]
      *
      * @param  string $optionsString
-     * @throws ApplicationException if an invalid array is returned when using the callback method.
      * @return array
      */
     protected function processOptionsToArray($optionsString)
     {
         $result = [];
 
-        if (str_contains($optionsString, '::')) {
+        if (strpos($optionsString, '::') !== false) {
             $options = explode('::', $optionsString);
-            if (count($options) === 2 && class_exists($options[0]) && method_exists($options[0], $options[1])) {
+            if (
+                count($options) === 2 &&
+                class_exists($options[0]) &&
+                method_exists($options[0], $options[1])
+            ) {
                 $result = $options[0]::{$options[1]}();
                 if (!is_array($result)) {
-                    throw new ApplicationException(sprintf(
+                    throw new Exception(sprintf(
                         'Invalid dropdown option array returned by `%s::%s`',
                         $options[0],
                         $options[1]
@@ -441,7 +432,7 @@ class FieldParser
 
                 if (strlen($key)) {
                     if (!preg_match('/^[0-9a-z-_]+$/i', $key)) {
-                        throw new ApplicationException(sprintf(
+                        throw new Exception(sprintf(
                             'Invalid drop-down option key: %s. Option keys can contain only digits, Latin letters and characters _ and -',
                             $key
                         ));

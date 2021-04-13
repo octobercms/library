@@ -1,9 +1,7 @@
 <?php namespace October\Rain\Database;
 
 /**
- * Query memory cache class.
- *
- * Stores query results in memory to avoid running duplicate queries
+ * MemoryCache stores query results in memory to avoid running duplicate queries
  *
  * @package october\database
  * @author Alexey Bobkov, Samuel Georges
@@ -13,27 +11,22 @@ class MemoryCache
     use \October\Rain\Support\Traits\Singleton;
 
     /**
-     * Cached results.
-     *
-     * @var array
+     * @var array cache results
      */
     protected $cache = [];
 
     /**
-     * The mapper between hashed keys and table names.
-     *
-     * @var array
+     * @var array tableMap between hashed keys and table names
      */
     protected $tableMap = [];
 
     /**
-     * @var bool Store enabled state.
+     * @var bool enabled store enabled state
      */
     protected $enabled = true;
 
     /**
-     * Check if the memory cache is enabled.
-     *
+     * enabled checks if the memory cache is enabled
      * @return bool
      */
     public function enabled($switch = null)
@@ -46,7 +39,7 @@ class MemoryCache
     }
 
     /**
-     * Check if the given query is cached.
+     * has checks if the given query is cached
      *
      * @param  QueryBuilder  $query
      * @return bool
@@ -57,7 +50,7 @@ class MemoryCache
     }
 
     /**
-     * Get the cached results for the given query.
+     * get the cached results for the given query.
      *
      * @param  QueryBuilder  $query
      * @return array|null
@@ -72,7 +65,7 @@ class MemoryCache
     }
 
     /**
-     * Store the results for the given query.
+     * put stores the results for the given query
      *
      * @param  QueryBuilder  $query
      * @param  array  $results
@@ -92,10 +85,9 @@ class MemoryCache
     }
 
     /**
-     * Delete the cache for the given table.
+     * forget deletes the cache for the given table
      *
-     * @param string $table
-     * @return void
+     * @param $table
      */
     public function forget($table)
     {
@@ -111,8 +103,7 @@ class MemoryCache
     }
 
     /**
-     * Clear the memory cache.
-     * @return void
+     * flush clears the memory cache
      */
     public function flush()
     {
@@ -121,7 +112,7 @@ class MemoryCache
     }
 
     /**
-     * Calculate a hash key for the given query.
+     * hash calculates a hash key for the given query
      *
      * @param  QueryBuilder  $query
      * @return string

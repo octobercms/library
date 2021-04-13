@@ -157,36 +157,7 @@ trait HasRelationships
     public function getRelationDefinition($name)
     {
         if (($type = $this->getRelationType($name)) !== null) {
-            return (array) $this->getRelationTypeDefinition($type, $name) + $this->getRelationDefaults($type);
-        }
-    }
-
-    /**
-     * Returns all defined relations of given type.
-     * @param string $type Relation type
-     * @return array|string|null
-     */
-    public function getRelationTypeDefinitions($type)
-    {
-        if (in_array($type, static::$relationTypes)) {
-            return $this->{$type};
-        }
-
-        return [];
-    }
-
-    /**
-     * Returns the given relation definition.
-     * @param string $type Relation type
-     * @param string $name Relation name
-     * @return array
-     */
-    public function getRelationTypeDefinition($type, $name)
-    {
-        $definitions = $this->getRelationTypeDefinitions($type);
-
-        if (isset($definitions[$name])) {
-            return $definitions[$name];
+            return (array) $this->{$type}[$name] + $this->getRelationDefaults($type);
         }
     }
 
@@ -199,7 +170,7 @@ trait HasRelationships
         $result = [];
 
         foreach (static::$relationTypes as $type) {
-            $result[$type] = $this->getRelationTypeDefinitions($type);
+            $result[$type] = $this->{$type};
 
             /*
              * Apply default values for the relation type
@@ -217,12 +188,12 @@ trait HasRelationships
     /**
      * Returns a relationship type based on a supplied name.
      * @param string $name Relation name
-     * @return string
+     * @return \October\Rain\Database\Relation
      */
     public function getRelationType($name)
     {
         foreach (static::$relationTypes as $type) {
-            if ($this->getRelationTypeDefinition($type, $name) !== null) {
+            if (isset($this->{$type}[$name])) {
                 return $type;
             }
         }
@@ -238,7 +209,7 @@ trait HasRelationships
         $relationType = $this->getRelationType($name);
         $relation = $this->getRelationDefinition($name);
 
-        if ($relationType == 'morphTo' || !isset($relation[0])) {
+        if ($relationType === 'morphTo' || !isset($relation[0])) {
             return null;
         }
 
@@ -290,7 +261,7 @@ trait HasRelationships
         $relationType = $this->getRelationType($relationName);
         $relation = $this->getRelationDefinition($relationName);
 
-        if (!isset($relation[0]) && $relationType != 'morphTo') {
+        if (!isset($relation[0]) && $relationType !== 'morphTo') {
             throw new InvalidArgumentException(sprintf(
                 "Relation '%s' on model '%s' should have at least a classname.",
                 $relationName,
@@ -298,7 +269,7 @@ trait HasRelationships
             ));
         }
 
-        if (isset($relation[0]) && $relationType == 'morphTo') {
+        if (isset($relation[0]) && $relationType === 'morphTo') {
             throw new InvalidArgumentException(sprintf(
                 "Relation '%s' on model '%s' is a morphTo relation and should not contain additional arguments.",
                 $relationName,
@@ -735,7 +706,7 @@ trait HasRelationships
 
         $localKey = $localKey ?: $this->getKeyName();
 
-        return new AttachOne($instance->newQuery(), $this, $table . '.' . $type, $table . '.' . $id, $isPublic, $localKey, $relationName);
+        return new AttachOne($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $isPublic, $localKey, $relationName);
     }
 
     /**
@@ -757,7 +728,7 @@ trait HasRelationships
 
         $localKey = $localKey ?: $this->getKeyName();
 
-        return new AttachMany($instance->newQuery(), $this, $table . '.' . $type, $table . '.' . $id, $isPublic, $localKey, $relationName);
+        return new AttachMany($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $isPublic, $localKey, $relationName);
     }
 
     /**
@@ -766,7 +737,7 @@ trait HasRelationships
     protected function getRelationCaller()
     {
         $backtrace = debug_backtrace(false);
-        $caller = ($backtrace[2]['function'] == 'handleRelation') ? $backtrace[4] : $backtrace[2];
+        $caller = ($backtrace[2]['function'] === 'handleRelation') ? $backtrace[4] : $backtrace[2];
         return $caller['function'];
     }
 

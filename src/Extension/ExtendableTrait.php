@@ -6,19 +6,19 @@ use BadMethodCallException;
 use Exception;
 
 /**
- * This extension trait is used when access to the underlying base class
+ * ExtendableTrait trait is used when access to the underlying base class
  * is not available, such as classes that belong to the foundation
  * framework (Laravel). It is currently used by the Controller and
  * Model classes.
  *
  * @package october\extension
+ * @see \October\Rain\Extension\Extendable
  * @author Alexey Bobkov, Samuel Georges
  */
-
 trait ExtendableTrait
 {
     /**
-     * @var array Class reflection information, including behaviors.
+     * @var array extensionData contains class reflection information, including behaviors
      */
     protected $extensionData = [
         'extensions'        => [],
@@ -46,7 +46,7 @@ trait ExtendableTrait
     protected static $extendableGuardProperties = true;
 
     /**
-     * This method should be called as part of the constructor.
+     * extendableConstruct should be called as part of the constructor
      */
     public function extendableConstruct()
     {
@@ -85,7 +85,7 @@ trait ExtendableTrait
             /*
              * Soft implement
              */
-            if (substr($useClass, 0, 1) == '@') {
+            if (substr($useClass, 0, 1) === '@') {
                 $useClass = substr($useClass, 1);
                 if (!class_exists($useClass)) {
                     continue;
@@ -97,7 +97,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Helper method for `::extend()` static method
+     * extendableExtendCallback is a helper method for `::extend()` static method
      * @param  callable $callback
      * @return void
      */
@@ -142,7 +142,7 @@ trait ExtendableTrait
         $extensionMethods = get_class_methods($extensionName);
         foreach ($extensionMethods as $methodName) {
             if (
-                $methodName == '__construct' ||
+                $methodName === '__construct' ||
                 $extensionObject->extensionIsHiddenMethod($methodName)
             ) {
                 continue;
@@ -178,18 +178,17 @@ trait ExtendableTrait
      */
     public function addDynamicProperty($dynamicName, $value = null)
     {
-        if (array_key_exists($dynamicName, $this->getDynamicProperties())) {
+        if (property_exists($this, $dynamicName)) {
             return;
         }
+
         self::$extendableGuardProperties = false;
 
-        if (!property_exists($this, $dynamicName)) {
-            $this->{$dynamicName} = $value;
-        }
-
-        $this->extensionData['dynamicProperties'][] = $dynamicName;
+        $this->{$dynamicName} = $value;
 
         self::$extendableGuardProperties = true;
+
+        $this->extensionData['dynamicProperties'][] = $dynamicName;
     }
 
     /**
@@ -258,7 +257,7 @@ trait ExtendableTrait
         foreach ($this->extensionData['extensions'] as $class => $obj) {
             if (
                 preg_match('@\\\\([\w]+)$@', $class, $matches) &&
-                $matches[1] == $shortName
+                $matches[1] === $shortName
             ) {
                 return $obj;
             }
@@ -301,10 +300,12 @@ trait ExtendableTrait
     public function getDynamicProperties()
     {
         $result = [];
+
         $propertyNames = $this->extensionData['dynamicProperties'];
         foreach ($propertyNames as $propName) {
             $result[$propName] = $this->{$propName};
         }
+
         return $result;
     }
 
@@ -328,7 +329,7 @@ trait ExtendableTrait
             }
         }
 
-        return array_key_exists($name, $this->getDynamicProperties());
+        return false;
     }
 
     /**
@@ -374,27 +375,39 @@ trait ExtendableTrait
      */
     public function extendableSet($name, $value)
     {
+        $found = false;
+
+        // Spin over each extension to find it
         foreach ($this->extensionData['extensions'] as $extensionObject) {
             if (!property_exists($extensionObject, $name)) {
                 continue;
             }
 
             $extensionObject->{$name} = $value;
+            $found = true;
         }
 
-        /*
-         * This targets trait usage in particular
-         */
+        // This targets trait usage in particular
         $parent = get_parent_class();
         if ($parent !== false && method_exists($parent, '__set')) {
             parent::__set($name, $value);
+            return;
         }
 
-        /*
-         * Setting an undefined property
-         */
+        // Setting an undefined property
         if (!self::$extendableGuardProperties) {
             $this->{$name} = $value;
+            return;
+        }
+
+        // Undefined property, throw an exception to catch it,
+        // otherwise some PHP versions will segfault
+        if (!$found) {
+            throw new BadMethodCallException(sprintf(
+                'Call to undefined property %s::%s',
+                get_class($this),
+                $name
+            ));
         }
     }
 
@@ -410,8 +423,8 @@ trait ExtendableTrait
             $extension = $this->extensionData['methods'][$name];
             $extensionObject = $this->extensionData['extensions'][$extension];
 
-            if (method_exists($extension, $name)) {
-                return call_user_func_array([$extensionObject, $name], array_values($params));
+            if (method_exists($extension, $name) && is_callable([$extensionObject, $name])) {
+                return $extensionObject->$name(...$params);
             }
         }
 
@@ -419,7 +432,7 @@ trait ExtendableTrait
             $dynamicCallable = $this->extensionData['dynamicMethods'][$name];
 
             if (is_callable($dynamicCallable)) {
-                return call_user_func_array($dynamicCallable, array_values($params));
+                return $dynamicCallable(...$params);
             }
         }
 

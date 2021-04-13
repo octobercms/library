@@ -83,6 +83,11 @@ class Http
     public $headers = [];
 
     /**
+     * @var callable headerCallback is a custom function for handling response headers.
+     */
+    public $headerCallbackFunc;
+
+    /**
      * @var string The last response body.
      */
     public $body = '';
@@ -164,7 +169,7 @@ class Http
     /**
      * Make a HTTP GET call.
      * @param string $url
-     * @param callable $options
+     * @param array  $options
      * @return self
      */
     public static function get($url, $options = null)
@@ -176,7 +181,7 @@ class Http
     /**
      * Make a HTTP POST call.
      * @param string $url
-     * @param callable $options
+     * @param array  $options
      * @return self
      */
     public static function post($url, $options = null)
@@ -188,7 +193,7 @@ class Http
     /**
      * Make a HTTP DELETE call.
      * @param string $url
-     * @param callable $options
+     * @param array  $options
      * @return self
      */
     public static function delete($url, $options = null)
@@ -200,7 +205,7 @@ class Http
     /**
      * Make a HTTP PATCH call.
      * @param string $url
-     * @param callable $options
+     * @param array  $options
      * @return self
      */
     public static function patch($url, $options = null)
@@ -212,7 +217,7 @@ class Http
     /**
      * Make a HTTP PUT call.
      * @param string $url
-     * @param callable $options
+     * @param array  $options
      * @return self
      */
     public static function put($url, $options = null)
@@ -224,7 +229,7 @@ class Http
     /**
      * Make a HTTP OPTIONS call.
      * @param string $url
-     * @param callable $options
+     * @param array  $options
      * @return self
      */
     public static function options($url, $options = null)
@@ -266,7 +271,7 @@ class Http
         /*
          * Set request method
          */
-        if ($this->method == self::METHOD_POST) {
+        if ($this->method === self::METHOD_POST) {
             curl_setopt($curl, CURLOPT_POST, true);
         }
         elseif ($this->method !== self::METHOD_GET) {
@@ -280,7 +285,7 @@ class Http
             if (in_array($this->method, [self::METHOD_POST, self::METHOD_PATCH, self::METHOD_PUT])) {
                 curl_setopt($curl, CURLOPT_POSTFIELDS, $this->getRequestData());
             }
-            elseif ($this->method == self::METHOD_GET) {
+            elseif ($this->method === self::METHOD_GET) {
                 curl_setopt($curl, CURLOPT_URL, $this->url . '?' . $this->getRequestData());
             }
         }
@@ -295,6 +300,14 @@ class Http
             }
 
             curl_setopt($curl, CURLOPT_HTTPHEADER, $requestHeaders);
+        }
+
+        /*
+         * Custom header function
+         */
+        if ($this->headerCallbackFunc) {
+            curl_setopt($curl, CURLOPT_HEADER, false);
+            curl_setopt($curl, CURLOPT_HEADERFUNCTION, $this->headerCallbackFunc);
         }
 
         /*
@@ -320,7 +333,7 @@ class Http
         }
 
         $this->info = curl_getinfo($curl);
-        $this->code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $this->code = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
 
         /*
          * Close resources
@@ -339,7 +352,7 @@ class Http
                 $this->redirectCount = $this->maxRedirects;
             }
             if (in_array($this->code, [301, 302])) {
-                $this->url = array_get($this->info, 'url');
+                $this->url = array_get($this->info, 'redirect_url');
                 if (!empty($this->url) && $this->redirectCount > 0) {
                     $this->redirectCount -= 1;
                     return $this->send();
@@ -363,9 +376,11 @@ class Http
         ) {
             return $this->requestOptions[CURLOPT_POSTFIELDS];
         }
+
         if (!empty($this->requestData)) {
             return http_build_query($this->requestData, '', $this->argumentSeparator);
         }
+
         return '';
     }
 
@@ -524,6 +539,19 @@ class Http
     }
 
     /**
+     * headerCallback sets a custom method for handling headers
+     *
+     *     function header_callback($curl, string $headerLine) {}
+     *
+     */
+    public function headerCallback($callback)
+    {
+        $this->headerCallbackFunc = $callback;
+
+        return $this;
+    }
+
+    /**
      * Add a single option to the request.
      * @param string $option
      * @param string $value
@@ -541,7 +569,8 @@ class Http
         if (is_string($option) && defined($option)) {
             $optionKey = constant($option);
             $this->requestOptions[$optionKey] = $value;
-        } elseif (is_int($option)) {
+        }
+        elseif (is_int($option)) {
             $constants = get_defined_constants(true);
             $curlOptConstants = array_flip(array_filter($constants['curl'], function ($key) {
                 return strpos($key, 'CURLOPT_') === 0;
@@ -552,7 +581,8 @@ class Http
             } else {
                 throw new ApplicationException('$option parameter must be a CURLOPT constant or equivalent integer');
             }
-        } else {
+        }
+        else {
             throw new ApplicationException('$option parameter must be a CURLOPT constant or equivalent integer');
         }
 

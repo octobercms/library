@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Database\Models;
 
-use Db;
 use October\Rain\Database\Model;
 
 /**
@@ -12,17 +11,16 @@ use October\Rain\Database\Model;
 class Revision extends Model
 {
     /**
-     * @var string The database table used by the model.
+     * @var string table associated with the model
      */
     public $table = 'revisions';
 
     /**
-     * Returns "new value" casted as the saved type.
-     * @return mixed
+     * getNewValueAttribute returns "new value" casted as the saved type
      */
     public function getNewValueAttribute($value)
     {
-        if ($this->cast == 'date' && !is_null($value)) {
+        if ($this->cast === 'date') {
             return $this->asDateTime($value);
         }
 
@@ -30,12 +28,11 @@ class Revision extends Model
     }
 
     /**
-     * Returns "old value" casted as the saved type.
-     * @return mixed
+     * getOldValueAttribute returns "old value" casted as the saved type
      */
     public function getOldValueAttribute($value)
     {
-        if ($this->cast == 'date' && !is_null($value)) {
+        if ($this->cast === 'date') {
             return $this->asDateTime($value);
         }
 

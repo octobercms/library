@@ -2,22 +2,23 @@
 
 use RuntimeException;
 
+/**
+ * MissingFileNameException
+ *
+ * @package october\halcyon
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class MissingFileNameException extends RuntimeException
 {
     /**
-     * Name of the affected Halcyon model.
-     *
-     * @var string
+     * @var string model name
      */
     protected $model;
 
     /**
-     * Set the affected Halcyon model.
-     *
-     * @param  string   $model
-     * @return $this
+     * setModel sets the affected Halcyon model
      */
-    public function setModel($model)
+    public function setModel(string $model): MissingFileNameException
     {
         $this->model = $model;
 
@@ -27,11 +28,9 @@ class MissingFileNameException extends RuntimeException
     }
 
     /**
-     * Get the affected Halcyon model.
-     *
-     * @return string
+     * getModel gets the affected Halcyon model
      */
-    public function getModel()
+    public function getModel(): string
     {
         return $this->model;
     }

@@ -1,12 +1,50 @@
 <?php
 
-class SluggableTest extends DbTestCase
+class SluggableTest extends TestCase
 {
     public function setUp(): void
     {
-        parent::setUp();
+        $capsule = new Illuminate\Database\Capsule\Manager;
+        $capsule->addConnection([
+            'driver'   => 'sqlite',
+            'database' => ':memory:',
+            'prefix'   => ''
+        ]);
 
-        $this->createTables();
+        # Create the dataset in the connection with the tables
+        $capsule->setAsGlobal();
+        $capsule->bootEloquent();
+
+        $capsule->schema()->create('testSoftDelete', function ($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->softDeletes();
+            $table->timestamps();
+        });
+
+        $capsule->schema()->create('testSoftDeleteNoUnique', function ($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->string('slug');
+            $table->softDeletes();
+            $table->timestamps();
+        });
+
+        $capsule->schema()->create('testSoftDeleteAllow', function ($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->softDeletes();
+            $table->timestamps();
+        });
+
+        $capsule->schema()->create('test', function ($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->timestamps();
+        });
     }
 
     public function testSlugGeneration()
@@ -136,40 +174,6 @@ class SluggableTest extends DbTestCase
 
         $testModel2 = TestModelSluggable::Create(['name' => 'test']);
         $this->assertEquals($testModel2->slug, 'test');
-    }
-
-    protected function createTables()
-    {
-        $this->db->schema()->create('testSoftDelete', function ($table) {
-            $table->increments('id');
-            $table->string('name');
-            $table->string('slug')->unique();
-            $table->softDeletes();
-            $table->timestamps();
-        });
-
-        $this->db->schema()->create('testSoftDeleteNoUnique', function ($table) {
-            $table->increments('id');
-            $table->string('name');
-            $table->string('slug');
-            $table->softDeletes();
-            $table->timestamps();
-        });
-
-        $this->db->schema()->create('testSoftDeleteAllow', function ($table) {
-            $table->increments('id');
-            $table->string('name');
-            $table->string('slug')->unique();
-            $table->softDeletes();
-            $table->timestamps();
-        });
-
-        $this->db->schema()->create('test', function ($table) {
-            $table->increments('id');
-            $table->string('name');
-            $table->string('slug')->unique();
-            $table->timestamps();
-        });
     }
 }
 

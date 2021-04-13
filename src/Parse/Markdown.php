@@ -9,7 +9,7 @@ use October\Rain\Parse\Parsedown\Parsedown;
  * Calling Markdown::parse($text) returns the HTML corresponding
  * to the Markdown input in $text.
  *
- * OctoberCMS uses ParsedownExtra as its Markdown parser,
+ * October CMS uses ParsedownExtra as its Markdown parser,
  * but fires markdown.beforeParse and markdown.parse events
  * allowing hooks into the default parsing,
  *
@@ -32,26 +32,22 @@ class Markdown
     use \October\Rain\Support\Traits\Emitter;
 
     /**
-     * @var October\Rain\Parse\Parsedown\Parsedown Parsedown instance
+     * @var October\Rain\Parse\Parsedown\Parsedown parser is the parsedown instance
      */
     protected $parser;
 
     /**
-     * Parse text using Markdown and Markdown-Extra
-     * @param  string $text Markdown text to parse
-     * @return string       Resulting HTML
+     * parse text using Markdown and Markdown-Extra
      */
-    public function parse($text)
+    public function parse(string $text): string
     {
         return $this->parseInternal($text);
     }
 
     /**
-     * Enables safe mode
-     * @param  string $text Markdown text to parse
-     * @return string       Resulting HTML
+     * parseClean enables safe mode where HTML is escaped
      */
-    public function parseClean($text)
+    public function parseClean(string $text): string
     {
         $this->getParser()->setSafeMode(true);
 
@@ -63,11 +59,9 @@ class Markdown
     }
 
     /**
-     * Disables code blocks caused by indentation.
-     * @param  string $text Markdown text to parse
-     * @return string       Resulting HTML
+     * parseSafe disables code blocks caused by indentation
      */
-    public function parseSafe($text)
+    public function parseSafe(string $text): string
     {
         $this->getParser()->setUnmarkedBlockTypes([]);
 
@@ -79,19 +73,17 @@ class Markdown
     }
 
     /**
-     * Parse a single line
-     * @param  string $text Markdown text to parse
-     * @return string       Resulting HTML
+     * parseLine parses a single line
      */
-    public function parseLine($text)
+    public function parseLine(string $text): string
     {
         return $this->parseInternal($text, 'line');
     }
 
     /**
-     * Internal method for parsing
+     * parseInternal is an internal method for parsing
      */
-    protected function parseInternal($text, $method = 'text')
+    protected function parseInternal($text, $method = 'text'): string
     {
         $data = new MarkdownData($text);
 
@@ -112,7 +104,10 @@ class Markdown
         return $data->text;
     }
 
-    protected function getParser()
+    /**
+     * getParser returns an instance of the parser
+     */
+    protected function getParser(): Parsedown
     {
         if ($this->parser === null) {
             $this->parser = new Parsedown;

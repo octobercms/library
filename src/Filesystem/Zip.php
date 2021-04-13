@@ -223,13 +223,16 @@ class Zip extends ZipArchive
             return $this;
         }
 
-        if (substr($source, 0, 1) == '/') {
+        if (substr($source, 0, 1) === '/') {
             $source = substr($source, 1);
         }
 
         for ($i = 0; $i < $this->numFiles; $i++) {
-            $stats = $this->statIndex($i);
-            if (substr($stats['name'], 0, strlen($source)) == $source) {
+            if (($stats = $this->statIndex($i)) === false) {
+                continue;
+            }
+
+            if (substr($stats['name'], 0, strlen($source)) === $source) {
                 $this->deleteIndex($i);
             }
         }

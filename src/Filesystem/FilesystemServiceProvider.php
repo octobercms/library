@@ -4,7 +4,6 @@ use Illuminate\Filesystem\FilesystemServiceProvider as FilesystemServiceProvider
 
 class FilesystemServiceProvider extends FilesystemServiceProviderBase
 {
-
     /**
      * Register the service provider.
      * @return void
@@ -25,25 +24,13 @@ class FilesystemServiceProvider extends FilesystemServiceProviderBase
         $this->app->singleton('files', function () {
             $config = $this->app['config'];
             $files = new Filesystem;
-            $files->filePermissions = $config->get('cms.defaultMask.file', null);
-            $files->folderPermissions = $config->get('cms.defaultMask.folder', null);
+            $files->filePermissions = $config->get('system.default_mask.file', null);
+            $files->folderPermissions = $config->get('system.default_mask.folder', null);
             $files->pathSymbols = [
-                '$' => base_path() . $config->get('cms.pluginsDir', '/plugins'),
+                '$' => plugins_path(),
                 '~' => base_path(),
             ];
             return $files;
-        });
-    }
-
-    /**
-     * Register the filesystem manager.
-     *
-     * @return void
-     */
-    protected function registerManager()
-    {
-        $this->app->singleton('filesystem', function () {
-            return new FilesystemManager($this->app);
         });
     }
 

@@ -10,13 +10,13 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $bootstrappers = [
-        \October\Rain\Foundation\Bootstrap\RegisterClassLoader::class,
-        \October\Rain\Foundation\Bootstrap\LoadEnvironmentVariables::class,
-        \October\Rain\Foundation\Bootstrap\LoadConfiguration::class,
-        \October\Rain\Foundation\Bootstrap\LoadTranslation::class,
+        '\October\Rain\Foundation\Bootstrap\RegisterClassLoader',
+        '\October\Rain\Foundation\Bootstrap\LoadEnvironmentVariables',
+        '\October\Rain\Foundation\Bootstrap\LoadConfiguration',
+        '\October\Rain\Foundation\Bootstrap\LoadTranslation',
         \Illuminate\Foundation\Bootstrap\HandleExceptions::class,
         \Illuminate\Foundation\Bootstrap\RegisterFacades::class,
-        \October\Rain\Foundation\Bootstrap\RegisterOctober::class,
+        '\October\Rain\Foundation\Bootstrap\RegisterOctober',
         \Illuminate\Foundation\Bootstrap\RegisterProviders::class,
         \Illuminate\Foundation\Bootstrap\BootProviders::class,
     ];
@@ -27,8 +27,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
-        \October\Rain\Foundation\Http\Middleware\CheckForTrustedHost::class,
-        \October\Rain\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
+        '\October\Rain\Foundation\Http\Middleware\CheckForMaintenanceMode',
     ];
 
     /**
@@ -52,7 +51,7 @@ class Kernel extends HttpKernel
      */
     protected $middlewareGroups = [
         'web' => [
-            \October\Rain\Cookie\Middleware\EncryptCookies::class,
+            \October\Rain\Foundation\Http\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,

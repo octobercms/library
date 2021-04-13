@@ -1,45 +1,36 @@
 <?php namespace October\Rain\Database;
 
 use App;
-use October\Rain\Support\Arr;
 use Illuminate\Database\Query\Builder as QueryBuilderBase;
 
+/**
+ * QueryBuilder restores some features that were removed from base, it also
+ * adds some new ones
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class QueryBuilder extends QueryBuilderBase
 {
     /**
-     * The key that should be used when caching the query.
-     *
-     * @var string
+     * @var string cacheKey is the key that should be used when caching the query
      */
     protected $cacheKey;
 
     /**
-     * The number of minutes to cache the query.
-     *
-     * @var int
+     * @var int cacheMinutes is the number of minutes to cache the query
      */
     protected $cacheMinutes;
 
     /**
-     * The tags for the query cache.
-     *
-     * @var array
+     * @var array cacheTags is the tags for the query cache
      */
     protected $cacheTags;
 
     /**
-     * Indicates whether duplicate queries are being cached in memory.
-     *
-     * @var bool
+     * @var bool cachingDuplicateQueries indicates whether duplicate queries are being cached in memory
      */
     protected $cachingDuplicateQueries = false;
-
-    /**
-     * The aliased concatenation columns.
-     *
-     * @var array
-     */
-    public $concats = [];
 
     /**
      * Get an array with the values of a given column.
@@ -97,23 +88,20 @@ class QueryBuilder extends QueryBuilderBase
     public function get($columns = ['*'])
     {
         if ($this->cachingDuplicates()) {
-            return $this->getDuplicateCached($columns);
+            return $this->getDuplicateCached((array) $columns);
         }
 
         if (!is_null($this->cacheMinutes)) {
-            return $this->getCached($columns);
+            return $this->getCached((array) $columns);
         }
 
         return parent::get($columns);
     }
 
     /**
-     * Check the memory cache before executing the query
-     *
-     * @param  array  $columns
-     * @return array
+     * getDuplicateCached checks the memory cache before executing the query
      */
-    protected function getDuplicateCached($columns = ['*'])
+    protected function getDuplicateCached(array $columns = ['*'])
     {
         if (is_null($this->columns)) {
             $this->columns = $columns;
@@ -136,12 +124,9 @@ class QueryBuilder extends QueryBuilderBase
     }
 
     /**
-     * Execute the query as a cached "select" statement.
-     *
-     * @param  array  $columns
-     * @return array
+     * getCached executes the query as a cached "select" statement.
      */
-    public function getCached($columns = ['*'])
+    public function getCached(array $columns = ['*'])
     {
         if (is_null($this->columns)) {
             $this->columns = $columns;
@@ -159,15 +144,11 @@ class QueryBuilder extends QueryBuilderBase
         // If the "minutes" value is less than zero, we will use that as the indicator
         // that the value should be remembered values should be stored indefinitely
         // and if we have minutes we will use the typical remember function here.
-        if (is_int($minutes) && $minutes < 0) {
+        if ($minutes < 0) {
             $results = $cache->rememberForever($key, $callback);
         }
         else {
-            if (is_int($minutes)) {
-                $expiresAt = now()->addMinutes($minutes);
-            } else {
-                $expiresAt = $minutes;
-            }
+            $expiresAt = now()->addMinutes($minutes);
             $results = $cache->remember($key, $expiresAt, $callback);
         }
 
@@ -187,21 +168,17 @@ class QueryBuilder extends QueryBuilderBase
     }
 
     /**
-     * Get the cache key and cache minutes as an array.
-     *
-     * @return array
+     * getCacheInfo returns key and cache minutes
      */
-    protected function getCacheInfo()
+    protected function getCacheInfo(): array
     {
         return [$this->getCacheKey(), $this->cacheMinutes];
     }
 
     /**
-     * Get a unique cache key for the complete query.
-     *
-     * @return string
+     * getCacheKey returns a unique cache key for the complete query
      */
-    public function getCacheKey()
+    public function getCacheKey(): string
     {
         return $this->cacheKey ?: $this->generateCacheKey();
     }
@@ -305,51 +282,6 @@ class QueryBuilder extends QueryBuilderBase
     }
 
     /**
-     * Insert new records or update the existing ones.
-     *
-     * @param  array  $values
-     * @param  array|string  $uniqueBy
-     * @param  array|null  $update
-     * @return int
-     */
-    public function upsert(array $values, $uniqueBy, $update = null)
-    {
-        if (empty($values)) {
-            return 0;
-        }
-
-        if ($update === []) {
-            return (int) $this->insert($values);
-        }
-
-        if (!is_array(reset($values))) {
-            $values = [$values];
-        } else {
-            foreach ($values as $key => $value) {
-                ksort($value);
-
-                $values[$key] = $value;
-            }
-        }
-
-        if (is_null($update)) {
-            $update = array_keys(reset($values));
-        }
-
-        $bindings = $this->cleanBindings(array_merge(
-            Arr::flatten($values, 1),
-            collect($update)->reject(function ($value, $key) {
-                return is_int($key);
-            })->all()
-        ));
-
-        return $this->connection->affectingStatement(
-            $this->grammar->compileUpsert($this, $values, (array) $uniqueBy, $update),
-            $bindings
-        );
-    }
-
-    /**
      * Run a truncate statement on the table.
      *
      * @return void
@@ -418,19 +350,5 @@ class QueryBuilder extends QueryBuilderBase
     public function cachingDuplicates()
     {
         return $this->cachingDuplicateQueries;
-    }
-
-    /**
-     * Adds a concatenated column as an alias.
-     *
-     * @param  array $parts The concatenation parts.
-     * @param  string $as The name of the alias for the compiled concatenation.
-     * @return $this
-     */
-    public function selectConcat(array $parts, string $as)
-    {
-        $this->concats[$as] = $parts;
-
-        return $this;
     }
 }

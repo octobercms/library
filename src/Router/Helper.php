@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Router;
 
 /**
- * Methods that may be useful for processing routing activity
+ * Helper methods that may be useful for processing routing activity
  *
  * @package october\router
  * @author Alexey Bobkov, Samuel Georges
@@ -16,11 +16,11 @@ class Helper
      */
     public static function normalizeUrl($url)
     {
-        if (substr($url, 0, 1) != '/') {
+        if (substr($url, 0, 1) !== '/') {
             $url = '/'.$url;
         }
 
-        if (substr($url, -1) == '/') {
+        if (substr($url, -1) === '/') {
             $url = substr($url, 0, -1);
         }
 
@@ -84,7 +84,6 @@ class Helper
             $object = (object) $object;
         }
 
-        $defaultColumns = ['id'];
         foreach ($columns as $column) {
             if (
                 !isset($object->{$column}) ||

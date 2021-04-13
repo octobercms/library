@@ -3,10 +3,21 @@
 use October\Rain\Support\Facades\File;
 use Illuminate\Support\ServiceProvider as ServiceProviderBase;
 
+/**
+ * ModuleServiceProvider
+ *
+ * @package october\support
+ * @author Alexey Bobkov, Samuel Georges
+ */
 abstract class ModuleServiceProvider extends ServiceProviderBase
 {
     /**
-     * Bootstrap the application events.
+     * @var bool defer indicates if loading of the provider is deferred
+     */
+    protected $defer = false;
+
+    /**
+     * boot bootstraps the application events
      * @return void
      */
     public function boot()
@@ -23,8 +34,7 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
     }
 
     /**
-     * Register the service provider.
-     * @return void
+     * register the service provider
      */
     public function register()
     {
@@ -34,13 +44,13 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
              */
             $routesFile = base_path() . '/modules/' . $module . '/routes.php';
             if (File::isFile($routesFile)) {
-                require $routesFile;
+                $this->loadRoutesFrom($routesFile);
             }
         }
     }
 
     /**
-     * Get the services provided by the provider.
+     * provides gets the services provided by the provider
      * @return array
      */
     public function provides()
@@ -48,18 +58,21 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
         return [];
     }
 
+    /**
+     * getModule gets the module name from method args
+     */
     public function getModule($args)
     {
         return (isset($args[0]) and is_string($args[0])) ? $args[0] : null;
     }
 
     /**
-     * Registers a new console (artisan) command
+     * registerConsoleCommand registers a new console (artisan) command
      * @param $key The command name
      * @param $class The command class
      * @return void
      */
-    public function registerConsoleCommand($key, $class)
+    public function registerConsoleCommand(string $key, string $class)
     {
         $key = 'command.'.$key;
 
@@ -71,7 +84,7 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
     }
 
     /**
-     * Register a config file namespace.
+     * loadConfigFrom registers a config file namespace
      * @param  string  $path
      * @param  string  $namespace
      * @return void

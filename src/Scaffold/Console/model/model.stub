@@ -3,29 +3,29 @@
 use Model;
 
 /**
- * {{name}} Model
+ * {{studly_name}} Model
  */
 class {{studly_name}} extends Model
 {
     use \October\Rain\Database\Traits\Validation;
 
     /**
-     * @var string The database table used by the model.
+     * @var string table associated with the model
      */
     public $table = '{{lower_author}}_{{lower_plugin}}_{{snake_plural_name}}';
 
     /**
-     * @var array Guarded fields
+     * @var array guarded attributes aren't mass assignable
      */
     protected $guarded = ['*'];
 
     /**
-     * @var array Fillable fields
+     * @var array fillable attributes are mass assignable
      */
     protected $fillable = [];
 
     /**
-     * @var array Validation rules for attributes
+     * @var array rules for validation
      */
     public $rules = [];
 
@@ -35,22 +35,22 @@ class {{studly_name}} extends Model
     protected $casts = [];
 
     /**
-     * @var array Attributes to be cast to JSON
+     * @var array jsonable attribute names that are json encoded and decoded from the database
      */
     protected $jsonable = [];
 
     /**
-     * @var array Attributes to be appended to the API representation of the model (ex. toArray())
+     * @var array appends attributes to the API representation of the model (ex. toArray())
      */
     protected $appends = [];
 
     /**
-     * @var array Attributes to be removed from the API representation of the model (ex. toArray())
+     * @var array hidden attributes removed from the API representation of the model (ex. toArray())
      */
     protected $hidden = [];
 
     /**
-     * @var array Attributes to be cast to Argon (Carbon) instances
+     * @var array dates attributes that should be mutated to dates
      */
     protected $dates = [
         'created_at',
@@ -58,12 +58,10 @@ class {{studly_name}} extends Model
     ];
 
     /**
-     * @var array Relations
+     * @var array hasOne and other relations
      */
     public $hasOne = [];
     public $hasMany = [];
-    public $hasOneThrough = [];
-    public $hasManyThrough = [];
     public $belongsTo = [];
     public $belongsToMany = [];
     public $morphTo = [];

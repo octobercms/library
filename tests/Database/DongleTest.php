@@ -17,6 +17,9 @@ class DongleTest extends TestCase
         $result = $dongle->parseConcat('concat("#", id, " - ", amount, "(", currency_code, ")")');
         $this->assertEquals('"#" || id || " - " || amount || "(" || currency_code || ")"', $result);
 
+        $result = $dongle->parseConcat("concat(year, ' ', make , ' ' , model)");
+        $this->assertEquals("year || ' ' || make || ' ' || model", $result);
+
         $result = $dongle->parseConcat("group_concat(first_name, ' ', last_name)");
         $this->assertEquals("group_concat(first_name, ' ', last_name)", $result);
     }
@@ -33,6 +36,10 @@ class DongleTest extends TestCase
 
         $result = $dongle->parseGroupConcat("group_concat(id separator ')')");
         $this->assertEquals("group_concat(id, ')')", $result);
+
+        // @todo
+        // $result = $dongle->parseGroupConcat("group_concat(id order by name separator ',')");
+        // $this->assertEquals("group_concat(id, ',') OVER (order by name)", $result);
     }
 
     public function testPgsqlParseGroupConcat()

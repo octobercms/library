@@ -1,6 +1,5 @@
 <?php
 
-use October\Rain\Filesystem\PathResolver;
 use October\Rain\Support\Arr;
 use October\Rain\Support\Str;
 use October\Rain\Support\Collection;
@@ -15,9 +14,9 @@ if (!function_exists('input')) {
      * $name = input('contact[location][city]');
      * </pre>
      * Booleans are converted from strings
-     * @param string|null $name
-     * @param string|null $default
-     * @return mixed
+     * @param string $name
+     * @param string $default
+     * @return string
      */
     function input($name = null, $default = null)
     {
@@ -163,19 +162,6 @@ if (!function_exists('traceSql')) {
     }
 }
 
-if (!function_exists('config_path')) {
-    /**
-     * Get the path to the config folder.
-     *
-     * @param  string  $path
-     * @return string
-     */
-    function config_path($path = '')
-    {
-        return PathResolver::join(app('path.config'), $path);
-    }
-}
-
 if (!function_exists('plugins_path')) {
     /**
      * Get the path to the plugins folder.
@@ -185,33 +171,20 @@ if (!function_exists('plugins_path')) {
      */
     function plugins_path($path = '')
     {
-        return PathResolver::join(app('path.plugins'), $path);
+        return app('path.plugins').($path ? '/'.$path : $path);
     }
 }
 
-if (!function_exists('uploads_path')) {
+if (!function_exists('cache_path')) {
     /**
-     * Get the path to the uploads folder.
+     * Get the path to the cache folder.
      *
      * @param  string  $path
      * @return string
      */
-    function uploads_path($path = '')
+    function cache_path($path = '')
     {
-        return PathResolver::join(Config::get('cms.storage.uploads.path', app('path.uploads')), $path);
-    }
-}
-
-if (!function_exists('media_path')) {
-    /**
-     * Get the path to the media folder.
-     *
-     * @param  string  $path
-     * @return string
-     */
-    function media_path($path = '')
-    {
-        return PathResolver::join(Config::get('cms.storage.media.path', app('path.media')), $path);
+        return app('path.cache').($path ? '/'.$path : $path);
     }
 }
 
@@ -224,7 +197,7 @@ if (!function_exists('themes_path')) {
      */
     function themes_path($path = '')
     {
-        return PathResolver::join(app('path.themes'), $path);
+        return app('path.themes').($path ? '/'.$path : $path);
     }
 }
 
@@ -237,7 +210,7 @@ if (!function_exists('temp_path')) {
      */
     function temp_path($path = '')
     {
-        return PathResolver::join(app('path.temp'), $path);
+        return app('path.temp').($path ? '/'.$path : $path);
     }
 }
 
@@ -263,9 +236,9 @@ if (!function_exists('trans')) {
     /**
      * Translate the given message.
      *
-     * @param  string|null  $id
+     * @param  string  $id
      * @param  array   $parameters
-     * @param  string|null  $locale
+     * @param  string  $locale
      * @return string
      */
     function trans($id = null, $parameters = [], $locale = null)
@@ -366,19 +339,6 @@ if (!function_exists('array_dot')) {
     function array_dot($array, $prepend = '')
     {
         return Arr::dot($array, $prepend);
-    }
-}
-
-if (!function_exists('array_undot')) {
-    /**
-     * Transform a dot-notated array into a normal array.
-     *
-     * @param array $dotArray
-     * @return array
-     */
-    function array_undot(array $dotArray)
-    {
-        return Arr::undot($dotArray);
     }
 }
 
@@ -919,26 +879,5 @@ if (!function_exists('title_case')) {
     function title_case($value)
     {
         return Str::title($value);
-    }
-}
-
-if (!function_exists('resolve_path')) {
-    /**
-     * Resolves a path to its canonical location.
-     *
-     * This expands all symbolic links and resolves references to /./, /../ and extra / characters in the input path
-     * and returns the canonicalized absolute pathname.
-     *
-     * This function operates very similar to the PHP `realpath` function, except it will also work for missing files
-     * and directories.
-     *
-     * Returns canonical path if it can be resolved, otherwise `false`.
-     *
-     * @param  string  $path
-     * @return string|bool
-     */
-    function resolve_path($path)
-    {
-        return PathResolver::resolve($path);
     }
 }

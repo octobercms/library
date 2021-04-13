@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Database;
 
-use Db;
 use File;
 use Eloquent;
 use Exception;

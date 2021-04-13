@@ -1,11 +1,11 @@
 <?php namespace October\Rain\Support;
 
 use October\Rain\Filesystem\Filesystem;
-use Throwable;
 use Exception;
+use Error;
 
 /**
- * Class loader
+ * ClassLoader
  *
  * A simple autoloader used by October, it expects the folder names
  * to be lower case and the file name to be capitalized as per the class name.
@@ -38,7 +38,7 @@ class ClassLoader
      *
      * @var array
      */
-    public $manifest;
+    public $manifest = [];
 
     /**
      * Determine if the manifest needs to be written.
@@ -69,11 +69,10 @@ class ClassLoader
      * @param  string  $manifestPath
      * @return void
      */
-    public function __construct(Filesystem $files, $basePath, $manifestPath)
+    public function __construct(Filesystem $files, $basePath)
     {
         $this->files = $files;
         $this->basePath = $basePath;
-        $this->manifestPath = $manifestPath;
     }
 
     /**
@@ -92,7 +91,7 @@ class ClassLoader
             return true;
         }
 
-        list($lowerClass, $upperClass) = static::normalizeClass($class);
+        list($lowerClass, $upperClass) = $this->normalizeClass($class);
 
         foreach ($this->directories as $directory) {
             if ($this->isRealFilePath($path = $directory.DIRECTORY_SEPARATOR.$lowerClass)) {
@@ -145,8 +144,6 @@ class ClassLoader
             return;
         }
 
-        $this->ensureManifestIsLoaded();
-
         $this->registered = spl_autoload_register([$this, 'load']);
     }
 
@@ -162,6 +159,16 @@ class ClassLoader
         }
 
         $this->write($this->manifest);
+    }
+
+    /**
+     * initManifest starts the manifest cache file after registration.
+     */
+    public function initManifest(string $manifestPath): void
+    {
+        $this->manifestPath = $manifestPath;
+
+        $this->ensureManifestIsLoaded();
     }
 
     /**
@@ -218,7 +225,7 @@ class ClassLoader
         /*
          * Strip first slash
          */
-        if ($class[0] == '\\') {
+        if ($class[0] === '\\') {
             $class = substr($class, 1);
         }
 
@@ -246,28 +253,20 @@ class ClassLoader
      */
     protected function ensureManifestIsLoaded()
     {
-        if (!is_null($this->manifest)) {
-            return;
-        }
+        $manifest = [];
 
         if (file_exists($this->manifestPath)) {
             try {
-                $this->manifest = $this->files->getRequire($this->manifestPath);
+                $manifest = $this->files->getRequire($this->manifestPath);
 
-                if (!is_array($this->manifest)) {
-                    $this->manifest = [];
+                if (!is_array($manifest)) {
+                    $manifest = [];
                 }
             }
-            catch (Exception $ex) {
-                $this->manifest = [];
-            }
-            catch (Throwable $ex) {
-                $this->manifest = [];
-            }
+            catch (Error $ex) {}
         }
-        else {
-            $this->manifest = [];
-        }
+
+        $this->manifest += $manifest;
     }
 
     /**
@@ -279,8 +278,12 @@ class ClassLoader
      */
     protected function write(array $manifest)
     {
+        if ($this->manifestPath === null) {
+            return;
+        }
+
         if (!is_writable(dirname($this->manifestPath))) {
-            throw new Exception('The storage/framework/cache directory must be present and writable.');
+            throw new Exception('The '.$this->manifestPath.' directory must be present and writable.');
         }
 
         $this->files->put(

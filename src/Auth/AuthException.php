@@ -1,12 +1,12 @@
 <?php namespace October\Rain\Auth;
 
+use Lang;
 use Config;
 use October\Rain\Exception\ApplicationException;
 use Exception;
-use Lang;
 
 /**
- * Used when user authentication fails. Implements a softer error message.
+ * AuthException used when user authentication fails. Implements a softer error message
  *
  * @package october\auth
  * @author Alexey Bobkov, Samuel Georges
@@ -14,17 +14,17 @@ use Lang;
 class AuthException extends ApplicationException
 {
     /**
-     * @var boolean Use less specific error messages.
+     * @var boolean softErrors uses less specific error messages
      */
     protected $softErrors = false;
 
     /**
-     * @var string Default soft error message.
+     * @var string errorMessage default soft error message
      */
     protected $errorMessage;
 
     /**
-     * Softens a detailed authentication error with a more vague message when
+     * __construct softens a detailed authentication error with a more vague message when
      * the application is not in debug mode. This is for security reasons.
      * @param string $message Error message.
      * @param int $code Error code.

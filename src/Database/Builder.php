@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Database;
 
 use Illuminate\Pagination\Paginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder as BuilderModel;
 use October\Rain\Support\Facades\DbDongle;
 
@@ -17,8 +18,8 @@ class Builder extends BuilderModel
     /**
      * Get an array with the values of a given column.
      *
-     * @param string $column
-     * @param string|null $key
+     * @param  string  $column
+     * @param  string|null  $key
      * @return array
      */
     public function lists($column, $key = null)
@@ -28,9 +29,9 @@ class Builder extends BuilderModel
 
     /**
      * Perform a search on this query for term found in columns.
-     * @param string $term Search query
-     * @param array $columns Table columns to search
-     * @param string $mode Search mode: all, any, exact.
+     * @param  string $term  Search query
+     * @param  array $columns Table columns to search
+     * @param  string $mode  Search mode: all, any, exact.
      * @return self
      */
     public function searchWhere($term, $columns = [], $mode = 'all')
@@ -40,9 +41,9 @@ class Builder extends BuilderModel
 
     /**
      * Add an "or search where" clause to the query.
-     * @param string $term Search query
-     * @param array $columns Table columns to search
-     * @param string $mode Search mode: all, any, exact.
+     * @param  string $term  Search query
+     * @param  array $columns Table columns to search
+     * @param  string $mode  Search mode: all, any, exact.
      * @return self
      */
     public function orSearchWhere($term, $columns = [], $mode = 'all')
@@ -68,29 +69,30 @@ class Builder extends BuilderModel
         }
 
         if ($mode === 'exact') {
-            $this->where(function (Builder $query) use ($columns, $term) {
+            $this->where(function ($query) use ($columns, $term) {
                 foreach ($columns as $field) {
                     if (!strlen($term)) {
                         continue;
                     }
-                    $fieldSql = $this->query->raw(sprintf("lower(%s)", DbDongle::cast($field, 'text')));
-                    $termSql = '%' . trim(mb_strtolower($term)) . '%';
+                    $fieldSql = $this->query->raw(sprintf("lower(%s)", DbDongle::cast($field, 'TEXT')));
+                    $termSql = '%'.trim(mb_strtolower($term)).'%';
                     $query->orWhere($fieldSql, 'LIKE', $termSql);
                 }
             }, null, null, $boolean);
-        } else {
+        }
+        else {
             $words = explode(' ', $term);
             $wordBoolean = $mode === 'any' ? 'or' : 'and';
 
-            $this->where(function (Builder $query) use ($columns, $words, $wordBoolean) {
+            $this->where(function ($query) use ($columns, $words, $wordBoolean) {
                 foreach ($columns as $field) {
-                    $query->orWhere(function (Builder $query) use ($field, $words, $wordBoolean) {
+                    $query->orWhere(function ($query) use ($field, $words, $wordBoolean) {
                         foreach ($words as $word) {
                             if (!strlen($word)) {
                                 continue;
                             }
-                            $fieldSql = $this->query->raw(sprintf("lower(%s)", DbDongle::cast($field, 'text')));
-                            $wordSql = '%' . trim(mb_strtolower($word)) . '%';
+                            $fieldSql = $this->query->raw(sprintf("lower(%s)", DbDongle::cast($field, 'TEXT')));
+                            $wordSql = '%'.trim(mb_strtolower($word)).'%';
                             $query->where($fieldSql, 'LIKE', $wordSql, $wordBoolean);
                         }
                     });
@@ -104,10 +106,10 @@ class Builder extends BuilderModel
     /**
      * Paginate the given query.
      *
-     * @param int $perPage
-     * @param int $currentPage
-     * @param array $columns
-     * @param string $pageName
+     * @param  int  $perPage
+     * @param  int  $currentPage
+     * @param  array  $columns
+     * @param  string $pageName
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function paginate($perPage = null, $currentPage = null, $columns = ['*'], $pageName = 'page')
@@ -147,9 +149,10 @@ class Builder extends BuilderModel
     /**
      * Paginate the given query into a simple paginator.
      *
-     * @param int $perPage
-     * @param int $currentPage
-     * @param array $columns
+     * @param  int  $perPage
+     * @param  int  $currentPage
+     * @param  array  $columns
+     * @param  string $pageName
      * @return \Illuminate\Contracts\Pagination\Paginator
      */
     public function simplePaginate($perPage = null, $currentPage = null, $columns = ['*'], $pageName = 'page')
@@ -186,89 +189,14 @@ class Builder extends BuilderModel
     }
 
     /**
-     * Insert new records or update the existing ones.
-     *
-     * @param  array  $values
-     * @param  array|string  $uniqueBy
-     * @param  array|null  $update
-     * @return int
-     */
-    public function upsert(array $values, $uniqueBy, $update = null)
-    {
-        if (empty($values)) {
-            return 0;
-        }
-
-        if (!is_array(reset($values))) {
-            $values = [$values];
-        }
-
-        if (is_null($update)) {
-            $update = array_keys(reset($values));
-        }
-
-        $values = $this->addTimestampsToValues($values);
-
-        $update = $this->addUpdatedAtToColumns($update);
-
-        return $this->toBase()->upsert($values, $uniqueBy, $update);
-    }
-
-    /**
-     * Add timestamps to the inserted values.
-     *
-     * @param array $values
-     * @return array
-     */
-    protected function addTimestampsToValues(array $values)
-    {
-        if (!$this->model->usesTimestamps()) {
-            return $values;
-        }
-
-        $timestamp = $this->model->freshTimestampString();
-
-        $columns = array_filter([$this->model->getCreatedAtColumn(), $this->model->getUpdatedAtColumn()]);
-
-        foreach ($columns as $column) {
-            foreach ($values as &$row) {
-                $row = array_merge([$column => $timestamp], $row);
-            }
-        }
-
-        return $values;
-    }
-
-    /**
-     * Add the "updated at" column to the updated columns.
-     *
-     * @param array $update
-     * @return array
-     */
-    protected function addUpdatedAtToColumns(array $update)
-    {
-        if (!$this->model->usesTimestamps()) {
-            return $update;
-        }
-
-        $column = $this->model->getUpdatedAtColumn();
-
-        if (!is_null($column) && !array_key_exists($column, $update) && !in_array($column, $update)) {
-            $update[] = $column;
-        }
-
-        return $update;
-    }
-
-    /**
      * Dynamically handle calls into the query instance.
-     * @param string $method
-     * @param array $parameters
+     * @param  string  $method
+     * @param  array   $parameters
      * @return mixed
      */
     public function __call($method, $parameters)
     {
-        if ($this->model->methodExists($scope = 'scope' . ucfirst($method))) {
+        if ($this->model->methodExists($scope = 'scope'.ucfirst($method))) {
             return $this->callScope([$this->model, $scope], $parameters);
         }
 

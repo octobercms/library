@@ -5,33 +5,41 @@ use October\Rain\Auth\AuthException;
 use October\Rain\Auth\Manager;
 
 /**
- * User Preferences model
+ * Preferences model for a user
  */
 class Preferences extends Model
 {
     use \October\Rain\Support\Traits\KeyParser;
 
     /**
-     * @var string The database table used by the model.
+     * @var string table used by the model
      */
     protected $table = 'preferences';
 
+    /**
+     * @var bool timestamps enabled
+     */
     public $timestamps = false;
 
+    /**
+     * @var array cache
+     */
     protected static $cache = [];
 
     /**
-     * @var array List of attribute names which are json encoded and decoded from the database.
+     * @var array jsonable attribute names that are json encoded and decoded from the database
      */
     protected $jsonable = ['value'];
 
     /**
-     * @var \October\Rain\Auth\Models\User A user who owns the preferences
+     * @var \October\Rain\Auth\Models\User userContext is the user that owns the preferences
      */
     public $userContext;
 
     /**
-     * Checks for a supplied user or uses the default logged in. You should override this method.
+     * resolveUser checks for a supplied user or uses the default logged in. You should
+     * override this method
+     *
      * @param mixed $user An optional back-end user object.
      * @return User object
      */
@@ -46,7 +54,7 @@ class Preferences extends Model
     }
 
     /**
-     * Creates this object and sets the user context
+     * forUser creates this object and sets the user context
      */
     public static function forUser($user = null)
     {
@@ -56,7 +64,7 @@ class Preferences extends Model
     }
 
     /**
-     * Returns a setting value by the module (or plugin) name and setting name.
+     * get returns a setting value by the module (or plugin) name and setting name
      * @param string $key Specifies the setting key value, for example 'backend:items.perpage'
      * @param mixed $default The default value to return if the setting doesn't exist in the DB.
      * @return mixed Returns the setting value loaded from the database or the default value.
@@ -82,7 +90,7 @@ class Preferences extends Model
     }
 
     /**
-     * Stores a setting value to the database.
+     * set stores a setting value to the database
      * @param string $key Specifies the setting key value, for example 'backend:items.perpage'
      * @param mixed $value The setting value to store, serializable.
      * If the user is not provided the currently authenticated user will be used. If there is no
@@ -114,7 +122,7 @@ class Preferences extends Model
     }
 
     /**
-     * Resets a setting value by deleting the record.
+     * reset a setting value by deleting the record
      * @param string $key Specifies the setting key value.
      * @return bool
      */
@@ -138,7 +146,7 @@ class Preferences extends Model
     }
 
     /**
-     * Returns a record
+     * findRecord returns a record for a user
      * @return self
      */
     public static function findRecord($key, $user = null)
@@ -147,7 +155,9 @@ class Preferences extends Model
     }
 
     /**
-     * Scope to find a setting record for the specified module (or plugin) name, setting name and user.
+     * scopeApplyKeyAndUser to find a setting record for the specified module (or plugin) name,
+     * setting name and user.
+     *
      * @param string $key Specifies the setting key value, for example 'backend:items.perpage'
      * @param mixed $default The default value to return if the setting doesn't exist in the DB.
      * @param mixed $user An optional user object.
@@ -170,7 +180,7 @@ class Preferences extends Model
     }
 
     /**
-     * Builds a cache key for the preferences record.
+     * getCacheKey builds a cache key for the preferences record
      * @return string
      */
     protected function getCacheKey($item, $user)

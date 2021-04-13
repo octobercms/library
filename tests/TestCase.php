@@ -23,11 +23,7 @@ class TestCase extends PHPUnit\Framework\TestCase
     }
 
     /**
-     * Stub for `assertFileNotExists` to allow compatibility with both PHPUnit 8 and 9.
-     *
-     * @param string $filename
-     * @param string $message
-     * @return void
+     * assertFileNotExists allows compatibility with PHPUnit 8 and 9
      */
     public static function assertFileNotExists(string $filename, string $message = ''): void
     {
@@ -37,5 +33,18 @@ class TestCase extends PHPUnit\Framework\TestCase
         }
 
         Assert::assertFileNotExists($filename, $message);
+    }
+
+    /**
+     * assertRegExp allows compatibility with PHPUnit 8 and 9
+     */
+    public static function assertRegExp(string $pattern, string $string, string $message = ''): void
+    {
+        if (method_exists(Assert::class, 'assertMatchesRegularExpression')) {
+            Assert::assertMatchesRegularExpression($pattern, $string, $message);
+            return;
+        }
+
+        Assert::assertRegExp($pattern, $string, $message);
     }
 }

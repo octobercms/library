@@ -12,29 +12,26 @@ use Exception;
  */
 class Definitions
 {
-
     /**
-     * Entry point to request a definition set.
-     * @param $type string
-     * @return array
+     * getDefinitions is an entry point to request a definition set
      */
-    public static function get($type)
+    public static function get(string $type): array
     {
         return (new self)->getDefinitions($type);
     }
 
     /**
-     * Returns a definition set from config or from the default sets.
-     * @param $type string
-     * @return array
+     * getDefinitions returns a definition set from config or from the default sets.
      */
-    public function getDefinitions($type)
+    public function getDefinitions(string $type): array
     {
-        if (!method_exists($this, $type)) {
+        $typeMethod = studly_case($type);
+
+        if (!method_exists($this, $typeMethod)) {
             throw new Exception(sprintf('No such definition set exists for "%s"', $type));
         }
 
-        return (array) Config::get('cms.fileDefinitions.'.$type, $this->$type());
+        return (array) Config::get('cms.file_definitions.'.$type, $this->$typeMethod());
     }
 
     /**
@@ -103,6 +100,7 @@ class Definitions
             'png',
             'webp',
             'gif',
+            'svg',
             'js',
             'map',
             'ico',
@@ -160,6 +158,7 @@ class Definitions
             'js',
             'woff',
             'woff2',
+            'svg',
             'ttf',
             'eot',
             'json',

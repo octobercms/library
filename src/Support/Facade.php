@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Facade as FacadeParent;
  */
 class Facade extends FacadeParent
 {
-
     /**
      * @inheritDoc
      */

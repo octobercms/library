@@ -12,7 +12,6 @@ class DropDownOptions
 
 class SyntaxParserTest extends TestCase
 {
-
     public function testParseToTwig()
     {
         $content = '<h1>{text name="websiteName" label="Website Name"}Our wonderful website{/text}</h1>';
@@ -28,8 +27,8 @@ class SyntaxParserTest extends TestCase
     {
         $content = '';
         $content .= '{repeater name="websiteRepeater" label="Website Repeater"}'.PHP_EOL;
-            $content .= '<h1>{text name="websiteName" label="Website Name"}Our wonderful website{/text}</h1>'.PHP_EOL;
-            $content .= '{textarea name="websiteContent" label="Website Content"}Here are all the reasons we like our website{/textarea}'.PHP_EOL;
+        $content .= '<h1>{text name="websiteName" label="Website Name"}Our wonderful website{/text}</h1>'.PHP_EOL;
+        $content .= '{textarea name="websiteContent" label="Website Content"}Here are all the reasons we like our website{/textarea}'.PHP_EOL;
         $content .= '{/repeater}'.PHP_EOL;
 
         $result = Parser::parse($content)->toTwig();
@@ -64,8 +63,8 @@ class SyntaxParserTest extends TestCase
     {
         $content = '';
         $content .= '{repeater name="websiteRepeater" label="Website Repeater"}'.PHP_EOL;
-            $content .= '<h1>{text name="websiteName" label="Website Name"}Our wonderful website{/text}</h1>'.PHP_EOL;
-            $content .= '{textarea name="websiteContent" label="Website Content"}Here are all the reasons we like our website{/textarea}'.PHP_EOL;
+        $content .= '<h1>{text name="websiteName" label="Website Name"}Our wonderful website{/text}</h1>'.PHP_EOL;
+        $content .= '{textarea name="websiteContent" label="Website Content"}Here are all the reasons we like our website{/textarea}'.PHP_EOL;
         $content .= '{/repeater}'.PHP_EOL;
 
         $result = Parser::parse($content)->toView();
@@ -115,8 +114,8 @@ class SyntaxParserTest extends TestCase
     {
         $content = '';
         $content .= '{repeater name="websiteRepeater" label="Website Repeater"}'.PHP_EOL;
-            $content .= '<h1>{text name="websiteName" label="Website Name"}Our wonderful website{/text}</h1>'.PHP_EOL;
-            $content .= '{textarea name="websiteContent" label="Website Content"}Here are all the reasons we like our website{/textarea}'.PHP_EOL;
+        $content .= '<h1>{text name="websiteName" label="Website Name"}Our wonderful website{/text}</h1>'.PHP_EOL;
+        $content .= '{textarea name="websiteContent" label="Website Content"}Here are all the reasons we like our website{/textarea}'.PHP_EOL;
         $content .= '{/repeater}'.PHP_EOL;
         $syntax = Parser::parse($content);
 
@@ -221,7 +220,7 @@ class SyntaxParserTest extends TestCase
 
     public function testParseDropDownVariableToEditInvalidKeyException()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $content = '{variable type="dropdown" name="optionList" label="Option List" options="^:one|*:two"}'
             . '{/variable}';
@@ -231,7 +230,7 @@ class SyntaxParserTest extends TestCase
 
     public function testParseDropDownVariableToEditInvalidStaticMethodException()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $content = '{variable type="dropdown" name="optionList" label="Option List" options="\Invalid\Class\Path::get"}'
             . '{/variable}';

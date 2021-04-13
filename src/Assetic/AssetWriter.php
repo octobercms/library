@@ -9,8 +9,6 @@
  * file that was distributed with this source code.
  */
 
-namespace Assetic;
-
 use October\Rain\Assetic\Asset\AssetInterface;
 use October\Rain\Assetic\Util\VarUtils;
 

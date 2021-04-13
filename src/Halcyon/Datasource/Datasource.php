@@ -1,56 +1,62 @@
 <?php namespace October\Rain\Halcyon\Datasource;
 
+use October\Rain\Halcyon\Processors\Processor;
+
 /**
- * Datasource base class.
+ * Datasource base class
+ *
+ * @package october\halcyon
+ * @author Alexey Bobkov, Samuel Georges
  */
 class Datasource
 {
     use \October\Rain\Support\Traits\Emitter;
 
     /**
-     * @var bool Indicates if the record is currently being force deleted.
+     * @var bool forceDeleting indicates if the record is currently being force deleted
      */
     protected $forceDeleting = false;
 
     /**
-     * The query post processor implementation.
-     *
      * @var \October\Rain\Halcyon\Processors\Processor
      */
     protected $postProcessor;
 
     /**
-     * Get the query post processor used by the connection.
-     *
-     * @return \October\Rain\Halcyon\Processors\Processor
+     * getPostProcessor used by the connection
      */
-    public function getPostProcessor()
+    public function getPostProcessor(): Processor
     {
         return $this->postProcessor;
     }
 
     /**
-     * Force the deletion of a record against the datasource
-     *
-     * @param  string  $dirName
-     * @param  string  $fileName
-     * @param  string  $extension
-     * @return void
+     * delete against the datasource
      */
-    public function forceDelete(string $dirName, string $fileName, string $extension)
+    public function delete(string $dirName, string $fileName, string $extension): bool
     {
-        $this->forceDeleting = true;
-
-        $this->delete($dirName, $fileName, $extension);
-
-        $this->forceDeleting = false;
+        return true;
     }
 
     /**
-     * Generate a cache key unique to this datasource.
+     * forceDelete a record against the datasource
      */
-    public function makeCacheKey($name = '')
+    public function forceDelete(string $dirName, string $fileName, string $extension): bool
     {
-        return crc32($name);
+        $this->forceDeleting = true;
+
+        $result = $this->delete($dirName, $fileName, $extension);
+
+        $this->forceDeleting = false;
+
+        return $result;
+    }
+
+    /**
+     * makeCacheKey unique to this datasource
+     */
+    public function makeCacheKey(string $name = ''): string
+    {
+        return (string) crc32($name);
     }
 }

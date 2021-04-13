@@ -29,8 +29,11 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
     public function register()
     {
         Model::clearBootedModels();
+
         Model::clearExtendedClasses();
+
         Model::flushDuplicateCache();
+
         Model::flushEventListeners();
 
         $this->registerEloquentFactory();
@@ -83,7 +86,7 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
      */
     protected function swapSchemaBuilderBlueprint()
     {
-        $this->app['events']->listen('db.schema.getBuilder', function (\Illuminate\Database\Schema\Builder $builder) {
+        $this->app['events']->listen('db.schema.getBuilder', function ($builder) {
             $builder->blueprintResolver(function ($table, $callback) {
                 return new Blueprint($table, $callback);
             });

@@ -2,15 +2,15 @@
 
 use Log;
 use Event;
-use Closure;
 use Response;
-use Exception;
-use Throwable;
-use ReflectionClass;
-use ReflectionFunction;
-use October\Rain\Exception\AjaxException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use October\Rain\Exception\AjaxException;
+use ReflectionFunction;
+use ReflectionClass;
+use Throwable;
+use Exception;
+use Closure;
 
 class Handler extends ExceptionHandler
 {
@@ -44,6 +44,10 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $exception)
     {
+        if (!$this->hasBootedEvents()) {
+            return;
+        }
+
         /**
          * @event exception.beforeReport
          * Fires before the exception has been reported
@@ -75,7 +79,7 @@ class Handler extends ExceptionHandler
          * Example usage (performs additional reporting on the exception)
          *
          *     Event::listen('exception.report', function (\Exception $exception) {
-         *         app('sentry')->captureException($exception);
+         *         App::make('sentry')->captureException($exception);
          *     });
          */
         Event::fire('exception.report', [$exception]);
@@ -90,18 +94,19 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        if (!class_exists('Event')) {
+        if (!$this->hasBootedEvents()) {
             return parent::render($request, $exception);
         }
 
         $statusCode = $this->getStatusCode($exception);
+
         $response = $this->callCustomHandlers($exception);
 
-        if (!is_null($response)) {
-            if ($response instanceof \Symfony\Component\HttpFoundation\Response) {
-                return $response;
-            }
+        if ($response instanceof \Symfony\Component\HttpFoundation\Response) {
+            return $response;
+        }
 
+        if (!is_null($response)) {
             return Response::make($response, $statusCode);
         }
 
@@ -205,7 +210,7 @@ class Handler extends ExceptionHandler
     protected function handlesException(Closure $handler, $exception)
     {
         $reflection = new ReflectionFunction($handler);
-        return $reflection->getNumberOfParameters() == 0 || $this->hints($reflection, $exception);
+        return $reflection->getNumberOfParameters() === 0 || $this->hints($reflection, $exception);
     }
 
     /**
@@ -221,10 +226,30 @@ class Handler extends ExceptionHandler
         $expected = $parameters[0];
 
         try {
-            return (new ReflectionClass($expected->getType()->getName()))
-                ->isInstance($exception);
-        } catch (Throwable $t) {
+            return (new ReflectionClass($expected->getType()->getName()))->isInstance($exception);
+        }
+        catch (Throwable $t) {
             return false;
         }
+    }
+
+    /**
+     * hasBootedEvents checks if we can broadcast events
+     */
+    protected function hasBootedEvents(): bool
+    {
+        if (!class_exists('Event')) {
+            return false;
+        }
+
+        if (!$app = Event::getFacadeApplication()) {
+            return false;
+        }
+
+        if (!$app->bound('events')) {
+            return false;
+        }
+
+        return true;
     }
 }

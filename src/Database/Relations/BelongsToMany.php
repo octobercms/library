@@ -5,18 +5,21 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as CollectionBase;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany as BelongsToManyBase;
 
+/**
+ * BelongsToMany
+ */
 class BelongsToMany extends BelongsToManyBase
 {
     use DeferOneOrMany;
     use DefinedConstraints;
 
     /**
-     * @var boolean This relation object is a 'count' helper.
+     * @var boolean countMode sets this relation object is a 'count' helper
      */
     public $countMode = false;
 
     /**
-     * @var boolean When a join is not used, don't select aliased columns.
+     * @var boolean orphanMode used when a join is not used, don't select aliased columns
      */
     public $orphanMode = false;
 
@@ -56,9 +59,7 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
-     * Get the select columns for the relation query.
-     *
-     * @param  array  $columns
+     * shouldSelect gets the select columns for the relation query
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     protected function shouldSelect(array $columns = ['*'])
@@ -67,7 +68,7 @@ class BelongsToMany extends BelongsToManyBase
             return $this->table.'.'.$this->foreignPivotKey.' as pivot_'.$this->foreignPivotKey;
         }
 
-        if ($columns == ['*']) {
+        if ($columns === ['*']) {
             $columns = [$this->related->getTable().'.*'];
         }
 
@@ -79,29 +80,19 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
-     * Save the supplied related model with deferred binding support.
+     * save the supplied related model with deferred binding support.
      */
     public function save(Model $model, array $pivotData = [], $sessionKey = null)
     {
         $model->save();
+
         $this->add($model, $sessionKey, $pivotData);
+
         return $model;
     }
 
     /**
-     * Override sync() method of BelongToMany relation in order to flush the query cache.
-     * @param array $ids
-     * @param bool $detaching
-     * @return array
-     */
-    public function sync($ids, $detaching = true)
-    {
-        parent::sync($ids, $detaching);
-        $this->flushDuplicateCache();
-    }
-
-    /**
-     * Create a new instance of this related model with deferred binding support.
+     * create a new instance of this related model with deferred binding support.
      */
     public function create(array $attributes = [], array $pivotData = [], $sessionKey = null)
     {
@@ -113,111 +104,97 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
-     * Override attach() method of BelongToMany relation.
-     * This is necessary in order to fire 'model.relation.beforeAttach', 'model.relation.afterAttach' events
+     * attach overrides attach() method of BelongToMany relation
+     * This is necessary in order to fire 'model.relation.beforeAttach', 'model.relation.attach' events
      * @param mixed $id
      * @param array $attributes
      * @param bool  $touch
      */
     public function attach($id, array $attributes = [], $touch = true)
     {
-        $insertData = $this->formatAttachRecords($this->parseIds($id), $attributes);
-        $attachedIdList = array_pluck($insertData, $this->relatedPivotKey);
-
         /**
          * @event model.relation.beforeAttach
          * Called before creating a new relation between models (only for BelongsToMany relation)
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.beforeAttach', function (string $relationName, array $attachedIdList, array $insertData) use (\October\Rain\Database\Model $model) {
-         *         if (!$model->isRelationValid($attachedIdList)) {
-         *             throw new \Exception("Invalid relation!");
+         *     $model->bindEvent('model.relation.beforeAttach', function (string $relationName, mixed $id, array $insertData) use (\October\Rain\Database\Model $model) {
+         *         if (!$model->isRelationValid($id)) {
          *             return false;
          *         }
          *     });
          *
          */
-        if ($this->parent->fireEvent('model.relation.beforeAttach', [$this->relationName, $attachedIdList, $insertData], true) === false) {
+        if ($this->parent->fireEvent('model.relation.beforeAttach', [$this->relationName, &$id, &$attributes], true) === false) {
             return;
         }
 
-        // Here we will insert the attachment records into the pivot table. Once we have
-        // inserted the records, we will touch the relationships if necessary and the
-        // function will return. We can parse the IDs before inserting the records.
-        $this->newPivotStatement()->insert($insertData);
-
-        if ($touch) {
-            $this->touchIfTouching();
-        }
+        /*
+         * See \Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
+         */
+        parent::attach($id, $attributes, $touch);
 
         /**
-         * @event model.relation.afterAttach
+         * @event model.relation.attach
          * Called after creating a new relation between models (only for BelongsToMany relation)
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.afterAttach', function (string $relationName, array $attachedIdList, array $insertData) use (\October\Rain\Database\Model $model) {
-         *         traceLog("New relation {$relationName} was created", $attachedIdList);
+         *     $model->bindEvent('model.relation.attach', function (string $relationName, mixed $id, array $insertData) use (\October\Rain\Database\Model $model) {
+         *         traceLog("New relation {$relationName} was created", $id);
          *     });
          *
          */
-        $this->parent->fireEvent('model.relation.afterAttach', [$this->relationName, $attachedIdList, $insertData]);
+        $this->parent->fireEvent('model.relation.attach', [$this->relationName, $id, $attributes]);
     }
 
     /**
-     * Override detach() method of BelongToMany relation.
-     * This is necessary in order to fire 'model.relation.beforeDetach', 'model.relation.afterDetach' events
+     * detach overrides detach() method of BelongToMany relation.
+     * This is necessary in order to fire 'model.relation.beforeDetach', 'model.relation.detach' events
      * @param null $ids
      * @param bool $touch
      * @return int|void
      */
     public function detach($ids = null, $touch = true)
     {
-        $attachedIdList = $this->parseIds($ids);
-        if (empty($attachedIdList)) {
-            $attachedIdList = $this->newPivotQuery()->lists($this->relatedPivotKey);
-        }
-
         /**
          * @event model.relation.beforeDetach
          * Called before removing a relation between models (only for BelongsToMany relation)
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.beforeDetach', function (string $relationName, array $attachedIdList) use (\October\Rain\Database\Model $model) {
-         *         if (!$model->isRelationValid($attachedIdList)) {
-         *             throw new \Exception("Invalid relation!");
+         *     $model->bindEvent('model.relation.beforeDetach', function (string $relationName, array $ids) use (\October\Rain\Database\Model $model) {
+         *         if (!$model->isRelationValid($ids)) {
          *             return false;
          *         }
          *     });
          *
          */
-        if ($this->parent->fireEvent('model.relation.beforeDetach', [$this->relationName, $attachedIdList], true) === false) {
+        if ($this->parent->fireEvent('model.relation.beforeDetach', [$this->relationName, &$ids], true) === false) {
             return;
         }
 
-        /**
-         * @see Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
+        /*
+         * See \Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
          */
-        parent::detach($attachedIdList, $touch);
+        $result = parent::detach($ids, $touch);
 
         /**
-         * @event model.relation.afterDetach
+         * @event model.relation.detach
          * Called after removing a relation between models (only for BelongsToMany relation)
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.afterDetach', function (string $relationName, array $attachedIdList) use (\October\Rain\Database\Model $model) {
-         *         traceLog("Relation {$relationName} was removed", $attachedIdList);
+         *     $model->bindEvent('model.relation.detach', function (string $relationName, array $ids) use (\October\Rain\Database\Model $model) {
+         *         traceLog("Relation {$relationName} was removed", $ids);
          *     });
          *
          */
-        $this->parent->fireEvent('model.relation.afterDetach', [$this->relationName, $attachedIdList]);
+        $this->parent->fireEvent('model.relation.detach', [$this->relationName, $ids, $result]);
     }
 
     /**
-     * Adds a model to this relationship type.
+     * add a model to this relationship type.
      */
     public function add(Model $model, $sessionKey = null, $pivotData = [])
     {
@@ -226,7 +203,7 @@ class BelongsToMany extends BelongsToManyBase
             $sessionKey = null;
         }
 
-        if ($sessionKey === null || $sessionKey === false) {
+        if ($sessionKey === null) {
             $this->attach($model->getKey(), $pivotData);
             $this->parent->reloadRelations($this->relationName);
         }
@@ -236,7 +213,7 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
-     * Removes a model from this relationship type.
+     * remove a model from this relationship type.
      */
     public function remove(Model $model, $sessionKey = null)
     {
@@ -250,7 +227,7 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
-     * Get a paginator for the "select" statement. Complies with October Rain.
+     * paginate gets a paginator for the "select" statement that complies with October Rain
      *
      * @param  int    $perPage
      * @param  int    $currentPage
@@ -270,7 +247,7 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
-     * Create a new pivot model instance.
+     * newPivot creates a new pivot model instance
      *
      * @param  array  $attributes
      * @param  bool   $exists
@@ -287,14 +264,14 @@ class BelongsToMany extends BelongsToManyBase
          * Laravel looks to the related model
          */
         if (empty($pivot)) {
-            $pivot = $this->related->newPivot($this->parent, $attributes, $this->table, $exists);
+            $pivot = $this->related->newPivot($this->parent, $attributes, $this->table, $exists, $this->using);
         }
 
         return $pivot->setPivotKeys($this->foreignPivotKey, $this->relatedPivotKey);
     }
 
     /**
-     * Helper for setting this relationship using various expected
+     * setSimpleValue is a helper for setting this relationship using various expected
      * values. For example, $model->relation = $value;
      */
     public function setSimpleValue($value)
@@ -353,8 +330,8 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
-     * Helper for getting this relationship simple value,
-     * generally useful with form values.
+     * getSimpleValue is a helper for getting this relationship simple value,
+     * generally useful with form values
      */
     public function getSimpleValue()
     {
@@ -377,8 +354,7 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
-     * Get all of the IDs for the related models, with deferred binding support
-     *
+     * allRelatedIds for the related models, with deferred binding support
      * @param string $sessionKey
      * @return \October\Rain\Support\Collection
      */
@@ -394,8 +370,7 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
-     * Get the fully qualified foreign key for the relation.
-     *
+     * getForeignKey gets the fully qualified foreign key for the relation
      * @return string
      */
     public function getForeignKey()
@@ -404,21 +379,11 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
-     * Get the fully qualified "other key" for the relation.
-     *
+     * getOtherKey gets the fully qualified "other key" for the relation
      * @return string
      */
     public function getOtherKey()
     {
         return $this->table.'.'.$this->relatedPivotKey;
-    }
-
-    /**
-     * @deprecated Use allRelatedIds instead. Remove if year >= 2018.
-     */
-    public function getRelatedIds($sessionKey = null)
-    {
-        traceLog('Method BelongsToMany::getRelatedIds has been deprecated, use BelongsToMany::allRelatedIds instead.');
-        return $this->allRelatedIds($sessionKey)->all();
     }
 }

@@ -30,7 +30,7 @@ trait Singleton
     {
         static::$instance = null;
     }
-    
+
     /**
      * Constructor.
      */

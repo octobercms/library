@@ -2,22 +2,23 @@
 
 use RuntimeException;
 
+/**
+ * CreateFileException
+ *
+ * @package october\halcyon
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class CreateFileException extends RuntimeException
 {
     /**
-     * Name of the affected file path.
-     *
-     * @var string
+     * @var string invalidPath of the affected directory path
      */
     protected $invalidPath;
 
     /**
-     * Set the affected file path.
-     *
-     * @param  string   $model
-     * @return $this
+     * setInvalidPath sets the affected directory path
      */
-    public function setInvalidPath($path)
+    public function setInvalidPath(string $path): CreateFileException
     {
         $this->invalidPath = $path;
 
@@ -27,11 +28,9 @@ class CreateFileException extends RuntimeException
     }
 
     /**
-     * Get the affected file path.
-     *
-     * @return string
+     * getInvalidPath is the affected directory path
      */
-    public function getInvalidPath()
+    public function getInvalidPath(): string
     {
         return $this->invalidPath;
     }

@@ -6,22 +6,25 @@ use October\Rain\Support\Facades\DbDongle;
 use October\Rain\Database\Attach\File as FileModel;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+/**
+ * AttachOneOrMany
+ */
 trait AttachOneOrMany
 {
     use DeferOneOrMany;
 
     /**
-     * @var string The "name" of the relationship.
+     * @var string relationName is the "name" of the relationship
      */
     protected $relationName;
 
     /**
-     * @var boolean Default value for file public or protected state.
+     * @var boolean public is a default value for file public or protected state
      */
     protected $public;
 
     /**
-     * Determines if the file should be flagged "public" or not.
+     * isPublic determines if the file should be flagged "public" or not
      */
     public function isPublic()
     {
@@ -33,7 +36,7 @@ trait AttachOneOrMany
     }
 
     /**
-     * Set the field (relation name) constraint on the query.
+     * addConstraints sets the field (relation name) constraint on the query
      * @return void
      */
     public function addConstraints()
@@ -50,8 +53,7 @@ trait AttachOneOrMany
     }
 
     /**
-     * Add the constraints for a relationship count query.
-     *
+     * getRelationExistenceQuery adds the constraints for a relationship count query
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @param  \Illuminate\Database\Eloquent\Builder  $parentQuery
      * @param  array|mixed  $columns
@@ -59,7 +61,7 @@ trait AttachOneOrMany
      */
     public function getRelationExistenceQuery(Builder $query, Builder $parentQuery, $columns = ['*'])
     {
-        if ($parentQuery->getQuery()->from == $query->getQuery()->from) {
+        if ($parentQuery->getQuery()->from === $query->getQuery()->from) {
             $query = $this->getRelationExistenceQueryForSelfJoin($query, $parentQuery, $columns);
         }
         else {
@@ -74,8 +76,7 @@ trait AttachOneOrMany
     }
 
     /**
-     * Add the constraints for a relationship query on the same table.
-     *
+     * getRelationExistenceQueryForSelfRelation adds the constraints for a relationship query on the same table
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @param  \Illuminate\Database\Eloquent\Builder  $parentQuery
      * @param  array|mixed  $columns
@@ -95,8 +96,7 @@ trait AttachOneOrMany
     }
 
     /**
-     * Set the field constraint for an eager load of the relation.
-     *
+     * addEagerConstraints sets the field constraint for an eager load of the relation
      * @param  array  $models
      * @return void
      */
@@ -108,7 +108,7 @@ trait AttachOneOrMany
     }
 
     /**
-     * Save the supplied related model.
+     * save the supplied related model
      */
     public function save(Model $model, $sessionKey = null)
     {
@@ -132,7 +132,7 @@ trait AttachOneOrMany
     }
 
     /**
-     * Create a new instance of this related model.
+     * create a new instance of this related model
      */
     public function create(array $attributes = [], $sessionKey = null)
     {
@@ -157,7 +157,7 @@ trait AttachOneOrMany
     }
 
     /**
-     * Adds a model to this relationship type.
+     * add a model to this relationship type
      */
     public function add(Model $model, $sessionKey = null)
     {
@@ -166,6 +166,23 @@ trait AttachOneOrMany
         }
 
         if ($sessionKey === null) {
+            /**
+             * @event model.relation.beforeAdd
+             * Called before adding a relation to the model (for AttachOneOrMany, HasOneOrMany & MorphOneOrMany relations)
+             *
+             * Example usage:
+             *
+             *     $model->bindEvent('model.relation.beforeAdd', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
+             *         if ($relationName === 'some_relation') {
+             *             return false;
+             *         }
+             *     });
+             *
+             */
+            if ($this->parent->fireEvent('model.relation.beforeAdd', [$this->relationName, $model], true) === false) {
+                return;
+            }
+
             // Delete siblings for single attachments
             if ($this instanceof AttachOne) {
                 $this->delete();
@@ -185,16 +202,30 @@ trait AttachOneOrMany
             else {
                 $this->parent->reloadRelations($this->relationName);
             }
+
+            /**
+             * @event model.relation.add
+             * Called after adding a relation to the model (for AttachOneOrMany, HasOneOrMany & MorphOneOrMany relations)
+             *
+             * Example usage:
+             *
+             *     $model->bindEvent('model.relation.add', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
+             *         $relatedClass = get_class($relatedModel);
+             *         $modelClass = get_class($model);
+             *         traceLog("{$relatedClass} was added as {$relationName} to {$modelClass}.");
+             *     });
+             *
+             */
+            $this->parent->fireEvent('model.relation.add', [$this->relationName, $model]);
         }
         else {
             $this->parent->bindDeferred($this->relationName, $model, $sessionKey);
         }
     }
-    
+
     /**
-     * Attach an array of models to the parent instance with deferred binding support.
+     * addMany attaches an array of models to the parent instance with deferred binding support
      * @param  array  $models
-     * @return void
      */
     public function addMany($models, $sessionKey = null)
     {
@@ -204,11 +235,28 @@ trait AttachOneOrMany
     }
 
     /**
-     * Removes a model from this relationship type.
+     * remove a model from this relationship type
      */
     public function remove(Model $model, $sessionKey = null)
     {
         if ($sessionKey === null) {
+            /**
+             * @event model.relation.beforeRemove
+             * Called before removing a relation to the model (for AttachOneOrMany, HasOneOrMany & MorphOneOrMany relations)
+             *
+             * Example usage:
+             *
+             *     $model->bindEvent('model.relation.beforeRemove', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
+             *         if ($relationName === 'perm_relation') {
+             *             return false;
+             *         }
+             *     });
+             *
+             */
+            if ($this->parent->fireEvent('model.relation.beforeRemove', [$this->relationName, $model], true) === false) {
+                return;
+            }
+
             $options = $this->parent->getRelationDefinition($this->relationName);
 
             if (array_get($options, 'delete', false)) {
@@ -233,6 +281,21 @@ trait AttachOneOrMany
             else {
                 $this->parent->reloadRelations($this->relationName);
             }
+
+            /**
+             * @event model.relation.remove
+             * Called after removing a relation to the model (for AttachOneOrMany, HasOneOrMany & MorphOneOrMany relations)
+             *
+             * Example usage:
+             *
+             *     $model->bindEvent('model.relation.remove', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
+             *         $relatedClass = get_class($relatedModel);
+             *         $modelClass = get_class($model);
+             *         traceLog("{$relatedClass} was removed from {$modelClass}.");
+             *     });
+             *
+             */
+            $this->parent->fireEvent('model.relation.remove', [$this->relationName, $model]);
         }
         else {
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);
@@ -240,7 +303,7 @@ trait AttachOneOrMany
     }
 
     /**
-     * Returns true if the specified value can be used as the data attribute.
+     * isValidFileData returns true if the specified value can be used as the data attribute
      */
     protected function isValidFileData($value)
     {
@@ -256,7 +319,7 @@ trait AttachOneOrMany
     }
 
     /**
-     * Creates a file object suitable for validation, called from
+     * makeValidationFile creates a file object suitable for validation, called from
      * the `getValidationValue` method. Value can be a file model,
      * UploadedFile object (expected) or potentially a string.
      *
@@ -284,7 +347,7 @@ trait AttachOneOrMany
     }
 
     /**
-     * Get the foreign key for the relationship.
+     * getForeignKey gets the foreign key for the relationship
      * @return string
      */
     public function getForeignKey()
@@ -293,7 +356,7 @@ trait AttachOneOrMany
     }
 
     /**
-     * Get the associated "other" key of the relationship.
+     * getOtherKey gets the associated "other" key of the relationship
      * @return string
      */
     public function getOtherKey()

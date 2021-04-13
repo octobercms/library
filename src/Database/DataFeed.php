@@ -16,6 +16,7 @@ use Exception;
  */
 class DataFeed
 {
+
     /**
      * @var string The attribute to use for each model tag name.
      */
@@ -63,10 +64,6 @@ class DataFeed
 
     /**
      * Add a new Builder to the feed collection
-     * @param string $tag
-     * @param \Closure|EloquentModel|mixed $item
-     * @param string|null $orderBy
-     * @return DataFeed|void
      */
     public function add($tag, $item, $orderBy = null)
     {
@@ -92,7 +89,6 @@ class DataFeed
 
     /**
      * Count the number of results from the generic union query
-     * @return int
      */
     public function count()
     {
@@ -105,15 +101,13 @@ class DataFeed
         foreach ($bindings as $type => $params) {
             $result = $result->setBindings($params, $type);
         }
-
+        
         $result = $result->first();
         return $result->total;
     }
 
     /**
      * Executes the generic union query and eager loads the results in to the added models
-     * @return Collection
-     * @throws Exception if the model is not found in the collection
      */
     public function get()
     {
@@ -168,7 +162,6 @@ class DataFeed
 
     /**
      * Returns the SQL expression used in the generic union
-     * @return string
      */
     public function toSql()
     {
@@ -178,9 +171,6 @@ class DataFeed
 
     /**
      * Sets the default sorting field and direction.
-     * @param string $field
-     * @param string $direction
-     * @return DataFeed
      */
     public function orderBy($field, $direction = null)
     {
@@ -194,9 +184,6 @@ class DataFeed
 
     /**
      * Limits the number of results displayed.
-     * @param int $count
-     * @param int|null $offset
-     * @return DataFeed
      */
     public function limit($count, $offset = null)
     {
@@ -214,7 +201,6 @@ class DataFeed
 
     /**
      * Creates a generic union query of each added collection
-     * @return Builder
      */
     protected function processCollection()
     {
@@ -224,16 +210,13 @@ class DataFeed
 
         $lastQuery = null;
         foreach ($this->collection as $tag => $data) {
-            $item = $data['item'] ?? null;
-            $orderBy = $data['orderBy'] ?? null;
-            $keyName = $data['keyName'] ?? null;
-
+            extract($data);
             $cleanQuery = clone $item->getQuery();
             $model = $item->getModel();
 
             $sorting = $model->getTable() . '.';
             $sorting .= $orderBy ?: $this->sortField;
-
+            
             // Flush the select and add ID and tag
             $conditionalTagSelect = (Db::connection()->getDriverName() === 'pgsql') ?
                 "CAST('%s' as text) as %s" :
@@ -245,7 +228,7 @@ class DataFeed
             $cleanQuery = $cleanQuery->select(Db::raw($idSelect))
                 ->addSelect(Db::raw($tagSelect))
                 ->addSelect(Db::raw($sortSelect));
-
+            
             // Union this query with the previous one
             if ($lastQuery) {
                 if ($this->removeDuplicates) {
@@ -263,31 +246,27 @@ class DataFeed
 
     /**
      * Returns a prepared model by its tag name.
-     * @param string $tag
-     * @return EloquentModel|mixed|null
-     * @throws Exception if the model is not found in the collection
+     * @return Model
      */
     protected function getModelByTag($tag)
     {
-        return $this->getDataByTag($tag)['item'] ?? null;
+        extract($this->getDataByTag($tag));
+        return $item;
     }
 
     /**
      * Returns a model key name by its tag name.
-     * @param string $tag
-     * @return string|null
-     * @throws Exception if the model is not found in the collection
+     * @return Model
      */
     protected function getKeyNameByTag($tag)
     {
-        return $this->getDataByTag($tag)['keyName'] ?? null;
+        extract($this->getDataByTag($tag));
+        return $keyName;
     }
 
     /**
      * Returns a data stored about an item by its tag name.
-     * @param string $tag
      * @return array
-     * @throws Exception if the model is not found in the collection
      */
     protected function getDataByTag($tag)
     {

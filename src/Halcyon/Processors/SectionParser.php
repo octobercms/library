@@ -4,7 +4,7 @@ use October\Rain\Parse\Ini;
 use October\Rain\Support\Str;
 
 /**
- * This class parses CMS object files (pages, partials and layouts).
+ * SectionParser parses CMS object files (pages, partials and layouts).
  * Returns the structured file information.
  *
  * @package october\halcyon
@@ -132,13 +132,13 @@ class SectionParser
 
             $result['markup'] = $sections[2];
         }
-        elseif ($count == 2) {
+        elseif ($count === 2) {
             $result['settings'] = @$iniParser->parse($sections[0], true)
                 ?: [self::ERROR_INI => $sections[0]];
 
             $result['markup'] = $sections[1];
         }
-        elseif ($count == 1) {
+        elseif ($count === 1) {
             $result['markup'] = $sections[0];
         }
 
@@ -168,11 +168,11 @@ class SectionParser
             $result['code'] = self::calculateLinePosition($content);
             $result['markup'] = self::calculateLinePosition($content, 2);
         }
-        elseif ($count == 2) {
+        elseif ($count === 2) {
             $result['settings'] = self::adjustLinePosition($content);
             $result['markup'] = self::calculateLinePosition($content);
         }
-        elseif ($count == 1) {
+        elseif ($count === 1) {
             $result['markup'] = 1;
         }
 
@@ -190,11 +190,11 @@ class SectionParser
         $count = 0;
         $lines = explode(PHP_EOL, $content);
         foreach ($lines as $number => $line) {
-            if (trim($line) == self::SECTION_SEPARATOR) {
+            if (trim($line) === self::SECTION_SEPARATOR) {
                 $count++;
             }
 
-            if ($count == $instance) {
+            if ($count === $instance) {
                 return static::adjustLinePosition($content, $number);
             }
         }
@@ -222,7 +222,7 @@ class SectionParser
             /*
              * Empty line
              */
-            if ($line == '') {
+            if ($line === '') {
                 $startLine++;
                 continue;
             }
@@ -230,7 +230,7 @@ class SectionParser
             /*
              * PHP line
              */
-            if ($line == '<?php' || $line == '<?') {
+            if ($line === '<?php' || $line === '<?') {
                 $startLine++;
                 continue;
             }
@@ -239,7 +239,7 @@ class SectionParser
              * PHP namespaced line (use x;) {
              * Don't increase the line count, it will be rewritten by Cms\Classes\CodeParser
              */
-            if (preg_match_all('/(use\s+[a-z0-9_\\\\]+;\n?)/mi', $line) == 1) {
+            if (preg_match_all('/(use\s+[a-z0-9_\\\\]+;\n?)/mi', $line) === 1) {
                 continue;
             }
 

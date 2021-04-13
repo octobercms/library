@@ -263,15 +263,15 @@ class Mailer extends MailerBase
      * @param  mixed  $callback
      * @return mixed
      */
-    protected function buildQueueMailable($view, $data, $callback, $queueName = null)
+    protected function buildQueueMailable($view, $data, $callback, $queue)
     {
         $mailable = new Mailable;
 
-        if (!empty($queueName)) {
-            $mailable->queue = $queueName;
-        }
-
         $mailable->view($view)->withSerializedData($data);
+
+        if ($queue !== null) {
+            $mailable->onQueue($queue);
+        }
 
         if ($callback !== null) {
             call_user_func($callback, $mailable);
@@ -387,13 +387,13 @@ class Mailer extends MailerBase
          *
          * Example usage (stops the content adding process):
          *
-         *     Event::listen('mailer.beforeAddContent', function ((\October\Rain\Mail\Mailer) $mailerInstance, (\Illuminate\Mail\Message) $message, (string) $view, (array) $data, (string) $raw, (string) $plain) {
+         *     Event::listen('mailer.beforeAddContent', function ((\October\Rain\Mail\Mailer) $mailerInstance, (\Illuminate\Mail\Message) $message, (string) $view, (string) $plain, (string) $raw, (array) $data) {
          *         return false;
          *     });
          *
          * Or
          *
-         *     $mailerInstance->bindEvent('mailer.beforeAddContent', function ((\Illuminate\Mail\Message) $message, (string) $view, (array) $data, (string) $raw, (string) $plain) {
+         *     $mailerInstance->bindEvent('mailer.beforeAddContent', function ((\Illuminate\Mail\Message) $message, (string) $view, (string) $plain, (string) $raw, (array) $data) {
          *         return false;
          *     });
          *

@@ -1,13 +1,18 @@
 <?php namespace October\Rain\Config;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Filesystem\Filesystem;
+use October\Rain\Filesystem\Filesystem;
 
 class ConfigServiceProvider extends ServiceProvider
 {
     /**
-     * Register the service provider.
-     * @return void
+     * @var bool defer indicates if loading of the provider is deferred
+     *
+     */
+    protected $defer = false;
+
+    /**
+     * register the service provider.
      */
     public function register()
     {
@@ -17,8 +22,7 @@ class ConfigServiceProvider extends ServiceProvider
     }
 
     /**
-     * Get the services provided by the provider.
-     * @return array
+     * provides gets the services provided by the provider
      */
     public function provides()
     {
@@ -26,12 +30,11 @@ class ConfigServiceProvider extends ServiceProvider
     }
 
     /**
-     * Get the configuration loader instance.
-     *
+     * getConfigLoader instance
      * @return \October\Rain\Config\LoaderInterface
      */
     public function getConfigLoader()
     {
-        return new FileLoader(new Filesystem, $this->app['path.config']);
+        return new FileLoader(new Filesystem, $this->app['path'].'/config');
     }
 }

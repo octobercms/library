@@ -5,6 +5,30 @@ use Illuminate\Routing\RoutingServiceProvider as RoutingServiceProviderBase;
 class RoutingServiceProvider extends RoutingServiceProviderBase
 {
     /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        if ($this->app->routesAreCached()) {
+            $this->loadCachedRoutes();
+        }
+    }
+
+    /**
+     * Load the cached routes for the application.
+     *
+     * @return void
+     */
+    protected function loadCachedRoutes()
+    {
+        $this->app->booted(function () {
+            require $this->app->getCachedRoutesPath();
+        });
+    }
+
+    /**
      * Register the router instance.
      *
      * @return void

@@ -1,12 +1,10 @@
-<?php
+<?php namespace October\Rain\Foundation\Http\Middleware;
 
-namespace October\Rain\Foundation\Http\Middleware;
-
-use Lang;
 use View;
 use Closure;
 use Response;
 use Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode as Middleware;
+use Illuminate\Foundation\Http\Exceptions\MaintenanceModeException;
 
 class CheckForMaintenanceMode extends Middleware
 {
@@ -23,17 +21,15 @@ class CheckForMaintenanceMode extends Middleware
     {
         try {
             return parent::handle($request, $next);
-        } catch (\Illuminate\Foundation\Http\Exceptions\MaintenanceModeException $ex) {
-            // Smoothly handle AJAX requests
-            if (request()->ajax()) {
-                return Response::make(Lang::get('system::lang.page.maintenance.help') . "\r\n" . $ex->getMessage(), 503);
-            }
-
+        }
+        catch (MaintenanceModeException $ex) {
             // Check if there is a project level view to override the system one
             View::addNamespace('base', base_path());
+
             if (View::exists('base::maintenance')) {
                 $view = 'base::maintenance';
-            } else {
+            }
+            else {
                 $view = 'system::maintenance';
             }
 

@@ -1,7 +1,6 @@
 <?php namespace October\Rain\Parse;
 
 use Cache;
-use Config;
 use Symfony\Component\Yaml\Dumper;
 use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -22,6 +21,7 @@ class Yaml
     public function parse($contents)
     {
         $yaml = new Parser;
+
         return $yaml->parse($contents);
     }
 
@@ -32,17 +32,35 @@ class Yaml
      */
     public function parseFile($fileName)
     {
+        $contents = file_get_contents($fileName);
+
         try {
-            // Cache parsed yaml file if debug mode is disabled
-            if (!Config::get('app.debug', false)) {
-                return Cache::remember('yaml::' . $fileName . '-' . filemtime($fileName), now()->addDays(30), function () use ($fileName) {
-                    return $this->parse(file_get_contents($fileName));
-                });
-            } else {
-                return $this->parse(file_get_contents($fileName));
-            }
-        } catch (\Exception $e) {
+            $parsed = $this->parse($contents);
+        }
+        catch (\Exception $e) {
             throw new ParseException("A syntax error was detected in $fileName. " . $e->getMessage(), __LINE__, __FILE__);
+        }
+
+        return $parsed;
+    }
+
+    /**
+     * Parses YAML file contents in to a PHP array, with cache.
+     *
+     * @param string $fileName File to read contents and parse.
+     * @return array The YAML contents as an array.
+     */
+    public function parseFileCached($fileName)
+    {
+        try {
+            $fileCacheKey = 'yaml::' . $fileName . '-' . filemtime($fileName);
+
+            return Cache::remember($fileCacheKey, 43200, function () use ($fileName) {
+                return $this->parseFile($fileName);
+            });
+        }
+        catch (\Exception $e) {
+            return $this->parseFile($fileName);
         }
     }
 
@@ -65,6 +83,7 @@ class Yaml
         ], $options));
 
         $yaml = new Dumper;
+
         return $yaml->dump($vars, $inline, 0, $exceptionOnInvalidType, $objectSupport);
     }
 }

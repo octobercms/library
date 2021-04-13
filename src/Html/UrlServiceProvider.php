@@ -1,9 +1,16 @@
 <?php namespace October\Rain\Html;
 
+use Str;
 use Illuminate\Support\ServiceProvider;
 
 class UrlServiceProvider extends ServiceProvider
 {
+
+    /**
+     * @var bool Indicates if loading of the provider is deferred.
+     */
+    protected $defer = false;
+
     /**
      * Register the service provider.
      * @return void
@@ -23,12 +30,12 @@ class UrlServiceProvider extends ServiceProvider
      */
     public function setUrlGeneratorPolicy()
     {
-        $policy = $this->app['config']->get('cms.linkPolicy', 'detect');
+        $policy = $this->app['config']->get('system.link_policy', 'detect');
 
         switch (strtolower($policy)) {
             case 'force':
                 $appUrl = $this->app['config']->get('app.url');
-                $schema = \Str::startsWith($appUrl, 'http://') ? 'http' : 'https';
+                $schema = Str::startsWith($appUrl, 'http://') ? 'http' : 'https';
                 $this->app['url']->forceRootUrl($appUrl);
                 $this->app['url']->forceScheme($schema);
                 break;

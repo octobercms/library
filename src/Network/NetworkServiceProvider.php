@@ -1,22 +1,28 @@
 <?php namespace October\Rain\Network;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Contracts\Support\DeferrableProvider;
 
-class NetworkServiceProvider extends ServiceProvider implements DeferrableProvider
+class NetworkServiceProvider extends ServiceProvider
 {
     /**
-     * The container singletons that should be registered.
-     *
-     * @var array
+     * Indicates if loading of the provider is deferred.
+     * @var bool
      */
-    public $singletons = [
-        'network.http' => Http::class,
-    ];
+    protected $defer = false;
+
+    /**
+     * Register the service provider.
+     * @return void
+     */
+    public function register()
+    {
+        $this->app->singleton('network.http', function ($app) {
+            return new Http;
+        });
+    }
 
     /**
      * Get the services provided by the provider.
-     *
      * @return array
      */
     public function provides()

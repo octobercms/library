@@ -3,31 +3,29 @@
 use Carbon\Carbon as DateBase;
 
 /**
- * Umbrella class.
+ * Argon is an umbrella class
  */
 class Argon extends DateBase
 {
     /**
-     * Function to call instead of format.
-     *
-     * @var string|callable|null
+     * @var string|callable|null formatFunction function to call instead of format
      */
     protected static $formatFunction = 'translatedFormat';
 
     /**
-     * Function to call instead of createFromFormat.
-     *
-     * @var string|callable|null
+     * @var string|callable|null createFromFormatFunction function to call instead
+     * of createFromFormat
      */
     protected static $createFromFormatFunction = 'createFromFormatWithCurrentLocale';
 
     /**
-     * Function to call instead of parse.
-     *
-     * @var string|callable|null
+     * @var string|callable|null parseFunction function to call instead of parse.
      */
     protected static $parseFunction = 'parseWithCurrentLocale';
 
+    /**
+     * parseWithCurrentLocale
+     */
     public static function parseWithCurrentLocale($time = null, $timezone = null)
     {
         if (is_string($time)) {
@@ -37,6 +35,9 @@ class Argon extends DateBase
         return parent::rawParse($time, $timezone);
     }
 
+    /**
+     * createFromFormatWithCurrentLocale
+     */
     public static function createFromFormatWithCurrentLocale($format, $time = null, $timezone = null)
     {
         if (is_string($time)) {
@@ -47,7 +48,7 @@ class Argon extends DateBase
     }
 
     /**
-     * Get the language portion of the locale.
+     * getLanguageFromLocale gets the language portion of the locale.
      *
      * @param string $locale
      * @return string

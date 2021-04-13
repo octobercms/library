@@ -15,7 +15,7 @@ class ExecutionContextProvider extends ServiceProvider
 
             $requestPath = $this->normalizeUrl($app['request']->path());
 
-            $backendUri = $this->normalizeUrl($app['config']->get('cms.backendUri', 'backend'));
+            $backendUri = $this->normalizeUrl($app['config']->get('backend.uri', 'backend'));
 
             if (starts_with($requestPath, $backendUri)) {
                 return 'back-end';
@@ -34,7 +34,7 @@ class ExecutionContextProvider extends ServiceProvider
      */
     protected function normalizeUrl($url)
     {
-        if (substr($url, 0, 1) != '/') {
+        if (substr($url, 0, 1) !== '/') {
             $url = '/'.$url;
         }
 

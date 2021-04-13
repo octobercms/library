@@ -4,22 +4,20 @@ use October\Rain\Halcyon\Model;
 use October\Rain\Exception\ValidationException;
 
 /**
- * Used when validation fails. Contains the invalid model for easy analysis.
+ * ModelException used when validation fails, contains the invalid model for easy analysis
  *
- * @package october\database
+ * @package october\halcyon
  * @author Alexey Bobkov, Samuel Georges
  */
 class ModelException extends ValidationException
 {
-
     /**
-     * @var Model The invalid model.
+     * @var Model model
      */
     protected $model;
 
     /**
-     * Receives the invalid model and sets the {@link model} and {@link errors} properties.
-     * @param Model $model The troublesome model.
+     * __construct receives the invalid model
      */
     public function __construct(Model $model)
     {
@@ -29,10 +27,9 @@ class ModelException extends ValidationException
     }
 
     /**
-     * Returns the model with invalid attributes.
-     * @return Model
+     * getModel returns the model with invalid attributes
      */
-    public function getModel()
+    public function getModel(): Model
     {
         return $this->model;
     }

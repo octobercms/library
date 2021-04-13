@@ -261,7 +261,7 @@ class HtmlBuilder
     {
         $html = '';
 
-        if (count($list) == 0) {
+        if (count($list) === 0) {
             return $html;
         }
 
@@ -299,7 +299,7 @@ class HtmlBuilder
      *
      * @param  mixed    $key
      * @param  string  $type
-     * @param  array  $value
+     * @param  string  $value
      * @return string
      */
     protected function nestedListing($key, $type, $value)
@@ -340,7 +340,7 @@ class HtmlBuilder
      *
      * @param  string  $key
      * @param  string  $value
-     * @return string|void
+     * @return string
      */
     protected function attributeElement($key, $value)
     {
@@ -428,30 +428,30 @@ class HtmlBuilder
             list($tag, $tagPosition) = $match[0];
 
             $str = substr($html, $position, $tagPosition - $position);
-            if ($printedLength + static::getReadableLength($str) > $maxLength) {
+            if ($printedLength + strlen($str) > $maxLength) {
                 $result .= substr($str, 0, $maxLength - $printedLength) . $end;
                 $printedLength = $maxLength;
                 break;
             }
 
             $result .= $str;
-            $printedLength += static::getReadableLength($str);
+            $printedLength += strlen($str);
             if ($printedLength >= $maxLength) {
                 $result .= $end;
                 break;
             }
 
-            if ($tag[0] == '&' || ord($tag) >= 0x80) {
+            if ($tag[0] === '&' || ord($tag) >= 0x80) {
                 $result .= $tag;
                 $printedLength++;
             }
             else {
                 $tagName = $match[1][0];
-                if ($tag[1] == '/') {
+                if ($tag[1] === '/') {
                     $openingTag = array_pop($tags);
                     $result .= $tag;
                 }
-                elseif ($tag[strlen($tag) - 2] == '/') {
+                elseif ($tag[strlen($tag) - 2] === '/') {
                     $result .= $tag;
                 }
                 else {
@@ -475,16 +475,29 @@ class HtmlBuilder
     }
 
     /**
-     * Gets the readable length of a string for limit calculations.
-     *
-     * Considers multiple spaces and line breaks to be 1 character, regardless of OS.
-     *
-     * @param string $str
-     * @return int
+     * minify makes HTML more compact
      */
-    protected static function getReadableLength($str)
+    public static function minify($html)
     {
-        return strlen(preg_replace('/\s+/', ' ', $str));
+        $search = [
+            // Strip whitespaces after tags, except space
+            '/\>[^\S ]+/s',
+            // Strip whitespaces before tags, except space
+            '/[^\S ]+\</s',
+            // Shorten multiple whitespace sequences
+            '/(\s)+/s',
+            // Remove HTML comments
+            '/<!--(.|\s)*?-->/'
+        ];
+
+        $replace = [
+            '>',
+            '<',
+            '\\1',
+            ''
+        ];
+
+        return preg_replace($search, $replace, $html);
     }
 
     /**
@@ -501,7 +514,7 @@ class HtmlBuilder
             $html = str_replace(['&amp;','&lt;','&gt;'], ['&amp;amp;','&amp;lt;','&amp;gt;'], $html);
             $html = preg_replace('#(&\#*\w+)[\x00-\x20]+;#u', "$1;", $html);
             $html = preg_replace('#(&\#x*)([0-9A-F]+);*#iu', "$1$2;", $html);
-            $html = html_entity_decode($html, ENT_COMPAT|ENT_HTML5, 'UTF-8');
+            $html = html_entity_decode($html, ENT_COMPAT, 'UTF-8');
 
             // Remove any attribute starting with "on" or xmlns
             $html = preg_replace('#(<[^>]+[\x00-\x20\"\'\/])(on|xmlns)[^>]*>#iUu', "$1>", $html);

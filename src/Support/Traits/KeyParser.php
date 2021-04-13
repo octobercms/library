@@ -77,7 +77,7 @@ trait KeyParser
         // just pulling an entire group out of the array and not a single item.
         $group = $segments[0];
 
-        if (count($segments) == 1) {
+        if (count($segments) === 1) {
             return [null, $group, null];
         }
 
