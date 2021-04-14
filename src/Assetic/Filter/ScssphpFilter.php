@@ -12,7 +12,7 @@
 use October\Rain\Assetic\Asset\AssetInterface;
 use October\Rain\Assetic\Factory\AssetFactory;
 use October\Rain\Assetic\Util\CssUtils;
-use Leafo\ScssPhp\Compiler;
+use ScssPhp\ScssPhp\Compiler;
 
 /**
  * Loads SCSS files using the PHP implementation of scss, scssphp.
@@ -44,10 +44,10 @@ class ScssphpFilter implements DependencyExtractorInterface
     public function setFormatter($formatter)
     {
         $legacyFormatters = array(
-            'scss_formatter' => 'Leafo\ScssPhp\Formatter\Expanded',
-            'scss_formatter_nested' => 'Leafo\ScssPhp\Formatter\Nested',
-            'scss_formatter_compressed' => 'Leafo\ScssPhp\Formatter\Compressed',
-            'scss_formatter_crunched' => 'Leafo\ScssPhp\Formatter\Crunched',
+            'scss_formatter' => \ScssPhp\ScssPhp\Formatter\Expanded::class,
+            'scss_formatter_nested' => \ScssPhp\ScssPhp\Formatter\Nested::class,
+            'scss_formatter_compressed' => \ScssPhp\ScssPhp\Formatter\Compressed::class,
+            'scss_formatter_crunched' => \ScssPhp\ScssPhp\Formatter\Crunched::class,
         );
 
         if (isset($legacyFormatters[$formatter])) {
