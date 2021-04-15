@@ -3,42 +3,45 @@
 use Exception;
 
 /**
- * Block manager
+ * BlockBuilder is used for building placeholders and putting content to them
  *
  * @package october\html
  * @author Alexey Bobkov, Samuel Georges
  */
 class BlockBuilder
 {
+    /**
+     * @var array blockStack
+     */
     protected $blockStack = [];
+
+    /**
+     * @var array blocks
+     */
     protected $blocks = [];
 
     /**
-     * Helper for startBlock
-     * @param string $name Specifies the block name.
-     * @return void
+     * put is a helper for startBlock
      */
-    public function put($name)
+    public function put(string $name)
     {
         $this->startBlock($name);
     }
 
     /**
-     * Begins the layout block.
-     * @param string $name Specifies the block name.
+     * startBlock begins the layout block
      */
-    public function startBlock($name)
+    public function startBlock(string $name)
     {
         array_push($this->blockStack, $name);
         ob_start();
     }
 
     /**
-     * Helper for endBlock and also clears the output buffer.
-     * @param boolean $append Indicates that the new content should be appended to the existing block content.
-     * @return void
+     * endPut is a helper for endBlock and also clears the output buffer
+     * Append indicates that the new content should be appended to the existing block content
      */
-    public function endPut($append = false)
+    public function endPut(bool $append = false)
     {
         $this->endBlock($append);
 
@@ -48,10 +51,10 @@ class BlockBuilder
     }
 
     /**
-     * Closes the layout block.
-     * @param boolean $append Indicates that the new content should be appended to the existing block content.
+     * endBlock closes the layout block
+     * Append indicates that the new content should be appended to the existing block content
      */
-    public function endBlock($append = false)
+    public function endBlock(bool $append = false)
     {
         if (!count($this->blockStack)) {
             throw new Exception('Invalid block nesting');
@@ -69,12 +72,9 @@ class BlockBuilder
     }
 
     /**
-     * Sets a content of the layout block.
-     * @param string $name Specifies the block name.
-     * @param string $content Specifies the block content.
-     *
+     * set a content of the layout block.
      */
-    public function set($name, $content)
+    public function set(string $name, string $content)
     {
         $this->put($name);
         echo $content;
@@ -82,12 +82,9 @@ class BlockBuilder
     }
 
     /**
-     * Appends a content of the layout block.
-     * @param string $name Specifies the block name.
-     * @param string $content Specifies the block content.
-     *
+     * append a content of the layout block
      */
-    public function append($name, $content)
+    public function append(string $name, string $content)
     {
         if (!isset($this->blocks[$name])) {
             $this->blocks[$name] = null;
@@ -97,12 +94,12 @@ class BlockBuilder
     }
 
     /**
-     * Returns the layout block contents and deletes the block from memory.
+     * placeholder returns the layout block contents and deletes the block from memory.
      * @param string $name Specifies the block name.
      * @param string $default Specifies a default block value to use if the block requested is not exists.
      * @return string
      */
-    public function placeholder($name, $default = null)
+    public function placeholder(string $name, string $default = null): ?string
     {
         $result = $this->get($name, $default);
         unset($this->blocks[$name]);
@@ -115,23 +112,19 @@ class BlockBuilder
     }
 
     /**
-     * Returns the layout block contents but not deletes the block from memory.
-     * @param string $name Specifies the block name.
-     * @param string $default Specifies a default block value to use if the block requested is not exists.
-     * @return string
+     * get returns the layout block contents but not deletes the block from memory
      */
-    public function get($name, $default = null)
+    public function get(string $name, string $default = null): ?string
     {
         if (!isset($this->blocks[$name])) {
-            return  $default;
+            return $default;
         }
 
-        return $this->blocks[$name];
+        return (string) $this->blocks[$name];
     }
 
     /**
-     * Clears all the registered blocks.
-     * @return void
+     * reset clears all the registered blocks
      */
     public function reset()
     {
