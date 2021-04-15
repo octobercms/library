@@ -74,7 +74,7 @@ class BlockBuilder
     /**
      * set a content of the layout block.
      */
-    public function set(string $name, string $content)
+    public function set(string $name, $content)
     {
         $this->put($name);
         echo $content;
@@ -84,7 +84,7 @@ class BlockBuilder
     /**
      * append a content of the layout block
      */
-    public function append(string $name, string $content)
+    public function append(string $name, $content)
     {
         if (!isset($this->blocks[$name])) {
             $this->blocks[$name] = null;
@@ -95,9 +95,6 @@ class BlockBuilder
 
     /**
      * placeholder returns the layout block contents and deletes the block from memory.
-     * @param string $name Specifies the block name.
-     * @param string $default Specifies a default block value to use if the block requested is not exists.
-     * @return string
      */
     public function placeholder(string $name, string $default = null): ?string
     {

@@ -4,7 +4,7 @@ use October\Rain\Assetic\Asset\AssetInterface;
 use October\Rain\Assetic\Filter\FilterInterface;
 
 /**
- * Minify CSS Filter
+ * StylesheetMinify CSS Filter
  * Class used to compress stylesheet css files.
  *
  * @package october/parse
@@ -22,32 +22,29 @@ class StylesheetMinify implements FilterInterface
     }
 
     /**
-     * Minifies CSS
+     * minify CSS
      * @var $css string CSS code to minify.
      * @return string Minified CSS.
      */
     protected function minify($css)
     {
-        // Step 1: Special rule for Tailwind CSS
-        $css = str_replace('/*!*/ /*!*/', '___CSSMIN___SPACE___', $css);
-
         // Normalize whitespace in a smart way
         $css = preg_replace('/\s{2,}/', ' ', $css);
 
         // Remove spaces before and after comment
-        $css = preg_replace('/(\s+)(\/\*(.*?)\*\/)(\s+)/', '$2', $css);
+        $css = preg_replace('/(\s+)(\/\*[^!](.*?)\*\/)(\s+)/', '$2', $css);
 
-        // Remove comment blocks, everything between /* and */
-        $css = preg_replace('#/\*.*?\*/#s', '', $css);
+        // Remove comment blocks, everything between /* and */, ignore /*! comments
+        $css = preg_replace('#/\*[^\!].*?\*/#s', '', $css);
 
         // Remove ; before }
         $css = preg_replace('/;(?=\s*})/', '', $css);
 
-        // Remove space after , : ; { } */ >
-        $css = preg_replace('/(,|:|;|\{|}|\*\/|>) /', '$1', $css);
+        // Remove space after , : ; { } */ >, but not after !*/
+        $css = preg_replace('/(,|:|;|\{|}|[^!]\*\/|>) /', '$1', $css);
 
         // Remove space before , ; { } >
-        $css = preg_replace('/(,|;|\{|}|>)/', '$1', $css);
+        $css = preg_replace('/ (,|;|\{|}|>)/', '$1', $css);
 
         // Remove newline before } >
         $css = preg_replace('/(\r\n|\r|\n)(})/', '$2', $css);
@@ -58,9 +55,6 @@ class StylesheetMinify implements FilterInterface
 
         // Shortern 6-character hex color codes to 3-character where possible
         $css = preg_replace('/#([a-f0-9])\\1([a-f0-9])\\2([a-f0-9])\\3/i', '#\1\2\3', $css);
-
-        // Step 2: Special rule for Tailwind CSS
-        $css = str_replace('___CSSMIN___SPACE___', ' ', $css);
 
         return trim($css);
     }
