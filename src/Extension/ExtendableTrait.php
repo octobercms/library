@@ -402,13 +402,14 @@ trait ExtendableTrait
 
         // Undefined property, throw an exception to catch it,
         // otherwise some PHP versions will segfault
-        if (!$found) {
-            throw new BadMethodCallException(sprintf(
-                'Call to undefined property %s::%s',
-                get_class($this),
-                $name
-            ));
-        }
+        // @todo Restore if year >= 2023
+        // if (!$found) {
+        //     throw new BadMethodCallException(sprintf(
+        //         'Call to undefined property %s::%s',
+        //         get_class($this),
+        //         $name
+        //     ));
+        // }
     }
 
     /**
