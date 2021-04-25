@@ -171,8 +171,15 @@ class AssetCollection implements \IteratorAggregate, AssetCollectionInterface
     {
     }
 
+    /**
+     * getSourceDirectory returns the first available source directory, useful
+     * when extracting imports and a singular collection is returned
+     */
     public function getSourceDirectory()
     {
+        foreach ($this as $asset) {
+            return $asset->getSourceDirectory();
+        }
     }
 
     public function getTargetPath()

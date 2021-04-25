@@ -11,7 +11,7 @@
 
 use October\Rain\Assetic\Asset\AssetInterface;
 use October\Rain\Assetic\Factory\AssetFactory;
-use October\Rain\Assetic\Util\CssUtils;
+use October\Rain\Assetic\Util\SassUtils;
 use ScssPhp\ScssPhp\Compiler;
 
 /**
@@ -19,7 +19,7 @@ use ScssPhp\ScssPhp\Compiler;
  *
  * Scss files are mostly compatible, but there are slight differences.
  *
- * @link http://leafo.net/scssphp/
+ * @link https://github.com/scssphp/scssphp
  *
  * @author Bart van den Burg <bart@samson-it.nl>
  */
@@ -131,12 +131,15 @@ class ScssphpFilter implements DependencyExtractorInterface
         }
 
         $children = array();
-        foreach (CssUtils::extractImports($content) as $match) {
+        foreach (SassUtils::extractImports($content) as $match) {
             $file = $sc->findImport($match);
             if ($file) {
                 $children[] = $child = $factory->createAsset($file, array(), array('root' => $loadPath));
                 $child->load();
-                $children = array_merge($children, $this->getChildren($factory, $child->getContent(), $loadPath));
+                $children = array_merge(
+                    $children,
+                    $this->getChildren($factory, $child->getContent(), $child->getSourceDirectory())
+                );
             }
         }
 
