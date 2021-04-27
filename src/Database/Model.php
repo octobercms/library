@@ -45,9 +45,14 @@ class Model extends EloquentModel
     protected $dates = [];
 
     /**
-     * @var bool Indicates if duplicate queries from this model should be cached in memory.
+     * @var bool duplicateCache queries from this model should be cached in memory
      */
     public $duplicateCache = true;
+
+    /**
+     * @var bool trimStrings will trim all string attributes of whitespace
+     */
+    public $trimStrings = true;
 
     /**
      * @var array The array of models booted events.
@@ -1194,7 +1199,7 @@ class Model extends EloquentModel
         /*
          * Trim strings
          */
-        if (is_string($value)) {
+        if ($this->trimStrings && is_string($value)) {
             $value = trim($value);
         }
 
