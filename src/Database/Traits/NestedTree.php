@@ -74,7 +74,7 @@ trait NestedTree
     /**
      * @var int Indicates if the model should be aligned to new parent.
      */
-    protected $moveToNewParentId = null;
+    protected $moveToNewParentId = false;
 
     /*
      * Constructor
@@ -138,16 +138,15 @@ trait NestedTree
         $parentColumn = $this->getParentColumnName();
         $isDirty = $this->isDirty($parentColumn);
 
-        // Parent is not set or unchanged
-        if (!$isDirty) {
-            $this->moveToNewParentId = false;
-        }
-        // Created as a root node
-        elseif (!$this->exists && !$this->getParentId()) {
-            $this->moveToNewParentId = false;
-        }
-        // Parent has been set
-        else {
+        /**
+         * If the model has just been created and the parent ID is not null
+         * or if the model exists and the parent ID has changed then we
+         * need to move the model in the tree
+         */
+        if (
+            (!$this->exists && $this->getParentId() !== null) ||
+            ($this->exists && $isDirty)
+        ) {
             $this->moveToNewParentId = $this->getParentId();
         }
     }
