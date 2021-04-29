@@ -20,8 +20,8 @@ class StylesheetMinifyTest extends TestCase
 
     public function testEmptyClassPreserve()
     {
-        $input = <<<CSS
-        .view { /*
+        $input = ''.
+        '.view { /*
             * Text
             */
             /*
@@ -35,8 +35,8 @@ class StylesheetMinifyTest extends TestCase
             */
             /*
             * Images
-            */ }
-        CSS;
+            */ }';
+
         $output = '.view{}';
 
         $mockAsset = new MockAsset($input);
@@ -96,20 +96,17 @@ class StylesheetMinifyTest extends TestCase
 
     public function testAttributeSelectorsWithLess()
     {
-        $input = <<<CSS
-            [class^="icon-"]:before,
+        $input = ''.
+            '[class^="icon-"]:before,
             [class*=" icon-"]:before {
                 speak: none;
             }
             /* makes the font 33% larger relative to the icon container */
             .icon-large:before {
                 speak: initial;
-            }
-        CSS;
+            }';
 
-        $output = <<<CSS
-        [class^="icon-"]:before,[class*=" icon-"]:before{speak:none}.icon-large:before{speak:initial}
-        CSS;
+        $output = '[class^="icon-"]:before,[class*=" icon-"]:before{speak:none}.icon-large:before{speak:initial}';
 
         $mockAsset = new MockAsset($input);
         $result    = new StylesheetMinify();
