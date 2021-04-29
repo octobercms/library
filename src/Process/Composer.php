@@ -118,7 +118,7 @@ class Composer extends ProcessBase
         $phpBin = (new PhpExecutableFinder)->find();
 
         return implode(' ', array_merge([
-            $phpBin,
+            '"'.$phpBin.'"',
             'vendor/composer/composer/bin/composer'
         ], $parts));
     }

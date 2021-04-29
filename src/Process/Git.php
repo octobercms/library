@@ -41,6 +41,8 @@ class Git extends ProcessBase
     {
         $gitBin = Config::get('system.git_binary', 'git');
 
-        return implode(' ', array_merge([$gitBin], $parts));
+        return implode(' ', array_merge([
+            '"'.$gitBin.'"'
+        ], $parts));
     }
 }
