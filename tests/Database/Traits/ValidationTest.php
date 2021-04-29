@@ -69,6 +69,21 @@ class ValidationTest extends TestCase
         $this->assertEquals([
             'email' => ['unique:users,email_address,NULL,id,account_id,1']
         ], $this->processValidationRules($rules));
+
+        /*
+         * Adding multiple additional where clauses
+         */
+        $rules = ['email' => 'unique:users,email_address,NULL,id,account_id,1,account_name,"Foo",user_id,3'];
+
+        $this->exists = true;
+        $this->assertEquals([
+            'email' => ['unique:users,email_address,20,id,account_id,1,account_name,"Foo",user_id,3']
+        ], $this->processValidationRules($rules));
+
+        $this->exists = false;
+        $this->assertEquals([
+            'email' => ['unique:users,email_address,NULL,id,account_id,1,account_name,"Foo",user_id,3']
+        ], $this->processValidationRules($rules));
     }
 
     protected function getTable()
