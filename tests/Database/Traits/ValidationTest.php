@@ -77,12 +77,12 @@ class ValidationTest extends TestCase
 
         $this->exists = true;
         $this->assertEquals([
-            'email' => ['unique:mysql.users,email_address,20,id,account_id,1,account_name,"Foo",user_id,3']
+            'email' => ['unique:users,email_address,20,id,account_id,1,account_name,"Foo",user_id,3']
         ], $this->processValidationRules($rules));
 
         $this->exists = false;
         $this->assertEquals([
-            'email' => ['unique:mysql.users,email_address,20,id,account_id,1,account_name,"Foo",user_id,3']
+            'email' => ['unique:users,email_address,NULL,id,account_id,1,account_name,"Foo",user_id,3']
         ], $this->processValidationRules($rules));
     }
 
