@@ -6,36 +6,39 @@ use InvalidArgumentException;
 use Exception;
 
 /**
- * Validation exception class.
+ * ValidationException class
  *
  * @package october\exception
  * @author Alexey Bobkov, Samuel Georges
  */
 class ValidationException extends Exception
 {
-
     /**
-     * @var array Collection of invalid fields.
+     * @var array fields that are invalid
      */
     protected $fields;
 
     /**
-     * @var \Illuminate\Support\MessageBag The message bag instance containing validation error messages
+     * @var array fieldPrefix
+     */
+    protected $fieldPrefix = [];
+
+    /**
+     * @var \Illuminate\Support\MessageBag errors in the form of a message bag
      */
     protected $errors;
 
     /**
-     * Constructor.
+     * __construct
      */
     public function __construct($validation)
     {
         parent::__construct();
 
         if (is_null($validation)) {
-            return;
+            $this->errors = new MessageBag([]);
         }
-
-        if ($validation instanceof Validator) {
+        elseif ($validation instanceof Validator) {
             $this->errors = $validation->messages();
         }
         elseif (is_array($validation)) {
@@ -49,19 +52,22 @@ class ValidationException extends Exception
     }
 
     /**
-     * Evaluate errors.
+     * evalErrors evaluates errors
      */
     protected function evalErrors()
     {
+        $this->fields = [];
+
         foreach ($this->errors->getMessages() as $field => $messages) {
-            $this->fields[$field] = $messages;
+            $fieldName = implode('][', array_merge($this->fieldPrefix, [$field]));
+            $this->fields[$fieldName] = $messages;
         }
 
         $this->message = $this->errors->first();
     }
 
     /**
-     * Returns directly the message bag instance with the model's errors.
+     * getErrors returns directly the message bag instance with the model's errors
      * @return \Illuminate\Support\MessageBag
      */
     public function getErrors()
@@ -70,10 +76,20 @@ class ValidationException extends Exception
     }
 
     /**
-     * Returns invalid fields.
+     * getFields returns invalid fields
      */
     public function getFields()
     {
         return $this->fields;
+    }
+
+    /**
+     * setFieldPrefix increases the field target specificity
+     */
+    public function setFieldPrefix(array $prefix)
+    {
+        $this->fieldPrefix = array_filter($prefix);
+
+        $this->evalErrors();
     }
 }

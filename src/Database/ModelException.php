@@ -3,22 +3,20 @@
 use October\Rain\Exception\ValidationException;
 
 /**
- * Used when validation fails. Contains the invalid model for easy analysis.
+ * ModelException is used when validation fails and contains the invalid model for easy analysis
  *
  * @package october\database
  * @author Alexey Bobkov, Samuel Georges
  */
 class ModelException extends ValidationException
 {
-
     /**
-     * @var Model The invalid model.
+     * @var Model model that is invalid
      */
     protected $model;
 
     /**
-     * Receives the invalid model and sets the {@link model} and {@link errors} properties.
-     * @param Model $model The troublesome model.
+     * __construct recevies the troublesome model
      */
     public function __construct(Model $model)
     {
@@ -28,10 +26,9 @@ class ModelException extends ValidationException
     }
 
     /**
-     * Returns the model with invalid attributes.
-     * @return Model
+     * getModel returns the model with invalid attributes
      */
-    public function getModel()
+    public function getModel(): Model
     {
         return $this->model;
     }
