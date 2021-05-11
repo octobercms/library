@@ -44,6 +44,10 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $exception)
     {
+        if (!class_exists('Event')) {
+            return;
+        }
+
         /**
          * @event exception.beforeReport
          * Fires before the exception has been reported
