@@ -2,18 +2,21 @@
 
 use Illuminate\Support\ServiceProvider;
 
+/**
+ * TranslationServiceProvider is a custom translator implemenation based on Laravel
+  *
+ * @package october\translation
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class TranslationServiceProvider extends ServiceProvider
 {
-
     /**
-     * Indicates if loading of the provider is deferred.
-     * @var bool
+     * @var bool defer indicates if loading of the provider is deferred
      */
     protected $defer = false;
 
     /**
-     * Register the service provider.
-     * @return void
+     * register the service provider.
      */
     public function register()
     {
@@ -28,7 +31,9 @@ class TranslationServiceProvider extends ServiceProvider
             $locale = $app['config']['app.locale'];
 
             $trans = new Translator($loader, $locale);
+
             $trans->setEventDispatcher($app['events']);
+
             $trans->setFallback($app['config']['app.fallback_locale']);
 
             return $trans;
@@ -36,8 +41,7 @@ class TranslationServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the translation line loader.
-     * @return void
+     * registerLoader registers the line loader
      */
     protected function registerLoader()
     {
@@ -47,8 +51,7 @@ class TranslationServiceProvider extends ServiceProvider
     }
 
     /**
-     * Get the services provided by the provider.
-     * @return array
+     * provides gets the services provided by the provider
      */
     public function provides()
     {
