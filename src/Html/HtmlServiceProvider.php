@@ -4,15 +4,13 @@ use Illuminate\Support\ServiceProvider;
 
 class HtmlServiceProvider extends ServiceProvider
 {
-
     /**
-     * @var bool Indicates if loading of the provider is deferred.
+     * @var bool defer indicates if loading of the provider is deferred
      */
     protected $defer = true;
 
     /**
-     * Register the service provider.
-     * @return void
+     * register the service provider.
      */
     public function register()
     {
@@ -58,8 +56,7 @@ class HtmlServiceProvider extends ServiceProvider
     }
 
     /**
-     * Get the services provided by the provider.
-     * @return array
+     * provides gets the services provided by the provider
      */
     public function provides()
     {

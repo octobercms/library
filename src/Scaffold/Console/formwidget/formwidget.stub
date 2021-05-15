@@ -29,7 +29,7 @@ class {{studly_name}} extends FormWidgetBase
     }
 
     /**
-     * Prepares the form widget view data
+     * prepareVars for view data
      */
     public function prepareVars()
     {

@@ -4,13 +4,13 @@ use October\Rain\Translation\Translator;
 use October\Rain\Translation\FileLoader;
 use Illuminate\Contracts\Foundation\Application;
 
+/**
+ * LoadTranslation
+ */
 class LoadTranslation
 {
     /**
-     * Bootstrap the translator.
-     *
-     * @param  \Illuminate\Contracts\Foundation\Application  $app
-     * @return void
+     * bootstrap the translator
      */
     public function bootstrap(Application $app)
     {

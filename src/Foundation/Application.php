@@ -187,8 +187,8 @@ class Application extends ApplicationBase
         }
 
         return Str::startsWith($env, '/')
-                ? $env
-                : $this->basePath($env);
+            ? $env
+            : $this->basePath($env);
     }
 
     /**

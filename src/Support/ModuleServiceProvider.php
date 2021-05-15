@@ -30,6 +30,10 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
             $this->loadViewsFrom($modulePath . '/views', $module);
             $this->loadTranslationsFrom($modulePath . '/lang', $module);
             $this->loadConfigFrom($modulePath . '/config', $module);
+
+            if ($this->app->runningInBackend()) {
+                $this->loadJsonTranslationsFrom($modulePath . '/lang');
+            }
         }
     }
 
@@ -51,7 +55,6 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
 
     /**
      * provides gets the services provided by the provider
-     * @return array
      */
     public function provides()
     {

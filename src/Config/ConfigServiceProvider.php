@@ -3,11 +3,13 @@
 use Illuminate\Support\ServiceProvider;
 use October\Rain\Filesystem\Filesystem;
 
+/**
+ * ConfigServiceProvider
+ */
 class ConfigServiceProvider extends ServiceProvider
 {
     /**
      * @var bool defer indicates if loading of the provider is deferred
-     *
      */
     protected $defer = false;
 

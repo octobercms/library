@@ -4,21 +4,23 @@ use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 
+/**
+ * {{studly_name}} Command
+ */
 class {{studly_name}} extends Command
 {
     /**
-     * @var string The console command name.
+     * @var string name is the console command name
      */
     protected $name = '{{lower_plugin}}:{{lower_name}}';
 
     /**
-     * @var string The console command description.
+     * @var string description is the console command description
      */
     protected $description = 'No description provided yet...';
 
     /**
-     * Execute the console command.
-     * @return void
+     * handle executes the console command
      */
     public function handle()
     {
@@ -26,8 +28,7 @@ class {{studly_name}} extends Command
     }
 
     /**
-     * Get the console command arguments.
-     * @return array
+     * getArguments get the console command arguments
      */
     protected function getArguments()
     {
@@ -35,8 +36,7 @@ class {{studly_name}} extends Command
     }
 
     /**
-     * Get the console command options.
-     * @return array
+     * getOptions get the console command options
      */
     protected function getOptions()
     {

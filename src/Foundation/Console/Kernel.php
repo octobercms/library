@@ -3,12 +3,13 @@
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
+/**
+ * Kernel
+ */
 class Kernel extends ConsoleKernel
 {
     /**
-     * The bootstrap classes for the application.
-     *
-     * @var array
+     * @var array bootstrappers for the application
      */
     protected $bootstrappers = [
         '\October\Rain\Foundation\Bootstrap\RegisterClassLoader',
@@ -24,21 +25,17 @@ class Kernel extends ConsoleKernel
     ];
 
     /**
-     * The Artisan commands provided by your application.
-     *
-     * @var array
+     * @var array commands provided by your application
      */
     protected $commands = [];
 
     /**
-     * Define the application's command schedule.
-     *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
-     * @return void
+     * schedule defines the application's command schedule
      */
     protected function schedule(Schedule $schedule)
     {
         $this->bootstrap();
+
         $this->app['events']->fire('console.schedule', [$schedule]);
     }
 }

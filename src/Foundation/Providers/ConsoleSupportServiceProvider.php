@@ -1,22 +1,18 @@
 <?php namespace October\Rain\Foundation\Providers;
 
+use October\Rain\Database\MigrationServiceProvider;
 use Illuminate\Support\AggregateServiceProvider;
-use Illuminate\Database\MigrationServiceProvider;
 use Illuminate\Foundation\Providers\ComposerServiceProvider;
 
 class ConsoleSupportServiceProvider extends AggregateServiceProvider
 {
     /**
-     * Indicates if loading of the provider is deferred.
-     *
-     * @var bool
+     * @var bool defer indicates if loading of the provider is deferred
      */
     protected $defer = true;
 
     /**
-     * The provider class names.
-     *
-     * @var array
+     * provides gets the services provided by the provider
      */
     protected $providers = [
         ArtisanServiceProvider::class,

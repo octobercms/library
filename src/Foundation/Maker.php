@@ -6,6 +6,9 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use ReflectionClass;
 use ReflectionParameter;
 
+/**
+ * Maker
+ */
 class Maker
 {
     /**

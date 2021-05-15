@@ -3,7 +3,7 @@
 use Carbon\Carbon as DateBase;
 
 /**
- * Argon is an umbrella class
+ * Argon is an umbrella class for Carbon
  */
 class Argon extends DateBase
 {

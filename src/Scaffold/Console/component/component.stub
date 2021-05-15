@@ -2,12 +2,15 @@
 
 use Cms\Classes\ComponentBase;
 
+/**
+ * {{studly_name}} Component
+ */
 class {{studly_name}} extends ComponentBase
 {
     public function componentDetails()
     {
         return [
-            'name'        => '{{name}} Component',
+            'name' => '{{name}} Component',
             'description' => 'No description provided yet...'
         ];
     }
