@@ -1,61 +1,52 @@
 <?php
 
-use October\Rain\Exception\ApplicationException;
 use October\Rain\Network\Http;
+use October\Rain\Exception\ApplicationException;
 
 class HttpTest extends TestCase
 {
-    use \DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
-
-    /**
-     * Http object fixture
-     *
-     * @var \October\Rain\Network\Http
-     */
-    protected $Http;
-
-    public function setUp(): void
-    {
-        $this->Http = new Http;
-    }
+    const TEST_URL = 'http://somepath.tld';
 
     public function testSetOptionsViaConstants()
     {
-        $this->Http->setOption(CURLOPT_DNS_USE_GLOBAL_CACHE, true);
-        $this->Http->setOption(CURLOPT_PIPEWAIT, false);
-        $this->Http->setOption(CURLOPT_VERBOSE, true);
+        $http = Http::make(self::TEST_URL, Http::METHOD_GET);
+        $http->setOption(CURLOPT_DNS_USE_GLOBAL_CACHE, true);
+        $http->setOption(CURLOPT_PIPEWAIT, false);
+        $http->setOption(CURLOPT_VERBOSE, true);
 
-        $this->assertArraySubset([
+        $this->assertEquals([
             CURLOPT_DNS_USE_GLOBAL_CACHE => true,
             CURLOPT_PIPEWAIT => false,
             CURLOPT_VERBOSE => true
-        ], $this->Http->requestOptions);
+        ], $http->requestOptions);
     }
 
     public function testSetOptionsViaStrings()
     {
-        $this->Http->setOption('CURLOPT_DNS_USE_GLOBAL_CACHE', true);
-        $this->Http->setOption('CURLOPT_PIPEWAIT', false);
-        $this->Http->setOption('CURLOPT_VERBOSE', true);
+        $http = Http::make(self::TEST_URL, Http::METHOD_GET);
+        $http->setOption('CURLOPT_DNS_USE_GLOBAL_CACHE', true);
+        $http->setOption('CURLOPT_PIPEWAIT', false);
+        $http->setOption('CURLOPT_VERBOSE', true);
 
-        $this->assertArraySubset([
+        $this->assertEquals([
             CURLOPT_DNS_USE_GLOBAL_CACHE => true,
             CURLOPT_PIPEWAIT => false,
             CURLOPT_VERBOSE => true
-        ], $this->Http->requestOptions);
+        ], $http->requestOptions);
     }
 
     public function testSetOptionsViaIntegers()
     {
-        $this->Http->setOption(91, true); //CURLOPT_DNS_USE_GLOBAL_CACHE
-        $this->Http->setOption(237, false); //CURLOPT_PIPEWAIT
-        $this->Http->setOption(41, true); //CURLOPT_VERBOSE
+        $http = Http::make(self::TEST_URL, Http::METHOD_GET);
+        $http->setOption(91, true);   // CURLOPT_DNS_USE_GLOBAL_CACHE
+        $http->setOption(237, false); // CURLOPT_PIPEWAIT
+        $http->setOption(41, true);   // CURLOPT_VERBOSE
 
-        $this->assertArraySubset([
+        $this->assertEquals([
             CURLOPT_DNS_USE_GLOBAL_CACHE => true,
             CURLOPT_PIPEWAIT => false,
             CURLOPT_VERBOSE => true
-        ], $this->Http->requestOptions);
+        ], $http->requestOptions);
     }
 
     public function testSetInvalidOptionViaString()
@@ -63,7 +54,8 @@ class HttpTest extends TestCase
         $this->expectException(ApplicationException::class);
         $this->expectExceptionMessage('$option parameter must be a CURLOPT constant or equivalent integer');
 
-        $this->Http->setOption('CURLOPT_SOME_RANDOM_CONSTANT', true);
+        $http = Http::make(self::TEST_URL, Http::METHOD_GET);
+        $http->setOption('CURLOPT_SOME_RANDOM_CONSTANT', true);
     }
 
     public function testSetInvalidOptionViaInteger()
@@ -71,52 +63,56 @@ class HttpTest extends TestCase
         $this->expectException(ApplicationException::class);
         $this->expectExceptionMessage('$option parameter must be a CURLOPT constant or equivalent integer');
 
-        $this->Http->setOption(99999, true);
+        $http = Http::make(self::TEST_URL, Http::METHOD_GET);
+        $http->setOption(99999, true);
     }
 
     public function testSetOptionsViaArrayOfConstants()
     {
-        $this->Http->setOption([
+        $http = Http::make(self::TEST_URL, Http::METHOD_GET);
+        $http->setOption([
             CURLOPT_DNS_USE_GLOBAL_CACHE => true,
             CURLOPT_PIPEWAIT => false,
             CURLOPT_VERBOSE => true
         ]);
 
-        $this->assertArraySubset([
+        $this->assertEquals([
             CURLOPT_DNS_USE_GLOBAL_CACHE => true,
             CURLOPT_PIPEWAIT => false,
             CURLOPT_VERBOSE => true
-        ], $this->Http->requestOptions);
+        ], $http->requestOptions);
     }
 
     public function testSetOptionsViaArrayOfIntegers()
     {
-        $this->Http->setOption([
-            91 => true, //CURLOPT_DNS_USE_GLOBAL_CACHE
+        $http = Http::make(self::TEST_URL, Http::METHOD_GET);
+        $http->setOption([
+            91 => true,   //CURLOPT_DNS_USE_GLOBAL_CACHE
             237 => false, //CURLOPT_PIPEWAIT
-            41 => true //CURLOPT_VERBOSE
+            41 => true    //CURLOPT_VERBOSE
         ]);
 
-        $this->assertArraySubset([
+        $this->assertEquals([
             CURLOPT_DNS_USE_GLOBAL_CACHE => true,
             CURLOPT_PIPEWAIT => false,
             CURLOPT_VERBOSE => true
-        ], $this->Http->requestOptions);
+        ], $http->requestOptions);
     }
 
     public function testSetOptionsViaArrayOfStrings()
     {
-        $this->Http->setOption([
+        $http = Http::make(self::TEST_URL, Http::METHOD_GET);
+        $http->setOption([
             'CURLOPT_DNS_USE_GLOBAL_CACHE' => true,
             'CURLOPT_PIPEWAIT' => false,
             'CURLOPT_VERBOSE' => true
         ]);
 
-        $this->assertArraySubset([
+        $this->assertEquals([
             CURLOPT_DNS_USE_GLOBAL_CACHE => true,
             CURLOPT_PIPEWAIT => false,
             CURLOPT_VERBOSE => true
-        ], $this->Http->requestOptions);
+        ], $http->requestOptions);
     }
 
     public function testSetInvalidOptionViaArrayOfStrings()
@@ -124,7 +120,8 @@ class HttpTest extends TestCase
         $this->expectException(ApplicationException::class);
         $this->expectExceptionMessage('$option parameter must be a CURLOPT constant or equivalent integer');
 
-        $this->Http->setOption([
+        $http = Http::make(self::TEST_URL, Http::METHOD_GET);
+        $http->setOption([
             'CURLOPT_DNS_USE_GLOBAL_CACHE' => true,
             'CURLOPT_PIPEWAIT' => false,
             'CURLOPT_VERBOSE' => true,
@@ -137,42 +134,88 @@ class HttpTest extends TestCase
         $this->expectException(ApplicationException::class);
         $this->expectExceptionMessage('$option parameter must be a CURLOPT constant or equivalent integer');
 
-        $this->Http->setOption([
-            91 => true, //CURLOPT_DNS_USE_GLOBAL_CACHE
+        $http = Http::make(self::TEST_URL, Http::METHOD_GET);
+        $http->setOption([
+            91 => true,   //CURLOPT_DNS_USE_GLOBAL_CACHE
             237 => false, //CURLOPT_PIPEWAIT
-            41 => true, //CURLOPT_VERBOSE
+            41 => true,   //CURLOPT_VERBOSE
             99999 => true // Invalid CURLOPT integer
         ]);
     }
 
-    public function testSetRequestData()
+    public function testSetRequestDataGet()
     {
-        $this->Http->data('foo', 'bar');
-        $this->assertEquals('foo=bar', $this->Http->getRequestData());
+        $http = Http::make(self::TEST_URL, Http::METHOD_GET);
+        $http->data('foo', 'bar');
+
+        $this->assertEquals('foo=bar', $http->getRequestData());
     }
 
-    public function testSetRequestDataArray()
+    public function testSetRequestDataPost()
     {
-        $this->Http->data([
+        $http = Http::make(self::TEST_URL, Http::METHOD_POST);
+        $http->data('foo', 'bar');
+
+        $this->assertEquals(['foo' => 'bar'], $http->getRequestData());
+    }
+
+    public function testSetRequestDataArrayGet()
+    {
+        $http = Http::make(self::TEST_URL, Http::METHOD_GET);
+        $http->data([
             'foo' => 'bar',
             'bar' => 'foo'
         ]);
-        $this->assertEquals('foo=bar&bar=foo', $this->Http->getRequestData());
+
+        $this->assertEquals('foo=bar&bar=foo', $http->getRequestData());
     }
 
-    public function testSetPostFields()
+    public function testSetRequestDataArrayPost()
     {
-        $this->Http->setOption(CURLOPT_POSTFIELDS, 'foobar');
-        $this->assertEquals('foobar', $this->Http->getRequestData());
-    }
-
-    public function testRequestDataOverridePostFields()
-    {
-        $this->Http->data([
+        $http = Http::make(self::TEST_URL, Http::METHOD_POST);
+        $http->data([
             'foo' => 'bar',
             'bar' => 'foo'
         ]);
-        $this->Http->setOption(CURLOPT_POSTFIELDS, 'foobar');
-        $this->assertEquals('foo=bar&bar=foo', $this->Http->getRequestData());
+
+        $this->assertEquals([
+            'foo' => 'bar',
+            'bar' => 'foo'
+        ], $http->getRequestData());
+    }
+
+    public function testSetPostFieldsPost()
+    {
+        $http = Http::make(self::TEST_URL, Http::METHOD_POST);
+        $http->setOption(CURLOPT_POSTFIELDS, 'foobar');
+
+        $this->assertEquals('foobar', $http->getRequestData());
+    }
+
+    public function testRequestDataOverrideGetFieldsGet()
+    {
+        $http = Http::make(self::TEST_URL, Http::METHOD_GET);
+        $http->data([
+            'foo' => 'bar',
+            'bar' => 'foo'
+        ]);
+        $http->setOption(CURLOPT_POSTFIELDS, 'foobar');
+
+        $this->assertEquals('foo=bar&bar=foo', $http->getRequestData());
+    }
+
+    public function testRequestDataOverrideGetFieldsPost()
+    {
+        $http = Http::make(self::TEST_URL, Http::METHOD_POST);
+        $http->data([
+            'foo' => 'bar',
+            'bar' => 'foo'
+        ]);
+        $http->setOption(CURLOPT_POSTFIELDS, 'foobar');
+
+        $this->assertEquals([
+            'foo' => 'bar',
+            'bar' => 'foo'
+        ], $http->getRequestData());
     }
 }
