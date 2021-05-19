@@ -25,10 +25,10 @@
  *       ]);
  *
  *       // Add all INI files to a zip folder "config"
- *       $zip->folder('/config', '/path/to/config/*.ini');
+ *       $zip->folder('config', '/path/to/config/*.ini');
  *
  *       // Add multiple paths to a zip folder "images"
- *       $zip->folder('/images', function($zip) {
+ *       $zip->folder('images', function($zip) {
  *           $zip->add('/my/gifs/*.gif', );
  *           $zip->add('/photo/reel/*.{png,jpg}', );
  *       });
