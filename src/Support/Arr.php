@@ -3,7 +3,7 @@
 use Illuminate\Support\Arr as ArrHelper;
 
 /**
- * Array helper
+ * Arr helper as an extension to Laravel
  *
  * @package october\support
  * @author Alexey Bobkov, Samuel Georges
@@ -11,13 +11,9 @@ use Illuminate\Support\Arr as ArrHelper;
 class Arr extends ArrHelper
 {
     /**
-     * Build a new array using a callback.
-     *
-     * @param  array  $array
-     * @param  callable  $callback
-     * @return array
+     * build a new array using a callback.
      */
-    public static function build($array, callable $callback)
+    public static function build($array, callable $callback): array
     {
         $results = [];
 

@@ -1,20 +1,18 @@
 <?php
 
 use October\Rain\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
+use October\Rain\Database\Updates\Migration;
 
 class DbDeferredBindings extends Migration
 {
-
     public function up()
     {
         Schema::create('deferred_bindings', function (Blueprint $table) {
-            $table->engine = 'InnoDB';
             $table->increments('id');
-            $table->string('master_type')->index();
-            $table->string('master_field')->index();
-            $table->string('slave_type')->index();
-            $table->string('slave_id')->index();
+            $table->string('master_type');
+            $table->string('master_field');
+            $table->string('slave_type');
+            $table->integer('slave_id');
             $table->string('session_key');
             $table->boolean('is_bind')->default(true);
             $table->timestamps();

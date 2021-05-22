@@ -3,13 +3,15 @@
 use Illuminate\Support\Collection as CollectionBase;
 
 /**
- * Proxy class.
+ * Collection is an umbrealla class for Laravel's Collection
+ *
+ * @package october\support
+ * @author Alexey Bobkov, Samuel Georges
  */
 class Collection extends CollectionBase
 {
     /**
-     * Get an array with the values of a given key.
-     *
+     * lists get an array with the values of a given key
      * @param  string  $value
      * @param  string  $key
      * @return array

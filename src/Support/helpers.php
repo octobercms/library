@@ -6,13 +6,13 @@ use October\Rain\Support\Collection;
 
 if (!function_exists('input')) {
     /**
-     * Returns an input parameter or the default value.
+     * input returns an input parameter or the default value.
      * Supports HTML Array names.
-     * <pre>
-     * $value = input('value', 'not found');
-     * $name = input('contact[name]');
-     * $name = input('contact[location][city]');
-     * </pre>
+     *
+     *     $value = input('value', 'not found');
+     *     $name = input('contact[name]');
+     *     $name = input('contact[location][city]');
+     *
      * Booleans are converted from strings
      * @param string $name
      * @param string $default
@@ -37,12 +37,12 @@ if (!function_exists('input')) {
 
 if (!function_exists('post')) {
     /**
-     * Identical function to input(), however restricted to POST values.
+     * post is an identical function to input(), however restricted to POST values.
      */
     function post($name = null, $default = null)
     {
         if ($name === null) {
-            return Request::post();
+            return $_POST;
         }
 
         /*
@@ -52,18 +52,18 @@ if (!function_exists('post')) {
             $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
         }
 
-        return array_get(Request::post(), $name, $default);
+        return array_get($_POST, $name, $default);
     }
 }
 
 if (!function_exists('get')) {
     /**
-     * Identical function to input(), however restricted to GET values.
+     * get is an identical function to input(), however restricted to GET values.
      */
     function get($name = null, $default = null)
     {
         if ($name === null) {
-            return Request::query();
+            return $_GET;
         }
 
         /*
@@ -73,13 +73,13 @@ if (!function_exists('get')) {
             $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
         }
 
-        return array_get(Request::query(), $name, $default);
+        return array_get($_GET, $name, $default);
     }
 }
 
 if (!function_exists('trace_log')) {
     /**
-     * Writes a trace message to a log file.
+     * trace_log writes a trace message to a log file
      * @param mixed $message Specifies a message to log. The message can be an object, array or string.
      * @param string $level Specifies a level to use. If this parameter is omitted, the default listener will be used (info).
      * @return void
@@ -105,8 +105,7 @@ if (!function_exists('trace_log')) {
 
 if (!function_exists('traceLog')) {
     /**
-     * Alias for trace_log()
-     * @return void
+     * traceLog is an alias for trace_log()
      */
     function traceLog()
     {
@@ -116,7 +115,7 @@ if (!function_exists('traceLog')) {
 
 if (!function_exists('trace_sql')) {
     /**
-     * Begins to monitor all SQL output.
+     * trace_sql begins to monitor all SQL output
      * @return void
      */
     function trace_sql()
@@ -138,7 +137,8 @@ if (!function_exists('trace_sql')) {
             foreach ($bindings as $i => $binding) {
                 if ($binding instanceof \DateTime) {
                     $bindings[$i] = $binding->format('\'Y-m-d H:i:s\'');
-                } elseif (is_string($binding)) {
+                }
+                elseif (is_string($binding)) {
                     $bindings[$i] = "'$binding'";
                 }
             }
@@ -153,7 +153,7 @@ if (!function_exists('trace_sql')) {
 
 if (!function_exists('traceSql')) {
     /**
-     * Alias for trace_sql()
+     * traceSql is an alias for trace_sql()
      * @return void
      */
     function traceSql()
@@ -164,8 +164,7 @@ if (!function_exists('traceSql')) {
 
 if (!function_exists('plugins_path')) {
     /**
-     * Get the path to the plugins folder.
-     *
+     * plugins_path gets the path to the plugins folder
      * @param  string  $path
      * @return string
      */
@@ -177,8 +176,7 @@ if (!function_exists('plugins_path')) {
 
 if (!function_exists('cache_path')) {
     /**
-     * Get the path to the cache folder.
-     *
+     * cache_path gets the path to the cache folder
      * @param  string  $path
      * @return string
      */
@@ -190,8 +188,7 @@ if (!function_exists('cache_path')) {
 
 if (!function_exists('themes_path')) {
     /**
-     * Get the path to the themes folder.
-     *
+     * themes_path gets the path to the themes folder
      * @param  string  $path
      * @return string
      */
@@ -203,8 +200,7 @@ if (!function_exists('themes_path')) {
 
 if (!function_exists('temp_path')) {
     /**
-     * Get the path to the temporary storage folder.
-     *
+     * temp_path gets the path to the temporary storage folder
      * @param  string  $path
      * @return string
      */
@@ -216,8 +212,7 @@ if (!function_exists('temp_path')) {
 
 if (!function_exists('e')) {
     /**
-     * Encode HTML special characters in a string.
-     *
+     * e will encode HTML special characters in a string
      * @param  \Illuminate\Contracts\Support\Htmlable|string  $value
      * @param  bool  $doubleEncode
      * @return string
@@ -234,8 +229,7 @@ if (!function_exists('e')) {
 
 if (!function_exists('trans')) {
     /**
-     * Translate the given message.
-     *
+     * trans translates the given message
      * @param  string  $id
      * @param  array   $parameters
      * @param  string  $locale
@@ -249,8 +243,7 @@ if (!function_exists('trans')) {
 
 if (!function_exists('array_build')) {
     /**
-     * Build a new array using a callback.
-     *
+     * array_build builds a new array using a callback
      * @param  array  $array
      * @param  callable  $callback
      * @return array
@@ -263,8 +256,7 @@ if (!function_exists('array_build')) {
 
 if (!function_exists('collect')) {
     /**
-     * Create a collection from the given value.
-     *
+     * collect creates a collection from the given value
      * @param  mixed  $value
      * @return \October\Rain\Support\Collection
      */
@@ -276,8 +268,7 @@ if (!function_exists('collect')) {
 
 if (!function_exists('is_countable')) {
     /**
-     * Polyfill for `is_countable` method provided in PHP 7.3
-     *
+     * is_countable is a polyfill for `is_countable` method provided in PHP 7.3
      * @param  mixed  $var
      * @return boolean
      */
@@ -289,8 +280,7 @@ if (!function_exists('is_countable')) {
 
 if (!function_exists('array_add')) {
     /**
-     * Add an element to an array using "dot" notation if it doesn't exist.
-     *
+     * array_add adds an element to an array using "dot" notation if it doesn't exist
      * @param  array  $array
      * @param  string  $key
      * @param  mixed  $value
@@ -304,8 +294,7 @@ if (!function_exists('array_add')) {
 
 if (!function_exists('array_collapse')) {
     /**
-     * Collapse an array of arrays into a single array.
-     *
+     * array_collapse collapses an array of arrays into a single array
      * @param  array  $array
      * @return array
      */
@@ -317,8 +306,7 @@ if (!function_exists('array_collapse')) {
 
 if (!function_exists('array_divide')) {
     /**
-     * Divide an array into two arrays. One with keys and the other with values.
-     *
+     * array_divide divides an array into two arrays. One with keys and the other with values
      * @param  array  $array
      * @return array
      */
@@ -330,8 +318,7 @@ if (!function_exists('array_divide')) {
 
 if (!function_exists('array_dot')) {
     /**
-     * Flatten a multi-dimensional associative array with dots.
-     *
+     * array_dot flattens a multi-dimensional associative array with dots
      * @param  array  $array
      * @param  string  $prepend
      * @return array
@@ -344,8 +331,7 @@ if (!function_exists('array_dot')) {
 
 if (!function_exists('array_except')) {
     /**
-     * Get all of the given array except for a specified array of keys.
-     *
+     * array_except gets all of the given array except for a specified array of keys
      * @param  array  $array
      * @param  array|string  $keys
      * @return array
@@ -358,8 +344,7 @@ if (!function_exists('array_except')) {
 
 if (!function_exists('array_first')) {
     /**
-     * Return the first element in an array passing a given truth test.
-     *
+     * array_first returns the first element in an array passing a given truth test
      * @param  array  $array
      * @param  callable|null  $callback
      * @param  mixed  $default
@@ -373,8 +358,7 @@ if (!function_exists('array_first')) {
 
 if (!function_exists('array_flatten')) {
     /**
-     * Flatten a multi-dimensional array into a single level.
-     *
+     * array_flatten flattens a multi-dimensional array into a single level
      * @param  array  $array
      * @param  int  $depth
      * @return array
@@ -387,8 +371,7 @@ if (!function_exists('array_flatten')) {
 
 if (!function_exists('array_forget')) {
     /**
-     * Remove one or many array items from a given array using "dot" notation.
-     *
+     * array_forget removes one or many array items from a given array using "dot" notation
      * @param  array  $array
      * @param  array|string  $keys
      * @return void
@@ -401,8 +384,7 @@ if (!function_exists('array_forget')) {
 
 if (!function_exists('array_get')) {
     /**
-     * Get an item from an array using "dot" notation.
-     *
+     * array_get gets an item from an array using "dot" notation
      * @param  \ArrayAccess|array  $array
      * @param  string|int  $key
      * @param  mixed  $default
@@ -416,8 +398,7 @@ if (!function_exists('array_get')) {
 
 if (!function_exists('array_has')) {
     /**
-     * Check if an item or items exist in an array using "dot" notation.
-     *
+     * array_has checks if an item or items exist in an array using "dot" notation
      * @param  \ArrayAccess|array  $array
      * @param  string|array  $keys
      * @return bool
@@ -430,8 +411,7 @@ if (!function_exists('array_has')) {
 
 if (!function_exists('array_last')) {
     /**
-     * Return the last element in an array passing a given truth test.
-     *
+     * array_last returns the last element in an array passing a given truth test
      * @param  array  $array
      * @param  callable|null  $callback
      * @param  mixed  $default
@@ -445,8 +425,7 @@ if (!function_exists('array_last')) {
 
 if (!function_exists('array_only')) {
     /**
-     * Get a subset of the items from the given array.
-     *
+     * array_only gets a subset of the items from the given array
      * @param  array  $array
      * @param  array|string  $keys
      * @return array
@@ -459,8 +438,7 @@ if (!function_exists('array_only')) {
 
 if (!function_exists('array_pluck')) {
     /**
-     * Pluck an array of values from an array.
-     *
+     * array_pluck plucks an array of values from an array
      * @param  array  $array
      * @param  string|array  $value
      * @param  string|array|null  $key
@@ -474,8 +452,7 @@ if (!function_exists('array_pluck')) {
 
 if (!function_exists('array_prepend')) {
     /**
-     * Push an item onto the beginning of an array.
-     *
+     * array_prepend pushes an item onto the beginning of an array
      * @param  array  $array
      * @param  mixed  $value
      * @param  mixed  $key
@@ -489,8 +466,7 @@ if (!function_exists('array_prepend')) {
 
 if (!function_exists('array_pull')) {
     /**
-     * Get a value from the array, and remove it.
-     *
+     * array_pull gets a value from the array, and remove it
      * @param  array  $array
      * @param  string  $key
      * @param  mixed  $default
@@ -504,8 +480,7 @@ if (!function_exists('array_pull')) {
 
 if (!function_exists('array_random')) {
     /**
-     * Get a random value from an array.
-     *
+     * array_random gets a random value from an array
      * @param  array  $array
      * @param  int|null  $num
      * @return mixed
@@ -518,10 +493,8 @@ if (!function_exists('array_random')) {
 
 if (!function_exists('array_set')) {
     /**
-     * Set an array item to a given value using "dot" notation.
-     *
+     * array_set sets an array item to a given value using "dot" notation
      * If no key is given to the method, the entire array will be replaced.
-     *
      * @param  array  $array
      * @param  string  $key
      * @param  mixed  $value
@@ -535,8 +508,7 @@ if (!function_exists('array_set')) {
 
 if (!function_exists('array_sort')) {
     /**
-     * Sort the array by the given callback or attribute name.
-     *
+     * array_sort sorts the array by the given callback or attribute name
      * @param  array  $array
      * @param  callable|string|null  $callback
      * @return array
@@ -549,8 +521,7 @@ if (!function_exists('array_sort')) {
 
 if (!function_exists('array_sort_recursive')) {
     /**
-     * Recursively sort an array by keys and values.
-     *
+     * array_sort_recursive recursively sort an array by keys and values
      * @param  array  $array
      * @return array
      */
@@ -562,8 +533,7 @@ if (!function_exists('array_sort_recursive')) {
 
 if (!function_exists('array_where')) {
     /**
-     * Filter the array using the given callback.
-     *
+     * array_where filters the array using the given callback
      * @param  array  $array
      * @param  callable  $callback
      * @return array
@@ -576,8 +546,7 @@ if (!function_exists('array_where')) {
 
 if (!function_exists('array_wrap')) {
     /**
-     * If the given value is not an array, wrap it in one.
-     *
+     * array_wrap if the given value is not an array, wrap it in one
      * @param  mixed  $value
      * @return array
      */
@@ -589,8 +558,7 @@ if (!function_exists('array_wrap')) {
 
 if (!function_exists('camel_case')) {
     /**
-     * Convert a value to camel case.
-     *
+     * camel_case converts a value to camel case
      * @param  string  $value
      * @return string
      */
@@ -602,8 +570,7 @@ if (!function_exists('camel_case')) {
 
 if (!function_exists('ends_with')) {
     /**
-     * Determine if a given string ends with a given substring.
-     *
+     * ends_with determines if a given string ends with a given substring
      * @param  string  $haystack
      * @param  string|array  $needles
      * @return bool
@@ -616,8 +583,7 @@ if (!function_exists('ends_with')) {
 
 if (!function_exists('kebab_case')) {
     /**
-     * Convert a string to kebab case.
-     *
+     * kebab_case converts a string to kebab case
      * @param  string  $value
      * @return string
      */
@@ -629,8 +595,7 @@ if (!function_exists('kebab_case')) {
 
 if (!function_exists('snake_case')) {
     /**
-     * Convert a string to snake case.
-     *
+     * snake_case converts a string to snake case
      * @param  string  $value
      * @param  string  $delimiter
      * @return string
@@ -643,8 +608,7 @@ if (!function_exists('snake_case')) {
 
 if (!function_exists('starts_with')) {
     /**
-     * Determine if a given string starts with a given substring.
-     *
+     * starts_with determines if a given string starts with a given substring
      * @param  string  $haystack
      * @param  string|array  $needles
      * @return bool
@@ -657,8 +621,7 @@ if (!function_exists('starts_with')) {
 
 if (!function_exists('str_after')) {
     /**
-     * Return the remainder of a string after a given value.
-     *
+     * str_after returns the remainder of a string after a given value
      * @param  string  $subject
      * @param  string  $search
      * @return string
@@ -671,8 +634,7 @@ if (!function_exists('str_after')) {
 
 if (!function_exists('str_before')) {
     /**
-     * Get the portion of a string before a given value.
-     *
+     * str_before get the portion of a string before a given value
      * @param  string  $subject
      * @param  string  $search
      * @return string
@@ -685,8 +647,7 @@ if (!function_exists('str_before')) {
 
 if (!function_exists('str_contains')) {
     /**
-     * Determine if a given string contains a given substring.
-     *
+     * str_contains determines if a given string contains a given substring
      * @param  string  $haystack
      * @param  string|array  $needles
      * @return bool
@@ -699,8 +660,7 @@ if (!function_exists('str_contains')) {
 
 if (!function_exists('str_finish')) {
     /**
-     * Cap a string with a single instance of a given value.
-     *
+     * str_finish caps a string with a single instance of a given value
      * @param  string  $value
      * @param  string  $cap
      * @return string
@@ -713,8 +673,7 @@ if (!function_exists('str_finish')) {
 
 if (!function_exists('str_is')) {
     /**
-     * Determine if a given string matches a given pattern.
-     *
+     * str_is determines if a given string matches a given pattern
      * @param  string|array  $pattern
      * @param  string  $value
      * @return bool
@@ -727,8 +686,7 @@ if (!function_exists('str_is')) {
 
 if (!function_exists('str_limit')) {
     /**
-     * Limit the number of characters in a string.
-     *
+     * str_limit limits the number of characters in a string
      * @param  string  $value
      * @param  int  $limit
      * @param  string  $end
@@ -742,8 +700,7 @@ if (!function_exists('str_limit')) {
 
 if (!function_exists('str_plural')) {
     /**
-     * Get the plural form of an English word.
-     *
+     * str_plural get the plural form of an English word
      * @param  string  $value
      * @param  int  $count
      * @return string
@@ -756,8 +713,7 @@ if (!function_exists('str_plural')) {
 
 if (!function_exists('str_random')) {
     /**
-     * Generate a more truly "random" alpha-numeric string.
-     *
+     * str_random generates a more truly "random" alpha-numeric string
      * @param  int  $length
      * @return string
      *
@@ -771,8 +727,7 @@ if (!function_exists('str_random')) {
 
 if (!function_exists('str_replace_array')) {
     /**
-     * Replace a given value in the string sequentially with an array.
-     *
+     * str_replace_array replaces a given value in the string sequentially with an array
      * @param  string  $search
      * @param  array  $replace
      * @param  string  $subject
@@ -786,8 +741,7 @@ if (!function_exists('str_replace_array')) {
 
 if (!function_exists('str_replace_first')) {
     /**
-     * Replace the first occurrence of a given value in the string.
-     *
+     * str_replace_first replaces the first occurrence of a given value in the string
      * @param  string  $search
      * @param  string  $replace
      * @param  string  $subject
@@ -801,8 +755,7 @@ if (!function_exists('str_replace_first')) {
 
 if (!function_exists('str_replace_last')) {
     /**
-     * Replace the last occurrence of a given value in the string.
-     *
+     * str_replace_last replaces the last occurrence of a given value in the string
      * @param  string  $search
      * @param  string  $replace
      * @param  string  $subject
@@ -816,8 +769,7 @@ if (!function_exists('str_replace_last')) {
 
 if (!function_exists('str_singular')) {
     /**
-     * Get the singular form of an English word.
-     *
+     * str_singular get the singular form of an English word
      * @param  string  $value
      * @return string
      */
@@ -829,8 +781,7 @@ if (!function_exists('str_singular')) {
 
 if (!function_exists('str_slug')) {
     /**
-     * Generate a URL friendly "slug" from a given string.
-     *
+     * str_slug generates a URL friendly "slug" from a given string
      * @param  string  $title
      * @param  string  $separator
      * @param  string  $language
@@ -844,8 +795,7 @@ if (!function_exists('str_slug')) {
 
 if (!function_exists('str_start')) {
     /**
-     * Begin a string with a single instance of a given value.
-     *
+     * str_start begins a string with a single instance of a given value
      * @param  string  $value
      * @param  string  $prefix
      * @return string
@@ -858,8 +808,7 @@ if (!function_exists('str_start')) {
 
 if (!function_exists('studly_case')) {
     /**
-     * Convert a value to studly caps case.
-     *
+     * studly_case converts a value to studly caps case
      * @param  string  $value
      * @return string
      */
@@ -871,8 +820,7 @@ if (!function_exists('studly_case')) {
 
 if (!function_exists('title_case')) {
     /**
-     * Convert a value to title case.
-     *
+     * title_case converts a value to title case
      * @param  string  $value
      * @return string
      */

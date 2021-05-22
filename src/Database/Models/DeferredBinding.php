@@ -5,7 +5,7 @@ use October\Rain\Database\Model;
 use Exception;
 
 /**
- * Deferred Binding Model
+ * DeferredBinding Model
  *
  * @package october\database
  * @author Alexey Bobkov, Samuel Georges

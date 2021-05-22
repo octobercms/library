@@ -7,8 +7,7 @@ class DbGroups extends Migration
 {
     public function up()
     {
-        Schema::create('groups', function ($table) {
-            $table->engine = 'InnoDB';
+        Schema::create('groups', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name')->unique();
             $table->timestamps();

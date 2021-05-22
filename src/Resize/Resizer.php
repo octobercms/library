@@ -12,7 +12,7 @@ use Exception;
 class Resizer
 {
     /**
-     * @var Resource The symfony uploaded file object.
+     * @var FileObj file the symfony uploaded file object
      */
     protected $file;
 
@@ -27,12 +27,12 @@ class Resizer
     protected $mime;
 
     /**
-     * @var Resource image (on disk) that's being resized
+     * @var \GdImage image (on disk) that's being resized
      */
     protected $image;
 
     /**
-     * @var Resource originalImage cached
+     * @var \GdImage originalImage cached
      */
     protected $originalImage;
 
@@ -57,9 +57,9 @@ class Resizer
     protected $options = [];
 
     /**
-     * __construct instantiates the Resizer and receives the path to an image we're working with
-     * @param mixed $file The file array provided by Laravel's Input::file('field_name') or a path to a file
-     * @throws Exception
+     * __construct instantiates the Resizer and receives the path to an image we're working with.
+     * The file can be either Input::file('field_name') or a path to a file
+     * @param mixed $file
      */
     public function __construct($file)
     {
@@ -71,6 +71,8 @@ class Resizer
         if (is_string($file)) {
             $file = new FileObj($file);
         }
+
+        $this->file = $file;
 
         // Get the file extension
         $this->extension = $file->guessExtension();
@@ -91,13 +93,9 @@ class Resizer
     }
 
     /**
-     * Static call, Laravel style.
-     * Returns a new Resizer object, allowing for chainable calls
-     * @param  mixed $file The file array provided by Laravel's Input::file('field_name') or a path to a file
-     * @return Resizer
-     * @throws Exception
+     * open is a static constructor
      */
-    public static function open($file)
+    public static function open($file): Resizer
     {
         return new Resizer($file);
     }
@@ -250,7 +248,7 @@ class Resizer
     /**
      * getRotatedOriginal receives the original but rotated image
      * according to exif orientation
-     * @return resource (gd)
+     * @return \GdImage
      */
     protected function getRotatedOriginal()
     {
@@ -429,6 +427,9 @@ class Resizer
 
         $imageQuality = $this->getOption('quality');
 
+        // Apply boundaries to quality (0-100)
+        $imageQuality = max(min($imageQuality, 100), 0);
+
         if ($this->getOption('interlace')) {
             imageinterlace($image, true);
         }
@@ -474,7 +475,10 @@ class Resizer
                 break;
 
             default:
-                throw new Exception(sprintf('Invalid image type: %s. Accepted types: jpg, gif, png, webp.', $extension));
+                throw new Exception(sprintf(
+                    'Invalid image type: %s. Accepted types: jpg, gif, png, webp.',
+                    $extension
+                ));
         }
 
         // Remove the resource for the resized image
@@ -628,7 +632,7 @@ class Resizer
     protected function getOptimalCrop($newWidth, $newHeight): array
     {
         $heightRatio = $this->height / $newHeight;
-        $widthRatio  = $this->width /  $newWidth;
+        $widthRatio = $this->width /  $newWidth;
 
         if ($heightRatio < $widthRatio) {
             $optimalRatio = $heightRatio;
@@ -638,7 +642,7 @@ class Resizer
         }
 
         $optimalHeight = round($this->height / $optimalRatio);
-        $optimalWidth  = round($this->width  / $optimalRatio);
+        $optimalWidth = round($this->width  / $optimalRatio);
 
         return [$optimalWidth, $optimalHeight];
     }

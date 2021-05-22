@@ -1,9 +1,7 @@
 <?php namespace October\Rain\Support\Traits;
 
 /**
- * Singleton trait.
- *
- * Allows a simple interface for treating a class as a singleton.
+ * Singleton trait allows a simple interface for treating a class as a singleton
  * Usage: myObject::instance()
  *
  * @package october\support
@@ -11,10 +9,13 @@
  */
 trait Singleton
 {
+    /**
+     * @var self instance
+     */
     protected static $instance;
 
     /**
-     * Create a new instance of this singleton.
+     * instance create a new instance of this singleton
      */
     final public static function instance()
     {
@@ -24,7 +25,7 @@ trait Singleton
     }
 
     /**
-     * Forget this singleton's instance if it exists
+     * forgetInstance if it exists
      */
     final public static function forgetInstance()
     {
@@ -32,7 +33,7 @@ trait Singleton
     }
 
     /**
-     * Constructor.
+     * __construct
      */
     final protected function __construct()
     {
@@ -40,17 +41,25 @@ trait Singleton
     }
 
     /**
-     * Initialize the singleton free from constructor parameters.
+     * init the singleton free from constructor parameters
      */
     protected function init()
     {
     }
 
+    /**
+     * __clone
+     * @ignore
+     */
     public function __clone()
     {
         trigger_error('Cloning '.__CLASS__.' is not allowed.', E_USER_ERROR);
     }
 
+    /**
+     * __wakeup
+     * @ignore
+     */
     public function __wakeup()
     {
         trigger_error('Unserializing '.__CLASS__.' is not allowed.', E_USER_ERROR);

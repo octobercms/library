@@ -3,6 +3,8 @@
 use October\Rain\Support\Facade;
 
 /**
+ * Flash
+ *
  * @see \October\Rain\Support\FlashBag
  */
 class Flash extends Facade

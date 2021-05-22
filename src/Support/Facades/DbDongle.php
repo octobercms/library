@@ -3,6 +3,8 @@
 use October\Rain\Support\Facade;
 
 /**
+ * DbDongle
+ *
  * @see \October\Rain\Database\Dongle
  */
 class DbDongle extends Facade

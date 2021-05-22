@@ -1,9 +1,7 @@
 <?php namespace October\Rain\Support\Traits;
 
 /**
- * Key Parser trait
- *
- * Resolves key strings into namespace, group and item.
+ * KeyParser trait resolves key strings into namespace, group and item
  * Example: namespace::group.item
  *
  * @package october\support
@@ -11,33 +9,26 @@
  */
 trait KeyParser
 {
-
     /**
-     * A cache of the parsed items.
-     *
-     * @var array
+     * @var array keyParserCache is a cache of the parsed items
      */
     protected $keyParserCache = [];
 
     /**
-     * Set the parsed value of a key.
-     *
+     * setParsedKey value
      * @param  string  $key
      * @param  array   $parsed
      * @return void
      */
-    public function setParsedKey($key, $parsed)
+    public function setParsedKey($key, $parsed): void
     {
         $this->keyParserCache[$key] = $parsed;
     }
 
     /**
-     * Parse a key into namespace, group, and item.
-     *
-     * @param  string  $key
-     * @return array
+     * parseKey into namespace, group, and item
      */
-    public function parseKey($key)
+    public function parseKey(string $key): array
     {
         // If we've already parsed the given key, we'll return the cached version we
         // already have, as this will save us some processing. We cache off every
@@ -65,12 +56,9 @@ trait KeyParser
     }
 
     /**
-     * Parse an array of basic segments.
-     *
-     * @param  array  $segments
-     * @return array
+     * keyParserParseBasicSegments as an array
      */
-    protected function keyParserParseBasicSegments(array $segments)
+    protected function keyParserParseBasicSegments(array $segments): array
     {
         // The first segment in a basic array will always be the group, so we can go
         // ahead and grab that segment. If there is only one total segment we are
@@ -90,12 +78,9 @@ trait KeyParser
     }
 
     /**
-     * Parse an array of namespaced segments.
-     *
-     * @param  string  $key
-     * @return array
+     * keyParserParseSegments from a string
      */
-    protected function keyParserParseSegments($key)
+    protected function keyParserParseSegments(string $key): array
     {
         list($namespace, $item) = explode('::', $key);
 

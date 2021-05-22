@@ -2,6 +2,12 @@
 
 use October\Rain\Support\ServiceProvider;
 
+/**
+ * ArgonServiceProvider
+ *
+ * @package october\argon
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class ArgonServiceProvider extends ServiceProvider
 {
     /**

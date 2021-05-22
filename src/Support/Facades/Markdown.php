@@ -3,6 +3,8 @@
 use October\Rain\Support\Facade;
 
 /**
+ * Markdown
+ *
  * @see \October\Rain\Parse\Markdown
  */
 class Markdown extends Facade

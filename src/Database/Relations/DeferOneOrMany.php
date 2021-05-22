@@ -3,10 +3,13 @@
 use October\Rain\Support\Facades\DbDongle;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany as BelongsToManyBase;
 
+/**
+ * DeferOneOrMany
+ */
 trait DeferOneOrMany
 {
     /**
-     * Returns the model query with deferred bindings added
+     * withDeferred returns the model query with deferred bindings added
      * @return \Illuminate\Database\Query\Builder
      */
     public function withDeferred($sessionKey)
@@ -115,14 +118,14 @@ trait DeferOneOrMany
     }
 
     /**
-     * Returns the related "slave id" key in a database friendly format.
+     * getWithDeferredQualifiedKeyName returns the related "slave id" key
+     * in a database friendly format.
      * @return \Illuminate\Database\Query\Expression
      */
     protected function getWithDeferredQualifiedKeyName()
     {
-        return $this->parent->getConnection()->raw(DbDongle::cast(
-            DbDongle::getTablePrefix() . $this->related->getQualifiedKeyName(),
-            'TEXT'
-        ));
+        return $this->parent->getConnection()->raw(
+            DbDongle::getTablePrefix() . $this->related->getQualifiedKeyName()
+        );
     }
 }

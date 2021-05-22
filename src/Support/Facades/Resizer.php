@@ -3,6 +3,8 @@
 use October\Rain\Support\Facade;
 
 /**
+ * Resizer
+ *
  * @see \October\Rain\Resize\Resizer
  */
 class Resizer extends Facade

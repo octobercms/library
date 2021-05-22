@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
-use October\Rain\Support\Facades\DbDongle;
 use October\Rain\Database\Attach\File as FileModel;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -65,9 +64,7 @@ trait AttachOneOrMany
             $query = $this->getRelationExistenceQueryForSelfJoin($query, $parentQuery, $columns);
         }
         else {
-            $key = DbDongle::cast($this->getQualifiedParentKeyName(), 'TEXT');
-
-            $query = $query->select($columns)->whereColumn($this->getExistenceCompareKey(), '=', $key);
+            $query = $query->select($columns)->whereColumn($this->getExistenceCompareKey(), '=', $this->getQualifiedParentKeyName());
         }
 
         $query = $query->where($this->morphType, $this->morphClass);
@@ -90,9 +87,7 @@ trait AttachOneOrMany
 
         $query->getModel()->setTable($hash);
 
-        $key = DbDongle::cast($this->getQualifiedParentKeyName(), 'TEXT');
-
-        return $query->whereColumn($hash.'.'.$this->getForeignKeyName(), '=', $key);
+        return $query->whereColumn($hash.'.'.$this->getForeignKeyName(), '=', $this->getQualifiedParentKeyName());
     }
 
     /**

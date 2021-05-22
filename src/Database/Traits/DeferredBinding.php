@@ -2,17 +2,20 @@
 
 use October\Rain\Database\Models\DeferredBinding as DeferredBindingModel;
 
+/**
+ * DeferredBinding trait
+ */
 trait DeferredBinding
 {
     /**
-     * @var string A unique session key used for deferred binding.
+     * @var string sessionKey is A unique session key used for deferred binding
      */
     public $sessionKey;
 
     /**
-     * Returns true if a relation exists and can be deferred.
+     * isDeferrable returns true if a relation exists and can be deferred
      */
-    public function isDeferrable($relationName)
+    public function isDeferrable($relationName): bool
     {
         if (!$this->hasRelation($relationName)) {
             return false;
@@ -25,9 +28,9 @@ trait DeferredBinding
     }
 
     /**
-     * Bind a deferred relationship to the supplied record.
+     * bindDeferred binds a deferred relationship to the supplied record
      */
-    public function bindDeferred($relation, $record, $sessionKey, $pivotData = [])
+    public function bindDeferred($relation, $record, $sessionKey, $pivotData = []): DeferredBindingModel
     {
         $binding = new DeferredBindingModel;
         $binding->setConnection($this->getConnectionName());
@@ -43,9 +46,9 @@ trait DeferredBinding
     }
 
     /**
-     * Unbind a deferred relationship to the supplied record.
+     * unbindDeferred unbinds a deferred relationship to the supplied record
      */
-    public function unbindDeferred($relation, $record, $sessionKey)
+    public function unbindDeferred($relation, $record, $sessionKey): DeferredBindingModel
     {
         $binding = new DeferredBindingModel;
         $binding->setConnection($this->getConnectionName());
@@ -60,24 +63,25 @@ trait DeferredBinding
     }
 
     /**
-     * Cancel all deferred bindings to this model.
+     * cancelDeferred cancels all deferred bindings to this model
      */
-    public function cancelDeferred($sessionKey)
+    public function cancelDeferred($sessionKey): void
     {
         DeferredBindingModel::cancelDeferredActions(get_class($this), $sessionKey);
     }
 
     /**
-     * Commit all deferred bindings to this model.
+     * commitDeferred commits all deferred bindings to this model
      */
     public function commitDeferred($sessionKey)
     {
         $this->commitDeferredOfType($sessionKey);
+
         DeferredBindingModel::flushDuplicateCache();
     }
 
     /**
-     * Internally used method to commit all deferred bindings before saving.
+     * commitDeferredBefore is used internally to commit all deferred bindings before saving.
      * It is a rare need to have to call this, since it only applies to the
      * "belongs to" relationship which generally does not need deferring.
      */
@@ -87,7 +91,7 @@ trait DeferredBinding
     }
 
     /**
-     * Internally used method to commit all deferred bindings after saving.
+     * commitDeferredAfter is used internally to commit all deferred bindings after saving
      */
     protected function commitDeferredAfter($sessionKey)
     {
@@ -96,7 +100,7 @@ trait DeferredBinding
     }
 
     /**
-     * Internal method for committing deferred relations.
+     * commitDeferredOfType is an internal method for committing deferred relations
      */
     protected function commitDeferredOfType($sessionKey, $include = null, $exclude = null)
     {
@@ -162,7 +166,7 @@ trait DeferredBinding
     }
 
     /**
-     * Returns any outstanding binding records for this model.
+     * getDeferredBindingRecords returns any outstanding binding records for this model
      * @return \October\Rain\Database\Collection
      */
     protected function getDeferredBindingRecords($sessionKey)
@@ -179,7 +183,7 @@ trait DeferredBinding
     }
 
     /**
-     * Returns all possible relation types that can be deferred.
+     * getDeferrableRelationTypes returns all possible relation types that can be deferred
      * @return array
      */
     protected function getDeferrableRelationTypes()

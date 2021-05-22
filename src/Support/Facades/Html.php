@@ -3,6 +3,8 @@
 use October\Rain\Support\Facade;
 
 /**
+ * Html
+ *
  * @see \October\Rain\Html\HtmlBuilder
  */
 class Html extends Facade

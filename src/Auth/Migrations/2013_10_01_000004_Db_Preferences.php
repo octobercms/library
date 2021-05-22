@@ -7,8 +7,7 @@ class DbPreferences extends Migration
 {
     public function up()
     {
-        Schema::create('preferences', function ($table) {
-            $table->engine = 'InnoDB';
+        Schema::create('preferences', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id')->unsigned();
             $table->string('namespace', 100);

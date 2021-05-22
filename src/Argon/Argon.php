@@ -4,6 +4,9 @@ use Carbon\Carbon as DateBase;
 
 /**
  * Argon is an umbrella class for Carbon
+ *
+ * @package october\argon
+ * @author Alexey Bobkov, Samuel Georges
  */
 class Argon extends DateBase
 {
@@ -49,7 +52,6 @@ class Argon extends DateBase
 
     /**
      * getLanguageFromLocale gets the language portion of the locale.
-     *
      * @param string $locale
      * @return string
      */

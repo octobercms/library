@@ -3,6 +3,8 @@
 use October\Rain\Support\Facade;
 
 /**
+ * Twig
+ *
  * @see \October\Rain\Parse\Twig
  */
 class Twig extends Facade

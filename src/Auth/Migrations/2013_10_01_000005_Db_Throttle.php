@@ -7,8 +7,7 @@ class DbThrottle extends Migration
 {
     public function up()
     {
-        Schema::create('throttle', function ($table) {
-            $table->engine = 'InnoDB';
+        Schema::create('throttle', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id')->unsigned()->nullable()->index();
             $table->string('ip_address')->nullable()->index();

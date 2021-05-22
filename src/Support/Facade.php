@@ -3,8 +3,7 @@
 use Illuminate\Support\Facades\Facade as FacadeParent;
 
 /**
- * Facade base class
- * Adds the ability to define a fallback instance.
+ * Facade base class that adds the ability to define a fallback instance
  *
  * @package october\support
  * @author Alexey Bobkov, Samuel Georges
@@ -29,8 +28,8 @@ class Facade extends FacadeParent
     }
 
     /**
-     * If the accessor is not found via getFacadeAccessor, use this instance as a fallback.
-     *
+     * getFacadeInstance if the accessor is not found via getFacadeAccessor,
+     * use this instance as a fallback.
      * @return mixed
      */
     protected static function getFacadeInstance()

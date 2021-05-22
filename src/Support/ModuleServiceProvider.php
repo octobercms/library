@@ -18,7 +18,6 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
 
     /**
      * boot bootstraps the application events
-     * @return void
      */
     public function boot()
     {
@@ -73,7 +72,6 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
      * registerConsoleCommand registers a new console (artisan) command
      * @param $key The command name
      * @param $class The command class
-     * @return void
      */
     public function registerConsoleCommand(string $key, string $class)
     {
@@ -90,7 +88,6 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
      * loadConfigFrom registers a config file namespace
      * @param  string  $path
      * @param  string  $namespace
-     * @return void
      */
     protected function loadConfigFrom($path, $namespace)
     {

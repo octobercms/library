@@ -1,9 +1,9 @@
 <?php namespace October\Rain\Support;
 
-use App; // @todo Allow external binding
+use App;
 
 /**
- * IoC Singleton class.
+ * Singleton IoC class
  *
  * A self binding, self contained single class that supports IoC.
  * Usage: myObject::instance()
@@ -14,7 +14,15 @@ use App; // @todo Allow external binding
 class Singleton
 {
     /**
-     * Create a new instance of this singleton.
+     * __construct
+     */
+    final protected function __construct()
+    {
+        $this->init();
+    }
+
+    /**
+     * instance creates a new instance of this singleton
      */
     final public static function instance()
     {
@@ -30,34 +38,31 @@ class Singleton
     }
 
     /**
-     * This should be a meaningful IoC container code. Eg: backend.helper
+     * getSingletonAccessor should return a meaningful IoC container code.
+     * Eg: backend.helper
      */
     protected static function getSingletonAccessor()
     {
         return get_called_class();
     }
 
+    /**
+     * getSingletonInstance returns the final instance of this singleton
+     */
     final public static function getSingletonInstance()
     {
         return new static;
     }
 
     /**
-     * Constructor.
-     */
-    final protected function __construct()
-    {
-        $this->init();
-    }
-
-    /**
-     * Initialize the singleton free from constructor parameters.
+     * init the singleton free from constructor parameters
      */
     protected function init()
     {
     }
 
     /**
+     * __clone
      * @ignore
      */
     public function __clone()
@@ -66,6 +71,7 @@ class Singleton
     }
 
     /**
+     * __wakeup
      * @ignore
      */
     public function __wakeup()

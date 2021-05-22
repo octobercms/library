@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Support\Traits;
 
 /**
- * Adds event related features to any class.
+ * Emitter adds event related features to any class
  *
  * @package october\support
  * @author Alexey Bobkov, Samuel Georges
@@ -9,22 +9,22 @@
 trait Emitter
 {
     /**
-     * @var array Collection of registered events to be fired once only.
+     * @var array emitterSingleEventCollection of events to be fired once only
      */
     protected $emitterSingleEventCollection = [];
 
     /**
-     * @var array Collection of registered events.
+     * @var array emitterEventCollection of all registered events
      */
     protected $emitterEventCollection = [];
 
     /**
-     * @var array Sorted collection of events.
+     * @var array emitterEventSorted collection
      */
     protected $emitterEventSorted = [];
 
     /**
-     * Create a new event binding.
+     * bindEvent creates a new event binding
      * @return self
      */
     public function bindEvent($event, $callback, $priority = 0)
@@ -35,7 +35,7 @@ trait Emitter
     }
 
     /**
-     * Create a new event binding that fires once only
+     * bindEventOnce creates a new event binding that fires once only
      * @return self
      */
     public function bindEventOnce($event, $callback)
@@ -45,12 +45,9 @@ trait Emitter
     }
 
     /**
-     * Sort the listeners for a given event by priority.
-     *
-     * @param  string  $eventName
-     * @return array
+     * emitterEventSortEvents sorts the listeners for a given event by priority
      */
-    protected function emitterEventSortEvents($eventName)
+    protected function emitterEventSortEvents(string $eventName): void
     {
         $this->emitterEventSorted[$eventName] = [];
 
@@ -62,8 +59,7 @@ trait Emitter
     }
 
     /**
-     * Destroys an event binding.
-     * @param string $event Event to destroy
+     * unbindEvent destroys an event binding
      * @return self
      */
     public function unbindEvent($event = null)
@@ -99,7 +95,7 @@ trait Emitter
     }
 
     /**
-     * Fire an event and call the listeners.
+     * fireEvent and call the listeners
      * @param string $event Event name
      * @param array $params Event parameters
      * @param boolean $halt Halt after first non-null result
@@ -110,6 +106,7 @@ trait Emitter
         if (!is_array($params)) {
             $params = [$params];
         }
+
         $result = [];
 
         /*
@@ -121,9 +118,11 @@ trait Emitter
                 if (is_null($response)) {
                     continue;
                 }
+
                 if ($halt) {
                     return $response;
                 }
+
                 $result[] = $response;
             }
 
@@ -143,9 +142,11 @@ trait Emitter
                 if (is_null($response)) {
                     continue;
                 }
+
                 if ($halt) {
                     return $response;
                 }
+
                 $result[] = $response;
             }
         }
