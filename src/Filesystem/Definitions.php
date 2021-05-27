@@ -4,8 +4,7 @@ use Config;
 use Exception;
 
 /**
- * File definitions helper.
- * Contains file extensions for common use cases.
+ * Definitions contains file extensions for common use cases
  *
  * @package october\filesystem
  * @author Alexey Bobkov, Samuel Georges
@@ -25,26 +24,30 @@ class Definitions
      */
     public function getDefinitions(string $type): array
     {
+        $typeConfig = snake_case($type);
         $typeMethod = studly_case($type);
 
         if (!method_exists($this, $typeMethod)) {
             throw new Exception(sprintf('No such definition set exists for "%s"', $type));
         }
 
-        return (array) Config::get('cms.file_definitions.'.$type, $this->$typeMethod());
+        // Support studly and snake based config
+        return (array) Config::get('cms.file_definitions.'.$typeConfig,
+            Config::get('cms.fileDefinitions.'.$typeMethod,
+                $this->$typeMethod()
+            )
+        );
     }
 
     /**
-     * Determines if a path should be ignored, sourced from the ignoreFiles
-     * and ignorePatterns definitions.
-     * @todo Efficiency of this method can be improved.
-     * @param string $path Specifies a path to check.
-     * @return boolean Returns TRUE if the path is visible.
+     * isPathIgnored determines if a path should be ignored
+     * @param string $path
+     * @return boolean
      */
     public static function isPathIgnored($path)
     {
-        $ignoreNames = self::get('ignoreFiles');
-        $ignorePatterns = self::get('ignorePatterns');
+        $ignoreNames = self::get('ignore_files');
+        $ignorePatterns = self::get('ignore_patterns');
 
         if (in_array($path, $ignoreNames)) {
             return true;
@@ -60,9 +63,9 @@ class Definitions
     }
 
     /**
-     * Files that can be safely ignored.
+     * ignoreFiles that can be safely ignored.
      * This list can be customized with config:
-     * - cms.fileDefinitions.ignoreFiles
+     * - cms.file_definitions.ignore_files
      */
     protected function ignoreFiles()
     {
@@ -75,9 +78,9 @@ class Definitions
     }
 
     /**
-     * File patterns that can be safely ignored.
+     * ignorePatterns that can be safely ignored.
      * This list can be customized with config:
-     * - cms.fileDefinitions.ignorePatterns
+     * - cms.file_definitions.ignore_patterns
      */
     protected function ignorePatterns()
     {
@@ -87,9 +90,9 @@ class Definitions
     }
 
     /**
-     * Extensions that are particularly benign.
+     * defaultExtensions that are particularly benign.
      * This list can be customized with config:
-     * - cms.fileDefinitions.defaultExtensions
+     * - cms.file_definitions.default_extensions
      */
     protected function defaultExtensions()
     {
@@ -140,9 +143,9 @@ class Definitions
     }
 
     /**
-     * Extensions seen as public assets.
+     * assetExtensions seen as public assets.
      * This list can be customized with config:
-     * - cms.fileDefinitions.assetExtensions
+     * - cms.file_definitions.asset_extensions
      */
     protected function assetExtensions()
     {
@@ -170,9 +173,9 @@ class Definitions
     }
 
     /**
-     * Extensions typically used as images.
+     * imageExtensions typically used as images.
      * This list can be customized with config:
-     * - cms.fileDefinitions.imageExtensions
+     * - cms.file_definitions.image_extensions
      */
     protected function imageExtensions()
     {
@@ -187,9 +190,9 @@ class Definitions
     }
 
     /**
-     * Extensions typically used as video files.
+     * videoExtensions typically used as video files.
      * This list can be customized with config:
-     * - cms.fileDefinitions.videoExtensions
+     * - cms.file_definitions.video_extensions
      */
     protected function videoExtensions()
     {
@@ -205,9 +208,9 @@ class Definitions
     }
 
     /**
-     * Extensions typically used as audio files.
+     * audioExtensions typically used as audio files.
      * This list can be customized with config:
-     * - cms.fileDefinitions.audioExtensions
+     * - cms.file_definitions.audio_extensions
      */
     protected function audioExtensions()
     {

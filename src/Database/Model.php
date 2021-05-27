@@ -55,12 +55,12 @@ class Model extends EloquentModel
     public $trimStrings = true;
 
     /**
-     * @var array The array of models booted events.
+     * @var array eventsBooted is an array of models booted events
      */
     protected static $eventsBooted = [];
 
     /**
-     * Constructor
+     * __construct
      */
     public function __construct(array $attributes = [])
     {
@@ -74,7 +74,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Create a new model and return the instance.
+     * make a new model and return the instance
      * @param array $attributes
      * @return \Illuminate\Database\Eloquent\Model|static
      */

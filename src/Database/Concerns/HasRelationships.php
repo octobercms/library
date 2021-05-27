@@ -202,7 +202,7 @@ trait HasRelationships
     /**
      * Returns a relation class object
      * @param string $name Relation name
-     * @return string
+     * @return object
      */
     public function makeRelation($name)
     {
