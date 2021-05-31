@@ -289,7 +289,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
             return false;
         }
 
-        return ($this->reset_password_code === $resetCode);
+        return $this->reset_password_code === $resetCode;
     }
 
     /**

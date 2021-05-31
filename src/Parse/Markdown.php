@@ -39,7 +39,7 @@ class Markdown
     /**
      * parse text using Markdown and Markdown-Extra
      */
-    public function parse(string $text): string
+    public function parse($text): string
     {
         return $this->parseInternal($text);
     }
@@ -47,7 +47,7 @@ class Markdown
     /**
      * parseClean enables safe mode where HTML is escaped
      */
-    public function parseClean(string $text): string
+    public function parseClean($text): string
     {
         $this->getParser()->setSafeMode(true);
 
@@ -61,7 +61,7 @@ class Markdown
     /**
      * parseSafe disables code blocks caused by indentation
      */
-    public function parseSafe(string $text): string
+    public function parseSafe($text): string
     {
         $this->getParser()->setUnmarkedBlockTypes([]);
 
@@ -75,7 +75,7 @@ class Markdown
     /**
      * parseLine parses a single line
      */
-    public function parseLine(string $text): string
+    public function parseLine($text): string
     {
         return $this->parseInternal($text, 'line');
     }
