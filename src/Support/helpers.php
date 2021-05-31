@@ -43,7 +43,7 @@ if (!function_exists('post')) {
     function post($name = null, $default = null)
     {
         if ($name === null) {
-            return Request::post();
+            return $_POST;
         }
 
         /*
@@ -53,7 +53,7 @@ if (!function_exists('post')) {
             $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
         }
 
-        return array_get(Request::post(), $name, $default);
+        return array_get($_POST, $name, $default);
     }
 }
 
@@ -64,7 +64,7 @@ if (!function_exists('get')) {
     function get($name = null, $default = null)
     {
         if ($name === null) {
-            return Request::query();
+            return $_GET;
         }
 
         /*
@@ -74,7 +74,7 @@ if (!function_exists('get')) {
             $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
         }
 
-        return array_get(Request::query(), $name, $default);
+        return array_get($_GET, $name, $default);
     }
 }
 
