@@ -145,6 +145,11 @@ class Http
     protected $redirectCount = null;
 
     /**
+     * @var bool hasFileData determines if files are being sent with the request
+     */
+    protected $hasFileData = false;
+
+    /**
      * make the object with common properties
      * @param string   $url     HTTP request address
      * @param string   $method  Request method (GET, POST, PUT, DELETE, etc)
@@ -305,7 +310,7 @@ class Http
         }
 
         /*
-         * Handle output to file
+         * Execute output to file
          */
         if ($this->streamFile) {
             $stream = fopen($this->streamFile, 'w');
@@ -317,7 +322,7 @@ class Http
             curl_exec($curl);
         }
         /*
-         * Handle output to variable
+         * Execute output to variable
          */
         else {
             $response = $this->rawBody = curl_exec($curl);
@@ -368,8 +373,20 @@ class Http
                 : '';
         }
 
-        if ($this->method === self::METHOD_GET) {
+        if ($this->method === self::METHOD_GET || !$this->hasFileData) {
             return http_build_query($this->requestData, '', $this->argumentSeparator);
+        }
+
+        // This will trigger multipart/form-data content type and needs an array,
+        // make some attempt at supporting multidimensional array values
+        if (is_array($this->requestData)) {
+            $out = [];
+            foreach ($this->requestData as $var => $dat) {
+                $out[$var] = is_array($dat)
+                    ? http_build_query($dat, '', $this->argumentSeparator)
+                    : $dat;
+            }
+            return $out;
         }
 
         return $this->requestData;
@@ -388,6 +405,7 @@ class Http
         }
 
         $this->requestData[$key] = $value;
+
         return $this;
     }
 
@@ -396,6 +414,8 @@ class Http
      */
     public function dataFile(string $key, string $filePath): Http
     {
+        $this->hasFileData = true;
+
         return $this->data($key, curl_file_create($filePath));
     }
 
@@ -413,6 +433,7 @@ class Http
         }
 
         $this->requestHeaders[$key] = $value;
+
         return $this;
     }
 
@@ -542,7 +563,8 @@ class Http
 
             if (isset($curlOptConstants[$option])) {
                 $this->requestOptions[$option] = $value;
-            } else {
+            }
+            else {
                 throw new ApplicationException('$option parameter must be a CURLOPT constant or equivalent integer');
             }
         }

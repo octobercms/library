@@ -19,10 +19,7 @@ class HttpTest extends TestCase
             CURLOPT_PIPEWAIT => false,
             CURLOPT_VERBOSE => true
         ], $http->requestOptions);
-    }
 
-    public function testSetOptionsViaStrings()
-    {
         $http = Http::make(self::TEST_URL, Http::METHOD_GET);
         $http->setOption('CURLOPT_DNS_USE_GLOBAL_CACHE', true);
         $http->setOption('CURLOPT_PIPEWAIT', false);
@@ -33,10 +30,7 @@ class HttpTest extends TestCase
             CURLOPT_PIPEWAIT => false,
             CURLOPT_VERBOSE => true
         ], $http->requestOptions);
-    }
 
-    public function testSetOptionsViaIntegers()
-    {
         $http = Http::make(self::TEST_URL, Http::METHOD_GET);
         $http->setOption(91, true);   // CURLOPT_DNS_USE_GLOBAL_CACHE
         $http->setOption(237, false); // CURLOPT_PIPEWAIT
@@ -81,10 +75,7 @@ class HttpTest extends TestCase
             CURLOPT_PIPEWAIT => false,
             CURLOPT_VERBOSE => true
         ], $http->requestOptions);
-    }
 
-    public function testSetOptionsViaArrayOfIntegers()
-    {
         $http = Http::make(self::TEST_URL, Http::METHOD_GET);
         $http->setOption([
             91 => true,   //CURLOPT_DNS_USE_GLOBAL_CACHE
@@ -97,10 +88,7 @@ class HttpTest extends TestCase
             CURLOPT_PIPEWAIT => false,
             CURLOPT_VERBOSE => true
         ], $http->requestOptions);
-    }
 
-    public function testSetOptionsViaArrayOfStrings()
-    {
         $http = Http::make(self::TEST_URL, Http::METHOD_GET);
         $http->setOption([
             'CURLOPT_DNS_USE_GLOBAL_CACHE' => true,
@@ -145,77 +133,83 @@ class HttpTest extends TestCase
 
     public function testSetRequestDataGet()
     {
+        // Scalar
         $http = Http::make(self::TEST_URL, Http::METHOD_GET);
         $http->data('foo', 'bar');
-
         $this->assertEquals('foo=bar', $http->getRequestData());
+
+        // Array
+        $http = Http::make(self::TEST_URL, Http::METHOD_GET);
+        $http->data([
+            'foo' => 'bar',
+            'bar' => 'foo'
+        ]);
+        $this->assertEquals('foo=bar&bar=foo', $http->getRequestData());
+
+        // Option override (ignored)
+        $http->setOption(CURLOPT_POSTFIELDS, 'foobar');
+        $this->assertEquals('foo=bar&bar=foo', $http->getRequestData());
+
+        // MultiD Array
+        $http = Http::make(self::TEST_URL, Http::METHOD_GET);
+        $http->data([
+            'foo' => 'bar',
+            'bar' => 'foo',
+            'test' => ['a','b']
+        ]);
+        $this->assertEquals('foo=bar&bar=foo&test%5B0%5D=a&test%5B1%5D=b', $http->getRequestData());
     }
 
     public function testSetRequestDataPost()
     {
+        // Scalar
         $http = Http::make(self::TEST_URL, Http::METHOD_POST);
         $http->data('foo', 'bar');
+        $this->assertEquals('foo=bar', $http->getRequestData());
 
-        $this->assertEquals(['foo' => 'bar'], $http->getRequestData());
-    }
-
-    public function testSetRequestDataArrayGet()
-    {
-        $http = Http::make(self::TEST_URL, Http::METHOD_GET);
-        $http->data([
-            'foo' => 'bar',
-            'bar' => 'foo'
-        ]);
-
-        $this->assertEquals('foo=bar&bar=foo', $http->getRequestData());
-    }
-
-    public function testSetRequestDataArrayPost()
-    {
+        // Array
         $http = Http::make(self::TEST_URL, Http::METHOD_POST);
         $http->data([
             'foo' => 'bar',
             'bar' => 'foo'
         ]);
+        $this->assertEquals('foo=bar&bar=foo', $http->getRequestData());
 
-        $this->assertEquals([
-            'foo' => 'bar',
-            'bar' => 'foo'
-        ], $http->getRequestData());
-    }
+        // Option override (ignored)
+        $http->setOption(CURLOPT_POSTFIELDS, 'foobar');
+        $this->assertEquals('foo=bar&bar=foo', $http->getRequestData());
 
-    public function testSetPostFieldsPost()
-    {
+        // Option override
         $http = Http::make(self::TEST_URL, Http::METHOD_POST);
         $http->setOption(CURLOPT_POSTFIELDS, 'foobar');
-
         $this->assertEquals('foobar', $http->getRequestData());
-    }
 
-    public function testRequestDataOverrideGetFieldsGet()
-    {
-        $http = Http::make(self::TEST_URL, Http::METHOD_GET);
-        $http->data([
-            'foo' => 'bar',
-            'bar' => 'foo'
-        ]);
-        $http->setOption(CURLOPT_POSTFIELDS, 'foobar');
-
-        $this->assertEquals('foo=bar&bar=foo', $http->getRequestData());
-    }
-
-    public function testRequestDataOverrideGetFieldsPost()
-    {
+        // MultiD Array
         $http = Http::make(self::TEST_URL, Http::METHOD_POST);
         $http->data([
             'foo' => 'bar',
-            'bar' => 'foo'
+            'bar' => 'foo',
+            'test' => ['a','b']
         ]);
-        $http->setOption(CURLOPT_POSTFIELDS, 'foobar');
+        $this->assertEquals('foo=bar&bar=foo&test%5B0%5D=a&test%5B1%5D=b', $http->getRequestData());
+    }
+
+    public function testSetRequestDataPostWithFiles()
+    {
+        // Array
+        $http = Http::make(self::TEST_URL, Http::METHOD_POST);
+        $http->data([
+            'foo' => 'bar',
+            'bar' => 'foo',
+            'test' => ['a','b']
+        ]);
+        $http->dataFile('testfile', __DIR__ . '/../fixtures/lang/en/lang.php');
 
         $this->assertEquals([
             'foo' => 'bar',
-            'bar' => 'foo'
+            'bar' => 'foo',
+            'test' => '0=a&1=b',
+            'testfile' => new CURLFile(__DIR__ . '/../fixtures/lang/en/lang.php')
         ], $http->getRequestData());
     }
 }
