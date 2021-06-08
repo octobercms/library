@@ -28,7 +28,7 @@ trait ExtendableTrait
     ];
 
     /**
-     * @var array Used to extend the constructor of an extendable class. Eg:
+     * @var array extendableCallbacks is used to extend the constructor of an extendable class. Eg:
      *
      *     Class::extend(function($obj) { })
      *
@@ -36,12 +36,12 @@ trait ExtendableTrait
     protected static $extendableCallbacks = [];
 
     /**
-     * @var array Collection of static methods used by behaviors.
+     * @var array extendableStaticMethods is a collection of static methods used by behaviors
      */
     protected static $extendableStaticMethods = [];
 
     /**
-     * @var bool Indicates if dynamic properties can be created.
+     * @var bool extendableGuardProperties indicates if dynamic properties can be created
      */
     protected static $extendableGuardProperties = true;
 
@@ -115,8 +115,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Clear the list of extended classes so they will be re-extended.
-     * @return void
+     * clearExtendedClasses clears the list of extended classes so they will be re-extended
      */
     public static function clearExtendedClasses()
     {
@@ -124,8 +123,8 @@ trait ExtendableTrait
     }
 
     /**
-     * Extracts the available methods from a behavior and adds it to the
-     * list of callable methods.
+     * extensionExtractMethods extracts the available methods from a behavior and adds it
+     * to the list of callable methods
      * @param  string $extensionName
      * @param  object $extensionObject
      * @return void
@@ -153,7 +152,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Programmatically adds a method to the extendable class
+     * addDynamicMethod programmatically adds a method to the extendable class
      * @param string   $dynamicName
      * @param callable $method
      * @param string   $extension
@@ -172,7 +171,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Programmatically adds a property to the extendable class
+     * addDynamicProperty programmatically adds a property to the extendable class
      * @param string   $dynamicName
      * @param string   $value
      */
@@ -192,7 +191,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Dynamically extend a class with a specified behavior
+     * extendClassWith dynamically extends a class with a specified behavior
      * @param  string $extensionName
      * @return void
      */
@@ -218,7 +217,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Check if extendable class is extended with a behavior object
+     * isClassExtendedWith checks if extendable class is extended with a behavior object
      * @param  string $name Fully qualified behavior name
      * @return boolean
      */
@@ -229,7 +228,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Returns a behavior object from an extendable class, example:
+     * getClassExtension returns a behavior object from an extendable class, example:
      *
      *     $this->getClassExtension('Backend.Behaviors.FormController')
      *
@@ -243,7 +242,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Short hand for `getClassExtension()` method, except takes the short
+     * asExtension is short hand for `getClassExtension()` method, except takes the short
      * extension name, example:
      *
      *     $this->asExtension('FormController')
@@ -253,7 +252,6 @@ trait ExtendableTrait
      */
     public function asExtension($shortName)
     {
-        $hints = [];
         foreach ($this->extensionData['extensions'] as $class => $obj) {
             if (
                 preg_match('@\\\\([\w]+)$@', $class, $matches) &&
@@ -267,7 +265,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Checks if a method exists, extension equivalent of method_exists()
+     * methodExists checks if a method exists, extension equivalent of method_exists()
      * @param  string $name
      * @return boolean
      */
@@ -281,7 +279,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Get a list of class methods, extension equivalent of get_class_methods()
+     * getClassMethods gets a list of class methods, extension equivalent of get_class_methods()
      * @return array
      */
     public function getClassMethods()
@@ -294,7 +292,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Returns all dynamic properties and their values
+     * getDynamicProperties returns all dynamic properties and their values
      * @return array ['property' => 'value']
      */
     public function getDynamicProperties()
@@ -310,7 +308,7 @@ trait ExtendableTrait
     }
 
     /**
-     * Checks if a property exists, extension equivalent of `property_exists()`
+     * propertyExists checks if a property exists, extension equivalent of `property_exists()`
      * @param  string $name
      * @return boolean
      */
@@ -333,7 +331,8 @@ trait ExtendableTrait
     }
 
     /**
-     * Checks if a property is accessible, property equivalent of `is_callable()`
+     * extendableIsAccessible checks if a property is accessible, property equivalent
+     * of `is_callable()`
      * @param  mixed  $class
      * @param  string $propertyName
      * @return boolean
@@ -391,13 +390,13 @@ trait ExtendableTrait
         $parent = get_parent_class();
         if ($parent !== false && method_exists($parent, '__set')) {
             parent::__set($name, $value);
-            return;
+            $found = true;
         }
 
         // Setting an undefined property
         if (!self::$extendableGuardProperties) {
             $this->{$name} = $value;
-            return;
+            $found = true;
         }
 
         // Undefined property, throw an exception to catch it,
