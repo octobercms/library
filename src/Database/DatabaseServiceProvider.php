@@ -5,13 +5,13 @@ use October\Rain\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\DatabaseServiceProvider as DatabaseServiceProviderBase;
 use Illuminate\Database\DatabaseManager;
 
+/**
+ * DatabaseServiceProvider
+ */
 class DatabaseServiceProvider extends DatabaseServiceProviderBase
 {
-
     /**
-     * Bootstrap the application events.
-     *
-     * @return void
+     * boot the application events
      */
     public function boot()
     {
@@ -23,16 +23,13 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
     }
 
     /**
-     * Register the service provider.
-     * @return void
+     * register the service provider
      */
     public function register()
     {
         Model::clearBootedModels();
 
         Model::clearExtendedClasses();
-
-        Model::flushDuplicateCache();
 
         Model::flushEventListeners();
 
@@ -61,28 +58,20 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
         $this->app->singleton('db.dongle', function ($app) {
             return new Dongle($this->getDefaultDatabaseDriver(), $app['db']);
         });
-
-        // Disable memory cache when running in console environment. This should
-        // prevent daemon processes from handling stale data in memory, however
-        // it should be kept active for the purpose of accurate unit testing.
-        if ($this->app->runningInConsole() && !$this->app->runningUnitTests()) {
-            MemoryCache::instance()->enabled(false);
-        }
     }
 
     /**
-     * Returns the default database driver, not just the connection name.
-     * @return string
+     * getDefaultDatabaseDriver returns the default database driver, not just the connection name
      */
-    protected function getDefaultDatabaseDriver()
+    protected function getDefaultDatabaseDriver(): string
     {
         $defaultConnection = $this->app['db']->getDefaultConnection();
+
         return $this->app['config']['database.connections.' . $defaultConnection . '.driver'];
     }
 
     /**
-     * Adds a touch of Rain to the Schema Blueprints.
-     * @return void
+     * swapSchemaBuilderBlueprint adds a touch of Rain to the Schema Blueprints
      */
     protected function swapSchemaBuilderBlueprint()
     {

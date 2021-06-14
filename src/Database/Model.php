@@ -45,11 +45,6 @@ class Model extends EloquentModel
     protected $dates = [];
 
     /**
-     * @var bool duplicateCache queries from this model should be cached in memory
-     */
-    public $duplicateCache = true;
-
-    /**
      * @var bool trimStrings will trim all string attributes of whitespace
      */
     public $trimStrings = true;
@@ -104,8 +99,6 @@ class Model extends EloquentModel
      */
     public function reload()
     {
-        static::flushDuplicateCache();
-
         if (!$this->exists) {
             $this->syncOriginal();
         }
@@ -123,8 +116,6 @@ class Model extends EloquentModel
      */
     public function reloadRelations($relationName = null)
     {
-        static::flushDuplicateCache();
-
         if (!$relationName) {
             $this->setRelations([]);
         }
@@ -410,15 +401,6 @@ class Model extends EloquentModel
     }
 
     /**
-     * Flush the memory cache.
-     * @return void
-     */
-    public static function flushDuplicateCache()
-    {
-        MemoryCache::instance()->flush();
-    }
-
-    /**
      * Create a new model instance that is existing.
      * @param  array  $attributes
      * @return \Illuminate\Database\Eloquent\Model|static
@@ -594,10 +576,6 @@ class Model extends EloquentModel
         $grammar = $conn->getQueryGrammar();
 
         $builder = new QueryBuilder($conn, $grammar, $conn->getPostProcessor());
-
-        if ($this->duplicateCache) {
-            $builder->enableDuplicateCache();
-        }
 
         return $builder;
     }

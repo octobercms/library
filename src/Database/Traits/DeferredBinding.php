@@ -76,8 +76,6 @@ trait DeferredBinding
     public function commitDeferred($sessionKey)
     {
         $this->commitDeferredOfType($sessionKey);
-
-        DeferredBindingModel::flushDuplicateCache();
     }
 
     /**
@@ -96,7 +94,6 @@ trait DeferredBinding
     protected function commitDeferredAfter($sessionKey)
     {
         $this->commitDeferredOfType($sessionKey, null, 'belongsTo');
-        DeferredBindingModel::flushDuplicateCache();
     }
 
     /**

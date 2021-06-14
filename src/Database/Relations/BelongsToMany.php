@@ -80,18 +80,6 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
-     * sync model IDs and flush the duplicate cache
-     */
-    public function sync($ids, $detaching = true)
-    {
-        $changes = parent::sync($ids, $detaching);
-
-        $this->flushDuplicateCache();
-
-        return $changes;
-    }
-
-    /**
      * save the supplied related model with deferred binding support.
      */
     public function save(Model $model, array $pivotData = [], $sessionKey = null)
