@@ -335,25 +335,49 @@ ESC;
         ], $files);
     }
 
-    public function testAddDynamicPoperty()
+    public function testAddDynamicProperty()
     {
         @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/dynamicproperty.htm');
 
-        $page = HalcyonTestPage::create([
-            'fileName' => 'dynamicproperty',
-            'title' => 'Add Dynamic Property',
-            'markup' => '<p>Foo bar!</p>'
-        ]);
+        try {
+            $page = HalcyonTestPage::create([
+                'fileName' => 'dynamicproperty',
+                'title' => 'Add Dynamic Property',
+                'markup' => '<p>Foo bar!</p>'
+            ]);
 
-        $page->addDynamicProperty('myDynamicProperty', 'myDynamicPropertyValue');
-        $this->assertArrayHasKey('myDynamicProperty', $page->attributes);
-        $this->assertEquals('myDynamicPropertyValue', $page->myDynamicProperty);
-        $page->save();
-        $page = HalcyonTestPage::find('dynamicproperty');
-        $this->assertNotNull($page);
-        // Dynamic properties should not be saved to DB layer
-        $this->assertArrayNotHasKey('myDynamicProperty', $page->attributes);
-        @unlink($targetFile);
+            $page->addDynamicProperty('myDynamicProperty', 'myDynamicPropertyValue');
+
+            // Dynamic property should not hit attributes
+            $this->assertArrayNotHasKey('myDynamicProperty', $page->attributes);
+
+            // Should be a real property
+            $this->assertTrue(property_exists($page, 'myDynamicProperty'));
+            $this->assertEquals('myDynamicPropertyValue', $page->myDynamicProperty);
+
+            $page->save();
+
+            // Should not leak in to attributes
+            $page = HalcyonTestPage::find('dynamicproperty');
+            $this->assertNotNull($page);
+            $this->assertArrayNotHasKey('myDynamicProperty', $page->attributes);
+            $this->assertFalse(property_exists($page, 'myDynamicProperty'));
+        }
+        finally {
+            @unlink($targetFile);
+        }
+    }
+
+    public function testAddBehaviorClass()
+    {
+        $page = new HalcyonTestPage;
+        $page->extendClassWith(HalyconTestExampleBehaviorClass::class);
+
+        $this->assertEquals(null, $page->protectedFoo);
+        $this->assertEquals('bar', $page->getFoo());
+
+        // @todo Halycon not advanced enough for this yet
+        // $this->assertEquals('foobar', $page->behaviorAttribute);
     }
 
     //
@@ -388,5 +412,17 @@ ESC;
         $factory = new \Illuminate\Validation\Factory($translator);
 
         HalcyonTestPageWithValidation::setModelValidator($factory);
+    }
+}
+
+class HalyconTestExampleBehaviorClass extends October\Rain\Extension\ExtensionBase
+{
+    public $behaviorAttribute = 'foobar';
+
+    protected $protectedFoo = 'bar';
+
+    public function getFoo()
+    {
+        return 'bar';
     }
 }

@@ -315,11 +315,9 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
             'code'
         ];
 
-        $dynPropNames = array_keys(array_diff_key($this->getDynamicProperties(), ['purgeable' => 0]));
-
         return array_diff_key(
             $this->attributes,
-            array_flip(array_merge($defaults, $this->purgeable, $dynPropNames))
+            array_flip(array_merge($defaults, $this->purgeable))
         );
     }
 
@@ -815,11 +813,6 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function setRawAttributes(array $attributes, $sync = false)
     {
-        // merge dynamic properties to the base attributes
-        if ($sync) {
-            $attributes = array_merge($this->attributes, $attributes);
-        }
-
         $this->attributes = $attributes;
 
         if ($sync) {
@@ -1592,7 +1585,12 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function __set($key, $value)
     {
-        $this->setAttribute($key, $value);
+        if ($this->extendableIsSettingDynamicProperty()) {
+            $this->{$key} = $value;
+        }
+        else {
+            $this->setAttribute($key, $value);
+        }
     }
 
     /**
