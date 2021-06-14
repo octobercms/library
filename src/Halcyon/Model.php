@@ -13,7 +13,7 @@ use ArrayAccess;
 use Exception;
 
 /**
- * This is a base template object. Equivalent to a Model in ORM.
+ * Model is a base template object, equivalent to a Model in ORM
  *
  * @package october\halcyon
  * @author Alexey Bobkov, Samuel Georges
@@ -1532,20 +1532,6 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public static function initCacheItem(&$item)
     {
-    }
-
-    /**
-     * Flush the memory cache.
-     * @return void
-     */
-    public static function flushDuplicateCache()
-    {
-        if (
-            MemoryCacheManager::isEnabled() &&
-            ($cache = static::getCacheManager())
-        ) {
-            $cache->driver()->flushInternalCache();
-        }
     }
 
     /**

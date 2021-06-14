@@ -717,14 +717,6 @@ class Builder
     }
 
     /**
-     * clearInternalCache request-level object cache
-     */
-    public static function clearInternalCache()
-    {
-        Model::flushDuplicateCache();
-    }
-
-    /**
      * __call handles dynamic method calls into the method
      * @param  string  $method
      * @param  array   $parameters
