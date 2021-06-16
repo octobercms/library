@@ -21,7 +21,7 @@ if (!function_exists('input')) {
     function input($name = null, $default = null)
     {
         if ($name === null) {
-            return Input::all();
+            return Request::all();
         }
 
         /*
@@ -31,18 +31,22 @@ if (!function_exists('input')) {
             $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
         }
 
-        return Input::get($name, $default);
+        return Request::get($name, $default);
     }
 }
 
 if (!function_exists('post')) {
     /**
-     * post is an identical function to input(), however restricted to POST values.
+     * post is an identical function to input(), however restricted to POST methods.
      */
     function post($name = null, $default = null)
     {
+        if (Request::getRealMethod() !== 'POST') {
+            return $default;
+        }
+
         if ($name === null) {
-            return $_POST;
+            return Request::post();
         }
 
         /*
@@ -52,7 +56,7 @@ if (!function_exists('post')) {
             $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
         }
 
-        return array_get($_POST, $name, $default);
+        return Request::post($name, $default);
     }
 }
 
@@ -63,7 +67,7 @@ if (!function_exists('get')) {
     function get($name = null, $default = null)
     {
         if ($name === null) {
-            return $_GET;
+            return Request::query();
         }
 
         /*
@@ -73,7 +77,7 @@ if (!function_exists('get')) {
             $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
         }
 
-        return array_get($_GET, $name, $default);
+        return Request::query($name, $default);
     }
 }
 
