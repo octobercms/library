@@ -7,25 +7,22 @@ use ReflectionClass;
 use ReflectionParameter;
 
 /**
- * Maker
+ * Maker class restores App::make with parameters
  */
 class Maker
 {
     /**
-     * @var array
+     * @var array bindings for the container
      */
     protected $bindings = [];
 
     /**
-     * @var Container
+     * @var Container container for the application
      */
     protected $container;
 
     /**
-     * Maker constructor.
-     *
-     * @param Container $container
-     * @return void
+     * __construct
      */
     public function __construct(Container $container)
     {
@@ -33,10 +30,7 @@ class Maker
     }
 
     /**
-     * @param       $abstract
-     * @param array $parameters
-     *
-     * @return mixed
+     * make from the container
      */
     public function make($abstract, $parameters = [])
     {
@@ -47,16 +41,16 @@ class Maker
     }
 
     /**
-     * @param $abstract
-     * @param $concrete
-     *
-     * @return void
+     * bind to the container
      */
     public function bind($abstract, Closure $concrete)
     {
         $this->bindings[$abstract] = $concrete;
     }
 
+    /**
+     * build a concrete implementation with parameters
+     */
     protected function build($concrete, $parameters)
     {
         if ($concrete instanceof Closure) {
@@ -91,11 +85,8 @@ class Maker
     }
 
     /**
-     * If extra parameters are passed by numeric ID, rekey them by argument name.
-     *
-     * @param  array $dependencies
-     * @param  array $parameters
-     *
+     * keyParametersByArgument if extra parameters are passed by numeric ID,
+     * rekey them by argument name.
      * @return array
      */
     protected function keyParametersByArgument(array $dependencies, array $parameters)
@@ -111,11 +102,7 @@ class Maker
     }
 
     /**
-     * Resolve all of the dependencies from the ReflectionParameters.
-     *
-     * @param  array $parameters
-     * @param  array $primitives
-     *
+     * getDependencies resolves all of the dependencies from the ReflectionParameters
      * @return array
      */
     protected function getDependencies(array $parameters, array $primitives = [])
@@ -140,8 +127,7 @@ class Maker
     }
 
     /**
-     * @param ReflectionParameter $parameter
-     *
+     * getFromContainer
      * @return mixed
      * @throws BindingResolutionException
      */
@@ -159,8 +145,8 @@ class Maker
     }
 
     /**
+     * getBinding
      * @param $abstract
-     *
      * @return mixed
      */
     protected function getBinding($abstract)
@@ -169,8 +155,8 @@ class Maker
     }
 
     /**
+     * isBound
      * @param $abstract
-     *
      * @return bool
      */
     protected function isBound($abstract)
@@ -179,8 +165,8 @@ class Maker
     }
 
     /**
+     * resolvePrimitive
      * @param ReflectionParameter $parameter
-     *
      * @return mixed|void
      */
     protected function resolvePrimitive(ReflectionParameter $parameter)
@@ -193,8 +179,8 @@ class Maker
     }
 
     /**
+     * unresolvablePrimitive
      * @param ReflectionParameter $parameter
-     *
      * @throws BindingResolutionException
      */
     protected function unresolvablePrimitive(ReflectionParameter $parameter)
@@ -204,8 +190,8 @@ class Maker
     }
 
     /**
+     * getFromContainer
      * @param string $abstract
-     *
      * @return mixed
      */
     protected function getFromContainer($abstract)
