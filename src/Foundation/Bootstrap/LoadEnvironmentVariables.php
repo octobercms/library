@@ -2,6 +2,7 @@
 
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables as LoadEnvironmentVariablesBase;
+use Dotenv\Exception\InvalidFileException;
 
 /**
  * LoadEnvironmentVariables
@@ -13,7 +14,14 @@ class LoadEnvironmentVariables extends LoadEnvironmentVariablesBase
      */
     public function bootstrap(Application $app)
     {
-        parent::bootstrap($app);
+        $this->checkForSpecificEnvironmentFile($app);
+
+        try {
+            $this->createDotenv($app)->safeLoad();
+        }
+        catch (InvalidFileException $e) {
+            $this->writeErrorAndDie($e);
+        }
 
         $app->detectEnvironment(function () {
             return env('APP_ENV', 'production');

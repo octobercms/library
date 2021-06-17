@@ -19,6 +19,11 @@ class LoadConfiguration
 
         $app->instance('config', $config = new Repository($fileLoader, $app['env']));
 
+        if (file_exists($cached = $app->getCachedConfigPath())) {
+            $items = require $cached;
+            $config->setItems($items);
+        }
+
         $app->detectEnvironment(function () use ($config) {
             return $config->get('app.env', 'production');
         });

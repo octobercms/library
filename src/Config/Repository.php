@@ -410,13 +410,20 @@ class Repository implements ArrayAccess, RepositoryContract
     }
 
     /**
-     * Get all of the configuration items.
-     *
+     * getItems for config values
      * @return array
      */
     public function getItems()
     {
         return $this->items;
+    }
+
+    /**
+     * setItems for config values
+     */
+    public function setItems(array $items)
+    {
+        $this->items = $items;
     }
 
     /**
