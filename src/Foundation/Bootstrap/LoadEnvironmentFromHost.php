@@ -4,7 +4,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Exception;
 
 /**
- * LoadEnvironmentVariables will set the APP_ENV based on a hostname found in the
+ * LoadEnvironmentFromHost will set the APP_ENV based on a hostname found in the
  * configuration file called environment.php. This was used in an earlier version
  * where file-based configuration was the primary method. This approach is mostly
  * incompatible with Laravel's convention so it will be sunsetted moving forward.
