@@ -64,12 +64,16 @@ class FieldDefinition
     public $commentHtml = false;
 
     /**
+     * @var array Raw field configuration.
+     */
+    public $config;
+
+    /**
      * __construct
      */
-    public function __construct(string $fieldName, string $label)
+    public function __construct(string $fieldName)
     {
         $this->fieldName = $fieldName;
-        $this->label = $label;
     }
 
     /**
@@ -77,6 +81,9 @@ class FieldDefinition
      */
     protected function evalConfig(array $config): void
     {
+        if (isset($config['label'])) {
+            $this->label($config['label']);
+        }
         if (isset($config['type'])) {
             $this->type($config['type']);
         }
@@ -105,7 +112,19 @@ class FieldDefinition
      */
     public function useConfig(array $config): FieldDefinition
     {
+        $this->config = $config;
+
         $this->evalConfig($config);
+
+        return $this;
+    }
+
+    /**
+     * label for this field
+     */
+    public function label(string $label): FieldDefinition
+    {
+        $this->label = $label;
         return $this;
     }
 

@@ -44,12 +44,16 @@ class ColumnDefinition
     public $align;
 
     /**
+     * @var array config in raw format, if supplied.
+     */
+    public $config;
+
+    /**
      * __construct the column
      */
-    public function __construct(string $columnName, string $label)
+    public function __construct(string $columnName)
     {
         $this->columnName = $columnName;
-        $this->label = $label;
     }
 
     /**
@@ -57,6 +61,9 @@ class ColumnDefinition
      */
     protected function evalConfig(array $config): void
     {
+        if (isset($config['label'])) {
+            $this->label($config['label']);
+        }
         if (isset($config['type'])) {
             $this->type($config['type']);
         }
@@ -79,7 +86,19 @@ class ColumnDefinition
      */
     public function useConfig(array $config): ColumnDefinition
     {
+        $this->config = $config;
+
         $this->evalConfig($config);
+
+        return $this;
+    }
+
+    /**
+     * label for this column
+     */
+    public function label(string $label): ColumnDefinition
+    {
+        $this->label = $label;
         return $this;
     }
 
