@@ -3,6 +3,6 @@
 /**
  * Event
  *
- * @see \Illuminate\Events\Dispatcher
+ * @see \October\Rain\Events\Dispatcher
  */
-class Event extends Illuminate\Support\Facades\Event {}
+class Event extends October\Rain\Support\Facades\Event {}

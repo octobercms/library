@@ -3,12 +3,13 @@
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Queue\Factory as QueueFactoryContract;
 
+/**
+ * EventServiceProvider
+ */
 class EventServiceProvider extends ServiceProvider
 {
     /**
-     * Register the service provider.
-     *
-     * @return void
+     * register the service provider
      */
     public function register()
     {

@@ -1,26 +1,70 @@
 <?php
 
 use October\Rain\Mail\Mailer;
+use October\Rain\Mail\FakeMailer;
 
+/**
+ * MailerTest
+ */
 class MailerTest extends TestCase
 {
-    //
-    // Helpers
-    //
-
-    protected static function callProtectedMethod($object, $name, $params = [])
+    /**
+     * testSendWithFaker
+     */
+    public function testSendWithFaker()
     {
-        $className = get_class($object);
-        $class = new ReflectionClass($className);
-        $method = $class->getMethod($name);
-        $method->setAccessible(true);
-        return $method->invokeArgs($object, $params);
+        $this->mockMailer();
+
+        Mail::send('sendview', [], function ($mailer) {
+            $mailer->subject('Message Subject');
+            $mailer->to('single@address.tld');
+        });
+
+        Mail::assertSent('sendview', 1);
+
+        Mail::assertSent('sendview', function ($mailer) {
+            return $mailer->hasTo('single@address.tld');
+        });
+
+        Mail::assertSent('sendview', function ($mailer) {
+            return $mailer->subject === 'Message Subject';
+        });
     }
 
-    //
-    // Tests
-    //
+    /**
+     * testQueueWithFaker
+     */
+    public function testQueueWithFaker()
+    {
+        Mail::queue('queueview', [], function ($mailer) {
+            $mailer->subject('Message Subject');
+            $mailer->to('single@address.tld');
+        });
 
+        Mail::queue('queueview', [], function ($mailer) {
+            $mailer->subject('Second Message');
+            $mailer->to('user@domain.tld');
+        });
+
+        Mail::assertQueued('queueview', 2);
+
+        Mail::assertQueued('queueview', function ($mailer) {
+            return $mailer->hasTo('single@address.tld');
+            return $mailer->hasTo('user@domain.tld');
+        });
+
+        Mail::assertQueued('queueview', function ($mailer) {
+            return $mailer->subject === 'Message Subject';
+        });
+
+        Mail::assertQueued('queueview', function ($mailer) {
+            return $mailer->subject === 'Second Message';
+        });
+    }
+
+    /**
+     * testProcessRecipients
+     */
     public function testProcessRecipients()
     {
         $mailer = $this->makeMailer();
@@ -28,11 +72,11 @@ class MailerTest extends TestCase
         /*
          * String
          */
-        $recipient = 'single@address.com';
+        $recipient = 'single@address.tld';
         $result = self::callProtectedMethod($mailer, 'processRecipients', [$recipient]);
         $this->assertCount(1, $result);
-        $this->assertArrayHasKey('single@address.com', $result);
-        $this->assertNull($result['single@address.com']);
+        $this->assertArrayHasKey('single@address.tld', $result);
+        $this->assertNull($result['single@address.tld']);
 
         /*
          * Object
@@ -48,17 +92,17 @@ class MailerTest extends TestCase
          */
         $recipients = [
             'admin@domain.tld' => 'Adam Person',
-            'single@address.com' => 'Pablo Francisco',
-            'charles@barrington.com' => 'Charlie Sheen'
+            'single@address.tld' => 'Pablo Francisco',
+            'charles@barrington.tld' => 'Charlie Sheen'
         ];
         $result = self::callProtectedMethod($mailer, 'processRecipients', [$recipients]);
         $this->assertCount(3, $result);
         $this->assertArrayHasKey('admin@domain.tld', $result);
         $this->assertEquals('Adam Person', $result['admin@domain.tld']);
-        $this->assertArrayHasKey('single@address.com', $result);
-        $this->assertEquals('Pablo Francisco', $result['single@address.com']);
-        $this->assertArrayHasKey('charles@barrington.com', $result);
-        $this->assertEquals('Charlie Sheen', $result['charles@barrington.com']);
+        $this->assertArrayHasKey('single@address.tld', $result);
+        $this->assertEquals('Pablo Francisco', $result['single@address.tld']);
+        $this->assertArrayHasKey('charles@barrington.tld', $result);
+        $this->assertEquals('Charlie Sheen', $result['charles@barrington.tld']);
 
         /*
          * Array of Objects
@@ -96,9 +140,33 @@ class MailerTest extends TestCase
     }
 
     //
+    // Helpers
+    //
+
+    protected static function callProtectedMethod($object, $name, $params = [])
+    {
+        $className = get_class($object);
+        $class = new ReflectionClass($className);
+        $method = $class->getMethod($name);
+        $method->setAccessible(true);
+        return $method->invokeArgs($object, $params);
+    }
+
+    //
     // Mock
     //
 
+    /**
+     * mockMailer
+     */
+    protected function mockMailer()
+    {
+        Mail::swap(new FakeMailer);
+    }
+
+    /**
+     * makeMailer
+     */
     protected function makeMailer()
     {
         return new Mailer(new FactoryMailerTest, new SwiftMailerTest, new DispatcherMailerTest);
