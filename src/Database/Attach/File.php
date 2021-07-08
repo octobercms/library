@@ -3,6 +3,7 @@
 use Log;
 use Cache;
 use Storage;
+use Response;
 use File as FileHelper;
 use October\Rain\Network\Http;
 use October\Rain\Database\Model;
@@ -253,33 +254,30 @@ class File extends Model
 
     /**
      * output the raw file contents
-     *
      * @param string $disposition The Content-Disposition to set, defaults to inline
-     * @param bool $returnResponse Defaults to false, returns a Response object instead of directly outputting to the browser
-     * @return Response | void
+     * @param bool $returnResponse
+     * @return Response|void
      */
     public function output($disposition = 'inline', $returnResponse = false)
     {
-        $response = response($this->getContents())->withHeaders([
-            'Content-type'        => $this->getContentType(),
+        $response = Response::make($this->getContents())->withHeaders([
+            'Content-type' => $this->getContentType(),
             'Content-Disposition' => $disposition . '; filename="' . $this->file_name . '"',
-            'Cache-Control'       => 'private, no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0',
-            'Accept-Ranges'       => 'bytes',
-            'Content-Length'      => $this->file_size,
+            'Cache-Control' => 'private, no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0',
+            'Accept-Ranges' => 'bytes',
+            'Content-Length' => $this->file_size,
         ]);
 
         if ($returnResponse) {
             return $response;
         }
-        else {
-            $response->sendHeaders();
-            $response->sendContent();
-        }
+
+        $response->sendHeaders();
+        $response->sendContent();
     }
 
     /**
      * outputThumb the raw thumb file contents
-     *
      * @param integer $width
      * @param integer $height
      * @param array $options [
@@ -291,8 +289,8 @@ class File extends Model
      *     'extension' => 'auto',
      *     'disposition' => 'inline',
      * ]
-     * @param bool $returnResponse Defaults to false, returns a Response object instead of directly outputting to the browser
-     * @return Response | void
+     * @param bool $returnResponse
+     * @return Response|void
      */
     public function outputThumb($width, $height, $options = [], $returnResponse = false)
     {
@@ -302,21 +300,20 @@ class File extends Model
         $thumbFile = $this->getThumbFilename($width, $height, $options);
         $contents = $this->getContents($thumbFile);
 
-        $response = response($contents)->withHeaders([
-            'Content-type'        => $this->getContentType(),
+        $response = Response::make($contents)->withHeaders([
+            'Content-type' => $this->getContentType(),
             'Content-Disposition' => $disposition . '; filename="' . basename($thumbFile) . '"',
-            'Cache-Control'       => 'private, no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0',
-            'Accept-Ranges'       => 'bytes',
-            'Content-Length'      => mb_strlen($contents, '8bit'),
+            'Cache-Control' => 'private, no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0',
+            'Accept-Ranges' => 'bytes',
+            'Content-Length' => mb_strlen($contents, '8bit'),
         ]);
 
         if ($returnResponse) {
             return $response;
         }
-        else {
-            $response->sendHeaders();
-            $response->sendContent();
-        }
+
+        $response->sendHeaders();
+        $response->sendContent();
     }
 
     //
@@ -621,7 +618,10 @@ class File extends Model
         }
         catch (Exception $ex) {
             Log::error($ex);
-            BrokenImage::copyTo($thumbPath);
+            // Legacy function: In October 1 a broken image was displayed upon error
+            // that had a secondary effect of preventing the resolution of temporary
+            // errors. Instead we let it go to allow the file simply not exist (404)
+            // BrokenImage::copyTo($thumbPath);
         }
 
         FileHelper::chmod($thumbPath);
@@ -648,7 +648,10 @@ class File extends Model
         }
         catch (Exception $ex) {
             Log::error($ex);
-            BrokenImage::copyTo($tempThumb);
+            // Legacy function: In October 1 a broken image was displayed upon error
+            // that had a secondary effect of preventing the resolution of temporary
+            // errors. Instead we let it go to allow the file simply not exist (404)
+            // BrokenImage::copyTo($tempThumb);
         }
 
         FileHelper::delete($tempFile);
