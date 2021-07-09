@@ -65,7 +65,7 @@ class ColumnDefinition
             $this->label($config['label']);
         }
         if (isset($config['type'])) {
-            $this->type($config['type']);
+            $this->displayAs($config['type']);
         }
         if (isset($config['searchable'])) {
             $this->searchable = $config['searchable'];
@@ -99,15 +99,17 @@ class ColumnDefinition
     public function label(string $label): ColumnDefinition
     {
         $this->label = $label;
+
         return $this;
     }
 
     /**
-     * type for this column
+     * displayAs type for this column
      */
-    public function type(string $type): ColumnDefinition
+    public function displayAs(string $type): ColumnDefinition
     {
         $this->type = strtolower($type);
+
         return $this;
     }
 
@@ -117,6 +119,7 @@ class ColumnDefinition
     public function hidden(): ColumnDefinition
     {
         $this->hidden = true;
+
         return $this;
     }
 }

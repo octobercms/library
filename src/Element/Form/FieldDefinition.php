@@ -85,7 +85,7 @@ class FieldDefinition
             $this->label($config['label']);
         }
         if (isset($config['type'])) {
-            $this->type($config['type']);
+            $this->displayAs($config['type']);
         }
         if (isset($config['tab'])) {
             $this->tab($config['tab']);
@@ -125,15 +125,17 @@ class FieldDefinition
     public function label(string $label): FieldDefinition
     {
         $this->label = $label;
+
         return $this;
     }
 
     /**
-     * type for this column
+     * displayAs type for this column
      */
-    public function type(string $type): FieldDefinition
+    public function displayAs(string $type): FieldDefinition
     {
         $this->type = strtolower($type);
+
         return $this;
     }
 
@@ -143,6 +145,7 @@ class FieldDefinition
     public function tab(string $value): FieldDefinition
     {
         $this->tab = $value;
+
         return $this;
     }
 
@@ -153,6 +156,7 @@ class FieldDefinition
     {
         $this->span = $value;
         $this->spanClass = $spanClass;
+
         return $this;
     }
 
@@ -162,6 +166,7 @@ class FieldDefinition
     public function size(string $value = 'large'): FieldDefinition
     {
         $this->size = $value;
+
         return $this;
     }
 
@@ -183,6 +188,7 @@ class FieldDefinition
         }
 
         $this->options = $value;
+
         return $this;
     }
 
