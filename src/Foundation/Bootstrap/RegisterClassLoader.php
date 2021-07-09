@@ -4,20 +4,19 @@ use October\Rain\Support\ClassLoader;
 use October\Rain\Filesystem\Filesystem;
 use Illuminate\Contracts\Foundation\Application;
 
+/**
+ * RegisterClassLoader registers the custom autoloader for October CMS
+ */
 class RegisterClassLoader
 {
     /**
-     * Register The October Auto Loader
-     *
-     * @param  \Illuminate\Contracts\Foundation\Application  $app
-     * @return void
+     * bootstrap
      */
     public function bootstrap(Application $app)
     {
         $loader = new ClassLoader(
             new Filesystem,
-            $app->basePath(),
-            $app->getCachedClassesPath()
+            $app->basePath()
         );
 
         $app->instance(ClassLoader::class, $loader);

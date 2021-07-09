@@ -5,7 +5,7 @@ use Exception;
 use Error;
 
 /**
- * ClassLoader is a simple autoloader used by October, it expects the folder names
+ * ClassLoader is a custom autoloader used by October CMS, it uses folder names
  * to be lower case and the file name to be capitalized as per the class name.
  *
  * @package october\support

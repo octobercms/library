@@ -4,13 +4,13 @@ use October\Rain\Support\Str;
 use October\Rain\Support\ClassLoader;
 use Illuminate\Contracts\Foundation\Application;
 
+/**
+ * RegisterOctober specific features
+ */
 class RegisterOctober
 {
     /**
-     * Specific features for October CMS.
-     *
-     * @param  \Illuminate\Contracts\Foundation\Application  $app
-     * @return void
+     * bootstrap
      */
     public function bootstrap(Application $app)
     {
@@ -81,8 +81,8 @@ class RegisterOctober
     protected function parseConfiguredPath(Application $app, string $path): string
     {
         return Str::startsWith($path, '/')
-                ? $path
-                : $app->basePath($path);
+            ? $path
+            : $app->basePath($path);
     }
 
     /**
