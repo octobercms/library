@@ -8,7 +8,6 @@ use File as FileHelper;
 use October\Rain\Network\Http;
 use October\Rain\Database\Model;
 use October\Rain\Resize\Resizer;
-use October\Rain\Resize\BrokenImage;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\File\File as FileObj;
 use Exception;
@@ -296,8 +295,16 @@ class File extends Model
     {
         $disposition = array_get($options, 'disposition', 'inline');
         $options = $this->getDefaultThumbOptions($options);
-        $this->getThumb($width, $height, $options);
+
+        // Generate thumb if not existing already
         $thumbFile = $this->getThumbFilename($width, $height, $options);
+        if (
+            !$this->hasFile($thumbFile) &&
+            !$this->getThumb($width, $height, $options)
+        ) {
+            throw new Exception(sprintf('Thumb file "%s" failed to generate. Check error logs for more details.', $thumbFile));
+        }
+
         $contents = $this->getContents($thumbFile);
 
         $response = Response::make($contents)->withHeaders([
@@ -545,11 +552,17 @@ class File extends Model
         $thumbPublic = $this->getPath($thumbFile);
 
         if (!$this->hasFile($thumbFile)) {
-            if ($this->isLocalStorage()) {
-                $this->makeThumbLocal($thumbFile, $thumbPath, $width, $height, $options);
+            try {
+                if ($this->isLocalStorage()) {
+                    $this->makeThumbLocal($thumbFile, $thumbPath, $width, $height, $options);
+                }
+                else {
+                    $this->makeThumbStorage($thumbFile, $thumbPath, $width, $height, $options);
+                }
             }
-            else {
-                $this->makeThumbStorage($thumbFile, $thumbPath, $width, $height, $options);
+            catch (Exception $ex) {
+                Log::error($ex);
+                return '';
             }
         }
 
@@ -610,19 +623,10 @@ class File extends Model
         /*
          * Generate thumbnail
          */
-        try {
-            Resizer::open($filePath)
-                ->resize($width, $height, $options)
-                ->save($thumbPath)
-            ;
-        }
-        catch (Exception $ex) {
-            Log::error($ex);
-            // Legacy function: In October 1 a broken image was displayed upon error
-            // that had a secondary effect of preventing the resolution of temporary
-            // errors. Instead we let it go to allow the file simply not exist (404)
-            // BrokenImage::copyTo($thumbPath);
-        }
+        Resizer::open($filePath)
+            ->resize($width, $height, $options)
+            ->save($thumbPath)
+        ;
 
         FileHelper::chmod($thumbPath);
     }
@@ -646,15 +650,9 @@ class File extends Model
                 ->save($tempThumb)
             ;
         }
-        catch (Exception $ex) {
-            Log::error($ex);
-            // Legacy function: In October 1 a broken image was displayed upon error
-            // that had a secondary effect of preventing the resolution of temporary
-            // errors. Instead we let it go to allow the file simply not exist (404)
-            // BrokenImage::copyTo($tempThumb);
+        finally {
+            FileHelper::delete($tempFile);
         }
-
-        FileHelper::delete($tempFile);
 
         /*
          * Publish to storage and clean up

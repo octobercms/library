@@ -7,6 +7,7 @@ use File as FileHelper;
  *
  * @package october\resize
  * @author Alexey Bobkov, Samuel Georges
+ * @deprecated No longer used by the system
  */
 class BrokenImage
 {
