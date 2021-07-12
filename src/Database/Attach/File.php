@@ -3,11 +3,11 @@
 use Log;
 use Cache;
 use Storage;
+use Response;
 use File as FileHelper;
 use October\Rain\Network\Http;
 use October\Rain\Database\Model;
 use October\Rain\Resize\Resizer;
-use October\Rain\Resize\BrokenImage;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\File\File as FileObj;
 use Exception;
@@ -253,33 +253,30 @@ class File extends Model
 
     /**
      * output the raw file contents
-     *
      * @param string $disposition The Content-Disposition to set, defaults to inline
-     * @param bool $returnResponse Defaults to false, returns a Response object instead of directly outputting to the browser
-     * @return Response | void
+     * @param bool $returnResponse
+     * @return Response|void
      */
     public function output($disposition = 'inline', $returnResponse = false)
     {
-        $response = response($this->getContents())->withHeaders([
-            'Content-type'        => $this->getContentType(),
+        $response = Response::make($this->getContents())->withHeaders([
+            'Content-type' => $this->getContentType(),
             'Content-Disposition' => $disposition . '; filename="' . $this->file_name . '"',
-            'Cache-Control'       => 'private, no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0',
-            'Accept-Ranges'       => 'bytes',
-            'Content-Length'      => $this->file_size,
+            'Cache-Control' => 'private, no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0',
+            'Accept-Ranges' => 'bytes',
+            'Content-Length' => $this->file_size,
         ]);
 
         if ($returnResponse) {
             return $response;
         }
-        else {
-            $response->sendHeaders();
-            $response->sendContent();
-        }
+
+        $response->sendHeaders();
+        $response->sendContent();
     }
 
     /**
      * outputThumb the raw thumb file contents
-     *
      * @param integer $width
      * @param integer $height
      * @param array $options [
@@ -291,32 +288,39 @@ class File extends Model
      *     'extension' => 'auto',
      *     'disposition' => 'inline',
      * ]
-     * @param bool $returnResponse Defaults to false, returns a Response object instead of directly outputting to the browser
-     * @return Response | void
+     * @param bool $returnResponse
+     * @return Response|void
      */
     public function outputThumb($width, $height, $options = [], $returnResponse = false)
     {
         $disposition = array_get($options, 'disposition', 'inline');
         $options = $this->getDefaultThumbOptions($options);
-        $this->getThumb($width, $height, $options);
+
+        // Generate thumb if not existing already
         $thumbFile = $this->getThumbFilename($width, $height, $options);
+        if (
+            !$this->hasFile($thumbFile) &&
+            !$this->getThumb($width, $height, $options)
+        ) {
+            throw new Exception(sprintf('Thumb file "%s" failed to generate. Check error logs for more details.', $thumbFile));
+        }
+
         $contents = $this->getContents($thumbFile);
 
-        $response = response($contents)->withHeaders([
-            'Content-type'        => $this->getContentType(),
+        $response = Response::make($contents)->withHeaders([
+            'Content-type' => $this->getContentType(),
             'Content-Disposition' => $disposition . '; filename="' . basename($thumbFile) . '"',
-            'Cache-Control'       => 'private, no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0',
-            'Accept-Ranges'       => 'bytes',
-            'Content-Length'      => mb_strlen($contents, '8bit'),
+            'Cache-Control' => 'private, no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0',
+            'Accept-Ranges' => 'bytes',
+            'Content-Length' => mb_strlen($contents, '8bit'),
         ]);
 
         if ($returnResponse) {
             return $response;
         }
-        else {
-            $response->sendHeaders();
-            $response->sendContent();
-        }
+
+        $response->sendHeaders();
+        $response->sendContent();
     }
 
     //
@@ -548,11 +552,17 @@ class File extends Model
         $thumbPublic = $this->getPath($thumbFile);
 
         if (!$this->hasFile($thumbFile)) {
-            if ($this->isLocalStorage()) {
-                $this->makeThumbLocal($thumbFile, $thumbPath, $width, $height, $options);
+            try {
+                if ($this->isLocalStorage()) {
+                    $this->makeThumbLocal($thumbFile, $thumbPath, $width, $height, $options);
+                }
+                else {
+                    $this->makeThumbStorage($thumbFile, $thumbPath, $width, $height, $options);
+                }
             }
-            else {
-                $this->makeThumbStorage($thumbFile, $thumbPath, $width, $height, $options);
+            catch (Exception $ex) {
+                Log::error($ex);
+                return '';
             }
         }
 
@@ -613,16 +623,10 @@ class File extends Model
         /*
          * Generate thumbnail
          */
-        try {
-            Resizer::open($filePath)
-                ->resize($width, $height, $options)
-                ->save($thumbPath)
-            ;
-        }
-        catch (Exception $ex) {
-            Log::error($ex);
-            BrokenImage::copyTo($thumbPath);
-        }
+        Resizer::open($filePath)
+            ->resize($width, $height, $options)
+            ->save($thumbPath)
+        ;
 
         FileHelper::chmod($thumbPath);
     }
@@ -646,12 +650,9 @@ class File extends Model
                 ->save($tempThumb)
             ;
         }
-        catch (Exception $ex) {
-            Log::error($ex);
-            BrokenImage::copyTo($tempThumb);
+        finally {
+            FileHelper::delete($tempFile);
         }
-
-        FileHelper::delete($tempFile);
 
         /*
          * Publish to storage and clean up

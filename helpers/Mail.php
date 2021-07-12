@@ -3,6 +3,6 @@
 /**
  * Mail
  *
- * @see \Illuminate\Mail\Mailer
+ * @see \October\Rain\Mail\Mailer
  */
-class Mail extends Illuminate\Support\Facades\Mail {}
+class Mail extends October\Rain\Support\Facades\Mail {}

@@ -368,7 +368,7 @@ class Application extends ApplicationBase
      */
     public function getCachedConfigPath()
     {
-        return $this['path.storage'].'/framework/config.php';
+        return $this->normalizeCachePath('APP_CONFIG_CACHE', 'framework/config.php');
     }
 
     /**

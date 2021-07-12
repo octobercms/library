@@ -22,9 +22,5 @@ class LoadEnvironmentVariables extends LoadEnvironmentVariablesBase
         catch (InvalidFileException $e) {
             $this->writeErrorAndDie($e);
         }
-
-        $app->detectEnvironment(function () {
-            return env('APP_ENV', 'production');
-        });
     }
 }
