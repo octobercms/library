@@ -2,18 +2,16 @@
 
 use Illuminate\Database\Eloquent\Relations\BelongsToMany as BelongsToManyBase;
 
-/*
+/**
  * DefinedConstraints handles the constraints and filters defined by a relation
  * eg: 'conditions' => 'is_published = 1'
  */
 trait DefinedConstraints
 {
     /**
-     * Set the defined constraints on the relation query.
-     *
-     * @return void
+     * addDefinedConstraints to the relation query
      */
-    public function addDefinedConstraints()
+    public function addDefinedConstraints(): void
     {
         $args = $this->parent->getRelationDefinition($this->relationName);
 
@@ -23,12 +21,9 @@ trait DefinedConstraints
     }
 
     /**
-     * Add relation based constraints.
-     *
-     * @param Illuminate\Database\Eloquent\Relations\Relation $relation
-     * @param array $args
+     * addDefinedConstraintsToRelation
      */
-    public function addDefinedConstraintsToRelation($relation, $args = null)
+    public function addDefinedConstraintsToRelation($relation, array $args = null)
     {
         if ($args === null) {
             $args = $this->parent->getRelationDefinition($this->relationName);
@@ -58,7 +53,7 @@ trait DefinedConstraints
         /*
          * Count "helper" relation
          */
-        if ($count = array_get($args, 'count')) {
+        if (array_get($args, 'count')) {
             if ($relation instanceof BelongsToManyBase) {
                 $relation->countMode = true;
             }
@@ -74,12 +69,9 @@ trait DefinedConstraints
     }
 
     /**
-     * Add query based constraints.
-     *
-     * @param October\Rain\Database\QueryBuilder $query
-     * @param array $args
+     * addDefinedConstraintsToQuery
      */
-    public function addDefinedConstraintsToQuery($query, $args = null)
+    public function addDefinedConstraintsToQuery($query, array $args = null)
     {
         if ($args === null) {
             $args = $this->parent->getRelationDefinition($this->relationName);
@@ -118,7 +110,12 @@ trait DefinedConstraints
          * Scope
          */
         if ($scope = array_get($args, 'scope')) {
-            $query->$scope($this->parent);
+            if (is_string($scope)) {
+                $query->$scope($this->parent);
+            }
+            else {
+                $scope($query, $this->parent, $this->related);
+            }
         }
     }
 }
