@@ -15,6 +15,9 @@ use October\Rain\Database\Relations\HasManyThrough;
 use October\Rain\Database\Relations\HasOneThrough;
 use InvalidArgumentException;
 
+/**
+ * HasRelationships
+ */
 trait HasRelationships
 {
     /**
@@ -116,7 +119,7 @@ trait HasRelationships
     public $hasOneThrough = [];
 
     /**
-     * @var array Excepted relationship types, used to cycle and verify relationships.
+     * @var array relationTypes expected, used to cycle and verify relationships.
      */
     protected static $relationTypes = [
         'hasOne',
@@ -140,29 +143,28 @@ trait HasRelationships
     //
 
     /**
-     * Checks if model has a relationship by supplied name.
-     * @param string $name Relation name
-     * @return bool
+     * hasRelation checks if model has a relationship by supplied name
      */
-    public function hasRelation($name)
+    public function hasRelation(string $name): bool
     {
-        return $this->getRelationDefinition($name) !== null;
+        return $this->getRelationType($name) !== null;
     }
 
     /**
-     * Returns relationship details from a supplied name.
-     * @param string $name Relation name
-     * @return array
+     * getRelationDefinition returns relationship details from a supplied name
      */
-    public function getRelationDefinition($name)
+    public function getRelationDefinition(string $name): array
     {
         if (($type = $this->getRelationType($name)) !== null) {
             return (array) $this->{$type}[$name] + $this->getRelationDefaults($type);
         }
+
+        return [];
     }
 
     /**
-     * Returns relationship details for all relations defined on this model.
+     * getRelationDefinitions returns relationship details for all relations
+     * defined on this model
      * @return array
      */
     public function getRelationDefinitions()
@@ -186,7 +188,7 @@ trait HasRelationships
     }
 
     /**
-     * Returns a relationship type based on a supplied name.
+     * getRelationType returns a relationship type based on a supplied name
      * @param string $name Relation name
      * @return \October\Rain\Database\Relation
      */
@@ -197,36 +199,38 @@ trait HasRelationships
                 return $type;
             }
         }
+
+        return null;
     }
 
     /**
-     * Returns a relation class object
+     * makeRelation returns a relation class object
      * @param string $name Relation name
      * @return object
      */
     public function makeRelation($name)
     {
-        $relationType = $this->getRelationType($name);
         $relation = $this->getRelationDefinition($name);
+        $relationType = $this->getRelationType($name);
 
         if ($relationType === 'morphTo' || !isset($relation[0])) {
             return null;
         }
 
         $relationClass = $relation[0];
+
         return new $relationClass();
     }
 
     /**
-     * Determines whether the specified relation should be saved
+     * isRelationPushable determines whether the specified relation should be saved
      * when push() is called instead of save() on the model. Default: true.
-     * @param  string  $name Relation name
-     * @return boolean
      */
-    public function isRelationPushable($name)
+    public function isRelationPushable(string $name): bool
     {
         $definition = $this->getRelationDefinition($name);
-        if (is_null($definition) || !array_key_exists('push', $definition)) {
+
+        if (!array_key_exists('push', $definition)) {
             return true;
         }
 
@@ -335,7 +339,7 @@ trait HasRelationships
     }
 
     /**
-     * Validate relation supplied arguments.
+     * validateRelationArgs supplied relation arguments
      */
     protected function validateRelationArgs($relationName, $optional, $required = [])
     {
@@ -370,7 +374,7 @@ trait HasRelationships
     }
 
     /**
-     * Define a one-to-one relationship.
+     * hasOne defines a one-to-one relationship.
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\HasOne
      */
@@ -390,7 +394,7 @@ trait HasRelationships
     }
 
     /**
-     * Define a polymorphic one-to-one relationship.
+     * morphOne defines a polymorphic one-to-one relationship.
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\MorphOne
      */
@@ -412,7 +416,7 @@ trait HasRelationships
     }
 
     /**
-     * Define an inverse one-to-one or many relationship.
+     * belongsTo defines an inverse one-to-one or many relationship.
      * Overridden from {@link Eloquent\Model} to allow the usage of the intermediary methods to handle the {@link
      * $relationsData} array.
      * @return \October\Rain\Database\Relations\BelongsTo
@@ -435,7 +439,7 @@ trait HasRelationships
     }
 
     /**
-     * Define an polymorphic, inverse one-to-one or many relationship.
+     * morphTo defines a polymorphic, inverse one-to-one or many relationship.
      * Overridden from {@link Eloquent\Model} to allow the usage of the intermediary methods to handle the relation.
      * @return \October\Rain\Database\Relations\BelongsTo
      */
@@ -453,8 +457,7 @@ trait HasRelationships
     }
 
     /**
-     * Define a polymorphic, inverse one-to-one or many relationship.
-     *
+     * morphEagerTo defines a polymorphic, inverse one-to-one or many relationship.
      * @param  string  $name
      * @param  string  $type
      * @param  string  $id
@@ -474,8 +477,7 @@ trait HasRelationships
     }
 
     /**
-     * Define a polymorphic, inverse one-to-one or many relationship.
-     *
+     * morphInstanceTo defines a polymorphic, inverse one-to-one or many relationship
      * @param  string  $target
      * @param  string  $name
      * @param  string  $type
@@ -500,7 +502,7 @@ trait HasRelationships
     }
 
     /**
-     * Define a one-to-many relationship.
+     * hasMany defines a one-to-many relationship.
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\HasMany
      */
@@ -520,7 +522,7 @@ trait HasRelationships
     }
 
     /**
-     * Define a has-many-through relationship.
+     * hasManyThrough defines a has-many-through relationship.
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\HasManyThrough
      */
@@ -546,7 +548,7 @@ trait HasRelationships
     }
 
     /**
-     * Define a has-one-through relationship.
+     * hasOneThrough define a has-one-through relationship.
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\HasOneThrough
      */
@@ -572,7 +574,7 @@ trait HasRelationships
     }
 
     /**
-     * Define a polymorphic one-to-many relationship.
+     * morphMany defines a polymorphic one-to-many relationship.
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\MorphMany
      */
@@ -594,7 +596,7 @@ trait HasRelationships
     }
 
     /**
-     * Define a many-to-many relationship.
+     * belongsToMany defines a many-to-many relationship.
      * This code is almost a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\BelongsToMany
      */
@@ -627,7 +629,7 @@ trait HasRelationships
     }
 
     /**
-     * Define a polymorphic many-to-many relationship.
+     * morphToMany defines a polymorphic many-to-many relationship.
      * This code is almost a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\MorphToMany
      */
@@ -660,7 +662,7 @@ trait HasRelationships
     }
 
     /**
-     * Define a polymorphic many-to-many inverse relationship.
+     * morphedByMany defines a polymorphic many-to-many inverse relationship.
      * This code is almost a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\MorphToMany
      */
@@ -688,7 +690,7 @@ trait HasRelationships
     }
 
     /**
-     * Define an attachment one-to-one relationship.
+     * attachOne defines an attachment one-to-one relationship.
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\MorphOne
      */
@@ -710,7 +712,7 @@ trait HasRelationships
     }
 
     /**
-     * Define an attachment one-to-many relationship.
+     * attachMany defines an attachment one-to-many relationship.
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\MorphMany
      */
@@ -732,7 +734,7 @@ trait HasRelationships
     }
 
     /**
-     * Finds the calling function name from the stack trace.
+     * getRelationCaller finds the calling function name from the stack trace.
      */
     protected function getRelationCaller()
     {
@@ -742,7 +744,7 @@ trait HasRelationships
     }
 
     /**
-     * Returns a relation key value(s), not as an object.
+     * getRelationValue returns a relation key value(s), not as an object.
      */
     public function getRelationValue($relationName)
     {
@@ -750,7 +752,7 @@ trait HasRelationships
     }
 
     /**
-     * Sets a relation value directly from its attribute.
+     * setRelationValue sets a relation value directly from its attribute.
      */
     protected function setRelationValue($relationName, $value)
     {

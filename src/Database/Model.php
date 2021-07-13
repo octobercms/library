@@ -679,10 +679,13 @@ class Model extends EloquentModel
     {
         $definition = $this->getRelationDefinition($relationName);
 
-        if (!is_null($definition) && array_key_exists('pivotModel', $definition)) {
-            $pivotModel = $definition['pivotModel'];
-            return new $pivotModel($parent, $attributes, $table, $exists);
+        if (!array_key_exists('pivotModel', $definition)) {
+            return;
         }
+
+        $pivotModel = $definition['pivotModel'];
+
+        return new $pivotModel($parent, $attributes, $table, $exists);
     }
 
     //
