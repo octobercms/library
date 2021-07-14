@@ -1160,8 +1160,8 @@ class Model extends EloquentModel
          * Example usage:
          *
          *     $model->bindEvent('model.beforeSetAttribute', function ((string) $key, $value) use (\October\Rain\Database\Model $model) {
-         *         if ($key === 'not-for-you-to-touch') {
-         *             return '$value has been touched! The humanity!';
+         *         if ($key === 'do-not-touch') {
+         *             return "$value has been touched";
          *         }
          *     });
          *
@@ -1193,7 +1193,7 @@ class Model extends EloquentModel
          * Example usage:
          *
          *     $model->bindEvent('model.setAttribute', function ((string) $key, $value) use (\October\Rain\Database\Model $model) {
-         *         if ($key === 'not-for-you-to-touch') {
+         *         if ($key === 'do-not-touch') {
          *             \Log::info("{$key} has been touched and set to {$value}!")
          *         }
          *     });
