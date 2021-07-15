@@ -137,7 +137,6 @@ trait HasRelationships
         'hasManyThrough'
     ];
 
-
     //
     // Relations
     //
@@ -374,6 +373,19 @@ trait HasRelationships
     }
 
     /**
+     * getRelationCustomClass returns a custom relation class name for
+     * the relation or null if none is found.
+     */
+    protected function getRelationCustomClass(string $name): ?string
+    {
+        if (($type = $this->getRelationType($name)) !== null) {
+            return $this->{$type}[$name]['relationClass'] ?? null;
+        }
+
+        return null;
+    }
+
+    /**
      * hasOne defines a one-to-one relationship.
      * This code is a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\HasOne
@@ -390,7 +402,9 @@ trait HasRelationships
 
         $localKey = $localKey ?: $this->getKeyName();
 
-        return new HasOne($instance->newQuery(), $this, $instance->getTable().'.'.$primaryKey, $localKey, $relationName);
+        $relationClass = $this->getRelationCustomClass($relationName) ?: HasOne::class;
+
+        return new $relationClass($instance->newQuery(), $this, $instance->getTable().'.'.$primaryKey, $localKey, $relationName);
     }
 
     /**
@@ -412,7 +426,9 @@ trait HasRelationships
 
         $localKey = $localKey ?: $this->getKeyName();
 
-        return new MorphOne($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $localKey, $relationName);
+        $relationClass = $this->getRelationCustomClass($relationName) ?: MorphOne::class;
+
+        return new $relationClass($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $localKey, $relationName);
     }
 
     /**
@@ -435,7 +451,9 @@ trait HasRelationships
 
         $parentKey = $parentKey ?: $instance->getKeyName();
 
-        return new BelongsTo($instance->newQuery(), $this, $foreignKey, $parentKey, $relationName);
+        $relationClass = $this->getRelationCustomClass($relationName) ?: BelongsTo::class;
+
+        return new $relationClass($instance->newQuery(), $this, $foreignKey, $parentKey, $relationName);
     }
 
     /**
@@ -518,7 +536,9 @@ trait HasRelationships
 
         $localKey = $localKey ?: $this->getKeyName();
 
-        return new HasMany($instance->newQuery(), $this, $instance->getTable().'.'.$primaryKey, $localKey, $relationName);
+        $relationClass = $this->getRelationCustomClass($relationName) ?: HasMany::class;
+
+        return new $relationClass($instance->newQuery(), $this, $instance->getTable().'.'.$primaryKey, $localKey, $relationName);
     }
 
     /**
@@ -544,7 +564,9 @@ trait HasRelationships
 
         $instance = $this->newRelatedInstance($related);
 
-        return new HasManyThrough($instance->newQuery(), $this, $throughInstance, $primaryKey, $throughKey, $localKey, $secondLocalKey, $relationName);
+        $relationClass = $this->getRelationCustomClass($relationName) ?: HasManyThrough::class;
+
+        return new $relationClass($instance->newQuery(), $this, $throughInstance, $primaryKey, $throughKey, $localKey, $secondLocalKey, $relationName);
     }
 
     /**
@@ -570,7 +592,9 @@ trait HasRelationships
 
         $instance = $this->newRelatedInstance($related);
 
-        return new HasOneThrough($instance->newQuery(), $this, $throughInstance, $primaryKey, $throughKey, $localKey, $secondLocalKey, $relationName);
+        $relationClass = $this->getRelationCustomClass($relationName) ?: HasOneThrough::class;
+
+        return new $relationClass($instance->newQuery(), $this, $throughInstance, $primaryKey, $throughKey, $localKey, $secondLocalKey, $relationName);
     }
 
     /**
@@ -592,7 +616,9 @@ trait HasRelationships
 
         $localKey = $localKey ?: $this->getKeyName();
 
-        return new MorphMany($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $localKey, $relationName);
+        $relationClass = $this->getRelationCustomClass($relationName) ?: MorphMany::class;
+
+        return new $relationClass($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $localKey, $relationName);
     }
 
     /**
@@ -616,7 +642,9 @@ trait HasRelationships
             $table = $this->joiningTable($related);
         }
 
-        return new BelongsToMany(
+        $relationClass = $this->getRelationCustomClass($relationName) ?: BelongsToMany::class;
+
+        return new $relationClass(
             $instance->newQuery(),
             $this,
             $table,
@@ -647,7 +675,9 @@ trait HasRelationships
 
         $table = $table ?: Str::plural($name);
 
-        return new MorphToMany(
+        $relationClass = $this->getRelationCustomClass($relationName) ?: MorphToMany::class;
+
+        return new $relationClass(
             $instance->newQuery(),
             $this,
             $name,
@@ -708,7 +738,9 @@ trait HasRelationships
 
         $localKey = $localKey ?: $this->getKeyName();
 
-        return new AttachOne($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $isPublic, $localKey, $relationName);
+        $relationClass = $this->getRelationCustomClass($relationName) ?: AttachOne::class;
+
+        return new $relationClass($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $isPublic, $localKey, $relationName);
     }
 
     /**
@@ -730,7 +762,9 @@ trait HasRelationships
 
         $localKey = $localKey ?: $this->getKeyName();
 
-        return new AttachMany($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $isPublic, $localKey, $relationName);
+        $relationClass = $this->getRelationCustomClass($relationName) ?: AttachMany::class;
+
+        return new $relationClass($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $isPublic, $localKey, $relationName);
     }
 
     /**
