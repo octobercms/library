@@ -13,7 +13,7 @@ class Helper
      */
     public static function validateUrl(string $url): bool
     {
-        if ($url[0] !==  '/') {
+        if ($url && $url[0] !==  '/') {
             return false;
         }
 
