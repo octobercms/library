@@ -35,7 +35,7 @@
     "autoload": {
         "files": [
             "src/Support/helpers.php",
-            "src/Router/helpers.php",
+            "src/Support/polyfills.php",
             "src/Html/helpers.php"
         ],
         "classmap": [

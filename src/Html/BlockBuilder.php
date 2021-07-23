@@ -44,10 +44,6 @@ class BlockBuilder
     public function endPut(bool $append = false)
     {
         $this->endBlock($append);
-
-        if (!count($this->blockStack) && (ob_get_length() > 0)) {
-            ob_end_clean();
-        }
     }
 
     /**
@@ -76,9 +72,7 @@ class BlockBuilder
      */
     public function set(string $name, $content)
     {
-        $this->put($name);
-        echo $content;
-        $this->endPut();
+        $this->blocks[$name] = $content;
     }
 
     /**
@@ -87,7 +81,7 @@ class BlockBuilder
     public function append(string $name, $content)
     {
         if (!isset($this->blocks[$name])) {
-            $this->blocks[$name] = null;
+            $this->blocks[$name] = '';
         }
 
         $this->blocks[$name] .= $content;
