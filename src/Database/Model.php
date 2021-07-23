@@ -401,6 +401,33 @@ class Model extends EloquentModel
     }
 
     /**
+     * newInstance creates a new instance of the given model.
+     * @param  array  $attributes
+     * @param  bool  $exists
+     * @return static
+     */
+    public function newInstance($attributes = [], $exists = false)
+    {
+        $model = parent::newInstance($attributes, $exists);
+
+        /**
+         * @event model.newInstance
+         * Called when a new instance of a model is created
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.newInstance', function (\October\Rain\Database\Model $newModel) use (\October\Rain\Database\Model $model) {
+         *         // Transfer custom properties
+         *         $newModel->isLocked = $model->isLocked;
+         *     });
+         *
+         */
+        $this->fireEvent('model.newInstance', [$model]);
+
+        return $model;
+    }
+
+    /**
      * Create a new model instance that is existing.
      * @param  array  $attributes
      * @return \Illuminate\Database\Eloquent\Model|static
