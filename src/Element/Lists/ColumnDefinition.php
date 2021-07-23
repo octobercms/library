@@ -67,17 +67,17 @@ class ColumnDefinition
         if (isset($config['type'])) {
             $this->displayAs($config['type']);
         }
-        if (isset($config['searchable'])) {
-            $this->searchable = $config['searchable'];
-        }
-        if (isset($config['sortable'])) {
-            $this->sortable = $config['sortable'];
-        }
         if (isset($config['hidden'])) {
             $this->hidden();
         }
+        if (isset($config['searchable'])) {
+            $this->searchable();
+        }
         if (isset($config['align']) && in_array($config['align'], ['left', 'right', 'center'])) {
             $this->align = $config['align'];
+        }
+        if (array_key_exists('sortable', $config)) {
+            $this->sortable((bool) $config['sortable']);
         }
     }
 
@@ -116,9 +116,29 @@ class ColumnDefinition
     /**
      * hidden hides the column from lists
      */
-    public function hidden(): ColumnDefinition
+    public function hidden(bool $hidden = true): ColumnDefinition
     {
-        $this->hidden = true;
+        $this->hidden = $hidden;
+
+        return $this;
+    }
+
+    /**
+     * sortable determines if column can be sorted
+     */
+    public function sortable(bool $sortable = true): ColumnDefinition
+    {
+        $this->sortable = $sortable;
+
+        return $this;
+    }
+
+    /**
+     * searchable determines if column can be searched
+     */
+    public function searchable(bool $searchable = true): ColumnDefinition
+    {
+        $this->searchable = $searchable;
 
         return $this;
     }
