@@ -9,7 +9,34 @@
 class Helper
 {
     /**
-     * Adds leading slash and removes trailing slash from the URL.
+     * validateUrl checks if the URL pattern provided is valid for parsing
+     */
+    public static function validateUrl(string $url): bool
+    {
+        if ($url && $url[0] !==  '/') {
+            return false;
+        }
+
+        $segments = static::segmentizeUrl($url);
+
+        foreach ($segments as $segment) {
+            // Remove regex portion
+            $cleanSegment = explode('|', $segment)[0];
+
+            // Validate segment
+            if (!preg_match(
+                '/^[a-z0-9\/\:_\-\*\[\]\+\?\.\^\\\$]*$/i',
+                $cleanSegment
+            )) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * normalizeUrl adds leading slash and removes trailing slash from the URL.
      *
      * @param string $url URL to normalize.
      * @return string Returns normalized URL.
@@ -32,7 +59,7 @@ class Helper
     }
 
     /**
-     * Splits an URL by segments separated by the slash symbol.
+     * segmentizeUrl splits a URL by segments separated by the slash symbol.
      *
      * @param string $url URL to segmentize.
      * @return array Returns the URL segments.
@@ -53,7 +80,7 @@ class Helper
     }
 
     /**
-     * Rebuilds a URL from an array of segments.
+     * rebuildUrl from an array of segments.
      *
      * @param array $urlArray Array the URL segments.
      * @return string Returns rebuilt URL.
@@ -71,7 +98,8 @@ class Helper
     }
 
     /**
-     * Replaces :column_name with it's object value. Example: /some/link/:id/:name -> /some/link/1/Joe
+     * parseValues replaces :column_name with it's object value.
+     * Example: /some/link/:id/:name -> /some/link/1/Joe
      *
      * @param stdObject $object Object containing the data
      * @param array $columns Expected key names to parse
@@ -100,7 +128,8 @@ class Helper
     }
 
     /**
-     * Replaces :column_name with object value without requiring a list of names. Example: /some/link/:id/:name -> /some/link/1/Joe
+     * replaceParameters replaces :column_name with object value without requiring a
+     * list of names. Example: /some/link/:id/:name -> /some/link/1/Joe
      *
      * @param stdObject $object Object containing the data
      * @param string $string URL template
@@ -116,7 +145,7 @@ class Helper
     }
 
     /**
-     * Checks whether an URL pattern segment is a wildcard.
+     * segmentIsWildcard checks whether an URL pattern segment is a wildcard.
      * @param string $segment The segment definition.
      * @return boolean Returns boolean true if the segment is a wildcard. Returns false otherwise.
      */
@@ -126,7 +155,7 @@ class Helper
     }
 
     /**
-     * Checks whether an URL pattern segment is optional.
+     * segmentIsOptional checks whether an URL pattern segment is optional.
      * @param string $segment The segment definition.
      * @return boolean Returns boolean true if the segment is optional. Returns false otherwise.
      */
@@ -152,7 +181,7 @@ class Helper
     }
 
     /**
-     * Extracts the parameter name from a URL pattern segment definition.
+     * getParameterName extracts the parameter name from a URL pattern segment definition.
      * @param string $segment The segment definition.
      * @return string Returns the segment name.
      */
@@ -192,7 +221,7 @@ class Helper
     }
 
     /**
-     * Extracts the regular expression from a URL pattern segment definition.
+     * getSegmentRegExp extracts the regular expression from a URL pattern segment definition.
      * @param string $segment The segment definition.
      * @return string Returns the regular expression string or false if the expression is not defined.
      */
@@ -211,7 +240,8 @@ class Helper
     }
 
     /**
-     * Extracts the default parameter value from a URL pattern segment definition.
+     * getSegmentDefaultValue extracts the default parameter value from a URL pattern
+     * segment definition.
      * @param string $segment The segment definition.
      * @return string Returns the default value if it is provided. Returns false otherwise.
      */

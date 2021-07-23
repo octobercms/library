@@ -1,11 +1,16 @@
 <?php
-use October\Rain\Router\UrlGenerator;
 
-class UrlGeneratorTest extends TestCase
+/**
+ * HttpBuildQueryTest
+ */
+class HttpBuildQueryTest extends TestCase
 {
+    /**
+     * testSimpleUrl
+     */
     public function testSimpleUrl()
     {
-        $this->assertEquals('https://octobercms.com/', UrlGenerator::buildUrl([
+        $this->assertEquals('https://octobercms.com/', http_build_url([
             'scheme' => 'https',
             'host' => 'octobercms.com',
             'path' => '/'
@@ -18,9 +23,12 @@ class UrlGeneratorTest extends TestCase
         ]));
     }
 
+    /**
+     * testComplexUrl
+     */
     public function testComplexUrl()
     {
-        $this->assertEquals('https://user:pass@github.com:80/octobercms/october?test=1&test=2#comment1', UrlGenerator::buildUrl([
+        $this->assertEquals('https://user:pass@github.com:80/octobercms/october?test=1&test=2#comment1', http_build_url([
             'scheme' => 'https',
             'user' => 'user',
             'pass' => 'pass',
@@ -43,9 +51,12 @@ class UrlGeneratorTest extends TestCase
         ]));
     }
 
+    /**
+     * testReplacements
+     */
     public function testReplacements()
     {
-        $this->assertEquals('https://octobercms.com', UrlGenerator::buildUrl([
+        $this->assertEquals('https://octobercms.com', http_build_url([
             'scheme' => 'https',
             'host' => 'wordpress.org'
         ], [
@@ -53,7 +64,7 @@ class UrlGeneratorTest extends TestCase
             'host' => 'octobercms.com'
         ]));
 
-        $this->assertEquals('https://octobercms.com:80/changelog', UrlGenerator::buildUrl([
+        $this->assertEquals('https://octobercms.com:80/changelog', http_build_url([
             'scheme' => 'https',
             'host' => 'octobercms.com'
         ], [
@@ -61,7 +72,7 @@ class UrlGeneratorTest extends TestCase
             'path' => '/changelog'
         ]));
 
-        $this->assertEquals('ftp://username:password@ftp.test.com.au:21/newfolder', UrlGenerator::buildUrl([
+        $this->assertEquals('ftp://username:password@ftp.test.com.au:21/newfolder', http_build_url([
             'scheme' => 'https',
             'user' => 'user',
             'pass' => 'pass',
@@ -82,9 +93,12 @@ class UrlGeneratorTest extends TestCase
         ]));
     }
 
+    /**
+     * testJoinSegments
+     */
     public function testJoinSegments()
     {
-        $this->assertEquals('https://octobercms.com/plugins/rainlab-pages', UrlGenerator::buildUrl([
+        $this->assertEquals('https://octobercms.com/plugins/rainlab-pages', http_build_url([
             'scheme' => 'https',
             'host' => 'octobercms.com',
             'path' => '/plugins'
@@ -92,7 +106,7 @@ class UrlGeneratorTest extends TestCase
             'path' => '/rainlab-pages'
         ], HTTP_URL_JOIN_PATH));
 
-        $this->assertEquals('https://octobercms.com/?query1=1&query2=2&query3=3', UrlGenerator::buildUrl([
+        $this->assertEquals('https://octobercms.com/?query1=1&query2=2&query3=3', http_build_url([
             'scheme' => 'https',
             'host' => 'octobercms.com',
             'path' => '/',
@@ -101,7 +115,7 @@ class UrlGeneratorTest extends TestCase
             'query' => 'query3=3'
         ], HTTP_URL_JOIN_QUERY));
 
-        $this->assertEquals('https://octobercms.com/plugins/rainlab-pages?query1=1&query2=2&query3=3', UrlGenerator::buildUrl([
+        $this->assertEquals('https://octobercms.com/plugins/rainlab-pages?query1=1&query2=2&query3=3', http_build_url([
             'scheme' => 'https',
             'host' => 'octobercms.com',
             'path' => '/plugins',
@@ -112,6 +126,9 @@ class UrlGeneratorTest extends TestCase
         ], HTTP_URL_JOIN_PATH | HTTP_URL_JOIN_QUERY));
     }
 
+    /**
+     * testStripSegments
+     */
     public function testStripSegments()
     {
         $segments = [

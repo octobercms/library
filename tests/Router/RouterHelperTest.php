@@ -2,8 +2,46 @@
 
 use October\Rain\Router\Helper;
 
+/**
+ * RouterHelperTest
+ */
 class RouterHelperTest extends TestCase
 {
+    /**
+     * testvalidateUrl
+     */
+    public function testvalidateUrl()
+    {
+        $validUrls = [
+            '/october/cms',
+            '/october/:cms',
+            '/october/:cms?',
+            '/october/:cms?defaultvalue',
+            '/october/:cms|^[a-z]+[0-9]?$|^[a-z]{3}$',
+            '/october//cms',
+        ];
+
+        $invalidUrls = [
+            'october/cms',
+            '/october/cms#',
+            '/october/cms!',
+            '/october/cms?page=1',
+            '/october/c m s',
+            '/october/:cms?default value',
+        ];
+
+        foreach ($validUrls as $url) {
+            $this->assertTrue(Helper::validateUrl($url));
+        }
+
+        foreach ($invalidUrls as $url) {
+            $this->assertFalse(Helper::validateUrl($url));
+        }
+    }
+
+    /**
+     * testSegmentize
+     */
     public function testSegmentize()
     {
         // Single param
@@ -35,6 +73,9 @@ class RouterHelperTest extends TestCase
         // $this->assertEquals([':my_param_name*|^[a-z]+\/\d+$', 'param2'], $value);
     }
 
+    /**
+     * testSegmentIsWildcard
+     */
     public function testSegmentIsWildcard()
     {
         // Non wildcard no regex
@@ -58,6 +99,9 @@ class RouterHelperTest extends TestCase
         // $this->assertFalse($value);
     }
 
+    /**
+     * testSegmentIsOptional
+     */
     public function testSegmentIsOptional()
     {
         $value = Helper::segmentIsOptional(':my_param_name');
@@ -76,6 +120,9 @@ class RouterHelperTest extends TestCase
         $this->assertTrue($value);
     }
 
+    /**
+     * testParameterNameMethod
+     */
     public function testParameterNameMethod()
     {
         $value = Helper::getParameterName(':my_param_name');
@@ -97,6 +144,9 @@ class RouterHelperTest extends TestCase
         $this->assertEquals('my_param_name', $value);
     }
 
+    /**
+     * testSegmentRegexp
+     */
     public function testSegmentRegexp()
     {
         $value = Helper::getSegmentRegExp(':my_param_name');
@@ -115,6 +165,9 @@ class RouterHelperTest extends TestCase
         $this->assertEquals('/^[a-z]+[0-9]?$/', $value);
     }
 
+    /**
+     * testDefaultValue
+     */
     public function testDefaultValue()
     {
         $value = Helper::getSegmentDefaultValue(':my_param_name');
@@ -133,6 +186,9 @@ class RouterHelperTest extends TestCase
         $this->assertEquals('default value', $value);
     }
 
+    /**
+     * testReplaceParameters
+     */
     public function testReplaceParameters()
     {
         $value = Helper::replaceParameters(['param1'=>'dynamic1'], 'static1/:param1/static2');

@@ -1,29 +1,74 @@
-<?php namespace October\Rain\Router;
+<?php
 
-use Illuminate\Routing\UrlGenerator as UrlGeneratorBase;
+/**
+ * URL constants as defined in the PHP Manual under "Constants usable with
+ * http_build_url()".
+ *
+ * @see http://us2.php.net/manual/en/http.constants.php#http.constants.url
+ */
+if (!defined('HTTP_URL_REPLACE')) {
+    define('HTTP_URL_REPLACE', 1);
+}
+if (!defined('HTTP_URL_JOIN_PATH')) {
+    define('HTTP_URL_JOIN_PATH', 2);
+}
+if (!defined('HTTP_URL_JOIN_QUERY')) {
+    define('HTTP_URL_JOIN_QUERY', 4);
+}
+if (!defined('HTTP_URL_STRIP_USER')) {
+    define('HTTP_URL_STRIP_USER', 8);
+}
+if (!defined('HTTP_URL_STRIP_PASS')) {
+    define('HTTP_URL_STRIP_PASS', 16);
+}
+if (!defined('HTTP_URL_STRIP_AUTH')) {
+    define('HTTP_URL_STRIP_AUTH', 32);
+}
+if (!defined('HTTP_URL_STRIP_PORT')) {
+    define('HTTP_URL_STRIP_PORT', 64);
+}
+if (!defined('HTTP_URL_STRIP_PATH')) {
+    define('HTTP_URL_STRIP_PATH', 128);
+}
+if (!defined('HTTP_URL_STRIP_QUERY')) {
+    define('HTTP_URL_STRIP_QUERY', 256);
+}
+if (!defined('HTTP_URL_STRIP_FRAGMENT')) {
+    define('HTTP_URL_STRIP_FRAGMENT', 512);
+}
+if (!defined('HTTP_URL_STRIP_ALL')) {
+    define('HTTP_URL_STRIP_ALL', 1024);
+}
 
-class UrlGenerator extends UrlGeneratorBase
-{
+if (!function_exists('http_build_url')) {
+
     /**
-     * Build a URL from an array returned from a `parse_url` call.
+     * Build a URL.
      *
-     * This function serves as a counterpart to the `parse_url` method available in PHP, and a userland implementation
-     * of the `http_build_query` method provided by the PECL HTTP module. This allows a developer to parse a URL to an
-     * array and make adjustments to the URL parts before combining them into a valid URL reference string.
+     * The parts of the second URL will be merged into the first according to
+     * the flags argument.
      *
-     * Based off of the implentation at https://github.com/jakeasmith/http_build_url/blob/master/src/http_build_url.php.
+     * @see https://github.com/jakeasmith/http_build_url
      *
-     * @param array $url The URL parts, as an array. Must match the structure returned from a `parse_url` call.
-     * @param array $replace The URL replacement parts. Allows a developer to replace certain sections of the URL with
-     *                       a different value.
-     * @param mixed $flags A bitmask of binary or'ed HTTP_URL constants. By default, this is set to HTTP_URL_REPLACE.
-     * @param array $newUrl If set, this will be filled with the array parts of the composed URL, similar to the return
-     *                      value of `parse_url`.
-     *
-     * @return string The generated URL as a string
+     * @param mixed $url     (part(s) of) an URL in form of a string or
+     *                       associative array like parse_url() returns
+     * @param mixed $parts   same as the first argument
+     * @param int   $flags   a bitmask of binary or'ed HTTP_URL constants;
+     *                       HTTP_URL_REPLACE is the default
+     * @param array $new_url if set, it will be filled with the parts of the
+     *                       composed url like parse_url() would return
+     * @author Jake A. Smith
+     * @return string
      */
-    public static function buildUrl(array $url, array $replace = [], $flags = HTTP_URL_REPLACE, &$newUrl = []): string
+    function http_build_url($url, $replace = [], $flags = HTTP_URL_REPLACE, &$newUrl = []): string
     {
+        if (is_string($url)) {
+            $url = parse_url($url);
+        }
+        if (is_string($replace)) {
+            $replace = parse_url($replace);
+        }
+
         $urlSegments = ['scheme', 'host', 'user', 'pass', 'port', 'path', 'query', 'fragment'];
 
         // Set flags - HTTP_URL_STRIP_ALL and HTTP_URL_STRIP_AUTH cover several other flags.
@@ -123,3 +168,27 @@ class UrlGenerator extends UrlGeneratorBase
         return $urlString;
     }
 }
+
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2015 Jake A. Smith
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */

@@ -3,6 +3,12 @@
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router as RouterBase;
 
+/**
+ * CoreRouter
+ *
+ * @package october\router
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class CoreRouter extends RouterBase
 {
     /**
