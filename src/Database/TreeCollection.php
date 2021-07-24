@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database;
 
 /**
- * Custom collection used by NestedTree trait.
+ * TreeCollection is a custom collection used by NestedTree trait.
  *
  * General access methods:
  *
@@ -10,9 +10,8 @@
  */
 class TreeCollection extends Collection
 {
-
     /**
-     * Converts a flat collection of nested set models to an set where
+     * toNested converts a flat collection of nested set models to an set where
      * children is eager loaded
      * @param bool $removeOrphans Remove nodes that exist without their parents.
      * @return \October\Rain\Database\Collection
@@ -56,7 +55,8 @@ class TreeCollection extends Collection
     }
 
     /**
-     * Gets an array with values of a given column. Values are indented according to their depth.
+     * listsNested gets an array with values of a given column. Values are indented according
+     * to their depth.
      * @param  string $value  Array values
      * @param  string $key    Array keys
      * @param  string $indent Character to indent depth

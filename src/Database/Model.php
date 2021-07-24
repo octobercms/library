@@ -289,8 +289,7 @@ class Model extends EloquentModel
     {
         /**
          * @event model.beforeSave
-         * Called before the model is saved
-         * > **Note:** This is called both when creating and updating
+         * Called before the model is created or updated
          *
          * Example usage:
          *
@@ -310,8 +309,7 @@ class Model extends EloquentModel
     {
         /**
          * @event model.afterSave
-         * Called after the model is saved
-         * > **Note:** This is called both when creating and updating
+         * Called after the model is created or updated
          *
          * Example usage:
          *
