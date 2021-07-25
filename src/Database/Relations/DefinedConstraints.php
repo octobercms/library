@@ -57,8 +57,9 @@ trait DefinedConstraints
 
         /*
          * Count "helper" relation
+         * @deprecated use Laravel withCount() method instead
          */
-        if ($count = array_get($args, 'count')) {
+        if (array_get($args, 'count')) {
             if ($relation instanceof BelongsToManyBase) {
                 $relation->countMode = true;
             }
