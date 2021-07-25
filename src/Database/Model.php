@@ -690,7 +690,8 @@ class Model extends EloquentModel
     //
 
     /**
-     * Save the model to the database. Is used by {@link save()} and {@link forceSave()}.
+     * saveInternal is an internal method that saves the model to the database.
+     * This is used by {@link save()} and {@link forceSave()}.
      * @param array $options
      * @return bool
      */
@@ -760,7 +761,8 @@ class Model extends EloquentModel
     public function save(array $options = null, $sessionKey = null)
     {
         $this->sessionKey = $sessionKey;
-        return $this->saveInternal(['force' => false] + (array) $options);
+
+        return $this->saveInternal((array) $options);
     }
 
     /**
