@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Contracts\Element;
+<?php namespace October\Rain\Element\Contracts;
 
 use October\Rain\Element\Form\FieldDefinition;
 
