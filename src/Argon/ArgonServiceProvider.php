@@ -16,9 +16,7 @@ class ArgonServiceProvider extends ServiceProvider
     protected $defer = false;
 
     /**
-     * Bootstrap the application events.
-     *
-     * @return void
+     * boot the application events
      */
     public function boot()
     {
@@ -32,12 +30,16 @@ class ArgonServiceProvider extends ServiceProvider
     }
 
     /**
-     * Sets the locale using the correct load order.
+     * setArgonLocale sets the locale using the correct load order.
      */
     protected function setArgonLocale($locale)
     {
-        Argon::setFallbackLocale($this->getFallbackLocale($locale));
         Argon::setLocale($locale);
+
+        $fallbackLocale = $this->getFallbackLocale($locale);
+        if ($locale !== $fallbackLocale) {
+            Argon::setFallbackLocale($fallbackLocale);
+        }
     }
 
     /**
