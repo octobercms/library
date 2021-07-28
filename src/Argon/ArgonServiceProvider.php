@@ -30,8 +30,12 @@ class ArgonServiceProvider extends ServiceProvider
      */
     protected function setArgonLocale($locale)
     {
-        Argon::setFallbackLocale($this->getFallbackLocale($locale));
         Argon::setLocale($locale);
+
+        $fallbackLocale = $this->getFallbackLocale($locale);
+        if ($locale !== $fallbackLocale) {
+            Argon::setFallbackLocale($fallbackLocale);
+        }
     }
 
     /**
