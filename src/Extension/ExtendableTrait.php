@@ -237,6 +237,22 @@ trait ExtendableTrait
     }
 
     /**
+     * isClassInstanceOf checks if the class implements the supplied interface methods.
+     */
+    public function isClassInstanceOf($interface): bool
+    {
+        $classMethods = $this->getClassMethods();
+
+        foreach (get_class_methods($interface) as $methodName) {
+            if (!in_array($methodName, $classMethods)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * getClassExtension returns a behavior object from an extendable class, example:
      *
      *     $this->getClassExtension('Backend.Behaviors.FormController')

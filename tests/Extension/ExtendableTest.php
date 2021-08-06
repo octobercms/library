@@ -213,18 +213,34 @@ class ExtendableTest extends TestCase
     {
         $subject = new ExtendableTestExampleExtendableClass;
         $subject->addDynamicMethod('getFooAnotherWay', 'getFoo', 'ExtendableTestExampleBehaviorClass1');
-        $methods =  $subject->getClassMethods();
+        $methods = $subject->getClassMethods();
 
         $this->assertContains('extend', $methods);
         $this->assertContains('getFoo', $methods);
         $this->assertContains('getFooAnotherWay', $methods);
         $this->assertNotContains('missingFunction', $methods);
     }
+
+    public function testIsInstanceOf()
+    {
+        $subject1 = new ExtendableTestExampleExtendableClass;
+        $subject2 = new ExtendableTestExampleExtendableSoftImplementFakeClass;
+        $subject3 = new ExtendableTestExampleExtendableSoftImplementRealClass;
+
+        $this->assertTrue($subject1->isClassInstanceOf(ExampleExtendableInterface::class));
+        $this->assertFalse($subject2->isClassInstanceOf(ExampleExtendableInterface::class));
+        $this->assertTrue($subject3->isClassInstanceOf(ExampleExtendableInterface::class));
+    }
 }
 
 //
 // Test classes
 //
+
+interface ExampleExtendableInterface
+{
+    public function hasPanda();
+}
 
 /**
  * Example behavior classes
@@ -246,6 +262,11 @@ class ExtendableTestExampleBehaviorClass1 extends ExtensionBase
     public static function vanillaIceIce()
     {
         return 'cream';
+    }
+
+    public function hasPanda()
+    {
+        return true;
     }
 }
 
