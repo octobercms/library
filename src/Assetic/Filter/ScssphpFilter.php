@@ -13,6 +13,7 @@ use October\Rain\Assetic\Asset\AssetInterface;
 use October\Rain\Assetic\Factory\AssetFactory;
 use October\Rain\Assetic\Util\SassUtils;
 use ScssPhp\ScssPhp\Compiler;
+use ScssPhp\ScssPhp\OutputStyle;
 
 /**
  * Loads SCSS files using the PHP implementation of scss, scssphp.
@@ -25,37 +26,13 @@ use ScssPhp\ScssPhp\Compiler;
  */
 class ScssphpFilter implements DependencyExtractorInterface
 {
-    private $compass = false;
-    private $importPaths = array();
-    private $customFunctions = array();
+    private $importPaths = [];
+    private $customFunctions = [];
     private $formatter;
-    private $variables = array();
-
-    public function enableCompass($enable = true)
-    {
-        $this->compass = (Boolean) $enable;
-    }
-
-    public function isCompassEnabled()
-    {
-        return $this->compass;
-    }
+    private $variables = [];
 
     public function setFormatter($formatter)
     {
-        $legacyFormatters = array(
-            'scss_formatter' => \ScssPhp\ScssPhp\Formatter\Expanded::class,
-            'scss_formatter_nested' => \ScssPhp\ScssPhp\Formatter\Nested::class,
-            'scss_formatter_compressed' => \ScssPhp\ScssPhp\Formatter\Compressed::class,
-            'scss_formatter_crunched' => \ScssPhp\ScssPhp\Formatter\Crunched::class,
-        );
-
-        if (isset($legacyFormatters[$formatter])) {
-            @trigger_error(sprintf('The scssphp formatter `%s` is deprecated. Use `%s` instead.', $formatter, $legacyFormatters[$formatter]), E_USER_DEPRECATED);
-
-            $formatter = $legacyFormatters[$formatter];
-        }
-
         $this->formatter = $formatter;
     }
 
@@ -88,10 +65,6 @@ class ScssphpFilter implements DependencyExtractorInterface
     {
         $sc = new Compiler();
 
-        if ($this->compass) {
-            new \scss_compass($sc);
-        }
-
         if ($dir = $asset->getSourceDirectory()) {
             $sc->addImportPath($dir);
         }
@@ -105,14 +78,14 @@ class ScssphpFilter implements DependencyExtractorInterface
         }
 
         if ($this->formatter) {
-            $sc->setFormatter($this->formatter);
+            $sc->setOutputStyle($this->formatter);
         }
 
         if (!empty($this->variables)) {
-            $sc->setVariables($this->variables);
+            $sc->addVariables($this->variables);
         }
 
-        $asset->setContent($sc->compile($asset->getContent()));
+        $asset->setContent($sc->compileString($asset->getContent())->getCss());
     }
 
     public function filterDump(AssetInterface $asset)
@@ -130,11 +103,11 @@ class ScssphpFilter implements DependencyExtractorInterface
             $sc->addImportPath($path);
         }
 
-        $children = array();
+        $children = [];
         foreach (SassUtils::extractImports($content) as $match) {
             $file = $sc->findImport($match);
             if ($file) {
-                $children[] = $child = $factory->createAsset($file, array(), array('root' => $loadPath));
+                $children[] = $child = $factory->createAsset($file, [], ['root' => $loadPath]);
                 $child->load();
                 $children = array_merge(
                     $children,

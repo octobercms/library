@@ -78,13 +78,29 @@ class Composer extends ProcessBase
     }
 
     /**
-     * listPackages returns a list of installed packages
+     * listPackages returns a list of directly installed packages
      */
     public function listPackages()
     {
+        return $this->listPackagesInternal();
+    }
+
+    /**
+     * listAllPackages returns a list of installed packages, including dependencies
+     */
+    public function listAllPackages()
+    {
+        return $this->listPackagesInternal(false);
+    }
+
+    /**
+     * listPackagesInternal returns a list of installed packages
+     */
+    protected function listPackagesInternal($useDirect = true)
+    {
         $installed = json_decode($this->runComposerCommand(
             'show',
-            '--direct',
+            ($useDirect ? '--direct' : ''),
             '--format=json'
         ), true);
 
