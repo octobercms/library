@@ -21,7 +21,7 @@ interface HasTreeInterface
     public function getChildCount(): int;
 
     /**
-     * scopeListsNested
+     * scopeGetNested
      */
-    public function scopeListsNested($query, $column, $key = null, $indent = '&nbsp;&nbsp;&nbsp;');
+    public function scopeGetNested($query);
 }
