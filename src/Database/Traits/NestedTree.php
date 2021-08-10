@@ -184,7 +184,7 @@ trait NestedTree
             /*
              * Delete children
              */
-            $this->newQuery()
+            $this->newNestedTreeQuery()
                 ->where($leftCol, '>', $left)
                 ->where($rightCol, '<', $right)
                 ->delete()
@@ -195,12 +195,12 @@ trait NestedTree
              */
             $diff = $right - $left + 1;
 
-            $this->newQuery()
+            $this->newNestedTreeQuery()
                 ->where($leftCol, '>', $right)
                 ->decrement($leftCol, $diff)
             ;
 
-            $this->newQuery()
+            $this->newNestedTreeQuery()
                 ->where($rightCol, '>', $right)
                 ->decrement($rightCol, $diff)
             ;
@@ -227,12 +227,12 @@ trait NestedTree
              */
             $diff = $right - $left + 1;
 
-            $this->newQuery()
+            $this->newNestedTreeQuery()
                 ->where($leftCol, '>=', $left)
                 ->increment($leftCol, $diff)
             ;
 
-            $this->newQuery()
+            $this->newNestedTreeQuery()
                 ->where($rightCol, '>=', $left)
                 ->increment($rightCol, $diff)
             ;
@@ -249,7 +249,7 @@ trait NestedTree
         }
 
         $this->getConnection()->transaction(function () {
-            $this->newQuery()
+            $this->newNestedTreeQuery()
                 ->withTrashed()
                 ->where($this->getLeftColumnName(), '>', $this->getLeft())
                 ->where($this->getRightColumnName(), '<', $this->getRight())
@@ -529,7 +529,7 @@ trait NestedTree
      */
     public function getAll($columns = ['*'])
     {
-        return $this->newQuery()->get($columns);
+        return $this->newNestedTreeQuery()->get($columns);
     }
 
     /**
@@ -539,7 +539,7 @@ trait NestedTree
     public function getRoot()
     {
         if ($this->exists) {
-            return $this->newQuery()->parents(true)
+            return $this->newNestedTreeQuery()->parents(true)
                 ->where(function ($query) {
                     $query->whereNull($this->getParentColumnName());
                     $query->orWhere($this->getParentColumnName(), 0);
@@ -550,7 +550,7 @@ trait NestedTree
 
         $parentId = $this->getParentId();
 
-        if ($parentId !== null && ($currentParent = $this->newQuery()->find($parentId))) {
+        if ($parentId !== null && ($currentParent = $this->newNestedTreeQuery()->find($parentId))) {
             return $currentParent->getRoot();
         }
 
@@ -563,7 +563,7 @@ trait NestedTree
      */
     public function getEagerRoot()
     {
-        return $this->newQuery()->getNested();
+        return $this->newNestedTreeQuery()->getNested();
     }
 
     /**
@@ -572,7 +572,7 @@ trait NestedTree
      */
     public function getRootList($column, $key = null, $indent = '&nbsp;&nbsp;&nbsp;')
     {
-        return $this->newQuery()->listsNested($column, $key, $indent);
+        return $this->newNestedTreeQuery()->listsNested($column, $key, $indent);
     }
 
     /**
@@ -590,7 +590,7 @@ trait NestedTree
      */
     public function getParents()
     {
-        return $this->newQuery()->parents()->get();
+        return $this->newNestedTreeQuery()->parents()->get();
     }
 
     /**
@@ -599,7 +599,7 @@ trait NestedTree
      */
     public function getParentsAndSelf()
     {
-        return $this->newQuery()->parents(true)->get();
+        return $this->newNestedTreeQuery()->parents(true)->get();
     }
 
     /**
@@ -617,7 +617,7 @@ trait NestedTree
      */
     public function getEagerChildren()
     {
-        return $this->newQuery()->allChildren()->getNested();
+        return $this->newNestedTreeQuery()->allChildren()->getNested();
     }
 
     /**
@@ -626,7 +626,7 @@ trait NestedTree
      */
     public function getAllChildren()
     {
-        return $this->newQuery()->allChildren()->get();
+        return $this->newNestedTreeQuery()->allChildren()->get();
     }
 
     /**
@@ -635,7 +635,7 @@ trait NestedTree
      */
     public function getAllChildrenAndSelf()
     {
-        return $this->newQuery()->allChildren(true)->get();
+        return $this->newNestedTreeQuery()->allChildren(true)->get();
     }
 
     /**
@@ -644,7 +644,7 @@ trait NestedTree
      */
     public function getSiblings()
     {
-        return $this->newQuery()->siblings()->get();
+        return $this->newNestedTreeQuery()->siblings()->get();
     }
 
     /**
@@ -653,7 +653,7 @@ trait NestedTree
      */
     public function getSiblingsAndSelf()
     {
-        return $this->newQuery()->siblings(true)->get();
+        return $this->newNestedTreeQuery()->siblings(true)->get();
     }
 
     /**
@@ -680,7 +680,7 @@ trait NestedTree
      */
     public function getLeaves()
     {
-        return $this->newQuery()->leaves()->get();
+        return $this->newNestedTreeQuery()->leaves()->get();
     }
 
     /**
@@ -693,7 +693,7 @@ trait NestedTree
             return 0;
         }
 
-        return $this->newQuery()->parents()->count();
+        return $this->newNestedTreeQuery()->parents()->count();
     }
 
     /**
@@ -720,7 +720,7 @@ trait NestedTree
 
             $level = $this->getLevel();
 
-            $this->newQuery()
+            $this->newNestedTreeQuery()
                 ->where($this->getKeyName(), '=', $this->getKey())
                 ->update([$this->getDepthColumnName() => $level])
             ;
@@ -738,7 +738,7 @@ trait NestedTree
     public function setDefaultLeftAndRight()
     {
         $highRight = $this
-            ->newQueryWithoutScopes()
+            ->newNestedTreeQuery(true)
             ->orderBy($this->getRightColumnName(), 'desc')
             ->limit(1)
             ->first()
@@ -884,7 +884,7 @@ trait NestedTree
             $target->reload();
         }
         else {
-            $target = $this->newQuery()->find($target);
+            $target = $this->newNestedTreeQuery()->find($target);
         }
 
         /*
@@ -907,7 +907,7 @@ trait NestedTree
         $target->reload();
         $this->setDepth();
 
-        foreach ($this->newQuery()->allChildren()->get() as $descendant) {
+        foreach ($this->newNestedTreeQuery()->allChildren()->get() as $descendant) {
             $descendant->setDepth();
         }
 
@@ -962,7 +962,7 @@ trait NestedTree
             WHEN $wrappedId = $currentId THEN $parentId
             ELSE $wrappedParent END";
 
-        $result = $node->newQuery()
+        $result = $node->newNestedTreeQuery()
             ->where(function ($query) use ($leftColumn, $rightColumn, $a, $d) {
                 $query
                     ->whereBetween($leftColumn, [$a, $d])
@@ -1074,6 +1074,29 @@ trait NestedTree
         sort($boundaries);
 
         return $boundaries;
+    }
+
+    //
+    // Instances
+    //
+
+    /**
+     * newNestedTreeQuery creates a new query for nested sets
+     */
+    protected function newNestedTreeQuery($withoutScopes = false)
+    {
+        return $this->addNestedTreeConstraints($withoutScopes
+            ? $this->newQueryWithoutScopes()
+            : $this->newQuery()
+        );
+    }
+
+    /**
+     * addNestedTreeConstraints is an override for applying query constraints
+     */
+    protected function addNestedTreeConstraints($query)
+    {
+        return $query;
     }
 
     /**
