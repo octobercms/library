@@ -22,9 +22,4 @@ interface HasNestedSetInterface
      * makeChildOf
      */
     public function makeChildOf($node);
-
-    /**
-     * makeRoot
-     */
-    public function makeRoot();
 }
