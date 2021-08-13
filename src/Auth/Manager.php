@@ -32,6 +32,11 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     protected $userModel = Models\User::class;
 
     /**
+     * @var string roleModel class
+     */
+    protected $roleModel = Models\Role::class;
+
+    /**
      * @var string groupModel class
      */
     protected $groupModel = Models\Group::class;
@@ -261,6 +266,20 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     protected function validateUserModel($user)
     {
         return $user instanceof $this->userModel;
+    }
+
+    //
+    // Role
+    //
+
+    /**
+     * createRoleModel creates an instance of the role model.
+     * @return Models\Role
+     */
+    public function createRoleModel()
+    {
+        $class = '\\'.ltrim($this->roleModel, '\\');
+        return new $class();
     }
 
     //
@@ -517,6 +536,13 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
             }
         }
 
+        /*
+         * Role impersonation
+         */
+        if ($this->isRoleImpersonator()) {
+            $this->applyRoleImpersonation($this->user);
+        }
+
         return true;
     }
 
@@ -766,5 +792,41 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
         $id = $impersonateArray[0];
 
         return $this->createUserModel()->find($id);
+    }
+
+    /**
+     * impersonateRole will impersonate a role for the current user
+     */
+    public function impersonateRole($role): void
+    {
+        Session::put($this->sessionKey.'_impersonate_role', $role->getKey());
+    }
+
+    /**
+     * isRoleImpersonator
+     */
+    public function isRoleImpersonator(): bool
+    {
+        return !empty(Session::has($this->sessionKey.'_impersonate_role'));
+    }
+
+    /**
+     * stopImpersonateRole will stop role impersonation
+     */
+    public function stopImpersonateRole(): void
+    {
+        Session::forget($this->sessionKey.'_impersonate_role');
+    }
+
+    /**
+     * applyRoleImpersonation tells the user model to impersonate the role
+     */
+    protected function applyRoleImpersonation($user): void
+    {
+        $roleId = Session::get($this->sessionKey.'_impersonate_role');
+
+        if ($role = $this->createRoleModel()->find($roleId)) {
+            $user->setRoleImpersonation($role);
+        }
     }
 }
