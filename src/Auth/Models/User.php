@@ -111,6 +111,11 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     protected $mergedPermissions;
 
     /**
+     * @var Role impersonatingRole set if the user is impersonating a role
+     */
+    protected $impersonatingRole;
+
+    /**
      * @return string getLoginName returns the name for the user's login
      */
     public function getLoginName()
@@ -133,6 +138,10 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
      */
     public function isSuperUser()
     {
+        if ($this->impersonatingRole) {
+            return false;
+        }
+
         return (bool) $this->is_superuser;
     }
 
@@ -360,6 +369,22 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
+     * setRoleImpersonation set to the role to impersonate or null to disable.
+     */
+    public function setRoleImpersonation(?Role $role): void
+    {
+        $this->impersonatingRole = $role;
+    }
+
+    /**
+     * getRoleImpersonation
+     */
+    public function getRoleImpersonation(): ?Role
+    {
+        return $this->impersonatingRole;
+    }
+
+    /**
      * addGroup adds the user to the given group
      * @param Group $group
      * @return bool
@@ -465,7 +490,12 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
      */
     public function hasPermission($permissions, $all = true)
     {
-        $mergedPermissions = $this->getMergedPermissions();
+        if ($this->impersonatingRole) {
+            $mergedPermissions = (array) $this->impersonatingRole->permissions;
+        }
+        else {
+            $mergedPermissions = $this->getMergedPermissions();
+        }
 
         if (!is_array($permissions)) {
             $permissions = [$permissions];
@@ -576,7 +606,7 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
 
     /**
      * setPermissionsAttribute validates any set permissions
-     * @param array $permissions
+     * @param string $permissions
      * @return void
      */
     public function setPermissionsAttribute($permissions)

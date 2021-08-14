@@ -7,68 +7,78 @@ use Illuminate\Contracts\Auth\Authenticatable;
 
 /**
  * Manager for authentication
+ *
+ * @package october\auth
+ * @author Alexey Bobkov, Samuel Georges
  */
 class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
 {
     use \October\Rain\Support\Traits\Singleton;
 
     /**
-     * @var Models\User The currently logged in user
+     * @var Models\User user that is currently logged in
      */
     protected $user;
 
     /**
-     * @var array In memory throttle cache [md5($userId.$ipAddress) => $this->throttleModel]
+     * @var array throttle cache in memory
+     * [md5($userId.$ipAddress) => $this->throttleModel]
      */
     protected $throttle = [];
 
     /**
-     * @var string User Model Class
+     * @var string userModel class
      */
     protected $userModel = Models\User::class;
 
     /**
-     * @var string User Group Model Class
+     * @var string roleModel class
+     */
+    protected $roleModel = Models\Role::class;
+
+    /**
+     * @var string groupModel class
      */
     protected $groupModel = Models\Group::class;
 
     /**
-     * @var string Throttle Model Class
+     * @var string throttleModel class
      */
     protected $throttleModel = Models\Throttle::class;
 
     /**
-     * @var bool Flag to enable login throttling
+     * @var bool useThrottle flag to enable login throttling.
      */
     protected $useThrottle = true;
 
     /**
-     * @var bool Internal flag to toggle using the session for the current authentication request
+     * @var bool useSession internal flag to toggle using the session for
+     * the current authentication request.
      */
     protected $useSession = true;
 
     /**
-     * @var bool Flag to require users to be activated to login
+     * @var bool requireActivation rlag to require users to be activated to login.
      */
     protected $requireActivation = true;
 
     /**
-     * @var string Key to store the auth session data in
+     * @var string sessionKey to store the auth session data in.
      */
     protected $sessionKey = 'october_auth';
 
     /**
-     * @var bool Indicates if the user was authenticated via a recaller cookie.
+     * @var bool viaRemember indicates if the user was authenticated via a recaller cookie.
      */
     protected $viaRemember = false;
 
     /**
-     * @var string The IP address of this request
+     * @var string ipAddress of this request.
      */
     public $ipAddress = '0.0.0.0';
 
     /**
-     * Initializes the singleton
+     * init the singleton
      */
     protected function init()
     {
@@ -80,9 +90,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     //
 
     /**
-     * Creates a new instance of the user model
-     *
-     * @return Models\User
+     * createUserModel instance
      */
     public function createUserModel()
     {
@@ -91,8 +99,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Prepares a query derived from the user model.
-     *
+     * createUserModelQuery prepares a query derived from the user model.
      * @return \October\Rain\Database\Builder $query
      */
     protected function createUserModelQuery()
@@ -105,17 +112,16 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Extend the query used for finding the user.
+     * extendUserQuery used for finding the user.
      * @param \October\Rain\Database\Builder $query
-     * @return void
      */
     public function extendUserQuery($query)
     {
     }
 
     /**
-     * Registers a user with the provided credentials with optional flags
-     * for activating the newly created user and automatically logging them in
+     * register a user with the provided credentials with optional flags for
+     * activating the newly created user and automatically logging them in.
      *
      * @param array $credentials
      * @param bool $activate
@@ -144,7 +150,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Sets the user
+     * setUser will set the current user.
      */
     public function setUser(Authenticatable $user)
     {
@@ -152,9 +158,8 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Returns the current user, if any.
-     *
-     * @return mixed (Models\User || null)
+     * getUser returns the current user, if any.
+     * @return Authenticatable|null
      */
     public function getUser()
     {
@@ -166,10 +171,9 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Finds a user by the login value.
-     *
+     * findUserById finds a user by the login value.
      * @param string $id
-     * @return mixed (Models\User || null)
+     * @return Authenticatable|null
      */
     public function findUserById($id)
     {
@@ -181,10 +185,9 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Finds a user by the login value.
-     *
+     * findUserByLogin finds a user by the login value.
      * @param string $login
-     * @return mixed (Models\User || null)
+     * @return Authenticatable|null
      */
     public function findUserByLogin($login)
     {
@@ -198,8 +201,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Finds a user by the given credentials.
-     *
+     * findUserByCredentials finds a user by the given credentials.
      * @param array $credentials The credentials to find a user by
      * @throws AuthException If the credentials are invalid
      * @return Models\User The requested user
@@ -257,8 +259,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Perform additional checks on the user model.
-     *
+     * validateUserModel perform additional checks on the user model.
      * @param $user
      * @return boolean
      */
@@ -268,12 +269,25 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     //
+    // Role
+    //
+
+    /**
+     * createRoleModel creates an instance of the role model.
+     * @return Models\Role
+     */
+    public function createRoleModel()
+    {
+        $class = '\\'.ltrim($this->roleModel, '\\');
+        return new $class();
+    }
+
+    //
     // Throttle
     //
 
     /**
-     * Creates an instance of the throttle model
-     *
+     * createThrottleModel creates an instance of the throttle model.
      * @return Models\Throttle
      */
     public function createThrottleModel()
@@ -454,8 +468,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Check to see if the user is logged in and activated, and hasn't been banned or suspended.
-     *
+     * check to see if the user is logged in and activated, and hasn't been banned or suspended.
      * @return bool
      */
     public function check()
@@ -523,12 +536,18 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
             }
         }
 
+        /*
+         * Role impersonation
+         */
+        if ($this->isRoleImpersonator()) {
+            $this->applyRoleImpersonation($this->user);
+        }
+
         return true;
     }
 
     /**
-     * Determine if the current user is a guest.
-     *
+     * guest determines if the current user is a guest.
      * @return bool
      */
     public function guest()
@@ -537,8 +556,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Get the currently authenticated user.
-     *
+     * user will return the currently authenticated user.
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
     public function user()
@@ -547,8 +565,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Get the ID for the currently authenticated user.
-     *
+     * id for the currently authenticated user.
      * @return int|null
      */
     public function id()
@@ -561,8 +578,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Log a user into the application without sessions or cookies.
-     *
+     * once logs a user into the application without sessions or cookies.
      * @param  array  $credentials
      * @return bool
      */
@@ -578,8 +594,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Log the given user ID into the application without sessions or cookies.
-     *
+     * onceUsingId logs the given user ID into the application without sessions or cookies.
      * @param  mixed  $id
      * @return \Illuminate\Contracts\Auth\Authenticatable|false
      */
@@ -637,8 +652,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Log the given user ID into the application.
-     *
+     * loginUsingId logs the given user ID into the application.
      * @param  mixed  $id
      * @param  bool   $remember
      * @return \Illuminate\Contracts\Auth\Authenticatable
@@ -655,8 +669,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Determine if the user was authenticated via "remember me" cookie.
-     *
+     * viaRemember determines if the user was authenticated via "remember me" cookie.
      * @return bool
      */
     public function viaRemember()
@@ -665,7 +678,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Logs the current user out.
+     * logout logs the current user out.
      */
     public function logout()
     {
@@ -696,8 +709,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     //
 
     /**
-     * Impersonates the given user and sets properties
-     * in the session but not the cookie.
+     * impersonate the given user and sets properties in the session but not the cookie.
      */
     public function impersonate($user)
     {
@@ -725,8 +737,8 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Stop the current session being impersonated and
-     * authenticate as the impersonator again
+     * stopImpersonate stops the current session being impersonated and
+     * attempts to authenticate as the impersonator again.
      */
     public function stopImpersonate()
     {
@@ -754,8 +766,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Check to see if the current session is being impersonated
-     *
+     * isImpersonator checks to see if the current session is being impersonated.
      * @return bool
      */
     public function isImpersonator()
@@ -764,9 +775,8 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
-     * Get the original user doing the impersonation
-     *
-     * @return mixed Returns the User model for the impersonator if able, false if not
+     * getImpersonator gets the original user doing the impersonation
+     * @return \Illuminate\Contracts\Auth\Authenticatable|null|false
      */
     public function getImpersonator()
     {
@@ -782,5 +792,41 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
         $id = $impersonateArray[0];
 
         return $this->createUserModel()->find($id);
+    }
+
+    /**
+     * impersonateRole will impersonate a role for the current user
+     */
+    public function impersonateRole($role): void
+    {
+        Session::put($this->sessionKey.'_impersonate_role', $role->getKey());
+    }
+
+    /**
+     * isRoleImpersonator
+     */
+    public function isRoleImpersonator(): bool
+    {
+        return !empty(Session::has($this->sessionKey.'_impersonate_role'));
+    }
+
+    /**
+     * stopImpersonateRole will stop role impersonation
+     */
+    public function stopImpersonateRole(): void
+    {
+        Session::forget($this->sessionKey.'_impersonate_role');
+    }
+
+    /**
+     * applyRoleImpersonation tells the user model to impersonate the role
+     */
+    protected function applyRoleImpersonation($user): void
+    {
+        $roleId = Session::get($this->sessionKey.'_impersonate_role');
+
+        if ($role = $this->createRoleModel()->find($roleId)) {
+            $user->setRoleImpersonation($role);
+        }
     }
 }
