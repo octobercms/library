@@ -687,6 +687,10 @@ class File extends Model
             }
             else {
                 $this->getDisk()->delete($collection);
+
+                foreach ($collection as $filePath) {
+                    Cache::forget($this->getCacheKey($filePath));
+                }
             }
         }
     }
@@ -705,7 +709,7 @@ class File extends Model
         }
 
         $ext = strtolower($this->getExtension());
-        $name = str_replace('.', '', uniqid(null, true));
+        $name = str_replace('.', '', uniqid('', true));
 
         return $this->disk_name = !empty($ext) ? $name.'.'.$ext : $name;
     }
@@ -755,7 +759,9 @@ class File extends Model
             !FileHelper::makeDirectory($destinationPath, 0777, true, true) &&
             !FileHelper::isDirectory($destinationPath)
         ) {
-            trigger_error(error_get_last(), E_USER_WARNING);
+            if (($lastErr = error_get_last()) !== null) {
+                trigger_error($lastErr['message'], E_USER_WARNING);
+            }
         }
 
         return FileHelper::copy($sourcePath, $destinationPath . $destinationFileName);
