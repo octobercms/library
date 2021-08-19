@@ -29,6 +29,18 @@ class HasManyThrough extends HasManyThroughBase
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function addDefinedConstraints()
+    {
+        $args = $this->farParent->getRelationDefinition($this->relationName);
+
+        $this->addDefinedConstraintsToRelation($this, $args);
+
+        $this->addDefinedConstraintsToQuery($this, $args);
+    }
+
+    /**
      * parentSoftDeletes determines whether close parent of the relation uses Soft Deletes.
      * @return bool
      */
@@ -49,7 +61,7 @@ class HasManyThrough extends HasManyThroughBase
         $value = null;
         $relationName = $this->relationName;
 
-        if ($relation = $this->parent->$relationName) {
+        if ($relation = $this->farParent->$relationName) {
             $value = $relation->pluck($this->localKey)->all();
         }
 

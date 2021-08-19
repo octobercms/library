@@ -9,9 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany as BelongsToManyBase;
 trait DefinedConstraints
 {
     /**
-     * Set the defined constraints on the relation query.
-     *
-     * @return void
+     * addDefinedConstraints sets the defined constraints on the relation query.
      */
     public function addDefinedConstraints()
     {
@@ -23,8 +21,7 @@ trait DefinedConstraints
     }
 
     /**
-     * Add relation based constraints.
-     *
+     * addDefinedConstraintsToRelation
      * @param Illuminate\Database\Eloquent\Relations\Relation $relation
      * @param array $args
      */
@@ -75,8 +72,7 @@ trait DefinedConstraints
     }
 
     /**
-     * Add query based constraints.
-     *
+     * addDefinedConstraintsToQuery
      * @param October\Rain\Database\QueryBuilder $query
      * @param array $args
      */
