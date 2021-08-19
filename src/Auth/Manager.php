@@ -809,7 +809,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
         }
 
         $oldUserId = Session::get($this->sessionKey.'_impersonate');
-        if ($oldUserId === 'NaN') {
+        if ((!is_string($oldUserId) && !is_int($oldUserId)) || $oldUserId === 'NaN') {
             return null;
         }
 
