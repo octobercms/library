@@ -679,9 +679,13 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     /**
      * setPersistCodeToSession stores the user persistence in the session and cookie.
      */
-    protected function setPersistCodeToSession($user, $remember = true): void
+    protected function setPersistCodeToSession($user, bool $remember = true, bool $impersonating = false): void
     {
-        $toPersist = [$user->getKey(), $user->getPersistCode()];
+        $persistCode = $impersonating && $user->persist_code
+            ? $user->persist_code
+            : $user->getPersistCode();
+
+        $toPersist = [$user->getKey(), $persistCode];
 
         Session::put($this->sessionKey, $toPersist);
 
@@ -694,7 +698,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
      * getPersistCodeFromSession will return the user ID and persist token from the session.
      * The resulting array will contain the user ID and persistence code [id, code] or null.
      */
-    protected function getPersistCodeFromSession($isChecking = true): ?array
+    protected function getPersistCodeFromSession(bool $isChecking = true): ?array
     {
         // Check session first, followed by cookie
         if ($sessionArray = Session::get($this->sessionKey)) {
@@ -745,7 +749,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
         $user->fireEvent('model.auth.beforeImpersonate', [$oldUser]);
 
         // Replace session with impersonated user
-        $this->setPersistCodeToSession($user, false);
+        $this->setPersistCodeToSession($user, false, true);
 
         // If this is the first time impersonating, capture the original user
         if (!$this->isImpersonator()) {
@@ -780,7 +784,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
 
         // Restore previous user, if possible
         if ($oldUser) {
-            $this->setPersistCodeToSession($oldUser, false);
+            $this->setPersistCodeToSession($oldUser, false, true);
         }
         else {
             Session::forget($this->sessionKey);
