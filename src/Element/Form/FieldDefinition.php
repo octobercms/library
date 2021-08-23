@@ -54,6 +54,11 @@ class FieldDefinition
     public $comment = '';
 
     /**
+     * @var string placeholder to display when there is no value supplied
+     */
+    public $placeholder = '';
+
+    /**
      * @var string commentPosition
      */
     public $commentPosition = 'below';
@@ -104,6 +109,9 @@ class FieldDefinition
         }
         if (isset($config['comment'])) {
             $this->comment($config['comment']);
+        }
+        if (isset($config['placeholder'])) {
+            $this->placeholder($config['placeholder']);
         }
     }
 
@@ -203,6 +211,16 @@ class FieldDefinition
         if ($isHtml !== null) {
             $this->commentHtml = $isHtml;
         }
+
+        return $this;
+    }
+
+    /**
+     * placeholder text shown when the field is empty
+     */
+    public function placeholder(string $text): FieldDefinition
+    {
+        $this->placeholder = $text;
 
         return $this;
     }
