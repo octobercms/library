@@ -339,13 +339,13 @@ class FieldParser
          */
         $regex = '#';
         $regex .= '(\w+)'; // Any word
-        $regex .= '="'; // Equal sign and open quote
+        $regex .= '=?"?'; // maybe Equal sign and open quote
 
         $regex .= '('; // Capture
         $regex .= '(?:\\\\.|[^"\\\\]+)*'; // Include escaped quotes \"
         $regex .= '|[^"]'; // Or anything other than a quote
         $regex .= '*)'; // Capture value
-        $regex .= '"';
+        $regex .= '"?'; // maybe closed quote
         $regex .= '#';
 
         preg_match_all($regex, $string, $match);

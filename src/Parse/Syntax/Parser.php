@@ -194,6 +194,10 @@ class Parser
             return '';
         }
 
+        if (isset($params['hidden'])) {
+            return '';
+        }
+
         /*
          * Used by Twig for loop
          */

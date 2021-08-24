@@ -23,6 +23,17 @@ class SyntaxParserTest extends TestCase
         $this->assertEquals('<h1>{{ joker.websiteName }}</h1>', $result);
     }
 
+    public function testParseHiddenFieldToTwig()
+    {
+        $content = '<h1>{text name="websiteName" label="Website Name" hidden}Our wonderful website{/text}</h1>';
+
+        $result = Parser::parse($content)->toTwig();
+        $this->assertEquals('<h1></h1>', $result);
+
+        $result = Parser::parse($content, ['varPrefix' => 'joker.'])->toTwig();
+        $this->assertEquals('<h1></h1>', $result);
+    }
+
     public function testParseRepeaterToTwig()
     {
         $content = '';
