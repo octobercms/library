@@ -3,6 +3,8 @@
 use October\Rain\Support\Facade;
 
 /**
+ * Ini
+ *
  * @see \October\Rain\Parse\Ini
  */
 class Ini extends Facade

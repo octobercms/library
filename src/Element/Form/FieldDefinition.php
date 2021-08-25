@@ -24,6 +24,11 @@ class FieldDefinition
     public $type = 'text';
 
     /**
+     * @var bool hidden defines the field without ever displaying it
+     */
+    public $hidden = false;
+
+    /**
      * @var string tab this field belongs to
      */
     public $tab;
@@ -92,6 +97,9 @@ class FieldDefinition
         if (isset($config['type'])) {
             $this->displayAs($config['type']);
         }
+        if (isset($config['hidden'])) {
+            $this->hidden();
+        }
         if (isset($config['tab'])) {
             $this->tab($config['tab']);
         }
@@ -143,6 +151,16 @@ class FieldDefinition
     public function displayAs(string $type): FieldDefinition
     {
         $this->type = strtolower($type);
+
+        return $this;
+    }
+
+    /**
+     * hidden hides the column from lists
+     */
+    public function hidden(bool $hidden = true): FieldDefinition
+    {
+        $this->hidden = $hidden;
 
         return $this;
     }

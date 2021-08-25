@@ -2,6 +2,12 @@
 
 use Illuminate\Support\ServiceProvider;
 
+/**
+ * HtmlServiceProvider
+ *
+ * @package october\html
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class HtmlServiceProvider extends ServiceProvider
 {
     /**

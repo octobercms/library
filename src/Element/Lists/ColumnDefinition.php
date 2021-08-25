@@ -29,7 +29,7 @@ class ColumnDefinition
     public $searchable = false;
 
     /**
-     * @var bool invisible is hidden in default list settings
+     * @var bool hidden defines the column without ever displaying it
      */
     public $hidden = false;
 

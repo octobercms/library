@@ -2,6 +2,9 @@
 
 use October\Rain\Support\Facade;
 
+/**
+ * Schema
+ */
 class Schema extends Facade
 {
     /**

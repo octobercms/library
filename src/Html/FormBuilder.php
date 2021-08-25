@@ -4,7 +4,7 @@ use Illuminate\Session\Store as Session;
 use Illuminate\Routing\UrlGenerator as UrlGeneratorBase;
 
 /**
- * Form builder
+ * FormBuilder
  *
  * @package october\html
  * @author Alexey Bobkov, Samuel Georges
@@ -14,81 +14,62 @@ class FormBuilder
     use \Illuminate\Support\Traits\Macroable;
 
     /**
-     * The HTML builder instance.
-     *
-     * @var \October\Rain\Html\HtmlBuilder
+     * @var \October\Rain\Html\HtmlBuilder html builder instance
      */
     protected $html;
 
     /**
-     * The URL generator instance.
-     *
-     * @var \Illuminate\Routing\UrlGenerator  $url
+     * @var \Illuminate\Routing\UrlGenerator url generator instance.
      */
     protected $url;
 
     /**
-     * The CSRF token used by the form builder.
-     *
-     * @var string
+     * @var string csrfToken used by the form builder.
      */
     protected $csrfToken;
 
     /**
-     * The session store implementation.
-     *
-     * @var \Illuminate\Session\Store
+     * @var \Illuminate\Session\Store session store implementation.
      */
     protected $session;
 
     /**
-     * The current model instance for the form.
-     *
-     * @var mixed
+     * @var mixed model instance for the form.
      */
     protected $model;
 
     /**
-     * An array of label names we've created.
-     *
-     * @var array
+     * @var array labels is an array of label names we've created.
      */
     protected $labels = [];
 
     /**
-     * The reserved form open attributes.
-     * @var array
+     * @var array reserved form open attributes.
      */
     protected $reserved = ['method', 'url', 'route', 'action', 'files', 'request', 'model', 'sessionKey'];
 
     /**
-     * The reserved form open attributes.
-     * @var array
+     * @var array reservedAjax form open attributes.
      */
     protected $reservedAjax = ['request', 'success', 'error', 'complete', 'confirm', 'redirect', 'update', 'data', 'validate', 'flash'];
 
     /**
-     * The form methods that should be spoofed, in uppercase.
-     *
-     * @var array
+     * @var array spoofedMethods are form methods that should be spoofed, in uppercase.
      */
     protected $spoofedMethods = ['DELETE', 'PATCH', 'PUT'];
 
     /**
-     * The types of inputs to not fill values on by default.
-     *
-     * @var array
+     * @var array skipValueTypes of inputs to not fill values on by default.
      */
     protected $skipValueTypes = ['file', 'password', 'checkbox', 'radio'];
 
     /**
-     * The session key used by the form builder.
-     * @var string
+     * @var string sessionKey used by the form builder.
      */
     protected $sessionKey;
 
     /**
-     * Create a new form builder instance.
+     * __construct a new form builder instance.
      *
      * @param \October\Rain\Html\HtmlBuilder  $html
      * @param \Illuminate\Routing\UrlGenerator  $url
@@ -105,7 +86,7 @@ class FormBuilder
     }
 
     /**
-     * Open up a new HTML form and includes a session key.
+     * open up a new HTML form and includes a session key.
      * @param array $options
      * @return string
      */
@@ -162,7 +143,7 @@ class FormBuilder
     }
 
     /**
-     * Helper for opening a form used for an AJAX call.
+     * ajax helper for opening a form used for an AJAX call.
      * @param string $handler Request handler name, eg: onUpdate
      * @param array $options
      * @return string
@@ -193,8 +174,7 @@ class FormBuilder
     }
 
     /**
-     * Create a new model based form builder.
-     *
+     * model creates a new model based form builder.
      * @param  mixed  $model
      * @param  array  $options
      * @return string
@@ -207,8 +187,7 @@ class FormBuilder
     }
 
     /**
-     * Set the model instance on the form builder.
-     *
+     * setModel instance on the form builder.
      * @param  mixed  $model
      * @return void
      */
@@ -218,8 +197,7 @@ class FormBuilder
     }
 
     /**
-     * Close the current form.
-     *
+     * close the current form.
      * @return string
      */
     public function close()
@@ -232,8 +210,7 @@ class FormBuilder
     }
 
     /**
-     * Generate a hidden field with the current CSRF token.
-     *
+     * token generates a hidden field with the current CSRF token.
      * @return string
      */
     public function token()
@@ -246,8 +223,7 @@ class FormBuilder
     }
 
     /**
-     * Create a form label element.
-     *
+     * label creates a form label element.
      * @param  string  $name
      * @param  string  $value
      * @param  array   $options
@@ -265,8 +241,7 @@ class FormBuilder
     }
 
     /**
-     * Format the label value.
-     *
+     * formatLabel value.
      * @param  string  $name
      * @param  string|null  $value
      * @return string
@@ -277,8 +252,7 @@ class FormBuilder
     }
 
     /**
-     * Create a form input field.
-     *
+     * input creates a form input field.
      * @param  string  $type
      * @param  string  $name
      * @param  string  $value
@@ -311,8 +285,7 @@ class FormBuilder
     }
 
     /**
-     * Create a text input field.
-     *
+     * text input field.
      * @param  string  $name
      * @param  string  $value
      * @param  array   $options
@@ -324,8 +297,7 @@ class FormBuilder
     }
 
     /**
-     * Create a password input field.
-     *
+     * password input field.
      * @param  string  $name
      * @param  array   $options
      * @return string
@@ -336,8 +308,7 @@ class FormBuilder
     }
 
     /**
-     * Create a hidden input field.
-     *
+     * hidden input field.
      * @param  string  $name
      * @param  string  $value
      * @param  array   $options
@@ -349,8 +320,7 @@ class FormBuilder
     }
 
     /**
-     * Create an e-mail input field.
-     *
+     * email input field.
      * @param  string  $name
      * @param  string  $value
      * @param  array   $options
@@ -362,8 +332,7 @@ class FormBuilder
     }
 
     /**
-     * Create a url input field.
-     *
+     * url input field.
      * @param  string  $name
      * @param  string  $value
      * @param  array   $options
@@ -375,8 +344,7 @@ class FormBuilder
     }
 
     /**
-     * Create a file input field.
-     *
+     * file input field.
      * @param  string  $name
      * @param  array   $options
      * @return string
@@ -391,8 +359,7 @@ class FormBuilder
     //
 
     /**
-     * Create a textarea input field.
-     *
+     * textarea input field.
      * @param  string  $name
      * @param  string  $value
      * @param  array   $options
@@ -424,8 +391,7 @@ class FormBuilder
     }
 
     /**
-     * Set the text area size on the attributes.
-     *
+     * setTextAreaSize on the attributes.
      * @param  array  $options
      * @return array
      */
@@ -446,7 +412,7 @@ class FormBuilder
     }
 
     /**
-     * Set the text area size using the quick "size" attribute.
+     * setQuickTextAreaSize using the quick "size" attribute.
      *
      * @param  array  $options
      * @return array
@@ -463,7 +429,7 @@ class FormBuilder
     //
 
     /**
-     * Create a select box field with empty option support.
+     * select box field with empty option support.
      * @param  string  $name
      * @param  array   $list
      * @param  string  $selected
@@ -507,8 +473,7 @@ class FormBuilder
     }
 
     /**
-     * Create a select range field.
-     *
+     * selectRange field.
      * @param  string  $name
      * @param  string  $begin
      * @param  string  $end
@@ -524,8 +489,7 @@ class FormBuilder
     }
 
     /**
-     * Create a select year field.
-     *
+     * selectYear field.
      * @param  string  $name
      * @param  string  $begin
      * @param  string  $end
@@ -539,8 +503,7 @@ class FormBuilder
     }
 
     /**
-     * Create a select month field.
-     *
+     * selectMonth field.
      * @param  string  $name
      * @param  string  $selected
      * @param  array   $options
@@ -559,8 +522,7 @@ class FormBuilder
     }
 
     /**
-     * Get the select option for the given value.
-     *
+     * getSelectOption for the given value.
      * @param  string  $display
      * @param  string  $value
      * @param  string  $selected
@@ -576,8 +538,7 @@ class FormBuilder
     }
 
     /**
-     * Create an option group form element.
-     *
+     * optionGroup form element.
      * @param  array   $list
      * @param  string  $label
      * @param  string  $selected
@@ -595,8 +556,7 @@ class FormBuilder
     }
 
     /**
-     * Create a select element option.
-     *
+     * option for a select element option.
      * @param  string  $display
      * @param  string  $value
      * @param  string  $selected
@@ -612,8 +572,7 @@ class FormBuilder
     }
 
     /**
-     * Determine if the value is selected.
-     *
+     * getSelectedValue determines if the value is selected.
      * @param  string  $value
      * @param  string  $selected
      * @return string
@@ -632,8 +591,7 @@ class FormBuilder
     //
 
     /**
-     * Create a checkbox input field.
-     *
+     * checkbox input field.
      * @param  string  $name
      * @param  mixed   $value
      * @param  bool    $checked
@@ -646,8 +604,7 @@ class FormBuilder
     }
 
     /**
-     * Create a radio button input field.
-     *
+     * radio button input field.
      * @param  string  $name
      * @param  mixed   $value
      * @param  bool    $checked
@@ -664,8 +621,7 @@ class FormBuilder
     }
 
     /**
-     * Create a checkable input field.
-     *
+     * checkable input field.
      * @param  string  $type
      * @param  string  $name
      * @param  mixed   $value
@@ -685,8 +641,7 @@ class FormBuilder
     }
 
     /**
-     * Get the check state for a checkable input.
-     *
+     * getCheckedState for a checkable input.
      * @param  string  $type
      * @param  string  $name
      * @param  mixed   $value
@@ -708,8 +663,7 @@ class FormBuilder
     }
 
     /**
-     * Get the check state for a checkbox input.
-     *
+     * getCheckboxCheckedState for a checkbox input.
      * @param  string  $name
      * @param  mixed  $value
      * @param  bool  $checked
@@ -735,8 +689,7 @@ class FormBuilder
     }
 
     /**
-     * Get the check state for a radio input.
-     *
+     * getRadioCheckedState for a radio input.
      * @param  string  $name
      * @param  mixed  $value
      * @param  bool  $checked
@@ -752,8 +705,7 @@ class FormBuilder
     }
 
     /**
-     * Determine if old input or model input exists for a key.
-     *
+     * missingOldAndModel determines if old input or model input exists for a key.
      * @param  string  $name
      * @return bool
      */
@@ -763,8 +715,7 @@ class FormBuilder
     }
 
     /**
-     * Create a HTML reset input element.
-     *
+     * reset input element.
      * @param  string  $value
      * @param  array   $attributes
      * @return string
@@ -775,8 +726,7 @@ class FormBuilder
     }
 
     /**
-     * Create a HTML image input element.
-     *
+     * image input element.
      * @param  string  $url
      * @param  string  $name
      * @param  array   $attributes
@@ -790,8 +740,7 @@ class FormBuilder
     }
 
     /**
-     * Create a submit button element.
-     *
+     * submit button element.
      * @param  string  $value
      * @param  array   $options
      * @return string
@@ -802,8 +751,7 @@ class FormBuilder
     }
 
     /**
-     * Create a button element.
-     *
+     * button element.
      * @param  string  $value
      * @param  array   $options
      * @return string
@@ -818,8 +766,7 @@ class FormBuilder
     }
 
     /**
-     * Parse the form action method.
-     *
+     * getMethod parses the form action method.
      * @param  string  $method
      * @return string
      */
@@ -831,8 +778,7 @@ class FormBuilder
     }
 
     /**
-     * Get the form action from the options.
-     *
+     * getAction gets the form action from the options.
      * @param  array   $options
      * @return string
      */
@@ -860,8 +806,7 @@ class FormBuilder
     }
 
     /**
-     * Get the action for a "url" option.
-     *
+     * getUrlAction gets the action for a "url" option.
      * @param  array|string  $options
      * @return string
      */
@@ -875,8 +820,7 @@ class FormBuilder
     }
 
     /**
-     * Get the action for a "route" option.
-     *
+     * getRouteAction gets the action for a "route" option.
      * @param  array|string  $options
      * @return string
      */
@@ -890,8 +834,7 @@ class FormBuilder
     }
 
     /**
-     * Get the action for an "action" option.
-     *
+     * getControllerAction gets the action for an "action" option.
      * @param  array|string  $options
      * @return string
      */
@@ -905,8 +848,7 @@ class FormBuilder
     }
 
     /**
-     * Get the form appendage for the given method.
-     *
+     * getAppendage gets the form appendage for the given method.
      * @param  string  $method
      * @return string
      */
@@ -932,8 +874,7 @@ class FormBuilder
     }
 
     /**
-     * Get the ID attribute for a field name.
-     *
+     * getIdAttribute for a field name.
      * @param  string  $name
      * @param  array   $attributes
      * @return string
@@ -950,8 +891,7 @@ class FormBuilder
     }
 
     /**
-     * Get the value that should be assigned to the field.
-     *
+     * getValueAttribute that should be assigned to the field.
      * @param  string  $name
      * @param  string  $value
      * @return string
@@ -976,8 +916,7 @@ class FormBuilder
     }
 
     /**
-     * Get the model value that should be assigned to the field.
-     *
+     * getModelValueAttribute that should be assigned to the field.
      * @param  string  $name
      * @return string
      */
@@ -992,8 +931,7 @@ class FormBuilder
     }
 
     /**
-     * Get a value from the session's old input.
-     *
+     * old gets a value from the session's old input.
      * @param  string  $name
      * @return string
      */
@@ -1005,8 +943,7 @@ class FormBuilder
     }
 
     /**
-     * Determine if the old input is empty.
-     *
+     * oldInputIsEmpty determines if the old input is empty.
      * @return bool
      */
     public function oldInputIsEmpty()
@@ -1015,8 +952,7 @@ class FormBuilder
     }
 
     /**
-     * Transform key from array to dot syntax.
-     *
+     * transformKey from array to dot syntax.
      * @param  string  $key
      * @return string
      */
@@ -1026,8 +962,7 @@ class FormBuilder
     }
 
     /**
-     * Get the session store implementation.
-     *
+     * getSessionStore implementation.
      * @return  \Illuminate\Session\Store  $session
      */
     public function getSessionStore()
@@ -1036,8 +971,7 @@ class FormBuilder
     }
 
     /**
-     * Set the session store implementation.
-     *
+     * setSessionStore implementation.
      * @param  \Illuminate\Session\Store  $session
      * @return $this
      */
@@ -1049,7 +983,7 @@ class FormBuilder
     }
 
     /**
-     * Helper for getting form values. Tries to find the old value,
+     * value is a helper for getting form values. Tries to find the old value,
      * then uses a postback/get value, then looks at the form model values.
      * @param  string $name
      * @param  string $value
@@ -1077,7 +1011,7 @@ class FormBuilder
     }
 
     /**
-     * Returns a hidden HTML input, supplying the session key value.
+     * requestHandler returns a hidden HTML input, supplying the session key value.
      * @return string
      */
     protected function requestHandler($name = null)
@@ -1090,7 +1024,7 @@ class FormBuilder
     }
 
     /**
-     * Returns a hidden HTML input, supplying the session key value.
+     * sessionKey returns a hidden HTML input, supplying the session key value.
      * @return string
      */
     public function sessionKey($sessionKey = null)
@@ -1103,7 +1037,7 @@ class FormBuilder
     }
 
     /**
-     * Returns the active session key, used fr deferred bindings.
+     * getSessionKey returns the active session key, used fr deferred bindings.
      * @return string
      */
     public function getSessionKey()

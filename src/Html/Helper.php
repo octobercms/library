@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Html;
 
 /**
- * Methods that may be useful for processing HTML tasks
+ * Helper methods that may be useful for processing HTML tasks
  *
  * @package october\html
  * @author Alexey Bobkov, Samuel Georges
@@ -9,7 +9,7 @@
 class Helper
 {
     /**
-     * Converts a HTML array string to an identifier string.
+     * nameToId converts a HTML array string to an identifier string.
      * HTML: user[location][city]
      * Result: user-location-city
      * @param $string String to process
@@ -21,7 +21,7 @@ class Helper
     }
 
     /**
-     * Converts a HTML named array string to a PHP array. Empty values are removed.
+     * nameToArray converts a HTML named array string to a PHP array. Empty values are removed.
      * HTML: user[location][city]
      * PHP:  ['user', 'location', 'city']
      * @param $string String to process
@@ -52,7 +52,7 @@ class Helper
     }
 
     /**
-     * Reduces the field name hierarchy depth by $level levels.
+     * reduceNameHierarchy reduces the field name hierarchy depth by $level levels.
      * country[city][0][street][0] turns into country[city][0] when reduced by 1 level;
      * country[city][0][street][0] turns into country when reduced by 2 levels;
      * etc.

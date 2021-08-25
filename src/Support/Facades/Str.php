@@ -3,6 +3,8 @@
 use October\Rain\Support\Facade;
 
 /**
+ * Str
+ *
  * @see \October\Rain\Support\Str
  */
 class Str extends Facade

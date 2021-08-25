@@ -3,6 +3,12 @@
 use Str;
 use Illuminate\Support\ServiceProvider;
 
+/**
+ * UrlServiceProvider
+ *
+ * @package october\html
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class UrlServiceProvider extends ServiceProvider
 {
     /**
@@ -19,7 +25,7 @@ class UrlServiceProvider extends ServiceProvider
     }
 
     /**
-     * Controls how URL links are generated throughout the application.
+     * setUrlGeneratorPolicy controls how URL links are generated throughout the application.
      *
      * detect   - detect hostname and use the current schema
      * secure   - detect hostname and force HTTPS schema
