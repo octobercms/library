@@ -474,59 +474,34 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     public function check()
     {
         if (is_null($this->user)) {
-            /*
-             * Check session first, follow by cookie
-             */
-            if ($sessionArray = Session::get($this->sessionKey)) {
-                $userArray = $sessionArray;
-            }
-            elseif ($cookieArray = Cookie::get($this->sessionKey)) {
-                $this->viaRemember = true;
-                $userArray = @json_decode($cookieArray, true);
-            }
-            else {
+            // Find persistence code
+            $userArray = $this->getPersistCodeFromSession();
+            if (!$userArray) {
                 return false;
             }
 
-            /*
-             * Check supplied session/cookie is an array (user id, persist code)
-             */
-            if (!is_array($userArray) || count($userArray) !== 2) {
-                return false;
-            }
+            [$id, $persistCode] = $userArray;
 
-            list($id, $persistCode) = $userArray;
-
-            /*
-             * Look up user
-             */
+            // Look up user
             if (!$user = $this->findUserById($id)) {
                 return false;
             }
 
-            /*
-             * Confirm the persistence code is valid, otherwise reject
-             */
+            // Confirm the persistence code is valid, otherwise reject
             if (!$user->checkPersistCode($persistCode)) {
                 return false;
             }
 
-            /*
-             * Pass
-             */
+            // Pass
             $this->user = $user;
         }
 
-        /*
-         * Check cached user is activated
-         */
+        // Check cached user is activated
         if (!($user = $this->getUser()) || ($this->requireActivation && !$user->is_activated)) {
             return false;
         }
 
-        /*
-         * Throttle check
-         */
+        // Throttle check
         if ($this->useThrottle) {
             $throttle = $this->findThrottleByUserId($user->getKey(), $this->ipAddress);
 
@@ -536,9 +511,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
             }
         }
 
-        /*
-         * Role impersonation
-         */
+        // Role impersonation
         if ($this->isRoleImpersonator()) {
             $this->applyRoleImpersonation($this->user);
         }
@@ -637,12 +610,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
          * Create session/cookie data to persist the session
          */
         if ($this->useSession) {
-            $toPersist = [$user->getKey(), $user->getPersistCode()];
-            Session::put($this->sessionKey, $toPersist);
-
-            if ($remember) {
-                Cookie::queue(Cookie::forever($this->sessionKey, json_encode($toPersist)));
-            }
+            $this->setPersistCodeToSession($user, $remember);
         }
 
         /*
@@ -705,6 +673,56 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     //
+    // Session
+    //
+
+    /**
+     * setPersistCodeToSession stores the user persistence in the session and cookie.
+     */
+    protected function setPersistCodeToSession($user, bool $remember = true, bool $impersonating = false): void
+    {
+        $persistCode = $impersonating && $user->persist_code
+            ? $user->persist_code
+            : $user->getPersistCode();
+
+        $toPersist = [$user->getKey(), $persistCode];
+
+        Session::put($this->sessionKey, $toPersist);
+
+        if ($remember) {
+            Cookie::queue(Cookie::forever($this->sessionKey, json_encode($toPersist)));
+        }
+    }
+
+    /**
+     * getPersistCodeFromSession will return the user ID and persist token from the session.
+     * The resulting array will contain the user ID and persistence code [id, code] or null.
+     */
+    protected function getPersistCodeFromSession(bool $isChecking = true): ?array
+    {
+        // Check session first, followed by cookie
+        if ($sessionArray = Session::get($this->sessionKey)) {
+            $userArray = $sessionArray;
+        }
+        elseif ($cookieArray = Cookie::get($this->sessionKey)) {
+            if ($isChecking) {
+                $this->viaRemember = true;
+            }
+            $userArray = @json_decode($cookieArray, true);
+        }
+        else {
+            return null;
+        }
+
+        // Check supplied session/cookie is an array (user id, persist code)
+        if (!is_array($userArray) || count($userArray) !== 2) {
+            return null;
+        }
+
+        return $userArray;
+    }
+
+    //
     // Impersonation
     //
 
@@ -713,26 +731,29 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
      */
     public function impersonate($user)
     {
-        $oldSession = Session::get($this->sessionKey);
-        $oldUser = !empty($oldSession[0]) ? $this->findUserById($oldSession[0]) : false;
+        // Determine previous user
+        $userArray = $this->getPersistCodeFromSession(false);
+        $oldUserId = $userArray ? $userArray[0] : null;
 
         /**
          * @event model.auth.beforeImpersonate
-         * Called after the model is booted
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.auth.beforeImpersonate', function (\October\Rain\Database\Model|false $oldUser) use (\October\Rain\Database\Model $model) {
-         *         \Log::info($oldUser->full_name . ' is now impersonating ' . $model->full_name);
+         *     $model->bindEvent('model.auth.beforeImpersonate', function (\October\Rain\Database\Model|null $oldUser) use (\October\Rain\Database\Model $model) {
+         *         traceLog($oldUser->full_name . ' is now impersonating ' . $model->full_name);
          *     });
          *
          */
+        $oldUser = $oldUserId ? $this->findUserById($oldUserId) : null;
         $user->fireEvent('model.auth.beforeImpersonate', [$oldUser]);
 
-        $this->login($user, false);
+        // Replace session with impersonated user
+        $this->setPersistCodeToSession($user, false, true);
 
+        // If this is the first time impersonating, capture the original user
         if (!$this->isImpersonator()) {
-            Session::put($this->sessionKey.'_impersonate', $oldSession);
+            Session::put($this->sessionKey.'_impersonate', $oldUserId ?: 'NaN');
         }
     }
 
@@ -742,27 +763,34 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
      */
     public function stopImpersonate()
     {
-        $currentSession = Session::get($this->sessionKey);
-        $currentUser = !empty($currentSession[0]) ? $this->findUserById($currentSession[0]) : false;
-        $oldSession = Session::pull($this->sessionKey.'_impersonate');
-        $oldUser = !empty($oldSession[0]) ? $this->findUserById($oldSession[0]) : false;
+        // Determine current and previous user
+        $userArray = $this->getPersistCodeFromSession(false);
+        $currentUserId = $userArray ? $userArray[0] : null;
+        $oldUser = $this->getImpersonator();
 
-        if ($currentUser) {
+        if ($currentUserId && ($currentUser = $this->findUserById($currentUserId))) {
             /**
              * @event model.auth.afterImpersonate
-             * Called after the model is booted
              *
              * Example usage:
              *
-             *     $model->bindEvent('model.auth.afterImpersonate', function (\October\Rain\Database\Model|false $oldUser) use (\October\Rain\Database\Model $model) {
-             *         \Log::info($oldUser->full_name . ' has stopped impersonating ' . $model->full_name);
+             *     $model->bindEvent('model.auth.afterImpersonate', function (\October\Rain\Database\Model|null $oldUser) use (\October\Rain\Database\Model $model) {
+             *         traceLog($oldUser->full_name . ' has stopped impersonating ' . $model->full_name);
              *     });
              *
              */
             $currentUser->fireEvent('model.auth.afterImpersonate', [$oldUser]);
         }
 
-        Session::put($this->sessionKey, $oldSession);
+        // Restore previous user, if possible
+        if ($oldUser) {
+            $this->setPersistCodeToSession($oldUser, false, true);
+        }
+        else {
+            Session::forget($this->sessionKey);
+        }
+
+        Session::forget($this->sessionKey.'_impersonate');
     }
 
     /**
@@ -771,27 +799,25 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
      */
     public function isImpersonator()
     {
-        return !empty(Session::has($this->sessionKey.'_impersonate'));
+        return Session::has($this->sessionKey.'_impersonate');
     }
 
     /**
      * getImpersonator gets the original user doing the impersonation
-     * @return \Illuminate\Contracts\Auth\Authenticatable|null|false
+     * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
     public function getImpersonator()
     {
-        $impersonateArray = Session::get($this->sessionKey.'_impersonate');
-
-        /*
-         * Check supplied session/cookie is an array (user id, persist code)
-         */
-        if (!is_array($impersonateArray) || count($impersonateArray) !== 2) {
-            return false;
+        if (!Session::has($this->sessionKey.'_impersonate')) {
+            return null;
         }
 
-        $id = $impersonateArray[0];
+        $oldUserId = Session::get($this->sessionKey.'_impersonate');
+        if ((!is_string($oldUserId) && !is_int($oldUserId)) || $oldUserId === 'NaN') {
+            return null;
+        }
 
-        return $this->createUserModel()->find($id);
+        return $this->createUserModel()->find($oldUserId);
     }
 
     /**

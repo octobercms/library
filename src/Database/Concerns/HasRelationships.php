@@ -16,7 +16,7 @@ use October\Rain\Database\Relations\HasOneThrough;
 use InvalidArgumentException;
 
 /**
- * HasRelationships
+ * HasRelationships for a model
  */
 trait HasRelationships
 {
@@ -237,7 +237,7 @@ trait HasRelationships
     }
 
     /**
-     * Returns default relation arguments for a given type.
+     * getRelationDefaults returns default relation arguments for a given type.
      * @param string $type Relation type
      * @return array
      */
@@ -254,7 +254,7 @@ trait HasRelationships
     }
 
     /**
-     * Looks for the relation and does the correct magic as Eloquent would require
+     * handleRelation looks for the relation and does the correct magic as Eloquent would require
      * inside relation methods. For more information, read the documentation of the mentioned property.
      * @param string $relationName the relation key, camel-case version
      * @return \Illuminate\Database\Eloquent\Relations\Relation
@@ -327,7 +327,7 @@ trait HasRelationships
             case 'hasOneThrough':
             case 'hasManyThrough':
                 $relation = $this->validateRelationArgs($relationName, ['key', 'throughKey', 'otherKey', 'secondOtherKey'], ['through']);
-                $relationObj = $this->$relationType($relation[0], $relation['through'], $relation['key'], $relation['throughKey'], $relation['otherKey'], $relation['secondOtherKey']);
+                $relationObj = $this->$relationType($relation[0], $relation['through'], $relation['key'], $relation['throughKey'], $relation['otherKey'], $relation['secondOtherKey'], $relationName);
                 break;
 
             default:
@@ -773,7 +773,11 @@ trait HasRelationships
     protected function getRelationCaller()
     {
         $backtrace = debug_backtrace(false);
-        $caller = ($backtrace[2]['function'] === 'handleRelation') ? $backtrace[4] : $backtrace[2];
+
+        $caller = $backtrace[2]['function'] === 'handleRelation'
+            ? $backtrace[4]
+            : $backtrace[2];
+
         return $caller['function'];
     }
 

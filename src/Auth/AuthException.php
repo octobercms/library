@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Auth;
 
-use Lang;
 use Config;
 use October\Rain\Exception\ApplicationException;
 use Exception;
@@ -21,7 +20,7 @@ class AuthException extends ApplicationException
     /**
      * @var string errorMessage default soft error message
      */
-    protected $errorMessage;
+    protected static $errorMessage = 'The details you entered did not match our records. Please double-check and try again.';
 
     /**
      * __construct softens a detailed authentication error with a more vague message when
@@ -32,14 +31,20 @@ class AuthException extends ApplicationException
      */
     public function __construct($message = "", $code = 0, Exception $previous = null)
     {
-        $this->errorMessage = Lang::get('backend::lang.auth.invalid_login');
-
         $this->softErrors = !Config::get('app.debug', false);
 
         if ($this->softErrors) {
-            $message = $this->errorMessage;
+            $message = static::$errorMessage;
         }
 
         parent::__construct($message, $code, $previous);
+    }
+
+    /**
+     * setDefaultErrorMessage will override the soft error message displayed to the user
+     */
+    public static function setDefaultErrorMessage(string $message): void
+    {
+        static::$errorMessage = $message;
     }
 }
