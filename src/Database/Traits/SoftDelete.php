@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 /**
  * SoftDelete trait for flagging models as deleted instead of actually deleting them.
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 trait SoftDelete
 {

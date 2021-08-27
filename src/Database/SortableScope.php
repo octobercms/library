@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Builder as BuilderBase;
 
 /**
  * SortableScope will apply default sort ordering
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 class SortableScope implements ScopeInterface
 {
