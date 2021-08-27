@@ -11,6 +11,7 @@ use Exception;
  *
  * Combine various models in to a single feed.
  *
+ * @deprecated
  * @package october\database
  * @author Alexey Bobkov, Samuel Georges
  */
@@ -101,7 +102,7 @@ class DataFeed
         foreach ($bindings as $type => $params) {
             $result = $result->setBindings($params, $type);
         }
-        
+
         $result = $result->first();
         return $result->total;
     }
@@ -216,7 +217,7 @@ class DataFeed
 
             $sorting = $model->getTable() . '.';
             $sorting .= $orderBy ?: $this->sortField;
-            
+
             // Flush the select and add ID and tag
             $conditionalTagSelect = (Db::connection()->getDriverName() === 'pgsql') ?
                 "CAST('%s' as text) as %s" :
@@ -228,7 +229,7 @@ class DataFeed
             $cleanQuery = $cleanQuery->select(Db::raw($idSelect))
                 ->addSelect(Db::raw($tagSelect))
                 ->addSelect(Db::raw($sortSelect));
-            
+
             // Union this query with the previous one
             if ($lastQuery) {
                 if ($this->removeDuplicates) {

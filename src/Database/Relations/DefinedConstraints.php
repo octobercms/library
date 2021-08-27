@@ -30,10 +30,10 @@ trait DefinedConstraints
         }
 
         /*
-         * Default models (belongsTo)
+         * Default models (belongsTo, hasOne, hasOneThrough, morphOne)
          */
         if ($defaultData = array_get($args, 'default')) {
-            $relation->withDefault($defaultData === true ? null : $defaultData);
+            $relation->withDefault($defaultData);
         }
 
         /*

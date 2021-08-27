@@ -3,6 +3,9 @@
 use Illuminate\Database\Eloquent\Model as ModelBase;
 use Illuminate\Database\Eloquent\Builder as BuilderBase;
 
+/**
+ * Pivot model base class
+ */
 class Pivot extends Model
 {
     /**

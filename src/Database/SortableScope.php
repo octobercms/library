@@ -4,12 +4,18 @@ use Illuminate\Database\Eloquent\Model as ModelBase;
 use Illuminate\Database\Eloquent\Scope as ScopeInterface;
 use Illuminate\Database\Eloquent\Builder as BuilderBase;
 
+/**
+ * SortableScope will apply default sort ordering
+ */
 class SortableScope implements ScopeInterface
 {
+    /**
+     * @var bool scopeApplied
+     */
     protected $scopeApplied;
 
     /**
-     * Apply the scope to a given Eloquent query builder.
+     * apply the scope to a given Eloquent query builder.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $builder
      * @param  \Illuminate\Database\Eloquent\Model  $model
@@ -23,7 +29,7 @@ class SortableScope implements ScopeInterface
     }
 
     /**
-     * Extend the Eloquent query builder.
+     * extend the Eloquent query builder.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $builder
      * @return void

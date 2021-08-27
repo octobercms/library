@@ -1,9 +1,7 @@
 <?php namespace October\Rain\Database;
 
 /**
- * Database driver dongle
- *
- * This class uses regex to convert MySQL to various other drivers.
+ * Dongle driver for database that uses regex to convert MySQL to various other drivers.
  */
 class Dongle
 {

@@ -5,9 +5,7 @@ use Eloquent;
 use Exception;
 
 /**
- * Database updater
- *
- * Executes database migration and seed scripts based on their filename.
+ * Updater executes database migration and seed scripts based on their filename.
  *
  * @package october\database
  * @author Alexey Bobkov, Samuel Georges
@@ -15,7 +13,7 @@ use Exception;
 class Updater
 {
     /**
-     * Sets up a migration or seed file.
+     * setUp a migration or seed file.
      */
     public function setUp($file)
     {
@@ -42,7 +40,7 @@ class Updater
     }
 
     /**
-     * Packs down a migration or seed file.
+     * packDown a migration or seed file.
      */
     public function packDown($file)
     {
@@ -66,7 +64,7 @@ class Updater
     }
 
     /**
-     * Resolve a migration instance from a file.
+     * resolve a migration instance from a file.
      * @param  string  $file
      * @return object
      */
@@ -84,7 +82,7 @@ class Updater
     }
 
     /**
-     * Checks if the object is a valid update script.
+     * isValidScript checks if the object is a valid update script.
      */
     protected function isValidScript($object)
     {
@@ -102,7 +100,7 @@ class Updater
     }
 
     /**
-     * Extracts the namespace and class name from a file.
+     * getClassFromFile extracts the namespace and class name from a file.
      * @param string $file
      * @return string
      */

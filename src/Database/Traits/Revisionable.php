@@ -5,35 +5,36 @@ use Exception;
 use DateTime;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 
+/**
+ * Revisionable trait tracks changes to specific attributes
+ */
 trait Revisionable
 {
-
     /**
-     * @var array List of attributes to monitor for changes and store revisions for.
+     * @var array revisionable list of attributes to monitor for changes and store revisions for.
      *
      * protected $revisionable = [];
      */
 
     /**
-     * @var int Maximum number of revision records to keep.
+     * @var int revisionableLimit is the maximum number of revision records to keep.
      *
      * public $revisionableLimit = 500;
      */
 
-    /*
-     * You can change the relation name used to store revisions:
+    /**
+     * @var const REVISION_HISTORY changes the relation name used to store revisions.
      *
      * const REVISION_HISTORY = 'revision_history';
      */
 
     /**
-     * @var bool Flag for arbitrarily disabling revision history.
+     * @var bool revisionsEnabled flag for arbitrarily disabling revision history.
      */
     public $revisionsEnabled = true;
 
     /**
-     * Boot the revisionable trait for a model.
-     * @return void
+     * bootRevisionable trait for a model.
      */
     public static function bootRevisionable()
     {
@@ -55,6 +56,9 @@ trait Revisionable
         });
     }
 
+    /**
+     * revisionableAfterUpdate event
+     */
     public function revisionableAfterUpdate()
     {
         if (!$this->revisionsEnabled) {
@@ -94,6 +98,9 @@ trait Revisionable
         $this->revisionableCleanUp();
     }
 
+    /**
+     * revisionableAfterDelete event
+     */
     public function revisionableAfterDelete()
     {
         if (!$this->revisionsEnabled) {
@@ -101,7 +108,7 @@ trait Revisionable
         }
 
         $softDeletes = in_array(
-            'October\Rain\Database\Traits\SoftDelete',
+            \October\Rain\Database\Traits\SoftDelete::class,
             class_uses_recursive(get_class($this))
         );
 
@@ -133,7 +140,7 @@ trait Revisionable
     }
 
     /*
-     * Deletes revision records exceeding the limit.
+     * revisionableCleanUp deletes revision records exceeding the limit.
      */
     protected function revisionableCleanUp()
     {
@@ -155,6 +162,9 @@ trait Revisionable
         }
     }
 
+    /**
+     * revisionableGetCastType
+     */
     protected function revisionableGetCastType($attribute)
     {
         if (in_array($attribute, $this->getDates())) {
@@ -164,6 +174,9 @@ trait Revisionable
         return null;
     }
 
+    /**
+     * revisionableGetUser
+     */
     protected function revisionableGetUser()
     {
         if (method_exists($this, 'getRevisionableUser')) {
@@ -178,7 +191,7 @@ trait Revisionable
     }
 
     /**
-     * Get revision history relation name name.
+     * getRevisionHistoryName
      * @return string
      */
     public function getRevisionHistoryName()
