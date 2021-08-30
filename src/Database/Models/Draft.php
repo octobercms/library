@@ -16,7 +16,7 @@ class Draft extends Model
     protected $table = 'drafts';
 
     /**
-     * @var array draftableFillable are the attributes that should transfer to the entity
+     * @var array fillable attributes that are mass assignable
      */
     protected $fillable = [
         'name',

@@ -35,7 +35,7 @@ class DraftableScope implements ScopeInterface
     /**
      * @var array extensions to be added to the builder.
      */
-    protected $extensions = ['WithDrafts', 'WithoutUnsavedDrafts'];
+    protected $extensions = ['WithDrafts', 'WithSavedDrafts'];
 
     /**
      * apply the scope to a given Eloquent query builder.
@@ -66,11 +66,11 @@ class DraftableScope implements ScopeInterface
     }
 
     /**
-     * addWithoutUnsavedDrafts will exclude unsaved drafts.
+     * addWithSavedDrafts will exclude unsaved drafts.
      */
-    protected function addWithoutUnsavedDrafts(BuilderBase $builder)
+    protected function addWithSavedDrafts(BuilderBase $builder)
     {
-        $builder->macro('withoutUnsavedDrafts', function (BuilderBase $builder) {
+        $builder->macro('withSavedDrafts', function (BuilderBase $builder) {
             $model = $builder->getModel();
 
             $builder->withoutGlobalScope($this)->whereNotIn(

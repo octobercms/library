@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Database\Traits;
 
-use October\Rain\Database\Models\Draft;
 use October\Rain\Database\Scopes\DraftableScope;
 
 /**
@@ -17,7 +16,7 @@ trait Draftable
     protected $draftableSaveMode;
 
     /**
-     * @var array|null draftableSaveAttrs contains draft notes
+     * @var array draftableSaveAttrs contains draft notes
      */
     protected $draftableSaveAttrs = [];
 
@@ -49,6 +48,20 @@ trait Draftable
         $draft->fill($attrs);
 
         $draft->save();
+    }
+
+    /**
+     * createNewDraft
+     */
+    public function createNewDraft()
+    {
+        $model = $this->replicateDraftModelInternal();
+
+        $model->{$this->getDraftModeColumn()} = DraftableScope::MODE_DRAFT;
+
+        $model->primary_id = $this->getKey();
+
+        $model->save(['force' => true]);
     }
 
     /**
@@ -105,6 +118,34 @@ trait Draftable
         if ($this->draftableSaveMode) {
             $this->{$this->getDraftModeColumn()} = $this->draftableSaveMode;
         }
+    }
+
+
+    /**
+     * replicateDraftModelInternal will transfer relationship values on to the supplied
+     * model using the simple setter/getter interface.
+     */
+    protected function replicateDraftModelInternal()
+    {
+        $defaults = [
+            $this->getKeyName(),
+            $this->getCreatedAtColumn(),
+            $this->getUpdatedAtColumn(),
+        ];
+
+        $attributes = array_except($this->attributes, $defaults);
+
+        $instance = $this->newInstance();
+
+        $instance->setRawAttributes($attributes);
+
+        foreach ($this->getRelationDefinitions() as $type => $definitions) {
+            foreach ($definitions as $attr => $definition) {
+                $instance->$attr = $this->$attr;
+            }
+        }
+
+        return $instance;
     }
 
     /**
