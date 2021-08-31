@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Exception;
 
 /**
- * This class represents a critical system exception.
- * System exceptions are logged in the error log.
+ * SystemException represents a critical system exception and
+ * these are reported in the error log.
  *
  * @package october\exception
  * @author Alexey Bobkov, Samuel Georges
