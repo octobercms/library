@@ -23,6 +23,14 @@ class SyntaxParserTest extends TestCase
         $this->assertEquals('<h1>{{ joker.websiteName }}</h1>', $result);
     }
 
+    public function testParseVariableToTwig()
+    {
+        $content = '<h1>{variable type="text" name="websiteName" label="Website Name"}Our wonderful website{/variable}</h1>';
+
+        $result = Parser::parse($content)->toTwig();
+        $this->assertEquals('<h1></h1>', $result);
+    }
+
     public function testParseRepeaterToTwig()
     {
         $content = '';
