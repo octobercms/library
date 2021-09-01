@@ -2,11 +2,13 @@
 
 use Illuminate\Filesystem\FilesystemServiceProvider as FilesystemServiceProviderBase;
 
+/**
+ * FilesystemServiceProvider
+ */
 class FilesystemServiceProvider extends FilesystemServiceProviderBase
 {
     /**
-     * Register the service provider.
-     * @return void
+     * register the service provider.
      */
     public function register()
     {
@@ -16,8 +18,7 @@ class FilesystemServiceProvider extends FilesystemServiceProviderBase
     }
 
     /**
-     * Register the native filesystem implementation.
-     * @return void
+     * registerNativeFilesystem implementation.
      */
     protected function registerNativeFilesystem()
     {
@@ -27,6 +28,7 @@ class FilesystemServiceProvider extends FilesystemServiceProviderBase
             $files->filePermissions = $config->get('system.default_mask.file', null);
             $files->folderPermissions = $config->get('system.default_mask.folder', null);
             $files->pathSymbols = [
+                '#' => themes_path(),
                 '$' => plugins_path(),
                 '~' => base_path(),
             ];
@@ -35,7 +37,7 @@ class FilesystemServiceProvider extends FilesystemServiceProviderBase
     }
 
     /**
-     * Get the services provided by the provider.
+     * provides gets the services provided by the provider.
      * @return array
      */
     public function provides()
