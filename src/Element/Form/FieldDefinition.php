@@ -146,10 +146,11 @@ class FieldDefinition
     }
 
     /**
-     * displayAs type for this column
+     * displayAs type for this field
      * @todo $config is deprecated, see useConfig
      */
-    public function displayAs(string $type, $config = null): FieldDefinition
+    // public function displayAs(string $type): FieldDefinition
+    public function displayAs($type, $config = null): FieldDefinition
     {
         // @deprecated logic (remove if year >= 2024)
         if ($config && is_array($config)) {
