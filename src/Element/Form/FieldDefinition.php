@@ -147,10 +147,19 @@ class FieldDefinition
 
     /**
      * displayAs type for this column
+     * @todo $config is deprecated, see useConfig
      */
-    public function displayAs(string $type): FieldDefinition
+    public function displayAs(string $type, $config = null): FieldDefinition
     {
-        $this->type = strtolower($type);
+        // @deprecated logic (remove if year >= 2024)
+        if ($config && is_array($config)) {
+            $this->useConfig($config);
+        }
+
+        $this->type = strtolower($type ?: $this->type);
+
+        // Desirable logic
+        // $this->type = strtolower($type);
 
         return $this;
     }
