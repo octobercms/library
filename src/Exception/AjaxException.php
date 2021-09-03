@@ -1,8 +1,7 @@
 <?php namespace October\Rain\Exception;
 
 /**
- * This class represents an AJAX exception.
- * These are considered "smart errors" and will send http code 406,
+ * AjaxException is considered a "smart error" and will send http code 406,
  * so they can pass response contents.
  *
  * @package october\exception
@@ -10,14 +9,13 @@
  */
 class AjaxException extends ExceptionBase
 {
-
     /**
-     * @var array Collection response contents.
+     * @var array contents of the response.
      */
     protected $contents;
 
     /**
-     * Constructor.
+     * __construct the exception
      */
     public function __construct($contents)
     {
@@ -31,7 +29,7 @@ class AjaxException extends ExceptionBase
     }
 
     /**
-     * Returns invalid fields.
+     * getContents returns invalid fields.
      */
     public function getContents()
     {

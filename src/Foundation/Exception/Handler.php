@@ -12,12 +12,13 @@ use Throwable;
 use Exception;
 use Closure;
 
+/**
+ * Handler is the core exception handler
+ */
 class Handler extends ExceptionHandler
 {
     /**
-     * A list of the exception types that should not be reported.
-     *
-     * @var array
+     * @var array dontReport these exception types.
      */
     protected $dontReport = [
         \October\Rain\Exception\AjaxException::class,
@@ -28,14 +29,12 @@ class Handler extends ExceptionHandler
     ];
 
     /**
-     * All of the register exception handlers.
-     *
-     * @var array
+     * @var array handlers for registered exceptions.
      */
     protected $handlers = [];
 
     /**
-     * Report or log an exception.
+     * report or log an exception.
      *
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
      *
@@ -86,7 +85,7 @@ class Handler extends ExceptionHandler
     }
 
     /**
-     * Render an exception into an HTTP response.
+     * render an exception into an HTTP response.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Exception  $exception
@@ -118,7 +117,7 @@ class Handler extends ExceptionHandler
     }
 
     /**
-     * Checks if the exception implements the HttpExceptionInterface, or returns
+     * getStatusCode checks if the exception implements the HttpExceptionInterface, or returns
      * as generic 500 error code for a server side error.
      * @param \Exception $exception
      * @return int
@@ -139,7 +138,7 @@ class Handler extends ExceptionHandler
     }
 
     /**
-     * Get the default context variables for logging.
+     * context is the the default context variables for logging.
      *
      * @return array
      */
@@ -153,7 +152,7 @@ class Handler extends ExceptionHandler
     //
 
     /**
-     * Register an application error handler.
+     * error registers an application error handler.
      *
      * @param  \Closure  $callback
      * @return void
@@ -164,7 +163,7 @@ class Handler extends ExceptionHandler
     }
 
     /**
-     * Handle the given exception.
+     * callCustomHandlers handles the given exception.
      *
      * @param  \Exception  $exception
      * @param  bool  $fromConsole
@@ -201,8 +200,7 @@ class Handler extends ExceptionHandler
     }
 
     /**
-     * Determine if the given handler handles this exception.
-     *
+     * handlesException determine if the given handler handles this exception.
      * @param  \Closure    $handler
      * @param  \Exception  $exception
      * @return bool
@@ -214,8 +212,7 @@ class Handler extends ExceptionHandler
     }
 
     /**
-     * Determine if the given handler type hints the exception.
-     *
+     * hints determines if the given handler type hints the exception.
      * @param  \ReflectionFunction  $reflection
      * @param  \Exception  $exception
      * @return bool

@@ -1,12 +1,11 @@
 <?php namespace October\Rain\Exception;
 
 use App;
-use Config;
 use Request;
 use Exception;
 
 /**
- * System Error Handler, this class handles application exception events.
+ * ErrorHandler handles application exception events.
  *
  * @package october\exception
  * @author Alexey Bobkov, Samuel Georges
@@ -14,19 +13,19 @@ use Exception;
 class ErrorHandler
 {
     /**
-     * @var \System\Classes\ExceptionBase A prepared mask exception used to mask any exception fired.
+     * @var \System\Classes\ExceptionBase activeMask used to mask any exception fired.
      */
     protected static $activeMask;
 
     /**
-     * @var array A collection of masks, so multiples can be applied in order.
+     * @var array maskLayers is  a collection of masks, so multiples can be applied in order.
      */
     protected static $maskLayers = [];
 
     /**
-     * All exceptions are piped through this method from the framework workflow. This method will mask
-     * any foreign exceptions with a "scent" of the native application's exception, so it can render
-     * correctly when displayed on the error page.
+     * handleException handles all exceptions from the framework workflow. This method will mask
+     * any foreign exceptions with a "scent" of the native application's exception, so it can
+     * render correctly when displayed on the error page.
      * @param Exception $proposedException The exception candidate that has been thrown.
      * @return mixed Error page contents
      */
@@ -75,7 +74,7 @@ class ErrorHandler
     }
 
     /**
-     * Prepares a mask exception to be used when any exception fires.
+     * applyMask prepares a mask exception to be used when any exception fires.
      * @param Exception $exception The mask exception.
      * @return void
      */
@@ -89,7 +88,7 @@ class ErrorHandler
     }
 
     /**
-     * Destroys the prepared mask by applyMask()
+     * removeMask destroys the prepared mask by applyMask()
      * @return void
      */
     public static function removeMask()
@@ -103,26 +102,18 @@ class ErrorHandler
     }
 
     /**
-     * Returns a more descriptive error message if application
-     * debug mode is turned on.
+     * getDetailedMessage returns a more descriptive error message.
      * @param Exception $exception
      * @return string
      */
     public static function getDetailedMessage($exception)
     {
-        /*
-         * Application Exceptions never display a detailed error
-         */
-        if (!($exception instanceof ApplicationException) && Config::get('app.debug', false)) {
-            return sprintf(
-                '"%s" on line %s of %s',
-                $exception->getMessage(),
-                $exception->getLine(),
-                $exception->getFile()
-            );
-        }
-
-        return $exception->getMessage();
+        return sprintf(
+            '"%s" on line %s of %s',
+            $exception->getMessage(),
+            $exception->getLine(),
+            $exception->getFile()
+        );
     }
 
     //
@@ -130,7 +121,7 @@ class ErrorHandler
     //
 
     /**
-     * We are about to display an error page to the user,
+     * beforeHandleError for when we are about to display an error page to the user,
      * provide an opportunity to handle extra functions.
      * @return void
      */
@@ -139,7 +130,7 @@ class ErrorHandler
     }
 
     /**
-     * Check if using a custom error page, if so return the contents.
+     * handleCustomError checks if using a custom error page, if so return the contents.
      * Return NULL if a custom error is not set up.
      * @return mixed Error page contents.
      */
@@ -148,7 +139,7 @@ class ErrorHandler
     }
 
     /**
-     * Displays the detailed system exception page.
+     * handleDetailedError displays the detailed system exception page.
      * @return View Object containing the error page.
      */
     public function handleDetailedError($exception)
