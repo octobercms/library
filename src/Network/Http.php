@@ -280,7 +280,7 @@ class Http
             if (in_array($this->method, [self::METHOD_POST, self::METHOD_PATCH, self::METHOD_PUT])) {
                 curl_setopt($curl, CURLOPT_POSTFIELDS, $this->getRequestData());
             }
-            elseif ($this->method == self::METHOD_GET) {
+            elseif (in_array($this->method, [self::METHOD_GET, self::METHOD_DELETE])) {
                 curl_setopt($curl, CURLOPT_URL, $this->url . '?' . $this->getRequestData());
             }
         }
