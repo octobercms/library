@@ -35,7 +35,7 @@ class DraftableScope implements ScopeInterface
     /**
      * @var array extensions to be added to the builder.
      */
-    protected $extensions = ['WithDrafts', 'WithSavedDrafts'];
+    protected $extensions = ['WithDrafts', 'WithOnlyDrafts', 'WithSavedDrafts'];
 
     /**
      * apply the scope to a given Eloquent query builder.
@@ -56,12 +56,28 @@ class DraftableScope implements ScopeInterface
     }
 
     /**
-     * addWithDrafts includes drafts in the query.
+     * addWithDrafts removes this scope and includes everything.
      */
     protected function addWithDrafts(BuilderBase $builder)
     {
         $builder->macro('withDrafts', function (BuilderBase $builder) {
             return $builder->withoutGlobalScope($this);
+        });
+    }
+
+    /**
+     * addWithOnlyDrafts includes only drafts in the query.
+     */
+    protected function addWithOnlyDrafts(BuilderBase $builder)
+    {
+        $builder->macro('withOnlyDrafts', function (BuilderBase $builder) {
+            $model = $builder->getModel();
+
+            $builder->withoutGlobalScope($this)
+                ->where($model->getQualifiedDraftModeColumn(), static::MODE_DRAFT)
+            ;
+
+            return $builder;
         });
     }
 
