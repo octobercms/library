@@ -42,7 +42,7 @@ class DraftableScope implements ScopeInterface
      */
     public function apply(BuilderBase $builder, ModelBase $model)
     {
-        $builder->where($model->getQualifiedDraftModeColumn(), '<>', static::MODE_DRAFT);
+        $builder->where($model->getQualifiedDraftModeColumn(), static::MODE_PUBLISHED);
     }
 
     /**

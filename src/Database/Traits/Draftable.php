@@ -59,13 +59,13 @@ trait Draftable
 
         $model->{$this->getDraftModeColumn()} = DraftableScope::MODE_DRAFT;
 
-        $model->{$this->getDraftPrimaryIdColumn()} = $this->getKey();
-
         $model->save(['force' => true]);
 
-        $draft = $this->{$this->getDraftableNotesName()};
+        $draft = $model->{$this->getDraftableNotesName()};
 
         $draft->fill($attrs);
+
+        $draft->primary_id = $this->getKey();
 
         $draft->save();
     }
@@ -168,14 +168,6 @@ trait Draftable
     public function getDraftModeColumn(): string
     {
         return 'draft_mode';
-    }
-
-    /**
-     * getDraftPrimaryIdColumn gets the name of the "primary_id" column.
-     */
-    public function getDraftPrimaryIdColumn(): string
-    {
-        return 'primary_id';
     }
 
     /**
