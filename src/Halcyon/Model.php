@@ -23,29 +23,27 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     use \October\Rain\Support\Traits\Emitter;
 
     /**
-     * @var string The data source for the model, a directory path.
+     * @var string datasource is the data source for the model, a directory path.
      */
     protected $datasource;
 
     /**
-     * @var string The container name associated with the model, eg: pages.
+     * @var string dirName is the container name associated with the model, eg: pages.
      */
     protected $dirName;
 
     /**
-     * @var array The model's attributes, saved to the settings area.
+     * @var array attributes saved to the settings area.
      */
     public $attributes = [];
 
     /**
-     * @var array The model attribute's original state.
+     * @var array original attributes.
      */
     protected $original = [];
 
     /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array
+     * @var array appends to the model's array form.
      */
     protected $appends = [];
 
@@ -60,22 +58,22 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     protected $purgeable = [];
 
     /**
-     * @var array Allowable file extensions.
+     * @var array allowedExtensions is allowable file extensions.
      */
     protected $allowedExtensions = ['htm'];
 
     /**
-     * @var string Default file extension.
+     * @var string defaultExtension is default file extension.
      */
     protected $defaultExtension = 'htm';
 
     /**
-     * @var bool Model supports code and settings sections.
+     * @var bool isCompoundObject supports code and settings sections.
      */
     protected $isCompoundObject = true;
 
     /**
-     * @var bool Wrap code section in PHP tags.
+     * @var bool wrapCode section in PHP tags.
      */
     protected $wrapCode = true;
 
@@ -87,65 +85,52 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     protected $maxNesting = 5;
 
     /**
-     * @var boolean Indicated whether the object was loaded from the cache.
+     * @var boolean loadedFromCache indicates whether the object was loaded from the cache.
      */
     protected $loadedFromCache = false;
 
     /**
-     * User exposed observable events.
-     *
-     * @var array
+     * @var array observables are user exposed observable events.
      */
     protected $observables = [];
 
     /**
-     * @var bool Indicates if the model exists.
+     * @var bool exists indicates if the model exists.
      */
     public $exists = false;
 
     /**
-     * The cache manager instance.
-     *
-     * @var \Illuminate\Cache\CacheManager
+     * @var \Illuminate\Cache\CacheManager cache manager
      */
     protected static $cache;
 
     /**
-     * The datasource resolver instance.
-     *
-     * @var \October\Rain\Halcyon\Datasource\ResolverInterface
+     * @var \October\Rain\Halcyon\Datasource\ResolverInterface resolver instance.
      */
     protected static $resolver;
 
     /**
-     * The event dispatcher instance.
-     *
-     * @var \Illuminate\Contracts\Events\Dispatcher
+     * @var \Illuminate\Contracts\Events\Dispatcher dispatcher instance
      */
     protected static $dispatcher;
 
     /**
-     * The cache of the mutated attributes for each class.
-     *
-     * @var array
+     * @var array mutatorCache for each class.
      */
     protected static $mutatorCache = [];
 
     /**
-     * @var array The array of models booted events.
+     * @var array eventsBooted is the array of models booted events.
      */
     protected static $eventsBooted = [];
 
     /**
-     * The array of booted models.
-     *
-     * @var array
+     * @var array booted models
      */
     protected static $booted = [];
 
     /**
-     * Create a new Halcyon model instance.
-     *
+     * __construct a new Halcyon model instance.
      * @param  array  $attributes
      * @return void
      */
@@ -163,9 +148,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Check if the model needs to be booted and if so, do it.
-     *
-     * @return void
+     * bootIfNotBooted checks if the model needs to be booted and if so, do it.
      */
     protected function bootIfNotBooted()
     {
@@ -183,9 +166,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * The "booting" method of the model.
-     *
-     * @return void
+     * boot is the "booting" method of the model.
      */
     protected static function boot()
     {
@@ -193,9 +174,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Boot all of the bootable traits on the model.
-     *
-     * @return void
+     * bootTraits boots all of the bootable traits on the model.
      */
     protected static function bootTraits()
     {
@@ -207,9 +186,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Clear the list of booted models so they will be re-booted.
-     *
-     * @return void
+     * clearBootedModels clears the list of booted models so they will be re-booted.
      */
     public static function clearBootedModels()
     {
@@ -217,7 +194,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Bind some nicer events to this model, in the format of method overrides.
+     * bootNicerEvents binds some nicer events to this model, in the format of method overrides.
      */
     protected function bootNicerEvents()
     {
@@ -262,7 +239,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Helper for {{ page.id }} or {{ layout.id }} twig vars
+     * getIdAttribute is a helper for {{ page.id }} or {{ layout.id }} twig vars
      * Returns a semi-unique string for this object.
      * @return string
      */
@@ -272,7 +249,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Returns the file name without the extension.
+     * getBaseFileNameAttribute returns the file name without the extension.
      * @return string
      */
     public function getBaseFileNameAttribute()
@@ -286,7 +263,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Adds an attribute to the purgeable attributes list
+     * addPurgeable adds an attribute to the purgeable attributes list
      * @param  array|string|null  $attributes
      * @return $this
      */
@@ -300,7 +277,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * The settings is attribute contains everything that should
+     * getSettingsAttribute is the settings is attribute contains everything that should
      * be saved to the settings area.
      * @return array
      */
@@ -322,7 +299,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Filling the settings should merge it with attributes.
+     * setSettingsAttribute filling the settings should merge it with attributes.
      * @param mixed $value
      */
     public function setSettingsAttribute($value)
@@ -333,7 +310,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * File name should always contain an extension.
+     * setFileNameAttribute wjere file name should always contain an extension.
      * @param mixed $value
      */
     public function setFileNameAttribute($value)
@@ -348,7 +325,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Returns the directory name corresponding to the object type.
+     * getObjectTypeDirName returns the directory name corresponding to the object type.
      * For pages the directory name is "pages", for layouts - "layouts", etc.
      * @return string
      */
@@ -358,7 +335,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Returns the allowable file extensions supported by this model.
+     * getAllowedExtensions returns the allowable file extensions supported by this model.
      * @return array
      */
     public function getAllowedExtensions()
@@ -367,7 +344,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Returns true if this template supports code and settings sections.
+     * isCompoundObject returns true if this template supports code and settings sections.
      * @return bool
      */
     public function isCompoundObject()
@@ -376,7 +353,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Returns true if the code section will be wrapped in PHP tags.
+     * getWrapCode returns true if the code section will be wrapped in PHP tags.
      * @return bool
      */
     public function getWrapCode()
@@ -385,7 +362,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Returns the maximum directory nesting allowed by this template.
+     * getMaxNesting returns the maximum directory nesting allowed by this template.
      * @return int
      */
     public function getMaxNesting()
@@ -394,7 +371,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Returns true if the object was loaded from the cache.
+     * isLoadedFromCache returns true if the object was loaded from the cache.
      * @return boolean
      */
     public function isLoadedFromCache()
@@ -403,8 +380,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Returns true if the object was loaded from the cache.
-     * @return boolean
+     * setLoadedFromCache returns true if the object was loaded from the cache.
+     * @return bool
      */
     public function setLoadedFromCache($value)
     {
@@ -412,8 +389,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Fill the model with an array of attributes.
-     *
+     * fill the model with an array of attributes.
      * @param  array  $attributes
      * @return $this
      */
@@ -429,8 +405,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Get the fillable attributes of a given array.
-     *
+     * fillableFromArray gets the fillable attributes of a given array.
      * @param  array  $attributes
      * @return array
      */
@@ -449,8 +424,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Create a new instance of the given model.
-     *
+     * newInstance creates a new instance of the given model.
      * @param  array  $attributes
      * @param  bool  $exists
      * @return static
@@ -468,8 +442,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Create a new model instance that is existing.
-     *
+     * newFromBuilder creates a new model instance that is existing.
      * @param  array  $attributes
      * @param  string|null  $datasource
      * @return static
@@ -492,8 +465,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Create a collection of models from plain arrays.
-     *
+     * hydrate creates a collection of models from plain arrays.
      * @param  array  $items
      * @param  string|null  $datasource
      * @return \October\Rain\Halcyon\Collection
@@ -510,8 +482,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Save a new model and return the instance.
-     *
+     * create saves a new model and return the instance.
      * @param  array  $attributes
      * @return static
      */
@@ -525,8 +496,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Begin querying the model.
-     *
+     * query begins querying the model.
      * @return \October\Rain\Halcyon\Builder
      */
     public static function query()
@@ -535,8 +505,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Begin querying the model on a given datasource.
-     *
+     * on begins querying the model on a given datasource.
      * @param  string|null  $datasource
      * @return \October\Rain\Halcyon\Model
      */
@@ -552,8 +521,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Get all of the models from the datasource.
-     *
+     * all of the models from the datasource.
      * @return \October\Rain\Halcyon\Collection|static[]
      */
     public static function all()
@@ -564,8 +532,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Determine if the given attribute may be mass assigned.
-     *
+     * isFillable determines if the given attribute may be mass assigned.
      * @param  string  $key
      * @return bool
      */
@@ -587,8 +554,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Convert the model instance to JSON.
-     *
+     * toJson converts the model instance to JSON.
      * @param  int  $options
      * @return string
      */
@@ -598,8 +564,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Convert the object into something JSON serializable.
-     *
+     * jsonSerialize converts the object into something JSON serializable.
      * @return array
      */
     public function jsonSerialize()
@@ -608,8 +573,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Convert the model instance to an array.
-     *
+     * toArray converts the model instance to an array.
      * @return array
      */
     public function toArray()
@@ -618,8 +582,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Convert the model's attributes to an array.
-     *
+     * attributesToArray converts the model's attributes to an array.
      * @return array
      */
     public function attributesToArray()
@@ -653,8 +616,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Get all of the appendable values that are arrayable.
-     *
+     * getArrayableAppends gets all of the appendable values that are arrayable.
      * @return array
      */
     protected function getArrayableAppends()
@@ -669,8 +631,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Get a plain attribute.
-     *
+     * getAttribute gets a plain attribute.
      * @param  string  $key
      * @return mixed
      */
@@ -699,8 +660,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Get an attribute from the $attributes array.
-     *
+     * getAttributeFromArray gets an attribute from the $attributes array.
      * @param  string  $key
      * @return mixed
      */
@@ -712,8 +672,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Determine if a get mutator exists for an attribute.
-     *
+     * hasGetMutator determines if a get mutator exists for an attribute.
      * @param  string  $key
      * @return bool
      */
@@ -723,8 +682,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Get the value of an attribute using its mutator.
-     *
+     * mutateAttribute gets the value of an attribute using its mutator.
      * @param  string  $key
      * @param  mixed  $value
      * @return mixed
@@ -735,8 +693,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Get the value of an attribute using its mutator for array conversion.
-     *
+     * mutateAttributeForArray gets the value of an attribute using its mutator for array conversion.
      * @param  string  $key
      * @param  mixed  $value
      * @return mixed
@@ -749,8 +706,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Set a given attribute on the model.
-     *
+     * setAttribute sets a given attribute on the model.
      * @param  string  $key
      * @param  mixed  $value
      * @return $this
@@ -784,8 +740,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Determine if a set mutator exists for an attribute.
-     *
+     * hasSetMutator determines if a set mutator exists for an attribute.
      * @param  string  $key
      * @return bool
      */
@@ -795,8 +750,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Get all of the current attributes on the model.
-     *
+     * getAttributes gets all of the current attributes on the model.
      * @return array
      */
     public function getAttributes()
@@ -805,8 +759,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Set the array of model attributes. No checking is done.
-     *
+     * setRawAttributes sets the array of model attributes. No checking is done.
      * @param  array  $attributes
      * @param  bool  $sync
      * @return $this
@@ -823,8 +776,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Get the model's original attribute values.
-     *
+     * getOriginal gets the model's original attribute values.
      * @param  string|null  $key
      * @param  mixed  $default
      * @return array
@@ -835,8 +787,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Sync the original attributes with the current.
-     *
+     * syncOriginal attributes with the current.
      * @return $this
      */
     public function syncOriginal()
@@ -847,8 +798,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Sync a single original attribute with its current value.
-     *
+     * syncOriginalAttribute syncs a single original attribute with its current value.
      * @param  string  $attribute
      * @return $this
      */
@@ -860,8 +810,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Determine if the model or given attribute(s) have been modified.
-     *
+     * isDirty determines if the model or given attribute(s) have been modified.
      * @param  array|string|null  $attributes
      * @return bool
      */
@@ -887,8 +836,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Get the attributes that have been changed since last sync.
-     *
+     * getDirty get the attributes that have been changed since last sync.
      * @return array
      */
     public function getDirty()
@@ -907,12 +855,18 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
             }
         }
 
+        foreach ($this->original as $key => $value) {
+            if (!array_key_exists($key, $this->attributes)) {
+                $dirty[$key] = null;
+            }
+        }
+
         return $dirty;
     }
 
     /**
-     * Determine if the new and old values for a given key are numerically equivalent.
-     *
+     * originalIsNumericallyEquivalent determine if the new and old values for a given key are
+     * numerically equivalent.
      * @param  string  $key
      * @return bool
      */
@@ -926,10 +880,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Delete the model from the database.
-     *
+     * delete the model from the database.
      * @return bool|null
-     *
      * @throws \Exception
      */
     public function delete()
@@ -957,9 +909,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Perform the actual delete query on this model instance.
-     *
-     * @return void
+     * performDeleteOnModel performs the actual delete query on this model instance.
      */
     protected function performDeleteOnModel()
     {
@@ -1270,12 +1220,11 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
                 return false;
             }
 
-            // Recheck dirty attributes as developers could have changed this in the
-            // updating event
+            // Recheck dirty attributes as they may have change from the updating event
             $dirty = $this->getDirty();
 
             if (count($dirty) > 0) {
-                $numRows = $query->update($dirty);
+                $query->update($dirty);
 
                 $this->fireModelEvent('updated', false);
             }

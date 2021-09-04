@@ -150,69 +150,84 @@ ESC;
     {
         @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/testfile2.htm');
 
-        $page = HalcyonTestPage::create([
-            'fileName' => 'testfile2',
-            'title' => 'Another test',
-            'markup' => '<p>Foo bar!</p>'
-        ]);
+        try {
+            $page = HalcyonTestPage::create([
+                'fileName' => 'testfile2',
+                'title' => 'Another test',
+                'markup' => '<p>Foo bar!</p>'
+            ]);
 
-        $this->assertFileExists($targetFile);
-        $this->assertEquals('Another test', $page->title);
+            $this->assertFileExists($targetFile);
+            $this->assertEquals('Another test', $page->title);
 
-        $page = HalcyonTestPage::find('testfile2');
-        $this->assertEquals('Another test', $page->title);
-        $page->title = 'All done!';
-        $page->save();
+            $page = HalcyonTestPage::find('testfile2');
+            $this->assertEquals('Another test', $page->title);
+            $page->title = 'All done!';
+            $page->save();
 
-        $page = HalcyonTestPage::find('testfile2');
-        $this->assertEquals('All done!', $page->title);
+            $page = HalcyonTestPage::find('testfile2');
+            $this->assertEquals('All done!', $page->title);
 
-        $page->update(['title' => 'Try this']);
-        $page = HalcyonTestPage::find('testfile2');
-        $this->assertEquals('Try this', $page->title);
+            $page->update(['title' => 'Try this']);
+            $page = HalcyonTestPage::find('testfile2');
+            $this->assertEquals('Try this', $page->title);
+
+            $this->assertFalse($page->isDirty());
+            unset($page->title);
+            $this->assertTrue($page->isDirty());
+        }
+        finally {
+            @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/testfile2.htm');
+        }
     }
 
     public function testUpdatePageRenameFile()
     {
         @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/testfile2.htm');
 
-        $page = HalcyonTestPage::create([
-            'fileName' => 'testfile2',
-            'title' => 'Another test',
-            'markup' => '<p>Foo bar!</p>'
-        ]);
+        try {
+            $page = HalcyonTestPage::create([
+                'fileName' => 'testfile2',
+                'title' => 'Another test',
+                'markup' => '<p>Foo bar!</p>'
+            ]);
 
-        $this->assertFileExists($targetFile);
+            $this->assertFileExists($targetFile);
 
-        $page->fileName = 'renamedtest1';
-        $page->save();
+            $page->fileName = 'renamedtest1';
+            $page->save();
 
-        $newTargetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/renamedtest1.htm';
-        $this->assertFileNotExists($targetFile);
-        $this->assertFileExists($newTargetFile);
-
-        @unlink($newTargetFile);
+            $newTargetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/renamedtest1.htm';
+            $this->assertFileNotExists($targetFile);
+            $this->assertFileExists($newTargetFile);
+        }
+        finally {
+            @unlink($newTargetFile);
+        }
     }
 
     public function testUpdatePageRenameFileCase()
     {
         @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/Test.htm');
 
-        $page = HalcyonTestPage::create([
-            'fileName' => 'Test',
-            'title' => 'Upper case file',
-            'markup' => '<p>I have an upper case, it should be lower</p>'
-        ]);
+        try {
+            $page = HalcyonTestPage::create([
+                'fileName' => 'Test',
+                'title' => 'Upper case file',
+                'markup' => '<p>I have an upper case, it should be lower</p>'
+            ]);
 
-        $this->assertFileExists($targetFile);
+            $this->assertFileExists($targetFile);
 
-        $page->fileName = 'test';
-        $page->save();
+            $page->fileName = 'test';
+            $page->save();
 
-        $newTargetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/test.htm';
-        $this->assertFileExists($newTargetFile);
-
-        @unlink($newTargetFile);
+            $newTargetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/test.htm';
+            $this->assertFileExists($newTargetFile);
+        }
+        finally {
+            @unlink($newTargetFile);
+        }
     }
 
     public function testUpdateContentRenameExtension()
