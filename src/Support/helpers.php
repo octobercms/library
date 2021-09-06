@@ -150,7 +150,7 @@ if (!function_exists('trace_sql')) {
             $query = str_replace(['%', '?'], ['%%', '%s'], $query);
             $query = vsprintf($query, $bindings);
 
-            traceLog($query);
+            Log::info($query);
         });
     }
 }
