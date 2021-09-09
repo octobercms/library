@@ -680,7 +680,7 @@ class Builder
         $payload[] = $this->limit;
         $payload[] = $this->offset;
 
-        return $this->from . $this->datasource->makeCacheKey(implode('-', $payload));
+        return 'halcyon_'.$this->from.'_'.$this->datasource->makeCacheKey(implode('-', $payload));
     }
 
     /**
