@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database;
 
 use File;
-use Eloquent;
+use Model;
 use Exception;
 
 /**
@@ -25,7 +25,7 @@ class Updater
 
         $this->isValidScript($object);
 
-        Eloquent::unguard();
+        Model::unguard();
 
         if ($object instanceof Updates\Migration) {
             $object->up();
@@ -34,7 +34,7 @@ class Updater
             $object->run();
         }
 
-        Eloquent::reguard();
+        Model::reguard();
 
         return true;
     }
@@ -52,13 +52,13 @@ class Updater
 
         $this->isValidScript($object);
 
-        Eloquent::unguard();
+        Model::unguard();
 
         if ($object instanceof Updates\Migration) {
             $object->down();
         }
 
-        Eloquent::reguard();
+        Model::reguard();
 
         return true;
     }

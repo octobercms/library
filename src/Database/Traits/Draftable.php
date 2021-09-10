@@ -31,6 +31,10 @@ trait Draftable
             $model->bindEvent('model.saveInternal', function() use ($model) {
                 $model->draftableSaveModeInternal();
             });
+
+            $model->bindEvent('model.beforeDelete', function() use ($model) {
+                $model->draftableDeleteInternal();
+            });
         });
     }
 
@@ -43,7 +47,7 @@ trait Draftable
 
         $this->save(['force' => true]);
 
-        $draft = $this->{$this->getDraftableNotesName()};
+        $draft = $this->{$this->getDraftableRecordName()};
 
         $draft->fill($attrs);
 
@@ -61,13 +65,15 @@ trait Draftable
 
         $model->save(['force' => true]);
 
-        $draft = $model->{$this->getDraftableNotesName()};
+        $draft = $model->{$this->getDraftableRecordName()};
 
         $draft->fill($attrs);
 
         $draft->primary_id = $this->getKey();
 
         $draft->save();
+
+        return $model;
     }
 
     /**
@@ -106,11 +112,23 @@ trait Draftable
     }
 
     /**
+     * draftableDeleteInternal
+     */
+    public function draftableDeleteInternal(): void
+    {
+        $draft = $this->{$this->getDraftableRecordName()};
+
+        if ($draft->exists) {
+            $draft->delete();
+        }
+    }
+
+    /**
      * draftableSaveModeInternal
      */
     public function draftableSaveModeInternal(): void
     {
-        $draft = $this->{$this->getDraftableNotesName()};
+        $draft = $this->{$this->getDraftableRecordName()};
 
         if ($this->draftableSaveAttrs) {
             $draft->fill($this->draftableSaveAttrs);
@@ -157,7 +175,7 @@ trait Draftable
     /**
      * getDraftableNoteName
      */
-    public function getDraftableNotesName(): string
+    public function getDraftableRecordName(): string
     {
         return 'draft_record';
     }
