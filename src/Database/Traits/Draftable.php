@@ -39,13 +39,23 @@ trait Draftable
     }
 
     /**
-     * saveFirstDraft
+     * countDrafts will return the number of available drafts.
      */
-    public function saveFirstDraft(array $attrs = [])
+    public function countDrafts(): int
+    {
+        return $this->{$this->getDraftableRecordName()}->countDrafts();
+    }
+
+    /**
+     * saveAsFirstDraft
+     */
+    public function saveAsFirstDraft(array $attrs = [])
     {
         $this->{$this->getDraftModeColumn()} = DraftableScope::MODE_NEW_UNSAVED;
 
         $this->save(['force' => true]);
+
+        $this->reloadRelations($this->getDraftableRecordName());
 
         $draft = $this->{$this->getDraftableRecordName()};
 
@@ -69,7 +79,7 @@ trait Draftable
 
         $draft->fill($attrs);
 
-        $draft->primary_id = $this->getKey();
+        $draft->setDraftParent($this);
 
         $draft->save();
 

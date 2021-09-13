@@ -24,6 +24,7 @@ trait MorphOneOrMany
         }
 
         $this->add($model, $sessionKey);
+
         return $model->save() ? $model : false;
     }
 
