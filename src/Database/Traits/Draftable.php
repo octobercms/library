@@ -109,14 +109,14 @@ trait Draftable
      */
     public function setDraftPublish(): void
     {
-        $this->draftableSaveAttrs = [];
         $this->draftableSaveMode = DraftableScope::MODE_PUBLISHED;
+        $this->draftableSaveAttrs = [];
     }
 
     /**
      * isDraftStatus
      */
-    public function isDraftStatus()
+    public function isDraftStatus(): bool
     {
         return $this->{$this->getDraftModeColumn()} !== DraftableScope::MODE_PUBLISHED;
     }
@@ -153,7 +153,6 @@ trait Draftable
             $this->{$this->getDraftModeColumn()} = $this->draftableSaveMode;
         }
     }
-
 
     /**
      * replicateDraftModelInternal will transfer relationship values on to the supplied
