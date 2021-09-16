@@ -947,7 +947,7 @@ trait NestedTree
      */
     protected function performMove($node, $target, $position)
     {
-        list($a, $b, $c, $d) = $this->getSortedBoundaries($node, $target, $position);
+        [$a, $b, $c, $d] = $this->getSortedBoundaries($node, $target, $position);
 
         $connection = $node->getConnection();
         $grammar = $connection->getQueryGrammar();

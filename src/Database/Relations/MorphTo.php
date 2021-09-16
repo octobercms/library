@@ -16,6 +16,9 @@ class MorphTo extends MorphToBase
      */
     protected $relationName;
 
+    /**
+     * __construct relationship
+     */
     public function __construct(Builder $query, Model $parent, $foreignKey, $otherKey, $type, $relationName)
     {
         $this->relationName = $relationName;
@@ -139,7 +142,7 @@ class MorphTo extends MorphToBase
             $this->parent->setRelation($this->relationName, $value);
         }
         elseif (is_array($value)) {
-            list($modelId, $modelClass) = $value;
+            [$modelId, $modelClass] = $value;
             $this->parent->setAttribute($this->foreignKey, $modelId);
             $this->parent->setAttribute($this->morphType, $modelClass);
             $this->parent->reloadRelations($this->relationName);

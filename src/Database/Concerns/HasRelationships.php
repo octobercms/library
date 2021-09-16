@@ -420,7 +420,7 @@ trait HasRelationships
 
         $instance = $this->newRelatedInstance($related);
 
-        list($type, $id) = $this->getMorphs($name, $type, $id);
+        [$type, $id] = $this->getMorphs($name, $type, $id);
 
         $table = $instance->getTable();
 
@@ -467,7 +467,7 @@ trait HasRelationships
             $name = $this->getRelationCaller();
         }
 
-        list($type, $id) = $this->getMorphs(Str::snake($name), $type, $id);
+        [$type, $id] = $this->getMorphs(Str::snake($name), $type, $id);
 
         return empty($class = $this->{$type})
                     ? $this->morphEagerTo($name, $type, $id, $ownerKey)
@@ -610,7 +610,7 @@ trait HasRelationships
 
         $instance = $this->newRelatedInstance($related);
 
-        list($type, $id) = $this->getMorphs($name, $type, $id);
+        [$type, $id] = $this->getMorphs($name, $type, $id);
 
         $table = $instance->getTable();
 
@@ -732,7 +732,7 @@ trait HasRelationships
 
         $instance = $this->newRelatedInstance($related);
 
-        list($type, $id) = $this->getMorphs('attachment', null, null);
+        [$type, $id] = $this->getMorphs('attachment', null, null);
 
         $table = $instance->getTable();
 
@@ -756,7 +756,7 @@ trait HasRelationships
 
         $instance = $this->newRelatedInstance($related);
 
-        list($type, $id) = $this->getMorphs('attachment', null, null);
+        [$type, $id] = $this->getMorphs('attachment', null, null);
 
         $table = $instance->getTable();
 

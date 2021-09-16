@@ -100,7 +100,7 @@ trait DefinedConstraints
 
                 $parts = explode(' ', $order);
                 if (count($parts) > 1) {
-                    list($column, $direction) = $parts;
+                    [$column, $direction] = $parts;
                 }
 
                 $query->orderBy($column, $direction);
