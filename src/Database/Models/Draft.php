@@ -63,9 +63,9 @@ class Draft extends Model
     }
 
     /**
-     * setDraftParent
+     * setPrimaryDraft
      */
-    public function setDraftParent($model)
+    public function setPrimaryDraft($model)
     {
         $this->primary_id = $model->getKey();
     }

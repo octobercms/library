@@ -79,7 +79,7 @@ trait Draftable
 
         $draft->fill($attrs);
 
-        $draft->setDraftParent($this);
+        $draft->setPrimaryDraft($this);
 
         $draft->save();
 
@@ -122,18 +122,6 @@ trait Draftable
     }
 
     /**
-     * draftableDeleteInternal
-     */
-    public function draftableDeleteInternal(): void
-    {
-        $draft = $this->{$this->getDraftableRecordName()};
-
-        if ($draft->exists) {
-            $draft->delete();
-        }
-    }
-
-    /**
      * draftableSaveModeInternal
      */
     public function draftableSaveModeInternal(): void
@@ -151,6 +139,18 @@ trait Draftable
 
         if ($this->draftableSaveMode) {
             $this->{$this->getDraftModeColumn()} = $this->draftableSaveMode;
+        }
+    }
+
+    /**
+     * draftableDeleteInternal
+     */
+    public function draftableDeleteInternal(): void
+    {
+        $draft = $this->{$this->getDraftableRecordName()};
+
+        if ($draft->exists) {
+            $draft->delete();
         }
     }
 

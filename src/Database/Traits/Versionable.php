@@ -11,16 +11,6 @@ use October\Rain\Database\Scopes\VersionableScope;
 trait Versionable
 {
     /**
-     * @var string|null versionableSaveMode for saving the version.
-     */
-    protected $versionableSaveMode;
-
-    /**
-     * @var array versionableSaveAttrs contains version notes
-     */
-    protected $versionableSaveAttrs = [];
-
-    /**
      * bootVersionable trait for a model.
      */
     public static function bootVersionable()
@@ -43,25 +33,41 @@ trait Versionable
     }
 
     /**
-     * createNewVersion
+     * saveVersionSnapshot
      */
-    public function createNewVersion(array $attrs = [])
+    public function saveVersionSnapshot(array $attrs = [])
     {
         $model = $this->replicateVersionModelInternal();
 
         $model->{$this->getIsVersionColumn()} = true;
 
-        $model->save(['force' => true]);
+        $model->save();
 
         $version = $model->{$this->getVersionableRecordName()};
 
         $version->fill($attrs);
 
-        $version->setVersionParent($this);
+        $version->setPrimaryVersion($this);
 
         $version->save();
 
         return $model;
+    }
+
+    /**
+     * restoreVersionSnapshot
+     */
+    public function restoreVersionSnapshot()
+    {
+        $version = $this->{$this->getVersionableRecordName()};
+
+        $primaryModel = $version->getPrimaryVersion();
+
+        $primaryModel->saveVersionSnapshot();
+
+        $this->replicateVersionModelInternal($primaryModel);
+
+        $primaryModel->save();
     }
 
     /**
@@ -88,7 +94,7 @@ trait Versionable
      * replicateVersionModelInternal will transfer relationship values on to the supplied
      * model using the simple setter/getter interface.
      */
-    protected function replicateVersionModelInternal()
+    protected function replicateVersionModelInternal($toModel = null)
     {
         $defaults = [
             $this->getKeyName(),
@@ -98,7 +104,7 @@ trait Versionable
 
         $attributes = array_except($this->attributes, $defaults);
 
-        $instance = $this->newInstance();
+        $instance = $toModel ?: $this->newInstance();
 
         $instance->setRawAttributes($attributes);
 
