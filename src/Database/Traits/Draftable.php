@@ -16,7 +16,7 @@ trait Draftable
     protected $draftableSaveMode;
 
     /**
-     * @var array draftableSaveAttrs contains draft notes
+     * @var array draftableSaveAttrs contains draft notes.
      */
     protected $draftableSaveAttrs = [];
 
@@ -69,11 +69,13 @@ trait Draftable
      */
     public function createNewDraft(array $attrs = [])
     {
-        $model = $this->replicateDraftModelInternal();
+        $model = $this->newInstance();
 
         $model->{$this->getDraftModeColumn()} = DraftableScope::MODE_DRAFT;
 
         $model->save(['force' => true]);
+
+        $model->reloadRelations($this->getDraftableRecordName());
 
         $draft = $model->{$this->getDraftableRecordName()};
 
@@ -152,33 +154,6 @@ trait Draftable
         if ($draft->exists) {
             $draft->delete();
         }
-    }
-
-    /**
-     * replicateDraftModelInternal will transfer relationship values on to the supplied
-     * model using the simple setter/getter interface.
-     */
-    protected function replicateDraftModelInternal()
-    {
-        $defaults = [
-            $this->getKeyName(),
-            $this->getCreatedAtColumn(),
-            $this->getUpdatedAtColumn(),
-        ];
-
-        $attributes = array_except($this->attributes, $defaults);
-
-        $instance = $this->newInstance();
-
-        $instance->setRawAttributes($attributes);
-
-        foreach ($this->getRelationDefinitions() as $type => $definitions) {
-            foreach ($definitions as $attr => $definition) {
-                $instance->$attr = $this->$attr;
-            }
-        }
-
-        return $instance;
     }
 
     /**

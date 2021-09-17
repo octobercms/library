@@ -25,6 +25,14 @@ trait Versionable
     }
 
     /**
+     * getVersionableTransferAttributes override method
+     */
+    protected function getVersionableTransferAttributes()
+    {
+        return [];
+    }
+
+    /**
      * countVersions will return the number of available versions.
      */
     public function countVersions(): int
@@ -37,11 +45,15 @@ trait Versionable
      */
     public function saveVersionSnapshot(array $attrs = [])
     {
-        $model = $this->replicateVersionModelInternal();
+        $model = $this->newInstance();
+
+        foreach ($this->getVersionableTransferAttributes() as $attr) {
+            $model->$attr = $this->$attr;
+        }
 
         $model->{$this->getIsVersionColumn()} = true;
 
-        $model->save();
+        $model->save(['force' => true]);
 
         $version = $model->{$this->getVersionableRecordName()};
 
@@ -57,17 +69,15 @@ trait Versionable
     /**
      * restoreVersionSnapshot
      */
-    public function restoreVersionSnapshot()
+    public function restoreVersionSnapshot($toModel)
     {
-        $version = $this->{$this->getVersionableRecordName()};
+        $toModel->saveVersionSnapshot();
 
-        $primaryModel = $version->getPrimaryVersion();
+        foreach ($this->getVersionableTransferAttributes() as $attr) {
+            $toModel->$attr = $this->$attr;
+        }
 
-        $primaryModel->saveVersionSnapshot();
-
-        $this->replicateVersionModelInternal($primaryModel);
-
-        $primaryModel->save();
+        $toModel->save(['force' => true]);
     }
 
     /**
@@ -88,33 +98,6 @@ trait Versionable
         if ($version->exists) {
             $version->delete();
         }
-    }
-
-    /**
-     * replicateVersionModelInternal will transfer relationship values on to the supplied
-     * model using the simple setter/getter interface.
-     */
-    protected function replicateVersionModelInternal($toModel = null)
-    {
-        $defaults = [
-            $this->getKeyName(),
-            $this->getCreatedAtColumn(),
-            $this->getUpdatedAtColumn(),
-        ];
-
-        $attributes = array_except($this->attributes, $defaults);
-
-        $instance = $toModel ?: $this->newInstance();
-
-        $instance->setRawAttributes($attributes);
-
-        foreach ($this->getRelationDefinitions() as $type => $definitions) {
-            foreach ($definitions as $attr => $definition) {
-                $instance->$attr = $this->$attr;
-            }
-        }
-
-        return $instance;
     }
 
     /**

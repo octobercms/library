@@ -38,6 +38,14 @@ class Version extends Model
     }
 
     /**
+     * getPrimaryVersionId
+     */
+    public function getPrimaryVersionId()
+    {
+        return $this->primary_id;
+    }
+
+    /**
      * getVersions
      */
     public function getVersions()
@@ -67,18 +75,6 @@ class Version extends Model
     public function setPrimaryVersion($model)
     {
         $this->primary_id = $model->getKey();
-    }
-
-    /**
-     * getPrimaryVersion
-     */
-    public function getPrimaryVersion()
-    {
-        return $this->versionable()
-            ->getRelated()
-            ->newQueryWithoutScopes()
-            ->find($this->primary_id)
-        ;
     }
 
     /**

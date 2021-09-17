@@ -39,6 +39,14 @@ class Draft extends Model
     }
 
     /**
+     * getPrimaryDraftId
+     */
+    public function getPrimaryDraftId()
+    {
+        return $this->primary_id;
+    }
+
+    /**
      * getDrafts
      */
     public function getDrafts()
