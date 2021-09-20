@@ -61,6 +61,8 @@ trait Versionable
 
         $version->setPrimaryVersion($this);
 
+        $version->setVersionBuildNumber();
+
         $version->save();
 
         return $model;

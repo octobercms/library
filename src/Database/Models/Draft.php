@@ -83,12 +83,16 @@ class Draft extends Model
      */
     protected function prepareDraftQuery()
     {
-        if (!$this->draftable->exists) {
-            return null;
+        if ($this->primary_id) {
+            return $this->where('draftable_type', $this->draftable_type)
+                ->where('primary_id', $this->primary_id);
         }
 
-        return $this->where('draftable_type', $this->draftable_type)
-            ->where('primary_id', $this->draftable->getKey())
-        ;
+        if ($this->draftable->exists) {
+            return $this->where('draftable_type', $this->draftable_type)
+                ->where('primary_id', $this->draftable->getKey());
+        }
+
+        return null;
     }
 }

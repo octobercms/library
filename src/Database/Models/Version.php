@@ -70,6 +70,20 @@ class Version extends Model
     }
 
     /**
+     * setVersionBuildNumber
+     */
+    public function setVersionBuildNumber()
+    {
+        $build = 0;
+
+        if ($query = $this->prepareVersionQuery()) {
+            $build = $query->orderBy('build', 'desc')->value('build') ?: 0;
+        }
+
+        $this->build = $build + 1;
+    }
+
+    /**
      * setPrimaryVersion
      */
     public function setPrimaryVersion($model)
@@ -82,12 +96,16 @@ class Version extends Model
      */
     protected function prepareVersionQuery()
     {
-        if (!$this->versionable->exists) {
-            return null;
+        if ($this->primary_id) {
+            return $this->where('versionable_type', $this->versionable_type)
+                ->where('primary_id', $this->primary_id);
         }
 
-        return $this->where('versionable_type', $this->versionable_type)
-            ->where('primary_id', $this->versionable->getKey())
-        ;
+        if ($this->versionable->exists) {
+            return $this->where('versionable_type', $this->versionable_type)
+                ->where('primary_id', $this->versionable->getKey());
+        }
+
+        return null;
     }
 }
