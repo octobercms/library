@@ -12,12 +12,6 @@ trait Sluggable
      */
 
     /**
-     * @var bool Allow trashed slugs to be counted in the slug generation.
-     *
-     * protected $allowTrashedSlugs = false;
-     */
-
-    /**
      * Boot the sluggable trait for a model.
      * @return void
      */
@@ -94,10 +88,7 @@ trait Sluggable
         $separator = $this->getSluggableSeparator();
         $_value = $value;
 
-        while (($this->methodExists('withTrashed') && $this->allowTrashedSlugs)
-            ? $this->newSluggableQuery()->where($name, $_value)->withTrashed()->count() > 0
-            : $this->newSluggableQuery()->where($name, $_value)->count() > 0
-        ) {
+        while ($this->newSluggableQuery()->where($name, $_value)->count() > 0) {
             $counter++;
             $_value = $value . $separator . $counter;
         }
@@ -112,8 +103,8 @@ trait Sluggable
     protected function newSluggableQuery()
     {
         return $this->exists
-            ? $this->newQuery()->where($this->getKeyName(), '<>', $this->getKey())
-            : $this->newQuery();
+            ? $this->newQueryWithoutScopes()->where($this->getKeyName(), '<>', $this->getKey())
+            : $this->newQueryWithoutScopes();
     }
 
     /**
