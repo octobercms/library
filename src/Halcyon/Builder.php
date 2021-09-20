@@ -88,7 +88,7 @@ class Builder
     protected $cacheTags;
 
     /**
-     * @var string cacheDriver  to be used
+     * @var string cacheDriver to be used
      */
     protected $cacheDriver;
 
@@ -560,6 +560,7 @@ class Builder
     public function cacheTags($cacheTags)
     {
         $this->cacheTags = $cacheTags;
+
         return $this;
     }
 
@@ -571,6 +572,7 @@ class Builder
     public function cacheDriver($cacheDriver)
     {
         $this->cacheDriver = $cacheDriver;
+
         return $this;
     }
 
@@ -586,22 +588,11 @@ class Builder
         }
 
         $key = $this->getCacheKey();
-
         $minutes = $this->cacheMinutes;
         $cache = $this->getCache();
         $callback = $this->getCacheCallback($columns);
-        $isNewCache = !$cache->has($key);
-
-        // If the "minutes" value is less than zero, we will use that as the indicator
-        // that the value should be remembered values should be stored indefinitely
-        // and if we have minutes we will use the typical remember function here.
-        if ($minutes < 0) {
-            $result = $cache->rememberForever($key, $callback);
-        }
-        else {
-            $expiresAt = now()->addMinutes($minutes);
-            $result = $cache->remember($key, $expiresAt, $callback);
-        }
+        $result = $cache->get($key);
+        $isNewCache = $result === null;
 
         // If this is an old cache record, we can check if the cache has been busted
         // by comparing the modification times. If this is the case, forget the
@@ -609,13 +600,19 @@ class Builder
         if (!$isNewCache && $this->isCacheBusted($result)) {
             $cache->forget($key);
             $isNewCache = true;
+        }
 
+        // If the "minutes" value is less than zero, we will use that as the indicator
+        // that the value should be remembered values should be stored indefinitely
+        // and if we have minutes we will use the typical remember function here.
+        if ($isNewCache) {
+            $result = $callback();
             if ($minutes < 0) {
-                $result = $cache->rememberForever($key, $callback);
+                $cache->forever($key, $result);
             }
             else {
                 $expiresAt = now()->addMinutes($minutes);
-                $result = $cache->remember($key, $expiresAt, $callback);
+                $cache->put($key, $result, $expiresAt);
             }
         }
 
@@ -683,7 +680,7 @@ class Builder
         $payload[] = $this->limit;
         $payload[] = $this->offset;
 
-        return $this->from . $this->datasource->makeCacheKey(implode('-', $payload));
+        return 'halcyon_'.$this->from.'_'.$this->datasource->makeCacheKey(implode('-', $payload));
     }
 
     /**
