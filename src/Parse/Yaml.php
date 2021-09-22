@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Parse;
 
 use Cache;
+use Symfony\Component\Yaml\Yaml as YamlComponent;
 use Symfony\Component\Yaml\Dumper;
 use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -14,7 +15,7 @@ use Symfony\Component\Yaml\Exception\ParseException;
 class Yaml
 {
     /**
-     * Parses supplied YAML contents in to a PHP array.
+     * parse supplied YAML contents in to a PHP array.
      * @param string $contents YAML contents to parse.
      * @return array The YAML contents as an array.
      */
@@ -26,7 +27,7 @@ class Yaml
     }
 
     /**
-     * Parses YAML file contents in to a PHP array.
+     * parseFile parses YAML file contents in to a PHP array.
      * @param string $fileName File to read contents and parse.
      * @return array The YAML contents as an array.
      */
@@ -45,8 +46,7 @@ class Yaml
     }
 
     /**
-     * Parses YAML file contents in to a PHP array, with cache.
-     *
+     * parseFileCached parses YAML file contents in to a PHP array, with cache.
      * @param string $fileName File to read contents and parse.
      * @return array The YAML contents as an array.
      */
@@ -65,7 +65,7 @@ class Yaml
     }
 
     /**
-     * Renders a PHP array to YAML format.
+     * render a PHP array to YAML format.
      * @param array $vars
      * @param array $options
      *
@@ -82,8 +82,16 @@ class Yaml
             'objectSupport' => true,
         ], $options));
 
-        $yaml = new Dumper;
+        $flags = null;
 
-        return $yaml->dump($vars, $inline, 0, $exceptionOnInvalidType, $objectSupport);
+        if ($exceptionOnInvalidType) {
+            $flags |= YamlComponent::DUMP_EXCEPTION_ON_INVALID_TYPE;
+        }
+
+        if ($objectSupport) {
+            $flags |= YamlComponent::DUMP_OBJECT;
+        }
+
+        return (new Dumper)->dump($vars, $inline, 0, $flags);
     }
 }
