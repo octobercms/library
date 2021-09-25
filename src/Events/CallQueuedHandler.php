@@ -3,20 +3,18 @@
 use Illuminate\Contracts\Queue\Job;
 use Illuminate\Contracts\Container\Container;
 
+/**
+ * CallQueuedHandler
+ */
 class CallQueuedHandler
 {
     /**
-     * The container instance.
-     *
-     * @var \Illuminate\Contracts\Container\Container
+     * @var \Illuminate\Contracts\Container\Container container for the IoC instance.
      */
     protected $container;
 
     /**
-     * Create a new job instance.
-     *
-     * @param  \Illuminate\Contracts\Container\Container  $container
-     * @return void
+     * __construct a new job instance.
      */
     public function __construct(Container $container)
     {
@@ -24,11 +22,7 @@ class CallQueuedHandler
     }
 
     /**
-     * Handle the queued job.
-     *
-     * @param  \Illuminate\Contracts\Queue\Job  $job
-     * @param  array  $data
-     * @return void
+     * call handles the queued job.
      */
     public function call(Job $job, array $data)
     {
@@ -48,11 +42,7 @@ class CallQueuedHandler
     }
 
     /**
-     * Set the job instance of the given class if necessary.
-     *
-     * @param  \Illuminate\Contracts\Queue\Job  $job
-     * @param  mixed  $instance
-     * @return mixed
+     * setJobInstanceIfNecessary sets the job instance of the given class if necessary.
      */
     protected function setJobInstanceIfNecessary(Job $job, $instance)
     {
@@ -64,10 +54,7 @@ class CallQueuedHandler
     }
 
     /**
-     * Call the failed method on the job instance.
-     *
-     * @param  array  $data
-     * @return void
+     * failed calls the failed method on the job instance.
      */
     public function failed(array $data)
     {
