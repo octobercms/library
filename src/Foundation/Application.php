@@ -386,21 +386,19 @@ class Application extends ApplicationBase
     public function registerConfiguredProviders($isRetry = false)
     {
         $providers = Collection::make($this->config['app.providers'])
-                        ->partition(function ($provider) {
-                            return Str::startsWith($provider, 'Illuminate\\');
-                        });
+            ->partition(function ($provider) {
+                return Str::startsWith($provider, 'Illuminate\\');
+            });
 
         if (Config::get('app.loadDiscoveredPackages', false)) {
             $providers->splice(1, 0, [$this->make(PackageManifest::class)->providers()]);
         }
 
-        $filesystem = new Filesystem;
-        $repository = new ProviderRepository($this, $filesystem, $this->getCachedServicesPath());
-
         try {
+            $repository = new ProviderRepository($this, new Filesystem, $this->getCachedServicesPath());
             $repository->load($providers->collapse()->toArray());
-        } catch (Throwable $e) {
-            // If provider loading fails, we'll try it without the cached packages first, before failing completely
+        }
+        catch (Throwable $e) {
             if ($isRetry) {
                 throw $e;
             }
@@ -417,17 +415,14 @@ class Application extends ApplicationBase
      */
     protected function clearPackageCache()
     {
-        $filesystem = new Filesystem;
-        $filesystem->delete([
+        (new Filesystem)->delete([
             $this->getCachedPackagesPath(),
             $this->getCachedServicesPath(),
             $this->getCachedClassesPath(),
         ]);
 
-        // Reset package manifest
-        $this->make(PackageManifest::class)->manifest = null;
+        $this->make(PackageManifest::class)->manifest = [];
     }
-
 
     //
     // Core aliases
