@@ -74,7 +74,7 @@ class FieldDefinition
     public $commentHtml = false;
 
     /**
-     * @var array Raw field configuration.
+     * @var array config in raw format, if supplied.
      */
     public $config;
 

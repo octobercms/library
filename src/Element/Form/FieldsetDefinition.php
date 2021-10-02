@@ -22,7 +22,7 @@ class FieldsetDefinition implements IteratorAggregate
     public $suppressTabs = false;
 
     /**
-     * @var array Raw field configuration.
+     * @var array config in raw format, if supplied.
      */
     public $config;
 

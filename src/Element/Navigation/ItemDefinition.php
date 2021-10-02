@@ -39,16 +39,31 @@ class ItemDefinition
     public $customData = [];
 
     /**
+     * @var array config in raw format, if supplied.
+     */
+    public $config;
+
+    /**
      * useConfig
      */
-    public function useConfig(array $data): ItemDefinition
+    protected function evalConfig(array $config): void
     {
-        $this->code = $data['code'] ?? $this->code;
-        $this->label = $data['label'] ?? $this->label;
-        $this->url = $data['url'] ?? $this->url;
-        $this->icon = $data['icon'] ?? $this->icon;
-        $this->order = $data['order'] ?? $this->order;
-        $this->customData = $data['customData'] ?? $this->customData;
+        $this->code = $config['code'] ?? $this->code;
+        $this->label = $config['label'] ?? $this->label;
+        $this->url = $config['url'] ?? $this->url;
+        $this->icon = $config['icon'] ?? $this->icon;
+        $this->order = $config['order'] ?? $this->order;
+        $this->customData = $config['customData'] ?? $this->customData;
+    }
+
+    /**
+     * useConfig
+     */
+    public function useConfig(array $config): ItemDefinition
+    {
+        $this->config = $config;
+
+        $this->evalConfig($config);
 
         return $this;
     }
