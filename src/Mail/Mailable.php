@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Mail;
 
+use App;
 use Illuminate\Mail\Mailable as MailableBase;
 
 /**
@@ -47,6 +48,8 @@ class Mailable extends MailableBase
      */
     public function withSerializedData($data)
     {
+        $this->viewData['_current_locale'] = App::getLocale();
+
         foreach ($data as $param => $value) {
             $this->viewData[$param] = $this->getSerializedPropertyValue($value);
         }
