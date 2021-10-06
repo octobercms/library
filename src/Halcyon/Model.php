@@ -263,9 +263,21 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
+     * addFillable adds fillable attributes for the model.
+     * @param  array|string|null  $attributes
+     * @return void
+     */
+    public function addFillable($attributes = null)
+    {
+        $attributes = is_array($attributes) ? $attributes : func_get_args();
+
+        $this->fillable = array_merge($this->fillable, $attributes);
+    }
+
+    /**
      * addPurgeable adds an attribute to the purgeable attributes list
      * @param  array|string|null  $attributes
-     * @return $this
+     * @return void
      */
     public function addPurgeable($attributes = null)
     {
@@ -273,6 +285,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
         $this->purgeable = array_merge($this->purgeable, $attributes);
 
+        // @deprecated
         return $this;
     }
 

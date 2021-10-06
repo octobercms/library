@@ -119,7 +119,7 @@ class BelongsToMany extends BelongsToManyBase
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.beforeAttach', function (string $relationName, mixed $id, array $insertData) use (\October\Rain\Database\Model $model) {
+         *     $model->bindEvent('model.relation.beforeAttach', function (string $relationName, mixed $id, array $attributes) use (\October\Rain\Database\Model $model) {
          *         if (!$model->isRelationValid($id)) {
          *             return false;
          *         }
@@ -141,7 +141,7 @@ class BelongsToMany extends BelongsToManyBase
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.attach', function (string $relationName, mixed $id, array $insertData) use (\October\Rain\Database\Model $model) {
+         *     $model->bindEvent('model.relation.attach', function (string $relationName, mixed $id, array $attributes) use (\October\Rain\Database\Model $model) {
          *         traceLog("New relation {$relationName} was created", $id);
          *     });
          *

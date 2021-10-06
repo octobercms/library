@@ -47,7 +47,7 @@ trait Purgeable
     /**
      * Adds an attribute to the purgeable attributes list
      * @param  array|string|null  $attributes
-     * @return $this
+     * @return void
      */
     public function addPurgeable($attributes = null)
     {
@@ -55,6 +55,7 @@ trait Purgeable
 
         $this->purgeable = array_merge($this->purgeable, $attributes);
 
+        // @deprecated
         return $this;
     }
 
@@ -116,6 +117,8 @@ trait Purgeable
     public function restorePurgedValues()
     {
         $this->attributes = array_merge($this->getAttributes(), $this->originalPurgeableValues);
+
+        // @deprecated
         return $this;
     }
 }
