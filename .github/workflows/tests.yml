@@ -3,6 +3,7 @@ name: Tests
 on:
   push:
     branches:
+      - 2.1
       - develop
   pull_request:
 
