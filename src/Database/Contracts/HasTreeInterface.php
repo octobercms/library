@@ -24,4 +24,9 @@ interface HasTreeInterface
      * scopeGetNested
      */
     public function scopeGetNested($query);
+
+    /**
+     * scopeListsNested
+     */
+    public function scopeListsNested($query, $column, $key = null, $indent = '&nbsp;&nbsp;&nbsp;');
 }
