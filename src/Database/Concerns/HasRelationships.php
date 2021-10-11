@@ -218,7 +218,23 @@ trait HasRelationships
 
         $relationClass = $relation[0];
 
-        return new $relationClass();
+        $model = new $relationClass();
+
+        /**
+         * @event model.makeRelation
+         * Called when a new instance of a related model is created
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.makeRelation', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
+         *         // Transfer custom properties
+         *         $relatedModel->isLocked = $model->isLocked;
+         *     });
+         *
+         */
+        $this->fireEvent('model.makeRelation', [$name, $model]);
+
+        return $model;
     }
 
     /**
