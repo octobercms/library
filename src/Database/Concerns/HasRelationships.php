@@ -216,23 +216,29 @@ trait HasRelationships
             return null;
         }
 
-        $relationClass = $relation[0];
+        return $this->makeRelationInternal($name, $relation[0]);
+    }
 
-        $model = new $relationClass();
+    /**
+     * makeRelationInternal
+     */
+    protected function makeRelationInternal(string $relationName, string $relationClass)
+    {
+        $model = $this->newRelatedInstance($relationClass);
 
         /**
-         * @event model.makeRelation
+         * @event model.newRelatedInstance
          * Called when a new instance of a related model is created
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.makeRelation', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
+         *     $model->bindEvent('model.newRelatedInstance', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
          *         // Transfer custom properties
          *         $relatedModel->isLocked = $model->isLocked;
          *     });
          *
          */
-        $this->fireEvent('model.makeRelation', [$name, $model]);
+        $this->fireEvent('model.newRelatedInstance', [$relationName, $model]);
 
         return $model;
     }
@@ -412,7 +418,7 @@ trait HasRelationships
             $relationName = $this->getRelationCaller();
         }
 
-        $instance = $this->newRelatedInstance($related);
+        $instance = $this->makeRelationInternal($relationName, $related);
 
         $primaryKey = $primaryKey ?: $this->getForeignKey();
 
@@ -434,7 +440,7 @@ trait HasRelationships
             $relationName = $this->getRelationCaller();
         }
 
-        $instance = $this->newRelatedInstance($related);
+        $instance = $this->makeRelationInternal($relationName, $related);
 
         [$type, $id] = $this->getMorphs($name, $type, $id);
 
@@ -459,7 +465,7 @@ trait HasRelationships
             $relationName = $this->getRelationCaller();
         }
 
-        $instance = $this->newRelatedInstance($related);
+        $instance = $this->makeRelationInternal($relationName, $related);
 
         if (is_null($foreignKey)) {
             $foreignKey = snake_case($relationName).'_id';
@@ -546,7 +552,7 @@ trait HasRelationships
             $relationName = $this->getRelationCaller();
         }
 
-        $instance = $this->newRelatedInstance($related);
+        $instance = $this->makeRelationInternal($relationName, $related);
 
         $primaryKey = $primaryKey ?: $this->getForeignKey();
 
@@ -578,7 +584,7 @@ trait HasRelationships
 
         $secondLocalKey = $secondLocalKey ?: $throughInstance->getKeyName();
 
-        $instance = $this->newRelatedInstance($related);
+        $instance = $this->makeRelationInternal($relationName, $related);
 
         $relationClass = $this->getRelationCustomClass($relationName) ?: HasManyThrough::class;
 
@@ -606,7 +612,7 @@ trait HasRelationships
 
         $secondLocalKey = $secondLocalKey ?: $throughInstance->getKeyName();
 
-        $instance = $this->newRelatedInstance($related);
+        $instance = $this->makeRelationInternal($relationName, $related);
 
         $relationClass = $this->getRelationCustomClass($relationName) ?: HasOneThrough::class;
 
@@ -624,7 +630,7 @@ trait HasRelationships
             $relationName = $this->getRelationCaller();
         }
 
-        $instance = $this->newRelatedInstance($related);
+        $instance = $this->makeRelationInternal($relationName, $related);
 
         [$type, $id] = $this->getMorphs($name, $type, $id);
 
@@ -648,7 +654,7 @@ trait HasRelationships
             $relationName = $this->getRelationCaller();
         }
 
-        $instance = $this->newRelatedInstance($related);
+        $instance = $this->makeRelationInternal($relationName, $related);
 
         $primaryKey = $primaryKey ?: $this->getForeignKey();
 
@@ -683,7 +689,7 @@ trait HasRelationships
             $relationName = $this->getRelationCaller();
         }
 
-        $instance = $this->newRelatedInstance($related);
+        $instance = $this->makeRelationInternal($relationName, $related);
 
         $primaryKey = $primaryKey ?: $name.'_id';
 
@@ -746,7 +752,7 @@ trait HasRelationships
             $relationName = $this->getRelationCaller();
         }
 
-        $instance = $this->newRelatedInstance($related);
+        $instance = $this->makeRelationInternal($relationName, $related);
 
         [$type, $id] = $this->getMorphs('attachment', null, null);
 
@@ -770,7 +776,7 @@ trait HasRelationships
             $relationName = $this->getRelationCaller();
         }
 
-        $instance = $this->newRelatedInstance($related);
+        $instance = $this->makeRelationInternal($relationName, $related);
 
         [$type, $id] = $this->getMorphs('attachment', null, null);
 
