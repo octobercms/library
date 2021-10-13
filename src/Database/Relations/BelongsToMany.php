@@ -277,14 +277,15 @@ class BelongsToMany extends BelongsToManyBase
      */
     public function setSimpleValue($value)
     {
-        $relationModel = $this->getRelated();
-
         /*
          * Nulling the relationship
          */
         if (!$value) {
             // Disassociate in memory immediately
-            $this->parent->setRelation($this->relationName, $relationModel->newCollection());
+            $this->parent->setRelation(
+                $this->relationName,
+                $this->getRelated()->newCollection()
+            );
 
             // Perform sync when the model is saved
             $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
@@ -308,18 +309,11 @@ class BelongsToMany extends BelongsToManyBase
         }
 
         /*
-         * Convert scalar to array
-         */
-        if (!is_array($value) && !$value instanceof CollectionBase) {
-            $value = [$value];
-        }
-
-        /*
          * Setting the relationship
          */
         $relationCollection = $value instanceof CollectionBase
             ? $value
-            : $relationModel->whereIn($relationModel->getKeyName(), $value)->get();
+            : $this->newSimpleRelationQuery((array) $value)->get();
 
         // Associate in memory immediately
         $this->parent->setRelation($this->relationName, $relationCollection);
@@ -328,6 +322,18 @@ class BelongsToMany extends BelongsToManyBase
         $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
             $this->sync($value);
         });
+    }
+
+    /**
+     * newSimpleRelationQuery for the related instance based on an array of IDs.
+     */
+    protected function newSimpleRelationQuery(array $ids)
+    {
+        $model = $this->getRelated();
+
+        $query = $model->newQuery();
+
+        return $query->whereIn($model->getKeyName(), $ids);
     }
 
     /**
