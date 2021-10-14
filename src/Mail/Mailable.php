@@ -48,7 +48,7 @@ class Mailable extends MailableBase
      */
     public function withSerializedData($data)
     {
-        $this->viewData['_current_locale'] = App::getLocale();
+        $this->viewData['_current_locale'] = $this->locale ?: App::getLocale();
 
         foreach ($data as $param => $value) {
             $this->viewData[$param] = $this->getSerializedPropertyValue($value);
