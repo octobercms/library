@@ -21,7 +21,7 @@ class Extendable
     /**
      * @var array Extensions implemented by this class.
      */
-    public $implement;
+    public $implement = [];
 
     /**
      * Constructor

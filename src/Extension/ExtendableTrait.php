@@ -65,23 +65,7 @@ trait ExtendableTrait
         /*
          * Apply extensions
          */
-        if (!$this->implement) {
-            return;
-        }
-
-        if (is_string($this->implement)) {
-            $uses = explode(',', $this->implement);
-        }
-        elseif (is_array($this->implement)) {
-            $uses = $this->implement;
-        }
-        else {
-            throw new Exception(sprintf('Class %s contains an invalid $implement value', get_class($this)));
-        }
-
-        foreach ($uses as $use) {
-            $useClass = str_replace('.', '\\', trim($use));
-
+        foreach ($this->extensionExtractImplements() as $useClass) {
             /*
              * Soft implement
              */
@@ -120,6 +104,32 @@ trait ExtendableTrait
     public static function clearExtendedClasses()
     {
         self::$extendableCallbacks = [];
+    }
+
+    /**
+     * extensionExtractImplements will return classes to implement.
+     */
+    protected function extensionExtractImplements(): array
+    {
+        if (!$this->implement) {
+            return [];
+        }
+
+        if (is_string($this->implement)) {
+            $uses = explode(',', $this->implement);
+        }
+        elseif (is_array($this->implement)) {
+            $uses = $this->implement;
+        }
+        else {
+            throw new Exception(sprintf('Class %s contains an invalid $implement value', get_class($this)));
+        }
+
+        foreach ($uses as &$use) {
+            $use = str_replace('.', '\\', trim($use));
+        }
+
+        return $uses;
     }
 
     /**
@@ -207,6 +217,7 @@ trait ExtendableTrait
     public function extendClassWith($extensionName)
     {
         if (!strlen($extensionName)) {
+            // @deprecated just return
             return $this;
         }
 
@@ -234,6 +245,21 @@ trait ExtendableTrait
     {
         $name = str_replace('.', '\\', trim($name));
         return isset($this->extensionData['extensions'][$name]);
+    }
+
+    /**
+     * implementClassWith will implement an extension using non-interference and should
+     * be used with the static extend() method.
+     */
+    public function implementClassWith($extensionName)
+    {
+        $extensionName = str_replace('.', '\\', trim($extensionName));
+
+        if (in_array($extensionName, $this->extensionExtractImplements())) {
+            return;
+        }
+
+        $this->implement[] = $extensionName;
     }
 
     /**

@@ -54,6 +54,19 @@ class ExtendableTest extends TestCase
         $this->assertTrue(property_exists($subject, 'dynamicAttribute'));
     }
 
+    public function testDynamicallyImplementingClass()
+    {
+        ExtendableTestExampleImplementableClass::extend(function($obj) {
+            $obj->implementClassWith('ExtendableTestExampleBehaviorClass2');
+            $obj->implementClassWith('ExtendableTestExampleBehaviorClass2');
+            $obj->implementClassWith('ExtendableTestExampleBehaviorClass2');
+        });
+
+        $subject = new ExtendableTestExampleImplementableClass;
+        $this->assertTrue($subject->isClassExtendedWith('ExtendableTestExampleBehaviorClass1'));
+        $this->assertTrue($subject->isClassExtendedWith('ExtendableTestExampleBehaviorClass2'));
+    }
+
     public function testDynamicallyExtendingClass()
     {
         $subject = new ExtendableTestExampleExtendableClass;
@@ -320,6 +333,14 @@ class ExtendableTestExampleExtendableClass extends Extendable
     {
         return $this->protectedFoo;
     }
+}
+
+/**
+ * ExtendableTestExampleImplementableClass
+ */
+class ExtendableTestExampleImplementableClass extends Extendable
+{
+    public $implement = ['ExtendableTestExampleBehaviorClass1'];
 }
 
 /**
