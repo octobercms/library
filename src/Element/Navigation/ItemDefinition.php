@@ -67,4 +67,44 @@ class ItemDefinition
 
         return $this;
     }
+
+    /**
+     * label for this item
+     */
+    public function label(string $label): ItemDefinition
+    {
+        $this->label = $label;
+
+        return $this;
+    }
+
+    /**
+     * url for this item
+     */
+    public function url(string $url): ItemDefinition
+    {
+        $this->url = $url;
+
+        return $this;
+    }
+
+    /**
+     * url for this item
+     */
+    public function icon(string $icon): ItemDefinition
+    {
+        $this->icon = $icon;
+
+        return $this;
+    }
+
+    /**
+     * order for this item
+     */
+    public function order(int $order): ItemDefinition
+    {
+        $this->order = $order;
+
+        return $this;
+    }
 }
