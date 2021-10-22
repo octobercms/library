@@ -44,7 +44,15 @@ class Role extends Model
     protected $allowedPermissionsValues = [0, 1];
 
     /**
+     * @var array fillable fields
+     */
+    // protected $fillable = [
+    //     'name',
+    // ];
+
+    /**
      * @var array guarded attributes aren't mass assignable
+     * @deprecated swap to fillable
      */
     protected $guarded = [];
 

@@ -33,6 +33,7 @@ class Definitions
 
         // Support studly and snake based config
         return (array) Config::get('cms.file_definitions.'.$typeConfig,
+            // @deprecated
             Config::get('cms.fileDefinitions.'.$typeMethod,
                 $this->$typeMethod()
             )
