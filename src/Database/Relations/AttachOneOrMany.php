@@ -252,6 +252,11 @@ trait AttachOneOrMany
                 return;
             }
 
+            // @deprecated Removing arbitrary models soon unsupported
+            // if (!$this->isModelRemovable($model)) {
+            //     return;
+            // }
+
             $options = $this->parent->getRelationDefinition($this->relationName);
 
             if (array_get($options, 'delete', false)) {
@@ -295,6 +300,17 @@ trait AttachOneOrMany
         else {
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);
         }
+    }
+
+    /**
+     * isModelRemovable returns true if an existing model is already associated
+     */
+    protected function isModelRemovable($model): bool
+    {
+        return
+            $model->getAttribute($this->getForeignKeyName()) === (string) $this->parent->getKey() &&
+            $model->getAttribute($this->getMorphType()) === $this->morphClass &&
+            $model->getAttribute('field') === $this->relationName;
     }
 
     /**
