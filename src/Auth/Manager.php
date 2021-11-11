@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Auth;
 
 use Cookie;
+use Illuminate\Support\Facades\Hash;
 use Session;
 use Request;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -462,6 +463,11 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
 
         $user->clearResetPassword();
 
+        /*
+         * Rehash password when hashing algorithm has changed
+         */
+        $this->applyPasswordRehashWhenNecessary($user, $credentials['password'] ?? null);
+
         $this->login($user, $remember);
 
         return $this->user;
@@ -854,5 +860,23 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
         if ($role = $this->createRoleModel()->find($roleId)) {
             $user->setRoleImpersonation($role);
         }
+    }
+
+    /**
+     * applyPossiblePasswordRehash Applies a password rehash when the hashing algorithm has changed.
+     */
+    protected function applyPasswordRehashWhenNecessary($user, ?string $password): void
+    {
+        if (!$password) {
+            return;
+        }
+
+        if (!Hash::needsRehash($password)) {
+            return;
+        }
+
+        // will be rehashed by the Hashable trait.
+        $user->password = $password;
+        $user->forceSave();
     }
 }
