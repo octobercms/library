@@ -324,12 +324,12 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
      */
     public function attemptRehashPassword(string $currentPassword): bool
     {
-        if (!$this->checkPassword($currentPassword)) {
-            throw new Exception('Cannot rehash using a new password!');
-        }
-
         if (!Hash::needsRehash($this->password)) {
             return false;
+        }
+
+        if (!$this->checkPassword($currentPassword)) {
+            throw new Exception('Cannot rehash using a new password!');
         }
 
         // Rehash via the Hashable trait
