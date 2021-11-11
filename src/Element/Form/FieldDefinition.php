@@ -98,7 +98,7 @@ class FieldDefinition
             $this->displayAs($config['type']);
         }
         if (isset($config['hidden'])) {
-            $this->hidden();
+            $this->hidden((bool) $config['hidden']);
         }
         if (isset($config['tab'])) {
             $this->tab($config['tab']);

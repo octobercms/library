@@ -68,10 +68,10 @@ class ColumnDefinition
             $this->displayAs($config['type']);
         }
         if (isset($config['hidden'])) {
-            $this->hidden();
+            $this->hidden((bool) $config['hidden']);
         }
         if (isset($config['searchable'])) {
-            $this->searchable();
+            $this->searchable((bool) $config['searchable']);
         }
         if (isset($config['align']) && in_array($config['align'], ['left', 'right', 'center'])) {
             $this->align = $config['align'];
