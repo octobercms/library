@@ -319,6 +319,26 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     }
 
     /**
+     * attemptRehashPassword will check if a password needs to be rehashed and apply the
+     * new hashing algorithim to the current password supplied as plaintext.
+     */
+    public function attemptRehashPassword(string $currentPassword): bool
+    {
+        if (!$this->checkPassword($currentPassword)) {
+            throw new Exception('Cannot rehash using a new password!');
+        }
+
+        if (!Hash::needsRehash($this->password)) {
+            return false;
+        }
+
+        // Rehash via the Hashable trait
+        $this->password = $currentPassword;
+
+        return $this->forceSave();
+    }
+
+    /**
      * clearResetPassword wipes out the data associated with resetting a password
      * @return void
      */
