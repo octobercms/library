@@ -52,6 +52,11 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     protected $useThrottle = true;
 
     /**
+     * @var bool useRehash flag to enable password rehashing.
+     */
+    protected $useRehash = true;
+
+    /**
      * @var bool useSession internal flag to toggle using the session for
      * the current authentication request.
      */
@@ -448,6 +453,13 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
 
         if ($this->useThrottle) {
             $throttle->clearLoginAttempts();
+        }
+
+        /*
+         * Rehash password if needed
+         */
+        if ($this->useRehash) {
+            $user->attemptRehashPassword($credentials['password']);
         }
 
         return $user;
