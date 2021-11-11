@@ -871,7 +871,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
             return;
         }
 
-        if (!Hash::needsRehash($password)) {
+        if (!Hash::needsRehash($user->password)) {
             return;
         }
 
