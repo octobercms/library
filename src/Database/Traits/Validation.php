@@ -36,6 +36,11 @@ trait Validation
      */
 
     /**
+     * @var bool validationForced is an internal marker to indicate if force option was used.
+     */
+    public $validationForced = false;
+
+    /**
      * @var \Illuminate\Support\MessageBag validationErrors message bag instance containing
      * validation error messages
      */
@@ -65,8 +70,9 @@ trait Validation
                  * events should still fire for consistency. So validate an
                  * empty set of rules and messages.
                  */
-                $force = array_get($options, 'force', false);
-                if ($force) {
+                $model->validationForced = array_get($options, 'force', false);
+
+                if ($model->validationForced) {
                     $valid = $model->validate([], []);
                 }
                 else {
