@@ -44,7 +44,7 @@ class ItemDefinition
     public $config;
 
     /**
-     * useConfig
+     * evalConfig from an array and apply them to the object
      */
     protected function evalConfig(array $config): void
     {
@@ -89,7 +89,7 @@ class ItemDefinition
     }
 
     /**
-     * url for this item
+     * icon for this item
      */
     public function icon(string $icon): ItemDefinition
     {
