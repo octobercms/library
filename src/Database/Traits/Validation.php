@@ -272,7 +272,7 @@ trait Validation
             $attributeNames = array_merge($this->validationDefaultAttrNames, $attributeNames);
 
             if (property_exists($this, 'attributeNames')) {
-                $attributeNames = array_merge($this->attributeNames, $attributeNames);
+                $attributeNames = array_merge($attributeNames, $this->attributeNames);
             }
 
             $translatedAttributeNames = [];
