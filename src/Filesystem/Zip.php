@@ -51,12 +51,22 @@ use ZipArchive;
 class Zip extends ZipArchive
 {
     /**
-     * @var string Folder prefix
+     * @var string folderPrefix
      */
     protected $folderPrefix = '';
 
     /**
-     * Extract an existing zip file.
+     * @var array excludedFiles
+     */
+    protected $excludedFiles = [];
+
+    /**
+     * @var array excludedFolders
+     */
+    protected $excludedFolders = [];
+
+    /**
+     * extract an existing zip file.
      * @param  string $source Path for the existing zip
      * @param  string $destination Path to extract the zip files
      * @param  array  $options
@@ -81,7 +91,7 @@ class Zip extends ZipArchive
     }
 
     /**
-     * Creates a new empty zip file.
+     * make creates a new empty zip file.
      * @param  string $destination Path for the new zip
      * @param  mixed  $source
      * @param  array  $options
@@ -109,7 +119,7 @@ class Zip extends ZipArchive
     }
 
     /**
-     * Includes a source to the Zip
+     * add includes a source to the Zip
      * @param mixed $source
      * @param array $options
      * @return self
@@ -151,6 +161,10 @@ class Zip extends ZipArchive
                 continue;
             }
 
+            if ($this->isExcluded($file)) {
+                continue;
+            }
+
             $localpath = $this->removePathPrefix($basedir.'/', dirname($file).'/');
             $localfile = $this->folderPrefix . $localpath . basename($file);
             $this->addFile($file, $localfile);
@@ -165,6 +179,10 @@ class Zip extends ZipArchive
                 continue;
             }
 
+            if ($this->isExcluded($folder)) {
+                continue;
+            }
+
             $localpath = $this->folderPrefix . $this->removePathPrefix($basedir.'/', $folder.'/');
             $this->addEmptyDir($localpath);
             $this->add($folder.'/'.$baseglob, array_merge($options, ['basedir' => $basedir]));
@@ -173,8 +191,9 @@ class Zip extends ZipArchive
         return $this;
     }
 
+
     /**
-     * Creates a new folder inside the Zip and adds source files (optional)
+     * folder creates a new folder inside the Zip and adds source files (optional)
      * @param  string $name Folder name
      * @param  mixed  $source
      * @return self
@@ -206,7 +225,7 @@ class Zip extends ZipArchive
     }
 
     /**
-     * Removes a file or folder from the zip collection.
+     * remove a file or folder from the zip collection.
      * Does not support wildcards.
      * @param  string $source
      * @return self
@@ -241,7 +260,39 @@ class Zip extends ZipArchive
     }
 
     /**
-     * Removes a prefix from a path.
+     * exclude paths from inclusion in the zip file
+     */
+    public function exclude(array $paths): void
+    {
+        foreach ($paths as $path) {
+            if (is_file($path)) {
+                $this->excludedFiles[] = $path;
+            }
+            elseif (is_dir($path)) {
+                $this->excludedFolders[] = $path;
+            }
+        }
+    }
+
+    /**
+     * isExcluded checks if a path is excluded
+     */
+    public function isExcluded(string $path): bool
+    {
+        if ($normalPath = realpath($path)) {
+            if (is_dir($normalPath)) {
+                return in_array($normalPath, $this->excludedFolders);
+            }
+            elseif (is_file($normalPath)) {
+                return in_array($normalPath, $this->excludedFiles);
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * removePathPrefix removes a prefix from a path.
      * @param  string $prefix /var/sites/
      * @param  string $path /var/sites/moo/cow/
      * @return string moo/cow/
