@@ -10,6 +10,8 @@ class DbGroups extends Migration
         Schema::create('groups', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name')->unique();
+            $table->string('code')->nullable()->index();
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }

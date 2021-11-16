@@ -36,6 +36,11 @@ trait Validation
      */
 
     /**
+     * @var bool validationForced is an internal marker to indicate if force option was used.
+     */
+    public $validationForced = false;
+
+    /**
      * @var \Illuminate\Support\MessageBag validationErrors message bag instance containing
      * validation error messages
      */
@@ -65,8 +70,9 @@ trait Validation
                  * events should still fire for consistency. So validate an
                  * empty set of rules and messages.
                  */
-                $force = array_get($options, 'force', false);
-                if ($force) {
+                $model->validationForced = array_get($options, 'force', false);
+
+                if ($model->validationForced) {
                     $valid = $model->validate([], []);
                 }
                 else {
@@ -255,39 +261,37 @@ trait Validation
                 $customMessages = [];
             }
 
-            $translatedCustomMessages = [];
+            $transCustomMessages = [];
             foreach ($customMessages as $rule => $customMessage) {
-                $translatedCustomMessages[$rule] = Lang::get($customMessage);
+                $transCustomMessages[$rule] = Lang::get($customMessage);
             }
-
-            $customMessages = $translatedCustomMessages;
+            $customMessages = $transCustomMessages;
 
             /*
              * Attribute names, translate internal references
              */
-            if (is_null($attributeNames)) {
-                $attributeNames = [];
-            }
-
-            $attributeNames = array_merge($this->validationDefaultAttrNames, $attributeNames);
+            $attrNames = (array) $this->validationDefaultAttrNames;
 
             if (property_exists($this, 'attributeNames')) {
-                $attributeNames = array_merge($this->attributeNames, $attributeNames);
+                $attrNames = array_merge($attrNames, $this->attributeNames);
             }
 
-            $translatedAttributeNames = [];
-            foreach ($attributeNames as $attribute => $attributeName) {
-                $translatedAttributeNames[$attribute] = Lang::get($attributeName);
+            if ($attributeNames) {
+                $attrNames = array_merge($attrNames, (array) $attributeNames);
             }
 
-            $attributeNames = $translatedAttributeNames;
+            $transAttrNames = [];
+            foreach ($attrNames as $attribute => $attributeName) {
+                $transAttrNames[$attribute] = Lang::get($attributeName);
+            }
+            $attrNames = $transAttrNames;
 
             /*
              * Translate any externally defined attribute names
              */
             $translations = Lang::get('validation.attributes');
             if (is_array($translations)) {
-                $attributeNames = array_merge($translations, $attributeNames);
+                $attrNames = array_merge($translations, $attrNames);
             }
 
             /*
@@ -297,7 +301,7 @@ trait Validation
                 $data,
                 $rules,
                 $customMessages,
-                $attributeNames,
+                $attrNames,
                 $this->getConnectionName()
             );
 
