@@ -5,6 +5,8 @@ use Event;
 use Response;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use October\Rain\Exception\NotFoundException;
 use October\Rain\Exception\AjaxException;
 use ReflectionFunction;
 use ReflectionClass;
@@ -22,6 +24,7 @@ class Handler extends ExceptionHandler
      */
     protected $dontReport = [
         \October\Rain\Exception\AjaxException::class,
+        \October\Rain\Exception\NotFoundException::class,
         \October\Rain\Exception\ValidationException::class,
         \October\Rain\Exception\ApplicationException::class,
         \Illuminate\Database\Eloquent\ModelNotFoundException::class,
@@ -117,6 +120,20 @@ class Handler extends ExceptionHandler
     }
 
     /**
+     * prepareException for rendering.
+     */
+    protected function prepareException(Exception $e)
+    {
+        $e = parent::prepareException($e);
+
+        if ($e instanceof NotFoundException) {
+            $e = new NotFoundHttpException($e->getMessage(), $e);
+        }
+
+        return $e;
+    }
+
+    /**
      * getStatusCode checks if the exception implements the HttpExceptionInterface, or returns
      * as generic 500 error code for a server side error.
      * @param \Exception $exception
@@ -124,6 +141,8 @@ class Handler extends ExceptionHandler
      */
     protected function getStatusCode($exception)
     {
+        $exception = $this->prepareException($exception);
+
         if ($exception instanceof HttpExceptionInterface) {
             $code = $exception->getStatusCode();
         }

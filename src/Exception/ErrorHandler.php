@@ -23,6 +23,15 @@ class ErrorHandler
     protected static $maskLayers = [];
 
     /**
+     * @var array notFoundExceptions will redirect to the 404 page when captured.
+     */
+    protected $notFoundExceptions = [
+        \October\Rain\Exception\NotFoundException::class,
+        \Illuminate\Database\Eloquent\ModelNotFoundException::class,
+        \Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class
+    ];
+
+    /**
      * handleException handles all exceptions from the framework workflow. This method will mask
      * any foreign exceptions with a "scent" of the native application's exception, so it can
      * render correctly when displayed on the error page.
@@ -50,21 +59,35 @@ class ErrorHandler
             ob_end_clean();
         }
 
+        // Not found exceptions
+        $isNotFound = array_first($this->notFoundExceptions, function($type) use ($proposedException) {
+            return $proposedException instanceof $type;
+        });
+
+        if ($isNotFound) {
+            // Friendly 404 pages are used
+            if (($customNotFound = $this->handleCustomNotFound()) !== null) {
+                return $customNotFound;
+            }
+
+            return;
+        }
+
         // Friendly error pages are used
         if (($customError = $this->handleCustomError()) !== null) {
             return $customError;
         }
 
-        // If the exception is already our brand, use it.
+        // If the exception is already our brand, use it
         if ($proposedException instanceof ExceptionBase) {
             $exception = $proposedException;
         }
-        // If there is an active mask prepared, use that.
+        // If there is an active mask prepared, use that
         elseif (static::$activeMask !== null) {
             $exception = static::$activeMask;
             $exception->setMask($proposedException);
         }
-        // Otherwise we should mask it with our own default scent.
+        // Otherwise we should mask it with our own default scent
         else {
             $exception = new ApplicationException($proposedException->getMessage(), 0);
             $exception->setMask($proposedException);
@@ -135,6 +158,15 @@ class ErrorHandler
      * @return mixed Error page contents.
      */
     public function handleCustomError()
+    {
+    }
+
+    /**
+     * handleCustomNotFound checks if using a custom 404 page, if so return the contents.
+     * Return NULL if a custom 404 is not set up.
+     * @return mixed 404 page contents.
+     */
+    public function handleCustomNotFound()
     {
     }
 
