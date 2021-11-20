@@ -6,6 +6,9 @@ use October\Rain\Foundation\Console\RouteCacheCommand;
 use October\Rain\Foundation\Console\ClearCompiledCommand;
 use Illuminate\Foundation\Providers\ArtisanServiceProvider as ArtisanServiceProviderBase;
 
+/**
+ * ArtisanServiceProvider
+ */
 class ArtisanServiceProvider extends ArtisanServiceProviderBase
 {
     /**
@@ -19,6 +22,7 @@ class ArtisanServiceProvider extends ArtisanServiceProviderBase
         'ClearCompiled' => 'command.clear-compiled',
         'ConfigCache' => 'command.config.cache',
         'ConfigClear' => 'command.config.clear',
+        'DbWipe' => 'command.db.wipe',
         'Down' => 'command.down',
         'Environment' => 'command.environment',
         'KeyGenerate' => 'command.key.generate',
@@ -43,9 +47,7 @@ class ArtisanServiceProvider extends ArtisanServiceProviderBase
     ];
 
     /**
-     * The commands to be registered.
-     *
-     * @var array
+     * @var array devCommands to be registered.
      */
     protected $devCommands = [
         'Serve' => 'command.serve',
@@ -53,9 +55,7 @@ class ArtisanServiceProvider extends ArtisanServiceProviderBase
     ];
 
     /**
-     * Register the service provider.
-     *
-     * @return void
+     * register the service provider
      */
     public function register()
     {
@@ -63,9 +63,7 @@ class ArtisanServiceProvider extends ArtisanServiceProviderBase
     }
 
     /**
-     * Register the command.
-     *
-     * @return void
+     * registerRouteCacheCommand
      */
     protected function registerRouteCacheCommand()
     {
@@ -75,9 +73,7 @@ class ArtisanServiceProvider extends ArtisanServiceProviderBase
     }
 
     /**
-     * Register the command.
-     *
-     * @return void
+     * registerRouteListCommand
      */
     protected function registerRouteListCommand()
     {
@@ -87,9 +83,7 @@ class ArtisanServiceProvider extends ArtisanServiceProviderBase
     }
 
     /**
-     * Register the command.
-     *
-     * @return void
+     * registerServeCommand
      */
     protected function registerServeCommand()
     {
@@ -99,9 +93,7 @@ class ArtisanServiceProvider extends ArtisanServiceProviderBase
     }
 
     /**
-     * Register the command.
-     *
-     * @return void
+     * registerClearCompiledCommand
      */
     protected function registerClearCompiledCommand()
     {
