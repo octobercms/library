@@ -192,10 +192,7 @@ class Application extends ApplicationBase
     }
 
     /**
-     * Resolve the given type from the container.
-     *
-     * (Overriding Container::make)
-     *
+     * make resolves the given type from the container and adds parameters support.
      * @param  string  $abstract
      * @return mixed
      */
@@ -203,9 +200,7 @@ class Application extends ApplicationBase
     {
         $abstract = $this->getAlias($abstract);
 
-        if (isset($this->deferredServices[$abstract])) {
-            $this->loadDeferredProvider($abstract);
-        }
+        $this->loadDeferredProviderIfNeeded($abstract);
 
         if ($parameters) {
             return $this->make(Maker::class)->make($abstract, $parameters);

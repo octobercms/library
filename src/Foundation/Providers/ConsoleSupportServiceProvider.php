@@ -3,14 +3,10 @@
 use October\Rain\Database\MigrationServiceProvider;
 use Illuminate\Support\AggregateServiceProvider;
 use Illuminate\Foundation\Providers\ComposerServiceProvider;
+use Illuminate\Contracts\Support\DeferrableProvider;
 
-class ConsoleSupportServiceProvider extends AggregateServiceProvider
+class ConsoleSupportServiceProvider extends AggregateServiceProvider implements DeferrableProvider
 {
-    /**
-     * @var bool defer indicates if loading of the provider is deferred
-     */
-    protected $defer = true;
-
     /**
      * provides gets the services provided by the provider
      */
