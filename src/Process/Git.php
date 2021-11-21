@@ -1,7 +1,5 @@
 <?php namespace October\Rain\Process;
 
-use Config;
-
 /**
  * Git handles the git process and its associated functions
  *
@@ -39,7 +37,7 @@ class Git extends ProcessBase
      */
     protected function prepareGitArguments($parts)
     {
-        $gitBin = Config::get('system.git_binary', 'git');
+        $gitBin = env('GIT_BIN', 'git');
 
         return implode(' ', array_merge([
             '"'.$gitBin.'"'
