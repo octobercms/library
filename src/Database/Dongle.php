@@ -56,6 +56,10 @@ class Dongle
      */
     public function parseGroupConcat(string $sql): string
     {
+        if ($this->driver === 'mysql') {
+            return $sql;
+        }
+
         $result = preg_replace_callback('/group_concat\((.+)\)/i', function ($matches) {
             if (!isset($matches[1])) {
                 return $matches[0];
@@ -63,7 +67,6 @@ class Dongle
 
             switch ($this->driver) {
                 default:
-                case 'mysql':
                     return $matches[0];
 
                 case 'pgsql':
@@ -94,7 +97,18 @@ class Dongle
      */
     public function parseConcat(string $sql): string
     {
-        return preg_replace_callback('/(?:group_)?concat\((.+)\)(?R)?/i', function ($matches) {
+        if ($this->driver === 'mysql') {
+            return $sql;
+        }
+
+        // Pre process special characters inside quotes
+        $charComma = 'X___COMMA_CHAR___X';
+        $result = preg_replace_callback("/'(.*?[^\\\\])'/i", function ($matches) use ($charComma) {
+            return str_replace(',', $charComma, $matches[0]);
+        }, $sql);
+
+        // Convert concat() to pipe (||) syntax
+        $result = preg_replace_callback('/(?:group_)?concat\((.+)\)(?R)?/i', function ($matches) {
             if (!isset($matches[1])) {
                 return $matches[0];
             }
@@ -108,7 +122,6 @@ class Dongle
 
             switch ($this->driver) {
                 default:
-                case 'mysql':
                     return $matches[0];
 
                 case 'pgsql':
@@ -116,7 +129,12 @@ class Dongle
                 case 'sqlite':
                     return implode(' || ', $concatFields);
             }
-        }, $sql);
+        }, $result);
+
+        // Replace special characters back to their originals
+        $result = str_replace($charComma, ',', $result);
+
+        return $result;
     }
 
     /**
