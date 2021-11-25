@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Process;
 
-use Config;
 use Symfony\Component\Process\PhpExecutableFinder;
 
 /**
@@ -127,7 +126,7 @@ class Composer extends ProcessBase
      */
     protected function prepareComposerArguments($parts)
     {
-        if ($composerBin = Config::get('system.composer_binary')) {
+        if ($composerBin = env('COMPOSER_BIN')) {
             return implode(' ', array_merge([$composerBin], $parts));
         }
 

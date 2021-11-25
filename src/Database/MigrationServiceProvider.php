@@ -2,10 +2,10 @@
 
 use Illuminate\Database\MigrationServiceProvider as MigrationServiceProviderBase;
 
+/**
+ * MigrationServiceProvider is a proxy class
+ */
 class MigrationServiceProvider extends MigrationServiceProviderBase
 {
-    /**
-     * @var array commands to be registered
-     */
-    protected $commands = [];
+
 }

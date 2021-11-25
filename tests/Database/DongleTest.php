@@ -20,6 +20,15 @@ class DongleTest extends TestCase
         $result = $dongle->parseConcat("concat(year, ' ', make , ' ' , model)");
         $this->assertEquals("year || ' ' || make || ' ' || model", $result);
 
+        $result = $dongle->parseConcat("concat(last_name, ', ', first_name)");
+        $this->assertEquals("last_name || ', ' || first_name", $result);
+
+        $result = $dongle->parseConcat("concat(',', last_name, '   ,   ', first_name, ',')");
+        $this->assertEquals("',' || last_name || '   ,   ' || first_name || ','", $result);
+
+        $result = $dongle->parseConcat("concat(last_name, ',\' ', first_name)");
+        $this->assertEquals("last_name || ',\' ' || first_name", $result);
+
         $result = $dongle->parseConcat("group_concat(first_name, ' ', last_name)");
         $this->assertEquals("group_concat(first_name, ' ', last_name)", $result);
     }
