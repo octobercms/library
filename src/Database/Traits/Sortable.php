@@ -26,8 +26,7 @@ use October\Rain\Database\SortableScope;
 trait Sortable
 {
     /**
-     * Boot the sortable trait for this model.
-     * @return void
+     * bootSortable trait for this model.
      */
     public static function bootSortable()
     {
@@ -43,8 +42,8 @@ trait Sortable
     }
 
     /**
-     * Sets the sort order of records to the specified orders. If the orders is
-     * undefined, the record identifier is used.
+     * setSortableOrder sets the sort order of records to the specified orders. If the
+     * orders is undefined, the record identifier is used.
      * @param  mixed $itemIds
      * @param  array $itemOrders
      * @return void
@@ -70,11 +69,20 @@ trait Sortable
     }
 
     /**
-     * Get the name of the "sort order" column.
+     * getSortOrderColumn name of the "sort order" column.
      * @return string
      */
     public function getSortOrderColumn()
     {
         return defined('static::SORT_ORDER') ? static::SORT_ORDER : 'sort_order';
+    }
+
+    /**
+     * getQualifiedSortOrderColumn gets the fully qualified "sort order" column.
+     * @return string
+     */
+    public function getQualifiedSortOrderColumn()
+    {
+        return $this->getTable().'.'.$this->getSortOrderColumn();
     }
 }
