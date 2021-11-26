@@ -29,31 +29,23 @@ trait DefinedConstraints
             $args = $this->parent->getRelationDefinition($this->relationName);
         }
 
-        /*
-         * Default models (belongsTo, hasOne, hasOneThrough, morphOne)
-         */
+        // Default models (belongsTo, hasOne, hasOneThrough, morphOne)
         if ($defaultData = array_get($args, 'default')) {
             $relation->withDefault($defaultData);
         }
 
-        /*
-         * Pivot data (belongsToMany, morphToMany, morphByMany)
-         */
+        // Pivot data (belongsToMany, morphToMany, morphByMany)
         if ($pivotData = array_get($args, 'pivot')) {
             $relation->withPivot($pivotData);
         }
 
-        /*
-         * Pivot timestamps (belongsToMany, morphToMany, morphByMany)
-         */
+        // Pivot timestamps (belongsToMany, morphToMany, morphByMany)
         if (array_get($args, 'timestamps')) {
             $relation->withTimestamps();
         }
 
-        /*
-         * Count "helper" relation
-         * @deprecated use Laravel withCount() method instead
-         */
+        // Count "helper" relation
+        // @deprecated use Laravel withCount() method instead
         if (array_get($args, 'count')) {
             if ($relation instanceof BelongsToManyBase) {
                 $relation->countMode = true;
@@ -78,16 +70,13 @@ trait DefinedConstraints
             $args = $this->parent->getRelationDefinition($this->relationName);
         }
 
-        /*
-         * Conditions
-         */
+        // Conditions
         if ($conditions = array_get($args, 'conditions')) {
             $query->whereRaw($conditions);
         }
 
-        /*
-         * Sort order
-         */
+        // Sort order
+        // @deprecated count is deprecated
         $hasCountArg = array_get($args, 'count') !== null;
         if (($orderBy = array_get($args, 'order')) && !$hasCountArg) {
             if (!is_array($orderBy)) {
@@ -107,9 +96,7 @@ trait DefinedConstraints
             }
         }
 
-        /*
-         * Scope
-         */
+        // Scope
         if ($scope = array_get($args, 'scope')) {
             if (is_string($scope)) {
                 $query->$scope($this->parent);
