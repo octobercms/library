@@ -11,7 +11,7 @@ use Exception;
  *
  *   use \October\Rain\Database\Traits\SortableRelation;
  *
- *   public $belongsToMany = [..., 'pivotSortable' => 'sort_order'];
+ *   public $belongsToMany = [..., 'pivotSortable' => 'sort_order_column'];
  *
  * To set orders:
  *
