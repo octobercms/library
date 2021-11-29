@@ -303,9 +303,7 @@ class Application extends ApplicationBase
     //
 
     /**
-     * Register the core class aliases in the container.
-     *
-     * @return void
+     * registerCoreContainerAliases in the container.
      */
     public function registerCoreContainerAliases()
     {
@@ -338,7 +336,7 @@ class Application extends ApplicationBase
             'session'              => [\Illuminate\Session\SessionManager::class],
             'session.store'        => [\Illuminate\Session\Store::class, \Illuminate\Contracts\Session\Session::class],
             'url'                  => [\Illuminate\Routing\UrlGenerator::class, \Illuminate\Contracts\Routing\UrlGenerator::class],
-            'validator'            => [\Illuminate\Validation\Factory::class, \Illuminate\Contracts\Validation\Factory::class],
+            'validator'            => [\October\Rain\Validation\Factory::class, \Illuminate\Contracts\Validation\Factory::class],
             'view'                 => [\Illuminate\View\Factory::class, \Illuminate\Contracts\View\Factory::class],
         ];
 

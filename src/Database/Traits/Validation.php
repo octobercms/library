@@ -3,9 +3,9 @@
 use App;
 use Lang;
 use Input;
+use Validator;
 use October\Rain\Database\ModelException;
 use Illuminate\Support\MessageBag;
-use Illuminate\Support\Facades\Validator;
 use Exception;
 
 trait Validation
