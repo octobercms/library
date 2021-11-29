@@ -37,14 +37,14 @@ abstract class Rule implements RuleContract
     }
 
     /**
-     * replacer defines custom placeholder replacements.
+     * replace defines custom placeholder replacements.
      * @param string $message
      * @param string $attribute
      * @param mixed $rule
      * @param array $params
      * @return string
      */
-    public function replacer($message, $attribute, $rule, $params)
+    public function replace($message, $attribute, $rule, $params)
     {
         return $message;
     }
