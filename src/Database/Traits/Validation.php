@@ -376,6 +376,12 @@ trait Validation
              */
             foreach ($ruleParts as $key => $rulePart) {
                 /*
+                 * Allow rule objects
+                 */
+                if (is_object($rulePart)) {
+                    continue;
+                }
+                /*
                  * Remove primary key unique validation rule if the model already exists
                  */
                 if (starts_with($rulePart, 'unique') && $this->exists) {
