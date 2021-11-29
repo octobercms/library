@@ -5,7 +5,7 @@ use October\Rain\Support\Facade;
 /**
  * Input
  *
- * @see Illuminate\Http\Request
+ * @see \Illuminate\Http\Request
  */
 class Input extends Facade
 {

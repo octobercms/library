@@ -5,7 +5,7 @@ use Illuminate\Support\Str;
 /**
  * FormatsMessages is a modifier to the base trait
  *
- * @see Illuminate\Validation\Concerns\FormatsMessages
+ * @see \Illuminate\Validation\Concerns\FormatsMessages
  */
 trait FormatsMessages
 {

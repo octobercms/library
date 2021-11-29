@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
  * This class is a carbon copy of Illuminate\Database\Eloquent\Relations\MorphPivot
  * so the base October\Rain\Database\Pivot class can be inherited
  *
- * @see Illuminate\Database\Eloquent\Relations
+ * @see \Illuminate\Database\Eloquent\Relations
  */
 class MorphPivot extends Pivot
 {
