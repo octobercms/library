@@ -117,6 +117,40 @@ trait Validation
     }
 
     /**
+     * addValidationRule will append a rule to the stack and reset the value as a processed array
+     */
+    public function addValidationRule(string $name, $definition)
+    {
+        $rules = $this->rules[$name] ?? [];
+        if (!is_array($rules)) {
+            $rules = explode('|', $rules);
+        }
+
+        $rules[] = $definition;
+
+        $this->rules[$name] = $rules;
+    }
+
+    /**
+     * removeValidationRule removes a validation rule from the stack and resets the value as a processed array
+     */
+    public function removeValidationRule(string $name, $definition)
+    {
+        $rules = $this->rules[$name] ?? [];
+        if (!is_array($rules)) {
+            $rules = explode('|', $rules);
+        }
+
+        foreach ($rules as $key => $rule) {
+            if ($rule === $definition) {
+                unset($rules[$key]);
+            }
+        }
+
+        $this->rules[$name] = $rules;
+    }
+
+    /**
      * getRelationValidationValue handles attachments that validate differently to their simple values
      */
     protected function getRelationValidationValue($relationName)
