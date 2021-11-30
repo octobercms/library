@@ -5,7 +5,7 @@ use October\Rain\Resize\BrokenImage as BrokenImageBase;
 /**
  * BrokenImage
  * @deprecated
- * @see October\Rain\Resize\BrokenImage
+ * @see \October\Rain\Resize\BrokenImage
  */
 class BrokenImage extends BrokenImageBase
 {

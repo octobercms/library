@@ -2,18 +2,19 @@
 
 use Exception;
 
+/**
+ * Nullable will set empty attributes to values equivalent to NULL in the database.
+ */
 trait Nullable
 {
     /**
-     * @var array List of attribute names which should be set to null when empty.
+     * @var array nullable attribute names which should be set to null when empty.
      *
      * protected $nullable = [];
      */
 
     /**
-     * Boot the nullable trait for a model
-     *
-     * @return void
+     * bootNullable trait for a model
      */
     public static function bootNullable()
     {
@@ -32,9 +33,9 @@ trait Nullable
     }
 
     /**
-     * Adds an attribute to the nullable attributes list
+     * addNullable attribute to the nullable attributes list
      * @param  array|string|null  $attributes
-     * @return $this
+     * @return void
      */
     public function addNullable($attributes = null)
     {
@@ -42,11 +43,12 @@ trait Nullable
 
         $this->nullable = array_merge($this->nullable, $attributes);
 
+        // @deprecated
         return $this;
     }
 
     /**
-     * Checks if the supplied value is empty, excluding zero.
+     * checkNullableValue checks if the supplied value is empty, excluding zero.
      * @param  string $value Value to check
      * @return bool
      */
@@ -60,8 +62,7 @@ trait Nullable
     }
 
     /**
-     * Nullify empty fields
-     * @return void
+     * nullableBeforeSave will nullify empty fields at time of saving.
      */
     public function nullableBeforeSave()
     {

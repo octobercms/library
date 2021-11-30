@@ -3,9 +3,9 @@
 use App;
 use Lang;
 use Input;
+use Validator;
 use October\Rain\Database\ModelException;
 use Illuminate\Support\MessageBag;
-use Illuminate\Support\Facades\Validator;
 use Exception;
 
 trait Validation
@@ -114,6 +114,40 @@ trait Validation
     protected function getValidationAttributes()
     {
         return $this->getAttributes();
+    }
+
+    /**
+     * addValidationRule will append a rule to the stack and reset the value as a processed array
+     */
+    public function addValidationRule(string $name, $definition)
+    {
+        $rules = $this->rules[$name] ?? [];
+        if (!is_array($rules)) {
+            $rules = explode('|', $rules);
+        }
+
+        $rules[] = $definition;
+
+        $this->rules[$name] = $rules;
+    }
+
+    /**
+     * removeValidationRule removes a validation rule from the stack and resets the value as a processed array
+     */
+    public function removeValidationRule(string $name, $definition)
+    {
+        $rules = $this->rules[$name] ?? [];
+        if (!is_array($rules)) {
+            $rules = explode('|', $rules);
+        }
+
+        foreach ($rules as $key => $rule) {
+            if ($rule === $definition) {
+                unset($rules[$key]);
+            }
+        }
+
+        $this->rules[$name] = $rules;
     }
 
     /**
@@ -375,6 +409,12 @@ trait Validation
              * Analyse each rule individually
              */
             foreach ($ruleParts as $key => $rulePart) {
+                /*
+                 * Allow rule objects
+                 */
+                if (is_object($rulePart)) {
+                    continue;
+                }
                 /*
                  * Remove primary key unique validation rule if the model already exists
                  */
