@@ -103,8 +103,7 @@ trait FormatsMessages
     }
 
     /**
-     * hasExtensionMethod determines if an extended rule has a `message()` method
-     * that provides a fallback message.
+     * hasExtensionMethod determines if an extended rule has a given method.
      */
     protected function hasExtensionMethod(string $rule, string $methodName): bool
     {
@@ -122,8 +121,7 @@ trait FormatsMessages
     }
 
     /**
-     * callExtensionMethod calls the `message()` method for an extended rule and
-     * returns the result as a string.
+     * callExtensionMethod calls a method for an extended rule and returns the result as a string.
      */
     protected function callExtensionMethod(string $rule, string $methodName, array $args = []): string
     {
