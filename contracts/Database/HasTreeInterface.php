@@ -1,11 +1,11 @@
-<?php namespace October\Rain\Database\Contracts;
+<?php namespace October\Contracts\Database;
 
 use Illuminate\Support\Collection;
 
 /**
  * HasTreeInterface
  *
- * @package october\database
+ * @package october\contracts
  * @author Alexey Bobkov, Samuel Georges
  */
 interface HasTreeInterface

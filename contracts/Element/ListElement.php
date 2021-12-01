@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Element\Contracts;
+<?php namespace October\Contracts\Element;
 
 use October\Rain\Element\Lists\ColumnDefinition;
 

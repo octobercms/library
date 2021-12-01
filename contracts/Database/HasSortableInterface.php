@@ -1,9 +1,9 @@
-<?php namespace October\Rain\Database\Contracts;
+<?php namespace October\Contracts\Database;
 
 /**
  * HasSortableInterface
  *
- * @package october\database
+ * @package october\contracts
  * @author Alexey Bobkov, Samuel Georges
  */
 interface HasSortableInterface
