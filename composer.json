@@ -43,16 +43,14 @@
         ],
         "psr-4": {
             "Assetic\\": "src/Assetic/Assetic/",
-            "October\\Rain\\": "src/"
+            "October\\Rain\\": "src/",
+            "October\\Contracts\\": "contracts/"
         }
     },
     "autoload-dev": {
         "classmap": [
             "tests/TestCase.php"
-        ],
-        "psr-4": {
-            "October\\Rain\\Tests\\": "tests/"
-        }
+        ]
     },
     "scripts": {
         "test": [
