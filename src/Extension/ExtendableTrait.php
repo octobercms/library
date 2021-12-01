@@ -271,7 +271,8 @@ trait ExtendableTrait
     {
         $classMethods = $this->getClassMethods();
 
-        foreach (get_class_methods($interface) as $methodName) {
+        $interfaceMethods = (array) get_class_methods($interface);
+        foreach ($interfaceMethods as $methodName) {
             if (!in_array($methodName, $classMethods)) {
                 return false;
             }
