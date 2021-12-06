@@ -1,12 +1,12 @@
 <?php namespace October\Contracts\Database;
 
 /**
- * HasSortableRelationInterface
+ * SortableRelationInterface
  *
  * @package october\contracts
  * @author Alexey Bobkov, Samuel Georges
  */
-interface HasSortableRelationInterface
+interface SortableRelationInterface
 {
     /**
      * setSortableRelationOrder

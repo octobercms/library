@@ -1,12 +1,12 @@
 <?php namespace October\Contracts\Database;
 
 /**
- * HasNestedSetInterface
+ * NestedSetInterface
  *
  * @package october\contracts
  * @author Alexey Bobkov, Samuel Georges
  */
-interface HasNestedSetInterface
+interface NestedSetInterface
 {
     /**
      * moveAfter

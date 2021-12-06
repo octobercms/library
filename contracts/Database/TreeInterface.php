@@ -3,12 +3,12 @@
 use Illuminate\Support\Collection;
 
 /**
- * HasTreeInterface
+ * TreeInterface
  *
  * @package october\contracts
  * @author Alexey Bobkov, Samuel Georges
  */
-interface HasTreeInterface
+interface TreeInterface
 {
     /**
      * getChildren
