@@ -3,6 +3,6 @@
 /**
  * File
  *
- * @see \Illuminate\Filesystem\Filesystem
+ * @see \October\Rain\Filesystem\Filesystem
  */
 class File extends Illuminate\Support\Facades\File {}
