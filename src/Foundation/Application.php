@@ -1,6 +1,8 @@
 <?php namespace October\Rain\Foundation;
 
 use October\Rain\Support\Str;
+use October\Rain\Support\Collection;
+use October\Rain\Filesystem\Filesystem;
 use October\Rain\Events\EventServiceProvider;
 use October\Rain\Router\RoutingServiceProvider;
 use October\Rain\Foundation\Providers\LogServiceProvider;
@@ -9,6 +11,8 @@ use October\Rain\Foundation\Providers\ExecutionContextProvider;
 use Symfony\Component\Debug\Exception\FatalErrorException;
 use Illuminate\Foundation\Application as ApplicationBase;
 use Illuminate\Foundation\AliasLoader;
+use Illuminate\Foundation\PackageManifest;
+use Illuminate\Foundation\ProviderRepository;
 use Carbon\Laravel\ServiceProvider as CarbonServiceProvider;
 use Illuminate\Support\Env;
 use Throwable;
@@ -174,8 +178,7 @@ class Application extends ApplicationBase
     }
 
     /**
-     * Normalize a relative or absolute path to a cache file.
-     *
+     * normalizeCachePath normalizes a relative or absolute path to a cache file.
      * @param  string  $key
      * @param  string  $default
      * @return string
@@ -192,10 +195,8 @@ class Application extends ApplicationBase
     }
 
     /**
-     * Resolve the given type from the container.
-     *
-     * (Overriding Container::make)
-     *
+     * make is entirely inherited from the parent, except it uses
+     * the custom maker class when dealing with parameters.
      * @param  string  $abstract
      * @return mixed
      */
@@ -215,8 +216,7 @@ class Application extends ApplicationBase
     }
 
     /**
-     * Register a "before" application filter.
-     *
+     * before logic is called before the router runs.
      * @param  \Closure|string  $callback
      * @return void
      */
@@ -226,8 +226,7 @@ class Application extends ApplicationBase
     }
 
     /**
-     * Register an "after" application filter.
-     *
+     * after logic is called after the router finishes.
      * @param  \Closure|string  $callback
      * @return void
      */
@@ -237,8 +236,7 @@ class Application extends ApplicationBase
     }
 
     /**
-     * Register an application error handler.
-     *
+     * error registers an application error handler.
      * @param  \Closure  $callback
      * @return void
      */
@@ -248,8 +246,7 @@ class Application extends ApplicationBase
     }
 
     /**
-     * Register an error handler for fatal errors.
-     *
+     * fatal registers an error handler for fatal errors.
      * @param  \Closure  $callback
      * @return void
      */
@@ -261,8 +258,7 @@ class Application extends ApplicationBase
     }
 
     /**
-     * Determine if we are running in the back-end area.
-     *
+     * runningInBackend determines if we are running in the back-end area.
      * @return bool
      */
     public function runningInBackend()
@@ -271,7 +267,7 @@ class Application extends ApplicationBase
     }
 
     /**
-     * Returns true if a database connection is present.
+     * hasDatabase returns true if a database connection is present.
      * @return boolean
      */
     public function hasDatabase()
@@ -287,7 +283,7 @@ class Application extends ApplicationBase
     }
 
     /**
-     * Set the current application locale.
+     * setLocale for the application.
      * @param  string  $locale
      * @return void
      */
@@ -299,8 +295,26 @@ class Application extends ApplicationBase
     }
 
     //
-    // Core aliases
+    // Core registrations
     //
+
+    /**
+     * registerConfiguredProviders is entirely inherited from the parent,
+     * except the October\Rain namespace is included in the partition.
+     */
+    public function registerConfiguredProviders()
+    {
+        $providers = Collection::make($this->config['app.providers'])
+            ->partition(function ($provider) {
+                return strpos($provider, 'Illuminate\\') === 0 ||
+                    strpos($provider, 'October\\Rain\\') === 0;
+            });
+
+        $providers->splice(1, 0, [$this->make(PackageManifest::class)->providers()]);
+
+        (new ProviderRepository($this, new Filesystem, $this->getCachedServicesPath()))
+            ->load($providers->collapse()->toArray());
+    }
 
     /**
      * registerCoreContainerAliases in the container.
