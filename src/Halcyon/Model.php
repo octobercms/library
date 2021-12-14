@@ -1323,7 +1323,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Returns the base file name and extension. Applies a default extension, if none found.
+     * getFileNameParts returns the base file name and extension.
+     * Applies a default extension, if none found.
      */
     public function getFileNameParts($fileName = null)
     {
@@ -1331,9 +1332,10 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
             $fileName = $this->fileName;
         }
 
-        if (!strlen($extension = pathinfo($fileName, PATHINFO_EXTENSION))) {
+        $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+        if (!strlen($extension)) {
             $extension = $this->defaultExtension;
-            $baseFile = $fileName;
+            $baseFile = (string) $fileName;
         }
         else {
             $pos = strrpos($fileName, '.');
@@ -1346,7 +1348,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Get the datasource for the model.
      *
-     * @return \October\Rain\Halcyon\DatasourceInterface
+     * @return \October\Rain\Halcyon\Datasource\DatasourceInterface
      */
     public function getDatasource()
     {
