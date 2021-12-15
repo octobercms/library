@@ -17,7 +17,7 @@ class FieldsetDefinition implements IteratorAggregate
     public $defaultTab = 'Misc';
 
     /**
-     * @var boolean suppressTabs if set to TRUE, fields will not be displayed in tabs
+     * @var bool suppressTabs if set to TRUE, fields will not be displayed in tabs
      */
     public $suppressTabs = false;
 
@@ -36,12 +36,11 @@ class FieldsetDefinition implements IteratorAggregate
      */
     protected function evalConfig(array $config): void
     {
-        if (array_key_exists('defaultTab', $config)) {
+        if (isset($config['defaultTab'])) {
             $this->defaultTab = $config['defaultTab'];
         }
-
-        if (array_key_exists('suppressTabs', $config)) {
-            $this->suppressTabs = $config['suppressTabs'];
+        if (isset($config['suppressTabs'])) {
+            $this->suppressTabs = (bool) $config['suppressTabs'];
         }
     }
 

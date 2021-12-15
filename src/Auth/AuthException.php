@@ -13,7 +13,7 @@ use Exception;
 class AuthException extends ApplicationException
 {
     /**
-     * @var boolean softErrors uses less specific error messages
+     * @var bool softErrors uses less specific error messages
      */
     protected $softErrors = false;
 

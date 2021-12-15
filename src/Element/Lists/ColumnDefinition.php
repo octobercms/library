@@ -24,9 +24,9 @@ class ColumnDefinition
     public $type = 'text';
 
     /**
-     * @var bool searchable specifies if this column can be searched
+     * @var string align the column, eg: left, right or center
      */
-    public $searchable = false;
+    public $align;
 
     /**
      * @var bool hidden defines the column without ever displaying it
@@ -39,9 +39,19 @@ class ColumnDefinition
     public $sortable = true;
 
     /**
-     * @var string align the column, eg: left, right or center
+     * @var bool searchable specifies if this column can be searched
      */
-    public $align;
+    public $searchable = false;
+
+    /**
+     * @var bool invisible is hidden in default list settings
+     */
+    public $invisible = false;
+
+    /**
+     * @var bool clickable disables the default click behavior when the column is clicked
+     */
+    public $clickable = true;
 
     /**
      * @var array config in raw format, if supplied.
@@ -67,17 +77,23 @@ class ColumnDefinition
         if (isset($config['type'])) {
             $this->displayAs($config['type']);
         }
+        if (isset($config['align'])) {
+            $this->align((string) $config['align']);
+        }
         if (isset($config['hidden'])) {
             $this->hidden((bool) $config['hidden']);
+        }
+        if (isset($config['sortable'])) {
+            $this->sortable((bool) $config['sortable']);
         }
         if (isset($config['searchable'])) {
             $this->searchable((bool) $config['searchable']);
         }
-        if (isset($config['align']) && in_array($config['align'], ['left', 'right', 'center'])) {
-            $this->align = $config['align'];
+        if (isset($config['invisible'])) {
+            $this->invisible((bool) $config['invisible']);
         }
-        if (array_key_exists('sortable', $config)) {
-            $this->sortable((bool) $config['sortable']);
+        if (isset($config['clickable'])) {
+            $this->clickable((bool) $config['clickable']);
         }
     }
 
@@ -124,6 +140,18 @@ class ColumnDefinition
     }
 
     /**
+     * align specifies the column text alignment, eg: left, right, center
+     */
+    public function align(string $align = ''): ColumnDefinition
+    {
+        if (in_array($align, ['', 'left', 'right', 'center'])) {
+            $this->align = $align;
+        }
+
+        return $this;
+    }
+
+    /**
      * hidden hides the column from lists
      */
     public function hidden(bool $hidden = true): ColumnDefinition
@@ -149,6 +177,26 @@ class ColumnDefinition
     public function searchable(bool $searchable = true): ColumnDefinition
     {
         $this->searchable = $searchable;
+
+        return $this;
+    }
+
+    /**
+     * invisible hides the column from lists with default list settings
+     */
+    public function invisible(bool $invisible = true): ColumnDefinition
+    {
+        $this->invisible = $invisible;
+
+        return $this;
+    }
+
+    /**
+     * clickable determines if the column row can be clicked
+     */
+    public function clickable(bool $clickable = true): ColumnDefinition
+    {
+        $this->clickable = $clickable;
 
         return $this;
     }

@@ -85,7 +85,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     protected $maxNesting = 5;
 
     /**
-     * @var boolean loadedFromCache indicates whether the object was loaded from the cache.
+     * @var bool loadedFromCache indicates whether the object was loaded from the cache.
      */
     protected $loadedFromCache = false;
 

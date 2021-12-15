@@ -18,7 +18,7 @@ trait AttachOneOrMany
     protected $relationName;
 
     /**
-     * @var boolean public is a default value for file public or protected state
+     * @var bool public is a default value for file public or protected state
      */
     protected $public;
 

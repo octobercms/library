@@ -14,13 +14,13 @@ class BelongsToMany extends BelongsToManyBase
     use DefinedConstraints;
 
     /**
-     * @var boolean countMode sets this relation object is a 'count' helper
+     * @var bool countMode sets this relation object is a 'count' helper
      * @deprecated use Laravel withCount() method instead
      */
     public $countMode = false;
 
     /**
-     * @var boolean orphanMode used when a join is not used, don't select aliased columns
+     * @var bool orphanMode used when a join is not used, don't select aliased columns
      */
     public $orphanMode = false;
 
