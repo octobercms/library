@@ -70,6 +70,11 @@ trait DefinedConstraints
             $args = $this->parent->getRelationDefinition($this->relationName);
         }
 
+        // Soft deleted (trashed) records
+        if (array_get($args, 'trashed')) {
+            $query->withTrashed();
+        }
+
         // Conditions
         if ($conditions = array_get($args, 'conditions')) {
             $query->whereRaw($conditions);
