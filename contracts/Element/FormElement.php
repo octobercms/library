@@ -1,6 +1,7 @@
 <?php namespace October\Contracts\Element;
 
 use October\Rain\Element\Form\FieldDefinition;
+use October\Rain\Element\Form\FieldsetDefinition;
 
 /**
  * FormElement
@@ -11,7 +12,12 @@ use October\Rain\Element\Form\FieldDefinition;
 interface FormElement
 {
     /**
-     * addFormField
+     * addFormField adds a field to the fieldset
      */
     public function addFormField(string $fieldName = null, string $label = null): FieldDefinition;
+
+    /**
+     * getFormFieldset returns the current fieldset definition
+     */
+    public function getFormFieldset(): FieldsetDefinition;
 }
