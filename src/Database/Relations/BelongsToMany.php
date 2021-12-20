@@ -205,7 +205,7 @@ class BelongsToMany extends BelongsToManyBase
         }
 
         if ($sessionKey === null) {
-            $this->attach($model->getKey(), $pivotData);
+            $this->attach($this->parseId($model), $pivotData);
             $this->parent->reloadRelations($this->relationName);
         }
         else {
@@ -219,7 +219,7 @@ class BelongsToMany extends BelongsToManyBase
     public function remove(Model $model, $sessionKey = null)
     {
         if ($sessionKey === null) {
-            $this->detach($model->getKey());
+            $this->detach($this->parseId($model));
             $this->parent->reloadRelations($this->relationName);
         }
         else {
