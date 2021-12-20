@@ -107,33 +107,39 @@ class BelongsToMany extends BelongsToManyBase
     /**
      * attach overrides attach() method of BelongToMany relation
      * This is necessary in order to fire 'model.relation.beforeAttach', 'model.relation.attach' events
-     * @param mixed $id
+     * @param mixed $ids
      * @param array $attributes
      * @param bool  $touch
      */
-    public function attach($id, array $attributes = [], $touch = true)
+    public function attach($ids, array $attributes = [], $touch = true)
     {
+        // Normalize identifiers for events, this occurs internally in the parent logic
+        // and should have no cascading effects.
+        $parsedIds = $this->parseIds($ids);
+
         /**
          * @event model.relation.beforeAttach
          * Called before creating a new relation between models (only for BelongsToMany relation)
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.beforeAttach', function (string $relationName, mixed $id, array $attributes) use (\October\Rain\Database\Model $model) {
-         *         if (!$model->isRelationValid($id)) {
-         *             return false;
+         *     $model->bindEvent('model.relation.beforeAttach', function (string $relationName, array $ids, array $attributes) use (\October\Rain\Database\Model $model) {
+         *         foreach ($ids as $id) {
+         *             if (!$model->isRelationValid($id)) {
+         *                 return false;
+         *             }
          *         }
          *     });
          *
          */
-        if ($this->parent->fireEvent('model.relation.beforeAttach', [$this->relationName, &$id, &$attributes], true) === false) {
+        if ($this->parent->fireEvent('model.relation.beforeAttach', [$this->relationName, &$parsedIds, &$attributes], true) === false) {
             return;
         }
 
         /*
          * See \Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
          */
-        parent::attach($id, $attributes, $touch);
+        parent::attach($parsedIds, $attributes, $touch);
 
         /**
          * @event model.relation.attach
@@ -141,44 +147,52 @@ class BelongsToMany extends BelongsToManyBase
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.attach', function (string $relationName, mixed $id, array $attributes) use (\October\Rain\Database\Model $model) {
-         *         traceLog("New relation {$relationName} was created", $id);
+         *     $model->bindEvent('model.relation.attach', function (string $relationName, array $ids, array $attributes) use (\October\Rain\Database\Model $model) {
+         *         foreach ($ids as $id) {
+         *             traceLog("New relation {$relationName} was created", $id);
+         *         }
          *     });
          *
          */
-        $this->parent->fireEvent('model.relation.attach', [$this->relationName, $id, $attributes]);
+        $this->parent->fireEvent('model.relation.attach', [$this->relationName, $parsedIds, $attributes]);
     }
 
     /**
      * detach overrides detach() method of BelongToMany relation.
      * This is necessary in order to fire 'model.relation.beforeDetach', 'model.relation.detach' events
-     * @param null $ids
+     * @param mixed $ids
      * @param bool $touch
      * @return int|void
      */
     public function detach($ids = null, $touch = true)
     {
+        // Normalize identifiers for events, this occurs internally in the parent logic
+        // and should have no cascading effects. Null is used to detach everything.
+        $parsedIds = $ids !== null ? $this->parseIds($ids) : $ids;
+
         /**
          * @event model.relation.beforeDetach
          * Called before removing a relation between models (only for BelongsToMany relation)
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.beforeDetach', function (string $relationName, array $ids) use (\October\Rain\Database\Model $model) {
-         *         if (!$model->isRelationValid($ids)) {
-         *             return false;
+         *     $model->bindEvent('model.relation.beforeDetach', function (string $relationName, ?array $ids) use (\October\Rain\Database\Model $model) {
+         *         foreach ($ids as $id) {
+         *             if (!$model->isRelationValid($ids)) {
+         *                 return false;
+         *             }
          *         }
          *     });
          *
          */
-        if ($this->parent->fireEvent('model.relation.beforeDetach', [$this->relationName, &$ids], true) === false) {
+        if ($this->parent->fireEvent('model.relation.beforeDetach', [$this->relationName, &$parsedIds], true) === false) {
             return;
         }
 
         /*
          * See \Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
          */
-        $result = parent::detach($ids, $touch);
+        $result = parent::detach($parsedIds, $touch);
 
         /**
          * @event model.relation.detach
@@ -186,12 +200,14 @@ class BelongsToMany extends BelongsToManyBase
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.detach', function (string $relationName, array $ids) use (\October\Rain\Database\Model $model) {
-         *         traceLog("Relation {$relationName} was removed", $ids);
+         *     $model->bindEvent('model.relation.detach', function (string $relationName, ?array $ids) use (\October\Rain\Database\Model $model) {
+         *         foreach ($ids as $id) {
+         *             traceLog("Relation {$relationName} was removed", $ids);
+         *         }
          *     });
          *
          */
-        $this->parent->fireEvent('model.relation.detach', [$this->relationName, $ids, $result]);
+        $this->parent->fireEvent('model.relation.detach', [$this->relationName, $parsedIds, $result]);
     }
 
     /**
