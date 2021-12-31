@@ -37,7 +37,7 @@ class FieldsetDefinition implements IteratorAggregate
     protected function evalConfig(array $config): void
     {
         if (isset($config['defaultTab'])) {
-            $this->defaultTab = $config['defaultTab'];
+            $this->defaultTab($config['defaultTab']);
         }
         if (isset($config['suppressTabs'])) {
             $this->suppressTabs = (bool) $config['suppressTabs'];
@@ -52,6 +52,16 @@ class FieldsetDefinition implements IteratorAggregate
         $this->config = $config;
 
         $this->evalConfig($config);
+
+        return $this;
+    }
+
+    /**
+     * defaultTab label for these tabs
+     */
+    public function defaultTab(string $defaultTab): FieldsetDefinition
+    {
+        $this->defaultTab = $defaultTab;
 
         return $this;
     }
