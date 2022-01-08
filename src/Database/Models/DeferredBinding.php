@@ -34,20 +34,19 @@ class DeferredBinding extends Model
      */
     public function beforeCreate()
     {
-        if ($existingRecord = $this->findBindingRecord()) {
-            /*
-             * Remove add-delete pairs
-             */
-            if ((bool) $this->is_bind !== (bool) $existingRecord->is_bind) {
-                $existingRecord->deleteCancel();
-                return false;
-            }
+        $existingRecord = $this->findBindingRecord();
+        if (!$existingRecord) {
+            return;
+        }
 
-            /*
-             * Skip repeating bindings
-             */
+        // Remove add-delete pairs
+        if ((bool) $this->is_bind !== (bool) $existingRecord->is_bind) {
+            $existingRecord->deleteCancel();
             return false;
         }
+
+        // Skip repeating bindings
+        return false;
     }
 
     /**
@@ -71,7 +70,22 @@ class DeferredBinding extends Model
     {
         $records = self::where('master_type', $masterType)
             ->where('session_key', $sessionKey)
-            ->get();
+            ->get()
+        ;
+
+        foreach ($records as $record) {
+            $record->deleteCancel();
+        }
+    }
+
+    /**
+     * cleanUp orphan bindings
+     */
+    public static function cleanUp($days = 5)
+    {
+        $timestamp = Carbon::now()->subDays($days)->toDateTimeString();
+
+        $records = self::where('created_at', '<', $timestamp)->get();
 
         foreach ($records as $record) {
             $record->deleteCancel();
@@ -88,32 +102,18 @@ class DeferredBinding extends Model
     }
 
     /**
-     * cleanUp orphan bindings
-     */
-    public static function cleanUp($days = 5)
-    {
-        $records = self::where('created_at', '<', Carbon::now()->subDays($days)->toDateTimeString())->get();
-
-        foreach ($records as $record) {
-            $record->deleteCancel();
-        }
-    }
-
-    /**
-     * deleteSlaveRecord is logic to cancel a bindings action
+     * deleteSlaveRecord is logic to cancel a binding action
      */
     protected function deleteSlaveRecord()
     {
-        /*
-         * Try to delete unbound hasOne/hasMany records from the details table
-         */
-        try {
-            if (!$this->is_bind) {
-                return;
-            }
+        if (!$this->is_bind) {
+            return;
+        }
 
+        // Try to delete unbound hasOne/hasMany records from the details table
+        try {
             $masterType = $this->master_type;
-            $masterObject = new $masterType();
+            $masterObject = new $masterType;
 
             if (!$masterObject->isDeferrable($this->master_field)) {
                 return;
@@ -126,14 +126,12 @@ class DeferredBinding extends Model
             }
 
             $options = $masterObject->getRelationDefinition($this->master_field);
-
             if (!array_get($options, 'delete', false)) {
                 return;
             }
 
+            // Only delete it if the relationship is null
             $foreignKey = array_get($options, 'key', $masterObject->getForeignKey());
-
-            // Only delete it if the relationship is null.
             if (!$relatedObj->$foreignKey) {
                 $relatedObj->delete();
             }

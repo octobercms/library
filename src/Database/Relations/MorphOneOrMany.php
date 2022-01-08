@@ -65,13 +65,12 @@ trait MorphOneOrMany
                 return;
             }
 
+            // Associate the model
             $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
             $model->setAttribute($this->getMorphType(), $this->morphClass);
             $model->save();
 
-            /*
-             * Use the opportunity to set the relation in memory
-             */
+            // Use the opportunity to set the relation in memory
             if ($this instanceof MorphOne) {
                 $this->parent->setRelation($this->relationName, $model);
             }
@@ -129,21 +128,17 @@ trait MorphOneOrMany
 
             $options = $this->parent->getRelationDefinition($this->relationName);
 
+            // Delete or orphan the model
             if (array_get($options, 'delete', false)) {
                 $model->delete();
             }
             else {
-                /*
-                 * Make this model an orphan ;~(
-                 */
                 $model->setAttribute($this->getForeignKeyName(), null);
                 $model->setAttribute($this->getMorphType(), null);
                 $model->save();
             }
 
-            /*
-             * Use the opportunity to set the relation in memory
-             */
+            // Use this opportunity to set the relation in memory
             if ($this instanceof MorphOne) {
                 $this->parent->setRelation($this->relationName, null);
             }

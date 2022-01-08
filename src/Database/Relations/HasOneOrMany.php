@@ -144,8 +144,21 @@ trait HasOneOrMany
                 return;
             }
 
-            $model->setAttribute($this->getForeignKeyName(), null);
-            $model->save();
+            // @deprecated Removing arbitrary models soon unsupported
+            // if (!$this->isModelRemovable($model)) {
+            //     return;
+            // }
+
+            $options = $this->parent->getRelationDefinition($this->relationName);
+
+            // Delete or orphan the model
+            if (array_get($options, 'delete', false)) {
+                $model->delete();
+            }
+            else {
+                $model->setAttribute($this->getForeignKeyName(), null);
+                $model->save();
+            }
 
             /*
              * Use the opportunity to set the relation in memory
@@ -175,6 +188,14 @@ trait HasOneOrMany
         else {
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);
         }
+    }
+
+    /**
+     * isModelRemovable returns true if an existing model is already associated
+     */
+    protected function isModelRemovable($model): bool
+    {
+        return $model->getAttribute($this->getForeignKeyName()) === (string) $this->getParentKey();
     }
 
     /**
