@@ -9,6 +9,7 @@
  * file that was distributed with this source code.
  */
 
+use JSMin;
 use October\Rain\Assetic\Asset\AssetInterface;
 
 /**
@@ -21,19 +22,26 @@ use October\Rain\Assetic\Asset\AssetInterface;
  */
 class JSMinFilter implements FilterInterface
 {
+    /**
+     * filterLoad
+     */
     public function filterLoad(AssetInterface $asset)
     {
     }
 
+    /**
+     * filterDump will use JSMin to minify the asset and checks the filename
+     * for "min.js" to issues arising from double minification.
+     */
     public function filterDump(AssetInterface $asset)
     {
-        // Ignore minify if the assets has .min.js. 
-        // 1. Improve performance.
-        // 2. Avoid error when minify a minified js.
-        if(strpos($asset->getSourcePath(),'.min.js') !== false) {
-            $asset->setContent($asset->getContent());
-        }else{
-            $asset->setContent(\JSMin::minify($asset->getContent()));
+        $contents = $asset->getContent();
+
+        $isMinifiedAlready = strpos($asset->getSourcePath(), '.min.js') !== false;
+        if (!$isMinifiedAlready) {
+            $contents = JSMin::minify($contents);
         }
+
+        $asset->setContent($contents);
     }
 }
