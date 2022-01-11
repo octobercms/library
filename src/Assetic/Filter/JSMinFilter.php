@@ -27,6 +27,13 @@ class JSMinFilter implements FilterInterface
 
     public function filterDump(AssetInterface $asset)
     {
-        $asset->setContent(\JSMin::minify($asset->getContent()));
+        // Ignore minify if the assets has .min.js. 
+        // 1. Improve performance.
+        // 2. Avoid error when minify a minified js.
+        if(strpos($asset->getSourcePath(),'.min.js') !== false) {
+            $asset->setContent($asset->getContent());
+        }else{
+            $asset->setContent(\JSMin::minify($asset->getContent()));
+        }
     }
 }
