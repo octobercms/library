@@ -76,12 +76,11 @@ trait HasOneOrMany
                 return;
             }
 
+            // Associate the model
             $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
             $model->save();
 
-            /*
-             * Use the opportunity to set the relation in memory
-             */
+            // Use the opportunity to set the relation in memory
             if ($this instanceof HasOne) {
                 $this->parent->setRelation($this->relationName, $model);
             }
@@ -160,9 +159,7 @@ trait HasOneOrMany
                 $model->save();
             }
 
-            /*
-             * Use the opportunity to set the relation in memory
-             */
+            // Use this opportunity to set the relation in memory
             if ($this instanceof HasOne) {
                 $this->parent->setRelation($this->relationName, null);
             }
