@@ -84,8 +84,30 @@ class ScssphpFilter implements DependencyExtractorInterface
         if (!empty($this->variables)) {
             $sc->addVariables($this->variables);
         }
+        
+        // generate scss source map when enable debug mode
+        if(config('app.debug') == true) {
+            if (!file_exists($mapPath)) {
+                mkdir($mapPath, 0777, true);
+            }
+            $sc->setSourceMap(Compiler::SOURCE_MAP_FILE);
+            $sc->setSourceMapOptions([
+                'sourceMapURL' => '/storage/app/uploads/public/scssmap/'.md5($asset->getSourcePath()).'.css.map',
+                'sourceMapBasepath' => '',
+                'sourceRoot' => '/',
+            ]);
+            $sourceMap = $mapPath.'/'.md5($asset->getSourcePath()).'.css.map';
+        }else{
+            if (!file_exists($mapPath)) {
+                rmdir($mapPath);
+            }
+        }
 
-        $asset->setContent($sc->compileString($asset->getContent())->getCss());
+        $result = $sc->compileString($asset->getContent());
+
+        if(config('app.debug') == true) file_put_contents($sourceMap, str_replace(str_replace('\\','/',base_path()).'/','',$result->getSourceMap()));
+
+        $asset->setContent($result->getCss());
     }
 
     public function filterDump(AssetInterface $asset)
