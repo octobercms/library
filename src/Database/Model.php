@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Database;
 
-use Closure;
 use October\Rain\Support\Arr;
 use October\Rain\Support\Str;
 use October\Rain\Argon\Argon;
@@ -79,7 +78,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Save a new model and return the instance.
+     * create a new model and return the instance.
      * @param array $attributes
      * @param string $sessionKey
      * @return \Illuminate\Database\Eloquent\Model|static
@@ -94,7 +93,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Reloads the model attributes from the database.
+     * reload the model attributes from the database.
      * @return \Illuminate\Database\Eloquent\Model|static
      */
     public function reload()
@@ -110,7 +109,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Reloads the model relationship cache.
+     * reloadRelations for this model.
      * @param string  $relationName
      * @return void
      */
@@ -125,15 +124,15 @@ class Model extends EloquentModel
     }
 
     /**
-     * Extend this object properties upon construction.
+     * extend this object properties upon construction.
      */
-    public static function extend(Closure $callback)
+    public static function extend(callable $callback)
     {
         self::extendableExtendCallback($callback);
     }
 
     /**
-     * Bind some nicer events to this model, in the format of method overrides.
+     * bootNicerEvents to this model, in the format of method overrides.
      */
     protected function bootNicerEvents()
     {
@@ -191,7 +190,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Remove all of the event listeners for the model
+     * flushEventListeners removes all of the event listeners for the model
      * Also flush registry of models that had events booted
      * Allows painless unit testing.
      *
@@ -205,7 +204,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Handle the "creating" model event
+     * beforeCreate handles the "creating" model event
      */
     protected function beforeCreate()
     {
@@ -225,7 +224,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Handle the "created" model event
+     * afterCreate handles the "created" model event
      */
     protected function afterCreate()
     {
@@ -243,7 +242,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Handle the "updating" model event
+     * beforeUpdate handles the "updating" model event
      */
     protected function beforeUpdate()
     {
@@ -263,7 +262,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Handle the "updated" model event
+     * afterUpdate handles the "updated" model event
      */
     protected function afterUpdate()
     {
@@ -283,7 +282,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Handle the "saving" model event
+     * beforeSave handles the "saving" model event
      */
     protected function beforeSave()
     {
@@ -303,7 +302,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Handle the "saved" model event
+     * afterSave handles the "saved" model event
      */
     protected function afterSave()
     {
@@ -323,7 +322,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Handle the "deleting" model event
+     * beforeDelete handles the "deleting" model event
      */
     protected function beforeDelete()
     {
@@ -343,7 +342,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Handle the "deleted" model event
+     * afterDelete handles the "deleted" model event
      */
     protected function afterDelete()
     {
@@ -361,7 +360,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Handle the "fetching" model event
+     * beforeFetch handles the "fetching" model event
      */
     protected function beforeFetch()
     {
@@ -381,7 +380,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Handle the "fetched" model event
+     * afterFetch handles the "fetched" model event
      */
     protected function afterFetch()
     {
@@ -449,7 +448,7 @@ class Model extends EloquentModel
 
     /**
      * Create a new native event for handling beforeFetch().
-     * @param Closure|string $callback
+     * @param \Closure|string $callback
      * @return void
      */
     public static function fetching($callback)
@@ -459,7 +458,7 @@ class Model extends EloquentModel
 
     /**
      * Create a new native event for handling afterFetch().
-     * @param Closure|string $callback
+     * @param \Closure|string $callback
      * @return void
      */
     public static function fetched($callback)
