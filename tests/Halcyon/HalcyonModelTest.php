@@ -97,6 +97,39 @@ ESC;
         @unlink($targetFile);
     }
 
+    public function testCreatePageMarkupSections()
+    {
+        @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/testfile.htm');
+
+        $markup = <<< ESC
+function onStart() { }
+==
+<p>Hello world!</p>
+ESC;
+
+        HalcyonTestPage::create([
+            'fileName' => 'testfile.htm',
+            'title' => 'Test page',
+            'markup' => $markup
+        ]);
+
+        $this->assertFileExists($targetFile);
+
+        $content = <<<ESC
+title = "Test page"
+==
+
+<p>Hello world!</p>
+ESC;
+
+        $expected = file_get_contents($targetFile);
+        $expected = preg_replace('~\R~u', PHP_EOL, $expected); // Normalize EOL
+        $content = preg_replace('~\R~u', PHP_EOL, $content); // Normalize EOL
+        $this->assertEquals($content, $expected);
+
+        @unlink($targetFile);
+    }
+
     public function testCreateMenu()
     {
         @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/menus/testfile.htm');
@@ -105,7 +138,6 @@ ESC;
             'fileName' => 'testfile',
             'content' => '<p>Hello world!</p>'
         ]);
-
 
         $this->assertFileExists($targetFile);
 
