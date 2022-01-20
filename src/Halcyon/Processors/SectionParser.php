@@ -72,7 +72,8 @@ class SectionParser
             }
         }
 
-        $content[] = $markup;
+        $sections = preg_split('/^'.preg_quote(self::SECTION_SEPARATOR).'\s*$/m', $markup, -1);
+        $content[] = end($sections);
 
         $content = trim(implode(PHP_EOL.self::SECTION_SEPARATOR.PHP_EOL, $content));
 
