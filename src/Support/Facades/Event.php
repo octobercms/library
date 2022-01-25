@@ -13,6 +13,15 @@ use Illuminate\Support\Facades\Event as EventBase;
 class Event extends EventBase
 {
     /**
+     * getFacadeAccessor
+     * @return string
+     */
+    protected static function getFacadeAccessor()
+    {
+        return 'events.global';
+    }
+
+    /**
      * fake the instance
      */
     public static function fake($eventsToFake = [])
