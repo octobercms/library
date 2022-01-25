@@ -41,7 +41,7 @@ class Translator extends TranslatorBase
          */
         if (
             isset($this->events) &&
-            ($line = $this->events->fire('translator.beforeResolve', [$key, $replace, $locale], true))
+            ($line = $this->events->dispatch('translator.beforeResolve', [$key, $replace, $locale], true))
         ) {
             return $line;
         }

@@ -17,7 +17,7 @@ class Schema extends Facade
     {
         $builder = static::$app['db']->connection($name)->getSchemaBuilder();
 
-        static::$app['events']->fire('db.schema.getBuilder', [$builder]);
+        static::$app['events']->dispatch('db.schema.getBuilder', [$builder]);
 
         return $builder;
     }
@@ -31,7 +31,7 @@ class Schema extends Facade
     {
         $builder = static::$app['db']->connection()->getSchemaBuilder();
 
-        static::$app['events']->fire('db.schema.getBuilder', [$builder]);
+        static::$app['events']->dispatch('db.schema.getBuilder', [$builder]);
 
         return $builder;
     }

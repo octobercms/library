@@ -14,7 +14,7 @@ class MailServiceProvider extends MailServiceProviderBase
             /*
              * Extensibility
              */
-            $this->app['events']->fire('mailer.beforeRegister', [$this]);
+            $this->app['events']->dispatch('mailer.beforeRegister', [$this]);
 
             $config = $app->make('config')->get('mail');
 
@@ -38,7 +38,7 @@ class MailServiceProvider extends MailServiceProviderBase
             /*
              * Extensibility
              */
-            $this->app['events']->fire('mailer.register', [$this, $mailer]);
+            $this->app['events']->dispatch('mailer.register', [$this, $mailer]);
 
             return $mailer;
         });

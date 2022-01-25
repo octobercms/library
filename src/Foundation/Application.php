@@ -291,7 +291,7 @@ class Application extends ApplicationBase
     {
         parent::setLocale($locale);
 
-        $this['events']->fire('locale.changed', [$locale]);
+        $this['events']->dispatch('locale.changed', [$locale]);
     }
 
     //

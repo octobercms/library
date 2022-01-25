@@ -2,6 +2,9 @@
 
 namespace October\Rain\Events\Concerns;
 
+use Arr;
+use Str;
+
 /**
  * HasTrigger
  *
@@ -79,6 +82,21 @@ trait HasTrigger
     }
 
     /**
+     * parseEventAndPayload parses the given event and payload and prepare them for dispatching.
+     * @param  mixed  $event
+     * @param  mixed  $payload
+     * @return array
+     */
+    protected function parseEventAndPayload($event, $payload)
+    {
+        if (is_object($event)) {
+            [$payload, $event] = [[$event], get_class($event)];
+        }
+
+        return [$event, Arr::wrap($payload)];
+    }
+
+    /**
      * getGlobalListeners gets all of the listeners for a given event name.
      * @param  string  $eventName
      * @return array
@@ -99,6 +117,24 @@ trait HasTrigger
         return class_exists($eventName, false)
             ? $this->addInterfaceListeners($eventName, $listeners)
             : $listeners;
+    }
+
+    /**
+     * getWildcardListeners gets the wildcard listeners for the event.
+     * @param  string  $eventName
+     * @return array
+     */
+    protected function getWildcardListeners($eventName)
+    {
+        $wildcards = [];
+
+        foreach ($this->wildcards as $key => $listeners) {
+            if (Str::is($key, $eventName)) {
+                $wildcards = array_merge($wildcards, $listeners);
+            }
+        }
+
+        return $this->wildcardsCache[$eventName] = $wildcards;
     }
 
     /**
