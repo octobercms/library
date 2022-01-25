@@ -1,7 +1,6 @@
 <?php namespace October\Rain\Database;
 
 use Illuminate\Database\Eloquent\Model as ModelBase;
-use Illuminate\Database\Eloquent\Builder as BuilderBase;
 
 /**
  * Pivot model base class
@@ -64,7 +63,7 @@ class Pivot extends Model
      * @param  \Illuminate\Database\Eloquent\Builder
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    protected function setKeysForSaveQuery(BuilderBase $query)
+    protected function setKeysForSaveQuery($query)
     {
         $query->where($this->foreignKey, $this->getAttribute($this->foreignKey));
 

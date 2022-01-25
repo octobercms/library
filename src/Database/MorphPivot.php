@@ -1,7 +1,5 @@
 <?php namespace October\Rain\Database;
 
-use Illuminate\Database\Eloquent\Builder;
-
 /**
  * MorphPivot
  *
@@ -25,7 +23,7 @@ class MorphPivot extends Pivot
     /**
      * setKeysForSaveQuery sets the keys for a save update query
      */
-    protected function setKeysForSaveQuery(Builder $query)
+    protected function setKeysForSaveQuery($query)
     {
         $query->where($this->morphType, $this->morphClass);
 
