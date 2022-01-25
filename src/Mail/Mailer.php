@@ -3,6 +3,7 @@
 use Event;
 use Config;
 use Illuminate\Mail\Mailer as MailerBase;
+use Illuminate\Mail\SentMessage;
 use Illuminate\Contracts\Mail\Mailable as MailableContract;
 use Illuminate\Support\Collection;
 
@@ -17,12 +18,12 @@ class Mailer extends MailerBase
     use \October\Rain\Support\Traits\Emitter;
 
     /**
-     * @var string Original driver before pretending.
+     * @var string pretendingOriginal contains the original driver before pretending.
      */
     protected $pretendingOriginal;
 
     /**
-     * Send a new message using a view.
+     * send a new message using a view.
      *
      * @param  string|array $view
      * @param  array $data
@@ -112,8 +113,15 @@ class Mailer extends MailerBase
         /*
          * Send the message
          */
-        $this->sendSwiftMessage($message->getSwiftMessage());
-        $this->dispatchSentEvent($message);
+        $symfonyMessage = $message->getSymfonyMessage();
+
+        if ($this->shouldSendMessage($symfonyMessage, $data)) {
+            $sentMessage = $this->sendSymfonyMessage($symfonyMessage);
+
+            $this->dispatchSentEvent($message, $data);
+
+            return $sentMessage === null ? null : new SentMessage($sentMessage);
+        }
 
         /**
          * @event mailer.send
@@ -137,7 +145,7 @@ class Mailer extends MailerBase
     }
 
     /**
-     * Helper for send() method, the first argument can take a single email or an
+     * sendTo is a helper for send() method, the first argument can take a single email or an
      * array of recipients where the key is the address and the value is the name.
      *
      * @param  array $recipients
@@ -182,7 +190,7 @@ class Mailer extends MailerBase
     }
 
     /**
-     * Queue a new e-mail message for sending.
+     * queue a new e-mail message for sending.
      *
      * @param  string|array  $view
      * @param  array  $data
@@ -205,7 +213,7 @@ class Mailer extends MailerBase
     }
 
     /**
-     * Queue a new e-mail message for sending on the given queue.
+     * queueOn queues a new e-mail message for sending on the given queue.
      *
      * @param  string  $queue
      * @param  string|array  $view
@@ -219,7 +227,7 @@ class Mailer extends MailerBase
     }
 
     /**
-     * Queue a new e-mail message for sending after (n) seconds.
+     * later queues a new e-mail message for sending after (n) seconds.
      *
      * @param  int  $delay
      * @param  string|array  $view
@@ -243,7 +251,7 @@ class Mailer extends MailerBase
     }
 
     /**
-     * Queue a new e-mail message for sending after (n) seconds on the given queue.
+     * laterOn queues a new e-mail message for sending after (n) seconds on the given queue.
      *
      * @param  string  $queue
      * @param  int  $delay
@@ -258,7 +266,7 @@ class Mailer extends MailerBase
     }
 
     /**
-     * Build the mailable for a queued e-mail job.
+     * buildQueueMailable for a queued email job.
      *
      * @param  mixed  $callback
      * @return mixed
@@ -281,7 +289,7 @@ class Mailer extends MailerBase
     }
 
     /**
-     * Send a new message when only a raw text part.
+     * raw sends a new message when only a raw text part.
      *
      * @param  string  $text
      * @param  mixed  $callback
@@ -300,7 +308,8 @@ class Mailer extends MailerBase
     }
 
     /**
-     * Helper for raw() method, send a new message when only a raw text part.
+     * rawTo helper for raw() method, send a new message when only a raw text part.
+     *
      * @param  array $recipients
      * @param  string  $view
      * @param  mixed   $callback
@@ -320,7 +329,7 @@ class Mailer extends MailerBase
     }
 
     /**
-     * Process a recipients object, which can look like the following:
+     * processRecipients object, which can look like the following:
      *  - (string) admin@domain.tld
      *  - (object) ['email' => 'admin@domain.tld', 'name' => 'Adam Person']
      *  - (array) ['admin@domain.tld' => 'Adam Person', ...]
@@ -370,7 +379,7 @@ class Mailer extends MailerBase
     }
 
     /**
-     * Add the content to a given message.
+     * addContent to a given message.
      *
      * @param  \Illuminate\Mail\Message $message
      * @param  string $view
@@ -461,7 +470,7 @@ class Mailer extends MailerBase
     }
 
     /**
-     * Add the raw content to a given message.
+     * addContentRaw to a given message.
      *
      * @param  \Illuminate\Mail\Message  $message
      * @param  string  $html
@@ -480,7 +489,7 @@ class Mailer extends MailerBase
     }
 
     /**
-     * Tell the mailer to not really send messages.
+     * pretend tells the mailer to not really send messages.
      *
      * @param  bool  $value
      * @return void
