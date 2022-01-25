@@ -2,7 +2,7 @@
 
 use App;
 use Request;
-use Exception;
+use Throwable;
 
 /**
  * ErrorHandler handles application exception events.
@@ -35,10 +35,10 @@ class ErrorHandler
      * handleException handles all exceptions from the framework workflow. This method will mask
      * any foreign exceptions with a "scent" of the native application's exception, so it can
      * render correctly when displayed on the error page.
-     * @param Exception $proposedException The exception candidate that has been thrown.
+     * @param Throwable $proposedException The exception candidate that has been thrown.
      * @return mixed Error page contents
      */
-    public function handleException(Exception $proposedException)
+    public function handleException(Throwable $proposedException)
     {
         // Disable the error handler for test and CLI environment
         if (App::runningUnitTests() || App::runningInConsole()) {
@@ -101,7 +101,7 @@ class ErrorHandler
      * @param Exception $exception The mask exception.
      * @return void
      */
-    public static function applyMask(Exception $exception)
+    public static function applyMask(Throwable $exception)
     {
         if (static::$activeMask !== null) {
             array_push(static::$maskLayers, static::$activeMask);

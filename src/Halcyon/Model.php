@@ -1293,7 +1293,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         // event set individually instead of catching event for all the models.
         $event = "halcyon.{$event}: ".get_class($this);
 
-        $method = $halt ? 'until' : 'fire';
+        $method = $halt ? 'until' : 'dispatch';
 
         return static::$dispatcher->$method($event, $this);
     }
