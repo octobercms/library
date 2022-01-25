@@ -429,7 +429,7 @@ class Mailer extends MailerBase
             /*
              * Subject
              */
-            $customSubject = $message->getSwiftMessage()->getSubject();
+            $customSubject = $message->getSymfonyMessage()->getSubject();
             if (
                 empty($customSubject) &&
                 ($subject = array_get($result['settings'], 'subject'))
@@ -480,11 +480,11 @@ class Mailer extends MailerBase
     protected function addContentRaw($message, $html, $text)
     {
         if (isset($html)) {
-            $message->setBody($html, 'text/html');
+            $message->html($html);
         }
 
         if (isset($text)) {
-            $message->addPart($text, 'text/plain');
+            $message->text($text);
         }
     }
 
