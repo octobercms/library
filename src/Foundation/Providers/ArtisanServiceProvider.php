@@ -24,7 +24,6 @@ use Illuminate\Foundation\Console\UpCommand;
 use Illuminate\Foundation\Console\VendorPublishCommand;
 use Illuminate\Foundation\Console\ViewCacheCommand;
 use Illuminate\Foundation\Console\ViewClearCommand;
-use Illuminate\Foundation\Providers\ArtisanServiceProvider as ArtisanServiceProviderBase;
 use Illuminate\Queue\Console\ClearCommand as QueueClearCommand;
 use Illuminate\Queue\Console\FlushFailedCommand as FlushFailedQueueCommand;
 use Illuminate\Queue\Console\ForgetFailedCommand as ForgetFailedQueueCommand;
@@ -37,6 +36,7 @@ use Illuminate\Queue\Console\RestartCommand as QueueRestartCommand;
 use Illuminate\Queue\Console\RetryBatchCommand as QueueRetryBatchCommand;
 use Illuminate\Queue\Console\RetryCommand as QueueRetryCommand;
 use Illuminate\Queue\Console\WorkCommand as QueueWorkCommand;
+use Illuminate\Foundation\Providers\ArtisanServiceProvider as ArtisanServiceProviderBase;
 
 /**
  * ArtisanServiceProvider
