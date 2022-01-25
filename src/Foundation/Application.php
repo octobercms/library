@@ -1,4 +1,6 @@
-<?php namespace October\Rain\Foundation;
+<?php
+
+namespace October\Rain\Foundation;
 
 use October\Rain\Support\Str;
 use October\Rain\Support\Collection;
@@ -19,7 +21,7 @@ use Throwable;
 use Closure;
 
 /**
- * Application
+ * Application foundation class as an extension of Laravel
  */
 class Application extends ApplicationBase
 {
@@ -45,15 +47,6 @@ class Application extends ApplicationBase
     public function publicPath()
     {
         return $this->basePath;
-    }
-
-    /**
-     * langPath gets the path to the language files
-     * @return string
-     */
-    public function langPath()
-    {
-        return $this->basePath.'/lang';
     }
 
     /**
@@ -89,36 +82,32 @@ class Application extends ApplicationBase
 
     /**
      * storagePath returns the path to the storage directory
+     * @param string $path
+     * @return string
      */
-    public function storagePath(): string
+    public function storagePath($path = '')
     {
-        return $this->storagePath ?: $this->basePath.DIRECTORY_SEPARATOR.'storage';
-    }
-
-    /**
-     * setStoragePath sets path path for cache files
-     */
-    public function setStoragePath(string $path)
-    {
-        $this->storagePath = $path;
-
-        $this->instance('path.storage', $path);
-
-        return $this;
+        return ($this->storagePath ?: $this->basePath.DIRECTORY_SEPARATOR.'storage')
+            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
     }
 
     /**
      * cachePath return path for cache files
+     * @param string $path
+     * @return string
      */
-    public function cachePath(): string
+    public function cachePath($path = '')
     {
-        return $this->cachePath ?: $this->basePath.DIRECTORY_SEPARATOR.'storage';
+        return ($this->cachePath ?: $this->basePath.DIRECTORY_SEPARATOR.'storage')
+            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
     }
 
     /**
-     * setCachePath sets path path for cache files
+     * useCachePath sets path path for cache files
+     * @param string $path
+     * @return $this
      */
-    public function setCachePath(string $path)
+    public function useCachePath($path)
     {
         $this->cachePath = $path;
 
@@ -130,17 +119,22 @@ class Application extends ApplicationBase
     }
 
     /**
-     * pluginsPath returns path to location of themes
+     * pluginsPath returns path to location of plugins
+     * @param string $path
+     * @return string
      */
-    public function pluginsPath(): string
+    public function pluginsPath($path = '')
     {
-        return $this->pluginsPath ?: $this->basePath.DIRECTORY_SEPARATOR.'plugins';
+        return ($this->pluginsPath ?: $this->basePath.DIRECTORY_SEPARATOR.'plugins')
+            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
     }
 
     /**
-     * setPluginsPath sets path to location of plugins
+     * usePluginsPath sets path to location of plugins
+     * @param string $path
+     * @return $this
      */
-    public function setPluginsPath(string $path)
+    public function usePluginsPath($path)
     {
         $this->pluginsPath = $path;
 
@@ -151,16 +145,21 @@ class Application extends ApplicationBase
 
     /**
      * themesPath returns path to location of themes
+     * @param string $path
+     * @return string
      */
-    public function themesPath(): string
+    public function themesPath($path = '')
     {
-        return $this->themesPath ?: $this->basePath.DIRECTORY_SEPARATOR.'themes';
+        return ($this->themesPath ?: $this->basePath.DIRECTORY_SEPARATOR.'themes')
+            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
     }
 
     /**
-     * setThemesPath sets path to location of themes
+     * useThemesPath sets path to location of themes
+     * @param string $path
+     * @return $this
      */
-    public function setThemesPath($path)
+    public function useThemesPath($path)
     {
         $this->themesPath = $path;
 
@@ -171,16 +170,19 @@ class Application extends ApplicationBase
 
     /**
      * tempPath returns path for storing temporary files.
+     * @param string $path
+     * @return string
      */
-    public function tempPath(): string
+    public function tempPath($path = ''): string
     {
-        return $this->cachePath().DIRECTORY_SEPARATOR.'temp';
+        return ($this->cachePath().DIRECTORY_SEPARATOR.'temp')
+            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
     }
 
     /**
      * normalizeCachePath normalizes a relative or absolute path to a cache file.
-     * @param  string  $key
-     * @param  string  $default
+     * @param string $key
+     * @param string $default
      * @return string
      */
     protected function normalizeCachePath($key, $default)
