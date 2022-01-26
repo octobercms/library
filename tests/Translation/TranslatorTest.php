@@ -35,7 +35,7 @@ class TranslatorTest extends TestCase
         $eventsDispatcher = $this->createMock(Dispatcher::class);
         $eventsDispatcher
             ->expects($this->exactly(2))
-            ->method('fire')
+            ->method('dispatch')
             ->will($this->onConsecutiveCalls('Hello Override!', null));
         $this->translator->setEventDispatcher($eventsDispatcher);
 

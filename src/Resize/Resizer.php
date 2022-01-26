@@ -310,12 +310,12 @@ class Resizer
 
         if ($this->mime === 'image/gif') {
             // Use imagescale() for GIFs, as it produces better results
-            $imageResized = imagescale($rotatedOriginal, $optimalWidth, $optimalHeight, IMG_NEAREST_NEIGHBOUR);
+            $imageResized = imagescale($rotatedOriginal, (int) $optimalWidth, (int) $optimalHeight, IMG_NEAREST_NEIGHBOUR);
             $this->retainImageTransparency($imageResized);
         }
         else {
             // Resample - create image canvas of x, y size
-            $imageResized = imagecreatetruecolor($optimalWidth, $optimalHeight);
+            $imageResized = imagecreatetruecolor((int) $optimalWidth, (int) $optimalHeight);
             $this->retainImageTransparency($imageResized);
 
             // Create the new image
@@ -326,10 +326,10 @@ class Resizer
                 0,
                 0,
                 0,
-                $optimalWidth,
-                $optimalHeight,
-                $this->width,
-                $this->height
+                (int) $optimalWidth,
+                (int) $optimalHeight,
+                (int) $this->width,
+                (int) $this->height
             );
         }
 
@@ -406,11 +406,22 @@ class Resizer
         }
 
         // Create a new canvas
-        $imageResized = imagecreatetruecolor($newWidth, $newHeight);
+        $imageResized = imagecreatetruecolor((int) $newWidth, (int) $newHeight);
         $this->retainImageTransparency($imageResized);
 
         // Crop the image to the requested size
-        imagecopyresampled($imageResized, $image, 0, 0, $cropStartX, $cropStartY, $newWidth, $newHeight, $srcWidth, $srcHeight);
+        imagecopyresampled(
+            $imageResized,
+            $image,
+            0,
+            0,
+            (int) $cropStartX,
+            (int) $cropStartY,
+            (int) $newWidth,
+            (int) $newHeight,
+            (int) $srcWidth,
+            (int) $srcHeight
+        );
 
         $this->image = $imageResized;
 

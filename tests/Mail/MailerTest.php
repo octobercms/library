@@ -2,6 +2,7 @@
 
 use October\Rain\Mail\Mailer;
 use October\Rain\Mail\FakeMailer;
+use Symfony\Component\Mailer\Transport\NullTransport;
 
 /**
  * MailerTest
@@ -169,7 +170,12 @@ class MailerTest extends TestCase
      */
     protected function makeMailer()
     {
-        return new Mailer(new FactoryMailerTest, new SwiftMailerTest, new DispatcherMailerTest);
+        return new Mailer(
+            'test',
+            new FactoryMailerTest,
+            new NullTransport,
+            new DispatcherMailerTest
+        );
     }
 }
 
@@ -181,13 +187,6 @@ class FactoryMailerTest extends \Illuminate\View\Factory
 }
 
 class DispatcherMailerTest extends \Illuminate\Events\Dispatcher
-{
-    public function __construct()
-    {
-    }
-}
-
-class SwiftMailerTest extends \Swift_Mailer
 {
     public function __construct()
     {
