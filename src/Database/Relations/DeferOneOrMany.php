@@ -5,6 +5,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany as BelongsToManyBase;
 
 /**
  * DeferOneOrMany
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 trait DeferOneOrMany
 {

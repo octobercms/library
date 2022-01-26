@@ -4,6 +4,9 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * HasOneOrMany
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 trait HasOneOrMany
 {

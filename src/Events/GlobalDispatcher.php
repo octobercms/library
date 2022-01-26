@@ -1,6 +1,4 @@
-<?php
-
-namespace October\Rain\Events;
+<?php namespace October\Rain\Events;
 
 use Str;
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;

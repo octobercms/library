@@ -5,14 +5,19 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphOne as MorphOneBase;
 use October\Rain\Database\Attach\File as FileModel;
 
+/**
+ * AttachOne
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class AttachOne extends MorphOneBase
 {
     use AttachOneOrMany;
     use DefinedConstraints;
 
     /**
-     * Create a new has many relationship instance.
-     * @return void
+     * __construct a new has many relationship instance.
      */
     public function __construct(Builder $query, Model $parent, $type, $id, $isPublic, $localKey, $relationName = null)
     {
@@ -26,8 +31,10 @@ class AttachOne extends MorphOneBase
     }
 
     /**
-     * Helper for setting this relationship using various expected
+     * setSimpleValue helper for setting this relationship using various expected
      * values. For example, $model->relation = $value;
+     * @param mixed $value
+     * @return void
      */
     public function setSimpleValue($value)
     {
@@ -60,8 +67,9 @@ class AttachOne extends MorphOneBase
     }
 
     /**
-     * Helper for getting this relationship simple value,
+     * getSimpleValue helper for getting this relationship simple value,
      * generally useful with form values.
+     * @return string|null
      */
     public function getSimpleValue()
     {
@@ -73,7 +81,8 @@ class AttachOne extends MorphOneBase
     }
 
     /**
-     * Helper for getting this relationship validation value.
+     * getValidationValue helper for getting this relationship validation value.
+     * @return mixed
      */
     public function getValidationValue()
     {
@@ -85,7 +94,8 @@ class AttachOne extends MorphOneBase
     }
 
     /**
-     * Internal method used by `getSimpleValue` and `getValidationValue`
+     * getSimpleValueInternal method used by `getSimpleValue` and `getValidationValue`.
+     * @return Model|null
      */
     protected function getSimpleValueInternal()
     {

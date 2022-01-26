@@ -1,6 +1,4 @@
-<?php
-
-namespace October\Rain\Events;
+<?php namespace October\Rain\Events;
 
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\ServiceProvider;

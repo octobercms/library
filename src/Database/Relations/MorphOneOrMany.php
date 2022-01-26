@@ -4,6 +4,9 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * MorphOneOrMany
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 trait MorphOneOrMany
 {

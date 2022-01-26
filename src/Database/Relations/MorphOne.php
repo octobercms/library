@@ -4,6 +4,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphOne as MorphOneBase;
 
+/**
+ * MorphOne
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class MorphOne extends MorphOneBase
 {
     use MorphOneOrMany;

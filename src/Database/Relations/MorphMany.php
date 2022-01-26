@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as CollectionBase;
 use Illuminate\Database\Eloquent\Relations\MorphMany as MorphManyBase;
 
+/**
+ * MorphMany
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class MorphMany extends MorphManyBase
 {
     use MorphOneOrMany;

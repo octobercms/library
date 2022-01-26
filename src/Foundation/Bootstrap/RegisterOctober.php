@@ -1,6 +1,4 @@
-<?php
-
-namespace October\Rain\Foundation\Bootstrap;
+<?php namespace October\Rain\Foundation\Bootstrap;
 
 use October\Rain\Support\Str;
 use October\Rain\Support\ClassLoader;

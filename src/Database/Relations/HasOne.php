@@ -4,6 +4,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasOne as HasOneBase;
 
+/**
+ * HasOne
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class HasOne extends HasOneBase
 {
     use HasOneOrMany;

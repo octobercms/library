@@ -16,7 +16,10 @@ use October\Rain\Database\Relations\HasOneThrough;
 use InvalidArgumentException;
 
 /**
- * HasRelationships for a model
+ * HasRelationships concern for a model
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 trait HasRelationships
 {

@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as CollectionBase;
 use Illuminate\Database\Eloquent\Relations\HasMany as HasManyBase;
 
+/**
+ * HasMany
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class HasMany extends HasManyBase
 {
     use HasOneOrMany;

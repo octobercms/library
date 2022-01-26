@@ -1,6 +1,4 @@
-<?php
-
-namespace October\Rain\Foundation;
+<?php namespace October\Rain\Foundation;
 
 use October\Rain\Support\Str;
 use October\Rain\Support\Collection;

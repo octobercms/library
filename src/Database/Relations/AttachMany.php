@@ -5,14 +5,19 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphMany as MorphManyBase;
 use October\Rain\Database\Attach\File as FileModel;
 
+/**
+ * AttachMany
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class AttachMany extends MorphManyBase
 {
     use AttachOneOrMany;
     use DefinedConstraints;
 
     /**
-     * Create a new has many relationship instance.
-     * @return void
+     * __construct a new has many relationship instance.
      */
     public function __construct(Builder $query, Model $parent, $type, $id, $isPublic, $localKey, $relationName = null)
     {
@@ -26,8 +31,10 @@ class AttachMany extends MorphManyBase
     }
 
     /**
-     * Helper for setting this relationship using various expected
+     * setSimpleValue helper for setting this relationship using various expected
      * values. For example, $model->relation = $value;
+     * @param mixed $value
+     * @return void
      */
     public function setSimpleValue($value)
     {
@@ -63,8 +70,9 @@ class AttachMany extends MorphManyBase
     }
 
     /**
-     * Helper for getting this relationship simple value,
+     * getSimpleValue helper for getting this relationship simple value,
      * generally useful with form values.
+     * @return array|null
      */
     public function getSimpleValue()
     {
@@ -83,7 +91,8 @@ class AttachMany extends MorphManyBase
     }
 
     /**
-     * Helper for getting this relationship validation value.
+     * getValidationValue helper for getting this relationship validation value.
+     * @return array|null
      */
     public function getValidationValue()
     {
@@ -100,7 +109,8 @@ class AttachMany extends MorphManyBase
     }
 
     /**
-     * Internal method used by `getSimpleValue` and `getValidationValue`
+     * getSimpleValueInternal method used by `getSimpleValue` and `getValidationValue`.
+     * @return array|null
      */
     protected function getSimpleValueInternal()
     {

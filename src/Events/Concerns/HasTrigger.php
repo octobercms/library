@@ -1,6 +1,4 @@
-<?php
-
-namespace October\Rain\Events\Concerns;
+<?php namespace October\Rain\Events\Concerns;
 
 use Arr;
 use Str;

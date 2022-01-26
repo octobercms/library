@@ -1,6 +1,4 @@
-<?php
-
-namespace October\Rain\Mail;
+<?php namespace October\Rain\Mail;
 
 use Illuminate\Mail\MailServiceProvider as MailServiceProviderBase;
 

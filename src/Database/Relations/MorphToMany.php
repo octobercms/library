@@ -10,6 +10,9 @@ use October\Rain\Database\MorphPivot;
  *
  * This class is a carbon copy of Illuminate\Database\Eloquent\Relations\MorphToMany
  * so the base October\Rain\Database\Relations\BelongsToMany class can be inherited
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 class MorphToMany extends BelongsToMany
 {
@@ -157,8 +160,9 @@ class MorphToMany extends BelongsToMany
         if (empty($pivot)) {
             $using = $this->using;
 
-            $pivot = $using ? $using::fromRawAttributes($this->parent, $attributes, $this->table, $exists)
-                            : new MorphPivot($this->parent, $attributes, $this->table, $exists);
+            $pivot = $using
+                ? $using::fromRawAttributes($this->parent, $attributes, $this->table, $exists)
+                : MorphPivot::fromAttributes($this->parent, $attributes, $this->table, $exists);
         }
 
         $pivot->setPivotKeys($this->foreignPivotKey, $this->relatedPivotKey)

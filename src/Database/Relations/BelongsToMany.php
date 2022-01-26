@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany as BelongsToManyBase;
 
 /**
  * BelongsToMany
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 class BelongsToMany extends BelongsToManyBase
 {

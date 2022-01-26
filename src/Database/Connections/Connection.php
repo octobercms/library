@@ -4,7 +4,7 @@ use October\Rain\Database\QueryBuilder;
 use Illuminate\Database\Connection as ConnectionBase;
 
 /**
- * Connection
+ * Connection base class
  */
 class Connection extends ConnectionBase
 {

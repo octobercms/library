@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough as HasManyThroughBase;
 
 /**
  * HasManyThrough class extension
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 class HasManyThrough extends HasManyThroughBase
 {
