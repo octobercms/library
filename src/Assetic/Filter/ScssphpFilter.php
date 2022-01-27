@@ -89,7 +89,7 @@ class ScssphpFilter implements DependencyExtractorInterface
         }
 
         // Generate source map file
-        $useSourceMaps = Config::get('cms.enable_asset_source_maps', true);
+        $useSourceMaps = Config::get('cms.enable_asset_source_maps', false);
         if ($useSourceMaps) {
             $mapFile = md5($asset->getSourcePath()).'.css.map';
 
