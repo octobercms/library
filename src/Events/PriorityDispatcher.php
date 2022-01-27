@@ -4,12 +4,12 @@ use Str;
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 
 /**
- * GlobalDispatcher is a custom event dispatcher for October CMS
+ * PriorityDispatcher is a global event emitter with priority assignment.
  *
  * @package october\events
  * @author Alexey Bobkov, Samuel Georges
  */
-class GlobalDispatcher
+class PriorityDispatcher
 {
     use \Illuminate\Support\Traits\ForwardsCalls;
     use Concerns\HasListener;
@@ -103,7 +103,7 @@ class GlobalDispatcher
     /**
      * setLaravelDispatcher sets the queue resolver implementation.
      */
-    public function setLaravelDispatcher(DispatcherContract $dispatcher): GlobalDispatcher
+    public function setLaravelDispatcher(DispatcherContract $dispatcher): PriorityDispatcher
     {
         $this->laravelEvents = $dispatcher;
 

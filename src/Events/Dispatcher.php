@@ -19,6 +19,6 @@ class Dispatcher extends DispatcherBase
      */
     public function fire($event, $payload = [], $halt = false)
     {
-        return $this->container->make('events.global')->fire($event, $payload, $halt);
+        return $this->container->make('events.priority')->fire($event, $payload, $halt);
     }
 }

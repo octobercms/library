@@ -23,8 +23,8 @@ class EventServiceProvider extends ServiceProvider
             });
         });
 
-        $this->app->singleton('events.global', function ($app) {
-            return (new GlobalDispatcher)->setLaravelDispatcher($app['events']);
+        $this->app->singleton('events.priority', function ($app) {
+            return (new PriorityDispatcher)->setLaravelDispatcher($app['events']);
         });
     }
 }

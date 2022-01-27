@@ -18,7 +18,7 @@ class Event extends EventBase
      */
     protected static function getFacadeAccessor()
     {
-        return 'events.global';
+        return 'events.priority';
     }
 
     /**
