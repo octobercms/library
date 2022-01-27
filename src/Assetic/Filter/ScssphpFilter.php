@@ -9,6 +9,9 @@
  * file that was distributed with this source code.
  */
 
+use File;
+use Config;
+use Storage;
 use October\Rain\Assetic\Asset\AssetInterface;
 use October\Rain\Assetic\Factory\AssetFactory;
 use October\Rain\Assetic\Util\SassUtils;
@@ -84,28 +87,25 @@ class ScssphpFilter implements DependencyExtractorInterface
         if (!empty($this->variables)) {
             $sc->addVariables($this->variables);
         }
-        
-        // generate scss source map when enable debug mode
-        if(config('app.debug') == true) {
-            if (!file_exists($mapPath)) {
-                mkdir($mapPath, 0777, true);
-            }
+
+        // Generate source map file
+        $useSourceMaps = Config::get('cms.enable_asset_source_maps', true);
+        if ($useSourceMaps) {
+            $mapFile = md5($asset->getSourcePath()).'.css.map';
+
             $sc->setSourceMap(Compiler::SOURCE_MAP_FILE);
             $sc->setSourceMapOptions([
-                'sourceMapURL' => '/storage/app/uploads/public/scssmap/'.md5($asset->getSourcePath()).'.css.map',
+                'sourceMapURL' => $this->getSourceMapPublicUrl().'/'.$mapFile,
                 'sourceMapBasepath' => '',
                 'sourceRoot' => '/',
             ]);
-            $sourceMap = $mapPath.'/'.md5($asset->getSourcePath()).'.css.map';
-        }else{
-            if (!file_exists($mapPath)) {
-                rmdir($mapPath);
-            }
+
+            $result = $sc->compileString($asset->getContent());
+            File::put($this->getSourceMapLocalPath().'/'.$mapFile, $result->getSourceMap());
         }
-
-        $result = $sc->compileString($asset->getContent());
-
-        if(config('app.debug') == true) file_put_contents($sourceMap, str_replace(str_replace('\\','/',base_path()).'/','',$result->getSourceMap()));
+        else {
+            $result = $sc->compileString($asset->getContent());
+        }
 
         $asset->setContent($result->getCss());
     }
@@ -139,5 +139,41 @@ class ScssphpFilter implements DependencyExtractorInterface
         }
 
         return $children;
+    }
+
+    /**
+     * getSourceMapLocalPath returns the local path for source maps
+     */
+    protected function getSourceMapLocalPath(): string
+    {
+        $path = rtrim(Config::get('system.storage.resources.path', '/storage/app/resources'), '/');
+        $path .= '/sourcemap';
+
+        $path = base_path($path);
+
+        if (!File::isDirectory($path)) {
+            File::makeDirectory($path, 0777, true, true);
+        }
+
+        return $path;
+    }
+
+    /**
+     * getSourceMapPublicUrl returns the public address for the source map path
+     */
+    protected function getSourceMapPublicUrl(): string
+    {
+        $disk = Storage::disk(Config::get('system.storage.resources.disk'));
+        $resourcesFolder = Config::get('system.storage.resources.folder');
+        $resourcesFolder .= '/sourcemap';
+
+        if (
+            Config::get('system.storage.media.disk') === 'local' &&
+            Config::get('system.relative_links') === true
+        ) {
+            return $resourcesFolder;
+        }
+
+        return $disk->url($resourcesFolder);
     }
 }
