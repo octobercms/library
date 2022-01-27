@@ -9,6 +9,9 @@
  * file that was distributed with this source code.
  */
 
+use File;
+use Config;
+use Storage;
 use October\Rain\Assetic\Asset\AssetInterface;
 use October\Rain\Assetic\Factory\AssetFactory;
 use October\Rain\Assetic\Util\SassUtils;
@@ -85,7 +88,26 @@ class ScssphpFilter implements DependencyExtractorInterface
             $sc->addVariables($this->variables);
         }
 
-        $asset->setContent($sc->compileString($asset->getContent())->getCss());
+        // Generate source map file
+        $useSourceMaps = Config::get('cms.enable_asset_source_maps', false);
+        if ($useSourceMaps) {
+            $mapFile = md5($asset->getSourcePath()).'.css.map';
+
+            $sc->setSourceMap(Compiler::SOURCE_MAP_FILE);
+            $sc->setSourceMapOptions([
+                'sourceMapURL' => $this->getSourceMapPublicUrl().'/'.$mapFile,
+                'sourceMapBasepath' => '',
+                'sourceRoot' => '/',
+            ]);
+
+            $result = $sc->compileString($asset->getContent());
+            File::put($this->getSourceMapLocalPath().'/'.$mapFile, $result->getSourceMap());
+        }
+        else {
+            $result = $sc->compileString($asset->getContent());
+        }
+
+        $asset->setContent($result->getCss());
     }
 
     public function filterDump(AssetInterface $asset)
@@ -117,5 +139,41 @@ class ScssphpFilter implements DependencyExtractorInterface
         }
 
         return $children;
+    }
+
+    /**
+     * getSourceMapLocalPath returns the local path for source maps
+     */
+    protected function getSourceMapLocalPath(): string
+    {
+        $path = rtrim(Config::get('system.storage.resources.path', '/storage/app/resources'), '/');
+        $path .= '/sourcemap';
+
+        $path = base_path($path);
+
+        if (!File::isDirectory($path)) {
+            File::makeDirectory($path, 0777, true, true);
+        }
+
+        return $path;
+    }
+
+    /**
+     * getSourceMapPublicUrl returns the public address for the source map path
+     */
+    protected function getSourceMapPublicUrl(): string
+    {
+        $disk = Storage::disk(Config::get('system.storage.resources.disk'));
+        $resourcesFolder = Config::get('system.storage.resources.folder');
+        $resourcesFolder .= '/sourcemap';
+
+        if (
+            Config::get('system.storage.media.disk') === 'local' &&
+            Config::get('system.relative_links') === true
+        ) {
+            return $resourcesFolder;
+        }
+
+        return $disk->url($resourcesFolder);
     }
 }
