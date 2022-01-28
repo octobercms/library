@@ -40,11 +40,11 @@ class PriorityDispatcher
     /**
      * listenOnce registers an event that only fires once.
      * @param string|array $events
-     * @param mixed|null $listener
+     * @param callable $listener
      * @param int $priority
      * @return void
      */
-    public function listenOnce($events, $listener = null, $priority = 0)
+    public function listenOnce($events, $listener, $priority = 0)
     {
         $this->bindEventOnce($events, $listener, $priority);
     }
