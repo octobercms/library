@@ -284,9 +284,6 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         $attributes = is_array($attributes) ? $attributes : func_get_args();
 
         $this->purgeable = array_merge($this->purgeable, $attributes);
-
-        // @deprecated
-        return $this;
     }
 
     /**
