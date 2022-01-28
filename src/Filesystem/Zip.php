@@ -75,7 +75,7 @@ class Zip extends ZipArchive
     public static function extract($source, $destination, $options = [])
     {
         extract(array_merge([
-            'mask' => 0777
+            'mask' => 0755
         ], $options));
 
         if (file_exists($destination) || mkdir($destination, $mask, true)) {

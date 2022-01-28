@@ -264,7 +264,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
          */
         if (
             (!$this->files->exists($dirPath) || !$this->files->isDirectory($dirPath)) &&
-            !$this->files->makeDirectory($dirPath, 0777, true, true)
+            !$this->files->makeDirectory($dirPath, 0755, true, true)
         ) {
             throw (new CreateDirectoryException)->setInvalidPath($dirPath);
         }
@@ -277,7 +277,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
 
             if (
                 !$this->files->isDirectory($fileDirPath) &&
-                !$this->files->makeDirectory($fileDirPath, 0777, true, true)
+                !$this->files->makeDirectory($fileDirPath, 0755, true, true)
             ) {
                 throw (new CreateDirectoryException)->setInvalidPath($fileDirPath);
             }

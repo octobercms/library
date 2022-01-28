@@ -70,7 +70,7 @@ class AssetWriter
 
     protected static function write($path, $contents)
     {
-        if (!is_dir($dir = dirname($path)) && false === @mkdir($dir, 0777, true)) {
+        if (!is_dir($dir = dirname($path)) && false === @mkdir($dir, 0755, true)) {
             throw new \RuntimeException('Unable to create directory '.$dir);
         }
 

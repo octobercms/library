@@ -756,7 +756,7 @@ class File extends Model
          */
         if (
             !FileHelper::isDirectory($destinationPath) &&
-            !FileHelper::makeDirectory($destinationPath, 0777, true, true) &&
+            !FileHelper::makeDirectory($destinationPath, 0755, true, true) &&
             !FileHelper::isDirectory($destinationPath)
         ) {
             if (($lastErr = error_get_last()) !== null) {
@@ -948,7 +948,7 @@ class File extends Model
         $path = temp_path() . '/uploads';
 
         if (!FileHelper::isDirectory($path)) {
-            FileHelper::makeDirectory($path, 0777, true, true);
+            FileHelper::makeDirectory($path, 0755, true, true);
         }
 
         return $path;
