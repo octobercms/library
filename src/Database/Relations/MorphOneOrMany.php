@@ -174,7 +174,7 @@ trait MorphOneOrMany
     protected function isModelRemovable($model): bool
     {
         return
-            $model->getAttribute($this->getForeignKeyName()) === (string) $this->getParentKey() &&
+            ((string) $model->getAttribute($this->getForeignKeyName()) === (string) $this->getParentKey()) &&
             $model->getAttribute($this->getMorphType()) === $this->morphClass;
     }
 }

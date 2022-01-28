@@ -310,7 +310,7 @@ trait AttachOneOrMany
     protected function isModelRemovable($model): bool
     {
         return
-            $model->getAttribute($this->getForeignKeyName()) === (string) $this->parent->getKey() &&
+            ((string) $model->getAttribute($this->getForeignKeyName()) === (string) $this->parent->getKey()) &&
             $model->getAttribute($this->getMorphType()) === $this->morphClass &&
             $model->getAttribute('field') === $this->relationName;
     }
