@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Events;
 
-use Str;
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 
 /**
@@ -11,34 +10,10 @@ use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
  */
 class PriorityDispatcher
 {
+    use \October\Rain\Support\Traits\Emitter;
     use \Illuminate\Support\Traits\ForwardsCalls;
-    use Concerns\HasListener;
-    use Concerns\HasTrigger;
 
-    /**
-     * @var array listeners that are registered.
-     */
-    protected $listeners = [];
-
-    /**
-     * @var array wildcards are catch-all listeners.
-     */
-    protected $wildcards = [];
-
-    /**
-     * @var array wildcardsCache
-     */
-    protected $wildcardsCache = [];
-
-    /**
-     * @var array sorted event listeners.
-     */
-    protected $sorted = [];
-
-    /**
-     * @var array firing stack for events.
-     */
-    protected $firing = [];
+    const FORWARD_CALL_FLAG = '___FORWARD_CALL___';
 
     /**
      * @var DispatcherContract laravelEvents instance.
@@ -58,8 +33,20 @@ class PriorityDispatcher
             $this->laravelEvents->listen($events, $listener);
         }
         else {
-            $this->listenPriority($events, $listener, $priority);
+            $this->bindEvent($events, $listener, $priority);
         }
+    }
+
+    /**
+     * listenOnce registers an event that only fires once.
+     * @param string|array $events
+     * @param mixed|null $listener
+     * @param int $priority
+     * @return void
+     */
+    public function listenOnce($events, $listener = null, $priority = 0)
+    {
+        $this->bindEventOnce($events, $listener, $priority);
     }
 
     /**
@@ -71,31 +58,17 @@ class PriorityDispatcher
      */
     public function fire($event, $payload = [], $halt = false)
     {
-        return $this->dispatchPriority($event, $payload, $halt);
-    }
-
-    /**
-     * firing gets the event that is currently firing.
-     * @return string
-     */
-    public function firing()
-    {
-        return last($this->firing);
+        return $this->fireEvent($event, $payload, $halt);
     }
 
     /**
      * forget removes a set of listeners from the dispatcher.
-     * @param  string  $event
+     * @param  string|array  $event
      * @return void
      */
     public function forget($event)
     {
-        if (Str::contains($event, '*')) {
-            unset($this->wildcards[$event]);
-        }
-        else {
-            unset($this->listeners[$event], $this->sorted[$event]);
-        }
+        $this->unbindEvent($event);
 
         $this->laravelEvents->forget($event);
     }
@@ -123,5 +96,92 @@ class PriorityDispatcher
             $method,
             $parameters
         );
+    }
+
+    /**
+     * fireEvent inherits logic from the Emitter, modified to foward call to Laravel events
+     * @param string $event
+     * @param array $params
+     * @param boolean $halt
+     * @return array
+     */
+    public function fireEvent($event, $params = [], $halt = false)
+    {
+        if (!is_array($params)) {
+            $params = [$params];
+        }
+
+        // Micro optimization
+        if (
+            !isset($this->emitterEventCollection[$event]) &&
+            !isset($this->emitterSingleEventCollection[$event])
+        ) {
+            return $this->laravelEvents->dispatch($event, $params, $halt);
+        }
+
+        if (!isset($this->emitterEventSorted[$event])) {
+            $this->emitterEventSortEvents($event);
+        }
+
+        $result = [];
+        foreach ($this->emitterEventSorted[$event] as $callback) {
+            if ($callback === self::FORWARD_CALL_FLAG) {
+                $response = $this->laravelEvents->dispatch($event, $params, $halt);
+                $isLaravel = true;
+            }
+            else {
+                $response = $callback(...$params);
+                $isLaravel = false;
+            }
+
+            if (!is_null($response) && $halt) {
+                return $response;
+            }
+
+            if ($response === false) {
+                break;
+            }
+
+            if (!is_null($response)) {
+                if ($isLaravel) {
+                    $result = array_merge($result, $response);
+                }
+                else {
+                    $result[] = $response;
+                }
+            }
+        }
+
+        if (isset($this->emitterSingleEventCollection[$event])) {
+            unset($this->emitterSingleEventCollection[$event]);
+            unset($this->emitterEventSorted[$event]);
+        }
+
+        return $halt ? null : $result;
+    }
+
+    /**
+     * emitterEventSortEvents inherits logic from the Emitter, except adds a forward call
+     */
+    protected function emitterEventSortEvents(string $eventName): void
+    {
+        $combined = [];
+        $combined[0][] = self::FORWARD_CALL_FLAG;
+
+        if (isset($this->emitterEventCollection[$eventName])) {
+            foreach ($this->emitterEventCollection[$eventName] as $priority => $callbacks) {
+                $combined[$priority] = array_merge($combined[$priority] ?? [], $callbacks);
+            }
+        }
+
+        if (isset($this->emitterSingleEventCollection[$eventName])) {
+            foreach ($this->emitterSingleEventCollection[$eventName] as $priority => $callbacks) {
+                $combined[$priority] = array_merge($combined[$priority] ?? [], $callbacks);
+            }
+        }
+
+        krsort($combined);
+
+        $this->emitterEventSorted[$eventName] = call_user_func_array('array_merge', $combined);
     }
 }
