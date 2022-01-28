@@ -28,16 +28,7 @@ class Translator extends TranslatorBase
     {
         /**
          * @event translator.beforeResolve
-         * Fires before the translator resolves the requested language key
-         *
-         * Example usage (overrides the value returned for a specific language key):
-         *
-         *     Event::listen('translator.beforeResolve', function ((string) $key, (array) $replace, (string|null) $locale) {
-         *         if ($key === 'my.custom.key') {
-         *             return 'My overriding value';
-         *         }
-         *     });
-         *
+         * @deprecated use Lang::set instead
          */
         if (
             isset($this->events) &&
@@ -51,6 +42,28 @@ class Translator extends TranslatorBase
         }
 
         return parent::get($key, $replace, $locale, $fallback);
+    }
+
+    /**
+     * set a given language key value.
+     *
+     * @param array|string $key
+     * @param mixed $value
+     * @param string $locale
+     * @return void
+     */
+    public function set($key, $value = null, $locale = null)
+    {
+        if (is_array($key)) {
+            foreach ($key as $innerKey => $innerValue) {
+                $this->set($innerKey, $innerValue, $locale);
+            }
+        }
+        else {
+            $locale = $locale ?: $this->locale;
+
+            $this->loaded['*']['*'][$locale][$key] = $value;
+        }
     }
 
     /**
