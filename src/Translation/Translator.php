@@ -26,17 +26,6 @@ class Translator extends TranslatorBase
      */
     public function get($key, array $replace = [], $locale = null, $fallback = true)
     {
-        /**
-         * @event translator.beforeResolve
-         * @deprecated use Lang::set instead
-         */
-        if (
-            isset($this->events) &&
-            ($line = $this->events->dispatch('translator.beforeResolve', [$key, $replace, $locale], true))
-        ) {
-            return $line;
-        }
-
         if ($line = $this->getValidationSpecific($key, $replace, $locale)) {
             return $line;
         }
@@ -49,7 +38,7 @@ class Translator extends TranslatorBase
      *
      * @param array|string $key
      * @param mixed $value
-     * @param string $locale
+     * @param string|null $locale
      * @return void
      */
     public function set($key, $value = null, $locale = null)
