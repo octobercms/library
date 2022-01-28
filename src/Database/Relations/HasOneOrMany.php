@@ -146,10 +146,9 @@ trait HasOneOrMany
                 return;
             }
 
-            // @deprecated Removing arbitrary models soon unsupported
-            // if (!$this->isModelRemovable($model)) {
-            //     return;
-            // }
+            if (!$this->isModelRemovable($model)) {
+                return;
+            }
 
             $options = $this->parent->getRelationDefinition($this->relationName);
 
