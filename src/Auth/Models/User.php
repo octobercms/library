@@ -56,20 +56,14 @@ class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
     /**
      * @var array fillable fields
      */
-    // protected $fillable = [
-    //     'first_name',
-    //     'last_name',
-    //     'login',
-    //     'email',
-    //     'password',
-    //     'password_confirmation',
-    // ];
-
-    /**
-     * @var array guarded attributes aren't mass assignable
-     * @deprecated swap to fillable
-     */
-    protected $guarded = ['is_superuser', 'reset_password_code', 'activation_code', 'persist_code', 'role_id'];
+    protected $fillable = [
+        'first_name',
+        'last_name',
+        'login',
+        'email',
+        'password',
+        'password_confirmation',
+    ];
 
     /**
      * @var array hashable list of attribute names which should be hashed using the Bcrypt hashing algorithm

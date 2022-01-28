@@ -46,15 +46,9 @@ class Role extends Model
     /**
      * @var array fillable fields
      */
-    // protected $fillable = [
-    //     'name',
-    // ];
-
-    /**
-     * @var array guarded attributes aren't mass assignable
-     * @deprecated swap to fillable
-     */
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+    ];
 
     /**
      * hasAccess will see if a role has access to the passed permission(s)
