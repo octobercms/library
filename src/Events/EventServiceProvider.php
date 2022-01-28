@@ -1,6 +1,6 @@
 <?php namespace October\Rain\Events;
 
-use Illuminate\Events\Dispatcher;
+use October\Rain\Events\Dispatcher;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Queue\Factory as QueueFactoryContract;
 

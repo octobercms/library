@@ -49,9 +49,6 @@ trait Emitter
      */
     public function unbindEvent($event = null)
     {
-        /*
-         * Multiple events
-         */
         if (is_array($event)) {
             foreach ($event as $_event) {
                 $this->unbindEvent($_event);
@@ -93,7 +90,7 @@ trait Emitter
         }
 
         if (!isset($this->emitterEventSorted[$event])) {
-            $this->emitterEventSortEvents($event);
+            $this->emitterEventSorted[$event] = $this->emitterEventSortEvents($event);
         }
 
         $result = [];
@@ -124,10 +121,8 @@ trait Emitter
     /**
      * emitterEventSortEvents sorts the listeners for a given event by priority
      */
-    protected function emitterEventSortEvents(string $eventName): void
+    protected function emitterEventSortEvents(string $eventName, array $combined = []): array
     {
-        $combined = [];
-
         if (isset($this->emitterEventCollection[$eventName])) {
             foreach ($this->emitterEventCollection[$eventName] as $priority => $callbacks) {
                 $combined[$priority] = array_merge($combined[$priority] ?? [], $callbacks);
@@ -142,6 +137,6 @@ trait Emitter
 
         krsort($combined);
 
-        $this->emitterEventSorted[$eventName] = call_user_func_array('array_merge', $combined);
+        return call_user_func_array('array_merge', $combined);
     }
 }

@@ -3,7 +3,7 @@
 use Illuminate\Events\Dispatcher as DispatcherBase;
 
 /**
- * Dispatcher adds the fire method to the base dispatcher
+ * Dispatcher proxy class
  *
  * @package october\events
  * @author Alexey Bobkov, Samuel Georges
@@ -11,14 +11,10 @@ use Illuminate\Events\Dispatcher as DispatcherBase;
 class Dispatcher extends DispatcherBase
 {
     /**
-     * fire an event and call the listeners.
-     * @param string|object $event
-     * @param mixed $payload
-     * @param bool $halt
-     * @return array|null
+     * fire proxies to dispatch
      */
-    public function fire($event, $payload = [], $halt = false)
+    public function fire(...$args)
     {
-        return $this->container->make('events.priority')->fire($event, $payload, $halt);
+        return parent::dispatch(...$args);
     }
 }

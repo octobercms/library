@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Event as EventBase;
 /**
  * Event
  *
- * @see \October\Rain\Events\Dispatcher
+ * @see \October\Rain\Events\PriorityDispatcher
  */
 class Event extends EventBase
 {

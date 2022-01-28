@@ -330,7 +330,7 @@ class Application extends ApplicationBase
             'db' => [\October\Rain\Database\DatabaseManager::class],
             'db.connection' => [\Illuminate\Database\Connection::class, \Illuminate\Database\ConnectionInterface::class],
             'db.schema' => [\Illuminate\Database\Schema\Builder::class],
-            'events' => [\Illuminate\Events\Dispatcher::class, \Illuminate\Contracts\Events\Dispatcher::class],
+            'events' => [\October\Rain\Events\Dispatcher::class, \Illuminate\Contracts\Events\Dispatcher::class],
             'files' => [\Illuminate\Filesystem\Filesystem::class],
             'filesystem' => [\Illuminate\Filesystem\FilesystemManager::class, \Illuminate\Contracts\Filesystem\Factory::class],
             'filesystem.disk' => [\Illuminate\Contracts\Filesystem\Filesystem::class],

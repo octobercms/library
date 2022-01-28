@@ -63,7 +63,7 @@ class PriorityDispatcher
 
     /**
      * forget removes a set of listeners from the dispatcher.
-     * @param  string|array  $event
+     * @param  string  $event
      * @return void
      */
     public function forget($event)
@@ -71,31 +71,6 @@ class PriorityDispatcher
         $this->unbindEvent($event);
 
         $this->laravelEvents->forget($event);
-    }
-
-    /**
-     * setLaravelDispatcher sets the queue resolver implementation.
-     */
-    public function setLaravelDispatcher(DispatcherContract $dispatcher): PriorityDispatcher
-    {
-        $this->laravelEvents = $dispatcher;
-
-        return $this;
-    }
-
-    /**
-     * __call magic
-     * @param string $method
-     * @param array $parameters
-     * @return mixed
-     */
-    public function __call($method, $parameters)
-    {
-        return $this->forwardCallTo(
-            $this->laravelEvents,
-            $method,
-            $parameters
-        );
     }
 
     /**
@@ -120,7 +95,9 @@ class PriorityDispatcher
         }
 
         if (!isset($this->emitterEventSorted[$event])) {
-            $this->emitterEventSortEvents($event);
+            $this->emitterEventSorted[$event] = $this->emitterEventSortEvents($event, [
+                0 => [self::FORWARD_CALL_FLAG]
+            ]);
         }
 
         $result = [];
@@ -161,27 +138,27 @@ class PriorityDispatcher
     }
 
     /**
-     * emitterEventSortEvents inherits logic from the Emitter, except adds a forward call
+     * setLaravelDispatcher sets the queue resolver implementation.
      */
-    protected function emitterEventSortEvents(string $eventName): void
+    public function setLaravelDispatcher(DispatcherContract $dispatcher): PriorityDispatcher
     {
-        $combined = [];
-        $combined[0][] = self::FORWARD_CALL_FLAG;
+        $this->laravelEvents = $dispatcher;
 
-        if (isset($this->emitterEventCollection[$eventName])) {
-            foreach ($this->emitterEventCollection[$eventName] as $priority => $callbacks) {
-                $combined[$priority] = array_merge($combined[$priority] ?? [], $callbacks);
-            }
-        }
+        return $this;
+    }
 
-        if (isset($this->emitterSingleEventCollection[$eventName])) {
-            foreach ($this->emitterSingleEventCollection[$eventName] as $priority => $callbacks) {
-                $combined[$priority] = array_merge($combined[$priority] ?? [], $callbacks);
-            }
-        }
-
-        krsort($combined);
-
-        $this->emitterEventSorted[$eventName] = call_user_func_array('array_merge', $combined);
+    /**
+     * __call magic
+     * @param string $method
+     * @param array $parameters
+     * @return mixed
+     */
+    public function __call($method, $parameters)
+    {
+        return $this->forwardCallTo(
+            $this->laravelEvents,
+            $method,
+            $parameters
+        );
     }
 }
