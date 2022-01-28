@@ -48,17 +48,17 @@ class PriorityDispatcher
     /**
      * listen registers an event listener with the dispatcher.
      * @param string|array $events
-     * @param mixed $listener
+     * @param mixed|null $listener
      * @param int $priority
      * @return void
      */
-    public function listen($events, $listener, $priority = 0)
+    public function listen($events, $listener = null, $priority = 0)
     {
         if ($priority === 0) {
             $this->laravelEvents->listen($events, $listener);
         }
         else {
-            $this->listenGlobally($events, $listener, $priority);
+            $this->listenPriority($events, $listener, $priority);
         }
     }
 
@@ -71,7 +71,7 @@ class PriorityDispatcher
      */
     public function fire($event, $payload = [], $halt = false)
     {
-        return $this->dispatchGlobally($event, $payload, $halt);
+        return $this->dispatchPriority($event, $payload, $halt);
     }
 
     /**

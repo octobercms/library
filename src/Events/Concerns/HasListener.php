@@ -17,11 +17,11 @@ trait HasListener
      * @param int $priority
      * @return void
      */
-    protected function listenGlobally($events, $listener, $priority = 0)
+    protected function listenPriority($events, $listener, $priority = 0)
     {
         foreach ((array) $events as $event) {
             if (Str::contains($event, '*')) {
-                $this->setupWildcardListenGlobally($event, $listener);
+                $this->setupWildcardListenPriority($event, $listener);
             }
             else {
                 $this->listeners[$event][$priority][] = $this->laravelEvents->makeListener($listener);
@@ -32,12 +32,12 @@ trait HasListener
     }
 
     /**
-     * setupWildcardListenGlobally sets up a wildcard listener callback.
+     * setupWildcardListenPriority sets up a wildcard listener callback.
      * @param string $event
      * @param mixed $listener
      * @return void
      */
-    protected function setupWildcardListenGlobally($event, $listener)
+    protected function setupWildcardListenPriority($event, $listener)
     {
         $this->wildcards[$event][] = $this->laravelEvents->makeListener($listener, true);
 

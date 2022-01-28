@@ -18,7 +18,7 @@ trait HasTrigger
      * @param  bool  $halt
      * @return array|null
      */
-    protected function dispatchGlobally($event, $payload = [], $halt = false)
+    protected function dispatchPriority($event, $payload = [], $halt = false)
     {
         // When the given "event" is actually an object we will assume it is an event
         // object and use the class as the event name and this event itself as the
@@ -36,7 +36,7 @@ trait HasTrigger
 
         $this->firing[] = $event;
 
-        foreach ($this->getGlobalListeners($event) as $listener) {
+        foreach ($this->getPriorityListeners($event) as $listener) {
             if ($listener === '___FORWARD_CALL___') {
                 $response = $this->laravelEvents->dispatch($event, $payload, $halt);
                 $isLaravel = true;
@@ -95,11 +95,11 @@ trait HasTrigger
     }
 
     /**
-     * getGlobalListeners gets all of the listeners for a given event name.
+     * getPriorityListeners gets all of the listeners for a given event name.
      * @param  string  $eventName
      * @return array
      */
-    protected function getGlobalListeners($eventName)
+    protected function getPriorityListeners($eventName)
     {
         if (!isset($this->sorted[$eventName])) {
             $this->sortListeners($eventName);
@@ -107,14 +107,10 @@ trait HasTrigger
 
         $listeners = $this->sorted[$eventName] ?? [];
 
-        $listeners = array_merge(
+        return array_merge(
             $listeners,
             $this->wildcardsCache[$eventName] ?? $this->getWildcardListeners($eventName)
         );
-
-        return class_exists($eventName, false)
-            ? $this->addInterfaceListeners($eventName, $listeners)
-            : $listeners;
     }
 
     /**
@@ -150,24 +146,5 @@ trait HasTrigger
             'array_merge',
             $this->listeners[$eventName]
         );
-    }
-
-    /**
-     * addInterfaceListeners for the event's interfaces to the given array.
-     * @param  string  $eventName
-     * @param  array  $listeners
-     * @return array
-     */
-    protected function addInterfaceListeners($eventName, array $listeners = [])
-    {
-        foreach (class_implements($eventName) as $interface) {
-            if (isset($this->listeners[$interface])) {
-                foreach ($this->listeners[$interface] as $names) {
-                    $listeners = array_merge($listeners, (array) $names);
-                }
-            }
-        }
-
-        return $listeners;
     }
 }
