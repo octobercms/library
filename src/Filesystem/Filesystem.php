@@ -132,10 +132,12 @@ class Filesystem extends FilesystemBase
     }
 
     /**
-     * isLocalPath returns true if the specified path is within the path of the application
-     * @param  string  $path The path to
-     * @param  boolean $realpath Default true, uses realpath() to resolve the provided path before checking location. Set to false if you need to check if a potentially non-existent path would be within the application path
-     * @return boolean
+     * isLocalPath returns true if the specified path is within the path of the application.
+     * realpath resolves the provided path before checking location, set to false if you need
+     * to check if a potentially non-existent path would be within the application path.
+     * @param  string  $path
+     * @param  bool $realpath
+     * @return bool
      */
     public function isLocalPath($path, $realpath = true)
     {
@@ -161,9 +163,9 @@ class Filesystem extends FilesystemBase
 
     /**
      * existsInsensitive determines if a file exists with case insensitivity
-     * supported for the file only.
+     * supported for the file only. Returne either the sensitive path or false.
      * @param  string $path
-     * @return mixed  Sensitive path or false
+     * @return string|bool
      */
     public function existsInsensitive($path)
     {
@@ -217,7 +219,7 @@ class Filesystem extends FilesystemBase
     /**
      * isPathSymbol returns true if the path uses a symbol
      * @param  string  $path
-     * @return boolean
+     * @return bool
      */
     public function isPathSymbol($path)
     {

@@ -5,4 +5,4 @@
  *
  * @see \October\Rain\Filesystem\Filesystem
  */
-class File extends Illuminate\Support\Facades\File {}
+class File extends October\Rain\Support\Facades\File {}
