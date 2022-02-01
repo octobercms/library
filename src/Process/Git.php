@@ -37,10 +37,16 @@ class Git extends ProcessBase
      */
     protected function prepareGitArguments($parts)
     {
-        $gitBin = env('GIT_BIN', 'git');
+        return array_merge([
+            $this->getGitBin()
+        ], $parts);
+    }
 
-        return implode(' ', array_merge([
-            '"'.$gitBin.'"'
-        ], $parts));
+    /**
+     * getComposerBin
+     */
+    protected function getGitBin(): string
+    {
+        return (string) env('GIT_BIN', 'git');
     }
 }
