@@ -1,5 +1,8 @@
 <?php namespace October\Rain\Process;
 
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\PhpExecutableFinder;
+
 /**
  * ProcessBase is a base class for all other process classes
  *
@@ -24,9 +27,9 @@ class ProcessBase
     protected $basePath;
 
     /**
-     * @var Closure|null useCallback
+     * @var callable useCallback
      */
-    protected $useCallback = null;
+    protected $useCallback;
 
     /**
      * __construct
@@ -39,7 +42,7 @@ class ProcessBase
     /**
      * run executes the process with the current configuration
      */
-    public function run($command)
+    public function run(array $command)
     {
         if ($this->useCallback !== null) {
             return $this->runCallback($command, $this->useCallback);
@@ -51,16 +54,15 @@ class ProcessBase
     /**
      * runNow executes the process and captures completed output
      */
-    public function runNow($command)
+    public function runNow(array $command)
     {
         $this->output = '';
 
-        $result = [];
-        $code = null;
-        exec($command . ' 2>&1', $result, $code);
+        $process = new Process($command);
+        $process->run();
 
-        $this->output = implode(" ", $result);
-        $this->exitCode = $code;
+        $this->output = $process->getOutput();
+        $this->exitCode = $process->getExitCode();
 
         return $this->output;
     }
@@ -68,19 +70,27 @@ class ProcessBase
     /**
      * runCallback executes the process with streamed output
      */
-    public function runCallback($command, $callback)
+    public function runCallback(array $command, callable $callback)
     {
         $this->output = '';
 
-        $handle = popen($command . ' 2>&1', 'r');
+        $process = new Process($command);
+        $process->mustRun(function($type, $data) use ($callback) {
+            $callback($data);
+        });
 
-        while (!feof($handle)) {
-            $this->output .= $callback(fread($handle, 4096));
-        }
-
-        $this->exitCode = pclose($handle);
+        $this->output = $process->getOutput();
+        $this->exitCode = $process->getExitCode();
 
         return $this->output;
+    }
+
+    /**
+     * getPhpBinary
+     */
+    public function getPhpBinary(): string
+    {
+        return (string) (new PhpExecutableFinder)->find();
     }
 
     /**

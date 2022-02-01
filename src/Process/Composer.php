@@ -1,7 +1,5 @@
 <?php namespace October\Rain\Process;
 
-use Symfony\Component\Process\PhpExecutableFinder;
-
 /**
  * Composer handles the composer process and its associated functions
  *
@@ -10,6 +8,20 @@ use Symfony\Component\Process\PhpExecutableFinder;
  */
 class Composer extends ProcessBase
 {
+    /**
+     * @var bool useLocalLibrary
+     */
+    protected $useLocalLibrary;
+
+    /**
+     * useLocalLibrary tells composer to use the local library version to run
+     * commands, this is useful when composer is not installed on the server
+     */
+    protected function useLocalLibrary(bool $value)
+    {
+        $this->useLocalLibrary = $value;
+    }
+
     /**
      * install runs the "composer install" command
      */
@@ -97,11 +109,13 @@ class Composer extends ProcessBase
      */
     protected function listPackagesInternal($useDirect = true)
     {
-        $installed = json_decode($this->runComposerCommand(
-            'show',
-            ($useDirect ? '--direct' : ''),
-            '--format=json'
-        ), true);
+        $command = ['show', '--format=json'];
+
+        if ($useDirect) {
+            $command[] = '--direct';
+        }
+
+        $installed = json_decode($this->runComposerCommand(...$command), true);
 
         $packages = [];
 
@@ -118,23 +132,31 @@ class Composer extends ProcessBase
      */
     protected function runComposerCommand(...$parts)
     {
-        return $this->run($this->prepareComposerArguments($parts));
+        return $this->run($this->prepareComposerCommand($parts));
     }
 
     /**
-     * prepareComposerArguments is a helper for preparing arguments
+     * prepareComposerCommand is a helper for preparing arguments
      */
-    protected function prepareComposerArguments($parts)
+    protected function prepareComposerCommand($parts)
     {
-        if ($composerBin = env('COMPOSER_BIN')) {
-            return implode(' ', array_merge([$composerBin], $parts));
+        if ($this->useLocalLibrary) {
+            return array_merge([
+                $this->getPhpBinary(),
+                'vendor/composer/composer/bin/composer'
+            ], $parts);
         }
 
-        $phpBin = (new PhpExecutableFinder)->find();
+        return array_merge([
+            $this->getComposerBin()
+        ], $parts);
+    }
 
-        return implode(' ', array_merge([
-            '"'.$phpBin.'"',
-            'vendor/composer/composer/bin/composer'
-        ], $parts));
+    /**
+     * getComposerBin
+     */
+    protected function getComposerBin(): string
+    {
+        return (string) env('COMPOSER_BIN', 'composer');
     }
 }

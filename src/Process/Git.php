@@ -29,18 +29,24 @@ class Git extends ProcessBase
      */
     protected function runGitCommand(...$parts)
     {
-        return $this->run($this->prepareGitArguments($parts));
+        return $this->run($this->prepareGitCommand($parts));
     }
 
     /**
-     * prepareGitArguments is a helper for preparing arguments
+     * prepareGitCommand is a helper for preparing arguments
      */
-    protected function prepareGitArguments($parts)
+    protected function prepareGitCommand($parts)
     {
-        $gitBin = env('GIT_BIN', 'git');
+        return array_merge([
+            $this->getGitBin()
+        ], $parts);
+    }
 
-        return implode(' ', array_merge([
-            '"'.$gitBin.'"'
-        ], $parts));
+    /**
+     * getComposerBin
+     */
+    protected function getGitBin(): string
+    {
+        return (string) env('GIT_BIN', 'git');
     }
 }
