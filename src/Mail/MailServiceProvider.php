@@ -31,6 +31,8 @@ class MailServiceProvider extends MailServiceProviderBase
              * Extensibility
              */
             $this->app['events']->dispatch('mailer.register', [$this, $mailer]);
+
+            return $mailer;
         });
     }
 }
