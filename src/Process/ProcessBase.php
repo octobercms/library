@@ -75,11 +75,9 @@ class ProcessBase
         $this->output = '';
 
         $process = new Process($command);
-        $process->mustRun();
-
-        foreach ($process as $data) {
+        $process->mustRun(function($type, $data) use ($callback) {
             $callback($data);
-        }
+        });
 
         $this->output = $process->getOutput();
         $this->exitCode = $process->getExitCode();
