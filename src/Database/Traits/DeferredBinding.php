@@ -41,7 +41,24 @@ trait DeferredBinding
         $binding->pivot_data = $pivotData;
         $binding->session_key = $sessionKey;
         $binding->is_bind = true;
+
+        /**
+         * @event deferredBinding.newBindInstance
+         * Called after the DeferredBindingModel is initialized for binding
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('deferredBinding.newBindInstance', function ((\Model) $model) {
+         *         $model->some_attribute = true;
+         *     });
+         *
+         */
+        if ($event = $this->fireEvent('deferredBinding.newBindInstance', $binding, true)) {
+            $binding = $event;
+        }
+
         $binding->save();
+
         return $binding;
     }
 
@@ -58,7 +75,24 @@ trait DeferredBinding
         $binding->slave_id = $record->getKey();
         $binding->session_key = $sessionKey;
         $binding->is_bind = false;
+
+        /**
+         * @event deferredBinding.newUnbindInstance
+         * Called after the DeferredBindingModel is initialized for unbinding
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('deferredBinding.newUnbindInstance', function ((\Model) $model) {
+         *         $model->some_attribute = true;
+         *     });
+         *
+         */
+        if ($event = $this->fireEvent('deferredBinding.newUnbindInstance', $binding, true)) {
+            $binding = $event;
+        }
+
         $binding->save();
+
         return $binding;
     }
 
@@ -134,9 +168,12 @@ trait DeferredBinding
              * Find the slave model
              */
             $slaveClass = $binding->slave_type;
-            $slaveModel = new $slaveClass;
-            $slaveModel = $slaveModel->find($binding->slave_id);
+            $slaveModel = $this->makeRelation($relationName);
+            if (!is_a($slaveModel, $slaveClass)) {
+                continue;
+            }
 
+            $slaveModel = $slaveModel->find($binding->slave_id);
             if (!$slaveModel) {
                 continue;
             }

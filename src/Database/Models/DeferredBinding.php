@@ -2,7 +2,7 @@
 
 use Carbon\Carbon;
 use October\Rain\Database\Model;
-use Exception;
+use Throwable;
 
 /**
  * DeferredBinding Model
@@ -115,6 +115,23 @@ class DeferredBinding extends Model
             $masterType = $this->master_type;
             $masterObject = new $masterType;
 
+            /**
+             * @event deferredBinding.newMasterInstance
+             * Called after the model is initialized when deleting the slave record
+             *
+             * Example usage:
+             *
+             *     $model->bindEvent('deferredBinding.newMasterInstance', function ((\Model) $model) {
+             *         if ($model instanceof MyModel) {
+             *             $model->some_attribute = true;
+             *         }
+             *     });
+             *
+             */
+            if ($event = $this->fireEvent('deferredBinding.newMasterInstance', $masterObject, true)) {
+                $masterObject = $event;
+            }
+
             if (!$masterObject->isDeferrable($this->master_field)) {
                 return;
             }
@@ -136,7 +153,7 @@ class DeferredBinding extends Model
                 $relatedObj->delete();
             }
         }
-        catch (Exception $ex) {
+        catch (Throwable $ex) {
             // Do nothing
         }
     }

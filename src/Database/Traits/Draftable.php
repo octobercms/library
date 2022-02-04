@@ -124,6 +124,17 @@ trait Draftable
     }
 
     /**
+     * isFirstDraftStatus
+     */
+    public function isFirstDraftStatus(): bool
+    {
+        return in_array($this->{$this->getDraftModeColumn()}, [
+            DraftableScope::MODE_NEW_SAVED,
+            DraftableScope::MODE_NEW_UNSAVED
+        ]);
+    }
+
+    /**
      * draftableSaveModeInternal
      */
     public function draftableSaveModeInternal(): void
