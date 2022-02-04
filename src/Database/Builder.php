@@ -201,36 +201,4 @@ class Builder extends BuilderModel
 
         return parent::__call($method, $parameters);
     }
-
-    /**
-     * Add a basic where clause to a relationship query.
-     *
-     * @param  string  $relation
-     * @param  \Closure|string|array|\Illuminate\Database\Query\Expression  $column
-     * @param  mixed  $operator
-     * @param  mixed  $value
-     * @return \Illuminate\Database\Eloquent\Builder|static
-     */
-    public function whereRelation($relation, $column, $operator = null, $value = null)
-    {
-        return $this->whereHas($relation, function ($query) use ($column, $operator, $value) {
-            $query->where($column, $operator, $value);
-        });
-    }
-
-    /**
-     * Add an "or where" clause to a relationship query.
-     *
-     * @param  string  $relation
-     * @param  \Closure|string|array|\Illuminate\Database\Query\Expression  $column
-     * @param  mixed  $operator
-     * @param  mixed  $value
-     * @return \Illuminate\Database\Eloquent\Builder|static
-     */
-    public function orWhereRelation($relation, $column, $operator = null, $value = null)
-    {
-        return $this->orWhereHas($relation, function ($query) use ($column, $operator, $value) {
-            $query->where($column, $operator, $value);
-        });
-    }
 }
