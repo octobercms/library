@@ -164,27 +164,9 @@ class Model extends EloquentModel
             }
         }
 
-        /*
-         * Hook to boot events
-         */
-        static::registerModelEvent('booted', function ($model) {
-            /**
-             * @event model.afterBoot
-             * Called after the model is booted
-             *
-             * Example usage:
-             *
-             *     $model->bindEvent('model.afterBoot', function () use (\October\Rain\Database\Model $model) {
-             *         \Log::info(get_class($model) . ' has booted');
-             *     });
-             *
-             */
-            $model->fireEvent('model.afterBoot');
-
-            if ($model->methodExists('afterBoot')) {
-                return $model->afterBoot();
-            }
-        });
+        // Boot event
+        $this->fireEvent('model.afterBoot');
+        $this->afterBoot();
 
         static::$eventsBooted[$class] = true;
     }
@@ -201,6 +183,25 @@ class Model extends EloquentModel
     {
         parent::flushEventListeners();
         static::$eventsBooted = [];
+    }
+
+    /**
+     * afterBoot is called after the model is constructed, a nicer version
+     * of overriding the __construct method.
+     */
+    protected function afterBoot()
+    {
+        /**
+         * @event model.afterBoot
+         * Called after the model is booted
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.afterBoot', function () use (\October\Rain\Database\Model $model) {
+         *         \Log::info(get_class($model) . ' has booted');
+         *     });
+         *
+         */
     }
 
     /**
