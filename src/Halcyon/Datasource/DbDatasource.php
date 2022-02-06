@@ -174,12 +174,11 @@ class DbDatasource extends Datasource implements DatasourceInterface
     {
         $path = $this->makeFilePath($dirName, $fileName, $extension);
 
-        // Check for an existing record
         if ($this->getQuery()->where('path', $path)->count() > 0) {
             throw (new FileExistsException())->setInvalidPath($path);
         }
 
-        // Check for a deleted record, update it if it exists instead
+        // Update a trashed record
         if ($this->getQuery(false)->where('path', $path)->first()) {
             return $this->update($dirName, $fileName, $extension, $content);
         }
@@ -208,8 +207,9 @@ class DbDatasource extends Datasource implements DatasourceInterface
              */
             $this->fireEvent('halcyon.datasource.db.beforeInsert', [&$record]);
 
-            // Get a raw query without filters applied to it
             $this->getBaseQuery()->insert($record);
+
+            $this->flushCache();
 
             return $record['file_size'];
         }
@@ -235,7 +235,6 @@ class DbDatasource extends Datasource implements DatasourceInterface
 
         $oldPath = $this->makeFilePath($dirName, $fileName, $extension);
 
-        // Update the existing record
         try {
             $fileSize = mb_strlen($content, '8bit');
 
@@ -263,6 +262,8 @@ class DbDatasource extends Datasource implements DatasourceInterface
 
             $this->getQuery(false)->where('path', $oldPath)->update($data);
 
+            $this->flushCache();
+
             return $fileSize;
         }
         catch (Exception $ex) {
@@ -276,17 +277,17 @@ class DbDatasource extends Datasource implements DatasourceInterface
     public function delete(string $dirName, string $fileName, string $extension): bool
     {
         try {
-            // Get the existing record
             $path = $this->makeFilePath($dirName, $fileName, $extension);
             $recordQuery = $this->getQuery()->where('path', $path);
 
-            // Attempt to delete the existing record
             if ($this->forceDeleting) {
                 $result = $recordQuery->delete();
             }
             else {
                 $result = $recordQuery->update(['deleted_at' => Carbon::now()->toDateTimeString()]);
             }
+
+            $this->flushCache();
 
             return (bool) $result;
         }
@@ -369,5 +370,14 @@ class DbDatasource extends Datasource implements DatasourceInterface
     protected function makeFilePath(string $dirName, string $fileName, string $extension): string
     {
         return $dirName . '/' . $fileName . '.' . $extension;
+    }
+
+    /**
+     * flushCache
+     */
+    protected function flushCache()
+    {
+        unset(self::$pathCache[$this->source]);
+        unset(self::$mtimeCache[$this->source]);
     }
 }
