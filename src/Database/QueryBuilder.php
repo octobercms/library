@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Database;
 
 use App;
+use Carbon\Carbon;
 use Illuminate\Database\Query\Builder as QueryBuilderBase;
 
 /**
@@ -114,7 +115,7 @@ class QueryBuilder extends QueryBuilderBase
             $results = $cache->rememberForever($key, $callback);
         }
         else {
-            $expiresAt = now()->addMinutes($minutes);
+            $expiresAt = Carbon::now()->addMinutes($minutes);
             $results = $cache->remember($key, $expiresAt, $callback);
         }
 
