@@ -18,8 +18,12 @@ use Illuminate\Foundation\Console\OptimizeCommand;
 use Illuminate\Foundation\Console\PackageDiscoverCommand;
 use Illuminate\Foundation\Console\RouteClearCommand;
 use Illuminate\Foundation\Console\StorageLinkCommand;
-use Illuminate\Console\Scheduling\ScheduleRunCommand;
+use Illuminate\Console\Scheduling\ScheduleClearCacheCommand;
 use Illuminate\Console\Scheduling\ScheduleFinishCommand;
+use Illuminate\Console\Scheduling\ScheduleListCommand;
+use Illuminate\Console\Scheduling\ScheduleRunCommand;
+use Illuminate\Console\Scheduling\ScheduleTestCommand;
+use Illuminate\Console\Scheduling\ScheduleWorkCommand;
 use Illuminate\Foundation\Console\UpCommand;
 use Illuminate\Foundation\Console\VendorPublishCommand;
 use Illuminate\Foundation\Console\ViewCacheCommand;
@@ -77,7 +81,11 @@ class ArtisanServiceProvider extends ArtisanServiceProviderBase
         'RouteClear' => RouteClearCommand::class,
         'RouteList' => RouteListCommand::class,
         'ScheduleFinish' => ScheduleFinishCommand::class,
+        'ScheduleList' => ScheduleListCommand::class,
         'ScheduleRun' => ScheduleRunCommand::class,
+        'ScheduleClearCache' => ScheduleClearCacheCommand::class,
+        'ScheduleTest' => ScheduleTestCommand::class,
+        'ScheduleWork' => ScheduleWorkCommand::class,
         'Seed' => SeedCommand::class,
         'StorageLink' => StorageLinkCommand::class,
         'Up' => UpCommand::class,
