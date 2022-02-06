@@ -3,7 +3,7 @@
 use DbDongle;
 use October\Rain\Database\Collection;
 use October\Rain\Database\TreeCollection;
-use October\Rain\Database\NestedTreeScope;
+use October\Rain\Database\Scopes\NestedTreeScope;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Exception;
 

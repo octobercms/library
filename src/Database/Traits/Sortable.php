@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database\Traits;
 
 use Exception;
-use October\Rain\Database\SortableScope;
+use October\Rain\Database\Scopes\SortableScope;
 
 /**
  * Sortable model trait

@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database\Behaviors;
 
 use Exception;
-use October\Rain\Database\SortableScope;
+use October\Rain\Database\Scopes\SortableScope;
 use October\Rain\Extension\ExtensionBase;
 
 /**
