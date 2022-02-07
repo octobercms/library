@@ -4,6 +4,9 @@ use October\Rain\Database\Models\DeferredBinding as DeferredBindingModel;
 
 /**
  * DeferredBinding trait
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 trait DeferredBinding
 {

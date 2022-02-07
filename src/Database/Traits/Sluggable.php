@@ -3,6 +3,12 @@
 use October\Rain\Support\Str;
 use Exception;
 
+/**
+ * Sluggable
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
+ */
 trait Sluggable
 {
     /**
@@ -12,25 +18,20 @@ trait Sluggable
      */
 
     /**
-     * Boot the sluggable trait for a model.
-     * @return void
+     * initializeSluggable trait for a model.
      */
-    public static function bootSluggable()
+    public function initializeSluggable()
     {
-        if (!property_exists(get_called_class(), 'slugs')) {
+        if (!is_array($this->slugs)) {
             throw new Exception(sprintf(
-                'You must define a $slugs property in %s to use the Sluggable trait.',
-                get_called_class()
+                'The $slugs property in %s must be an array to use the Sluggable trait.',
+                get_class($this)
             ));
         }
 
-        /*
-         * Set slugged attributes on new records and existing records if slug is missing.
-         */
-        static::extend(function ($model) {
-            $model->bindEvent('model.saveInternal', function () use ($model) {
-                $model->slugAttributes();
-            });
+        // Set slugged attributes on new records and existing records if slug is missing.
+        $this->bindEvent('model.saveInternal', function () {
+            $this->slugAttributes();
         });
     }
 

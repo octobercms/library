@@ -36,28 +36,26 @@ use Exception;
  *
  *   const PARENT_ID = 'my_parent_column';
  *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 trait SimpleTree
 {
     /**
-     * bootSimpleTree constructor
+     * initializeSimpleTree constructor
      */
-    public static function bootSimpleTree()
+    public function initializeSimpleTree()
     {
-        static::extend(function ($model) {
-            /*
-             * Define relationships
-             */
-            $model->hasMany['children'] = [
-                get_class($model),
-                'key' => $model->getParentColumnName()
-            ];
+        // Define relationships
+        $this->hasMany['children'] = [
+            get_class($this),
+            'key' => $this->getParentColumnName()
+        ];
 
-            $model->belongsTo['parent'] = [
-                get_class($model),
-                'key' => $model->getParentColumnName()
-            ];
-        });
+        $this->belongsTo['parent'] = [
+            get_class($this),
+            'key' => $this->getParentColumnName()
+        ];
     }
 
     /**

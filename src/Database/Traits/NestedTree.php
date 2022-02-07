@@ -3,7 +3,7 @@
 use DbDongle;
 use October\Rain\Database\Collection;
 use October\Rain\Database\TreeCollection;
-use October\Rain\Database\NestedTreeScope;
+use October\Rain\Database\Scopes\NestedTreeScope;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Exception;
 
@@ -67,6 +67,8 @@ use Exception;
  *   $model->getEagerRoot(); // Returns a list of all root nodes, with ->children eager loaded.
  *   $model->getEagerChildren(); // Returns direct child nodes, with ->children eager loaded.
  *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 trait NestedTree
 {
@@ -81,50 +83,50 @@ trait NestedTree
     public static function bootNestedTree()
     {
         static::addGlobalScope(new NestedTreeScope);
+    }
 
-        static::extend(function ($model) {
-            /*
-             * Define relationships
-             */
-            $model->hasMany['children'] = [
-                get_class($model),
-                'key' => $model->getParentColumnName()
-            ];
+    /**
+     * initializeNestedTree constructor
+     */
+    public function initializeNestedTree()
+    {
+        // Define relationships
+        $this->hasMany['children'] = [
+            get_class($this),
+            'key' => $this->getParentColumnName()
+        ];
 
-            $model->belongsTo['parent'] = [
-                get_class($model),
-                'key' => $model->getParentColumnName()
-            ];
+        $this->belongsTo['parent'] = [
+            get_class($this),
+            'key' => $this->getParentColumnName()
+        ];
 
-            /*
-             * Bind events
-             */
-            $model->bindEvent('model.beforeCreate', function () use ($model) {
-                $model->setDefaultLeftAndRight();
-            });
-
-            $model->bindEvent('model.beforeSave', function () use ($model) {
-                $model->storeNewParent();
-            });
-
-            $model->bindEvent('model.afterSave', function () use ($model) {
-                $model->moveToNewParent();
-            });
-
-            $model->bindEvent('model.beforeDelete', function () use ($model) {
-                $model->deleteDescendants();
-            });
-
-            if (static::hasGlobalScope(SoftDeletingScope::class)) {
-                $model->bindEvent('model.beforeRestore', function () use ($model) {
-                    $model->shiftSiblingsForRestore();
-                });
-
-                $model->bindEvent('model.afterRestore', function () use ($model) {
-                    $model->restoreDescendants();
-                });
-            }
+        // Bind events
+        $this->bindEvent('model.beforeCreate', function () {
+            $this->setDefaultLeftAndRight();
         });
+
+        $this->bindEvent('model.beforeSave', function () {
+            $this->storeNewParent();
+        });
+
+        $this->bindEvent('model.afterSave', function () {
+            $this->moveToNewParent();
+        });
+
+        $this->bindEvent('model.beforeDelete', function () {
+            $this->deleteDescendants();
+        });
+
+        if (static::hasGlobalScope(SoftDeletingScope::class)) {
+            $this->bindEvent('model.beforeRestore', function () {
+                $this->shiftSiblingsForRestore();
+            });
+
+            $this->bindEvent('model.afterRestore', function () {
+                $this->restoreDescendants();
+            });
+        }
     }
 
     /**
@@ -662,7 +664,7 @@ trait NestedTree
      */
     public function getLeftSibling()
     {
-        return $this->siblings()->where($this->getRightColumnName(), '=', $this->getLeft() - 1)->first();
+        return $this->siblings()->where($this->getRightColumnName(), $this->getLeft() - 1)->first();
     }
 
     /**
@@ -671,7 +673,7 @@ trait NestedTree
      */
     public function getRightSibling()
     {
-        return $this->siblings()->where($this->getLeftColumnName(), '=', $this->getRight() + 1)->first();
+        return $this->siblings()->where($this->getLeftColumnName(), $this->getRight() + 1)->first();
     }
 
     /**
@@ -738,7 +740,7 @@ trait NestedTree
     public function setDefaultLeftAndRight()
     {
         $highRight = $this
-            ->newNestedTreeQuery(true)
+            ->newQueryWithoutScopes()
             ->orderBy($this->getRightColumnName(), 'desc')
             ->limit(1)
             ->first()
@@ -751,6 +753,7 @@ trait NestedTree
 
         $this->setAttribute($this->getLeftColumnName(), $maxRight + 1);
         $this->setAttribute($this->getRightColumnName(), $maxRight + 2);
+        $this->setAttribute($this->getDepthColumnName(), 0);
     }
 
     /**
@@ -762,7 +765,7 @@ trait NestedTree
     {
         $this->getConnection()->transaction(function () {
             $maxRight = 1;
-            $records = $this->newNestedTreeQuery(true)->get();
+            $records = $this->newQueryWithoutScopes()->get();
 
             foreach ($records as $record) {
                 $this->newNestedTreeQuery()
@@ -776,118 +779,6 @@ trait NestedTree
                 ;
             }
         });
-    }
-
-    //
-    // Column getters
-    //
-
-    /**
-     * getParentColumnName
-     * @return string
-     */
-    public function getParentColumnName()
-    {
-        return defined('static::PARENT_ID') ? static::PARENT_ID : 'parent_id';
-    }
-
-    /**
-     * getQualifiedParentColumnName
-     * @return string
-     */
-    public function getQualifiedParentColumnName()
-    {
-        return $this->getTable(). '.' .$this->getParentColumnName();
-    }
-
-    /**
-     * getParentId gets value of the model parent_id column.
-     * @return int
-     */
-    public function getParentId()
-    {
-        return $this->getAttribute($this->getParentColumnName());
-    }
-
-    /**
-     * getLeftColumnName
-     * @return string
-     */
-    public function getLeftColumnName()
-    {
-        return defined('static::NEST_LEFT') ? static::NEST_LEFT : 'nest_left';
-    }
-
-    /**
-     * getQualifiedLeftColumnName
-     * @return string
-     */
-    public function getQualifiedLeftColumnName()
-    {
-        return $this->getTable() . '.' . $this->getLeftColumnName();
-    }
-
-    /**
-     * getLeft column value.
-     * @return int
-     */
-    public function getLeft()
-    {
-        return $this->getAttribute($this->getLeftColumnName());
-    }
-
-    /**
-     * getRightColumnName
-     * @return string
-     */
-    public function getRightColumnName()
-    {
-        return defined('static::NEST_RIGHT') ? static::NEST_RIGHT : 'nest_right';
-    }
-
-    /**
-     * getQualifiedRightColumnName
-     * @return string
-     */
-    public function getQualifiedRightColumnName()
-    {
-        return $this->getTable() . '.' . $this->getRightColumnName();
-    }
-
-    /**
-     * getRight column value.
-     * @return int
-     */
-    public function getRight()
-    {
-        return $this->getAttribute($this->getRightColumnName());
-    }
-
-    /**
-     * getDepthColumnName
-     * @return string
-     */
-    public function getDepthColumnName()
-    {
-        return defined('static::NEST_DEPTH') ? static::NEST_DEPTH : 'nest_depth';
-    }
-
-    /**
-     * getQualifiedDepthColumnName
-     * @return string
-     */
-    public function getQualifiedDepthColumnName()
-    {
-        return $this->getTable() . '.' . $this->getDepthColumnName();
-    }
-
-    /**
-     * getDepth column value.
-     * @return int
-     */
-    public function getDepth()
-    {
-        return $this->getAttribute($this->getDepthColumnName());
     }
 
     //
@@ -1102,26 +993,127 @@ trait NestedTree
     }
 
     //
+    // Column getters
+    //
+
+    /**
+     * getParentColumnName
+     * @return string
+     */
+    public function getParentColumnName()
+    {
+        return defined('static::PARENT_ID') ? static::PARENT_ID : 'parent_id';
+    }
+
+    /**
+     * getQualifiedParentColumnName
+     * @return string
+     */
+    public function getQualifiedParentColumnName()
+    {
+        return $this->getTable(). '.' .$this->getParentColumnName();
+    }
+
+    /**
+     * getParentId gets value of the model parent_id column.
+     * @return int
+     */
+    public function getParentId()
+    {
+        return $this->getAttribute($this->getParentColumnName());
+    }
+
+    /**
+     * getLeftColumnName
+     * @return string
+     */
+    public function getLeftColumnName()
+    {
+        return defined('static::NEST_LEFT') ? static::NEST_LEFT : 'nest_left';
+    }
+
+    /**
+     * getQualifiedLeftColumnName
+     * @return string
+     */
+    public function getQualifiedLeftColumnName()
+    {
+        return $this->getTable() . '.' . $this->getLeftColumnName();
+    }
+
+    /**
+     * getLeft column value.
+     * @return int
+     */
+    public function getLeft()
+    {
+        return $this->getAttribute($this->getLeftColumnName());
+    }
+
+    /**
+     * getRightColumnName
+     * @return string
+     */
+    public function getRightColumnName()
+    {
+        return defined('static::NEST_RIGHT') ? static::NEST_RIGHT : 'nest_right';
+    }
+
+    /**
+     * getQualifiedRightColumnName
+     * @return string
+     */
+    public function getQualifiedRightColumnName()
+    {
+        return $this->getTable() . '.' . $this->getRightColumnName();
+    }
+
+    /**
+     * getRight column value.
+     * @return int
+     */
+    public function getRight()
+    {
+        return $this->getAttribute($this->getRightColumnName());
+    }
+
+    /**
+     * getDepthColumnName
+     * @return string
+     */
+    public function getDepthColumnName()
+    {
+        return defined('static::NEST_DEPTH') ? static::NEST_DEPTH : 'nest_depth';
+    }
+
+    /**
+     * getQualifiedDepthColumnName
+     * @return string
+     */
+    public function getQualifiedDepthColumnName()
+    {
+        return $this->getTable() . '.' . $this->getDepthColumnName();
+    }
+
+    /**
+     * getDepth column value.
+     * @return int
+     */
+    public function getDepth()
+    {
+        return $this->getAttribute($this->getDepthColumnName());
+    }
+
+    //
     // Instances
     //
 
     /**
      * newNestedTreeQuery creates a new query for nested sets
      */
-    protected function newNestedTreeQuery($withoutScopes = false)
+    protected function newNestedTreeQuery()
     {
-        return $this->addNestedTreeConstraints($withoutScopes
-            ? $this->newQueryWithoutScopes()
-            : $this->newQuery()
-        );
-    }
-
-    /**
-     * addNestedTreeConstraints is an override for applying query constraints
-     */
-    protected function addNestedTreeConstraints($query)
-    {
-        return $query;
+        return $this->newQuery();
     }
 
     /**

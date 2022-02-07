@@ -5,6 +5,9 @@ use Exception;
 
 /**
  * Encryptable database trait
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 trait Encryptable
 {
@@ -21,43 +24,36 @@ trait Encryptable
     protected $originalEncryptableValues = [];
 
     /**
-     * bootEncryptable boots the encryptable trait for a model
-     * @return void
+     * initializeEncryptable trait for a model
      */
-    public static function bootEncryptable()
+    public function initializeEncryptable()
     {
-        if (!property_exists(get_called_class(), 'encryptable')) {
+        if (!is_array($this->encryptable)) {
             throw new Exception(sprintf(
-                'You must define a $encryptable property in %s to use the Encryptable trait.',
-                get_called_class()
+                'The $encryptable property in %s must be an array to use the Encryptable trait.',
+                get_class($this)
             ));
         }
 
-        /*
-         * Encrypt required fields when necessary
-         */
-        static::extend(function ($model) {
-            $encryptable = $model->getEncryptableAttributes();
+        // Encrypt required fields when necessary
+        $this->bindEvent('model.beforeSetAttribute', function ($key, $value) {
+            if (
+                in_array($key, $this->getEncryptableAttributes()) &&
+                $value !== null &&
+                $value !== ''
+            ) {
+                return $this->makeEncryptableValue($key, $value);
+            }
+        });
 
-            $model->bindEvent('model.beforeSetAttribute', function ($key, $value) use ($model, $encryptable) {
-                if (
-                    in_array($key, $encryptable) &&
-                    $value !== null &&
-                    $value !== ''
-                ) {
-                    return $model->makeEncryptableValue($key, $value);
-                }
-            });
-
-            $model->bindEvent('model.beforeGetAttribute', function ($key) use ($model, $encryptable) {
-                if (
-                    in_array($key, $encryptable) &&
-                    array_get($model->attributes, $key) !== null &&
-                    array_get($model->attributes, $key) !== ''
-                ) {
-                    return $model->getEncryptableValue($key);
-                }
-            });
+        $this->bindEvent('model.beforeGetAttribute', function ($key) {
+            if (
+                in_array($key, $this->getEncryptableAttributes()) &&
+                array_get($this->attributes, $key) !== null &&
+                array_get($this->attributes, $key) !== ''
+            ) {
+                return $this->getEncryptableValue($key);
+            }
         });
     }
 

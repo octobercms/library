@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model as EloquentModel;
 
 /**
  * Revisionable trait tracks changes to specific attributes
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 trait Revisionable
 {
@@ -34,25 +37,23 @@ trait Revisionable
     public $revisionsEnabled = true;
 
     /**
-     * bootRevisionable trait for a model.
+     * initializeRevisionable trait for a model.
      */
-    public static function bootRevisionable()
+    public function initializeRevisionable()
     {
-        if (!property_exists(get_called_class(), 'revisionable')) {
+        if (!is_array($this->revisionable)) {
             throw new Exception(sprintf(
-                'You must define a $revisionable property in %s to use the Revisionable trait.',
-                get_called_class()
+                'The $revisionable property in %s must be an array to use the Revisionable trait.',
+                get_class($this)
             ));
         }
 
-        static::extend(function ($model) {
-            $model->bindEvent('model.afterUpdate', function () use ($model) {
-                $model->revisionableAfterUpdate();
-            });
+        $this->bindEvent('model.afterUpdate', function () {
+            $this->revisionableAfterUpdate();
+        });
 
-            $model->bindEvent('model.afterDelete', function () use ($model) {
-                $model->revisionableAfterDelete();
-            });
+        $this->bindEvent('model.afterDelete', function () {
+            $this->revisionableAfterDelete();
         });
     }
 
@@ -147,9 +148,7 @@ trait Revisionable
         $relation = $this->getRevisionHistoryName();
         $relationObject = $this->{$relation}();
 
-        $revisionLimit = property_exists($this, 'revisionableLimit')
-            ? (int) $this->revisionableLimit
-            : 500;
+        $revisionLimit = (int) $this->revisionableLimit;
 
         $toDelete = $relationObject
             ->orderBy('id', 'desc')

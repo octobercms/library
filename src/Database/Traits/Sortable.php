@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database\Traits;
 
+use October\Rain\Database\Scopes\SortableScope;
 use Exception;
-use October\Rain\Database\SortableScope;
 
 /**
  * Sortable model trait
@@ -22,6 +22,8 @@ use October\Rain\Database\SortableScope;
  *
  *   const SORT_ORDER = 'my_sort_order';
  *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 trait Sortable
 {
@@ -30,15 +32,21 @@ trait Sortable
      */
     public static function bootSortable()
     {
-        static::created(function ($model) {
-            $sortOrderColumn = $model->getSortOrderColumn();
+        static::addGlobalScope(new SortableScope);
+    }
 
-            if (is_null($model->$sortOrderColumn)) {
-                $model->setSortableOrder($model->getKey());
+    /**
+     * initializeSortable trait for this model.
+     */
+    public function initializeSortable()
+    {
+        $this->bindEvent('model.afterCreate', function () {
+            $sortOrderColumn = $this->getSortOrderColumn();
+
+            if (is_null($this->$sortOrderColumn)) {
+                $this->setSortableOrder($this->getKey());
             }
         });
-
-        static::addGlobalScope(new SortableScope);
     }
 
     /**

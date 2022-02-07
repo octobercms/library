@@ -21,18 +21,19 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
      */
     public function boot()
     {
-        if ($module = $this->getModule(func_get_args())) {
-            /*
-             * Register paths for: config, translator, view
-             */
-            $modulePath = base_path() . '/modules/' . $module;
-            $this->loadViewsFrom($modulePath . '/views', $module);
-            $this->loadTranslationsFrom($modulePath . '/lang', $module);
-            $this->loadConfigFrom($modulePath . '/config', $module);
+        $module = $this->getModule(func_get_args());
+        if (!$module) {
+            return;
+        }
 
-            if ($this->app->runningInBackend()) {
-                $this->loadJsonTranslationsFrom($modulePath . '/lang');
-            }
+        // Register paths for: config, translator, view
+        $modulePath = base_path() . '/modules/' . $module;
+        $this->loadViewsFrom($modulePath . '/views', $module);
+        $this->loadTranslationsFrom($modulePath . '/lang', $module);
+        $this->loadConfigFrom($modulePath . '/config', $module);
+
+        if ($this->app->runningInBackend()) {
+            $this->loadJsonTranslationsFrom($modulePath . '/lang');
         }
     }
 
@@ -41,14 +42,15 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
      */
     public function register()
     {
-        if ($module = $this->getModule(func_get_args())) {
-            /*
-             * Add routes, if available
-             */
-            $routesFile = base_path() . '/modules/' . $module . '/routes.php';
-            if (File::isFile($routesFile)) {
-                $this->loadRoutesFrom($routesFile);
-            }
+        $module = $this->getModule(func_get_args());
+        if (!$module) {
+            return;
+        }
+
+        // Add routes, if available
+        $routesFile = base_path() . '/modules/' . $module . '/routes.php';
+        if (File::isFile($routesFile)) {
+            $this->loadRoutesFrom($routesFile);
         }
     }
 
@@ -70,15 +72,13 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
 
     /**
      * registerConsoleCommand registers a new console (artisan) command
-     * @param $key The command name
-     * @param $class The command class
      */
     public function registerConsoleCommand(string $key, string $class)
     {
         $key = 'command.'.$key;
 
         $this->app->singleton($key, function ($app) use ($class) {
-            return new $class;
+            return $this->app->make($class);
         });
 
         $this->commands($key);

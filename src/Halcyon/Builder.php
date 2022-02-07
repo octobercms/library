@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Halcyon;
 
+use Carbon\Carbon;
 use October\Rain\Halcyon\Exception\InvalidDirectoryNameException;
 use October\Rain\Halcyon\Exception\InvalidExtensionException;
 use October\Rain\Halcyon\Exception\MissingFileNameException;
@@ -611,7 +612,7 @@ class Builder
                 $cache->forever($key, $result);
             }
             else {
-                $expiresAt = now()->addMinutes($minutes);
+                $expiresAt = Carbon::now()->addMinutes($minutes);
                 $cache->put($key, $result, $expiresAt);
             }
         }

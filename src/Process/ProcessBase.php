@@ -59,6 +59,8 @@ class ProcessBase
         $this->output = '';
 
         $process = new Process($command);
+        $process->setTimeout(null);
+        $process->setIdleTimeout(null);
         $process->run();
 
         $this->output = $process->getOutput();
@@ -75,6 +77,8 @@ class ProcessBase
         $this->output = '';
 
         $process = new Process($command);
+        $process->setTimeout(null);
+        $process->setIdleTimeout(null);
         $process->mustRun(function($type, $data) use ($callback) {
             $callback($data);
         });
