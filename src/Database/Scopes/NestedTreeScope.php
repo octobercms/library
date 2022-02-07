@@ -4,13 +4,16 @@ use Illuminate\Database\Eloquent\Model as ModelBase;
 use Illuminate\Database\Eloquent\Scope as ScopeInterface;
 use Illuminate\Database\Eloquent\Builder as BuilderBase;
 
+/**
+ * NestedTreeScope
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class NestedTreeScope implements ScopeInterface
 {
     /**
-     * Apply the scope to a given Eloquent query builder.
-     * @param  \Illuminate\Database\Eloquent\Builder  $builder
-     * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @return void
+     * apply the scope to a given Eloquent query builder.
      */
     public function apply(BuilderBase $builder, ModelBase $model)
     {
