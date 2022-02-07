@@ -2,9 +2,6 @@
 
 use October\Rain\Halcyon\Model;
 use October\Rain\Halcyon\Processors\Processor;
-use October\Rain\Halcyon\Exception\DeleteFileException;
-use Exception;
-use Cache;
 
 /**
  * AutoDatasource loads templates from multiple data sources

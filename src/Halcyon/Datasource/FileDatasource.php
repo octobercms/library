@@ -58,8 +58,8 @@ class FileDatasource extends Datasource implements DatasourceInterface
 
             return [
                 'fileName' => $fileName . '.' . $extension,
-                'content'  => $this->files->get($path),
-                'mtime'    => $this->files->lastModified($path)
+                'content' => $this->files->get($path),
+                'mtime' => $this->files->lastModified($path)
             ];
         }
         catch (Exception $ex) {
@@ -68,27 +68,18 @@ class FileDatasource extends Datasource implements DatasourceInterface
     }
 
     /**
-     * select returns all templates
+     * select returns all templates, with availableoptions:
      *
-     * Available options:
-     * [
-     *     'columns'    => ['fileName', 'mtime', 'content'], // Only return specific columns
-     *     'extensions' => ['htm', 'md', 'twig'],            // Extensions to search for
-     *     'fileMatch'  => '*gr[ae]y',                       // Shell matching pattern to match the filename against using the fnmatch function
-     *     'orders'     => false                             // Not implemented
-     *     'limit'      => false                             // Not implemented
-     *     'offset'     => false                             // Not implemented
-     * ];
+     * - columns: only return specific columns, eg: ['fileName', 'mtime', 'content']
+     * - extensions: extensions to search for, eg: ['htm', 'md', 'twig']
+     * - fileMatch: pattern to match the filename against using the fnmatch function, eg: *gr[ae]y
      */
     public function select(string $dirName, array $options = []): array
     {
         extract(array_merge([
-            'columns'     => null,  // Only return specific columns (fileName, mtime, content)
-            'extensions'  => null,  // Match specified extensions
-            'fileMatch'   => null,  // Match the file name using fnmatch()
-            'orders'      => null,  // @todo
-            'limit'       => null,  // @todo
-            'offset'      => null   // @todo
+            'columns' => null,
+            'extensions' => null,
+            'fileMatch' => null,
         ], $options));
 
         $result = [];
