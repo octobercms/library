@@ -67,6 +67,8 @@ use Exception;
  *   $model->getEagerRoot(); // Returns a list of all root nodes, with ->children eager loaded.
  *   $model->getEagerChildren(); // Returns direct child nodes, with ->children eager loaded.
  *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 trait NestedTree
 {

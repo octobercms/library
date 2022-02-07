@@ -22,6 +22,8 @@ use Exception;
  *
  *   const SORT_ORDER = 'my_sort_order';
  *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 trait Sortable
 {

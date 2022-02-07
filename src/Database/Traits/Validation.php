@@ -8,6 +8,12 @@ use October\Rain\Database\ModelException;
 use Illuminate\Support\MessageBag;
 use Exception;
 
+/**
+ * Validation
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
+ */
 trait Validation
 {
     /**
@@ -52,38 +58,34 @@ trait Validation
     protected $validationDefaultAttrNames = [];
 
     /**
-     * bootValidation for this model
+     * initializeValidation for this model
      */
-    public static function bootValidation()
+    public function initializeValidation()
     {
-        if (!property_exists(get_called_class(), 'rules')) {
+        if (!is_array($this->rules)) {
             throw new Exception(sprintf(
-                'You must define a $rules property in %s to use the Validation trait.',
-                get_called_class()
+                'The $rules property in %s must be an array to use the Validation trait.',
+                get_class($this)
             ));
         }
 
-        static::extend(function ($model) {
-            $model->bindEvent('model.saveInternal', function ($data, $options) use ($model) {
-                /*
-                 * If forcing the save event, the beforeValidate/afterValidate
-                 * events should still fire for consistency. So validate an
-                 * empty set of rules and messages.
-                 */
-                $model->validationForced = array_get($options, 'force', false);
+        $this->bindEvent('model.saveInternal', function ($data, $options) {
+            // If forcing the save event, the beforeValidate/afterValidate
+            // events should still fire for consistency. So validate an
+            // empty set of rules and messages.
+            $this->validationForced = array_get($options, 'force', false);
 
-                if ($model->validationForced) {
-                    $valid = $model->validate([], []);
-                }
-                else {
-                    $valid = $model->validate();
-                }
+            if ($this->validationForced) {
+                $valid = $this->validate([], []);
+            }
+            else {
+                $valid = $this->validate();
+            }
 
-                if (!$valid) {
-                    return false;
-                }
-            }, 500);
-        });
+            if (!$valid) {
+                return false;
+            }
+        }, 500);
     }
 
     /**

@@ -4,6 +4,9 @@ use Exception;
 
 /**
  * Nullable will set empty attributes to values equivalent to NULL in the database.
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 trait Nullable
 {
@@ -14,21 +17,19 @@ trait Nullable
      */
 
     /**
-     * bootNullable trait for a model
+     * initializeNullable trait for a model
      */
-    public static function bootNullable()
+    public function initializeNullable()
     {
-        if (!property_exists(get_called_class(), 'nullable')) {
+        if (!is_array($this->nullable)) {
             throw new Exception(sprintf(
-                'You must define a $nullable property in %s to use the Nullable trait.',
-                get_called_class()
+                'The $nullable property in %s must be an array to use the Nullable trait.',
+                get_class($this)
             ));
         }
 
-        static::extend(function ($model) {
-            $model->bindEvent('model.beforeSave', function () use ($model) {
-                $model->nullableBeforeSave();
-            });
+        $this->bindEvent('model.beforeSave', function () {
+            $this->nullableBeforeSave();
         });
     }
 

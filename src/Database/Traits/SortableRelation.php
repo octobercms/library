@@ -17,6 +17,8 @@ use Exception;
  *
  *   $model->setSortableRelationOrder($relationName, $recordIds, $recordOrders);
  *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 trait SortableRelation
 {

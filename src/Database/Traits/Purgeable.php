@@ -22,25 +22,20 @@ trait Purgeable
     protected $originalPurgeableValues = [];
 
     /**
-     * Boot the purgeable trait for a model.
-     * @return void
+     * initializePurgeable trait for a model.
      */
-    public static function bootPurgeable()
+    public function initializePurgeable()
     {
-        if (!property_exists(get_called_class(), 'purgeable')) {
+        if (!is_array($this->purgeable)) {
             throw new Exception(sprintf(
-                'You must define a $purgeable property in %s to use the Purgeable trait.',
-                get_called_class()
+                'The $purgeable property in %s must be an array to use the Purgeable trait.',
+                get_class($this)
             ));
         }
 
-        /*
-         * Remove any purge attributes from the data set
-         */
-        static::extend(function ($model) {
-            $model->bindEvent('model.saveInternal', function () use ($model) {
-                $model->purgeAttributes();
-            });
+        // Remove any purge attributes from the data set
+        $this->bindEvent('model.saveInternal', function () {
+            $this->purgeAttributes();
         });
     }
 
