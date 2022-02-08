@@ -18,7 +18,6 @@ use Exception;
 class Model extends EloquentModel
 {
     use Concerns\HasAttributes;
-    use Concerns\HasDynamicTable;
     use Concerns\HasRelationships;
     use Concerns\HasJsonable;
     use Concerns\HasEvents;
