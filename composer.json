@@ -22,7 +22,7 @@
         "wikimedia/less.php": "~3.0",
         "scssphp/scssphp": "~1.0",
         "symfony/yaml": "^6.0",
-        "twig/twig": "~2.0",
+        "twig/twig": "~3.0",
         "league/csv": "~9.1",
         "nesbot/carbon": "^2.0",
         "laravel/tinker": "~2.0"

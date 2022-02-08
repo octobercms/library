@@ -310,23 +310,6 @@ class Model extends EloquentModel
         return !is_null($this->getAttribute($key));
     }
 
-    /**
-     * This a custom piece of logic specifically to satisfy Twig's
-     * desire to return a relation object instead of loading the
-     * related model.
-     *
-     * @param  mixed  $offset
-     * @return bool
-     */
-    public function offsetExists($offset): bool
-    {
-        if ($result = parent::offsetExists($offset)) {
-            return $result;
-        }
-
-        return $this->hasRelation($offset);
-    }
-
     //
     // Pivot
     //
