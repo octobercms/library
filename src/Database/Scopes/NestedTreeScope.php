@@ -17,6 +17,26 @@ class NestedTreeScope implements ScopeInterface
      */
     public function apply(BuilderBase $builder, ModelBase $model)
     {
-        $builder->orderBy($model->getLeftColumnName());
+        $builder->getQuery()->orderBy($model->getLeftColumnName());
+    }
+
+    /**
+     * extend the Eloquent query builder.
+     */
+    public function extend(BuilderBase $builder)
+    {
+        $removeOnMethods = ['orderBy', 'groupBy'];
+
+        foreach ($removeOnMethods as $method) {
+            $builder->macro($method, function ($builder, ...$args) use ($method) {
+                $builder
+                    ->withoutGlobalScope($this)
+                    ->getQuery()
+                    ->$method(...$args)
+                ;
+
+                return $builder;
+            });
+        }
     }
 }
