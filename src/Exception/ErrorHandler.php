@@ -60,11 +60,7 @@ class ErrorHandler
         }
 
         // Not found exceptions
-        $isNotFound = array_first($this->notFoundExceptions, function($type) use ($proposedException) {
-            return $proposedException instanceof $type;
-        });
-
-        if ($isNotFound) {
+        if ($this->isNotFoundException($proposedException)) {
             // Friendly 404 pages are used
             if (($customNotFound = $this->handleCustomNotFound()) !== null) {
                 return $customNotFound;
@@ -94,6 +90,16 @@ class ErrorHandler
         }
 
         return $this->handleDetailedError($exception);
+    }
+
+    /**
+     * isNotFoundException returns true if the exception is 404-flavored
+     */
+    protected function isNotFoundException($exception)
+    {
+        return array_first($this->notFoundExceptions, function($type) use ($exception) {
+            return $exception instanceof $type;
+        });
     }
 
     /**
