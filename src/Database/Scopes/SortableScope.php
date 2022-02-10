@@ -13,17 +13,10 @@ use Illuminate\Database\Eloquent\Builder as BuilderBase;
 class SortableScope implements ScopeInterface
 {
     /**
-     * @var bool scopeApplied determines if the scope has been applied.
-     */
-    protected $scopeApplied;
-
-    /**
      * apply the scope to a given Eloquent query builder.
      */
     public function apply(BuilderBase $builder, ModelBase $model)
     {
-        $this->scopeApplied = true;
-
         $builder->getQuery()->orderBy($model->getQualifiedSortOrderColumn());
     }
 
@@ -32,14 +25,18 @@ class SortableScope implements ScopeInterface
      */
     public function extend(BuilderBase $builder)
     {
-        $builder->macro('orderBy', function ($builder, $column, $direction = 'asc') {
-            $builder
-                ->withoutGlobalScope($this)
-                ->getQuery()
-                ->orderBy($column, $direction)
-            ;
+        $removeOnMethods = ['orderBy', 'groupBy'];
 
-            return $builder;
-        });
+        foreach ($removeOnMethods as $method) {
+            $builder->macro($method, function ($builder, ...$args) use ($method) {
+                $builder
+                    ->withoutGlobalScope($this)
+                    ->getQuery()
+                    ->$method(...$args)
+                ;
+
+                return $builder;
+            });
+        }
     }
 }
