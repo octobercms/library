@@ -103,29 +103,50 @@ class Builder extends BuilderModel
     }
 
     /**
-     * Paginate the given query.
+     * paginateAtPage paginates by passing the page number directly
      *
      * @param  int  $perPage
      * @param  int  $currentPage
-     * @param  array  $columns
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function paginateAtPage($perPage, $currentPage)
+    {
+        return $this->paginate($perPage, ['*'], 'page', $currentPage);
+    }
+
+    /**
+     * paginateCustom paginates using a custom page name.
+     *
+     * @param  int  $perPage
      * @param  string $pageName
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate($perPage = null, $currentPage = null, $columns = ['*'], $pageName = 'page')
+    public function paginateCustom($perPage, $pageName)
     {
-        /*
-         * Engage Laravel signature support
-         *
-         * paginate($perPage, $columns, $pageName, $currentPage)
-         */
-        if (is_array($currentPage)) {
-            $_columns = $columns;
-            $_currentPage = $currentPage;
-            $_pageName = $pageName;
+        return $this->paginate($perPage, ['*'], $pageName);
+    }
 
-            $columns = $_currentPage;
-            $pageName = is_string($_columns) ? $_columns : 'page';
-            $currentPage = $_pageName === 'page' ? null : $_pageName;
+    /**
+     * paginate the given query.
+     *
+     * @param  int  $perPage
+     * @param  array  $columns
+     * @param  string $pageName
+     * @param  int  $currentPage
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function paginate($perPage = null, $columns = ['*'], $pageName = 'page', $currentPage = null)
+    {
+        // Legacy signature support
+        // paginate($perPage, $currentPage, $columns, $pageName)
+        if (!is_array($columns)) {
+            $_currentPage = $columns;
+            $_columns = $pageName;
+            $_pageName = $currentPage;
+
+            $columns = is_array($_columns) ? $_columns : ['*'];
+            $pageName = $_pageName !== null ? $_pageName : 'page';
+            $currentPage = is_array($_currentPage) ? null : $_currentPage;
         }
 
         if (!$currentPage) {
@@ -146,29 +167,50 @@ class Builder extends BuilderModel
     }
 
     /**
-     * Paginate the given query into a simple paginator.
+     * simplePaginateAtPage simply paginates by passing the page number directly
      *
      * @param  int  $perPage
      * @param  int  $currentPage
-     * @param  array  $columns
+     * @return \Illuminate\Contracts\Pagination\Paginator
+     */
+    public function simplePaginateAtPage($perPage, $currentPage)
+    {
+        return $this->simplePaginate($perPage, ['*'], 'page', $currentPage);
+    }
+
+    /**
+     * simplePaginateCustom simply paginates using a custom page name.
+     *
+     * @param  int  $perPage
      * @param  string $pageName
      * @return \Illuminate\Contracts\Pagination\Paginator
      */
-    public function simplePaginate($perPage = null, $currentPage = null, $columns = ['*'], $pageName = 'page')
+    public function simplePaginateCustom($perPage, $pageName)
     {
-        /*
-         * Engage Laravel signature support
-         *
-         * paginate($perPage, $columns, $pageName, $currentPage)
-         */
-        if (is_array($currentPage)) {
-            $_columns = $columns;
-            $_currentPage = $currentPage;
-            $_pageName = $pageName;
+        return $this->simplePaginate($perPage, ['*'], $pageName);
+    }
 
-            $columns = $_currentPage;
-            $pageName = is_string($_columns) ? $_columns : 'page';
-            $currentPage = $_pageName === 'page' ? null : $_pageName;
+    /**
+     * simplePaginate the given query into a simple paginator.
+     *
+     * @param  int  $perPage
+     * @param  array  $columns
+     * @param  string $pageName
+     * @param  int  $currentPage
+     * @return \Illuminate\Contracts\Pagination\Paginator
+     */
+    public function simplePaginate($perPage = null, $columns = ['*'], $pageName = 'page', $currentPage = null)
+    {
+        // Legacy signature support
+        // paginate($perPage, $currentPage, $columns, $pageName)
+        if (!is_array($columns)) {
+            $_currentPage = $columns;
+            $_columns = $pageName;
+            $_pageName = $currentPage;
+
+            $columns = is_array($_columns) ? $_columns : ['*'];
+            $pageName = $_pageName !== null ? $_pageName : 'page';
+            $currentPage = is_array($_currentPage) ? null : $_currentPage;
         }
 
         if (!$currentPage) {
