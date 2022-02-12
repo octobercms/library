@@ -25,8 +25,12 @@ class ArtisanServiceProvider extends ArtisanServiceProviderBase
         'DbWipe' => 'command.db.wipe',
         'Down' => 'command.down',
         'Environment' => 'command.environment',
+        'EventCache' => 'command.event.cache',
+        'EventClear' => 'command.event.clear',
+        'EventList' => 'command.event.list',
         'KeyGenerate' => 'command.key.generate',
         'Optimize' => 'command.optimize',
+        'OptimizeClear' => 'command.optimize.clear',
         'PackageDiscover' => 'command.package.discover',
         'QueueFailed' => 'command.queue.failed',
         'QueueFlush' => 'command.queue.flush',
@@ -43,6 +47,7 @@ class ArtisanServiceProvider extends ArtisanServiceProviderBase
         'Seed' => 'command.seed',
         'StorageLink' => 'command.storage.link',
         'Up' => 'command.up',
+        'ViewCache' => 'command.view.cache',
         'ViewClear' => 'command.view.clear',
     ];
 
