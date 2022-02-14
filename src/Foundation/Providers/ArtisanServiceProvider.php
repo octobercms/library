@@ -12,6 +12,9 @@ use Illuminate\Foundation\Console\ConfigCacheCommand;
 use Illuminate\Foundation\Console\ConfigClearCommand;
 use Illuminate\Foundation\Console\DownCommand;
 use Illuminate\Foundation\Console\EnvironmentCommand;
+use Illuminate\Foundation\Console\EventCacheCommand;
+use Illuminate\Foundation\Console\EventClearCommand;
+use Illuminate\Foundation\Console\EventListCommand;
 use Illuminate\Foundation\Console\KeyGenerateCommand;
 use Illuminate\Foundation\Console\OptimizeClearCommand;
 use Illuminate\Foundation\Console\OptimizeCommand;
@@ -61,6 +64,9 @@ class ArtisanServiceProvider extends ArtisanServiceProviderBase
         'DbWipe' => WipeCommand::class,
         'Down' => DownCommand::class,
         'Environment' => EnvironmentCommand::class,
+        'EventCache' => EventCacheCommand::class,
+        'EventClear' => EventClearCommand::class,
+        'EventList' => EventListCommand::class,
         'KeyGenerate' => KeyGenerateCommand::class,
         'Optimize' => OptimizeCommand::class,
         'OptimizeClear' => OptimizeClearCommand::class,
