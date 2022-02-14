@@ -46,6 +46,23 @@ class StylesheetMinifyTest extends TestCase
         $this->assertEquals($output, $mockAsset->getContent());
     }
 
+    public function testEmptyCommentPreserve()
+    {
+        $input = ''.
+        '
+        body { background: blue; }
+        /**/
+        .view { color: red; }';
+
+        $output = 'body{background:blue}/**/.view{color:red}';
+
+        $mockAsset = new MockAsset($input);
+        $result    = new StylesheetMinify();
+        $result->filterDump($mockAsset);
+
+        $this->assertEquals($output, $mockAsset->getContent());
+    }
+
     public function testSpecialCommentPreservation()
     {
         $input  = 'body {/*! Keep me */}';
