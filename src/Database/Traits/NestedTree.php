@@ -496,7 +496,7 @@ trait NestedTree
     public function scopeListsNested($query, $column, $key = null, $indent = '&nbsp;&nbsp;&nbsp;')
     {
         $resultKeyName = $this->getKeyName();
-        $columns = [$this->getDepthColumnName(), $this->getParentColumnName(), $column];
+        $columns = [$this->getDepthColumnName(), $this->getParentColumnName(), $this->getKeyName(), $column];
         if ($key !== null) {
             $resultKeyName = $key;
             $columns[] = $key;
@@ -505,13 +505,16 @@ trait NestedTree
         $parentIds = [];
         $results = $query->getQuery()->get($columns);
         foreach ($results as $result) {
-            $parentId = $result->{$columns[1]};
+            $parentId = $result->{$this->getParentColumnName()};
             if ($parentId && !isset($parentIds[$parentId])) {
                 continue;
             }
 
-            $parentIds[$parentId] = true;
-            $values[$result->{$resultKeyName}] = str_repeat($indent, $result->{$columns[0]}) . $result->{$column};
+            $parentIds[$result->{$this->getKeyName()}] = true;
+            $values[$result->{$resultKeyName}] = str_repeat(
+                $indent,
+                $result->{$this->getDepthColumnName()}
+            ) . $result->{$column};
         }
 
         return $values;
