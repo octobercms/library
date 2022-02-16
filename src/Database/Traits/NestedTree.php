@@ -495,27 +495,23 @@ trait NestedTree
      */
     public function scopeListsNested($query, $column, $key = null, $indent = '&nbsp;&nbsp;&nbsp;')
     {
-        $columns = [$this->getDepthColumnName(), $column];
+        $resultKeyName = $this->getKeyName();
+        $columns = [$this->getDepthColumnName(), $this->getParentColumnName(), $column];
         if ($key !== null) {
+            $resultKeyName = $key;
             $columns[] = $key;
         }
 
-        $results = new Collection($query->getQuery()->get($columns));
-        $values = $results->pluck($columns[1])->all();
-        $indentation = $results->pluck($columns[0])->all();
+        $parentIds = [];
+        $results = $query->getQuery()->get($columns);
+        foreach ($results as $result) {
+            $parentId = $result->{$columns[1]};
+            if ($parentId && !isset($parentIds[$parentId])) {
+                continue;
+            }
 
-        if (count($values) !== count($indentation)) {
-            throw new Exception('Column mismatch in listsNested method. Are you sure the columns exist?');
-        }
-
-        foreach ($values as $_key => $value) {
-            $values[$_key] = str_repeat($indent, $indentation[$_key]) . $value;
-        }
-
-        if ($key !== null && count($results) > 0) {
-            $keys = $results->pluck($key)->all();
-
-            return array_combine($keys, $values);
+            $parentIds[$parentId] = true;
+            $values[$result->{$resultKeyName}] = str_repeat($indent, $result->{$columns[0]}) . $result->{$column};
         }
 
         return $values;
@@ -723,7 +719,7 @@ trait NestedTree
             $level = $this->getLevel();
 
             $this->newNestedTreeQuery()
-                ->where($this->getKeyName(), '=', $this->getKey())
+                ->where($this->getKeyName(), $this->getKey())
                 ->update([$this->getDepthColumnName() => $level])
             ;
 
@@ -769,7 +765,7 @@ trait NestedTree
 
             foreach ($records as $record) {
                 $this->newNestedTreeQuery()
-                    ->where($this->getKeyName(), '=', $record->getKey())
+                    ->where($this->getKeyName(), $record->getKey())
                     ->update([
                         $this->getLeftColumnName() => $maxRight++,
                         $this->getRightColumnName() => $maxRight++,
