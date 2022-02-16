@@ -134,19 +134,25 @@ trait NestedTree
      */
     public function storeNewParent()
     {
-        $parentColumn = $this->getParentColumnName();
-        $isDirty = $this->isDirty($parentColumn);
+        // Has the parent column been set from the outside
+        $isDirty = $this->isDirty($this->getParentColumnName());
+        $parentId = $this->getParentId();
 
-        /**
-         * If the model has just been created and the parent ID is not null
-         * or if the model exists and the parent ID has changed then we
-         * need to move the model in the tree
-         */
+        // The parent ID column is nullable, including zero values,
+        // skipping this logic if the parent ID is already null.
+        if (!$parentId && $parentId !== null) {
+            $this->setAttribute($this->getParentColumnName(), null);
+            $parentId = null;
+        }
+
+        // If the model has just been created and the parent ID is not null
+        // or if the model exists and the parent ID has changed then we
+        // need to move the model in the tree
         if (
-            (!$this->exists && $this->getParentId() !== null) ||
+            (!$this->exists && $parentId !== null) ||
             ($this->exists && $isDirty)
         ) {
-            $this->moveToNewParentId = $this->getParentId();
+            $this->moveToNewParentId = $parentId;
         }
     }
 
@@ -503,7 +509,7 @@ trait NestedTree
         }
 
         $values = $parentIds = [];
-        $results = $query->getQuery()->get($columns);
+        $results = $query->getQuery()->orderBy($this->getLeftColumnName())->get($columns);
         foreach ($results as $result) {
             $parentId = $result->{$this->getParentColumnName()};
             if ($parentId && !isset($parentIds[$parentId])) {
