@@ -502,7 +502,7 @@ trait NestedTree
             $columns[] = $key;
         }
 
-        $parentIds = [];
+        $values = $parentIds = [];
         $results = $query->getQuery()->get($columns);
         foreach ($results as $result) {
             $parentId = $result->{$this->getParentColumnName()};
