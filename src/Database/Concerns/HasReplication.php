@@ -1,0 +1,88 @@
+<?php namespace October\Rain\Database\Concerns;
+
+use October\Rain\Support\Arr;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
+use Illuminate\Database\Eloquent\Collection as CollectionBase;
+
+/**
+ * HasReplication for a model
+ */
+trait HasReplication
+{
+    /**
+     * replicate the model into a new, non-existing instance.
+     *
+     * @param  array|null  $except
+     * @return static
+     */
+    public function replicate(array $except = null)
+    {
+        $defaults = [
+            $this->getKeyName(),
+            $this->getCreatedAtColumn(),
+            $this->getUpdatedAtColumn(),
+        ];
+
+        $attributes = Arr::except(
+            $this->attributes, $except ? array_unique(array_merge($except, $defaults)) : $defaults
+        );
+
+        $instance = $this->newInstance();
+
+        $instance->setRawAttributes($attributes);
+
+        $instance->setRelations($this->relations);
+
+        foreach ($this->relations as $name => $models) {
+            if (!$this->isRelationReplicable($name)) {
+                continue;
+            }
+
+            $instance->replicateRelation($name);
+        }
+
+        $instance->fireModelEvent('replicating', false);
+
+        return $instance;
+    }
+
+    /**
+     * replicateRelation of this model as a new instance
+     */
+    public function replicateRelation($name)
+    {
+        $models = $this->relations[$name] ?? [];
+
+        // The add() method will restore this definition
+        unset($this->relations[$name]);
+
+        if ($models instanceof CollectionBase) {
+            $models = $models->all();
+        }
+        elseif ($models instanceof EloquentModel) {
+            $models = [$models];
+        }
+        else {
+            $models = (array) $models;
+        }
+
+        foreach (array_filter($models) as $model) {
+            $this->$name()->add($model->replicate());
+        }
+    }
+
+    /**
+     * isRelationReplicable determines whether the specified relation should be replicated
+     * when replicate() is called instead of save() on the model. Default: false.
+     */
+    public function isRelationReplicable(string $name): bool
+    {
+        $definition = $this->getRelationDefinition($name);
+
+        if (!array_key_exists('replicate', $definition)) {
+            return false;
+        }
+
+        return (bool) $definition['replicate'];
+    }
+}

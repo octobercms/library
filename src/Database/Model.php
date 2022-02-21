@@ -18,6 +18,7 @@ use Exception;
  */
 class Model extends EloquentModel
 {
+    use Concerns\HasReplication;
     use Concerns\HasRelationships;
     use \October\Rain\Support\Traits\Emitter;
     use \October\Rain\Extension\ExtendableTrait;
