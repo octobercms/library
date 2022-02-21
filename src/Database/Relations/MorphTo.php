@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Relations\MorphTo as MorphToBase;
 
 /**
  * MorphTo
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 class MorphTo extends MorphToBase
 {

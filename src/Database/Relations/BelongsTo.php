@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo as BelongsToBase;
 
 /**
  * BelongsTo
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 class BelongsTo extends BelongsToBase
 {
@@ -17,6 +20,9 @@ class BelongsTo extends BelongsToBase
      */
     protected $relationName;
 
+    /**
+     * __construct
+     */
     public function __construct(Builder $query, Model $child, $foreignKey, $ownerKey, $relationName)
     {
         $this->relationName = $relationName;
@@ -136,7 +142,7 @@ class BelongsTo extends BelongsToBase
     }
 
     /**
-     * setSimpleValue is a helper for setting this relationship using various expected
+     * setSimpleValue helper for setting this relationship using various expected
      * values. For example, $model->relation = $value;
      */
     public function setSimpleValue($value)

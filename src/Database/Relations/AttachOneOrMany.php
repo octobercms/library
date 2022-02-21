@@ -7,6 +7,9 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * AttachOneOrMany
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 trait AttachOneOrMany
 {

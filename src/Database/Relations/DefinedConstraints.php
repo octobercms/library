@@ -5,6 +5,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany as BelongsToManyBase;
 /**
  * DefinedConstraints handles the constraints and filters defined by a relation
  * eg: 'conditions' => 'is_published = 1'
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 trait DefinedConstraints
 {
