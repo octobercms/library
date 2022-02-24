@@ -36,15 +36,12 @@ class MorphToMany extends BelongsToMany
 
     /**
      * __construct will create a new morph to many relationship instance
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Model  $parent
      * @param  string  $name
      * @param  string  $table
      * @param  string  $foreignKey
      * @param  string  $otherKey
      * @param  string  $relationName
      * @param  bool  $inverse
-     * @return void
      */
     public function __construct(
         Builder $query,

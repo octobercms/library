@@ -18,8 +18,7 @@ class HasMany extends HasManyBase
     use DefinedConstraints;
 
     /**
-     * Create a new has many relationship instance.
-     * @return void
+     * __construct a new has many relationship instance.
      */
     public function __construct(Builder $query, Model $parent, $foreignKey, $localKey, $relationName = null)
     {
@@ -31,7 +30,7 @@ class HasMany extends HasManyBase
     }
 
     /**
-     * Helper for setting this relationship using various expected
+     * setSimpleValue helper for setting this relationship using various expected
      * values. For example, $model->relation = $value;
      */
     public function setSimpleValue($value)
@@ -63,22 +62,33 @@ class HasMany extends HasManyBase
             $collection = $this->getRelated()->whereIn($this->localKey, (array) $value)->get();
         }
 
-        if ($collection) {
-            $this->parent->setRelation($this->relationName, $collection);
-
-            $this->parent->bindEventOnce('model.afterSave', function () use ($collection) {
-                $existingIds = $collection->pluck($this->localKey)->all();
-                $this->whereNotIn($this->localKey, $existingIds)->update([$this->getForeignKeyName() => null]);
-                $collection->each(function ($instance) {
-                    $instance->setAttribute($this->getForeignKeyName(), $this->getParentKey());
-                    $instance->save(['timestamps' => false]);
-                });
-            });
+        if (!$collection) {
+            return;
         }
+
+        $this->parent->setRelation($this->relationName, $collection);
+
+        $this->parent->bindEventOnce('model.afterSave', function() use ($collection) {
+            // Relation is already set, do nothing. This prevents the relationship
+            // from being nulled below and left unset because the save will ignore
+            // attribute values that are numerically equivalent (not dirty).
+            $collection = $collection->reject(function ($instance) {
+                return $instance->getOriginal($this->getForeignKeyName()) == $this->getParentKey();
+            });
+
+            $existingIds = $collection->pluck($this->localKey)->all();
+            $this->whereNotIn($this->localKey, $existingIds)
+                ->update([$this->getForeignKeyName() => null]);
+
+            $collection->each(function($instance) {
+                $instance->setAttribute($this->getForeignKeyName(), $this->getParentKey());
+                $instance->save(['timestamps' => false]);
+            });
+        });
     }
 
     /**
-     * Helper for getting this relationship simple value,
+     * getSimpleValue helper for getting this relationship simple value,
      * generally useful with form values.
      */
     public function getSimpleValue()

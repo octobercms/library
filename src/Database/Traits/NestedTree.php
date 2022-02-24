@@ -134,19 +134,25 @@ trait NestedTree
      */
     public function storeNewParent()
     {
-        $parentColumn = $this->getParentColumnName();
-        $isDirty = $this->isDirty($parentColumn);
+        // Has the parent column been set from the outside
+        $isDirty = $this->isDirty($this->getParentColumnName());
+        $parentId = $this->getParentId();
 
-        /**
-         * If the model has just been created and the parent ID is not null
-         * or if the model exists and the parent ID has changed then we
-         * need to move the model in the tree
-         */
+        // The parent ID column is nullable, including zero values,
+        // skipping this logic if the parent ID is already null.
+        if (!$parentId && $parentId !== null) {
+            $this->setAttribute($this->getParentColumnName(), null);
+            $parentId = null;
+        }
+
+        // If the model has just been created and the parent ID is not null
+        // or if the model exists and the parent ID has changed then we
+        // need to move the model in the tree
         if (
-            (!$this->exists && $this->getParentId() !== null) ||
+            (!$this->exists && $parentId !== null) ||
             ($this->exists && $isDirty)
         ) {
-            $this->moveToNewParentId = $this->getParentId();
+            $this->moveToNewParentId = $parentId;
         }
     }
 
@@ -495,27 +501,26 @@ trait NestedTree
      */
     public function scopeListsNested($query, $column, $key = null, $indent = '&nbsp;&nbsp;&nbsp;')
     {
-        $columns = [$this->getDepthColumnName(), $column];
+        $resultKeyName = $this->getKeyName();
+        $columns = [$this->getDepthColumnName(), $this->getParentColumnName(), $this->getKeyName(), $column];
         if ($key !== null) {
+            $resultKeyName = $key;
             $columns[] = $key;
         }
 
-        $results = new Collection($query->getQuery()->get($columns));
-        $values = $results->pluck($columns[1])->all();
-        $indentation = $results->pluck($columns[0])->all();
+        $values = $parentIds = [];
+        $results = $query->getQuery()->orderBy($this->getLeftColumnName())->get($columns);
+        foreach ($results as $result) {
+            $parentId = $result->{$this->getParentColumnName()};
+            if ($parentId && !isset($parentIds[$parentId])) {
+                continue;
+            }
 
-        if (count($values) !== count($indentation)) {
-            throw new Exception('Column mismatch in listsNested method. Are you sure the columns exist?');
-        }
-
-        foreach ($values as $_key => $value) {
-            $values[$_key] = str_repeat($indent, $indentation[$_key]) . $value;
-        }
-
-        if ($key !== null && count($results) > 0) {
-            $keys = $results->pluck($key)->all();
-
-            return array_combine($keys, $values);
+            $parentIds[$result->{$this->getKeyName()}] = true;
+            $values[$result->{$resultKeyName}] = str_repeat(
+                $indent,
+                $result->{$this->getDepthColumnName()}
+            ) . $result->{$column};
         }
 
         return $values;
@@ -723,7 +728,7 @@ trait NestedTree
             $level = $this->getLevel();
 
             $this->newNestedTreeQuery()
-                ->where($this->getKeyName(), '=', $this->getKey())
+                ->where($this->getKeyName(), $this->getKey())
                 ->update([$this->getDepthColumnName() => $level])
             ;
 
@@ -769,7 +774,7 @@ trait NestedTree
 
             foreach ($records as $record) {
                 $this->newNestedTreeQuery()
-                    ->where($this->getKeyName(), '=', $record->getKey())
+                    ->where($this->getKeyName(), $record->getKey())
                     ->update([
                         $this->getLeftColumnName() => $maxRight++,
                         $this->getRightColumnName() => $maxRight++,

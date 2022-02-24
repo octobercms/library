@@ -28,15 +28,12 @@ class BelongsToMany extends BelongsToManyBase
     public $orphanMode = false;
 
     /**
-     * Create a new belongs to many relationship instance.
+     * __construct a new belongs to many relationship instance.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Model  $parent
      * @param  string  $table
      * @param  string  $foreignPivotKey
      * @param  string  $relatedPivotKey
      * @param  string  $relationName
-     * @return void
      */
     public function __construct(
         Builder $query,
@@ -291,7 +288,7 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
-     * setSimpleValue is a helper for setting this relationship using various expected
+     * setSimpleValue helper for setting this relationship using various expected
      * values. For example, $model->relation = $value;
      */
     public function setSimpleValue($value)

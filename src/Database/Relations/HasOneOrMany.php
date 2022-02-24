@@ -80,8 +80,16 @@ trait HasOneOrMany
             }
 
             // Associate the model
-            $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
-            $model->save();
+            if ($this->parent->exists) {
+                $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
+                $model->save();
+            }
+            else {
+                $this->parent->bindEventOnce('model.afterSave', function () use ($model) {
+                    $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
+                    $model->save();
+                });
+            }
 
             // Use the opportunity to set the relation in memory
             if ($this instanceof HasOne) {

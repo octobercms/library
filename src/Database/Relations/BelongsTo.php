@@ -142,7 +142,7 @@ class BelongsTo extends BelongsToBase
     }
 
     /**
-     * setSimpleValue is a helper for setting this relationship using various expected
+     * setSimpleValue helper for setting this relationship using various expected
      * values. For example, $model->relation = $value;
      * @param mixed $value
      * @return void

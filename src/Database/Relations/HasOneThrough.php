@@ -20,8 +20,7 @@ class HasOneThrough extends HasOneThroughBase
     protected $relationName;
 
     /**
-     * Create a new has many relationship instance.
-     * @return void
+     * __construct a new has many relationship instance.
      */
     public function __construct(Builder $query, Model $farParent, Model $parent, $firstKey, $secondKey, $localKey, $secondLocalKey, $relationName = null)
     {
@@ -33,15 +32,14 @@ class HasOneThrough extends HasOneThroughBase
     }
 
     /**
-     * Determine whether close parent of the relation uses Soft Deletes.
-     *
+     * parentSoftDeletes determines whether close parent of the relation uses Soft Deletes.
      * @return bool
      */
     public function parentSoftDeletes()
     {
         $uses = class_uses_recursive(get_class($this->parent));
 
-        return in_array('October\Rain\Database\Traits\SoftDelete', $uses) ||
-            in_array('Illuminate\Database\Eloquent\SoftDeletes', $uses);
+        return in_array(\October\Rain\Database\Traits\SoftDelete::class, $uses) ||
+            in_array(\Illuminate\Database\Eloquent\SoftDeletes::class, $uses);
     }
 }

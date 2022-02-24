@@ -16,8 +16,7 @@ class HasOne extends HasOneBase
     use DefinedConstraints;
 
     /**
-     * Create a new has many relationship instance.
-     * @return void
+     * __construct a new has many relationship instance.
      */
     public function __construct(Builder $query, Model $parent, $foreignKey, $localKey, $relationName = null)
     {
@@ -44,7 +43,7 @@ class HasOne extends HasOneBase
     }
 
     /**
-     * Helper for setting this relationship using various expected
+     * setSimpleValue helper for setting this relationship using various expected
      * values. For example, $model->relation = $value;
      */
     public function setSimpleValue($value)
@@ -74,26 +73,28 @@ class HasOne extends HasOneBase
             $instance = $this->getRelated()->find($value);
         }
 
-        if ($instance) {
-            $this->parent->setRelation($this->relationName, $instance);
-
-            $this->parent->bindEventOnce('model.afterSave', function () use ($instance) {
-                // Relation is already set, do nothing. This prevents the relationship
-                // from being nulled below and left unset because the save will ignore
-                // attribute values that are numerically equivalent (not dirty).
-                if ($instance->getOriginal($this->getForeignKeyName()) == $this->getParentKey()) {
-                    return;
-                }
-
-                $this->update([$this->getForeignKeyName() => null]);
-                $instance->setAttribute($this->getForeignKeyName(), $this->getParentKey());
-                $instance->save(['timestamps' => false]);
-            });
+        if (!$instance) {
+            return;
         }
+
+        $this->parent->setRelation($this->relationName, $instance);
+
+        $this->parent->bindEventOnce('model.afterSave', function() use ($instance) {
+            // Relation is already set, do nothing. This prevents the relationship
+            // from being nulled below and left unset because the save will ignore
+            // attribute values that are numerically equivalent (not dirty).
+            if ($instance->getOriginal($this->getForeignKeyName()) == $this->getParentKey()) {
+                return;
+            }
+
+            $this->update([$this->getForeignKeyName() => null]);
+            $instance->setAttribute($this->getForeignKeyName(), $this->getParentKey());
+            $instance->save(['timestamps' => false]);
+        });
     }
 
     /**
-     * Helper for getting this relationship simple value,
+     * getSimpleValue helper for getting this relationship simple value,
      * generally useful with form values.
      */
     public function getSimpleValue()
