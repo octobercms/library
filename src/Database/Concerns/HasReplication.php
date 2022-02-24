@@ -31,14 +31,14 @@ trait HasReplication
 
         $instance->setRawAttributes($attributes);
 
-        $instance->setRelations($this->relations);
+        $definitions = $this->getRelationDefinitions();
 
-        foreach ($this->relations as $name => $models) {
-            if (!$this->isRelationReplicable($name)) {
-                continue;
+        foreach ($definitions as $type => $relations) {
+            foreach ($relations as $name => $options) {
+                if ($this->isRelationReplicable($name)) {
+                    $instance->replicateRelation($name, $this->$name);
+                }
             }
-
-            $instance->replicateRelation($name);
         }
 
         $instance->fireModelEvent('replicating', false);
@@ -47,15 +47,10 @@ trait HasReplication
     }
 
     /**
-     * replicateRelation of this model as a new instance
+     * replicateRelation on this model with the supplied ones
      */
-    public function replicateRelation($name)
+    public function replicateRelation($name, $models)
     {
-        $models = $this->relations[$name] ?? [];
-
-        // The add() method will restore this definition
-        unset($this->relations[$name]);
-
         if ($models instanceof CollectionBase) {
             $models = $models->all();
         }
