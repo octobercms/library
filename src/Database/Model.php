@@ -348,22 +348,7 @@ class Model extends EloquentModel
             return;
         }
 
-        $pivotModel = $definition['pivotModel'];
-
-        return new $pivotModel($parent, $attributes, $table, $exists);
-        $newPivot = new $pivotModel($attributes);
-        $newPivot->setRawAttributes($attributes, true);
-
-        $newPivot->setTable($table);
-
-        $newPivot->setConnection($parent->getConnectionName());
-        $newPivot->pivotParent = $parent;
-
-        $newPivot->exists = $exists;
-
-        $newPivot->timestamps = $newPivot->hasTimestampAttributes();
-
-        return $newPivot;
+        return $this->newPivot($parent, $attributes, $table, $exists, $definition['pivotModel']);
     }
 
     //
