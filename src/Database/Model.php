@@ -143,26 +143,28 @@ class Model extends EloquentModel
             return;
         }
 
-        $radicals = ['creat', 'sav', 'updat', 'delet', 'fetch'];
-        $hooks = ['before' => 'ing', 'after' => 'ed'];
+        $nicerEvents = [
+            'creating' => 'beforeCreate',
+            'created' => 'afterCreate',
+            'saving' => 'beforeSave',
+            'saved' => 'afterSave',
+            'updating' => 'beforeUpdate',
+            'updated' => 'afterUpdate',
+            'deleting' => 'beforeDelete',
+            'deleted' => 'afterDelete',
+            'fetching' => 'beforeFetch',
+            'fetched' => 'afterFetch',
+            'replicating' => 'beforeReplicate',
+        ];
 
-        foreach ($radicals as $radical) {
-            foreach ($hooks as $hook => $event) {
-                $eventMethod = $radical . $event; // saving / saved
-                $method = $hook . ucfirst($radical); // beforeSave / afterSave
+        foreach ($nicerEvents as $eventMethod => $method) {
+            self::$eventMethod(function ($model) use ($method) {
+                $model->fireEvent('model.' . $method);
 
-                if ($radical !== 'fetch') {
-                    $method .= 'e';
+                if ($model->methodExists($method)) {
+                    return $model->$method();
                 }
-
-                self::$eventMethod(function ($model) use ($method) {
-                    $model->fireEvent('model.' . $method);
-
-                    if ($model->methodExists($method)) {
-                        return $model->$method();
-                    }
-                });
-            }
+            });
         }
 
         // Boot event
@@ -400,6 +402,24 @@ class Model extends EloquentModel
     }
 
     /**
+     * beforeReplicate
+     */
+    protected function beforeReplicate()
+    {
+        /**
+         * @event model.beforeReplicate
+         * Called as the model is replicated
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.beforeReplicate', function () use (\October\Rain\Database\Model $model) {
+         *         \Log::info("{$model->name} is being replicated");
+         *     });
+         *
+         */
+    }
+
+    /**
      * newInstance creates a new instance of the given model.
      * @param  array  $attributes
      * @param  bool  $exists
@@ -514,7 +534,7 @@ class Model extends EloquentModel
         return array_merge(
             [
                 'creating', 'created', 'updating', 'updated',
-                'deleting', 'deleted', 'saving', 'saved',
+                'deleting', 'deleted', 'saving', 'saved', 'replicating',
                 'restoring', 'restored', 'fetching', 'fetched'
             ],
             $this->observables

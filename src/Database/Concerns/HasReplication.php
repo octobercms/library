@@ -31,6 +31,8 @@ trait HasReplication
 
         $instance->setRawAttributes($attributes);
 
+        $instance->fireModelEvent('replicating', false);
+
         $definitions = $this->getRelationDefinitions();
 
         foreach ($definitions as $type => $relations) {
@@ -40,8 +42,6 @@ trait HasReplication
                 }
             }
         }
-
-        $instance->fireModelEvent('replicating', false);
 
         return $instance;
     }
