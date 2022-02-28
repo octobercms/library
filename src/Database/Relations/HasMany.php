@@ -69,13 +69,6 @@ class HasMany extends HasManyBase
         $this->parent->setRelation($this->relationName, $collection);
 
         $this->parent->bindEventOnce('model.afterSave', function() use ($collection) {
-            // Relation is already set, do nothing. This prevents the relationship
-            // from being nulled below and left unset because the save will ignore
-            // attribute values that are numerically equivalent (not dirty).
-            $collection = $collection->reject(function ($instance) {
-                return $instance->getOriginal($this->getForeignKeyName()) == $this->getParentKey();
-            });
-
             $existingIds = $collection->pluck($this->localKey)->all();
             $this->whereNotIn($this->localKey, $existingIds)
                 ->update([$this->getForeignKeyName() => null]);

@@ -20,6 +20,10 @@ class Revision extends Model
      */
     public function getNewValueAttribute($value)
     {
+        if ($value === null) {
+            return null;
+        }
+
         if ($this->cast === 'date') {
             return $this->asDateTime($value);
         }
@@ -32,6 +36,10 @@ class Revision extends Model
      */
     public function getOldValueAttribute($value)
     {
+        if ($value === null) {
+            return null;
+        }
+
         if ($this->cast === 'date') {
             return $this->asDateTime($value);
         }
