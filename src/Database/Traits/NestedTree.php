@@ -135,8 +135,9 @@ trait NestedTree
     public function storeNewParent()
     {
         // Has the parent column been set from the outside
-        $isDirty = $this->isDirty($this->getParentColumnName());
         $parentId = $this->getParentId();
+        $parentOld = $this->getOriginal($this->getParentColumnName());
+        $isDirty = (int) $parentOld !== (int) $parentId;
 
         // The parent ID column is nullable, including zero values,
         // skipping this logic if the parent ID is already null.
