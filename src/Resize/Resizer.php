@@ -68,6 +68,10 @@ class Resizer
             exit(1);
         }
 
+        if (!$file) {
+            throw new Exception('Opened resizer on an empty file');
+        }
+
         if (is_string($file)) {
             $file = new FileObj($file);
         }

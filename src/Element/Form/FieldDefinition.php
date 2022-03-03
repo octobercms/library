@@ -197,7 +197,16 @@ class FieldDefinition
     }
 
     /**
-     * options for dropdowns, radio lists and checkbox lists
+     * hasOptions returns true if options have been specified
+     */
+    public function hasOptions(): bool
+    {
+        return $this->options !== null;
+    }
+
+    /**
+     * options get/set for dropdowns, radio lists and checkbox lists
+     * @return array|self
      */
     public function options($value = null)
     {
@@ -205,7 +214,8 @@ class FieldDefinition
             if (is_array($this->options)) {
                 return $this->options;
             }
-            elseif (is_callable($this->options)) {
+
+            if (is_callable($this->options)) {
                 $callable = $this->options;
                 return $callable();
             }
