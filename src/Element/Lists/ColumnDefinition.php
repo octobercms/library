@@ -131,7 +131,7 @@ class ColumnDefinition
             $this->useConfig($config);
         }
 
-        $this->type = strtolower($type ?: $this->type);
+        $this->type = $type ?: $this->type;
 
         // Desirable logic
         // $this->type = strtolower($type);
