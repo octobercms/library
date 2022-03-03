@@ -150,7 +150,7 @@ class FieldDefinition
      */
     public function displayAs(string $type): FieldDefinition
     {
-        $this->type = strtolower($type);
+        $this->type = $type;
 
         return $this;
     }

@@ -125,7 +125,7 @@ class ColumnDefinition
      */
     public function displayAs(string $type): ColumnDefinition
     {
-        $this->type = strtolower($type);
+        $this->type = $type;
 
         return $this;
     }
