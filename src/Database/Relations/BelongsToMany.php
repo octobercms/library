@@ -15,6 +15,7 @@ class BelongsToMany extends BelongsToManyBase
 {
     use DeferOneOrMany;
     use DefinedConstraints;
+    use \October\Rain\Database\Concerns\HasNicerPagination;
 
     /**
      * @var bool countMode sets this relation object is a 'count' helper
@@ -252,11 +253,55 @@ class BelongsToMany extends BelongsToManyBase
      * @param  string  $pageName
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate($perPage = 15, $currentPage = null, $columns = ['*'], $pageName = 'page')
+    public function paginate($perPage = null, $columns = ['*'], $pageName = 'page', $currentPage = null)
     {
+        // Legacy signature support
+        // paginate($perPage, $currentPage, $columns, $pageName)
+        if (!is_array($columns)) {
+            $_currentPage = $columns;
+            $_columns = $pageName;
+            $_pageName = $currentPage;
+
+            $columns = is_array($_columns) ? $_columns : ['*'];
+            $pageName = $_pageName !== null ? $_pageName : 'page';
+            $currentPage = is_array($_currentPage) ? null : $_currentPage;
+        }
+
         $this->query->addSelect($this->shouldSelect($columns));
 
         $paginator = $this->query->paginate($perPage, $currentPage, $columns);
+
+        $this->hydratePivotRelation($paginator->items());
+
+        return $paginator;
+    }
+
+    /**
+     * simplePaginate using a simple paginator.
+     *
+     * @param  int|null  $perPage
+     * @param  array  $columns
+     * @param  string  $pageName
+     * @param  int|null  $page
+     * @return \Illuminate\Contracts\Pagination\Paginator
+     */
+    public function simplePaginate($perPage = null, $columns = ['*'], $pageName = 'page', $currentPage = null)
+    {
+        // Legacy signature support
+        // paginate($perPage, $currentPage, $columns, $pageName)
+        if (!is_array($columns)) {
+            $_currentPage = $columns;
+            $_columns = $pageName;
+            $_pageName = $currentPage;
+
+            $columns = is_array($_columns) ? $_columns : ['*'];
+            $pageName = $_pageName !== null ? $_pageName : 'page';
+            $currentPage = is_array($_currentPage) ? null : $_currentPage;
+        }
+
+        $this->query->addSelect($this->shouldSelect($columns));
+
+        $paginator = $this->query->simplePaginate($perPage, $currentPage, $columns);
 
         $this->hydratePivotRelation($paginator->items());
 
