@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Exception;
 
 /**
- * Model Data Feed class.
+ * DataFeed model class
  *
  * Combine various models in to a single feed.
  *
@@ -49,22 +49,22 @@ class DataFeed
     public $limitOffset = null;
 
     /**
-     * @var array Model collection pre-query.
+     * @var array collection of models pre-query.
      */
     protected $collection = [];
 
     /**
-     * @var Builder Cache containing the generic collection union query.
+     * @var Builder queryCache containing the generic collection union query.
      */
     protected $queryCache;
 
     /**
-     * @var bool
+     * @var bool removeDuplicates
      */
     public $removeDuplicates = false;
 
     /**
-     * Add a new Builder to the feed collection
+     * add a new Builder to the feed collection
      */
     public function add($tag, $item, $orderBy = null)
     {

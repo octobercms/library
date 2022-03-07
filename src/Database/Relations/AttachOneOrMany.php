@@ -186,10 +186,21 @@ trait AttachOneOrMany
                 $this->delete();
             }
 
-            $model->setAttribute($this->getForeignKeyName(), $this->parent->getKey());
-            $model->setAttribute($this->getMorphType(), $this->morphClass);
-            $model->setAttribute('field', $this->relationName);
-            $model->save();
+            // Associate the model
+            if ($this->parent->exists) {
+                $model->setAttribute($this->getForeignKeyName(), $this->parent->getKey());
+                $model->setAttribute($this->getMorphType(), $this->morphClass);
+                $model->setAttribute('field', $this->relationName);
+                $model->save();
+            }
+            else {
+                $this->parent->bindEventOnce('model.afterSave', function () use ($model) {
+                    $model->setAttribute($this->getForeignKeyName(), $this->parent->getKey());
+                    $model->setAttribute($this->getMorphType(), $this->morphClass);
+                    $model->setAttribute('field', $this->relationName);
+                    $model->save();
+                });
+            }
 
             /*
              * Use the opportunity to set the relation in memory

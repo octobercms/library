@@ -221,8 +221,17 @@ class BelongsToMany extends BelongsToManyBase
             $sessionKey = null;
         }
 
+        // Associate the model
         if ($sessionKey === null) {
-            $this->attach($model, $pivotData);
+            if ($this->parent->exists) {
+                $this->attach($model, $pivotData);
+            }
+            else {
+                $this->parent->bindEventOnce('model.afterSave', function () use ($model, $pivotData) {
+                    $this->attach($model, $pivotData);
+                });
+            }
+
             $this->parent->reloadRelations($this->relationName);
         }
         else {
