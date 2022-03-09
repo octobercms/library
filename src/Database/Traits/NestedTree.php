@@ -146,13 +146,16 @@ trait NestedTree
             $parentId = null;
         }
 
-        // If the model has just been created and the parent ID is not null
-        // or if the model exists and the parent ID has changed then we
-        // need to move the model in the tree
-        if (
-            (!$this->exists && $parentId !== null) ||
-            ($this->exists && $isDirty)
-        ) {
+        // Parent is not set or unchanged
+        if (!$isDirty) {
+            $this->moveToNewParentId = false;
+        }
+        // Created as a root node
+        elseif (!$this->exists && !$parentId) {
+            $this->moveToNewParentId = false;
+        }
+        // Parent has been set
+        else {
             $this->moveToNewParentId = $parentId;
         }
     }
@@ -190,18 +193,14 @@ trait NestedTree
             $left = $this->getLeft();
             $right = $this->getRight();
 
-            /*
-             * Delete children
-             */
+            // Delete children
             $this->newNestedTreeQuery()
                 ->where($leftCol, '>', $left)
                 ->where($rightCol, '<', $right)
                 ->delete()
             ;
 
-            /*
-             * Update left and right indexes for the remaining nodes
-             */
+            // Update left and right indexes for the remaining nodes
             $diff = $right - $left + 1;
 
             $this->newNestedTreeQuery()
@@ -231,9 +230,7 @@ trait NestedTree
             $left = $this->getLeft();
             $right = $this->getRight();
 
-            /*
-             * Update left and right indexes for the remaining nodes
-             */
+            // Update left and right indexes for the remaining nodes
             $diff = $right - $left + 1;
 
             $this->newNestedTreeQuery()
@@ -799,9 +796,7 @@ trait NestedTree
      */
     protected function moveTo($target, $position)
     {
-        /*
-         * Validate target
-         */
+        // Validate target
         if ($target instanceof \October\Rain\Database\Model) {
             $target->reload();
         }
@@ -809,23 +804,17 @@ trait NestedTree
             $target = $this->newNestedTreeQuery()->find($target);
         }
 
-        /*
-         * Validate move
-         */
+        // Validate move
         if (!$this->validateMove($this, $target, $position)) {
             return $this;
         }
 
-        /*
-         * Perform move
-         */
+        // Perform move
         $this->getConnection()->transaction(function () use ($target, $position) {
             $this->performMove($this, $target, $position);
         });
 
-        /*
-         * Reapply alignments
-         */
+        // Reapply alignments
         $target->reload();
         $this->setDepth();
 
