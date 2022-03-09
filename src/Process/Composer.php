@@ -17,7 +17,7 @@ class Composer extends ProcessBase
      * useLocalLibrary tells composer to use the local library version to run
      * commands, this is useful when composer is not installed on the server
      */
-    protected function useLocalLibrary(bool $value)
+    public function useLocalLibrary(bool $value = true)
     {
         $this->useLocalLibrary = $value;
     }

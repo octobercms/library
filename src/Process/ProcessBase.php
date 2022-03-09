@@ -112,4 +112,12 @@ class ProcessBase
     {
         return $this->exitCode;
     }
+
+    /**
+     * lastOutput returns the last known output
+     */
+    public function lastOutput()
+    {
+        return $this->output;
+    }
 }
