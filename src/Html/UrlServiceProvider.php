@@ -21,18 +21,19 @@ class UrlServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->setUrlGeneratorPolicy();
+        $this->registerUrlGeneratorPolicy();
+        $this->registerRelativeHelper();
     }
 
     /**
-     * setUrlGeneratorPolicy controls how URL links are generated throughout the application.
+     * registerUrlGeneratorPolicy controls how URL links are generated throughout the application.
      *
      * detect   - detect hostname and use the current schema
      * secure   - detect hostname and force HTTPS schema
      * insecure - detect hostname and force HTTP schema
      * force    - force hostname and schema using app.url config value
      */
-    public function setUrlGeneratorPolicy()
+    public function registerUrlGeneratorPolicy()
     {
         $policy = $this->app['config']->get('system.link_policy', 'detect');
 
@@ -52,5 +53,17 @@ class UrlServiceProvider extends ServiceProvider
                 $this->app['url']->forceScheme('https');
                 break;
         }
+    }
+
+    /**
+     * registerRelativeHelper
+     */
+    public function registerRelativeHelper()
+    {
+        $provider = $this->app['url'];
+
+        $provider->macro('toRelative', function($url) use ($provider) {
+            return parse_url($provider->to($url), PHP_URL_PATH);
+        });
     }
 }

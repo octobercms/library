@@ -19,6 +19,11 @@ class ColumnDefinition
     public $label;
 
     /**
+     * @var string shortLabel used in list headers
+     */
+    public $shortLabel;
+
+    /**
      * @var string type for display mode, eg: text, number
      */
     public $type = 'text';
@@ -74,6 +79,9 @@ class ColumnDefinition
         if (isset($config['label'])) {
             $this->label($config['label']);
         }
+        if (isset($config['shortLabel'])) {
+            $this->shortLabel($config['shortLabel']);
+        }
         if (isset($config['type'])) {
             $this->displayAs($config['type']);
         }
@@ -115,6 +123,16 @@ class ColumnDefinition
     public function label(string $label): ColumnDefinition
     {
         $this->label = $label;
+
+        return $this;
+    }
+
+    /**
+     * shortLabel for this column
+     */
+    public function shortLabel(string $shortLabel): ColumnDefinition
+    {
+        $this->shortLabel = $shortLabel;
 
         return $this;
     }

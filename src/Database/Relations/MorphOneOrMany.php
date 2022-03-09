@@ -69,9 +69,18 @@ trait MorphOneOrMany
             }
 
             // Associate the model
-            $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
-            $model->setAttribute($this->getMorphType(), $this->morphClass);
-            $model->save();
+            if ($this->parent->exists) {
+                $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
+                $model->setAttribute($this->getMorphType(), $this->morphClass);
+                $model->save();
+            }
+            else {
+                $this->parent->bindEventOnce('model.afterSave', function () use ($model) {
+                    $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
+                    $model->setAttribute($this->getMorphType(), $this->morphClass);
+                    $model->save();
+                });
+            }
 
             // Use the opportunity to set the relation in memory
             if ($this instanceof MorphOne) {

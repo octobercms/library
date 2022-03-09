@@ -62,7 +62,7 @@ class Handler extends ExceptionHandler
          *         }
          *     });
          */
-        if (Event::fire('exception.beforeReport', [$exception], true) === false) {
+        if (Event::fire('exception.beforeReport', [&$exception], true) === false) {
             return;
         }
 

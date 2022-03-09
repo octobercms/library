@@ -3,6 +3,7 @@
 use October\Rain\Support\Arr;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Collection as CollectionBase;
+use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 
 /**
  * HasReplication for a model
@@ -61,8 +62,15 @@ trait HasReplication
             $models = (array) $models;
         }
 
+        $relationObject = $this->$name();
+
         foreach (array_filter($models) as $model) {
-            $this->$name()->add($model->replicate());
+            if ($relationObject instanceof HasOneOrMany) {
+                $relationObject->add($model->replicate());
+            }
+            else {
+                $relationObject->add($model);
+            }
         }
     }
 

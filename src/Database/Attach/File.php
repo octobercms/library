@@ -28,7 +28,7 @@ class File extends Model
     protected $table = 'files';
 
     /**
-     * morphTo relation
+     * @var array morphTo relation
      */
     public $morphTo = [
         'attachment' => []
@@ -109,9 +109,7 @@ class File extends Model
         $this->content_type = $uploadedFile->getMimeType();
         $this->disk_name = $this->getDiskName();
 
-        /*
-         * getRealPath() can be empty for some environments (IIS)
-         */
+        // getRealPath() can be empty for some environments (IIS)
         $realPath = empty(trim($uploadedFile->getRealPath()))
             ? $uploadedFile->getPath() . DIRECTORY_SEPARATOR . $uploadedFile->getFileName()
             : $uploadedFile->getRealPath();
@@ -280,10 +278,10 @@ class File extends Model
      * @param integer $width
      * @param integer $height
      * @param array $options [
-     *     'mode'      => 'auto',
-     *     'offset'    => [0, 0],
-     *     'quality'   => 90,
-     *     'sharpen'   => 0,
+     *     'mode' => 'auto',
+     *     'offset' => [0, 0],
+     *     'quality' => 90,
+     *     'sharpen' => 0,
      *     'interlace' => false,
      *     'extension' => 'auto',
      *     'disposition' => 'inline',
@@ -493,8 +491,10 @@ class File extends Model
     public function afterDelete()
     {
         try {
-            $this->deleteThumbs();
-            $this->deleteFile();
+            if ($this->shouldDeleteFile()) {
+                $this->deleteThumbs();
+                $this->deleteFile();
+            }
         }
         catch (Exception $ex) {
         }
@@ -527,10 +527,10 @@ class File extends Model
      * @param integer $width
      * @param integer $height
      * @param array $options [
-     *     'mode'      => 'auto',
-     *     'offset'    => [0, 0],
-     *     'quality'   => 90,
-     *     'sharpen'   => 0,
+     *     'mode' => 'auto',
+     *     'offset' => [0, 0],
+     *     'quality' => 90,
+     *     'sharpen' => 0,
      *     'interlace' => false,
      *     'extension' => 'auto',
      * ]
@@ -586,10 +586,10 @@ class File extends Model
     protected function getDefaultThumbOptions($overrideOptions = [])
     {
         $defaultOptions = [
-            'mode'      => 'auto',
-            'offset'    => [0, 0],
-            'quality'   => 90,
-            'sharpen'   => 0,
+            'mode' => 'auto',
+            'offset' => [0, 0],
+            'quality' => 90,
+            'sharpen' => 0,
             'interlace' => false,
             'extension' => 'auto',
         ];
@@ -765,6 +765,25 @@ class File extends Model
         }
 
         return FileHelper::copy($sourcePath, $destinationPath . $destinationFileName);
+    }
+
+    /**
+     * shouldDeleteFile returns true if the file should be deleted.
+     */
+    protected function shouldDeleteFile($fileName = null): bool
+    {
+        if (!$fileName) {
+            $fileName = $this->disk_name;
+        }
+
+        if (!$fileName) {
+            return false;
+        }
+
+        return $this
+            ->newQueryWithoutScopes()
+            ->where('disk_name', $fileName)
+            ->count() === 0;
     }
 
     /**

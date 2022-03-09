@@ -41,17 +41,32 @@ class Composer extends ProcessBase
     /**
      * require runs the "composer require" command
      */
-    public function require(...$packages)
+    public function require($package, $version = null, ...$args)
     {
-        $this->runComposerCommand(...array_merge(['require'], $packages));
+        $args[] = '--update-with-dependencies';
+
+        if ($version) {
+            $this->runComposerCommand('require', $package, $version, ...$args);
+        }
+        else {
+            $this->runComposerCommand('require', $package, ...$args);
+        }
+    }
+
+    /**
+     * requireNoUpdate will include a package without dependencies
+     */
+    public function requireNoUpdate($package, $version = null, ...$args)
+    {
+        return $this->require($package, $version, '--no-update', ...$args);
     }
 
     /**
      * remove runs the "composer remove" command
      */
-    public function remove(...$packages)
+    public function remove($package, ...$args)
     {
-        $this->runComposerCommand(...array_merge(['remove'], $packages));
+        $this->runComposerCommand('remove', $package, ...$args);
     }
 
     /**
