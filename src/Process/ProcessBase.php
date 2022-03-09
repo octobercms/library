@@ -58,13 +58,7 @@ class ProcessBase
     {
         $this->output = '';
 
-        $process = new Process($command);
-        $process->setTimeout(null);
-        $process->setIdleTimeout(null);
-        $process->run();
-
-        $this->output = $process->getOutput();
-        $this->exitCode = $process->getExitCode();
+        $this->runProcessQuery($command);
 
         return $this->output;
     }
@@ -76,17 +70,40 @@ class ProcessBase
     {
         $this->output = '';
 
+        $this->runProcessQuery($command, function($type, $data) use ($callback) {
+            $callback($data);
+        });
+
+        return $this->output;
+    }
+
+    /**
+     * runProcessQuery is an internal helper for running processes
+     */
+    protected function runProcessQuery($command, $callback = null)
+    {
         $process = new Process($command);
         $process->setTimeout(null);
         $process->setIdleTimeout(null);
-        $process->mustRun(function($type, $data) use ($callback) {
-            $callback($data);
-        });
+
+        if ($env = $this->makeEnvironmentVars()) {
+            $process->setEnv($env);
+        }
+
+        $process->mustRun($callback);
 
         $this->output = $process->getOutput();
         $this->exitCode = $process->getExitCode();
 
-        return $this->output;
+        return $process;
+    }
+
+    /**
+     * makeEnvironmentVars builds environment variables
+     */
+    protected function makeEnvironmentVars(): array
+    {
+        return [];
     }
 
     /**
