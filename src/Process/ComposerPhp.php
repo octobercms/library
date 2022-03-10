@@ -1,6 +1,8 @@
 <?php namespace October\Rain\Process;
 
+use Composer\Json\JsonFile;
 use Composer\Semver\VersionParser;
+use Composer\Config\JsonConfigSource;
 
 /**
  * ComposerPhp handles the composer process functions purely in PHP
@@ -24,6 +26,21 @@ class ComposerPhp extends ProcessBase
     public function listAllPackages()
     {
         return $this->listPackagesInternal(false);
+    }
+
+    /**
+     * addRepository will add a repository to the composer config
+     */
+    public function addRepository($name, $type, $address)
+    {
+        $file = new JsonFile(base_path('composer.json'));
+
+        $config = new JsonConfigSource($file);
+
+        $config->addRepository($name, [
+            'type' => $type,
+            'url' => $address
+        ]);
     }
 
     /**
