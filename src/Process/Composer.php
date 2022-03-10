@@ -17,7 +17,7 @@ class Composer extends ProcessBase
      * useLocalLibrary tells composer to use the local library version to run
      * commands, this is useful when composer is not installed on the server
      */
-    protected function useLocalLibrary(bool $value)
+    public function useLocalLibrary(bool $value = true)
     {
         $this->useLocalLibrary = $value;
     }
@@ -173,5 +173,25 @@ class Composer extends ProcessBase
     protected function getComposerBin(): string
     {
         return (string) env('COMPOSER_BIN', 'composer');
+    }
+
+    /**
+     * makeEnvironmentVars builds environment variables
+     */
+    protected function makeEnvironmentVars(): array
+    {
+        $vars = [];
+
+        foreach (getenv() as $var => $val) {
+            if (in_array($var, ['APPDATA', 'COMPOSER_HOME'])) {
+                $vars[$var] = $val;
+            }
+        }
+
+        if (!isset($vars['COMPOSER_HOME'])) {
+            $vars['COMPOSER_HOME'] = cache_path('temp/composer');
+        }
+
+        return $vars;
     }
 }
