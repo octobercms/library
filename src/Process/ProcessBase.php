@@ -85,25 +85,12 @@ class ProcessBase
         $process = new Process($command);
         $process->setTimeout(null);
         $process->setIdleTimeout(null);
-
-        if ($env = $this->makeEnvironmentVars()) {
-            $process->setEnv($env);
-        }
-
         $process->mustRun($callback);
 
         $this->output = $process->getOutput();
         $this->exitCode = $process->getExitCode();
 
         return $process;
-    }
-
-    /**
-     * makeEnvironmentVars builds environment variables
-     */
-    protected function makeEnvironmentVars(): array
-    {
-        return [];
     }
 
     /**

@@ -174,24 +174,4 @@ class Composer extends ProcessBase
     {
         return (string) env('COMPOSER_BIN', 'composer');
     }
-
-    /**
-     * makeEnvironmentVars builds environment variables
-     */
-    protected function makeEnvironmentVars(): array
-    {
-        $vars = [];
-
-        foreach (getenv() as $var => $val) {
-            if (in_array($var, ['APPDATA', 'COMPOSER_HOME'])) {
-                $vars[$var] = $val;
-            }
-        }
-
-        if (!isset($vars['COMPOSER_HOME'])) {
-            $vars['COMPOSER_HOME'] = cache_path('temp/composer');
-        }
-
-        return $vars;
-    }
 }
