@@ -21,7 +21,7 @@ abstract class ElementBase extends Fluent
 
         $this->extendableConstruct();
 
-        $this->setDefaultValues();
+        $this->initDefaultValues();
     }
 
     /**
@@ -35,9 +35,9 @@ abstract class ElementBase extends Fluent
     }
 
     /**
-     * setDefaultValues for this element
+     * initDefaultValues for this element
      */
-    protected function setDefaultValues()
+    protected function initDefaultValues()
     {
     }
 

@@ -37,9 +37,21 @@ class ScopeDefinition extends ElementBase
     }
 
     /**
-     * setDefaultValues for this scope
+     * setScopeValue
      */
-    protected function setDefaultValues()
+    public function setScopeValue($value)
+    {
+        $this->scopeValue($value);
+
+        if (is_array($value)) {
+            $this->attributes = array_merge($this->attributes, $value);
+        }
+    }
+
+    /**
+     * initDefaultValues for this scope
+     */
+    protected function initDefaultValues()
     {
         $this
             ->nameFrom('name')
