@@ -37,15 +37,23 @@ class ScopeDefinition extends ElementBase
     }
 
     /**
+     * hasOptions returns true if options have been specified
+     */
+    public function hasOptions(): bool
+    {
+        return $this->options !== null;
+    }
+
+    /**
      * setScopeValue
      */
     public function setScopeValue($value)
     {
-        $this->scopeValue($value);
-
         if (is_array($value)) {
             $this->attributes = array_merge($this->attributes, $value);
         }
+
+        $this->scopeValue($value);
     }
 
     /**
