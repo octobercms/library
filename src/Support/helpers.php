@@ -21,7 +21,7 @@ if (!function_exists('input')) {
     function input($name = null, $default = null)
     {
         if ($name === null) {
-            return Request::all();
+            return Request::input();
         }
 
         /*
@@ -31,7 +31,7 @@ if (!function_exists('input')) {
             $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
         }
 
-        return Request::get($name, $default);
+        return Request::input($name, $default);
     }
 }
 
@@ -46,17 +46,15 @@ if (!function_exists('post')) {
         }
 
         if ($name === null) {
-            return Request::all();
+            return Request::post();
         }
 
-        /*
-         * Array field name, eg: field[key][key2][key3]
-         */
+        // Array field name, eg: field[key][key2][key3]
         if (class_exists('October\Rain\Html\Helper')) {
             $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
         }
 
-        return array_get(Request::all(), $name, $default);
+        return array_get(Request::post(), $name, $default);
     }
 }
 
@@ -70,9 +68,7 @@ if (!function_exists('get')) {
             return Request::query();
         }
 
-        /*
-         * Array field name, eg: field[key][key2][key3]
-         */
+        // Array field name, eg: field[key][key2][key3]
         if (class_exists('October\Rain\Html\Helper')) {
             $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
         }

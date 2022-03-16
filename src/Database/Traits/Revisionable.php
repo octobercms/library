@@ -147,8 +147,9 @@ trait Revisionable
     {
         $relation = $this->getRevisionHistoryName();
         $relationObject = $this->{$relation}();
-
-        $revisionLimit = (int) $this->revisionableLimit;
+        $revisionLimit = property_exists($this, 'revisionableLimit')
+            ? (int) $this->revisionableLimit
+            : 500;
 
         $toDelete = $relationObject
             ->orderBy('id', 'desc')
