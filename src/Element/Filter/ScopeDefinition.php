@@ -38,11 +38,11 @@ class ScopeDefinition extends ElementBase
     }
 
     /**
-     * nameFrom sets the default value for valueFrom
+     * scopeName sets the default value for valueFrom
      */
-    public function nameFrom($value): ScopeDefinition
+    public function scopeName($value): ScopeDefinition
     {
-        $this->attributes['nameFrom'] = $value;
+        $this->attributes['scopeName'] = $value;
 
         if (!isset($this->attributes['valueFrom'])) {
             $this->attributes['valueFrom'] = $value;
