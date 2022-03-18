@@ -9,7 +9,8 @@ use October\Rain\Element\ElementBase;
  * @method ScopeDefinition scopeName(string $name) scopeName for this scope
  * @method ScopeDefinition label(string $label) label for this scope
  * @method ScopeDefinition value(mixed $value) current value for this scope
- * @method ScopeDefinition nameFrom(string $column) nameFrom column to use for the display name
+ * @method ScopeDefinition nameFrom(string $column) nameFrom model attribute to use for the display name
+ * @method ScopeDefinition valueFrom(mixed $value) valueFrom model attribute to use for the source value
  * @method ScopeDefinition descriptionFrom(string $column) descriptionFrom column to use for the description
  * @method ScopeDefinition options(mixed $options) options for the scope
  * @method ScopeDefinition dependsOn(array $scopes) dependsOn other scopes, when the other scopes are modified, this scope will update
@@ -34,6 +35,20 @@ class ScopeDefinition extends ElementBase
     public function displayAs($type): ScopeDefinition
     {
         return $this->type($type ?: $this->type);
+    }
+
+    /**
+     * nameFrom sets the default value for valueFrom
+     */
+    public function nameFrom($value): ScopeDefinition
+    {
+        $this->attributes['nameFrom'] = $value;
+
+        if (!isset($this->attributes['valueFrom'])) {
+            $this->attributes['valueFrom'] = $value;
+        }
+
+        return $this;
     }
 
     /**
