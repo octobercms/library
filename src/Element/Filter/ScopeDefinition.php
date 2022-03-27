@@ -60,6 +60,30 @@ class ScopeDefinition extends ElementBase
     }
 
     /**
+     * options get/set for dropdowns, radio lists and checkbox lists
+     * @return array|self
+     */
+    public function options($value = null)
+    {
+        if ($value === null) {
+            if (is_array($this->options)) {
+                return $this->options;
+            }
+
+            if (is_callable($this->options)) {
+                $callable = $this->options;
+                return $callable();
+            }
+
+            return [];
+        }
+
+        $this->attributes['options'] = $value;
+
+        return $this;
+    }
+
+    /**
      * setScopeValue
      */
     public function setScopeValue($value)
