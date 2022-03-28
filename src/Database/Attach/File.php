@@ -152,7 +152,7 @@ class File extends Model
             return;
         }
 
-        $tempPath = temp_path($filename);
+        $tempPath = temp_path(basename($filename));
         FileHelper::put($tempPath, $data);
 
         $file = $this->fromFile($tempPath);
