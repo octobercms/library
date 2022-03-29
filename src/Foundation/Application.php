@@ -206,11 +206,22 @@ class Application extends ApplicationBase
 
         $this->loadDeferredProviderIfNeeded($abstract);
 
-        if ($parameters) {
-            return $this->make(Maker::class)->make($abstract, $parameters);
+        // Numerical array suggests makeWithArgs, otherwise associative is makeWith params
+        if ($parameters && array_keys($parameters) === range(0, count($parameters) - 1)) {
+            return $this->makeWithArgs($abstract, $parameters);
         }
 
-        return parent::make($abstract);
+        return parent::make($abstract, $parameters);
+    }
+
+    /**
+     * makeWithArgs uses the Maker class to resolve interfaces where manual args are
+     * passed in addition to resolved paramters.
+     * @return mixed
+     */
+    public function makeWithArgs($abstract, array $args = [])
+    {
+        return $this->make(Maker::class)->make($abstract, $args);
     }
 
     /**
