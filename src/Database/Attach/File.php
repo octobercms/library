@@ -71,7 +71,7 @@ class File extends Model
 
     /**
      * @var mixed data is a local file name or an instance of an uploaded file,
-     * objects of the \Symfony\Component\HttpFoundation\File\UploadedFile class.
+     * objects of the UploadedFile class.
      */
     public $data = null;
 
@@ -96,7 +96,8 @@ class File extends Model
 
     /**
      * fromPost creates a file object from a file an uploaded file
-     * @param Symfony\Component\HttpFoundation\File\UploadedFile $uploadedFile
+     * @param UploadedFile $uploadedFile
+     * @return $this
      */
     public function fromPost($uploadedFile)
     {
@@ -121,15 +122,18 @@ class File extends Model
 
     /**
      * fromFile creates a file object from a file on the disk
+     * @param string $filePath
+     * @param string $filename
+     * @return $this
      */
-    public function fromFile($filePath)
+    public function fromFile($filePath, $filename = null)
     {
         if ($filePath === null) {
             return;
         }
 
         $file = new FileObj($filePath);
-        $this->file_name = $file->getFilename();
+        $this->file_name = empty($filename) ? $file->getFilename() : $filename;
         $this->file_size = $file->getSize();
         $this->content_type = $file->getMimeType();
         $this->disk_name = $this->getDiskName();
@@ -141,8 +145,8 @@ class File extends Model
 
     /**
      * fromData creates a file object from raw data
-     * @param $data string Raw data
-     * @param $filename string Filename
+     * @param string $data
+     * @param string $filename
      */
     public function fromData($data, $filename)
     {
@@ -150,10 +154,11 @@ class File extends Model
             return;
         }
 
-        $tempPath = temp_path($filename);
+        $tempName = str_replace('.', '', uniqid('', true)) . '.tmp';
+        $tempPath = temp_path($tempName);
         FileHelper::put($tempPath, $data);
 
-        $file = $this->fromFile($tempPath);
+        $file = $this->fromFile($tempPath, basename($filename));
         FileHelper::delete($tempPath);
 
         return $file;
@@ -161,9 +166,9 @@ class File extends Model
 
     /**
      * fromUrl creates a file object from url
-     * @param $url string URL
-     * @param $filename string Filename
-     * @return $this
+     * @param string $url
+     * @param string $filename
+     * @return self
      */
     public function fromUrl($url, $filename = null)
     {
