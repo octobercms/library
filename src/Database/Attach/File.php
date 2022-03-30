@@ -122,14 +122,14 @@ class File extends Model
     /**
      * Creates a file object from a file on the disk.
      */
-    public function fromFile($filePath)
+    public function fromFile($filePath, $filename = null)
     {
         if ($filePath === null) {
             return;
         }
 
         $file = new FileObj($filePath);
-        $this->file_name = $file->getFilename();
+        $this->file_name = empty($filename) ? $file->getFilename() : $filename;
         $this->file_size = $file->getSize();
         $this->content_type = $file->getMimeType();
         $this->disk_name = $this->getDiskName();
@@ -153,10 +153,11 @@ class File extends Model
             return;
         }
 
-        $tempPath = temp_path($filename);
+        $tempName = str_replace('.', '', uniqid('', true)) . '.tmp';
+        $tempPath = temp_path($tempName);
         FileHelper::put($tempPath, $data);
 
-        $file = $this->fromFile($tempPath);
+        $file = $this->fromFile($tempPath, basename($filename));
         FileHelper::delete($tempPath);
 
         return $file;
