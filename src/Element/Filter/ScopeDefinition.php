@@ -9,7 +9,8 @@ use October\Rain\Element\ElementBase;
  * @method ScopeDefinition scopeName(string $name) scopeName for this scope
  * @method ScopeDefinition label(string $label) label for this scope
  * @method ScopeDefinition value(mixed $value) current value for this scope
- * @method ScopeDefinition nameFrom(string $column) nameFrom column to use for the display name
+ * @method ScopeDefinition nameFrom(string $column) nameFrom model attribute to use for the display name
+ * @method ScopeDefinition valueFrom(mixed $value) valueFrom model attribute to use for the source value
  * @method ScopeDefinition descriptionFrom(string $column) descriptionFrom column to use for the description
  * @method ScopeDefinition options(mixed $options) options for the scope
  * @method ScopeDefinition dependsOn(array $scopes) dependsOn other scopes, when the other scopes are modified, this scope will update
@@ -37,11 +38,49 @@ class ScopeDefinition extends ElementBase
     }
 
     /**
+     * scopeName sets the default value for valueFrom
+     */
+    public function scopeName($value): ScopeDefinition
+    {
+        $this->attributes['scopeName'] = $value;
+
+        if (!isset($this->attributes['valueFrom'])) {
+            $this->attributes['valueFrom'] = $value;
+        }
+
+        return $this;
+    }
+
+    /**
      * hasOptions returns true if options have been specified
      */
     public function hasOptions(): bool
     {
         return $this->options !== null;
+    }
+
+    /**
+     * options get/set for dropdowns, radio lists and checkbox lists
+     * @return array|self
+     */
+    public function options($value = null)
+    {
+        if ($value === null) {
+            if (is_array($this->options)) {
+                return $this->options;
+            }
+
+            if (is_callable($this->options)) {
+                $callable = $this->options;
+                return $callable();
+            }
+
+            return [];
+        }
+
+        $this->attributes['options'] = $value;
+
+        return $this;
     }
 
     /**
