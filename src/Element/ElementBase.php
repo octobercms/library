@@ -17,11 +17,11 @@ abstract class ElementBase extends Fluent
      */
     public function __construct(array $attributes = [])
     {
+        $this->initDefaultValues();
+
         parent::__construct($attributes);
 
         $this->extendableConstruct();
-
-        $this->initDefaultValues();
     }
 
     /**
