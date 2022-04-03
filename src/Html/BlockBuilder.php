@@ -103,6 +103,14 @@ class BlockBuilder
     }
 
     /**
+     * has a placeholder set up
+     */
+    public function has(string $name): bool
+    {
+        return isset($this->blocks[$name]);
+    }
+
+    /**
      * get returns the layout block contents but not deletes the block from memory
      */
     public function get(string $name, string $default = null): ?string
