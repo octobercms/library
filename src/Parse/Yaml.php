@@ -5,6 +5,7 @@ use Symfony\Component\Yaml\Yaml as YamlComponent;
 use Symfony\Component\Yaml\Dumper;
 use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Exception\ParseException;
+use Exception;
 
 /**
  * Yaml helper class
@@ -38,8 +39,8 @@ class Yaml
         try {
             $parsed = $this->parse($contents);
         }
-        catch (\Exception $e) {
-            throw new ParseException("A syntax error was detected in $fileName. " . $e->getMessage(), __LINE__, __FILE__);
+        catch (Exception $ex) {
+            throw new ParseException("A syntax error was detected in $fileName. " . $ex->getMessage(), __LINE__, __FILE__);
         }
 
         return $parsed;
@@ -59,7 +60,7 @@ class Yaml
                 return $this->parseFile($fileName);
             });
         }
-        catch (\Exception $e) {
+        catch (Exception $ex) {
             return $this->parseFile($fileName);
         }
     }
