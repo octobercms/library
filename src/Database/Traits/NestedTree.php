@@ -762,25 +762,29 @@ trait NestedTree
     /**
      * resetTreeNesting can be used to repair corrupt or missing tree definitions,
      * it will flatten and heal the necessary columns, all parent and child
-     * associations are lost.
+     * associations are retained.
      */
     public function resetTreeNesting()
     {
         $this->getConnection()->transaction(function () {
-            $maxRight = 1;
-            $records = $this->newQueryWithoutScopes()->get();
+            $buildFunc = function($items, &$nest, $level = 0) use (&$buildFunc) {
+                $items->each(function ($item) use (&$nest, $level, $buildFunc) {
+                    $item->setAttribute($this->getLeftColumnName(), $nest++);
+                    $item->setAttribute($this->getDepthColumnName(), $level);
+                    $buildFunc($item->getChildren(), $nest, $level + 1);
+                    $item->setAttribute($this->getRightColumnName(), $nest++);
+                    $item->save(['force' => true]);
+                });
+            };
 
-            foreach ($records as $record) {
-                $this->newNestedTreeQuery()
-                    ->where($this->getKeyName(), $record->getKey())
-                    ->update([
-                        $this->getLeftColumnName() => $maxRight++,
-                        $this->getRightColumnName() => $maxRight++,
-                        $this->getDepthColumnName() => 0,
-                        $this->getParentColumnName() => null
-                    ])
-                ;
-            }
+            $records = $this
+                ->newQueryWithoutScopes()
+                ->whereNull($this->getParentColumnName())
+                ->get()
+            ;
+
+            $nest = 1;
+            $buildFunc($records, $nest);
         });
     }
 
