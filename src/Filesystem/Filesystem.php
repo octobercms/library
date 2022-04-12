@@ -33,6 +33,16 @@ class Filesystem extends FilesystemBase
     protected $symlinkRootCache;
 
     /**
+     * anyname extract the path and filename without extension
+     * @param  string  $path
+     * @return string
+     */
+    public function anyname($path)
+    {
+        return strpos($path, '.') !== false ? substr($path, 0, strrpos($path, '.')) : $path;
+    }
+
+    /**
      * isDirectoryEmpty determines if the given path contains no files
      * @param  string  $directory
      * @return bool
@@ -217,9 +227,9 @@ class Filesystem extends FilesystemBase
     }
 
     /**
-     * isPathSymbol returns true if the path uses a symbol
+     * isPathSymbol returns the symbol if the path uses a symbol, otherwise false
      * @param  string  $path
-     * @return bool
+     * @return bool|string
      */
     public function isPathSymbol($path)
     {
