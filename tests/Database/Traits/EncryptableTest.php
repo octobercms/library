@@ -22,7 +22,7 @@ class EncryptableTest extends TestCase
         $this->assertEquals('test', $testModel->secret);
         $this->assertNotEquals('test', $testModel->attributes['secret']);
         $payloadOne = json_decode(base64_decode($testModel->attributes['secret']), true);
-        $this->assertEquals(['iv', 'value', 'mac'], array_keys($payloadOne));
+        $this->assertEquals(['iv', 'value', 'mac', 'tag'], array_keys($payloadOne));
 
         // Don't encrypt empty strings
         $testModel->secret = '';
@@ -34,7 +34,7 @@ class EncryptableTest extends TestCase
         $this->assertEquals(0, $testModel->secret);
         $this->assertNotEquals(0, $testModel->attributes['secret']);
         $payloadTwo = json_decode(base64_decode($testModel->attributes['secret']), true);
-        $this->assertEquals(['iv', 'value', 'mac'], array_keys($payloadTwo));
+        $this->assertEquals(['iv', 'value', 'mac', 'tag'], array_keys($payloadTwo));
         $this->assertNotEquals($payloadOne['value'], $payloadTwo['value']);
 
         // Test reset

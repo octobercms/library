@@ -5,10 +5,8 @@ use Illuminate\Foundation\Console\ServeCommand as ServeCommandParent;
 class ServeCommand extends ServeCommandParent
 {
     /**
-     * Execute the console command.
-     *
+     * handle the console command.
      * @return int
-     *
      * @throws \Exception
      */
     public function handle()
@@ -19,7 +17,39 @@ class ServeCommand extends ServeCommandParent
 
         $this->line("<info>October CMS development server started:</info> http://{$this->host()}:{$this->port()}");
 
-        passthru($this->serverCommand(), $status);
+        $environmentFile = $this->option('env')
+            ? base_path('.env').'.'.$this->option('env')
+            : base_path('.env');
+
+        $hasEnvironment = file_exists($environmentFile);
+
+        $environmentLastModified = $hasEnvironment
+            ? filemtime($environmentFile)
+            : now()->addDays(30)->getTimestamp();
+
+        $process = $this->startProcess($hasEnvironment);
+
+        while ($process->isRunning()) {
+            if ($hasEnvironment) {
+                clearstatcache(false, $environmentFile);
+            }
+
+            if (! $this->option('no-reload') &&
+                $hasEnvironment &&
+                filemtime($environmentFile) > $environmentLastModified) {
+                $environmentLastModified = filemtime($environmentFile);
+
+                $this->comment('Environment modified. Restarting server...');
+
+                $process->stop(5);
+
+                $process = $this->startProcess($hasEnvironment);
+            }
+
+            usleep(500 * 1000);
+        }
+
+        $status = $process->getExitCode();
 
         if ($status && $this->canTryAnotherPort()) {
             $this->portOffset += 1;

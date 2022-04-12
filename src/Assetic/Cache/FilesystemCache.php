@@ -38,7 +38,7 @@ class FilesystemCache implements CacheInterface
 
     public function set($key, $value)
     {
-        if (!is_dir($this->dir) && false === @mkdir($this->dir, 0777, true)) {
+        if (!is_dir($this->dir) && false === @mkdir($this->dir, 0755, true)) {
             throw new RuntimeException('Unable to create directory '.$this->dir);
         }
 

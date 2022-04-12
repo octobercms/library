@@ -19,7 +19,7 @@ use Throwable;
 use Closure;
 
 /**
- * Application
+ * Application foundation class as an extension of Laravel
  */
 class Application extends ApplicationBase
 {
@@ -45,15 +45,6 @@ class Application extends ApplicationBase
     public function publicPath()
     {
         return $this->basePath;
-    }
-
-    /**
-     * langPath gets the path to the language files
-     * @return string
-     */
-    public function langPath()
-    {
-        return $this->basePath.'/lang';
     }
 
     /**
@@ -89,36 +80,32 @@ class Application extends ApplicationBase
 
     /**
      * storagePath returns the path to the storage directory
+     * @param string $path
+     * @return string
      */
-    public function storagePath(): string
+    public function storagePath($path = '')
     {
-        return $this->storagePath ?: $this->basePath.DIRECTORY_SEPARATOR.'storage';
-    }
-
-    /**
-     * setStoragePath sets path path for cache files
-     */
-    public function setStoragePath(string $path)
-    {
-        $this->storagePath = $path;
-
-        $this->instance('path.storage', $path);
-
-        return $this;
+        return ($this->storagePath ?: $this->basePath.DIRECTORY_SEPARATOR.'storage')
+            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
     }
 
     /**
      * cachePath return path for cache files
+     * @param string $path
+     * @return string
      */
-    public function cachePath(): string
+    public function cachePath($path = '')
     {
-        return $this->cachePath ?: $this->basePath.DIRECTORY_SEPARATOR.'storage';
+        return ($this->cachePath ?: $this->basePath.DIRECTORY_SEPARATOR.'storage')
+            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
     }
 
     /**
-     * setCachePath sets path path for cache files
+     * useCachePath sets path path for cache files
+     * @param string $path
+     * @return $this
      */
-    public function setCachePath(string $path)
+    public function useCachePath($path)
     {
         $this->cachePath = $path;
 
@@ -130,17 +117,22 @@ class Application extends ApplicationBase
     }
 
     /**
-     * pluginsPath returns path to location of themes
+     * pluginsPath returns path to location of plugins
+     * @param string $path
+     * @return string
      */
-    public function pluginsPath(): string
+    public function pluginsPath($path = '')
     {
-        return $this->pluginsPath ?: $this->basePath.DIRECTORY_SEPARATOR.'plugins';
+        return ($this->pluginsPath ?: $this->basePath.DIRECTORY_SEPARATOR.'plugins')
+            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
     }
 
     /**
-     * setPluginsPath sets path to location of plugins
+     * usePluginsPath sets path to location of plugins
+     * @param string $path
+     * @return $this
      */
-    public function setPluginsPath(string $path)
+    public function usePluginsPath($path)
     {
         $this->pluginsPath = $path;
 
@@ -151,16 +143,21 @@ class Application extends ApplicationBase
 
     /**
      * themesPath returns path to location of themes
+     * @param string $path
+     * @return string
      */
-    public function themesPath(): string
+    public function themesPath($path = '')
     {
-        return $this->themesPath ?: $this->basePath.DIRECTORY_SEPARATOR.'themes';
+        return ($this->themesPath ?: $this->basePath.DIRECTORY_SEPARATOR.'themes')
+            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
     }
 
     /**
-     * setThemesPath sets path to location of themes
+     * useThemesPath sets path to location of themes
+     * @param string $path
+     * @return $this
      */
-    public function setThemesPath($path)
+    public function useThemesPath($path)
     {
         $this->themesPath = $path;
 
@@ -171,16 +168,19 @@ class Application extends ApplicationBase
 
     /**
      * tempPath returns path for storing temporary files.
+     * @param string $path
+     * @return string
      */
-    public function tempPath(): string
+    public function tempPath($path = ''): string
     {
-        return $this->cachePath().DIRECTORY_SEPARATOR.'temp';
+        return ($this->cachePath().DIRECTORY_SEPARATOR.'temp')
+            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
     }
 
     /**
      * normalizeCachePath normalizes a relative or absolute path to a cache file.
-     * @param  string  $key
-     * @param  string  $default
+     * @param string $key
+     * @param string $default
      * @return string
      */
     protected function normalizeCachePath($key, $default)
@@ -300,7 +300,7 @@ class Application extends ApplicationBase
     {
         parent::setLocale($locale);
 
-        $this['events']->fire('locale.changed', [$locale]);
+        $this['events']->dispatch('locale.changed', [$locale]);
     }
 
     //
@@ -331,36 +331,37 @@ class Application extends ApplicationBase
     public function registerCoreContainerAliases()
     {
         $aliases = [
-            'app'                  => [\October\Rain\Foundation\Application::class, \Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class],
-            'blade.compiler'       => [\Illuminate\View\Compilers\BladeCompiler::class],
-            'cache'                => [\Illuminate\Cache\CacheManager::class, \Illuminate\Contracts\Cache\Factory::class],
-            'cache.store'          => [\Illuminate\Cache\Repository::class, \Illuminate\Contracts\Cache\Repository::class],
-            'config'               => [\Illuminate\Config\Repository::class, \Illuminate\Contracts\Config\Repository::class],
-            'cookie'               => [\Illuminate\Cookie\CookieJar::class, \Illuminate\Contracts\Cookie\Factory::class, \Illuminate\Contracts\Cookie\QueueingFactory::class],
-            'encrypter'            => [\Illuminate\Encryption\Encrypter::class, \Illuminate\Contracts\Encryption\Encrypter::class],
-            'db'                   => [\October\Rain\Database\DatabaseManager::class],
-            'db.connection'        => [\Illuminate\Database\Connection::class, \Illuminate\Database\ConnectionInterface::class],
-            'events'               => [\Illuminate\Events\Dispatcher::class, \Illuminate\Contracts\Events\Dispatcher::class],
-            'files'                => [\Illuminate\Filesystem\Filesystem::class],
-            'filesystem'           => [\Illuminate\Filesystem\FilesystemManager::class, \Illuminate\Contracts\Filesystem\Factory::class],
-            'filesystem.disk'      => [\Illuminate\Contracts\Filesystem\Filesystem::class],
-            'filesystem.cloud'     => [\Illuminate\Contracts\Filesystem\Cloud::class],
-            'hash'                 => [\Illuminate\Contracts\Hashing\Hasher::class],
-            'translator'           => [\Illuminate\Translation\Translator::class, \Illuminate\Contracts\Translation\Translator::class],
-            'log'                  => [\Illuminate\Log\Logger::class, \Psr\Log\LoggerInterface::class],
-            'mailer'               => [\Illuminate\Mail\Mailer::class, \Illuminate\Contracts\Mail\Mailer::class, \Illuminate\Contracts\Mail\MailQueue::class],
-            'queue'                => [\Illuminate\Queue\QueueManager::class, \Illuminate\Contracts\Queue\Factory::class, \Illuminate\Contracts\Queue\Monitor::class],
-            'queue.connection'     => [\Illuminate\Contracts\Queue\Queue::class],
-            'queue.failer'         => [\Illuminate\Queue\Failed\FailedJobProviderInterface::class],
-            'redirect'             => [\Illuminate\Routing\Redirector::class],
-            'redis'                => [\Illuminate\Redis\RedisManager::class, \Illuminate\Contracts\Redis\Factory::class],
-            'request'              => [\Illuminate\Http\Request::class, \Symfony\Component\HttpFoundation\Request::class],
-            'router'               => [\Illuminate\Routing\Router::class, \Illuminate\Contracts\Routing\Registrar::class, \Illuminate\Contracts\Routing\BindingRegistrar::class],
-            'session'              => [\Illuminate\Session\SessionManager::class],
-            'session.store'        => [\Illuminate\Session\Store::class, \Illuminate\Contracts\Session\Session::class],
-            'url'                  => [\Illuminate\Routing\UrlGenerator::class, \Illuminate\Contracts\Routing\UrlGenerator::class],
-            'validator'            => [\October\Rain\Validation\Factory::class, \Illuminate\Contracts\Validation\Factory::class],
-            'view'                 => [\Illuminate\View\Factory::class, \Illuminate\Contracts\View\Factory::class],
+            'app' => [\October\Rain\Foundation\Application::class, \Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class],
+            'blade.compiler' => [\Illuminate\View\Compilers\BladeCompiler::class],
+            'cache' => [\Illuminate\Cache\CacheManager::class, \Illuminate\Contracts\Cache\Factory::class],
+            'cache.store' => [\Illuminate\Cache\Repository::class, \Illuminate\Contracts\Cache\Repository::class],
+            'config' => [\Illuminate\Config\Repository::class, \Illuminate\Contracts\Config\Repository::class],
+            'cookie' => [\Illuminate\Cookie\CookieJar::class, \Illuminate\Contracts\Cookie\Factory::class, \Illuminate\Contracts\Cookie\QueueingFactory::class],
+            'encrypter' => [\Illuminate\Encryption\Encrypter::class, \Illuminate\Contracts\Encryption\Encrypter::class],
+            'db' => [\October\Rain\Database\DatabaseManager::class],
+            'db.connection' => [\Illuminate\Database\Connection::class, \Illuminate\Database\ConnectionInterface::class],
+            'db.schema' => [\Illuminate\Database\Schema\Builder::class],
+            'events' => [\October\Rain\Events\Dispatcher::class, \Illuminate\Contracts\Events\Dispatcher::class],
+            'files' => [\Illuminate\Filesystem\Filesystem::class],
+            'filesystem' => [\Illuminate\Filesystem\FilesystemManager::class, \Illuminate\Contracts\Filesystem\Factory::class],
+            'filesystem.disk' => [\Illuminate\Contracts\Filesystem\Filesystem::class],
+            'filesystem.cloud' => [\Illuminate\Contracts\Filesystem\Cloud::class],
+            'hash' => [\Illuminate\Contracts\Hashing\Hasher::class],
+            'translator' => [\Illuminate\Translation\Translator::class, \Illuminate\Contracts\Translation\Translator::class],
+            'log' => [\Illuminate\Log\Logger::class, \Psr\Log\LoggerInterface::class],
+            'mailer' => [\Illuminate\Mail\Mailer::class, \Illuminate\Contracts\Mail\Mailer::class, \Illuminate\Contracts\Mail\MailQueue::class],
+            'queue' => [\Illuminate\Queue\QueueManager::class, \Illuminate\Contracts\Queue\Factory::class, \Illuminate\Contracts\Queue\Monitor::class],
+            'queue.connection' => [\Illuminate\Contracts\Queue\Queue::class],
+            'queue.failer' => [\Illuminate\Queue\Failed\FailedJobProviderInterface::class],
+            'redirect' => [\Illuminate\Routing\Redirector::class],
+            'redis' => [\Illuminate\Redis\RedisManager::class, \Illuminate\Contracts\Redis\Factory::class],
+            'request' => [\Illuminate\Http\Request::class, \Symfony\Component\HttpFoundation\Request::class],
+            'router' => [\Illuminate\Routing\Router::class, \Illuminate\Contracts\Routing\Registrar::class, \Illuminate\Contracts\Routing\BindingRegistrar::class],
+            'session' => [\Illuminate\Session\SessionManager::class],
+            'session.store' => [\Illuminate\Session\Store::class, \Illuminate\Contracts\Session\Session::class],
+            'url' => [\Illuminate\Routing\UrlGenerator::class, \Illuminate\Contracts\Routing\UrlGenerator::class],
+            'validator' => [\October\Rain\Validation\Factory::class, \Illuminate\Contracts\Validation\Factory::class],
+            'view' => [\Illuminate\View\Factory::class, \Illuminate\Contracts\View\Factory::class],
         ];
 
         foreach ($aliases as $key => $aliases) {

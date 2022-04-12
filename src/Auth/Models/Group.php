@@ -31,17 +31,11 @@ class Group extends Model
     /**
      * @var array fillable fields
      */
-    // protected $fillable = [
-    //     'name',
-    //     'code',
-    //     'description',
-    // ];
-
-    /**
-     * @var array guarded attributes aren't mass assignable
-     * @deprecated swap to fillable
-     */
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'code',
+        'description',
+    ];
 
     /**
      * delete the group

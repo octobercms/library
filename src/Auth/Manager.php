@@ -155,6 +155,15 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
+     * hasUser determines if the guard has a user instance.
+     * @return bool
+     */
+    public function hasUser()
+    {
+        return !is_null($this->user);
+    }
+
+    /**
      * setUser will set the current user.
      */
     public function setUser(Authenticatable $user)

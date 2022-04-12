@@ -2,57 +2,37 @@
 
 use Illuminate\Mail\MailServiceProvider as MailServiceProviderBase;
 
+/**
+ * MailServiceProvider
+ *
+ * @package october\mail
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class MailServiceProvider extends MailServiceProviderBase
 {
     /**
-     * Register the Illuminate mailer instance. Carbon copy of Illuminate method.
-     * @return void
+     * registerIlluminateMailer instance. Copy of parent with extensibility.
      */
     protected function registerIlluminateMailer()
     {
-        $this->app->singleton('mailer', function ($app) {
+        $this->app->singleton('mail.manager', function ($app) {
+            return new MailManager($app);
+        });
+
+        $this->app->bind('mailer', function ($app) {
             /*
              * Extensibility
              */
-            $this->app['events']->fire('mailer.beforeRegister', [$this]);
+            $this->app['events']->dispatch('mailer.beforeRegister', [$this]);
 
-            $config = $app->make('config')->get('mail');
-
-            /*
-             * October mailer
-             */
-            $mailer = new Mailer(
-                $app['view'],
-                $app['swift.mailer'],
-                $app['events']
-            );
-
-            if ($app->bound('queue')) {
-                $mailer->setQueue($app['queue']);
-            }
-
-            foreach (['from', 'reply_to', 'to'] as $type) {
-                $this->setGlobalAddress($mailer, $config, $type);
-            }
+            $mailer = $app->make('mail.manager')->mailer();
 
             /*
              * Extensibility
              */
-            $this->app['events']->fire('mailer.register', [$this, $mailer]);
+            $this->app['events']->dispatch('mailer.register', [$this, $mailer]);
 
             return $mailer;
-        });
-    }
-
-    /**
-     * Register the Swift Transport instance.
-     *
-     * @return void
-     */
-    protected function registerSwiftTransport()
-    {
-        $this->app->singleton('swift.transport', function ($app) {
-            return new TransportManager($app);
         });
     }
 }

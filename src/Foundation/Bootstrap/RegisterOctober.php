@@ -32,19 +32,19 @@ class RegisterOctober
          * Change paths based on config
          */
         if ($storagePath = $app['config']->get('system.storage_path')) {
-            $app->setStoragePath($this->parseConfiguredPath($app, $storagePath));
+            $app->useStoragePath($this->parseConfiguredPath($app, $storagePath));
         }
 
         if ($cachePath = $app['config']->get('system.cache_path')) {
-            $app->setCachePath($this->parseConfiguredPath($app, $cachePath));
+            $app->useCachePath($this->parseConfiguredPath($app, $cachePath));
         }
 
         if ($pluginsPath = $app['config']->get('system.plugins_path')) {
-            $app->setPluginsPath($this->parseConfiguredPath($app, $pluginsPath));
+            $app->usePluginsPath($this->parseConfiguredPath($app, $pluginsPath));
         }
 
         if ($themesPath = $app['config']->get('system.themes_path')) {
-            $app->setThemesPath($this->parseConfiguredPath($app, $themesPath));
+            $app->useThemesPath($this->parseConfiguredPath($app, $themesPath));
         }
 
         $this->makeSystemPaths($app->cachePath(), [

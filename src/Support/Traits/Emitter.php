@@ -25,48 +25,30 @@ trait Emitter
 
     /**
      * bindEvent creates a new event binding
-     * @return self
+     * @return void
      */
     public function bindEvent($event, $callback, $priority = 0)
     {
         $this->emitterEventCollection[$event][$priority][] = $callback;
         unset($this->emitterEventSorted[$event]);
-        return $this;
     }
 
     /**
      * bindEventOnce creates a new event binding that fires once only
-     * @return self
+     * @return void
      */
-    public function bindEventOnce($event, $callback)
+    public function bindEventOnce($event, $callback, $priority = 0)
     {
-        $this->emitterSingleEventCollection[$event][] = $callback;
-        return $this;
-    }
-
-    /**
-     * emitterEventSortEvents sorts the listeners for a given event by priority
-     */
-    protected function emitterEventSortEvents(string $eventName): void
-    {
-        $this->emitterEventSorted[$eventName] = [];
-
-        if (isset($this->emitterEventCollection[$eventName])) {
-            krsort($this->emitterEventCollection[$eventName]);
-
-            $this->emitterEventSorted[$eventName] = call_user_func_array('array_merge', $this->emitterEventCollection[$eventName]);
-        }
+        $this->emitterSingleEventCollection[$event][$priority][] = $callback;
+        unset($this->emitterEventSorted[$event]);
     }
 
     /**
      * unbindEvent destroys an event binding
-     * @return self
+     * @return void
      */
     public function unbindEvent($event = null)
     {
-        /*
-         * Multiple events
-         */
         if (is_array($event)) {
             foreach ($event as $_event) {
                 $this->unbindEvent($_event);
@@ -75,23 +57,15 @@ trait Emitter
         }
 
         if ($event === null) {
-            unset($this->emitterSingleEventCollection, $this->emitterEventCollection, $this->emitterEventSorted);
-            return $this;
+            unset($this->emitterSingleEventCollection);
+            unset($this->emitterEventCollection);
+            unset($this->emitterEventSorted);
+            return;
         }
 
-        if (isset($this->emitterSingleEventCollection[$event])) {
-            unset($this->emitterSingleEventCollection[$event]);
-        }
-
-        if (isset($this->emitterEventCollection[$event])) {
-            unset($this->emitterEventCollection[$event]);
-        }
-
-        if (isset($this->emitterEventSorted[$event])) {
-            unset($this->emitterEventSorted[$event]);
-        }
-
-        return $this;
+        unset($this->emitterSingleEventCollection[$event]);
+        unset($this->emitterEventCollection[$event]);
+        unset($this->emitterEventSorted[$event]);
     }
 
     /**
@@ -107,50 +81,62 @@ trait Emitter
             $params = [$params];
         }
 
-        $result = [];
-
-        /*
-         * Single events
-         */
-        if (isset($this->emitterSingleEventCollection[$event])) {
-            foreach ($this->emitterSingleEventCollection[$event] as $callback) {
-                $response = call_user_func_array($callback, $params);
-                if (is_null($response)) {
-                    continue;
-                }
-
-                if ($halt) {
-                    return $response;
-                }
-
-                $result[] = $response;
-            }
-
-            unset($this->emitterSingleEventCollection[$event]);
+        // Micro optimization
+        if (
+            !isset($this->emitterEventCollection[$event]) &&
+            !isset($this->emitterSingleEventCollection[$event])
+        ) {
+            return $halt ? null : [];
         }
 
-        /*
-         * Recurring events, with priority
-         */
-        if (isset($this->emitterEventCollection[$event])) {
-            if (!isset($this->emitterEventSorted[$event])) {
-                $this->emitterEventSortEvents($event);
+        if (!isset($this->emitterEventSorted[$event])) {
+            $this->emitterEventSorted[$event] = $this->emitterEventSortEvents($event);
+        }
+
+        $result = [];
+        foreach ($this->emitterEventSorted[$event] as $callback) {
+            $response = $callback(...$params);
+
+            if (!is_null($response) && $halt) {
+                return $response;
             }
 
-            foreach ($this->emitterEventSorted[$event] as $callback) {
-                $response = call_user_func_array($callback, $params);
-                if (is_null($response)) {
-                    continue;
-                }
+            if ($response === false) {
+                break;
+            }
 
-                if ($halt) {
-                    return $response;
-                }
-
+            if (!is_null($response)) {
                 $result[] = $response;
             }
+        }
+
+        if (isset($this->emitterSingleEventCollection[$event])) {
+            unset($this->emitterSingleEventCollection[$event]);
+            unset($this->emitterEventSorted[$event]);
         }
 
         return $halt ? null : $result;
+    }
+
+    /**
+     * emitterEventSortEvents sorts the listeners for a given event by priority
+     */
+    protected function emitterEventSortEvents(string $eventName, array $combined = []): array
+    {
+        if (isset($this->emitterEventCollection[$eventName])) {
+            foreach ($this->emitterEventCollection[$eventName] as $priority => $callbacks) {
+                $combined[$priority] = array_merge($combined[$priority] ?? [], $callbacks);
+            }
+        }
+
+        if (isset($this->emitterSingleEventCollection[$eventName])) {
+            foreach ($this->emitterSingleEventCollection[$eventName] as $priority => $callbacks) {
+                $combined[$priority] = array_merge($combined[$priority] ?? [], $callbacks);
+            }
+        }
+
+        krsort($combined);
+
+        return call_user_func_array('array_merge', $combined);
     }
 }

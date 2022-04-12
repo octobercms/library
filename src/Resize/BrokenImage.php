@@ -23,7 +23,7 @@ class BrokenImage
          */
         $directoryPath = dirname($savePath);
         if (!FileHelper::exists($directoryPath)) {
-            FileHelper::makeDirectory($directoryPath, 0777, true);
+            FileHelper::makeDirectory($directoryPath, 0755, true);
         }
 
         /*

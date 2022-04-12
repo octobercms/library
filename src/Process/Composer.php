@@ -135,7 +135,7 @@ class Composer extends ProcessBase
         $packages = [];
 
         foreach (array_get($installed, 'installed', []) as $package) {
-            $package['version'] = ltrim(array_get($package, 'version'), 'v');
+            $package['version'] = ltrim($package['version'] ?? '', 'v');
             $packages[] = $package;
         }
 

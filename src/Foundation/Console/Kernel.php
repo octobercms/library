@@ -36,6 +36,6 @@ class Kernel extends ConsoleKernel
     {
         $this->bootstrap();
 
-        $this->app['events']->fire('console.schedule', [$schedule]);
+        $this->app['events']->dispatch('console.schedule', [$schedule]);
     }
 }

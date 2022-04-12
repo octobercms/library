@@ -266,10 +266,9 @@ trait AttachOneOrMany
                 return;
             }
 
-            // @deprecated Removing arbitrary models soon unsupported
-            // if (!$this->isModelRemovable($model)) {
-            //     return;
-            // }
+            if (!$this->isModelRemovable($model)) {
+                return;
+            }
 
             $options = $this->parent->getRelationDefinition($this->relationName);
 
@@ -322,7 +321,7 @@ trait AttachOneOrMany
     protected function isModelRemovable($model): bool
     {
         return
-            $model->getAttribute($this->getForeignKeyName()) === (string) $this->parent->getKey() &&
+            ((string) $model->getAttribute($this->getForeignKeyName()) === (string) $this->parent->getKey()) &&
             $model->getAttribute($this->getMorphType()) === $this->morphClass &&
             $model->getAttribute('field') === $this->relationName;
     }

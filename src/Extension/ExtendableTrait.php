@@ -219,8 +219,7 @@ trait ExtendableTrait
     public function extendClassWith($extensionName)
     {
         if (!strlen($extensionName)) {
-            // @deprecated just return
-            return $this;
+            return;
         }
 
         $extensionName = str_replace('.', '\\', trim($extensionName));

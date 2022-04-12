@@ -49,9 +49,6 @@ trait Purgeable
         $attributes = is_array($attributes) ? $attributes : func_get_args();
 
         $this->purgeable = array_merge($this->purgeable, $attributes);
-
-        // @deprecated
-        return $this;
     }
 
     /**
@@ -112,8 +109,5 @@ trait Purgeable
     public function restorePurgedValues()
     {
         $this->attributes = array_merge($this->getAttributes(), $this->originalPurgeableValues);
-
-        // @deprecated
-        return $this;
     }
 }

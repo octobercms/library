@@ -31,12 +31,9 @@ class Definitions
             throw new Exception(sprintf('No such definition set exists for "%s"', $type));
         }
 
-        // Support studly and snake based config
-        return (array) Config::get('cms.file_definitions.'.$typeConfig,
-            // @deprecated
-            Config::get('cms.fileDefinitions.'.$typeMethod,
-                $this->$typeMethod()
-            )
+        return (array) Config::get(
+            'cms.file_definitions.'.$typeConfig,
+            $this->$typeMethod()
         );
     }
 

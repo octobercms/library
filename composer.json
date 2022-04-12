@@ -14,22 +14,23 @@
         }
     ],
     "require": {
-        "php": ">=7.2",
-        "composer/composer": "2.1.*",
+        "php": "^8.0.2",
+        "composer/composer": "^2.0.0",
         "doctrine/dbal": "^2.6",
         "erusev/parsedown-extra": "~0.7",
         "linkorb/jsmin-php": "~1.0",
         "wikimedia/less.php": "~3.0",
         "scssphp/scssphp": "~1.0",
-        "symfony/yaml": "^3.4",
-        "twig/twig": "~2.0",
+        "symfony/yaml": "^6.0",
+        "twig/twig": "~3.0",
         "league/csv": "~9.1",
         "nesbot/carbon": "^2.0",
-        "laravel/tinker": "~1.0"
+        "laravel/tinker": "~2.0"
     },
     "require-dev": {
-        "laravel/framework": "^6.0",
-        "phpunit/phpunit": "^8.0|^9.0"
+        "laravel/framework": "^9.0",
+        "phpunit/phpunit": "^8.0|^9.0",
+        "meyfa/phpunit-assert-gd": "^2.0.0|^3.0.0"
     },
     "autoload": {
         "files": [

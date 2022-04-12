@@ -33,6 +33,8 @@ class AttachMany extends MorphManyBase
     /**
      * setSimpleValue helper for setting this relationship using various expected
      * values. For example, $model->relation = $value;
+     * @param mixed $value
+     * @return void
      */
     public function setSimpleValue($value)
     {
@@ -70,6 +72,7 @@ class AttachMany extends MorphManyBase
     /**
      * getSimpleValue helper for getting this relationship simple value,
      * generally useful with form values.
+     * @return array|null
      */
     public function getSimpleValue()
     {
@@ -89,6 +92,7 @@ class AttachMany extends MorphManyBase
 
     /**
      * getValidationValue helper for getting this relationship validation value.
+     * @return array|null
      */
     public function getValidationValue()
     {
@@ -105,7 +109,8 @@ class AttachMany extends MorphManyBase
     }
 
     /**
-     * getSimpleValueInternal method used by `getSimpleValue` and `getValidationValue`
+     * getSimpleValueInternal method used by `getSimpleValue` and `getValidationValue`.
+     * @return array|null
      */
     protected function getSimpleValueInternal()
     {

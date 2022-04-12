@@ -21,7 +21,7 @@ class BelongsTo extends BelongsToBase
     protected $relationName;
 
     /**
-     * __construct
+     * __construct a new belongs to relationship instance.
      */
     public function __construct(Builder $query, Model $child, $foreignKey, $ownerKey, $relationName)
     {
@@ -144,6 +144,8 @@ class BelongsTo extends BelongsToBase
     /**
      * setSimpleValue helper for setting this relationship using various expected
      * values. For example, $model->relation = $value;
+     * @param mixed $value
+     * @return void
      */
     public function setSimpleValue($value)
     {
@@ -175,6 +177,7 @@ class BelongsTo extends BelongsToBase
     /**
      * getSimpleValue is a helper for getting this relationship simple value,
      * generally useful with form values.
+     * @return string|null
      */
     public function getSimpleValue()
     {

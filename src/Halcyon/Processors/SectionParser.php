@@ -24,16 +24,16 @@ class SectionParser
     {
         extract(array_merge([
             'wrapCodeInPhpTags' => true,
-            'isCompoundObject'  => true
+            'isCompoundObject' => true
         ], $options));
 
         if (!$isCompoundObject) {
-            return array_get($data, 'content');
+            return $data['content'] ?? '';
         }
 
         $iniParser = new Ini;
-        $code = trim(array_get($data, 'code'));
-        $markup = trim(array_get($data, 'markup'));
+        $code = trim($data['code'] ?? '');
+        $markup = trim($data['markup'] ?? '');
 
         $trim = function (&$values) use (&$trim) {
             foreach ($values as &$value) {
@@ -46,7 +46,7 @@ class SectionParser
             }
         };
 
-        $settings = array_get($data, 'settings', []);
+        $settings = $data['settings'] ?? [];
         $trim($settings);
 
         /*
@@ -73,9 +73,7 @@ class SectionParser
         }
 
         $markupSections = self::splitContentSections($markup);
-        // @deprecated PHP above 7.3 use instead
-        // $content[] = $markupSections[array_key_last($markupSections)];
-        $content[] = end($markupSections);
+        $content[] = $markupSections[array_key_last($markupSections)];
 
         $content = trim(implode(PHP_EOL.self::SECTION_SEPARATOR.PHP_EOL, $content));
 
@@ -110,11 +108,11 @@ class SectionParser
 
         $result = [
             'settings' => [],
-            'code'     => null,
-            'markup'   => null
+            'code' => null,
+            'markup' => null
         ];
 
-        if (!$isCompoundObject || !strlen($content)) {
+        if (!$isCompoundObject || !strlen((string) $content)) {
             return $result;
         }
 

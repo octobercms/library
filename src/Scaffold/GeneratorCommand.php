@@ -107,7 +107,7 @@ abstract class GeneratorCommand extends Command
     protected function makeDirectory(string $path)
     {
         if (!$this->files->isDirectory(dirname($path))) {
-            $this->files->makeDirectory(dirname($path), 0777, true, true);
+            $this->files->makeDirectory(dirname($path), 0755, true, true);
         }
     }
 

@@ -13,12 +13,12 @@ use Illuminate\Filesystem\Filesystem as FilesystemBase;
 class Filesystem extends FilesystemBase
 {
     /**
-     * @var string Default file permission mask as a string ("777").
+     * @var string Default file permission mask as a string ("755").
      */
     public $filePermissions = null;
 
     /**
-     * @var string Default folder permission mask as a string ("777").
+     * @var string Default folder permission mask as a string ("755").
      */
     public $folderPermissions = null;
 
@@ -275,7 +275,7 @@ class Filesystem extends FilesystemBase
      * @param  bool    $force
      * @return bool
      */
-    public function makeDirectory($path, $mode = 0777, $recursive = false, $force = false)
+    public function makeDirectory($path, $mode = 0755, $recursive = false, $force = false)
     {
         if ($mask = $this->getFolderPermissions()) {
             $mode = $mask;
@@ -381,7 +381,7 @@ class Filesystem extends FilesystemBase
 
     /**
      * getFilePermissions returns the default file permission mask to use
-     * @return string Permission mask as octal (0777) or null
+     * @return string Permission mask as octal (0755) or null
      */
     public function getFilePermissions()
     {
@@ -392,7 +392,7 @@ class Filesystem extends FilesystemBase
 
     /**
      * getFolderPermissions returns the default folder permission mask to use
-     * @return string Permission mask as octal (0777) or null
+     * @return string Permission mask as octal (0755) or null
      */
     public function getFolderPermissions()
     {

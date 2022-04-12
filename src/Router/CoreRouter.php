@@ -26,11 +26,11 @@ class CoreRouter extends RouterBase
     {
         $this->currentRequest = $request;
 
-        $this->events->fire('router.before', [$request]);
+        $this->events->dispatch('router.before', [$request]);
 
         $response = $this->dispatchToRoute($request);
 
-        $this->events->fire('router.after', [$request, $response]);
+        $this->events->dispatch('router.after', [$request, $response]);
 
         return $response;
     }
@@ -66,7 +66,7 @@ class CoreRouter extends RouterBase
     public function registerLateRoutes()
     {
         if (!$this->routerEventsBooted) {
-            $this->events->fire('router.before', [new Request]);
+            $this->events->dispatch('router.before', [new Request]);
         }
 
         $this->routerEventsBooted = true;

@@ -133,10 +133,9 @@ trait MorphOneOrMany
                 return;
             }
 
-            // @deprecated Removing arbitrary models soon unsupported
-            // if (!$this->isModelRemovable($model)) {
-            //     return;
-            // }
+            if (!$this->isModelRemovable($model)) {
+                return;
+            }
 
             $options = $this->parent->getRelationDefinition($this->relationName);
 
@@ -184,7 +183,7 @@ trait MorphOneOrMany
     protected function isModelRemovable($model): bool
     {
         return
-            $model->getAttribute($this->getForeignKeyName()) === (string) $this->getParentKey() &&
+            ((string) $model->getAttribute($this->getForeignKeyName()) === (string) $this->getParentKey()) &&
             $model->getAttribute($this->getMorphType()) === $this->morphClass;
     }
 }

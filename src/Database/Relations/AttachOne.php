@@ -33,6 +33,8 @@ class AttachOne extends MorphOneBase
     /**
      * setSimpleValue helper for setting this relationship using various expected
      * values. For example, $model->relation = $value;
+     * @param mixed $value
+     * @return void
      */
     public function setSimpleValue($value)
     {
@@ -67,6 +69,7 @@ class AttachOne extends MorphOneBase
     /**
      * getSimpleValue helper for getting this relationship simple value,
      * generally useful with form values.
+     * @return string|null
      */
     public function getSimpleValue()
     {
@@ -79,6 +82,7 @@ class AttachOne extends MorphOneBase
 
     /**
      * getValidationValue helper for getting this relationship validation value.
+     * @return mixed
      */
     public function getValidationValue()
     {
@@ -90,7 +94,8 @@ class AttachOne extends MorphOneBase
     }
 
     /**
-     * getSimpleValueInternal method used by `getSimpleValue` and `getValidationValue`
+     * getSimpleValueInternal method used by `getSimpleValue` and `getValidationValue`.
+     * @return Model|null
      */
     protected function getSimpleValueInternal()
     {
