@@ -778,7 +778,7 @@ trait NestedTree
             };
 
             $records = $this
-                ->newQueryWithoutScopes()
+                ->newNestedTreeQuery()
                 ->whereNull($this->getParentColumnName())
                 ->get()
             ;
