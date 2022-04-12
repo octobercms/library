@@ -3,9 +3,9 @@ name: Tests
 on:
   push:
     branches:
-      - 2.1
+      - 2.x
+      - 3.x
       - develop
-      - 2.1
   pull_request:
 
 jobs:
@@ -14,7 +14,7 @@ jobs:
     strategy:
       max-parallel: 6
       matrix:
-        phpVersions: ['7.2', '7.3', '7.4', '8.0']
+        phpVersions: ['8.0', '8.1']
       fail-fast: false
     name: PHP ${{ matrix.phpVersions }}
     steps:
