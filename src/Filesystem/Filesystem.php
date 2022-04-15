@@ -39,7 +39,7 @@ class Filesystem extends FilesystemBase
      */
     public function anyname($path)
     {
-        return strpos($path, '.') !== false ? substr($path, 0, strrpos($path, '.')) : $path;
+        return strpos(basename($path), '.') !== false ? substr($path, 0, strrpos($path, '.')) : $path;
     }
 
     /**
