@@ -39,6 +39,11 @@ class ClassLoader
     protected $manifestDirty = false;
 
     /**
+     * @var array namespaces registered
+     */
+    protected $namespaces = [];
+
+    /**
      * @var array directories registered
      */
     protected $directories = [];
@@ -63,26 +68,49 @@ class ClassLoader
      */
     public function load($class): bool
     {
-        if (
-            isset($this->manifest[$class]) &&
-            $this->isRealFilePath($path = $this->manifest[$class])
-        ) {
-            require_once $this->basePath.DIRECTORY_SEPARATOR.$path;
+        if (isset($this->manifest[$class])) {
+            require_once $this->basePath.DIRECTORY_SEPARATOR.$this->manifest[$class];
             return true;
         }
 
         [$lowerClass, $upperClass] = $this->normalizeClass($class);
 
-        foreach ($this->directories as $directory) {
-            if ($this->isRealFilePath($path = $directory.DIRECTORY_SEPARATOR.$lowerClass)) {
-                $this->includeClass($class, $path);
-                return true;
+        // Load namespaces
+        foreach ($this->namespaces as $namespace => $directory) {
+            if (substr($class, 0, strlen($namespace)) === $namespace) {
+                if ($this->loadUpperOrLower($class, $directory, $upperClass, $lowerClass) === true) {
+                    return true;
+                }
             }
+        }
 
-            if ($this->isRealFilePath($path = $directory.DIRECTORY_SEPARATOR.$upperClass)) {
-                $this->includeClass($class, $path);
+        // Load directories
+        foreach ($this->directories as $directory) {
+            if ($this->loadUpperOrLower($class, $directory, $upperClass, $lowerClass) === true) {
                 return true;
             }
+        }
+
+        return false;
+    }
+
+    /**
+     * loadUpperOrLower loads a class in a directory with the supplied upper and lower class path.
+     */
+    protected function loadUpperOrLower(string $class, string $directory, string $upperClass, string $lowerClass): bool
+    {
+        if ($directory) {
+            $directory .= DIRECTORY_SEPARATOR;
+        }
+
+        if ($this->isRealFilePath($path = $directory.$lowerClass)) {
+            $this->includeClass($class, $path);
+            return true;
+        }
+
+        if ($this->isRealFilePath($path = $directory.$upperClass)) {
+            $this->includeClass($class, $path);
+            return true;
         }
 
         return false;
@@ -143,6 +171,14 @@ class ClassLoader
     }
 
     /**
+     * addNamespace
+     */
+    public function addNamespace($namespace, $directory): void
+    {
+        $this->namespaces[$namespace] = $directory;
+    }
+
+    /**
      * addDirectories to the class loader
      * @param string|array $directories
      */
@@ -184,24 +220,18 @@ class ClassLoader
      */
     protected function normalizeClass(string $class): array
     {
-        /*
-         * Strip first slash
-         */
+        // Strip first slash
         if ($class[0] === '\\') {
             $class = substr($class, 1);
         }
 
-        /*
-         * Lowercase folders
-         */
+        // Lowercase folders
         $parts = explode('\\', $class);
         $file = array_pop($parts);
         $namespace = implode('\\', $parts);
         $directory = str_replace(['\\', '_'], DIRECTORY_SEPARATOR, $namespace);
 
-        /*
-         * Provide both alternatives
-         */
+        // Provide both alternatives
         $lowerClass = strtolower($directory) . DIRECTORY_SEPARATOR . $file . '.php';
         $upperClass = $directory . DIRECTORY_SEPARATOR . $file . '.php';
 

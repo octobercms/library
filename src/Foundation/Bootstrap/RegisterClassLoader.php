@@ -23,6 +23,8 @@ class RegisterClassLoader
 
         $loader->register();
 
+        $loader->addNamespace('App\\', '');
+
         $loader->addDirectories([
             'modules',
             'plugins'
