@@ -70,12 +70,33 @@ class Application extends ApplicationBase
      */
     protected function bindPathsInContainer()
     {
-        parent::bindPathsInContainer();
+        // Laravel paths (see parent class)
+        $this->instance('path', $this->path());
+        $this->instance('path.base', $this->basePath());
+        $this->instance('path.config', $this->configPath());
+        $this->instance('path.public', $this->publicPath());
+        $this->instance('path.storage', $this->storagePath());
+        $this->instance('path.database', $this->databasePath());
+        $this->instance('path.resources', $this->resourcePath());
+        $this->instance('path.bootstrap', $this->bootstrapPath());
 
+        // October CMS paths
+        $this->instance('path.lang', $this->langPath());
         $this->instance('path.plugins', $this->pluginsPath());
         $this->instance('path.themes', $this->themesPath());
         $this->instance('path.cache', $this->cachePath());
         $this->instance('path.temp', $this->tempPath());
+    }
+
+    /**
+     * langPath returns the path to the lang directory
+     * @param string $path
+     * @return string
+     */
+    public function langPath($path = '')
+    {
+        return ($this->langPath ?: $this->path().DIRECTORY_SEPARATOR.'lang')
+            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
     }
 
     /**
@@ -251,7 +272,7 @@ class Application extends ApplicationBase
      */
     public function error(Closure $callback)
     {
-        $this->make('Illuminate\Contracts\Debug\ExceptionHandler')->error($callback);
+        $this->make(\Illuminate\Contracts\Debug\ExceptionHandler::class)->error($callback);
     }
 
     /**
@@ -267,12 +288,12 @@ class Application extends ApplicationBase
     }
 
     /**
-     * runningInBackend determines if we are running in the back-end area.
+     * runningInBackend determines if we are running in the backend area.
      * @return bool
      */
     public function runningInBackend()
     {
-        return $this['execution.context'] === 'back-end';
+        return $this['execution.context'] === 'backend';
     }
 
     /**

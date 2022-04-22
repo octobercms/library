@@ -40,7 +40,7 @@ class Preferences extends Model
      * resolveUser checks for a supplied user or uses the default logged in. You should
      * override this method
      *
-     * @param mixed $user An optional back-end user object.
+     * @param mixed $user An optional backend user object.
      * @return User object
      */
     public function resolveUser($user)

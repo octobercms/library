@@ -2,10 +2,13 @@
 
 use Illuminate\Support\ServiceProvider;
 
+/**
+ * ExecutionContextProvider sets the execution context globally
+ */
 class ExecutionContextProvider extends ServiceProvider
 {
     /**
-     * Register the service provider.
+     * register the service provider.
      *
      * @return void
      */
@@ -18,16 +21,16 @@ class ExecutionContextProvider extends ServiceProvider
             $backendUri = $this->normalizeUrl($app['config']->get('backend.uri', 'backend'));
 
             if (starts_with($requestPath, $backendUri)) {
-                return 'back-end';
+                return 'backend';
             }
             else {
-                return 'front-end';
+                return 'frontend';
             }
         });
     }
 
     /**
-     * Adds leading slash from a URL.
+     * normalizeUrl adds leading slash from a URL.
      *
      * @param string $url URL to normalize.
      * @return string Returns normalized URL.

@@ -58,7 +58,7 @@ class Plugin extends PluginBase
     }
 
     /**
-     * Registers any back-end permissions used by this plugin.
+     * Registers any backend permissions used by this plugin.
      *
      * @return array
      */
@@ -75,7 +75,7 @@ class Plugin extends PluginBase
     }
 
     /**
-     * Registers back-end navigation items for this plugin.
+     * Registers backend navigation items for this plugin.
      *
      * @return array
      */
