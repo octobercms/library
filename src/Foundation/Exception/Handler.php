@@ -56,7 +56,7 @@ class Handler extends ExceptionHandler
          *
          * Example usage (prevents the reporting of a given exception)
          *
-         *     Event::listen('exception.report', function (\Exception $exception) {
+         *     Event::listen('exception.beforeReport', function (\Exception $exception) {
          *         if ($exception instanceof \My\Custom\Exception) {
          *             return false;
          *         }
