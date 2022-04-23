@@ -6,7 +6,6 @@ use October\Rain\Filesystem\Filesystem;
 use October\Rain\Events\EventServiceProvider;
 use October\Rain\Router\RoutingServiceProvider;
 use October\Rain\Foundation\Providers\LogServiceProvider;
-use October\Rain\Foundation\Providers\MakerServiceProvider;
 use October\Rain\Foundation\Providers\ExecutionContextProvider;
 use Symfony\Component\Debug\Exception\FatalErrorException;
 use Illuminate\Foundation\Application as ApplicationBase;
@@ -57,8 +56,6 @@ class Application extends ApplicationBase
         $this->register(new LogServiceProvider($this));
 
         $this->register(new RoutingServiceProvider($this));
-
-        $this->register(new MakerServiceProvider($this));
 
         $this->register(new ExecutionContextProvider($this));
 
@@ -213,36 +210,6 @@ class Application extends ApplicationBase
         return Str::startsWith($env, '/')
             ? $env
             : $this->basePath($env);
-    }
-
-    /**
-     * make is entirely inherited from the parent, except it uses
-     * the custom maker class when dealing with parameters.
-     * @param  string  $abstract
-     * @return mixed
-     */
-    public function make($abstract, array $parameters = [])
-    {
-        $abstract = $this->getAlias($abstract);
-
-        $this->loadDeferredProviderIfNeeded($abstract);
-
-        // Numerical array suggests makeWithArgs, otherwise associative is makeWith params
-        if ($parameters && array_keys($parameters) === range(0, count($parameters) - 1)) {
-            return $this->makeWithArgs($abstract, $parameters);
-        }
-
-        return parent::make($abstract, $parameters);
-    }
-
-    /**
-     * makeWithArgs uses the Maker class to resolve interfaces where manual args are
-     * passed in addition to resolved paramters.
-     * @return mixed
-     */
-    public function makeWithArgs($abstract, array $args = [])
-    {
-        return $this->make(Maker::class)->make($abstract, $args);
     }
 
     /**
