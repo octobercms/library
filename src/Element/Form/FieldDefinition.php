@@ -1,176 +1,77 @@
 <?php namespace October\Rain\Element\Form;
 
+use October\Rain\Element\ElementBase;
+
 /**
  * FieldDefinition
+ *
+ * @method FieldDefinition useConfig(array $config) useConfig applies the supplied configuration
+ * @method FieldDefinition fieldName(string $name) fieldName for this field
+ * @method FieldDefinition label(string $label) label for this field
+ * @method FieldDefinition value(string $value) value for the form field
+ * @method FieldDefinition valueFrom(string $valueFrom) valueFrom model attribute to use for the display value.
+ * @method FieldDefinition defaults(string $defaults) defaults specifies a default value for supported fields.
+ * @method FieldDefinition defaultFrom(string $defaultFrom) defaultFrom model attribute to use for the default value.
+ * @method FieldDefinition type(string $type) type for display mode, eg: text, textarea
+ * @method FieldDefinition autoFocus(bool $autoFocus) autoFocus flags the field to be focused on load.
+ * @method FieldDefinition readOnly(bool $readOnly) readOnly specifies if the field is read-only or not.
+ * @method FieldDefinition disabled(bool $disabled) disabled specifies if the field is disabled or not.
+ * @method FieldDefinition hidden(bool $hidden) hidden defines the field without ever displaying it
+ * @method FieldDefinition tab(string $tab) tab this field belongs to
+ * @method FieldDefinition span(string $span, string $spanClass) span specifies the field size and side, eg: auto, left, right, full
+ * @method FieldDefinition spanClass(string $spanClass) spanClass is used by the row span type for a custom css class
+ * @method FieldDefinition size(string $size) size for the field, eg: tiny, small, large, huge, giant
+ * @method FieldDefinition options(string $options) options available
+ * @method FieldDefinition comment(string $comment, string $position, bool $isHtml) comment to accompany the field
+ * @method FieldDefinition placeholder(string $placeholder) placeholder to display when there is no value supplied
+ * @method FieldDefinition commentPosition(string $commentPosition) commentPosition
+ * @method FieldDefinition commentHtml(string $commentHtml) commentHtml if the comment is in HTML format
  *
  * @package october\element
  * @author Alexey Bobkov, Samuel Georges
  */
-class FieldDefinition
+class FieldDefinition extends ElementBase
 {
     /**
-     * @var string fieldName
+     * initDefaultValues for this scope
      */
-    public $fieldName;
-
-    /**
-     * @var string label for this field
-     */
-    public $label;
-
-    /**
-     * @var string type for display mode, eg: text, textarea
-     */
-    public $type = 'text';
-
-    /**
-     * @var bool hidden defines the field without ever displaying it
-     */
-    public $hidden = false;
-
-    /**
-     * @var string tab this field belongs to
-     */
-    public $tab;
-
-    /**
-     * @var string span specifies the field size and side, eg: auto, left, right, full
-     */
-    public $span = 'full';
-
-    /**
-     * @var string spanClass is used by the row span type for a custom css class
-     */
-    public $spanClass = '';
-
-    /**
-     * @var string size for the field, eg: tiny, small, large, huge, giant
-     */
-    public $size = 'large';
-
-    /**
-     * @var string options available
-     */
-    public $options;
-
-    /**
-     * @var string comment to accompany the field
-     */
-    public $comment = '';
-
-    /**
-     * @var string placeholder to display when there is no value supplied
-     */
-    public $placeholder = '';
-
-    /**
-     * @var string commentPosition
-     */
-    public $commentPosition = 'below';
-
-    /**
-     * @var string commentHtml if the comment is in HTML format
-     */
-    public $commentHtml = false;
-
-    /**
-     * @var array config in raw format, if supplied.
-     */
-    public $config;
-
-    /**
-     * __construct
-     */
-    public function __construct(string $fieldName)
+    protected function initDefaultValues()
     {
-        $this->fieldName = $fieldName;
+        $this
+            ->hidden(false)
+            ->autoFocus(false)
+            ->readOnly(false)
+            ->disabled(false)
+            ->displayAs('text')
+            ->span('full')
+            ->size('large')
+            ->commentPosition('below')
+            ->commentHtml(false)
+            ->spanClass('')
+            ->comment('')
+            ->placeholder('')
+        ;
     }
-
-    /**
-     * evalConfig from an array and apply them to the object
-     */
-    protected function evalConfig(array $config): void
-    {
-        if (isset($config['label'])) {
-            $this->label($config['label']);
-        }
-        if (isset($config['type'])) {
-            $this->displayAs($config['type']);
-        }
-        if (isset($config['hidden'])) {
-            $this->hidden((bool) $config['hidden']);
-        }
-        if (isset($config['tab'])) {
-            $this->tab($config['tab']);
-        }
-        if (isset($config['span'])) {
-            $this->span($config['span'], $config['spanClass'] ?? '');
-        }
-        if (isset($config['size'])) {
-            $this->size($config['size']);
-        }
-        if (isset($config['options'])) {
-            $this->options($config['options']);
-        }
-        if (isset($config['commentAbove'])) {
-            $this->comment($config['commentAbove'], 'above');
-        }
-        if (isset($config['comment'])) {
-            $this->comment($config['comment']);
-        }
-        if (isset($config['placeholder'])) {
-            $this->placeholder($config['placeholder']);
-        }
-    }
-
-    /**
-     * useConfig
-     */
-    public function useConfig(array $config): FieldDefinition
-    {
-        $this->config = $config;
-
-        $this->evalConfig($config);
-
-        return $this;
-    }
-
-    /**
-     * label for this field
-     */
-    public function label(string $label): FieldDefinition
-    {
-        $this->label = $label;
-
-        return $this;
-    }
-
     /**
      * displayAs type for this field
      */
     public function displayAs(string $type): FieldDefinition
     {
-        $this->type = $type;
+        $this->type($type);
 
         return $this;
     }
 
     /**
-     * hidden hides the column from lists
+     * fieldName sets the default value for valueFrom
      */
-    public function hidden(bool $hidden = true): FieldDefinition
+    public function fieldName($value): FieldDefinition
     {
-        $this->hidden = $hidden;
+        $this->config['fieldName'] = $value;
 
-        return $this;
-    }
-
-    /**
-     * tab this field belongs to
-     */
-    public function tab(string $value): FieldDefinition
-    {
-        $this->tab = $value;
+        if (!isset($this->config['valueFrom'])) {
+            $this->config['valueFrom'] = $value;
+        }
 
         return $this;
     }
@@ -181,17 +82,8 @@ class FieldDefinition
     public function span(string $value = 'full', string $spanClass = ''): FieldDefinition
     {
         $this->span = $value;
+
         $this->spanClass = $spanClass;
-
-        return $this;
-    }
-
-    /**
-     * size of the form field
-     */
-    public function size(string $value = 'large'): FieldDefinition
-    {
-        $this->size = $value;
 
         return $this;
     }
@@ -239,16 +131,6 @@ class FieldDefinition
         if ($isHtml !== null) {
             $this->commentHtml = $isHtml;
         }
-
-        return $this;
-    }
-
-    /**
-     * placeholder text shown when the field is empty
-     */
-    public function placeholder(string $text): FieldDefinition
-    {
-        $this->placeholder = $text;
 
         return $this;
     }

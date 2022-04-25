@@ -1,69 +1,34 @@
 <?php namespace October\Rain\Element\Form;
 
+use October\Rain\Element\ElementBase;
 use IteratorAggregate;
 use ArrayIterator;
 
 /**
  * FieldsetDefinition
  *
+ * @method FieldsetDefinition defaultTab(string $defaultTab) defaultTab is default tab label to use when none is specified
+ * @method FieldsetDefinition suppressTabs(bool $suppressTabs) suppressTabs if set to TRUE, fields will not be displayed in tabs
+ *
  * @package october\element
  * @author Alexey Bobkov, Samuel Georges
  */
-class FieldsetDefinition implements IteratorAggregate
+class FieldsetDefinition extends ElementBase implements IteratorAggregate
 {
-    /**
-     * @var string defaultTab is default tab label to use when none is specified
-     */
-    public $defaultTab = 'Misc';
-
-    /**
-     * @var bool suppressTabs if set to TRUE, fields will not be displayed in tabs
-     */
-    public $suppressTabs = false;
-
-    /**
-     * @var array config in raw format, if supplied.
-     */
-    public $config;
-
     /**
      * @var array fields is a collection of panes fields to these tabs
      */
     protected $fields = [];
 
     /**
-     * evalConfig from an array and apply them to the object
+     * initDefaultValues for this scope
      */
-    protected function evalConfig(array $config): void
+    protected function initDefaultValues()
     {
-        if (isset($config['defaultTab'])) {
-            $this->defaultTab($config['defaultTab']);
-        }
-        if (isset($config['suppressTabs'])) {
-            $this->suppressTabs = (bool) $config['suppressTabs'];
-        }
-    }
-
-    /**
-     * useConfig
-     */
-    public function useConfig(array $config): FieldsetDefinition
-    {
-        $this->config = $config;
-
-        $this->evalConfig($config);
-
-        return $this;
-    }
-
-    /**
-     * defaultTab label for these tabs
-     */
-    public function defaultTab(string $defaultTab): FieldsetDefinition
-    {
-        $this->defaultTab = $defaultTab;
-
-        return $this;
+        $this
+            ->defaultTab('Misc')
+            ->suppressTabs(false)
+        ;
     }
 
     /**
@@ -128,7 +93,7 @@ class FieldsetDefinition implements IteratorAggregate
      * getIterator gets an iterator for the items
      * @return ArrayIterator
      */
-    public function getIterator()
+    public function getIterator(): ArrayIterator
     {
         return new ArrayIterator(
             $this->suppressTabs

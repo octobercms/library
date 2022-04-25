@@ -28,6 +28,18 @@ use October\Rain\Element\ElementBase;
 class ScopeDefinition extends ElementBase
 {
     /**
+     * initDefaultValues for this scope
+     */
+    protected function initDefaultValues()
+    {
+        $this
+            ->nameFrom('name')
+            ->disabled(false)
+            ->displayAs('group')
+        ;
+    }
+
+    /**
      * displayAs type for this scope. Supported modes are:
      * - group - filter by a group of IDs. Default.
      * - checkbox - filter by a simple toggle switch.
@@ -42,10 +54,10 @@ class ScopeDefinition extends ElementBase
      */
     public function scopeName($value): ScopeDefinition
     {
-        $this->attributes['scopeName'] = $value;
+        $this->config['scopeName'] = $value;
 
-        if (!isset($this->attributes['valueFrom'])) {
-            $this->attributes['valueFrom'] = $value;
+        if (!isset($this->config['valueFrom'])) {
+            $this->config['valueFrom'] = $value;
         }
 
         return $this;
@@ -78,7 +90,7 @@ class ScopeDefinition extends ElementBase
             return [];
         }
 
-        $this->attributes['options'] = $value;
+        $this->config['options'] = $value;
 
         return $this;
     }
@@ -89,21 +101,9 @@ class ScopeDefinition extends ElementBase
     public function setScopeValue($value)
     {
         if (is_array($value)) {
-            $this->attributes = array_merge($this->attributes, $value);
+            $this->config = array_merge($this->config, $value);
         }
 
         $this->scopeValue($value);
-    }
-
-    /**
-     * initDefaultValues for this scope
-     */
-    protected function initDefaultValues()
-    {
-        $this
-            ->nameFrom('name')
-            ->disabled(false)
-            ->displayAs('group')
-        ;
     }
 }
