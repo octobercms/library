@@ -22,7 +22,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     /**
      * __construct
      */
-    public function __construct(array $config = [])
+    public function __construct($config = [])
     {
         $this->initDefaultValues();
 
@@ -30,7 +30,21 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     }
 
     /**
-     * useConfig
+     * initDefaultValues override method
+     */
+    protected function initDefaultValues()
+    {
+    }
+
+    /**
+     * evalConfig override method
+     */
+    protected function evalConfig(array $config)
+    {
+    }
+
+    /**
+     * useConfig is used internally
      */
     public function useConfig(array $config): ElementBase
     {
@@ -42,37 +56,20 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     }
 
     /**
-     * evalConfig override
+     * getConfig returns the entire config array
+     * @return array
      */
-    protected function evalConfig(array $config)
+    public function getConfig($key = null, $default = null)
     {
-    }
-
-    /**
-     * getConfig returns a raw config item value, or the entire array.
-     * @param  string $value
-     * @param  string $default
-     * @return mixed
-     */
-    public function getConfig($value = null, $default = null)
-    {
-        if ($value === null) {
-            return $this->config;
+        if ($key !== null) {
+            return $this->get($key, $default);
         }
 
-        return array_get($this->config, $value, $default);
+        return $this->config;
     }
 
     /**
-     * initDefaultValues for this element
-     */
-    protected function initDefaultValues()
-    {
-    }
-
-    /**
-     * Get an attribute from the element instance.
-     *
+     * get an attribute from the element instance.
      * @param  string  $key
      * @param  mixed  $default
      * @return mixed
@@ -87,8 +84,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     }
 
     /**
-     * Convert the element instance to an array.
-     *
+     * toArray converts the element instance to an array.
      * @return array
      */
     public function toArray()
@@ -97,7 +93,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     }
 
     /**
-     * Convert the object into something JSON serializable.
+     * jsonSerialize converts the object into something JSON serializable.
      */
     public function jsonSerialize(): array
     {
@@ -105,8 +101,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     }
 
     /**
-     * Convert the element instance to JSON.
-     *
+     * toJson converts the element instance to JSON.
      * @param  int  $options
      * @return string
      */
@@ -116,8 +111,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     }
 
     /**
-     * Determine if the given offset exists.
-     *
+     * offsetExists determines if the given offset exists.
      * @param  string  $offset
      * @return bool
      */
@@ -127,8 +121,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     }
 
     /**
-     * Get the value for a given offset.
-     *
+     * offsetGet gets the value for a given offset.
      * @param  string  $offset
      * @return mixed
      */
@@ -138,11 +131,9 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     }
 
     /**
-     * Set the value at the given offset.
-     *
+     * offsetSet sets the value at the given offset.
      * @param  string  $offset
      * @param  mixed  $value
-     * @return void
      */
     public function offsetSet($offset, $value): void
     {
@@ -150,8 +141,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     }
 
     /**
-     * Unset the value at the given offset.
-     *
+     * offsetUnset unsets the value at the given offset.
      * @param  string  $offset
      * @return void
      */
@@ -161,8 +151,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     }
 
     /**
-     * Handle dynamic calls to the element instance to set config.
-     *
+     * __call handles dynamic calls to the element instance to set config.
      * @param  string  $method
      * @param  array  $parameters
      * @return $this
@@ -175,8 +164,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     }
 
     /**
-     * Dynamically retrieve the value of an attribute.
-     *
+     * __get dynamically retrieves the value of an attribute.
      * @param  string  $key
      * @return mixed
      */
@@ -186,7 +174,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     }
 
     /**
-     * Dynamically set the value of an attribute.
+     * __set dynamically sets the value of an attribute.
      *
      * @param  string  $key
      * @param  mixed  $value
@@ -198,7 +186,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     }
 
     /**
-     * Dynamically check if an attribute is set.
+     * __isset dynamically checks if an attribute is set.
      *
      * @param  string  $key
      * @return bool
@@ -209,7 +197,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     }
 
     /**
-     * Dynamically unset an attribute.
+     * __unset dynamically unsets an attribute.
      *
      * @param  string  $key
      * @return void

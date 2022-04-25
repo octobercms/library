@@ -19,7 +19,7 @@ use October\Rain\Element\ElementBase;
 class ItemDefinition extends ElementBase
 {
     /**
-     * initDefaultValues for this scope
+     * initDefaultValues for this item
      */
     protected function initDefaultValues()
     {

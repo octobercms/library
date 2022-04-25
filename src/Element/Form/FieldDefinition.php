@@ -33,7 +33,7 @@ use October\Rain\Element\ElementBase;
 class FieldDefinition extends ElementBase
 {
     /**
-     * initDefaultValues for this scope
+     * initDefaultValues for this field
      */
     protected function initDefaultValues()
     {
@@ -52,26 +52,28 @@ class FieldDefinition extends ElementBase
             ->placeholder('')
         ;
     }
+
+    /**
+     * useConfig
+     */
+    public function useConfig(array $config): ElementBase
+    {
+        parent::useConfig($config);
+
+        // The valueFrom attribute defaults to the fieldName attribute
+        if (isset($this->config['fieldName']) && !isset($this->config['valueFrom'])) {
+            $this->config['valueFrom'] = $this->config['fieldName'];
+        }
+
+        return $this;
+    }
+
     /**
      * displayAs type for this field
      */
     public function displayAs(string $type): FieldDefinition
     {
         $this->type($type);
-
-        return $this;
-    }
-
-    /**
-     * fieldName sets the default value for valueFrom
-     */
-    public function fieldName($value): FieldDefinition
-    {
-        $this->config['fieldName'] = $value;
-
-        if (!isset($this->config['valueFrom'])) {
-            $this->config['valueFrom'] = $value;
-        }
 
         return $this;
     }

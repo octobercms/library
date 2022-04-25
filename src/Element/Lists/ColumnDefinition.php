@@ -6,7 +6,7 @@ use October\Rain\Element\ElementBase;
  * ColumnDefinition
  *
  * @method ColumnDefinition useConfig(array $config) useConfig applies the supplied configuration
- * @method ColumnDefinition columnName(string $name) columnName for this scope
+ * @method ColumnDefinition columnName(string $name) columnName for this column
  * @method ColumnDefinition label(string $label) label for list column
  * @method ColumnDefinition shortLabel(string $shortLabel) shortLabel used in list headers
  * @method ColumnDefinition type(string $type) type for display mode, eg: text, number
@@ -23,7 +23,7 @@ use October\Rain\Element\ElementBase;
 class ColumnDefinition extends ElementBase
 {
     /**
-     * initDefaultValues for this scope
+     * initDefaultValues for this column
      */
     protected function initDefaultValues()
     {
