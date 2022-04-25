@@ -17,7 +17,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     /**
      * @var array config values for this instance
      */
-    protected $config = [];
+    public $config = [];
 
     /**
      * __construct
@@ -26,9 +26,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     {
         $this->initDefaultValues();
 
-        foreach ($config as $key => $value) {
-            $this->config[$key] = $value;
-        }
+        $this->useConfig($config);
     }
 
     /**
@@ -38,7 +36,16 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     {
         $this->config = array_merge($this->config, $config);
 
+        $this->evalConfig($config);
+
         return $this;
+    }
+
+    /**
+     * evalConfig override
+     */
+    protected function evalConfig(array $config)
+    {
     }
 
     /**
