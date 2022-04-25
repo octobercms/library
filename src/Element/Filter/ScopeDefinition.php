@@ -59,7 +59,7 @@ class ScopeDefinition extends ElementBase
      * - group - filter by a group of IDs. Default.
      * - checkbox - filter by a simple toggle switch.
      */
-    public function displayAs($type): ScopeDefinition
+    public function displayAs(string $type): ScopeDefinition
     {
         $this->type($type);
 
