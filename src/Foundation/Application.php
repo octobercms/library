@@ -337,6 +337,7 @@ class Application extends ApplicationBase
             'hash' => [\Illuminate\Contracts\Hashing\Hasher::class],
             'translator' => [\Illuminate\Translation\Translator::class, \Illuminate\Contracts\Translation\Translator::class],
             'log' => [\Illuminate\Log\Logger::class, \Psr\Log\LoggerInterface::class],
+            'mail.manager' => [\Illuminate\Mail\MailManager::class, \Illuminate\Contracts\Mail\Factory::class],
             'mailer' => [\Illuminate\Mail\Mailer::class, \Illuminate\Contracts\Mail\Mailer::class, \Illuminate\Contracts\Mail\MailQueue::class],
             'queue' => [\Illuminate\Queue\QueueManager::class, \Illuminate\Contracts\Queue\Factory::class, \Illuminate\Contracts\Queue\Monitor::class],
             'queue.connection' => [\Illuminate\Contracts\Queue\Queue::class],
