@@ -60,15 +60,17 @@ class Mailer extends MailerBase
             return $this->sendMailable($view);
         }
 
-        /*
-         * Inherit logic from Illuminate\Mail\Mailer
-         */
+        // Inheriting logic from Illuminate\Mail\Mailer...
+
+        // First we need to parse the view, which could either be a string or an array
+        // containing both an HTML and plain text versions of the view which should
+        // be used when sending an e-mail. We will extract both of them out here.
         list($view, $plain, $raw) = $this->parseView($view);
 
         $data['message'] = $message = $this->createMessage();
 
-        if ($callback !== null) {
-            call_user_func($callback, $message);
+        if (!is_null($callback)) {
+            $callback($message);
         }
 
         if (is_bool($raw) && $raw === true) {
@@ -78,6 +80,9 @@ class Mailer extends MailerBase
             $this->addContent($message, $view, $plain, $raw, $data);
         }
 
+        // If a global "to" address has been set, we will set that address on the mail
+        // message. This is primarily useful during local development in which each
+        // message should be delivered into a single mail address for inspection.
         if (isset($this->to['address'])) {
             $this->setGlobalToAndRemoveCcAndBcc($message);
         }
@@ -110,44 +115,42 @@ class Mailer extends MailerBase
             return;
         }
 
-        /*
-         * Send the message
-         */
+        // Next we will determine if the message should be sent. We give the developer
+        // one final chance to stop this message and then we will send it to all of
+        // its recipients. We will then fire the sent event for the sent message.
         $symfonyMessage = $message->getSymfonyMessage();
 
         if ($this->shouldSendMessage($symfonyMessage, $data)) {
             $symfonySentMessage = $this->sendSymfonyMessage($symfonyMessage);
 
-            if (!empty($symfonySentMessage)) {
+            if ($symfonySentMessage) {
                 $sentMessage = new SentMessage($symfonySentMessage);
 
                 $this->dispatchSentEvent($sentMessage, $data);
 
+                /**
+                 * @event mailer.send
+                 * Fires after the message has been sent
+                 *
+                 * Example usage (logs the message):
+                 *
+                 *     Event::listen('mailer.send', function ((\October\Rain\Mail\Mailer) $mailerInstance, (string) $view, (\Illuminate\Mail\Message) $message) {
+                 *         \Log::info("Message was rendered with $view and sent");
+                 *     });
+                 *
+                 * Or
+                 *
+                 *     $mailerInstance->bindEvent('mailer.send', function ((string) $view, (\Illuminate\Mail\Message) $message) {
+                 *         \Log::info("Message was rendered with $view and sent");
+                 *     });
+                 *
+                 */
+                $this->fireEvent('mailer.send', [$view, $message]);
+                Event::fire('mailer.send', [$this, $view, $message]);
+
                 return $sentMessage;
             }
-            
-            return null;
         }
-
-        /**
-         * @event mailer.send
-         * Fires after the message has been sent
-         *
-         * Example usage (logs the message):
-         *
-         *     Event::listen('mailer.send', function ((\October\Rain\Mail\Mailer) $mailerInstance, (string) $view, (\Illuminate\Mail\Message) $message) {
-         *         \Log::info("Message was rendered with $view and sent");
-         *     });
-         *
-         * Or
-         *
-         *     $mailerInstance->bindEvent('mailer.send', function ((string) $view, (\Illuminate\Mail\Message) $message) {
-         *         \Log::info("Message was rendered with $view and sent");
-         *     });
-         *
-         */
-        $this->fireEvent('mailer.send', [$view, $message]);
-        Event::fire('mailer.send', [$this, $view, $message]);
     }
 
     /**
@@ -432,9 +435,7 @@ class Mailer extends MailerBase
                 $text = $result['text'];
             }
 
-            /*
-             * Subject
-             */
+            // Subject
             $customSubject = $message->getSymfonyMessage()->getSubject();
             if (
                 empty($customSubject) &&
