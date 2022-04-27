@@ -4,6 +4,7 @@ use Log;
 use Event;
 use Response;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Contracts\Support\Responsable;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use October\Rain\Exception\NotFoundException;
@@ -66,6 +67,8 @@ class Handler extends ExceptionHandler
             return;
         }
 
+        $exception = $this->mapException($exception);
+
         if ($this->shouldntReport($exception)) {
             return;
         }
@@ -96,22 +99,41 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        // Exception occured before system has booted
         if (!$this->hasBootedEvents()) {
             return parent::render($request, $exception);
         }
 
+        // Exception wants to return its own response
+        if ($exception instanceof Responsable) {
+            return $exception->toResponse($request);
+        }
+
+        // Convert to public-friendly exception
+        $exception = $this->prepareException($this->mapException($exception));
         $statusCode = $this->getStatusCode($exception);
 
-        $response = $this->callCustomHandlers($exception);
+        // Custom handlers
+        if ($response = $this->callCustomHandlers($exception)) {
+            if ($response instanceof \Symfony\Component\HttpFoundation\Response) {
+                return $response;
+            }
 
-        if ($response instanceof \Symfony\Component\HttpFoundation\Response) {
-            return $response;
+            if (!is_null($response)) {
+                return Response::make($response, $statusCode);
+            }
         }
 
-        if (!is_null($response)) {
-            return Response::make($response, $statusCode);
-        }
-
+        /**
+         * @event exception.beforeRender
+         * Fired before the exception renders and returns an optional custom response.
+         *
+         * Example usage
+         *
+         *     Event::listen('exception.beforeRender', function (\Exception $exception) {
+         *         return 'An error happened!';
+         *     });
+         */
         if ($event = Event::fire('exception.beforeRender', [$exception, $statusCode, $request], true)) {
             return Response::make($event, $statusCode);
         }
@@ -141,8 +163,6 @@ class Handler extends ExceptionHandler
      */
     protected function getStatusCode($exception)
     {
-        $exception = $this->prepareException($exception);
-
         if ($exception instanceof HttpExceptionInterface) {
             $code = $exception->getStatusCode();
         }
