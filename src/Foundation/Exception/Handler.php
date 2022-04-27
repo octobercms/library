@@ -100,6 +100,8 @@ class Handler extends ExceptionHandler
             return parent::render($request, $exception);
         }
 
+        $exception = $this->prepareException($exception);
+
         $statusCode = $this->getStatusCode($exception);
 
         $response = $this->callCustomHandlers($exception);
@@ -141,8 +143,6 @@ class Handler extends ExceptionHandler
      */
     protected function getStatusCode($exception)
     {
-        $exception = $this->prepareException($exception);
-
         if ($exception instanceof HttpExceptionInterface) {
             $code = $exception->getStatusCode();
         }
