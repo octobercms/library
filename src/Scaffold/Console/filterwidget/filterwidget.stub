@@ -1,0 +1,84 @@
+<?php namespace {{studly_author}}\{{studly_plugin}}\FilterWidgets;
+
+use Backend\Classes\FilterWidgetBase;
+
+/**
+ * {{name}} Filter Widget
+ */
+class {{studly_name}} extends FilterWidgetBase
+{
+    /**
+     * @inheritDoc
+     */
+    public function init()
+    {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function render()
+    {
+        $this->prepareVars();
+        return $this->makePartial('{{lower_name}}');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function renderForm()
+    {
+        $this->prepareVars();
+        return $this->makePartial('{{lower_name}}_form');
+    }
+
+    /**
+     * prepareVars for view data
+     */
+    public function prepareVars()
+    {
+        $this->vars['scope'] = $this->filterScope;
+        $this->vars['name'] = $this->getScopeName();
+        $this->vars['value'] = $this->getLoadValue();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function loadAssets()
+    {
+        $this->addCss('css/{{lower_name}}.css', '{{author}}.{{plugin}}');
+        $this->addJs('js/{{lower_name}}.js', '{{author}}.{{plugin}}');
+    }
+
+    /**
+     * getActiveValue
+     */
+    public function getActiveValue()
+    {
+        if (post('clearScope')) {
+            return null;
+        }
+
+        if (!$this->hasPostValue('value')) {
+            return null;
+        }
+
+        return post('Filter');
+    }
+
+    /**
+     * applyScopeToQuery
+     */
+    public function applyScopeToQuery($query)
+    {
+        $hasDiscount = $this->filterScope->value;
+
+        if ($hasDiscount) {
+            $query->where('discount', '>', 0);
+        }
+        else {
+            $query->where('discount', 0);
+        }
+    }
+}

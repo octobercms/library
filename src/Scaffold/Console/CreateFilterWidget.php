@@ -4,31 +4,32 @@ use October\Rain\Scaffold\GeneratorCommand;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 
-class CreateFormWidget extends GeneratorCommand
+class CreateFilterWidget extends GeneratorCommand
 {
     /**
      * @var string name of console command
      */
-    protected $name = 'create:formwidget';
+    protected $name = 'create:filterwidget';
 
     /**
      * @var string description of the console command
      */
-    protected $description = 'Creates a new form widget.';
+    protected $description = 'Creates a new filter widget.';
 
     /**
      * @var string type of class being generated
      */
-    protected $type = 'FormWidget';
+    protected $type = 'FilterWidget';
 
     /**
      * @var array stubs is a mapping of stub to generated file
      */
     protected $stubs = [
-        'formwidget/formwidget.stub'      => 'formwidgets/{{studly_name}}.php',
-        'formwidget/partial.stub'         => 'formwidgets/{{lower_name}}/partials/_{{lower_name}}.php',
-        'formwidget/stylesheet.stub'      => 'formwidgets/{{lower_name}}/assets/css/{{lower_name}}.css',
-        'formwidget/javascript.stub'      => 'formwidgets/{{lower_name}}/assets/js/{{lower_name}}.js',
+        'filterwidget/filterwidget.stub' => 'filterwidgets/{{studly_name}}.php',
+        'filterwidget/partial.stub'      => 'filterwidgets/{{lower_name}}/partials/_{{lower_name}}.php',
+        'filterwidget/partial_form.stub' => 'filterwidgets/{{lower_name}}/partials/_{{lower_name}}_form.php',
+        'filterwidget/stylesheet.stub'   => 'filterwidgets/{{lower_name}}/assets/css/{{lower_name}}.css',
+        'filterwidget/javascript.stub'   => 'filterwidgets/{{lower_name}}/assets/js/{{lower_name}}.js',
     ];
 
     /**

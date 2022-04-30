@@ -26,13 +26,13 @@ class CreateController extends GeneratorCommand
      * @var array stubs is a mapping of stub to generated file
      */
     protected $stubs = [
-        'controller/_list_toolbar.stub' => 'controllers/{{lower_name}}/_list_toolbar.htm',
+        'controller/_list_toolbar.stub' => 'controllers/{{lower_name}}/_list_toolbar.php',
         'controller/config_form.stub'   => 'controllers/{{lower_name}}/config_form.yaml',
         'controller/config_list.stub'   => 'controllers/{{lower_name}}/config_list.yaml',
-        'controller/create.stub'        => 'controllers/{{lower_name}}/create.htm',
-        'controller/index.stub'         => 'controllers/{{lower_name}}/index.htm',
-        'controller/preview.stub'       => 'controllers/{{lower_name}}/preview.htm',
-        'controller/update.stub'        => 'controllers/{{lower_name}}/update.htm',
+        'controller/create.stub'        => 'controllers/{{lower_name}}/create.php',
+        'controller/index.stub'         => 'controllers/{{lower_name}}/index.php',
+        'controller/preview.stub'       => 'controllers/{{lower_name}}/preview.php',
+        'controller/update.stub'        => 'controllers/{{lower_name}}/update.php',
         'controller/controller.stub'    => 'controllers/{{studly_name}}.php',
     ];
 

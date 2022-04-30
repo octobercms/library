@@ -4,7 +4,7 @@ use App;
 use Illuminate\Support\MessageBag;
 
 /**
- * Simple flash bag
+ * FlashBag for simple session based messages
  *
  * @package october\support
  * @author Alexey Bobkov, Samuel Georges
