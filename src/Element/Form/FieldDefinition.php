@@ -22,10 +22,10 @@ use October\Rain\Element\ElementBase;
  * @method FieldDefinition spanClass(string $spanClass) spanClass is used by the row span type for a custom css class
  * @method FieldDefinition size(string $size) size for the field, eg: tiny, small, large, huge, giant
  * @method FieldDefinition options(string $options) options available
- * @method FieldDefinition comment(string $comment, string $position, bool $isHtml) comment to accompany the field
+ * @method FieldDefinition comment(string $comment) comment for the form field
+ * @method FieldDefinition commentAbove(string $comment) commentAbove the form field
+ * @method FieldDefinition commentHtml(bool $commentHtml) commentHtml if the comment is in HTML format
  * @method FieldDefinition placeholder(string $placeholder) placeholder to display when there is no value supplied
- * @method FieldDefinition commentPosition(string $commentPosition) commentPosition
- * @method FieldDefinition commentHtml(string $commentHtml) commentHtml if the comment is in HTML format
  *
  * @package october\element
  * @author Alexey Bobkov, Samuel Georges
@@ -118,21 +118,6 @@ class FieldDefinition extends ElementBase
         }
 
         $this->options = $value;
-
-        return $this;
-    }
-
-    /**
-     * comment text above or below the field
-     */
-    public function comment(string $text, string $position = 'below', bool $isHtml = null): FieldDefinition
-    {
-        $this->comment = $text;
-        $this->commentPosition = $position;
-
-        if ($isHtml !== null) {
-            $this->commentHtml = $isHtml;
-        }
 
         return $this;
     }

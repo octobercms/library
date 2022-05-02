@@ -58,8 +58,8 @@ class CreateFilterWidget extends GeneratorCommand
     protected function getArguments()
     {
         return [
-            ['plugin', InputArgument::REQUIRED, 'The name of the plugin. Eg: RainLab.Blog'],
-            ['widget', InputArgument::REQUIRED, 'The name of the form widget. Eg: PostList'],
+            ['plugin', InputArgument::REQUIRED, 'The name of the plugin. Eg: RainLab.User'],
+            ['widget', InputArgument::REQUIRED, 'The name of the filter widget. Eg: Discount'],
         ];
     }
 
