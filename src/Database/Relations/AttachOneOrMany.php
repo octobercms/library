@@ -357,7 +357,6 @@ trait AttachOneOrMany
                 $value->getLocalPath(),
                 $value->file_name,
                 $value->content_type,
-                $value->file_size,
                 null,
                 true
             );
