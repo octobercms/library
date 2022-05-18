@@ -11,28 +11,25 @@ use Illuminate\Mail\MailServiceProvider as MailServiceProviderBase;
 class MailServiceProvider extends MailServiceProviderBase
 {
     /**
-     * registerIlluminateMailer instance. Copy of parent with extensibility.
+     * registerIlluminateMailer instance, as a copy of parent with extensibility.
      */
     protected function registerIlluminateMailer()
     {
         $this->app->singleton('mail.manager', function ($app) {
-            return new MailManager($app);
+            // Extensibility
+            $this->app['events']->dispatch('mailer.beforeRegister', [$this]);
+
+            // Inheritence
+            $manager = new MailManager($app);
+
+            // Extensibility
+            $this->app['events']->dispatch('mailer.register', [$this, $manager]);
+
+            return $manager;
         });
 
         $this->app->bind('mailer', function ($app) {
-            /*
-             * Extensibility
-             */
-            $this->app['events']->dispatch('mailer.beforeRegister', [$this]);
-
-            $mailer = $app->make('mail.manager')->mailer();
-
-            /*
-             * Extensibility
-             */
-            $this->app['events']->dispatch('mailer.register', [$this, $mailer]);
-
-            return $mailer;
+            return $app->make('mail.manager')->mailer();
         });
     }
 }
