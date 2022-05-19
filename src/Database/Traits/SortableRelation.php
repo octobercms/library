@@ -90,6 +90,10 @@ trait SortableRelation
      */
     public function setSortableRelationOrder($relationName, $itemIds, $itemOrders = null)
     {
+        if (!$this->isSortableRelation($relationName)) {
+            throw new Exception("Invalid setSortableRelationOrder call - the relation '{$relationName}' is not sortable");
+        }
+
         if (!is_array($itemIds)) {
             $itemIds = [$itemIds];
         }
@@ -112,11 +116,19 @@ trait SortableRelation
     }
 
     /**
+     * isSortableRelation returns true if the supplied relation is sortable.
+     */
+    public function isSortableRelation($relationName)
+    {
+        return isset($this->sortableRelationDefinitions[$relationName]);
+    }
+
+    /**
      * getRelationSortOrderColumn gets the name of the "sort_order" column.
      */
     public function getRelationSortOrderColumn(string $relation): string
     {
-        return $this->getSortableRelations()[$relation] ?? 'sort_order';
+        return $this->sortableRelationDefinitions[$relation] ?? 'sort_order';
     }
 
     /**
