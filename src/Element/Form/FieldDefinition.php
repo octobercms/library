@@ -65,6 +65,11 @@ class FieldDefinition extends ElementBase
             $this->config['valueFrom'] = $this->config['fieldName'];
         }
 
+        // The config default proxies to defaults
+        if (array_key_exists('default', $this->config)) {
+            $this->defaults($this->config['default']);
+        }
+
         return $this;
     }
 
