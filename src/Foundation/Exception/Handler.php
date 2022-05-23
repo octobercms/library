@@ -7,6 +7,7 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Contracts\Support\Responsable;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use October\Rain\Exception\ForbiddenException;
 use October\Rain\Exception\NotFoundException;
 use October\Rain\Exception\AjaxException;
 use ReflectionFunction;
@@ -165,6 +166,9 @@ class Handler extends ExceptionHandler
     {
         if ($exception instanceof HttpExceptionInterface) {
             $code = $exception->getStatusCode();
+        }
+        elseif ($exception instanceof ForbiddenException) {
+            $code = 403;
         }
         elseif ($exception instanceof AjaxException) {
             $code = 406;

@@ -59,18 +59,8 @@ class ErrorHandler
             ob_end_clean();
         }
 
-        // Not found exceptions
-        if ($this->isNotFoundException($proposedException)) {
-            // Friendly 404 pages are used
-            if (($customNotFound = $this->handleCustomNotFound()) !== null) {
-                return $customNotFound;
-            }
-
-            return;
-        }
-
         // Friendly error pages are used
-        if (($customError = $this->handleCustomError()) !== null) {
+        if (($customError = $this->handleCustomError($proposedException)) !== null) {
             return $customError;
         }
 
@@ -161,18 +151,9 @@ class ErrorHandler
     /**
      * handleCustomError checks if using a custom error page, if so return the contents.
      * Return NULL if a custom error is not set up.
-     * @return mixed Error page contents.
+     * @return mixed
      */
-    public function handleCustomError()
-    {
-    }
-
-    /**
-     * handleCustomNotFound checks if using a custom 404 page, if so return the contents.
-     * Return NULL if a custom 404 is not set up.
-     * @return mixed 404 page contents.
-     */
-    public function handleCustomNotFound()
+    public function handleCustomError($exception)
     {
     }
 
