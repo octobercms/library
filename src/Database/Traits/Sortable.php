@@ -50,29 +50,76 @@ trait Sortable
     }
 
     /**
-     * setSortableOrder sets the sort order of records to the specified orders. If the
-     * orders is undefined, the record identifier is used.
+     * setSortableOrder sets the sort order of records to the specified orders, suppling
+     * a reference pool of sorted values.
      * @param  mixed $itemIds
-     * @param  array $itemOrders
+     * @param  array $availableOrderRefs
      * @return void
      */
-    public function setSortableOrder($itemIds, $itemOrders = null)
+    public function setSortableOrder($itemIds, $referencePool = null)
     {
         if (!is_array($itemIds)) {
-            $itemIds = [$itemIds];
+            return;
         }
 
-        if ($itemOrders === null) {
-            $itemOrders = $itemIds;
+        if ($referencePool && !is_array($referencePool)) {
+            return;
         }
 
-        if (count($itemIds) !== count($itemOrders)) {
-            throw new Exception('Invalid setSortableOrder call - count of itemIds do not match count of itemOrders');
+        $sortKeyMap = $this->processSortableOrdersInternal($itemIds, $referencePool);
+        if (count($itemIds) !== count($sortKeyMap)) {
+            throw new Exception('Invalid setSortableOrder call - count of itemIds do not match count of referencePool');
         }
 
+        $upsert = [];
+        foreach ($itemIds as $id) {
+            $sortOrder = $sortKeyMap[$id] ?? null;
+            if ($sortOrder !== null) {
+                $upsert[] = ['id' => $id, 'sort_order' => $sortOrder];
+            }
+        }
+
+        if ($upsert) {
+            foreach ($upsert as $update) {
+                $this->newQuery()->where($this->getKeyName(), $update['id'])->update([$this->getSortOrderColumn() => $update['sort_order']]);
+            }
+        }
+    }
+
+    /**
+     * processSortableOrdersInternal
+     */
+    protected function processSortableOrdersInternal($itemIds, $referencePool = null): array
+    {
+        // Extract a reference pool from the database
+        if (!$referencePool) {
+            $referencePool = $this->newQuery()
+                ->whereIn($this->getKeyName(), $itemIds)
+                ->pluck($this->getSortOrderColumn())
+                ->all();
+        }
+
+        // Sort pool to apply against the sorted items
+        sort($referencePool);
+
+        // Process the item orders to a sort key map
+        $result = [];
         foreach ($itemIds as $index => $id) {
-            $order = $itemOrders[$index];
-            $this->newQuery()->where($this->getKeyName(), $id)->update([$this->getSortOrderColumn() => $order]);
+            $result[$id] = $referencePool[$index];
+        }
+
+        return $result;
+    }
+
+    /**
+     * resetSortableOrdering can be used to repair corrupt or missing sortable definitions.
+     */
+    public function resetSortableOrdering()
+    {
+        $ids = $this->newQuery()->pluck($this->getKeyName());
+
+        foreach ($ids as $id) {
+            $this->newQuery()->where($this->getKeyName(), $id)->update([$this->getSortOrderColumn() => $id]);
         }
     }
 
