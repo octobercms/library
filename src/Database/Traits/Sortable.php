@@ -44,7 +44,7 @@ trait Sortable
             $sortOrderColumn = $this->getSortOrderColumn();
 
             if (is_null($this->$sortOrderColumn)) {
-                $this->setSortableOrder($this->getKey());
+                $this->setSortableOrder([$this->getKey()], [$this->getKey()]);
             }
         });
     }
