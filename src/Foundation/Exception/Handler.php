@@ -27,6 +27,7 @@ class Handler extends ExceptionHandler
     protected $dontReport = [
         \October\Rain\Exception\AjaxException::class,
         \October\Rain\Exception\NotFoundException::class,
+        \October\Rain\Exception\ForbiddenException::class,
         \October\Rain\Exception\ValidationException::class,
         \October\Rain\Exception\ApplicationException::class,
         \Illuminate\Database\Eloquent\ModelNotFoundException::class,
