@@ -100,7 +100,8 @@ class FieldDefinition extends ElementBase
      */
     public function hasOptions(): bool
     {
-        return $this->options !== null;
+        return $this->options !== null &&
+            (is_array($this->options) || is_callable($this->options));
     }
 
     /**
