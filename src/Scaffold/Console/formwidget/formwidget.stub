@@ -3,7 +3,7 @@
 use Backend\Classes\FormWidgetBase;
 
 /**
- * {{name}} Form Widget
+ * {{studly_name}} Form Widget
  */
 class {{studly_name}} extends FormWidgetBase
 {

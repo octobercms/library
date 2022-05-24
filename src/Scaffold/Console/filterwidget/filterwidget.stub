@@ -3,7 +3,7 @@
 use Backend\Classes\FilterWidgetBase;
 
 /**
- * {{name}} Filter Widget
+ * {{studly_name}} Filter Widget
  */
 class {{studly_name}} extends FilterWidgetBase
 {

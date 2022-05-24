@@ -4,7 +4,7 @@ use Backend;
 use System\Classes\PluginBase;
 
 /**
- * {{name}} Plugin Information File
+ * Plugin Information File
  */
 class Plugin extends PluginBase
 {
