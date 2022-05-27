@@ -7,7 +7,6 @@ use October\Rain\Events\EventServiceProvider;
 use October\Rain\Router\RoutingServiceProvider;
 use October\Rain\Foundation\Providers\LogServiceProvider;
 use October\Rain\Foundation\Providers\ExecutionContextProvider;
-use Symfony\Component\Debug\Exception\FatalErrorException;
 use Illuminate\Foundation\Application as ApplicationBase;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Foundation\PackageManifest;
@@ -249,7 +248,7 @@ class Application extends ApplicationBase
      */
     public function fatal(Closure $callback)
     {
-        $this->error(function (FatalErrorException $e) use ($callback) {
+        $this->error(function ($e) use ($callback) {
             return call_user_func($callback, $e);
         });
     }
