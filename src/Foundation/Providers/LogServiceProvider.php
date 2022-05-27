@@ -5,9 +5,7 @@ use Illuminate\Log\LogServiceProvider as LogServiceProviderBase;
 class LogServiceProvider extends LogServiceProviderBase
 {
     /**
-     * Register the service provider.
-     *
-     * @return void
+     * register the service provider.
      */
     public function register()
     {
@@ -22,10 +20,8 @@ class LogServiceProvider extends LogServiceProviderBase
     }
 
     /**
-     * Configure the default log channel for the application
+     * configureDefaultLogger channel for the application
      * when no configuration is supplied.
-     *
-     * @return void
      */
     protected function configureDefaultLogger()
     {

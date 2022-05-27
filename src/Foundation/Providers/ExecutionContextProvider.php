@@ -9,8 +9,6 @@ class ExecutionContextProvider extends ServiceProvider
 {
     /**
      * register the service provider.
-     *
-     * @return void
      */
     public function register()
     {
@@ -23,9 +21,8 @@ class ExecutionContextProvider extends ServiceProvider
             if (starts_with($requestPath, $backendUri)) {
                 return 'backend';
             }
-            else {
-                return 'frontend';
-            }
+
+            return 'frontend';
         });
     }
 

@@ -79,6 +79,10 @@ class ProjectSetCommand extends Command
             ]);
         }
         else {
+            if (!is_dir($cmsStorePath = storage_path('cms'))) {
+                mkdir($cmsStorePath);
+            }
+
             $this->injectJsonToFile(storage_path('cms/project.json'), [
                 'project' => $result['project_id']
             ]);

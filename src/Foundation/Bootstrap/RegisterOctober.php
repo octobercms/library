@@ -10,27 +10,24 @@ use Illuminate\Contracts\Foundation\Application;
 class RegisterOctober
 {
     /**
-     * bootstrap
+     * bootstrap the application
      */
     public function bootstrap(Application $app)
     {
-        /*
-         * Workaround for CLI and URL based in subdirectory
-         */
+        // Workaround for CLI and URL based in subdirectory
+        //
         if ($app->runningInConsole()) {
             $app['url']->forceRootUrl($app['config']->get('app.url'));
         }
 
-        /*
-         * Register singletons
-         */
+        // Register singletons
+        //
         $app->singleton('string', function () {
             return new \October\Rain\Support\Str;
         });
 
-        /*
-         * Change paths based on config
-         */
+        // Change paths based on config
+        //
         if ($storagePath = $app['config']->get('system.storage_path')) {
             $app->useStoragePath($this->parseConfiguredPath($app, $storagePath));
         }
@@ -68,9 +65,8 @@ class RegisterOctober
             'logs',
         ]);
 
-        /*
-         * Initialize class loader cache
-         */
+        // Initialize class loader cache
+        //
         $loader = $app->make(ClassLoader::class);
         $loader->initManifest($app->getCachedClassesPath());
     }
