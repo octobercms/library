@@ -3,6 +3,7 @@
 use October\Rain\Foundation\Console\ServeCommand;
 use October\Rain\Foundation\Console\RouteListCommand;
 use October\Rain\Foundation\Console\RouteCacheCommand;
+use October\Rain\Foundation\Console\ProjectSetCommand;
 use October\Rain\Foundation\Console\ClearCompiledCommand;
 use Illuminate\Cache\Console\ClearCommand as CacheClearCommand;
 use Illuminate\Cache\Console\ForgetCommand as CacheForgetCommand;
@@ -56,6 +57,8 @@ class ArtisanServiceProvider extends ArtisanServiceProviderBase
      * @var array
      */
     protected $commands = [
+        // Laravel
+        //
         'CacheClear' => CacheClearCommand::class,
         'CacheForget' => CacheForgetCommand::class,
         'ClearCompiled' => ClearCompiledCommand::class,
@@ -97,6 +100,10 @@ class ArtisanServiceProvider extends ArtisanServiceProviderBase
         'Up' => UpCommand::class,
         'ViewCache' => ViewCacheCommand::class,
         'ViewClear' => ViewClearCommand::class,
+
+        // October
+        //
+        'ProjectSet' => ProjectSetCommand::class,
     ];
 
     /**
@@ -152,6 +159,16 @@ class ArtisanServiceProvider extends ArtisanServiceProviderBase
     {
         $this->app->singleton(ClearCompiledCommand::class, function () {
             return new ClearCompiledCommand;
+        });
+    }
+
+    /**
+     * registerProjectSetCommand
+     */
+    protected function registerProjectSetCommand()
+    {
+        $this->app->singleton(ProjectSetCommand::class, function () {
+            return new ProjectSetCommand;
         });
     }
 }
