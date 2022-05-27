@@ -1,14 +1,10 @@
 <?php namespace October\Rain\Flash;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Contracts\Support\DeferrableProvider;
 
-class FlashServiceProvider extends ServiceProvider
+class FlashServiceProvider extends ServiceProvider implements DeferrableProvider
 {
-    /**
-     * @var bool defer indicates if loading of the provider is deferred
-     */
-    protected $defer = false;
-
     /**
      * register the service provider.
      */

@@ -58,6 +58,14 @@
             "phpunit --stop-on-failure"
         ]
     },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "October\\Rain\\Foundation\\Providers\\AppSupportServiceProvider",
+                "October\\Rain\\Foundation\\Providers\\AppDeferSupportServiceProvider"
+            ]
+        }
+    },
     "minimum-stability": "dev",
     "prefer-stable": true
 }

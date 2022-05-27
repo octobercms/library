@@ -18,7 +18,6 @@ class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvi
 {
     /**
      * register the service provider.
-     * @return void
      */
     public function register()
     {
@@ -46,7 +45,7 @@ class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvi
     }
 
     /**
-     * provides the services provided by the provider.
+     * provides the returned services.
      * @return array
      */
     public function provides()
