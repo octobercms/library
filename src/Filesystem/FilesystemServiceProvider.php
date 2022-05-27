@@ -24,24 +24,23 @@ class FilesystemServiceProvider extends FilesystemServiceProviderBase
     {
         $this->app->singleton('files', function () {
             $config = $this->app['config'];
+
             $files = new Filesystem;
             $files->filePermissions = $config->get('system.default_mask.file', null);
             $files->folderPermissions = $config->get('system.default_mask.folder', null);
             $files->pathSymbols = [
-                '#' => themes_path(),
-                '$' => plugins_path(),
-                '~' => base_path(),
+                '~' => base_path()
             ];
+
+            if ($this->app->has('path.themes')) {
+                $files->pathSymbols['#'] = themes_path();
+            }
+
+            if ($this->app->has('path.plugins')) {
+                $files->pathSymbols['$'] = plugins_path();
+            }
+
             return $files;
         });
-    }
-
-    /**
-     * provides gets the services provided by the provider.
-     * @return array
-     */
-    public function provides()
-    {
-        return ['files', 'filesystem'];
     }
 }
