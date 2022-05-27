@@ -5,4 +5,4 @@
  *
  * @see \Illuminate\Routing\UrlGenerator
  */
-class Url extends Illuminate\Support\Facades\Url {}
+class Url extends Illuminate\Support\Facades\URL {}
