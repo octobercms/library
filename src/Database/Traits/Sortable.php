@@ -99,6 +99,11 @@ trait Sortable
                 ->all();
         }
 
+        // Check for corrupt values, if found, reset with a unique pool
+        if (count($referencePool) !== count(array_unique($referencePool))) {
+            $referencePool = $itemIds;
+        }
+
         // Sort pool to apply against the sorted items
         sort($referencePool);
 
