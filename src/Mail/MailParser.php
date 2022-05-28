@@ -20,6 +20,8 @@ class MailParser
      * Plain-text content section
      * ==
      * HTML content section
+     * ==
+     * CSS stylesheet section (layouts)
      * </pre>
      * If the content has only 2 sections they are considered as settings and HTML.
      * If there is only a single section, it is considered as HTML.
@@ -39,11 +41,18 @@ class MailParser
 
         $result = [
             'settings' => [],
-            'html'     => null,
-            'text'     => null
+            'html' => null,
+            'text' => null,
+            'css' => null
         ];
 
-        if ($count >= 3) {
+        if ($count >= 4) {
+            $result['settings'] = parse_ini_string($sections[0], true);
+            $result['text'] = $sections[1];
+            $result['html'] = $sections[2];
+            $result['css'] = $sections[3];
+        }
+        elseif ($count >= 3) {
             $result['settings'] = parse_ini_string($sections[0], true);
             $result['text'] = $sections[1];
             $result['html'] = $sections[2];
