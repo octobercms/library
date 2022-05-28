@@ -100,7 +100,11 @@ trait Sortable
         }
 
         // Check for corrupt values, if found, reset with a unique pool
-        if (count($referencePool) !== count(array_unique($referencePool))) {
+        $countRefPool = count($referencePool);
+        if (
+            $countRefPool !== count(array_unique($referencePool)) ||
+            $countRefPool !== count(array_filter($referencePool))
+        ) {
             $referencePool = $itemIds;
         }
 
