@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Parse;
 
+use Html;
 use Event;
 use October\Rain\Parse\Parsedown\Parsedown;
 
@@ -45,9 +46,23 @@ class Markdown
     }
 
     /**
-     * parseClean enables safe mode where HTML is escaped
+     * parseClean enables safe mode where the resulting HTML is cleaned
+     * using a sanitizer
      */
     public function parseClean($text): string
+    {
+        $result = Html::clean($this->parse($text));
+
+        $this->parser = null;
+
+        return $result;
+    }
+
+    /**
+     * parseSafe is stricter than parse clean allowing no HTML at all
+     * except for basic protocols such as https://, ftps://, mailto:, etc.
+     */
+    public function parseSafe($text): string
     {
         $this->getParser()->setSafeMode(true);
 
@@ -59,9 +74,9 @@ class Markdown
     }
 
     /**
-     * parseSafe disables code blocks caused by indentation
+     * parseNoIndent disables code blocks caused by indentation
      */
-    public function parseSafe($text): string
+    public function parseNoIndent($text): string
     {
         $this->getParser()->setUnmarkedBlockTypes([]);
 
