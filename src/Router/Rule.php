@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Router;
 
 use InvalidArgumentException;
+use Exception;
 
 /**
  * Rule object for routes
@@ -103,30 +104,22 @@ class Rule
         $urlSegments = Helper::segmentizeUrl($url);
         $wildSegments = [];
 
-        /*
-         * Only one wildcard can be used, if found, pull out the excess segments
-         */
+        // Only one wildcard can be used, if found, pull out the excess segments
         if ($this->wildSegmentCount === 1) {
             $wildSegments = $this->captureWildcardSegments($urlSegments);
         }
 
-        /*
-         * If the number of URL segments is more than the number of pattern segments - return false
-         */
+        // If the number of URL segments is more than the number of pattern segments
         if (count($urlSegments) > count($patternSegments)) {
             return false;
         }
 
-        /*
-         * Compare pattern and URL segments
-         */
+        // Compare pattern and URL segments
         foreach ($patternSegments as $index => $patternSegment) {
             $patternSegmentLower = mb_strtolower($patternSegment);
 
             if (strpos($patternSegment, ':') !== 0) {
-                /*
-                 * Static segment
-                 */
+                // Static segment
                 if (
                     !array_key_exists($index, $urlSegments) ||
                     $patternSegmentLower !== mb_strtolower($urlSegments[$index])
@@ -135,20 +128,14 @@ class Rule
                 }
             }
             else {
-                /*
-                 * Dynamic segment. Initialize the parameter
-                 */
+                // Dynamic segment. Initialize the parameter
                 $paramName = Helper::getParameterName($patternSegment);
                 $parameters[$paramName] = false;
 
-                /*
-                 * Determine whether it is optional
-                 */
+                // Determine whether it is optional
                 $optional = Helper::segmentIsOptional($patternSegment);
 
-                /*
-                 * Check if the optional segment has no required segments following it
-                 */
+                // Check if the optional segment has no required segments following it
                 if ($optional && $index < $patternSegmentNum-1) {
                     for ($i = $index+1; $i < $patternSegmentNum; $i++) {
                         if (!Helper::segmentIsOptional($patternSegments[$i])) {
@@ -158,10 +145,8 @@ class Rule
                     }
                 }
 
-                /*
-                 * If the segment is optional and there is no corresponding value in the URL, assign the default value (if provided)
-                 * and skip to the next segment.
-                 */
+                // If the segment is optional and there is no corresponding value in the URL,
+                // assign the default value (if provided) and skip to the next segment.
                 $urlSegmentExists = array_key_exists($index, $urlSegments);
 
                 if ($optional && !$urlSegmentExists) {
@@ -169,16 +154,12 @@ class Rule
                     continue;
                 }
 
-                /*
-                 * If the segment is not optional and there is no corresponding value in the URL, return false
-                 */
+                // If the segment is not optional and there is no corresponding value in the URL
                 if (!$optional && !$urlSegmentExists) {
                     return false;
                 }
 
-                /*
-                 * Validate the value with the regular expression
-                 */
+                // Validate the value with the regular expression
                 $regexp = Helper::getSegmentRegExp($patternSegment);
 
                 if ($regexp) {
@@ -187,18 +168,14 @@ class Rule
                             return false;
                         }
                     }
-                    catch (\Exception $ex) {
+                    catch (Exception $ex) {
                     }
                 }
 
-                /*
-                 * Set the parameter value
-                 */
+                // Set the parameter value
                 $parameters[$paramName] = $urlSegments[$index];
 
-                /*
-                 * Determine if wildcard and add stored parameters as a suffix
-                 */
+                // Determine if wildcard and add stored parameters as a suffix
                 if (Helper::segmentIsWildcard($patternSegment) && count($wildSegments)) {
                     $parameters[$paramName] .= Helper::rebuildUrl($wildSegments);
                 }

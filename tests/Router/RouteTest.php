@@ -103,6 +103,19 @@ class RouteTest extends TestCase
         $result = $rule->resolveUrl('blog/post', $params);
         $this->assertFalse($result);
 
+        $rule = $router->reset()->route('testRuleId', '/blog/post/:post_id/:post_slug|^my-slug-.*');
+        $result = $rule->resolveUrl('blog/post/4/no-slug-test', $params);
+        $this->assertFalse($result);
+
+        $rule = $router->reset()->route('testRuleId', '/blog/post/:post_id/:post_slug|^my-slug-.*');
+        $result = $rule->resolveUrl('blog/post/4/my-slug-test', $params);
+        $this->assertTrue($result);
+        $this->assertEquals(2, count($params));
+        $this->assertArrayHasKey('post_id', $params);
+        $this->assertArrayHasKey('post_slug', $params);
+        $this->assertEquals('4', $params['post_id']);
+        $this->assertEquals('my-slug-test', $params['post_slug']);
+
         $rule = $router->reset()->route('testRuleId', '/blog/post/:post_id?my-post');
         $result = $rule->resolveUrl('blog/post/', $params);
         $this->assertTrue($result);
@@ -157,13 +170,20 @@ class RouteTest extends TestCase
         $this->assertEquals('brown', $params['color']);
         $this->assertEquals('code/with/slashes/edit', $params['largecode']);
 
-        // $rule = $router->reset()->route('testRuleId', '/color/:color/largecode/:largecode*|^[a-z]+\/[a-z]+$');
-        // $result = $rule->resolveUrl('color/brown/largecode/code/100', $params);
-        // $this->assertFalse($result);
+        // Integer
+        $rule = $router->reset()->route('testRuleId', '/color/:color/largecode/:largecode*|^[a-z]+\/[a-z]+$');
+        $result = $rule->resolveUrl('color/brown/largecode/code/100', $params);
+        $this->assertFalse($result);
 
+        // Too many segments
+        $rule = $router->reset()->route('testRuleId', '/color/:color/largecode/:largecode*|^[a-z]+\/[a-z]+$');
+        $result = $rule->resolveUrl('color/brown/largecode/first/second/third', $params);
+        $this->assertFalse($result);
+
+        // Should pass @todo
         // $rule = $router->reset()->route('testRuleId', '/color/:color/largecode/:largecode*|^[a-z]+\/[a-z]+$');
-        // $result = $rule->resolveUrl('color/brown/largecode/code/with/slashes', $params);
-        // $this->assertFalse($result);
+        // $result = $rule->resolveUrl('color/brown/largecode/first/second', $params);
+        // $this->assertTrue($result);
 
         // $rule = $router->reset()->route('testRuleId', '/blog/:id*|^[0-9]+$');
         // $this->assertFalse($rule->resolveUrl('blog/text/text', $params));

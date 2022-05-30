@@ -115,9 +115,8 @@ class Router
     {
         $patternSegments = Helper::segmentizeUrl($pattern);
 
-        /*
-         * Normalize the parameters, colons (:) in key names are removed.
-         */
+        // Normalize the parameters, colons (:) in key names are removed.
+        //
         foreach ($parameters as $param => $value) {
             if (strpos($param, ':') !== 0) {
                 continue;
@@ -127,60 +126,43 @@ class Router
             unset($parameters[$param]);
         }
 
-        /*
-         * Build the URL segments, remember the last populated index
-         */
+        // Build the URL segments, remember the last populated index
+        //
         $url = [];
         $lastPopulatedIndex = 0;
 
         foreach ($patternSegments as $index => $patternSegment) {
-            /*
-             * Static segment
-             */
+            // Static segment
             if (strpos($patternSegment, ':') !== 0) {
                 $url[] = $patternSegment;
             }
-            /*
-             * Dynamic segment
-             */
+            // Dynamic segment
             else {
                 $paramName = Helper::getParameterName($patternSegment);
 
-                /*
-                 * Determine whether it is optional
-                 */
+                // Determine whether it is optional
                 $optional = Helper::segmentIsOptional($patternSegment);
 
-                /*
-                 * Default value
-                 */
+                // Default value
                 $defaultValue = Helper::getSegmentDefaultValue($patternSegment);
 
-                /*
-                 * Check if parameter has been supplied and is not a default value
-                 */
+                // Check if parameter has been supplied and is not a default value
                 $parameterExists = isset($parameters[$paramName]) &&
                     strlen($parameters[$paramName]) &&
                     $parameters[$paramName] !== $defaultValue;
 
-                /*
-                 * Use supplied parameter value
-                 */
+                // Use supplied parameter value
                 if ($parameterExists) {
                     $url[] = $parameters[$paramName];
                 }
-                /*
-                 * Look for a specified default value
-                 */
+                // Look for a specified default value
                 elseif ($optional) {
                     $url[] = $defaultValue ?: static::$defaultValue;
 
                     // Do not set $lastPopulatedIndex
                     continue;
                 }
-                /*
-                 * Non optional field, use the default value
-                 */
+                // Non optional field, use the default value
                 else {
                     $url[] = static::$defaultValue;
                 }
@@ -189,9 +171,7 @@ class Router
             $lastPopulatedIndex = $index;
         }
 
-        /*
-         * Trim the URL to only include populated segments
-         */
+        // Trim the URL to only include populated segments
         $url = array_slice($url, 0, $lastPopulatedIndex + 1);
 
         return Helper::rebuildUrl($url);

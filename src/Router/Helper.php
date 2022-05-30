@@ -59,15 +59,23 @@ class Helper
     }
 
     /**
-     * segmentizeUrl splits a URL by segments separated by the slash symbol.
+     * segmentizeUrl splits a URL by segments separated by the slash symbol
+     * and returns the URL segments.
      *
-     * @param string $url URL to segmentize.
-     * @return array Returns the URL segments.
+     * @param string $url
+     * @return array
      */
     public static function segmentizeUrl($url)
     {
         $url = self::normalizeUrl($url);
-        $segments = explode('/', $url);
+
+        // Micro optimization to avoid regex engine
+        if (strpos($url, '|') !== false) {
+            $segments = preg_split("#(?<!\\\)/#", $url);
+        }
+        else {
+            $segments = explode('/', $url);
+        }
 
         $result = [];
         foreach ($segments as $segment) {
@@ -151,7 +159,23 @@ class Helper
      */
     public static function segmentIsWildcard($segment)
     {
-        return mb_strpos($segment, ':') === 0 && mb_substr($segment, -1) === '*';
+        $name = mb_substr($segment, 1);
+
+        $wildMarkerPos = mb_strpos($name, '*');
+        if ($wildMarkerPos === false) {
+            return false;
+        }
+
+        $regexMarkerPos = mb_strpos($name, '|');
+        if ($regexMarkerPos === false) {
+            return true;
+        }
+
+        if ($wildMarkerPos !== false && $regexMarkerPos !== false) {
+            return $wildMarkerPos < $regexMarkerPos;
+        }
+
+        return true;
     }
 
     /**
@@ -182,39 +206,26 @@ class Helper
 
     /**
      * getParameterName extracts the parameter name from a URL pattern segment definition.
-     * @param string $segment The segment definition.
-     * @return string Returns the segment name.
+     * @param string $segment
+     * @return string
      */
     public static function getParameterName($segment)
     {
         $name = mb_substr($segment, 1);
 
-        $optMarkerPos = mb_strpos($name, '?');
-        $wildMarkerPos = mb_strpos($name, '*');
         $regexMarkerPos = mb_strpos($name, '|');
-
-        if ($wildMarkerPos !== false) {
-            if ($optMarkerPos !== false) {
-                return mb_substr($name, 0, $optMarkerPos);
-            }
-
-            return mb_substr($name, 0, $wildMarkerPos);
-        }
-
-        if ($optMarkerPos !== false && $regexMarkerPos !== false) {
-            if ($optMarkerPos < $regexMarkerPos) {
-                return mb_substr($name, 0, $optMarkerPos);
-            }
-
-            return mb_substr($name, 0, $regexMarkerPos);
-        }
-
-        if ($optMarkerPos !== false) {
-            return mb_substr($name, 0, $optMarkerPos);
-        }
-
         if ($regexMarkerPos !== false) {
-            return mb_substr($name, 0, $regexMarkerPos);
+            $name = mb_substr($name, 0, $regexMarkerPos);
+        }
+
+        $optMarkerPos = mb_strpos($name, '?');
+        if ($optMarkerPos !== false) {
+            $name = mb_substr($name, 0, $optMarkerPos);
+        }
+
+        $wildMarkerPos = mb_strpos($name, '*');
+        if ($wildMarkerPos !== false) {
+            $name = mb_substr($name, 0, $wildMarkerPos);
         }
 
         return $name;

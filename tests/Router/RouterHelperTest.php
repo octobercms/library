@@ -18,6 +18,7 @@ class RouterHelperTest extends TestCase
             '/october/:cms?',
             '/october/:cms?defaultvalue',
             '/october/:cms|^[a-z]+[0-9]?$|^[a-z]{3}$',
+            '/october/:cms|^my-slug-.*',
             '/october//cms',
         ];
 
@@ -64,13 +65,13 @@ class RouterHelperTest extends TestCase
         $value = Helper::segmentizeUrl('/:my_param_name|^[a-z]+[0-9]?$|^[a-z]{3}$/param2');
         $this->assertEquals([':my_param_name|^[a-z]+[0-9]?$|^[a-z]{3}$', 'param2'], $value);
 
-        // // Escaped regex
-        // $value = Helper::segmentizeUrl('/:my_param_name*|^[a-z]+\/\d+$');
-        // $this->assertEquals([':my_param_name*|^[a-z]+\/\d+$'], $value);
+        // Escaped regex
+        $value = Helper::segmentizeUrl('/:my_param_name*|^[a-z]+\/\d+$');
+        $this->assertEquals([':my_param_name*|^[a-z]+\/\d+$'], $value);
 
-        // // Escaped regex with multiple params
-        // $value = Helper::segmentizeUrl('/:my_param_name*|^[a-z]+\/\d+$/param2');
-        // $this->assertEquals([':my_param_name*|^[a-z]+\/\d+$', 'param2'], $value);
+        // Escaped regex with multiple params
+        $value = Helper::segmentizeUrl('/:my_param_name*|^[a-z]+\/\d+$/param2');
+        $this->assertEquals([':my_param_name*|^[a-z]+\/\d+$', 'param2'], $value);
     }
 
     /**
@@ -78,25 +79,26 @@ class RouterHelperTest extends TestCase
      */
     public function testSegmentIsWildcard()
     {
-        // Non wildcard no regex
-        $value = Helper::segmentIsWildcard(":my_param_name");
-        $this->assertFalse($value);
+        $validSegments = [
+            ':my_param_name*',
+            ':my_param_name*|^[a-z]+[0-9]?$',
+        ];
 
-        // Wildcard no regex
-        $value = Helper::segmentIsWildcard(":my_param_name*");
-        $this->assertTrue($value);
+        $invalidSegments = [
+            ':my_param_name',
+            ':my_param_name|^[a-z]+[0-9]?$',
+            ':my_param_name|^[a-z]+[0-9]*',
+        ];
 
-        // // Non wildcard with regex
-        // $value = Helper::segmentIsWildcard(":my_param_name|^[a-z]+[0-9]?$");
-        // $this->assertFalse($value);
+        foreach ($validSegments as $name) {
+            $value = Helper::segmentIsWildcard($name);
+            $this->assertTrue($value, "Testing segment name '{$name}' failed");
+        }
 
-        // // Wildcard with regex
-        // $value = Helper::segmentIsWildcard(":my_param_name*|^[a-z]+[0-9]?$");
-        // $this->assertTrue($value);
-
-        // // Non Wildcard with regex ending in *
-        // $value = Helper::segmentIsWildcard(":my_param_name|^[a-z]+[0-9]*");
-        // $this->assertFalse($value);
+        foreach ($invalidSegments as $name) {
+            $value = Helper::segmentIsWildcard($name);
+            $this->assertFalse($value, "Testing segment name '{$name}' failed");
+        }
     }
 
     /**
@@ -104,20 +106,26 @@ class RouterHelperTest extends TestCase
      */
     public function testSegmentIsOptional()
     {
-        $value = Helper::segmentIsOptional(':my_param_name');
-        $this->assertFalse($value);
+        $validSegments = [
+            ':my_param_name?',
+            ':my_param_name?default value',
+            ':my_param_name?default value|^[a-z]+[0-9]?$',
+        ];
 
-        $value = Helper::segmentIsOptional(':my_param_name?');
-        $this->assertTrue($value);
+        $invalidSegments = [
+            ':my_param_name',
+            ':my_param_name|^[a-z]+[0-9]?$|^[a-z]{3}$',
+        ];
 
-        $value = Helper::segmentIsOptional(':my_param_name?default value');
-        $this->assertTrue($value);
+        foreach ($validSegments as $name) {
+            $value = Helper::segmentIsOptional($name);
+            $this->assertTrue($value, "Testing segment name '{$name}' failed");
+        }
 
-        $value = Helper::segmentIsOptional(':my_param_name|^[a-z]+[0-9]?$|^[a-z]{3}$');
-        $this->assertFalse($value);
-
-        $value = Helper::segmentIsOptional(':my_param_name?default value|^[a-z]+[0-9]?$');
-        $this->assertTrue($value);
+        foreach ($invalidSegments as $name) {
+            $value = Helper::segmentIsOptional($name);
+            $this->assertFalse($value, "Testing segment name '{$name}' failed");
+        }
     }
 
     /**
@@ -125,23 +133,25 @@ class RouterHelperTest extends TestCase
      */
     public function testParameterNameMethod()
     {
-        $value = Helper::getParameterName(':my_param_name');
-        $this->assertEquals('my_param_name', $value);
+        $validParameters = [
+            ':my_param_name',
+            ':my_param_name*',
+            ':my_param_name?',
+            ':my_param_name*?',
+            ':my_param_name?default value',
+            ':my_param_name*?default value',
+            ':my_param_name|^[a-z]+[0-9]?$',
+            ':my_param_name*|^[a-z]+[0-9]?$',
+            ':my_param_name?default value|^[a-z]+[0-9]?$',
+            ':my_param_name|^my-slug-.*',
+            ':my_param_name?default value|^my-slug-.*',
+            ':my_param_name*|^my-slug-.*'
+        ];
 
-        $value = Helper::getParameterName(':my_param_name?');
-        $this->assertEquals('my_param_name', $value);
-
-        $value = Helper::getParameterName(':my_param_name?default value');
-        $this->assertEquals('my_param_name', $value);
-
-        $value = Helper::getParameterName(':my_param_name|^[a-z]+[0-9]?$');
-        $this->assertEquals('my_param_name', $value);
-
-        $value = Helper::getParameterName(':my_param_name|^[a-z]+[0-9]?$');
-        $this->assertEquals('my_param_name', $value);
-
-        $value = Helper::getParameterName(':my_param_name?default value|^[a-z]+[0-9]?$');
-        $this->assertEquals('my_param_name', $value);
+        foreach ($validParameters as $name) {
+            $value = Helper::getParameterName($name);
+            $this->assertEquals('my_param_name', $value, "Testing parameter name '{$name}' failed");
+        }
     }
 
     /**
