@@ -155,6 +155,14 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
+     * hasSession returns true if a user session exists without verifying it.
+     */
+    public function hasSession(): bool
+    {
+        return $this->getPersistCodeFromSession() !== null;
+    }
+
+    /**
      * hasUser determines if the guard has a user instance.
      * @return bool
      */
