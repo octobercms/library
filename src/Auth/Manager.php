@@ -159,7 +159,7 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
      */
     public function hasSession(): bool
     {
-        return $this->getPersistCodeFromSession() !== null;
+        return Session::has($this->sessionKey);
     }
 
     /**
