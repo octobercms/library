@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Translation;
 
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Translation\Translator as TranslatorBase;
 
 /**
@@ -15,11 +14,6 @@ class Translator extends TranslatorBase
      * @var string CORE_LOCALE is the native system language
      */
     const CORE_LOCALE = 'en';
-
-    /**
-     * @var \October\Rain\Events\Dispatcher events dispatcher instance
-     */
-    protected $events;
 
     /**
      * get the translation for the given key.
@@ -111,13 +105,5 @@ class Translator extends TranslatorBase
     protected function localeArray($locale)
     {
         return array_filter([$locale ?: $this->locale, $this->fallback, static::CORE_LOCALE]);
-    }
-
-    /**
-     * setEventDispatcher instance
-     */
-    public function setEventDispatcher(Dispatcher $events)
-    {
-        $this->events = $events;
     }
 }

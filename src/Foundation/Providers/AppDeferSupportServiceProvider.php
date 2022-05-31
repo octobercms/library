@@ -19,6 +19,7 @@ class AppDeferSupportServiceProvider extends AggregateServiceProvider implements
         \October\Rain\Parse\ParseServiceProvider::class,
         \October\Rain\Resize\ResizeServiceProvider::class,
         \October\Rain\Validation\ValidationServiceProvider::class,
+        \October\Rain\Translation\TranslationServiceProvider::class,
 
         // Console
         \October\Rain\Foundation\Providers\ArtisanServiceProvider::class,

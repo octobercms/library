@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Translation;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Contracts\Support\DeferrableProvider;
 
 /**
  * TranslationServiceProvider is a custom translator implemenation based on Laravel
@@ -8,13 +9,8 @@ use Illuminate\Support\ServiceProvider;
  * @package october\translation
  * @author Alexey Bobkov, Samuel Georges
  */
-class TranslationServiceProvider extends ServiceProvider
+class TranslationServiceProvider extends ServiceProvider implements DeferrableProvider
 {
-    /**
-     * @var bool defer indicates if loading of the provider is deferred
-     */
-    protected $defer = false;
-
     /**
      * register the service provider.
      */
@@ -31,8 +27,6 @@ class TranslationServiceProvider extends ServiceProvider
             $locale = $app['config']['app.locale'];
 
             $trans = new Translator($loader, $locale);
-
-            $trans->setEventDispatcher($app['events']);
 
             $trans->setFallback($app['config']['app.fallback_locale']);
 

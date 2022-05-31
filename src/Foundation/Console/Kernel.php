@@ -15,7 +15,6 @@ class Kernel extends ConsoleKernel
         '\October\Rain\Foundation\Bootstrap\RegisterClassLoader',
         '\October\Rain\Foundation\Bootstrap\LoadEnvironmentVariables',
         '\October\Rain\Foundation\Bootstrap\LoadConfiguration',
-        '\October\Rain\Foundation\Bootstrap\LoadTranslation',
         \Illuminate\Foundation\Bootstrap\HandleExceptions::class,
         \Illuminate\Foundation\Bootstrap\RegisterFacades::class,
         \Illuminate\Foundation\Bootstrap\SetRequestForConsole::class,
