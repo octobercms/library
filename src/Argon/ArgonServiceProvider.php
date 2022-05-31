@@ -22,7 +22,7 @@ class ArgonServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $locale = $this->app['translator']->getLocale();
+        $locale = $this->app['config']->get('app.locale');
 
         $this->setArgonLocale($locale);
 
