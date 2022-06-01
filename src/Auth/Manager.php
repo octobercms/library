@@ -163,6 +163,14 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
+     * hasRemember returns true if the user requested to stay logged in.
+     */
+    public function hasRemember(): bool
+    {
+        return Cookie::has($this->sessionKey);
+    }
+
+    /**
      * hasUser determines if the guard has a user instance.
      * @return bool
      */
