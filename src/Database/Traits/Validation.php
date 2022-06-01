@@ -233,9 +233,8 @@ trait Validation
             $this->beforeValidate();
         }
 
-        /*
-         * Perform validation
-         */
+        // Perform validation
+        //
         $rules = is_null($rules) ? $this->rules : $rules;
         $rules = $this->processValidationRules($rules);
         $success = true;
@@ -243,16 +242,12 @@ trait Validation
         if (!empty($rules)) {
             $data = $this->getValidationAttributes();
 
-            /*
-             * Decode jsonable attribute values
-             */
+            // Decode jsonable attribute values
             foreach ($this->getJsonable() as $jsonable) {
                 $data[$jsonable] = $this->getAttribute($jsonable);
             }
 
-            /*
-             * Add relation values, if specified.
-             */
+            // Add relation values, if specified.
             foreach ($rules as $attribute => $rule) {
                 if (
                     !$this->hasRelation($attribute) ||
@@ -264,31 +259,28 @@ trait Validation
                 $data[$attribute] = $this->getRelationValidationValue($attribute);
             }
 
-            /*
-             * Compatibility with Hashable trait
-             * Remove all hashable values regardless, add the original values back
-             * only if they are part of the data being validated.
-             */
+            // Compatibility with Hashable trait
+            // Remove all hashable values regardless, add the original values back
+            // only if they are part of the data being validated.
+            //
             if (method_exists($this, 'getHashableAttributes')) {
                 $cleanAttributes = array_diff_key($data, array_flip($this->getHashableAttributes()));
                 $hashedAttributes = array_intersect_key($this->getOriginalHashValues(), $data);
                 $data = array_merge($cleanAttributes, $hashedAttributes);
             }
 
-            /*
-             * Compatibility with Encryptable trait
-             * Remove all encryptable values regardless, add the original values back
-             * only if they are part of the data being validated.
-             */
+            // Compatibility with Encryptable trait
+            // Remove all encryptable values regardless, add the original values back
+            // only if they are part of the data being validated.
+            //
             if (method_exists($this, 'getEncryptableAttributes')) {
                 $cleanAttributes = array_diff_key($data, array_flip($this->getEncryptableAttributes()));
                 $encryptedAttributes = array_intersect_key($this->getOriginalEncryptableValues(), $data);
                 $data = array_merge($cleanAttributes, $encryptedAttributes);
             }
 
-            /*
-             * Custom messages, translate internal references
-             */
+            // Custom messages, translate internal references
+            //
             if (property_exists($this, 'customMessages') && is_null($customMessages)) {
                 $customMessages = $this->customMessages;
             }
@@ -303,9 +295,8 @@ trait Validation
             }
             $customMessages = $transCustomMessages;
 
-            /*
-             * Attribute names, translate internal references
-             */
+            // Attribute names, translate internal references
+            //
             $attrNames = (array) $this->validationDefaultAttrNames;
 
             if (property_exists($this, 'attributeNames')) {
@@ -322,17 +313,15 @@ trait Validation
             }
             $attrNames = $transAttrNames;
 
-            /*
-             * Translate any externally defined attribute names
-             */
+            // Translate any externally defined attribute names
+            //
             $translations = Lang::get('validation.attributes');
             if (is_array($translations)) {
                 $attrNames = array_merge($translations, $attrNames);
             }
 
-            /*
-             * Hand over to the validator
-             */
+            // Hand over to the validator
+            //
             $validator = self::makeValidator(
                 $data,
                 $rules,
@@ -386,46 +375,35 @@ trait Validation
      */
     protected function processValidationRules($rules)
     {
-        /*
-         * Run through field names and convert array notation field names to dot notation
-         */
+        // Run through field names and convert array notation field names to dot notation
         $rules = $this->processRuleFieldNames($rules);
 
         foreach ($rules as $field => $ruleParts) {
-            /*
-             * Trim empty rules
-             */
+            // Trim empty rules
+            //
             if (is_string($ruleParts) && trim($ruleParts) === '') {
                 unset($rules[$field]);
                 continue;
             }
 
-            /*
-             * Normalize rulesets
-             */
+            // Normalize rulesets
+            //
             if (!is_array($ruleParts)) {
                 $ruleParts = explode('|', $ruleParts);
             }
 
-            /*
-             * Analyse each rule individually
-             */
+            // Analyse each rule individually
+            //
             foreach ($ruleParts as $key => $rulePart) {
-                /*
-                 * Allow rule objects
-                 */
+                // Allow rule objects
                 if (is_object($rulePart)) {
                     continue;
                 }
-                /*
-                 * Remove primary key unique validation rule if the model already exists
-                 */
+                // Remove primary key unique validation rule if the model already exists
                 if (starts_with($rulePart, 'unique') && $this->exists) {
                     $ruleParts[$key] = $this->processValidationUniqueRule($rulePart, $field);
                 }
-                /*
-                 * Look for required:create and required:update rules
-                 */
+                // Look for required:create and required:update rules
                 elseif (starts_with($rulePart, 'required:create') && $this->exists) {
                     unset($ruleParts[$key]);
                 }

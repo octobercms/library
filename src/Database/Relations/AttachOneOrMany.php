@@ -348,18 +348,26 @@ trait AttachOneOrMany
      * UploadedFile object (expected) or potentially a string.
      *
      * @param mixed $value
-     * @return UploadedFile
+     * @return UploadedFile|string
      */
     public function makeValidationFile($value)
     {
         if ($value instanceof FileModel) {
-            return new UploadedFile(
-                $value->getLocalPath(),
-                $value->file_name,
-                $value->content_type,
-                null,
-                true
-            );
+            $localPath = $value->getLocalPath();
+
+            // Exception handling for UploadedFile
+            if (file_exists($localPath)) {
+                return new UploadedFile(
+                    $localPath,
+                    $value->file_name,
+                    $value->content_type,
+                    null,
+                    true
+                );
+            }
+
+            // Fallback to string
+            $value = $localPath;
         }
 
         /*
