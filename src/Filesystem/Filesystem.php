@@ -270,10 +270,12 @@ class Filesystem extends FilesystemBase
     /**
      * getSafe reads the first portion of file contents
      */
-    public function getSafe(string $path, int $limitKbs = 1)
+    public function getSafe(string $path, float $limitKbs = 1)
     {
         $limit = $limitKbs * 4096;
+
         $parser = fopen($path, 'r');
+
         return fread($parser, $limit);
     }
 
