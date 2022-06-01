@@ -155,6 +155,22 @@ class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
     }
 
     /**
+     * hasSession returns true if a user session exists without verifying it.
+     */
+    public function hasSession(): bool
+    {
+        return Session::has($this->sessionKey);
+    }
+
+    /**
+     * hasRemember returns true if the user requested to stay logged in.
+     */
+    public function hasRemember(): bool
+    {
+        return Cookie::has($this->sessionKey);
+    }
+
+    /**
      * setUser will set the current user.
      */
     public function setUser(Authenticatable $user)
