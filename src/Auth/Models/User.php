@@ -3,13 +3,14 @@
 use Str;
 use Hash;
 use October\Rain\Database\Model;
+use Illuminate\Contracts\Auth\Authenticatable;
 use InvalidArgumentException;
 use Exception;
 
 /**
  * User model
  */
-class User extends Model implements \Illuminate\Contracts\Auth\Authenticatable
+class User extends Model implements Authenticatable
 {
     use \October\Rain\Database\Traits\Hashable;
     use \October\Rain\Database\Traits\Purgeable;

@@ -74,9 +74,9 @@ class Markdown
     }
 
     /**
-     * parseNoIndent disables code blocks caused by indentation
+     * parseIndent disables code blocks caused by indentation
      */
-    public function parseNoIndent($text): string
+    public function parseIndent($text): string
     {
         $this->getParser()->setUnmarkedBlockTypes([]);
 

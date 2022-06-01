@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Support;
 
 use October\Rain\Support\Facades\File;
+use October\Contracts\Support\OctoberPackage;
 use Illuminate\Support\ServiceProvider as ServiceProviderBase;
 
 /**
@@ -9,34 +10,8 @@ use Illuminate\Support\ServiceProvider as ServiceProviderBase;
  * @package october\support
  * @author Alexey Bobkov, Samuel Georges
  */
-abstract class ModuleServiceProvider extends ServiceProviderBase
+abstract class ModuleServiceProvider extends ServiceProviderBase implements OctoberPackage
 {
-    /**
-     * @var bool defer indicates if loading of the provider is deferred
-     */
-    protected $defer = false;
-
-    /**
-     * boot bootstraps the application events
-     */
-    public function boot()
-    {
-        $module = $this->getModule(func_get_args());
-        if (!$module) {
-            return;
-        }
-
-        // Register paths for: config, translator, view
-        $modulePath = base_path() . '/modules/' . $module;
-        $this->loadViewsFrom($modulePath . '/views', $module);
-        $this->loadTranslationsFrom($modulePath . '/lang', $module);
-        $this->loadConfigFrom($modulePath . '/config', $module);
-
-        if ($this->app->runningInBackend()) {
-            $this->loadJsonTranslationsFrom($modulePath . '/lang');
-        }
-    }
-
     /**
      * register the service provider
      */
@@ -47,17 +22,131 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
             return;
         }
 
+        $modulePath = base_path('modules/' . $module);
+
+        // Register common paths
+        $this->loadConfigFrom($modulePath . '/config', $module);
+        $this->loadViewsFrom($modulePath . '/views', $module);
+
+        // Load translator
+        $this->loadTranslationsFrom($modulePath . '/lang', $module);
+        if ($this->app->runningInBackend()) {
+            $this->loadJsonTranslationsFrom($modulePath . '/lang');
+        }
+
         // Add routes, if available
-        $routesFile = base_path() . '/modules/' . $module . '/routes.php';
-        if (File::isFile($routesFile)) {
+        $routesFile = $modulePath . '/routes.php';
+        if (!$this->app->routesAreCached() && file_exists($routesFile)) {
             $this->loadRoutesFrom($routesFile);
         }
     }
 
     /**
-     * provides gets the services provided by the provider
+     * boot bootstraps the application events
      */
-    public function provides()
+    public function boot()
+    {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function registerMarkupTags()
+    {
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function registerComponents()
+    {
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function registerNavigation()
+    {
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function registerPermissions()
+    {
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function registerSettings()
+    {
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function registerSchedule($schedule)
+    {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function registerReportWidgets()
+    {
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function registerFormWidgets()
+    {
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function registerFilterWidgets()
+    {
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function registerListColumnTypes()
+    {
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function registerMailLayouts()
+    {
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function registerMailTemplates()
+    {
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function registerMailPartials()
     {
         return [];
     }
@@ -65,7 +154,7 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
     /**
      * getModule gets the module name from method args
      */
-    public function getModule($args)
+    protected function getModule($args)
     {
         return (isset($args[0]) and is_string($args[0])) ? $args[0] : null;
     }
@@ -73,7 +162,7 @@ abstract class ModuleServiceProvider extends ServiceProviderBase
     /**
      * registerConsoleCommand registers a new console (artisan) command
      */
-    public function registerConsoleCommand(string $key, string $class)
+    protected function registerConsoleCommand(string $key, string $class)
     {
         $key = 'command.'.$key;
 

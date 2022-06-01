@@ -3,6 +3,7 @@
 use Cookie;
 use Session;
 use Request;
+use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Contracts\Auth\Authenticatable;
 
 /**
@@ -11,7 +12,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
  * @package october\auth
  * @author Alexey Bobkov, Samuel Georges
  */
-class Manager implements \Illuminate\Contracts\Auth\StatefulGuard
+class Manager implements StatefulGuard
 {
     use \October\Rain\Support\Traits\Singleton;
 
