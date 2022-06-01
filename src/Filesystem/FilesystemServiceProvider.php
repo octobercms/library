@@ -19,7 +19,7 @@ class FilesystemServiceProvider extends FilesystemServiceProviderBase
 
         // After registration
         $this->app->booting(function () {
-            $this->configureDefaultPermissions($this->app->make('config'));
+            $this->configureDefaultPermissions($this->app['config'], $this->app['files']);
         });
     }
 
@@ -53,14 +53,14 @@ class FilesystemServiceProvider extends FilesystemServiceProviderBase
     /**
      * configureDefaultPermissions
      */
-    protected function configureDefaultPermissions($config)
+    protected function configureDefaultPermissions($config, $files)
     {
         if ($config->get('filesystems.disks.local.permissions.file.public', null) === null) {
-            $config->set('filesystems.disks.local.permissions.file.public', $this->app['files']->getFilePermissions());
+            $config->set('filesystems.disks.local.permissions.file.public', $files->getFilePermissions());
         }
 
         if ($config->get('filesystems.disks.local.permissions.dir.public', null) === null) {
-            $config->set('filesystems.disks.local.permissions.dir.public', $this->app['files']->getFolderPermissions());
+            $config->set('filesystems.disks.local.permissions.dir.public', $files->getFolderPermissions());
         }
     }
 }

@@ -16,9 +16,8 @@ class LogServiceProvider extends LogServiceProviderBase
 
         // After registration
         $this->app->booting(function () {
-            $config = $this->app->make('config');
-            $this->configureDefaultLogger($config);
-            $this->configureDefaultPermissions($config);
+            $this->configureDefaultLogger($this->app['config']);
+            $this->configureDefaultPermissions($this->app['config'], $this->app['files']);
         });
     }
 
@@ -45,14 +44,14 @@ class LogServiceProvider extends LogServiceProviderBase
     /**
      * configureDefaultPermissions
      */
-    protected function configureDefaultPermissions($config)
+    protected function configureDefaultPermissions($config, $files)
     {
         if ($config->get('logging.channels.single.permission', null) === null) {
-            $config->set('logging.channels.single.permission', $this->app['files']->getFilePermissions());
+            $config->set('logging.channels.single.permission', $files->getFilePermissions());
         }
 
         if ($config->get('logging.channels.daily.permission', null) === null) {
-            $config->set('logging.channels.daily.permission', $this->app['files']->getFilePermissions());
+            $config->set('logging.channels.daily.permission', $files->getFilePermissions());
         }
     }
 }
