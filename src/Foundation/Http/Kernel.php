@@ -13,24 +13,23 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $bootstrappers = [
-        '\October\Rain\Foundation\Bootstrap\RegisterClassLoader',
-        '\October\Rain\Foundation\Bootstrap\LoadEnvironmentFromHost',
-        '\October\Rain\Foundation\Bootstrap\LoadEnvironmentVariables',
-        '\October\Rain\Foundation\Bootstrap\LoadConfiguration',
+        \October\Rain\Foundation\Bootstrap\RegisterClassLoader::class,
+        \October\Rain\Foundation\Bootstrap\LoadEnvironmentFromHost::class,
+        \Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables::class,
+        \October\Rain\Foundation\Bootstrap\LoadConfiguration::class,
         \Illuminate\Foundation\Bootstrap\HandleExceptions::class,
         \Illuminate\Foundation\Bootstrap\RegisterFacades::class,
-        '\October\Rain\Foundation\Bootstrap\RegisterOctober',
+        \October\Rain\Foundation\Bootstrap\RegisterOctober::class,
         \Illuminate\Foundation\Bootstrap\RegisterProviders::class,
         \Illuminate\Foundation\Bootstrap\BootProviders::class,
     ];
-
     /**
      * The application's global HTTP middleware stack.
      *
      * @var array
      */
     protected $middleware = [
-        '\October\Rain\Foundation\Http\Middleware\CheckForMaintenanceMode',
+        \October\Rain\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
     ];
 
     /**

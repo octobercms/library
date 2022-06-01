@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Filesystem;
 
+use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Filesystem\FilesystemServiceProvider as FilesystemServiceProviderBase;
 
 /**
@@ -15,6 +16,11 @@ class FilesystemServiceProvider extends FilesystemServiceProviderBase
         $this->registerNativeFilesystem();
 
         $this->registerFlysystem();
+
+        // After registration
+        $this->app->booting(function () {
+            $this->configureDefaultPermissions($this->app->make('config'));
+        });
     }
 
     /**
@@ -42,5 +48,19 @@ class FilesystemServiceProvider extends FilesystemServiceProviderBase
 
             return $files;
         });
+    }
+
+    /**
+     * configureDefaultPermissions
+     */
+    protected function configureDefaultPermissions($config)
+    {
+        if ($config->get('filesystems.disks.local.permissions.file.public', null) === null) {
+            $config->set('filesystems.disks.local.permissions.file.public', $this->app['files']->getFilePermissions());
+        }
+
+        if ($config->get('filesystems.disks.local.permissions.dir.public', null) === null) {
+            $config->set('filesystems.disks.local.permissions.dir.public', $this->app['files']->getFolderPermissions());
+        }
     }
 }

@@ -12,13 +12,13 @@ class Kernel extends ConsoleKernel
      * @var array bootstrappers for the application
      */
     protected $bootstrappers = [
-        '\October\Rain\Foundation\Bootstrap\RegisterClassLoader',
-        '\October\Rain\Foundation\Bootstrap\LoadEnvironmentVariables',
-        '\October\Rain\Foundation\Bootstrap\LoadConfiguration',
+        \October\Rain\Foundation\Bootstrap\RegisterClassLoader::class,
+        \Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables::class,
+        \October\Rain\Foundation\Bootstrap\LoadConfiguration::class,
         \Illuminate\Foundation\Bootstrap\HandleExceptions::class,
         \Illuminate\Foundation\Bootstrap\RegisterFacades::class,
         \Illuminate\Foundation\Bootstrap\SetRequestForConsole::class,
-        '\October\Rain\Foundation\Bootstrap\RegisterOctober',
+        \October\Rain\Foundation\Bootstrap\RegisterOctober::class,
         \Illuminate\Foundation\Bootstrap\RegisterProviders::class,
         \Illuminate\Foundation\Bootstrap\BootProviders::class,
     ];

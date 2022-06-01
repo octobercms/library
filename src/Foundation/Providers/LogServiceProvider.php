@@ -2,6 +2,9 @@
 
 use Illuminate\Log\LogServiceProvider as LogServiceProviderBase;
 
+/**
+ * LogServiceProvider
+ */
 class LogServiceProvider extends LogServiceProviderBase
 {
     /**
@@ -11,11 +14,11 @@ class LogServiceProvider extends LogServiceProviderBase
     {
         parent::register();
 
-        /*
-         * After registration
-         */
+        // After registration
         $this->app->booting(function () {
-            $this->configureDefaultLogger();
+            $config = $this->app->make('config');
+            $this->configureDefaultLogger($config);
+            $this->configureDefaultPermissions($config);
         });
     }
 
@@ -23,17 +26,13 @@ class LogServiceProvider extends LogServiceProviderBase
      * configureDefaultLogger channel for the application
      * when no configuration is supplied.
      */
-    protected function configureDefaultLogger()
+    protected function configureDefaultLogger($config)
     {
-        $config = $this->app->make('config');
-
         if ($config->get('logging.default', null) !== null) {
             return;
         }
 
-        /*
-         * Set default values as single log file
-         */
+        // Set default values as single log file
         $config->set('logging.default', 'single');
 
         $config->set('logging.channels.single', [
@@ -41,5 +40,19 @@ class LogServiceProvider extends LogServiceProviderBase
             'path' => storage_path('logs/system.log'),
             'level' => 'debug',
         ]);
+    }
+
+    /**
+     * configureDefaultPermissions
+     */
+    protected function configureDefaultPermissions($config)
+    {
+        if ($config->get('logging.channels.single.permission', null) === null) {
+            $config->set('logging.channels.single.permission', $this->app['files']->getFilePermissions());
+        }
+
+        if ($config->get('logging.channels.daily.permission', null) === null) {
+            $config->set('logging.channels.daily.permission', $this->app['files']->getFilePermissions());
+        }
     }
 }
