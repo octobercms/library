@@ -431,6 +431,21 @@ class Filesystem extends FilesystemBase
     }
 
     /**
+     * lastModifiedRecursive checks an entire directory and
+     * returns the mtime of the freshest file.
+     */
+    public function lastModifiedRecursive($path)
+    {
+        $mtime = 0;
+
+        foreach ($this->allFiles($path) as $file) {
+            $mtime = max($mtime, $this->lastModified($file->getPathname()));
+        }
+
+        return $mtime;
+    }
+
+    /**
      * searchDirectory locates a file and return its relative path Eg: Searching
      * directory /home/mysite for file index.php could locate this file
      * /home/mysite/public_html/welcome/index.php and would return
