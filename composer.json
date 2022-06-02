@@ -31,7 +31,8 @@
     "require-dev": {
         "laravel/framework": "^9.0",
         "phpunit/phpunit": "^8.0|^9.0",
-        "meyfa/phpunit-assert-gd": "^2.0.0|^3.0.0"
+        "meyfa/phpunit-assert-gd": "^2.0.0|^3.0.0",
+        "phpbench/phpbench": "^1.2"
     },
     "autoload": {
         "files": [
@@ -56,6 +57,9 @@
     "scripts": {
         "test": [
             "phpunit --stop-on-failure"
+        ],
+        "bench": [
+            "phpbench run tests\\Benchmark\\ --report=default"
         ]
     },
     "extra": {

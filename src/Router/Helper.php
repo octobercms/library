@@ -60,17 +60,18 @@ class Helper
 
     /**
      * segmentizeUrl splits a URL by segments separated by the slash symbol
-     * and returns the URL segments.
+     * and returns the URL segments. Using a pattern includes regex support
+     * in the URL.
      *
      * @param string $url
+     * @param bool $pattern
      * @return array
      */
-    public static function segmentizeUrl($url)
+    public static function segmentizeUrl($url, $pattern = true)
     {
         $url = self::normalizeUrl($url);
 
-        // Micro optimization to avoid regex engine
-        if (strpos($url, '|') !== false) {
+        if ($pattern) {
             $segments = preg_split("#(?<!\\\)/#", $url);
         }
         else {

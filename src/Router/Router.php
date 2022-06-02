@@ -33,7 +33,7 @@ class Router
      */
     public function route($name, $route)
     {
-        return $this->routeMap[$name] = new Rule($name, $route);
+        return $this->routeMap[$name] = Rule::fromPattern($name, $route);
     }
 
     /**
@@ -46,17 +46,17 @@ class Router
         // Reset any previous matches
         $this->matchedRouteRule = null;
 
-        $url = Helper::normalizeUrl($url);
-        $parameters = [];
+        $segments = Helper::segmentizeUrl($url, false);
 
-        foreach ($this->routeMap as $name => $routeRule) {
-            if ($routeRule->resolveUrl($url, $parameters)) {
+        $parameters = [];
+        foreach ($this->routeMap as $routeRule) {
+            if ($routeRule->resolveUrlSegments($segments, $parameters)) {
                 $this->matchedRouteRule = $routeRule;
 
                 // If this route has a condition, run it
                 $callback = $routeRule->condition();
                 if ($callback !== null) {
-                    $callbackResult = call_user_func($callback, $parameters, $url);
+                    $callbackResult = call_user_func($callback, $parameters, Helper::normalizeUrl($url));
 
                     // Callback responded to abort
                     if ($callbackResult === false) {
@@ -253,5 +253,32 @@ class Router
 
             return 0;
         });
+    }
+
+    /**
+     * fromArray loads routes from an array.
+     */
+    public function fromArray($routes)
+    {
+        foreach ($routes as $route) {
+            $this->routeMap[$route['ruleName']] = new Rule($route);
+        }
+    }
+
+    /**
+     * toArray converts the rules to an array.
+     * @return array
+     */
+    public function toArray()
+    {
+        $this->sortRules();
+
+        $rules = [];
+
+        foreach ($this->routeMap as $rule) {
+            $rules[] = $rule->toArray();
+        }
+
+        return $rules;
     }
 }
