@@ -32,6 +32,17 @@ interface OctoberPackage
     public function registerComponents();
 
     /**
+     * registerContentFields registers content fields used by tailor implemented in this package.
+     *
+     *     return [
+     *        \Tailor\ContentFields\TextareaField::class => 'textarea',
+     *     ];
+     *
+     * @return array
+     */
+    public function registerContentFields();
+
+    /**
      * registerNavigation registers backend navigation items for this package.
      *
      *     return [
