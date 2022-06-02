@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\File as FileBase;
 
 /**
+ * File
+ *
  * @method static bool isDirectoryEmpty(string $directory)
  * @method static string sizeToString(int $bytes)
  * @method static string localToPublic(string $path)

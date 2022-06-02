@@ -5,6 +5,8 @@ use October\Rain\Support\Facade;
 /**
  * Twig
  *
+ * @method static string parse(string $contents, array $vars = [])
+ *
  * @see \October\Rain\Parse\Twig
  */
 class Twig extends Facade
