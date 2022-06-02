@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Models;
 
+use Event;
 use Carbon\Carbon;
 use October\Rain\Database\Model;
 use Throwable;
@@ -128,7 +129,10 @@ class DeferredBinding extends Model
              *     });
              *
              */
-            if ($event = $this->fireEvent('deferredBinding.newMasterInstance', $masterObject, true)) {
+            if (
+                ($event = $this->fireEvent('deferredBinding.newMasterInstance', [$masterObject], true)) ||
+                ($event = Event::fire('deferredBinding.newMasterInstance', [$this, $masterObject], true))
+            ) {
                 $masterObject = $event;
             }
 
