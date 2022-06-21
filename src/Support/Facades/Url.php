@@ -1,14 +1,14 @@
 <?php namespace October\Rain\Support\Facades;
 
-use Illuminate\Support\Facades\Validator as ValidatorBase;
+use Illuminate\Support\Facades\URL as UrlBase;
 
 /**
- * Validator
+ * Url
  *
- * @deprecated use \Validator
- * @see \October\Rain\Validation\Factory
+ * @deprecated use \Url
+ * @see \Illuminate\Routing\UrlGenerator
  */
-class Validator extends ValidatorBase
+class Url extends UrlBase
 {
     /**
      * getFacadeAccessor returns the registered name of the component
@@ -16,6 +16,6 @@ class Validator extends ValidatorBase
      */
     protected static function getFacadeAccessor()
     {
-        return 'validator';
+        return 'url';
     }
 }
