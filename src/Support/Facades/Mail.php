@@ -19,4 +19,13 @@ class Mail extends MailBase
 
         return $fake;
     }
+
+    /**
+     * getFacadeAccessor returns the registered name of the component
+     * @return string
+     */
+    protected static function getFacadeAccessor()
+    {
+        return 'mail.manager';
+    }
 }

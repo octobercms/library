@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\File as FileBase;
 class File extends FileBase
 {
     /**
-     * Get the registered name of the component.
+     * getFacadeAccessor returns the registered name of the component
      * @return string
      */
     protected static function getFacadeAccessor()

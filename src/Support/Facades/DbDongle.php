@@ -22,7 +22,7 @@ use October\Rain\Support\Facade;
 class DbDongle extends Facade
 {
     /**
-     * Get the registered name of the component.
+     * getFacadeAccessor returns the registered name of the component
      * @return string
      */
     protected static function getFacadeAccessor()

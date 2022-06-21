@@ -13,15 +13,6 @@ use Illuminate\Support\Facades\Event as EventBase;
 class Event extends EventBase
 {
     /**
-     * getFacadeAccessor
-     * @return string
-     */
-    protected static function getFacadeAccessor()
-    {
-        return 'events.priority';
-    }
-
-    /**
      * fake the instance
      */
     public static function fake($eventsToFake = [])
@@ -32,5 +23,14 @@ class Event extends EventBase
         Cache::refreshEventDispatcher();
 
         return $fake;
+    }
+
+    /**
+     * getFacadeAccessor returns the registered name of the component
+     * @return string
+     */
+    protected static function getFacadeAccessor()
+    {
+        return 'events.priority';
     }
 }

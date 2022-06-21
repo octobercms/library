@@ -15,7 +15,7 @@ use October\Rain\Support\Facade;
 class Ini extends Facade
 {
     /**
-     * Get the registered name of the component.
+     * getFacadeAccessor returns the registered name of the component
      * @return string
      */
     protected static function getFacadeAccessor()
