@@ -21,7 +21,7 @@ use October\Rain\Element\ElementBase;
  * @method FieldDefinition span(string $span, string $spanClass) span specifies the field size and side, eg: auto, left, right, full
  * @method FieldDefinition spanClass(string $spanClass) spanClass is used by the row span type for a custom css class
  * @method FieldDefinition size(string $size) size for the field, eg: tiny, small, large, huge, giant
- * @method FieldDefinition options(string $options) options available
+ * @method FieldDefinition options(array|callable $options) options available
  * @method FieldDefinition comment(string $comment) comment for the form field
  * @method FieldDefinition commentAbove(string $comment) commentAbove the form field
  * @method FieldDefinition commentHtml(bool $commentHtml) commentHtml if the comment is in HTML format
