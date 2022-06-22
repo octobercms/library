@@ -33,6 +33,11 @@ use October\Rain\Element\ElementBase;
 class FieldDefinition extends ElementBase
 {
     /**
+     * @var array|callback optionsCallback
+     */
+    protected $optionsCallback;
+
+    /**
      * initDefaultValues for this field
      */
     protected function initDefaultValues()
@@ -100,8 +105,15 @@ class FieldDefinition extends ElementBase
      */
     public function hasOptions(): bool
     {
-        return $this->options !== null &&
-            (is_array($this->options) || is_callable($this->options));
+        if ($this->optionsCallback !== null) {
+            return true;
+        }
+
+        if ($this->options !== null && is_array($this->options)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -110,20 +122,27 @@ class FieldDefinition extends ElementBase
      */
     public function options($value = null)
     {
+        // get
         if ($value === null) {
-            if (is_array($this->options)) {
-                return $this->options;
+            if ($this->optionsCallback !== null) {
+                $callable = $this->optionsCallback;
+                return $callable();
             }
 
-            if (is_callable($this->options)) {
-                $callable = $this->options;
-                return $callable();
+            if (is_array($this->options)) {
+                return $this->options;
             }
 
             return [];
         }
 
-        $this->options = $value;
+        // set
+        if (is_callable($value)) {
+            $this->optionsCallback = $value;
+        }
+        else {
+            $this->options = $value;
+        }
 
         return $this;
     }
