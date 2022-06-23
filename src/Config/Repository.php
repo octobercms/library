@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Config;
 
-use Arr;
 use Illuminate\Config\Repository as RepositoryBase;
+use Arr;
 
 /**
  * Repository for configuration in October CMS
@@ -19,7 +19,9 @@ class Repository extends RepositoryBase
      */
     public function package($namespace, $path)
     {
+        // Locate config files found in the package
         foreach (FileLoader::fromPath($path) as $key => $filePath) {
+
             // Filenames with config.php are treated as root nodes
             $configKey = $key === 'config' ? $namespace : $namespace . '.' . $key;
 
