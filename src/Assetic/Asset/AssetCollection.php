@@ -5,6 +5,9 @@ use October\Rain\Assetic\Asset\Iterator\AssetCollectionIterator;
 use October\Rain\Assetic\Filter\FilterCollection;
 use October\Rain\Assetic\Filter\FilterInterface;
 use RecursiveIteratorIterator;
+use InvalidArgumentException;
+use IteratorAggregate;
+use SplObjectStorage;
 use Traversable;
 
 /**
@@ -12,7 +15,7 @@ use Traversable;
  *
  * @author Kris Wallsmith <kris.wallsmith@gmail.com>
  */
-class AssetCollection implements \IteratorAggregate, AssetCollectionInterface
+class AssetCollection implements IteratorAggregate, AssetCollectionInterface
 {
     /**
      * @var mixed assets
@@ -32,8 +35,8 @@ class AssetCollection implements \IteratorAggregate, AssetCollectionInterface
     /**
      * @var mixed targetPath
      */
-    protected $targetPath
-    ;
+    protected $targetPath;
+
     /**
      * @var mixed content
      */
@@ -71,7 +74,7 @@ class AssetCollection implements \IteratorAggregate, AssetCollectionInterface
 
         $this->filters = new FilterCollection($filters);
         $this->sourceRoot = $sourceRoot;
-        $this->clones = new \SplObjectStorage();
+        $this->clones = new SplObjectStorage();
         $this->vars = $vars;
         $this->values = array();
     }
@@ -79,7 +82,7 @@ class AssetCollection implements \IteratorAggregate, AssetCollectionInterface
     public function __clone()
     {
         $this->filters = clone $this->filters;
-        $this->clones = new \SplObjectStorage();
+        $this->clones = new SplObjectStorage();
     }
 
     public function all()
@@ -111,7 +114,7 @@ class AssetCollection implements \IteratorAggregate, AssetCollectionInterface
             return false;
         }
 
-        throw new \InvalidArgumentException('Leaf not found.');
+        throw new InvalidArgumentException('Leaf not found.');
     }
 
     public function replaceLeaf(AssetInterface $needle, AssetInterface $replacement, $graceful = false)
@@ -134,7 +137,7 @@ class AssetCollection implements \IteratorAggregate, AssetCollectionInterface
             return false;
         }
 
-        throw new \InvalidArgumentException('Leaf not found.');
+        throw new InvalidArgumentException('Leaf not found.');
     }
 
     public function ensureFilter(FilterInterface $filter)
@@ -150,7 +153,7 @@ class AssetCollection implements \IteratorAggregate, AssetCollectionInterface
     public function clearFilters()
     {
         $this->filters->clear();
-        $this->clones = new \SplObjectStorage();
+        $this->clones = new SplObjectStorage();
     }
 
     public function load(FilterInterface $additionalFilter = null)

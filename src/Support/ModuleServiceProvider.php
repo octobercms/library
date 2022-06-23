@@ -24,8 +24,13 @@ abstract class ModuleServiceProvider extends ServiceProviderBase implements Octo
 
         $modulePath = base_path('modules/' . $module);
 
-        // Register common paths
-        $this->loadConfigFrom($modulePath . '/config', $module);
+        // Register configuration path
+        $configPath = $modulePath . '/config';
+        if (!$this->app->configurationIsCached() && is_dir($configPath)) {
+            $this->loadConfigFrom($configPath, $module);
+        }
+
+        // Register view path
         $this->loadViewsFrom($modulePath . '/views', $module);
 
         // Load translator
