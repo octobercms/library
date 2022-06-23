@@ -1,34 +1,58 @@
 <?php namespace October\Rain\Assetic\Asset;
 
-/*
- * This file is part of the Assetic package, an OpenSky project.
- *
- * (c) 2010-2014 OpenSky Project Inc
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 use October\Rain\Assetic\Asset\Iterator\AssetCollectionFilterIterator;
 use October\Rain\Assetic\Asset\Iterator\AssetCollectionIterator;
 use October\Rain\Assetic\Filter\FilterCollection;
 use October\Rain\Assetic\Filter\FilterInterface;
+use RecursiveIteratorIterator;
+use Traversable;
 
 /**
- * A collection of assets.
+ * AssetCollection
  *
  * @author Kris Wallsmith <kris.wallsmith@gmail.com>
  */
 class AssetCollection implements \IteratorAggregate, AssetCollectionInterface
 {
-    private $assets;
-    private $filters;
-    private $sourceRoot;
-    private $targetPath;
-    private $content;
-    private $clones;
-    private $vars;
-    private $values;
+    /**
+     * @var mixed assets
+     */
+    protected $assets;
+
+    /**
+     * @var mixed filters
+     */
+    protected $filters;
+
+    /**
+     * @var mixed sourceRoot
+     */
+    protected $sourceRoot;
+
+    /**
+     * @var mixed targetPath
+     */
+    protected $targetPath
+    ;
+    /**
+     * @var mixed content
+     */
+    protected $content;
+
+    /**
+     * @var mixed clones
+     */
+    protected $clones;
+
+    /**
+     * @var mixed vars
+     */
+    protected $vars;
+
+    /**
+     * @var mixed values
+     */
+    protected $values;
 
     /**
      * Constructor.
@@ -217,9 +241,9 @@ class AssetCollection implements \IteratorAggregate, AssetCollectionInterface
     /**
      * Returns an iterator for looping recursively over unique leaves.
      */
-    public function getIterator()
+    public function getIterator(): Traversable
     {
-        return new \RecursiveIteratorIterator(new AssetCollectionFilterIterator(new AssetCollectionIterator($this, $this->clones)));
+        return new RecursiveIteratorIterator(new AssetCollectionFilterIterator(new AssetCollectionIterator($this, $this->clones)));
     }
 
     public function getVars()

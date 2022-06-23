@@ -1,49 +1,62 @@
 <?php namespace October\Rain\Assetic\Asset;
 
-/*
- * This file is part of the Assetic package, an OpenSky project.
- *
- * (c) 2010-2014 OpenSky Project Inc
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 use October\Rain\Assetic\Cache\CacheInterface;
 use October\Rain\Assetic\Filter\FilterInterface;
 use October\Rain\Assetic\Filter\HashableInterface;
 
 /**
- * Caches an asset to avoid the cost of loading and dumping.
+ * AssetCache caches an asset to avoid the cost of loading and dumping.
  *
  * @author Kris Wallsmith <kris.wallsmith@gmail.com>
  */
 class AssetCache implements AssetInterface
 {
-    private $asset;
-    private $cache;
+    /**
+     * @var mixed asset
+     */
+    protected $asset;
 
+    /**
+     * @var mixed cache
+     */
+    protected $cache;
+
+    /**
+     * __construct
+     */
     public function __construct(AssetInterface $asset, CacheInterface $cache)
     {
         $this->asset = $asset;
         $this->cache = $cache;
     }
 
+    /**
+     * ensureFilter
+     */
     public function ensureFilter(FilterInterface $filter)
     {
         $this->asset->ensureFilter($filter);
     }
 
+    /**
+     * getFilters
+     */
     public function getFilters()
     {
         return $this->asset->getFilters();
     }
 
+    /**
+     * clearFilters
+     */
     public function clearFilters()
     {
         $this->asset->clearFilters();
     }
 
+    /**
+     * load
+     */
     public function load(FilterInterface $additionalFilter = null)
     {
         $cacheKey = self::getCacheKey($this->asset, $additionalFilter, 'load');
@@ -57,6 +70,9 @@ class AssetCache implements AssetInterface
         $this->cache->set($cacheKey, $this->asset->getContent());
     }
 
+    /**
+     * dump
+     */
     public function dump(FilterInterface $additionalFilter = null)
     {
         $cacheKey = self::getCacheKey($this->asset, $additionalFilter, 'dump');
@@ -70,56 +86,89 @@ class AssetCache implements AssetInterface
         return $content;
     }
 
+    /**
+     * getContent
+     */
     public function getContent()
     {
         return $this->asset->getContent();
     }
 
+    /**
+     * setContent
+     */
     public function setContent($content)
     {
         $this->asset->setContent($content);
     }
 
+    /**
+     * getSourceRoot
+     */
     public function getSourceRoot()
     {
         return $this->asset->getSourceRoot();
     }
 
+    /**
+     * getSourcePath
+     */
     public function getSourcePath()
     {
         return $this->asset->getSourcePath();
     }
 
+    /**
+     * getSourceDirectory
+     */
     public function getSourceDirectory()
     {
         return $this->asset->getSourceDirectory();
     }
 
+    /**
+     * getTargetPath
+     */
     public function getTargetPath()
     {
         return $this->asset->getTargetPath();
     }
 
+    /**
+     * setTargetPath
+     */
     public function setTargetPath($targetPath)
     {
         $this->asset->setTargetPath($targetPath);
     }
 
+    /**
+     * getLastModified
+     */
     public function getLastModified()
     {
         return $this->asset->getLastModified();
     }
 
+    /**
+     * getVars
+     */
     public function getVars()
     {
         return $this->asset->getVars();
     }
 
+    /**
+     * setValues
+     */
     public function setValues(array $values)
     {
         $this->asset->setValues($values);
     }
 
+    /**
+     * getValues
+     */
     public function getValues()
     {
         return $this->asset->getValues();
@@ -142,7 +191,7 @@ class AssetCache implements AssetInterface
      *
      * @return string A key for identifying the current asset
      */
-    private static function getCacheKey(AssetInterface $asset, FilterInterface $additionalFilter = null, $salt = '')
+    protected static function getCacheKey(AssetInterface $asset, FilterInterface $additionalFilter = null, $salt = '')
     {
         if ($additionalFilter) {
             $asset = clone $asset;
@@ -157,7 +206,8 @@ class AssetCache implements AssetInterface
         foreach ($asset->getFilters() as $filter) {
             if ($filter instanceof HashableInterface) {
                 $cacheKey .= $filter->hash();
-            } else {
+            }
+            else {
                 $cacheKey .= serialize($filter);
             }
         }

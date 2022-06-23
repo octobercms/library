@@ -1,26 +1,19 @@
 <?php namespace October\Rain\Assetic\Asset\Iterator;
 
-/*
- * This file is part of the Assetic package, an OpenSky project.
- *
- * (c) 2010-2014 OpenSky Project Inc
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+use RecursiveFilterIterator;
 
 /**
- * Asset collection filter iterator.
+ * AssetCollectionFilterIterator collection filter iterator.
  *
  * The filter iterator is responsible for de-duplication of leaf assets based
  * on both strict equality and source URL.
  *
  * @author Kris Wallsmith <kris.wallsmith@gmail.com>
  */
-class AssetCollectionFilterIterator extends \RecursiveFilterIterator
+class AssetCollectionFilterIterator extends RecursiveFilterIterator
 {
-    private $visited;
-    private $sources;
+    protected $visited;
+    protected $sources;
 
     /**
      * Constructor.
@@ -29,7 +22,7 @@ class AssetCollectionFilterIterator extends \RecursiveFilterIterator
      * @param array                   $visited  An array of visited asset objects
      * @param array                   $sources  An array of visited source strings
      */
-    public function __construct(AssetCollectionIterator $iterator, array $visited = array(), array $sources = array())
+    public function __construct(AssetCollectionIterator $iterator, array $visited = [], array $sources = [])
     {
         parent::__construct($iterator);
 
@@ -45,7 +38,7 @@ class AssetCollectionFilterIterator extends \RecursiveFilterIterator
      *
      * @return Boolean Returns true if we have not seen this asset yet
      */
-    public function accept()
+    public function accept(): bool
     {
         $asset = $this->getInnerIterator()->current(true);
         $duplicate = false;
@@ -75,7 +68,7 @@ class AssetCollectionFilterIterator extends \RecursiveFilterIterator
     /**
      * Passes visited objects and source URLs to the child iterator.
      */
-    public function getChildren()
+    public function getChildren(): ?RecursiveFilterIterator
     {
         return new self($this->getInnerIterator()->getChildren(), $this->visited, $this->sources);
     }

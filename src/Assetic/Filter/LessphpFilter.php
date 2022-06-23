@@ -1,13 +1,5 @@
 <?php namespace October\Rain\Assetic\Filter;
 
-/*
- * This file is part of the Assetic package, an OpenSky project.
- *
- * (c) 2010-2014 OpenSky Project Inc
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
 
 use October\Rain\Assetic\Asset\AssetInterface;
 use October\Rain\Assetic\Factory\AssetFactory;
@@ -25,18 +17,18 @@ use October\Rain\Assetic\Util\LessUtils;
  */
 class LessphpFilter implements DependencyExtractorInterface
 {
-    private $presets = array();
+    private $presets = [];
     private $formatter;
     private $preserveComments;
-    private $customFunctions = array();
-    private $options = array();
+    private $customFunctions = [];
+    private $options = [];
 
     /**
      * Lessphp Load Paths
      *
      * @var array
      */
-    protected $loadPaths = array();
+    protected $loadPaths = [];
 
     /**
      * Adds a load path to the paths used by lessphp
@@ -131,10 +123,10 @@ class LessphpFilter implements DependencyExtractorInterface
         }
 
         if (empty($loadPaths)) {
-            return array();
+            return [];
         }
 
-        $children = array();
+        $children = [];
         foreach (LessUtils::extractImports($content) as $reference) {
             if ('.css' === substr($reference, -4)) {
                 // skip normal css imports

@@ -2,7 +2,7 @@
 
 use Html;
 use Event;
-use October\Rain\Parse\Parsedown\Parsedown;
+use October\Rain\Parse\Parsedown\ParsedownExtra;
 
 /**
  * Markdown helper class.
@@ -33,7 +33,7 @@ class Markdown
     use \October\Rain\Support\Traits\Emitter;
 
     /**
-     * @var October\Rain\Parse\Parsedown\Parsedown parser is the parsedown instance
+     * @var ParsedownExtra parser is the parsedown instance
      */
     protected $parser;
 
@@ -122,10 +122,10 @@ class Markdown
     /**
      * getParser returns an instance of the parser
      */
-    protected function getParser(): Parsedown
+    protected function getParser(): ParsedownExtra
     {
         if ($this->parser === null) {
-            $this->parser = new Parsedown;
+            $this->parser = new ParsedownExtra;
         }
 
         return $this->parser;

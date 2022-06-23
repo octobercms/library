@@ -1,19 +1,11 @@
 <?php namespace October\Rain\Assetic\Filter;
 
-/*
- * This file is part of the Assetic package, an OpenSky project.
- *
- * (c) 2010-2014 OpenSky Project Inc
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
 
 use JSMin;
 use October\Rain\Assetic\Asset\AssetInterface;
 
 /**
- * Filters assets through JsMin.
+ * JSMinFilter filters assets through JsMin.
  *
  * All credit for the filter itself is mentioned in the file itself.
  *

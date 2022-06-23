@@ -6,15 +6,11 @@ use October\Rain\Assetic\Filter\FilterInterface;
 use RuntimeException;
 
 /**
- * Importer JS Filter
+ * JavascriptImporter importer JS Filter
  * Class used to import referenced javascript files.
  *
  * =include library/jquery.js;
  * =require library/jquery.js;
- *
- * (@todo Below needs fixing)
- * =define #FOO "Bar";
- * console.log(#FOO);
  *
  * @package october/parse
  * @author Alexey Bobkov, Samuel Georges
@@ -42,10 +38,16 @@ class JavascriptImporter implements FilterInterface
      */
     protected $definedVars = [];
 
+    /**
+     * filterLoad
+     */
     public function filterLoad(AssetInterface $asset)
     {
     }
 
+    /**
+     * filterDump
+     */
     public function filterDump(AssetInterface $asset)
     {
         $this->scriptPath = dirname($asset->getSourceRoot() . '/' . $asset->getSourcePath());

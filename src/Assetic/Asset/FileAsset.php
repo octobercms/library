@@ -1,28 +1,23 @@
 <?php namespace October\Rain\Assetic\Asset;
 
-/*
- * This file is part of the Assetic package, an OpenSky project.
- *
- * (c) 2010-2014 OpenSky Project Inc
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 use October\Rain\Assetic\Filter\FilterInterface;
 use October\Rain\Assetic\Util\VarUtils;
+use InvalidArgumentException;
 
 /**
- * Represents an asset loaded from a file.
+ * FileAsset represents an asset loaded from a file.
  *
  * @author Kris Wallsmith <kris.wallsmith@gmail.com>
  */
 class FileAsset extends BaseAsset
 {
-    private $source;
+    /**
+     * @var string source path
+     */
+    protected $source;
 
     /**
-     * Constructor.
+     * __construc.
      *
      * @param string $source     An absolute path
      * @param array  $filters    An array of filters
@@ -30,7 +25,7 @@ class FileAsset extends BaseAsset
      * @param string $sourcePath The source asset path
      * @param array  $vars
      *
-     * @throws \InvalidArgumentException If the supplied root doesn't match the source when guessing the path
+     * @throws InvalidArgumentException If the supplied root doesn't match the source when guessing the path
      */
     public function __construct($source, $filters = array(), $sourceRoot = null, $sourcePath = null, array $vars = array())
     {
@@ -39,9 +34,10 @@ class FileAsset extends BaseAsset
             if (null === $sourcePath) {
                 $sourcePath = basename($source);
             }
-        } elseif (null === $sourcePath) {
+        }
+        elseif (null === $sourcePath) {
             if (0 !== strpos($source, $sourceRoot)) {
-                throw new \InvalidArgumentException(sprintf('The source "%s" is not in the root directory "%s"', $source, $sourceRoot));
+                throw new InvalidArgumentException(sprintf('The source "%s" is not in the root directory "%s"', $source, $sourceRoot));
             }
 
             $sourcePath = substr($source, strlen($sourceRoot) + 1);
@@ -52,6 +48,9 @@ class FileAsset extends BaseAsset
         parent::__construct($filters, $sourceRoot, $sourcePath, $vars);
     }
 
+    /**
+     * load
+     */
     public function load(FilterInterface $additionalFilter = null)
     {
         $source = VarUtils::resolve($this->source, $this->getVars(), $this->getValues());
@@ -63,6 +62,9 @@ class FileAsset extends BaseAsset
         $this->doLoad(file_get_contents($source), $additionalFilter);
     }
 
+    /**
+     * getLastModified
+     */
     public function getLastModified()
     {
         $source = VarUtils::resolve($this->source, $this->getVars(), $this->getValues());

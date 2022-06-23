@@ -1,13 +1,12 @@
 <?php namespace October\Rain\Assetic\Filter;
 
-use Event;
-use Less_Parser;
 use October\Rain\Assetic\Asset\AssetInterface;
 use October\Rain\Assetic\Factory\AssetFactory;
 use October\Rain\Assetic\Filter\LessphpFilter;
 use October\Rain\Assetic\Filter\HashableInterface;
 use October\Rain\Assetic\Filter\DependencyExtractorInterface;
 use October\Rain\Assetic\Filter\FilterInterface;
+use Less_Parser;
 
 /**
  * Less.php Compiler Filter

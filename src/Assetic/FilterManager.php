@@ -1,25 +1,24 @@
 <?php namespace October\Rain\Assetic;
 
-/*
- * This file is part of the Assetic package, an OpenSky project.
- *
- * (c) 2010-2014 OpenSky Project Inc
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 use October\Rain\Assetic\Filter\FilterInterface;
+use InvalidArgumentException;
 
 /**
- * Manages the available filters.
+ * FilterManager manages the available filters.
  *
+ * @package october/assetic
  * @author Kris Wallsmith <kris.wallsmith@gmail.com>
  */
 class FilterManager
 {
-    private $filters = array();
+    /**
+     * @var array filters
+     */
+    protected $filters = [];
 
+    /**
+     * set
+     */
     public function set($alias, FilterInterface $filter)
     {
         $this->checkName($alias);
@@ -27,20 +26,29 @@ class FilterManager
         $this->filters[$alias] = $filter;
     }
 
+    /**
+     * get
+     */
     public function get($alias)
     {
         if (!isset($this->filters[$alias])) {
-            throw new \InvalidArgumentException(sprintf('There is no "%s" filter.', $alias));
+            throw new InvalidArgumentException(sprintf('There is no "%s" filter.', $alias));
         }
 
         return $this->filters[$alias];
     }
 
+    /**
+     * has
+     */
     public function has($alias)
     {
         return isset($this->filters[$alias]);
     }
 
+    /**
+     * getNames
+     */
     public function getNames()
     {
         return array_keys($this->filters);
@@ -48,15 +56,13 @@ class FilterManager
 
     /**
      * Checks that a name is valid.
-     *
      * @param string $name An asset name candidate
-     *
-     * @throws \InvalidArgumentException If the asset name is invalid
+     * @throws InvalidArgumentException If the asset name is invalid
      */
     protected function checkName($name)
     {
         if (!ctype_alnum(str_replace('_', '', $name))) {
-            throw new \InvalidArgumentException(sprintf('The name "%s" is invalid.', $name));
+            throw new InvalidArgumentException(sprintf('The name "%s" is invalid.', $name));
         }
     }
 }

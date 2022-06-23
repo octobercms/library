@@ -1,13 +1,5 @@
 <?php namespace October\Rain\Assetic\Asset;
 
-/*
- * This file is part of the Assetic package, an OpenSky project.
- *
- * (c) 2010-2014 OpenSky Project Inc
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
 
 use October\Rain\Assetic\Filter\FilterCollection;
 use October\Rain\Assetic\Filter\FilterInterface;
@@ -22,18 +14,53 @@ use October\Rain\Assetic\Filter\FilterInterface;
  */
 abstract class BaseAsset implements AssetInterface
 {
-    private $filters;
-    private $sourceRoot;
-    private $sourcePath;
-    private $sourceDir;
-    private $targetPath;
-    private $content;
-    private $loaded;
-    private $vars;
-    private $values;
+    /**
+     * @var mixed filters
+     */
+    protected $filters;
 
     /**
-     * Constructor.
+     * @var mixed sourceRoot
+     */
+    protected $sourceRoot;
+
+    /**
+     * @var mixed sourcePath
+     */
+    protected $sourcePath;
+
+    /**
+     * @var mixed sourceDir
+     */
+    protected $sourceDir;
+
+    /**
+     * @var mixed targetPath
+     */
+    protected $targetPath;
+
+    /**
+     * @var mixed content
+     */
+    protected $content;
+
+    /**
+     * @var mixed loaded
+     */
+    protected $loaded;
+
+    /**
+     * @var mixed vars
+     */
+    protected $vars;
+
+    /**
+     * @var mixed values
+     */
+    protected $values;
+
+    /**
+     * __construct
      *
      * @param array  $filters    Filters for the asset
      * @param string $sourceRoot The root directory

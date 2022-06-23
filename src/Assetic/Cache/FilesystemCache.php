@@ -13,18 +13,30 @@ use RuntimeException;
  */
 class FilesystemCache implements CacheInterface
 {
+    /**
+     * @var string dir name for the file cache
+     */
     protected $dir;
 
+    /**
+     * __construct
+     */
     public function __construct($dir)
     {
         $this->dir = $dir;
     }
 
+    /**
+     * has
+     */
     public function has($key)
     {
         return file_exists($this->dir.'/'.$key);
     }
 
+    /**
+     * get
+     */
     public function get($key)
     {
         $path = $this->dir.'/'.$key;
@@ -36,6 +48,9 @@ class FilesystemCache implements CacheInterface
         return file_get_contents($path);
     }
 
+    /**
+     * set
+     */
     public function set($key, $value)
     {
         if (!is_dir($this->dir) && false === @mkdir($this->dir, 0755, true)) {
@@ -51,6 +66,9 @@ class FilesystemCache implements CacheInterface
         File::chmod($path);
     }
 
+    /**
+     * remove
+     */
     public function remove($key)
     {
         $path = $this->dir.'/'.$key;

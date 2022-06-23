@@ -1,25 +1,16 @@
 <?php namespace October\Rain\Assetic\Factory\Resource;
 
-/*
- * This file is part of the Assetic package, an OpenSky project.
- *
- * (c) 2010-2014 OpenSky Project Inc
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 /**
- * A resource is something formulae can be loaded from.
+ * FileResource is a resource is something formulae can be loaded from.
  *
  * @author Kris Wallsmith <kris.wallsmith@gmail.com>
  */
 class FileResource implements ResourceInterface
 {
-    private $path;
+    protected $path;
 
     /**
-     * Constructor.
+     * __construct
      *
      * @param string $path The path to a file
      */

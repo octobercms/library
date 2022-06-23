@@ -33,7 +33,7 @@ use October\Rain\Element\ElementBase;
 class FieldDefinition extends ElementBase
 {
     /**
-     * @var array|callback optionsCallback
+     * @var callable optionsCallback
      */
     protected $optionsCallback;
 

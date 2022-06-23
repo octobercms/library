@@ -1,33 +1,48 @@
 <?php namespace October\Rain\Assetic\Asset\Iterator;
 
-/*
- * This file is part of the Assetic package, an OpenSky project.
- *
- * (c) 2010-2014 OpenSky Project Inc
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 use October\Rain\Assetic\Asset\AssetCollectionInterface;
+use RecursiveIterator;
+use SplObjectStorage;
 
 /**
- * Iterates over an asset collection.
+ * AssetCollectionIterator iterates over an asset collection.
  *
  * The iterator is responsible for cascading filters and target URL patterns
  * from parent to child assets.
  *
  * @author Kris Wallsmith <kris.wallsmith@gmail.com>
  */
-class AssetCollectionIterator implements \RecursiveIterator
+class AssetCollectionIterator implements RecursiveIterator
 {
-    private $assets;
-    private $filters;
-    private $vars;
-    private $output;
-    private $clones;
+    /**
+     * @var mixed assets
+     */
+    protected $assets;
 
-    public function __construct(AssetCollectionInterface $coll, \SplObjectStorage $clones)
+    /**
+     * @var mixed filters
+     */
+    protected $filters;
+
+    /**
+     * @var mixed vars
+     */
+    protected $vars;
+
+    /**
+     * @var mixed output
+     */
+    protected $output;
+
+    /**
+     * @var mixed clones
+     */
+    protected $clones;
+
+    /**
+     * __construct
+     */
+    public function __construct(AssetCollectionInterface $coll, SplObjectStorage $clones)
     {
         $this->assets  = $coll->all();
         $this->filters = $coll->getFilters();
@@ -37,7 +52,8 @@ class AssetCollectionIterator implements \RecursiveIterator
 
         if (false === $pos = strrpos($this->output, '.')) {
             $this->output .= '_*';
-        } else {
+        }
+        else {
             $this->output = substr($this->output, 0, $pos).'_*'.substr($this->output, $pos);
         }
     }
@@ -47,7 +63,7 @@ class AssetCollectionIterator implements \RecursiveIterator
      *
      * @param Boolean $raw Returns the unmodified asset if true
      *
-     * @return \Assetic\Asset\AssetInterface
+     * @return \October\Rain\Assetic\Asset\AssetInterface
      */
     public function current($raw = false)
     {
@@ -84,22 +100,22 @@ class AssetCollectionIterator implements \RecursiveIterator
         return key($this->assets);
     }
 
-    public function next()
+    public function next(): void
     {
-        return next($this->assets);
+        next($this->assets);
     }
 
-    public function rewind()
+    public function rewind(): void
     {
-        return reset($this->assets);
+        reset($this->assets);
     }
 
-    public function valid()
+    public function valid(): bool
     {
-        return false !== current($this->assets);
+        return current($this->assets) !== false;
     }
 
-    public function hasChildren()
+    public function hasChildren(): bool
     {
         return current($this->assets) instanceof AssetCollectionInterface;
     }
@@ -107,7 +123,7 @@ class AssetCollectionIterator implements \RecursiveIterator
     /**
      * @uses current()
      */
-    public function getChildren()
+    public function getChildren(): ?RecursiveIterator
     {
         return new self($this->current(), $this->clones);
     }
