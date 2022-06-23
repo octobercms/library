@@ -1,14 +1,14 @@
 <?php namespace October\Rain\Config;
 
-use Illuminate\Filesystem\Filesystem;
-
-use Exception;
-use Illuminate\Config\Repository;
-use Illuminate\Contracts\Config\Repository as RepositoryContract;
-use Illuminate\Contracts\Foundation\Application;
-use SplFileInfo;
 use Symfony\Component\Finder\Finder;
+use SplFileInfo;
 
+/**
+ * FileLoader loads package config
+ *
+ * @package october/config
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class FileLoader
 {
     /**
