@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Combine;
 
-
 /**
  * StylesheetMinify minifies CSS
  *

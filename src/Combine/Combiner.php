@@ -3,7 +3,7 @@
 /**
  * Combiner helper class
  *
- * @package october/assetic
+ * @package october/combine
  * @author Alexey Bobkov, Samuel Georges
  */
 class Combiner

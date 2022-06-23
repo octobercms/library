@@ -5,6 +5,9 @@ use Illuminate\Contracts\Support\DeferrableProvider;
 
 /**
  * CombinerServiceProvider
+ *
+ * @package october/combine
+ * @author Alexey Bobkov, Samuel Georges
  */
 class CombinerServiceProvider extends ServiceProvider implements DeferrableProvider
 {
