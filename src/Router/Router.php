@@ -223,12 +223,14 @@ class Router
     }
 
     /**
-     * sortRules sorts all the routing rules by static segments, then dynamic
+     * sortRules sorts all the routing rules by static segments (long to short),
+     * then dynamic segments (short to long), then wild segments (at end).
      * @return void
      */
     public function sortRules()
     {
         uasort($this->routeMap, function ($a, $b) {
+            // When comparing static, longer tails go to the start
             $lengthA = $a->staticSegmentCount;
             $lengthB = $b->staticSegmentCount;
 
@@ -240,6 +242,19 @@ class Router
                 return 1;
             }
 
+            // When static tails are equal, push wilds to the end
+            $lengthA = $a->wildSegmentCount;
+            $lengthB = $b->wildSegmentCount;
+
+            if ($lengthA > $lengthB) {
+                return 1;
+            }
+
+            if ($lengthA < $lengthB) {
+                return -1;
+            }
+
+            // When comparing dynamic, longer tails go to the end
             $lengthA = $a->dynamicSegmentCount;
             $lengthB = $b->dynamicSegmentCount;
 

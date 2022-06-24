@@ -271,6 +271,45 @@ class RouteTest extends TestCase
         $this->assertFalse($router->match('job'));
         $this->assertFalse($router->match('job/test'));
         $this->assertTrue($router->match('job/test/4'));
+
+        // Wild routes come last
+        $router->route('testRuleWild', '/vehicles/:query?*');
+        $router->route('testRuleDynamic', '/vehicles/:make/:model/:id');
+        $router->sortRules();
+        $this->assertTrue($router->match('vehicles/audi/a3/123'));
+        $this->assertEquals('testRuleDynamic', $router->matchedRoute());
+    }
+
+    public function testSortRules()
+    {
+        $router = new Router;
+        $router->route('test1Static3Dynamic', '/vehicles/:make/:model/:id');
+        $router->route('test2Static3Dynamic', '/vehicles/long/:make/:model/:id');
+        $router->route('test3Static3Dynamic', '/vehicles/long/longer/:make/:model/:id');
+        $router->route('test3Static2Dynamic', '/vehicles/long/longer/:make/:model');
+        $router->route('test1Static1Wild', '/vehicles/:query?*');
+        $router->route('test2Static1Wild', '/vehicles/long/:query?*');
+        $router->route('test3Static1Wild', '/vehicles/long/longer/:query?*');
+        $router->route('test1Static', '/vehicles');
+        $router->route('test2Static', '/vehicles/long');
+        $router->route('test3Static', '/vehicles/long/longer');
+        $router->sortRules();
+
+        // static (long to short), dynamic (short to long), wild (at end)
+        $expecting = [
+            "test3Static",
+            "test3Static2Dynamic",
+            "test3Static3Dynamic",
+            "test3Static1Wild",
+            "test2Static",
+            "test2Static3Dynamic",
+            "test2Static1Wild",
+            "test1Static",
+            "test1Static3Dynamic",
+            "test1Static1Wild"
+        ];
+
+        $this->assertEquals($expecting, array_keys($router->getRouteMap()));
     }
 
     public function testUrl()
