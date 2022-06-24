@@ -103,7 +103,7 @@ class Repository extends RepositoryBase
     protected function toNsKey($key)
     {
         if (strpos($key, '::') !== false) {
-            return str_replace('::', '.', $key);
+            return str_replace(['::config', '::'], ['', '.'], $key);
         }
 
         return $key;
