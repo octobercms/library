@@ -260,6 +260,17 @@ class Router
                 return 1;
             }
 
+            $lengthA = $a->wildSegmentCount;
+            $lengthB = $b->wildSegmentCount;
+
+            if ($lengthA > $lengthB) {
+                return 1;
+            }
+
+            if ($lengthA < $lengthB) {
+                return -1;
+            }
+
             $lengthA = $a->dynamicSegmentCount;
             $lengthB = $b->dynamicSegmentCount;
 
