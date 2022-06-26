@@ -261,6 +261,15 @@ class Application extends ApplicationBase
     {
         return $this['execution.context'] === 'backend';
     }
+    
+    /**
+     * runningInFrontend determines if we are running in the frontend area.
+     * @return bool
+     */
+    public function runningInFrontend()
+    {
+        return !$this->runningInBackend() && !$this->runningInConsole();
+    }
 
     /**
      * hasDatabase returns true if a database connection is present.
