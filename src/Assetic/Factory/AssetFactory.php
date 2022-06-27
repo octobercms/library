@@ -4,6 +4,8 @@ use October\Rain\Assetic\Asset\AssetCollection;
 use October\Rain\Assetic\Asset\AssetCollectionInterface;
 use October\Rain\Assetic\Asset\AssetInterface;
 use October\Rain\Assetic\Asset\FileAsset;
+use October\Rain\Assetic\Asset\GlobAsset;
+use October\Rain\Assetic\Asset\HttpAsset;
 use October\Rain\Assetic\AssetManager;
 use October\Rain\Assetic\Filter\DependencyExtractorInterface;
 use October\Rain\Assetic\FilterManager;
@@ -125,7 +127,7 @@ class AssetFactory
     }
 
     /**
-     * Creates a new asset.
+     * createAsset creates a new asset.
      *
      * Prefixing a filter name with a question mark will cause it to be
      * omitted when the factory is in debug mode.
@@ -235,6 +237,9 @@ class AssetFactory
             : $this->createAssetCollection([$asset]);
     }
 
+    /**
+     * generateAssetName
+     */
     public function generateAssetName($inputs, $filters, $options = [])
     {
         foreach (array_diff(array_keys($options), array('output', 'debug', 'root')) as $key) {
@@ -246,6 +251,9 @@ class AssetFactory
         return substr(sha1(serialize($inputs).serialize($filters).serialize($options)), 0, 7);
     }
 
+    /**
+     * getLastModified
+     */
     public function getLastModified(AssetInterface $asset)
     {
         $mtime = 0;
@@ -284,7 +292,11 @@ class AssetFactory
     /**
      * Parses an input string string into an asset.
      *
-     * The input string can be a filesystem path.
+     * The input string can be one of the following:
+     *
+     *  * An absolute URL: If the string contains "://" or starts with "//" it will be interpreted as an HTTP asset
+     *  * A glob:          If the string contains a "*" it will be interpreted as a glob
+     *  * A path:          Otherwise the string is interpreted as a filesystem path
      *
      * Both globs and paths will be absolutized using the current root directory.
      *
@@ -295,6 +307,9 @@ class AssetFactory
      */
     protected function parseInput($input, array $options = [])
     {
+        if (false !== strpos($input, '://') || 0 === strpos($input, '//')) {
+            return $this->createHttpAsset($input, $options['vars']);
+        }
         if (self::isAbsolutePath($input)) {
             if ($root = self::findRootDir($input, $options['root'])) {
                 $path = ltrim(substr($input, strlen($root)), '/');
@@ -309,19 +324,48 @@ class AssetFactory
             $input = $this->root.'/'.$path;
         }
 
+        if (false !== strpos($input, '*')) {
+            return $this->createGlobAsset($input, $root, $options['vars']);
+        }
+
         return $this->createFileAsset($input, $root, $path, $options['vars']);
     }
 
+    /**
+     * createAssetCollection
+     */
     protected function createAssetCollection(array $assets = [], array $options = [])
     {
         return new AssetCollection($assets, [], null, isset($options['vars']) ? $options['vars'] : []);
     }
 
+    /**
+     * createHttpAsset
+     */
+    protected function createHttpAsset($sourceUrl, $vars)
+    {
+        return new HttpAsset($sourceUrl, [], false, $vars);
+    }
+
+    /**
+     * createGlobAsset
+     */
+    protected function createGlobAsset($glob, $root = null, $vars = [])
+    {
+        return new GlobAsset($glob, [], $root, $vars);
+    }
+
+    /**
+     * createFileAsset
+     */
     protected function createFileAsset($source, $root = null, $path = null, $vars = [])
     {
         return new FileAsset($source, [], $root, $path, $vars);
     }
 
+    /**
+     * getFilter
+     */
     protected function getFilter($name)
     {
         if (!$this->fm) {
@@ -331,6 +375,9 @@ class AssetFactory
         return $this->fm->get($name);
     }
 
+    /**
+     * isAbsolutePath
+     */
     private static function isAbsolutePath($path)
     {
         return '/' == $path[0] || '\\' == $path[0] || (3 < strlen($path) && ctype_alpha($path[0]) && $path[1] == ':' && ('\\' == $path[2] || '/' == $path[2]));
