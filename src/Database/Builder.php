@@ -197,4 +197,15 @@ class Builder extends BuilderModel
 
         return parent::__call($method, $parameters);
     }
+
+    /**
+     * addWhereExistsQuery modifies the Laravel version to strip ORDER BY from the query,
+     * which is redundant in this context, also forbidden by the SQL Server driver.
+     */
+    public function addWhereExistsQuery($query, $boolean = 'and', $not = false)
+    {
+        $query->reorder();
+
+        return parent::addWhereExistsQuery($query, $boolean, $not);
+    }
 }
