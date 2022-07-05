@@ -239,7 +239,7 @@ class Model extends EloquentModel
      * Create a new Eloquent query builder for the model.
      *
      * @param  \October\Rain\Database\QueryBuilder $query
-     * @return \October\Rain\Database\Builder|static
+     * @return \October\Rain\Database\Builder
      */
     public function newEloquentBuilder($query)
     {
