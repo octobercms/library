@@ -51,6 +51,12 @@ abstract class ModuleServiceProvider extends ServiceProviderBase implements Octo
      */
     public function boot()
     {
+        $module = $this->getModule(func_get_args());
+        if (!$module) {
+            return;
+        }
+
+        // Reserved for boot logic
     }
 
     /**
@@ -169,7 +175,7 @@ abstract class ModuleServiceProvider extends ServiceProviderBase implements Octo
      */
     protected function getModule($args)
     {
-        return (isset($args[0]) and is_string($args[0])) ? $args[0] : null;
+        return isset($args[0]) && is_string($args[0]) ? $args[0] : null;
     }
 
     /**
