@@ -4,7 +4,7 @@ use October\Rain\Support\Str;
 use Exception;
 
 /**
- * Sluggable
+ * Sluggable trait
  *
  * @package october\database
  * @author Alexey Bobkov, Samuel Georges
@@ -12,7 +12,7 @@ use Exception;
 trait Sluggable
 {
     /**
-     * @var array List of attributes to automatically generate unique URL names (slugs) for.
+     * @var array slugs are attributes to automatically generate unique URL names (slugs) for.
      *
      * protected $slugs = [];
      */
@@ -36,7 +36,7 @@ trait Sluggable
     }
 
     /**
-     * Adds slug attributes to the dataset, used before saving.
+     * slugAttributes adds slug attributes to the dataset, used before saving.
      * @return void
      */
     public function slugAttributes()
@@ -47,12 +47,13 @@ trait Sluggable
     }
 
     /**
-     * Sets a single slug attribute value.
-     * @param string $slugAttribute Attribute to populate with the slug.
-     * @param mixed $sourceAttributes Attribute(s) to generate the slug from.
-     * Supports dotted notation for relations.
-     * @param int $maxLength Maximum length for the slug not including the counter.
-     * @return string The generated value.
+     * setSluggedValue sets a single slug attribute value, using source attributes
+     * to generate the slug from and a maximum length for the slug not including
+     * the counter. Source attributes support dotted notation for relations.
+     * @param string $slugAttribute
+     * @param mixed $sourceAttributes
+     * @param int $maxLength
+     * @return string
      */
     public function setSluggedValue($slugAttribute, $sourceAttributes, $maxLength = 175)
     {
@@ -74,14 +75,21 @@ trait Sluggable
             $slug = $this->{$slugAttribute};
         }
 
+        // Source attributes contain empty values, nothing to slug and this
+        // happens when the attributes are not required by the validator
+        if (!mb_strlen(trim($slug))) {
+            return $this->{$slugAttribute} = '';
+        }
+
         return $this->{$slugAttribute} = $this->getSluggableUniqueAttributeValue($slugAttribute, $slug);
     }
 
     /**
-     * Ensures a unique attribute value, if the value is already used a counter suffix is added.
-     * @param string $name The database column name.
-     * @param value $value The desired column value.
-     * @return string A safe value that is unique.
+     * getSluggableUniqueAttributeValue ensures a unique attribute value, if the value is already
+     * used a counter suffix is added. Returns a safe value that is unique.
+     * @param string $name
+     * @param mixed $value
+     * @return string
      */
     protected function getSluggableUniqueAttributeValue($name, $value)
     {
@@ -98,7 +106,7 @@ trait Sluggable
     }
 
     /**
-     * Returns a query that excludes the current record if it exists
+     * newSluggableQuery returns a query that excludes the current record if it exists
      * @return Builder
      */
     protected function newSluggableQuery()
@@ -109,7 +117,7 @@ trait Sluggable
     }
 
     /**
-     * Get an attribute relation value using dotted notation.
+     * getSluggableSourceAttributeValue using dotted notation.
      * Eg: author.name
      * @return mixed
      */
@@ -133,7 +141,7 @@ trait Sluggable
     }
 
     /**
-     * Override the default slug separator.
+     * getSluggableSeparator is an override for the default slug separator.
      * @return string
      */
     public function getSluggableSeparator()
