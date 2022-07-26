@@ -17,7 +17,30 @@ class SortableScope implements ScopeInterface
      */
     public function apply(BuilderBase $builder, ModelBase $model)
     {
+        if ($this->calledByAggregator($builder)) {
+            return;
+        }
+
         $builder->getQuery()->orderBy($model->getQualifiedSortOrderColumn());
+    }
+
+    /**
+     * check if the current query is called by an aggregator, i.e. when used with
+     * useRelationCount, by checking if it contains a count(*) statement
+     */
+    protected function calledByAggregator(BuilderBase $builder): bool
+    {
+        if (empty($builder->getQuery()->columns)) {
+            return false;
+        }
+
+        foreach ($builder->getQuery()->columns as $column) {
+            if (strtolower((string)$column) === 'count(*)') {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
