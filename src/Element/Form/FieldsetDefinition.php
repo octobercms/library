@@ -90,6 +90,16 @@ class FieldsetDefinition extends ElementBase implements IteratorAggregate
     }
 
     /**
+     * sortAllFields will sort the defined fields by their order attribute
+     */
+    public function sortAllFields()
+    {
+        uasort($this->fields, static function ($a, $b) {
+            return $a->order - $b->order;
+        });
+    }
+
+    /**
      * getIterator gets an iterator for the items
      * @return ArrayIterator
      */
