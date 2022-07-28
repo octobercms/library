@@ -81,6 +81,18 @@ class FieldsetDefinition extends ElementBase implements IteratorAggregate
     }
 
     /**
+     * getField object specified
+     */
+    public function getField(string $field)
+    {
+        if (isset($this->fields[$field])) {
+            return $this->fields[$field];
+        }
+
+        return null;
+    }
+
+    /**
      * getAllFields returns an array of the registered fields, without tabs
      * @return array
      */
