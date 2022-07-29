@@ -88,7 +88,7 @@ class ValidationException extends Exception
      */
     public function setFieldPrefix(array $prefix)
     {
-        $this->fieldPrefix = array_filter($prefix);
+        $this->fieldPrefix = array_filter($prefix, 'strlen');
 
         $this->evalErrors();
     }
