@@ -9,46 +9,42 @@ use Exception;
 trait Validation
 {
     /**
-     * @var array The rules to be applied to the data.
+     * @var array rules to be applied to the data.
      *
      * public $rules = [];
      */
 
     /**
-     * @var array The array of custom attribute names.
+     * @var array attributeNames of custom attributes
      *
      * public $attributeNames = [];
      */
 
     /**
-     * @var array The array of custom error messages.
+     * @var array customMessages of custom error messages
      *
      * public $customMessages = [];
      */
 
     /**
-     * @var bool Makes the validation procedure throw an {@link October\Rain\Database\ModelException}
-     * instead of returning false when validation fails.
+     * @var bool throwOnValidation makes the validation procedure throw an {@link October\Rain\Database\ModelException}
+     * instead of returning false when validation fails
      *
      * public $throwOnValidation = true;
      */
 
     /**
-     * @var \Illuminate\Support\MessageBag The message bag instance containing validation error messages
+     * @var \Illuminate\Support\MessageBag validationErrors message bag
      */
     protected $validationErrors;
 
     /**
-     * The validator instance.
-     *
-     * @var \Illuminate\Validation\Validator
+     * @var \Illuminate\Validation\Validator validator instance
      */
     protected static $validator;
 
     /**
-     * Boot the validation trait for this model.
-     *
-     * @return void
+     * bootValidation trait for this model.
      */
     public static function bootValidation()
     {
@@ -58,11 +54,9 @@ trait Validation
 
         static::extend(function ($model) {
             $model->bindEvent('model.saveInternal', function ($data, $options) use ($model) {
-                /*
-                 * If forcing the save event, the beforeValidate/afterValidate
-                 * events should still fire for consistency. So validate an
-                 * empty set of rules and messages.
-                 */
+                // If forcing the save event, the beforeValidate/afterValidate
+                // events should still fire for consistency. So validate an
+                // empty set of rules and messages.
                 $force = array_get($options, 'force', false);
                 if ($force) {
                     $valid = $model->validate([], []);
@@ -79,7 +73,7 @@ trait Validation
     }
 
     /**
-     * Returns the model data used for validation.
+     * getValidationAttributes returns the model data used for validation.
      * @return array
      */
     protected function getValidationAttributes()
@@ -88,7 +82,7 @@ trait Validation
     }
 
     /**
-     * Instantiates the validator used by the validation process, depending if the class is being used inside or
+     * makeValidator instantiates the validator used by the validation process, depending if the class is being used inside or
      * outside of Laravel.
      * @return \Illuminate\Validation\Validator
      */
@@ -98,7 +92,7 @@ trait Validation
     }
 
     /**
-     * Force save the model even if validation fails.
+     * forceSave the model even if validation fails.
      * @return bool
      */
     public function forceSave($options = null)
@@ -107,7 +101,7 @@ trait Validation
     }
 
     /**
-     * Validate the model instance
+     * validate the model instance
      * @return bool
      */
     public function validate($rules = null, $customMessages = null, $attributeNames = null)
@@ -132,9 +126,7 @@ trait Validation
             $this->beforeValidate();
         }
 
-        /*
-         * Perform validation
-         */
+        // Perform validation
         $rules = is_null($rules) ? $this->rules : $rules;
         $rules = $this->processValidationRules($rules);
         $success = true;
@@ -144,9 +136,7 @@ trait Validation
 
             $lang = static::getModelValidator()->getTranslator();
 
-            /*
-             * Custom messages, translate internal references
-             */
+            // Custom messages, translate internal references
             if (property_exists($this, 'customMessages') && is_null($customMessages)) {
                 $customMessages = $this->customMessages;
             }
@@ -162,9 +152,7 @@ trait Validation
 
             $customMessages = $translatedCustomMessages;
 
-            /*
-             * Attribute names, translate internal references
-             */
+            // Attribute names, translate internal references
             if (is_null($attributeNames)) {
                 $attributeNames = [];
             }
@@ -180,17 +168,13 @@ trait Validation
 
             $attributeNames = $translatedAttributeNames;
 
-            /*
-             * Translate any externally defined attribute names
-             */
+            // Translate any externally defined attribute names
             $translations = $lang->get('validation.attributes');
             if (is_array($translations)) {
                 $attributeNames = array_merge($translations, $attributeNames);
             }
 
-            /*
-             * Hand over to the validator
-             */
+            // Hand over to the validator
             $validator = static::makeValidator($data, $rules, $customMessages, $attributeNames);
 
             $success = $validator->passes();
@@ -203,9 +187,7 @@ trait Validation
             else {
                 $this->validationErrors = $validator->messages();
 
-                /*
-                 * Flash input, if available
-                 */
+                // Flash input, if available
                 if (
                     ($input = Input::getFacadeRoot()) &&
                     method_exists($input, 'hasSession') &&
@@ -231,38 +213,28 @@ trait Validation
     }
 
     /**
-     * Process rules
+     * processValidationRules
      */
     protected function processValidationRules($rules)
     {
-        /*
-         * Run through field names and convert array notation field names to dot notation
-         */
+        // Run through field names and convert array notation field names to dot notation
         $rules = $this->processRuleFieldNames($rules);
 
         foreach ($rules as $field => $ruleParts) {
-            /*
-             * Trim empty rules
-             */
+            // Trim empty rules
             if (is_string($ruleParts) && trim($ruleParts) === '') {
                 unset($rules[$field]);
                 continue;
             }
 
-            /*
-             * Normalize rulesets
-             */
+            // Normalize rulesets
             if (!is_array($ruleParts)) {
                 $ruleParts = explode('|', $ruleParts);
             }
 
-            /*
-             * Analyse each rule individually
-             */
+            // Analyse each rule individually
             foreach ($ruleParts as $key => $rulePart) {
-                /*
-                 * Look for required:create and required:update rules
-                 */
+                // Look for required:create and required:update rules
                 if (starts_with($rulePart, 'required:create') && $this->exists) {
                     unset($ruleParts[$key]);
                 }
@@ -278,11 +250,9 @@ trait Validation
     }
 
     /**
-     * Processes field names in a rule array.
-     *
-     * Converts any field names using array notation (ie. `field[child]`) into dot notation (ie. `field.child`)
-     *
-     * @param array $rules Rules array
+     * processRuleFieldNames converts any field names using array notation
+     * (ie. `field[child]`) into dot notation (ie. `field.child`)
+     * @param array $rules
      * @return array
      */
     protected function processRuleFieldNames($rules)
@@ -304,9 +274,9 @@ trait Validation
     }
 
     /**
-     * Determines if an attribute is required based on the validation rules.
+     * isAttributeRequired determines if an attribute is required based on the validation rules.
      * @param  string  $attribute
-     * @return boolean
+     * @return bool
      */
     public function isAttributeRequired($attribute)
     {
@@ -338,7 +308,7 @@ trait Validation
     }
 
     /**
-     * Get validation error message collection for the Model
+     * errors gets validation error message collection for the Model
      * @return \Illuminate\Support\MessageBag
      */
     public function errors()
@@ -347,7 +317,7 @@ trait Validation
     }
 
     /**
-     * Create a new native event for handling beforeValidate().
+     * validating creates a new native event for handling beforeValidate().
      * @param Closure|string $callback
      * @return void
      */
@@ -357,7 +327,7 @@ trait Validation
     }
 
     /**
-     * Create a new native event for handling afterValidate().
+     * validated creates a new native event for handling afterValidate().
      * @param Closure|string $callback
      * @return void
      */
@@ -367,8 +337,7 @@ trait Validation
     }
 
     /**
-     * Get the validator instance.
-     *
+     * getModelValidator instance.
      * @return \Illuminate\Validation\Validator
      */
     public static function getModelValidator()
@@ -381,8 +350,7 @@ trait Validation
     }
 
     /**
-     * Set the validator instance.
-     *
+     * setModelValidator instance.
      * @param  \Illuminate\Validation\Validator
      * @return void
      */
@@ -392,8 +360,7 @@ trait Validation
     }
 
     /**
-     * Unset the validator for models.
-     *
+     * unsetModelValidator for models.
      * @return void
      */
     public static function unsetModelValidator()
