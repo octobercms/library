@@ -59,7 +59,7 @@ class ValidationException extends Exception
         $this->fields = [];
 
         foreach ($this->errors->getMessages() as $field => $messages) {
-            $fieldName = implode('][', array_merge($this->fieldPrefix, [$field]));
+            $fieldName = implode('.', array_merge($this->fieldPrefix, [$field]));
             $this->fields[$fieldName] = $messages;
         }
 
@@ -88,7 +88,7 @@ class ValidationException extends Exception
      */
     public function setFieldPrefix(array $prefix)
     {
-        $this->fieldPrefix = array_filter($prefix);
+        $this->fieldPrefix = array_filter($prefix, 'strlen');
 
         $this->evalErrors();
     }
