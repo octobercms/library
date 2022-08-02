@@ -173,7 +173,7 @@ interface OctoberPackage
     /**
      * registerSchedule registers scheduled tasks that are executed on a regular basis.
      *
-     * @param Schedule $schedule
+     * @param \Illuminate\Console\Scheduling\Schedule $schedule
      * @return void
      */
     public function registerSchedule($schedule);
