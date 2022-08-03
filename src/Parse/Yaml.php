@@ -67,13 +67,15 @@ class Yaml
 
     /**
      * render a PHP array to YAML format.
-     * @param array $vars
-     * @param array $options
      *
      * Supported options:
      * - inline: The level where you switch to inline YAML.
      * - exceptionOnInvalidType: if an exception must be thrown on invalid types.
      * - objectSupport: if object support is enabled.
+     *
+     * @param array $vars
+     * @param array $options
+     * @return string
      */
     public function render($vars = [], $options = [])
     {

@@ -118,6 +118,7 @@ ESC;
         $content = <<<ESC
 title = "Test page"
 ==
+function onStart() { }
 
 <p>Hello world!</p>
 ESC;

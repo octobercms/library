@@ -1,11 +1,11 @@
 <?php namespace October\Rain\Parse;
 
+use Exception;
+
 /**
- * Initialization (INI) configuration parser that uses "October flavoured INI",
- * with the following improvements:
- *
- * - Parsing supports infinite array nesting
- * - Ability to render INI from a PHP array
+ * Ini (Initialization) configuration parser that uses "October-flavoured INI",
+ * with parsing that supports infinite array nesting and the ability to render
+ * INI syntax from a PHP array.
  *
  * @package october\parse
  * @author Alexey Bobkov, Samuel Georges
@@ -13,7 +13,7 @@
 class Ini
 {
     /**
-     * Parses supplied INI contents in to a PHP array.
+     * parse supplied INI contents in to a PHP array.
      * @param string $contents INI contents to parse.
      * @return array
      */
@@ -26,7 +26,7 @@ class Ini
     }
 
     /**
-     * Parses supplied INI file contents in to a PHP array.
+     * parseFile supplied INI file contents in to a PHP array.
      * @param string $fileName File to read contents and parse.
      * @return array
      */
@@ -37,7 +37,60 @@ class Ini
     }
 
     /**
-     * This method converts key names traditionally invalid, "][", and
+     * render formats an INI formatted string from an array of data variables
+     *
+     * Supported options:
+     * - exceptionOnInvalidKey: if an exception must be thrown on invalid key names.
+     *
+     * @param array $vars
+     * @param array $options
+     * @return string
+     */
+    public function render($vars = [], $options = [])
+    {
+        extract(array_merge([
+            'exceptionOnInvalidKey' => false,
+        ], $options));
+
+        $content = '';
+        $sections = [];
+
+        foreach ($vars as $key => $value) {
+            if ($this->validateKeyName($key) !== true) {
+                if ($exceptionOnInvalidKey) {
+                    throw new Exception("Key name [$key] is invalid for INI syntax");
+                }
+                continue;
+            }
+
+            if (is_array($value)) {
+                if ($this->isFinalArray($value)) {
+                    foreach ($value as $_value) {
+                        $content .= $key.'[] = '.$this->evalValue($_value).PHP_EOL;
+                    }
+                }
+                else {
+                    $sections[$key] = $this->renderProperties($value);
+                }
+            }
+            elseif (strlen($value)) {
+                $content .= $key.' = '.$this->evalValue($value).PHP_EOL;
+            }
+        }
+
+        foreach ($sections as $key => $section) {
+            $content .= PHP_EOL.'['.$key.']'.PHP_EOL.$section;
+        }
+
+        return trim($content);
+    }
+
+    //
+    // Parse
+    //
+
+    /**
+     * parsePreProcess converts key names traditionally invalid, "][", and
      * replaces them with a valid character "|" so parse_ini_string
      * can function correctly. It also forces arrays to have unique
      * indexes so their integrity is maintained.
@@ -46,7 +99,8 @@ class Ini
      */
     protected function parsePreProcess($contents)
     {
-        $contents = preg_replace('~\R~u', PHP_EOL, $contents); // Normalize EOL
+        // Normalize EOL
+        $contents = preg_replace('~\R~u', PHP_EOL, $contents);
         $contents = explode(PHP_EOL, $contents);
         $count = 0;
         $lastName = null;
@@ -84,7 +138,7 @@ class Ini
     }
 
     /**
-     * This method takes the valid key name from pre processing and
+     * parsePostProcess takes the valid key name from pre processing and
      * converts it back to a real PHP array. Eg:
      * - name[validation|regex|message]
      * Converts to:
@@ -108,14 +162,14 @@ class Ini
     }
 
     /**
-     * Expands a single array property from traditional INI syntax.
+     * expandProperty expands a single array property from traditional INI syntax.
      * If no key is given to the method, the entire array will be replaced.
      * @param  array   $array
      * @param  string  $key
      * @param  mixed   $value
      * @return array
      */
-    public function expandProperty(&$array, $key, $value)
+    protected function expandProperty(&$array, $key, $value)
     {
         if (is_null($key)) {
             return $array = $value;
@@ -138,42 +192,12 @@ class Ini
         return $array;
     }
 
-    /**
-     * Formats an INI file string from an array
-     * @param array $vars Data to format.
-     * @param int $level Specifies the level of array value.
-     * @return string Returns the INI file string.
-     */
-    public function render($vars = [], $level = 1)
-    {
-        $content = '';
-        $sections = [];
-
-        foreach ($vars as $key => $value) {
-            if (is_array($value)) {
-                if ($this->isFinalArray($value)) {
-                    foreach ($value as $_value) {
-                        $content .= $key.'[] = '.$this->evalValue($_value).PHP_EOL;
-                    }
-                }
-                else {
-                    $sections[$key] = $this->renderProperties($value);
-                }
-            }
-            elseif (strlen($value)) {
-                $content .= $key.' = '.$this->evalValue($value).PHP_EOL;
-            }
-        }
-
-        foreach ($sections as $key => $section) {
-            $content .= PHP_EOL.'['.$key.']'.PHP_EOL.$section;
-        }
-
-        return trim($content);
-    }
+    //
+    // Render
+    //
 
     /**
-     * Renders section properties.
+     * renderProperties renders section properties.
      * @param array $vars
      * @return string
      */
@@ -211,7 +235,7 @@ class Ini
     }
 
     /**
-     * Flatten a multi-dimensional associative array for traditional INI syntax.
+     * flattenProperties flattens a multi-dimensional associative array for traditional INI syntax.
      * @param  array   $array
      * @param  string  $prepend
      * @return array
@@ -238,7 +262,7 @@ class Ini
     }
 
     /**
-     * Converts a PHP value to make it suitable for INI format.
+     * evalValue converts a PHP value to make it suitable for INI format.
      * Strings are escaped.
      * @param string $value Specifies the value to process
      * @return string Returns the processed value
@@ -258,7 +282,7 @@ class Ini
     }
 
     /**
-     * Checks if the array is the final node in a multidimensional array.
+     * isFinalArray checks if the array is the final node in a multidimensional array.
      * Checked supplied array is not associative and contains no array values.
      * @param array $array
      * @return bool
@@ -268,5 +292,20 @@ class Ini
         return !empty($array) &&
             !count(array_filter($array, 'is_array')) &&
             !count(array_filter(array_keys($array), 'is_string'));
+    }
+
+    /**
+     * validateKeyName returns false if an invalid key name is found
+     */
+    protected function validateKeyName($keyName): bool
+    {
+        $invalidChars = '?{}|&~!()^"#;=';
+        foreach (str_split($invalidChars) as $char) {
+            if (strpos($keyName, $char) !== false) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

@@ -41,6 +41,19 @@ class IniTest extends TestCase
         $this->assertEquals($content, $result);
     }
 
+    public function testInvalid()
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Key name [ti=tle] is invalid for INI syntax');
+
+        $vars = [
+            'ti=tle' => 'Plugin components',
+        ];
+
+        $parser = new IniParser;
+        $parser->render($vars, ['exceptionOnInvalidKey' => true]);
+    }
+
     public function testArray()
     {
         $path = __DIR__.'/../fixtures/parse/array.ini';

@@ -49,9 +49,8 @@ class SectionParser
         $settings = $data['settings'] ?? [];
         $trim($settings);
 
-        /*
-         * Build content
-         */
+        // Build content
+        //
         $content = [];
 
         if ($settings) {
@@ -72,8 +71,8 @@ class SectionParser
             }
         }
 
-        $markupSections = self::splitContentSections($markup);
-        $content[] = $markupSections[array_key_last($markupSections)];
+        // Strip content separator from content as a method of escape
+        $content[] = implode('', self::splitContentSections($markup));
 
         $content = trim(implode(PHP_EOL.self::SECTION_SEPARATOR.PHP_EOL, $content));
 
@@ -229,33 +228,27 @@ class SectionParser
      */
     protected static function adjustLinePosition($content, $startLine = -1)
     {
-        // Account for the separator itself.
+        // Account for the separator itself
         $startLine++;
 
         $lines = array_slice(explode(PHP_EOL, $content), $startLine);
         foreach ($lines as $line) {
             $line = trim($line);
 
-            /*
-             * Empty line
-             */
+            // Empty line
             if ($line === '') {
                 $startLine++;
                 continue;
             }
 
-            /*
-             * PHP line
-             */
+            // PHP line
             if ($line === '<?php' || $line === '<?') {
                 $startLine++;
                 continue;
             }
 
-            /*
-             * PHP namespaced line (use x;) {
-             * Don't increase the line count, it will be rewritten by Cms\Classes\CodeParser
-             */
+            // PHP namespaced line (use x;) {
+            // Don't increase the line count, it will be rewritten by Cms\Classes\CodeParser
             if (preg_match_all('/(use\s+[a-z0-9_\\\\]+;\n?)/mi', $line) === 1) {
                 continue;
             }
@@ -263,7 +256,7 @@ class SectionParser
             break;
         }
 
-        // Line 0 does not exist.
+        // Line 0 does not exist
         return ++$startLine;
     }
 }

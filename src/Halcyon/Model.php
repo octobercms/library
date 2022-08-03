@@ -225,9 +225,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
             }
         }
 
-        /*
-         * Hook to boot events
-         */
+        // Hook to boot events
+        //
         static::registerModelEvent('booted', function ($model) {
             $model->fireEvent('model.afterBoot');
             if ($model->methodExists('afterBoot')) {
