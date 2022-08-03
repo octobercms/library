@@ -107,9 +107,8 @@ class FileDatasource extends Datasource implements DatasourceInterface
                 continue;
             }
 
-            /*
-             * Filter by extension
-             */
+            // Filter by extension
+            //
             $fileExt = $it->getExtension();
             if ($extensions !== null && !in_array($fileExt, $extensions)) {
                 $it->next();
@@ -122,9 +121,8 @@ class FileDatasource extends Datasource implements DatasourceInterface
                 $fileName = $baseName . '/' . $fileName;
             }
 
-            /*
-             * Filter by file name match
-             */
+            // Filter by file name match
+            //
             if ($fileMatch !== null && !fnmatch($fileMatch, $fileName)) {
                 $it->next();
                 continue;
@@ -250,9 +248,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
         $path = $this->makeFilePath($dirName, $fileName, $extension);
         $dirPath = $this->basePath . '/' . $dirName;
 
-        /*
-         * Create base directory
-         */
+        // Create base directory
         if (
             (!$this->files->exists($dirPath) || !$this->files->isDirectory($dirPath)) &&
             !$this->files->makeDirectory($dirPath, 0755, true, true)
@@ -260,9 +256,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
             throw (new CreateDirectoryException)->setInvalidPath($dirPath);
         }
 
-        /*
-         * Create base file directory
-         */
+        // Create base file directory
         if (($pos = strpos($fileName, '/')) !== false) {
             $fileDirPath = dirname($path);
 
