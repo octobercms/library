@@ -5,4 +5,4 @@
  *
  * @see \System\Classes\SiteManager
  */
-class Site extends System\Facades\Site {}
+class Site extends October\Rain\Support\Facades\Site {}
