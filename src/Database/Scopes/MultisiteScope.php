@@ -24,7 +24,7 @@ class MultisiteScope implements ScopeInterface
     public function apply(BuilderBase $builder, ModelBase $model)
     {
         if ($model->isMultisiteEnabled()) {
-            $builder->where('site_id', Site::getSiteIdFromContext());
+            $builder->where($model->getQualifiedSiteIdColumn(), Site::getSiteIdFromContext());
         }
     }
 

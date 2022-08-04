@@ -147,6 +147,6 @@ trait Sortable
      */
     public function getQualifiedSortOrderColumn()
     {
-        return $this->getTable().'.'.$this->getSortOrderColumn();
+        return $this->qualifyColumn($this->getSortOrderColumn());
     }
 }

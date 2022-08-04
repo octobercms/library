@@ -31,6 +31,15 @@ trait Multisite
     }
 
     /**
+     * isMultisiteEnabled allows for programmatic toggling
+     * @return bool
+     */
+    public function isMultisiteEnabled()
+    {
+        return true;
+    }
+
+    /**
      * newSiteQuery
      */
     public function newSiteQuery($siteId)
@@ -60,5 +69,23 @@ trait Multisite
         }
 
         return $otherModel;
+    }
+
+    /**
+     * getSiteIdColumn gets the name of the "site id" column.
+     * @return string
+     */
+    public function getSiteIdColumn()
+    {
+        return defined('static::SITE_ID') ? static::SITE_ID : 'site_id';
+    }
+
+    /**
+     * getQualifiedSiteIdColumn gets the fully qualified "site id" column.
+     * @return string
+     */
+    public function getQualifiedSiteIdColumn()
+    {
+        return $this->qualifyColumn($this->getSiteIdColumn());
     }
 }
