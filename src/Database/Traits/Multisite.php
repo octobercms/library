@@ -26,7 +26,7 @@ trait Multisite
     public function initializeMultisite()
     {
         $this->bindEvent('model.beforeSave', function() {
-            $this->site_id = Site::getSiteIdFromContext();
+            $this->{$this->getSiteIdColumn()} = Site::getSiteIdFromContext();
         });
     }
 
@@ -44,12 +44,12 @@ trait Multisite
      */
     public function newSiteQuery($siteId)
     {
-        return $this->newQuery()->withSites()
+        return $this->newQueryWithoutScopes()
             ->where(function($q) {
                 $q->where('id', $this->site_root_id ?: $this->id);
                 $q->orWhere('site_root_id', $this->site_root_id ?: $this->id);
             })
-            ->where('site_id', $siteId)
+            ->where($this->getSiteIdColumn(), $siteId)
         ;
     }
 
@@ -63,7 +63,7 @@ trait Multisite
         // Replicate
         if (!$otherModel) {
             $otherModel = $this->replicate();
-            $otherModel->site_id = $siteId;
+            $otherModel->{$this->getSiteIdColumn()} = $siteId;
             $otherModel->site_root_id = $this->site_root_id ?: $this->id;
             $otherModel->save();
         }
