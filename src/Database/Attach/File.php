@@ -662,6 +662,9 @@ class File extends Model
 
         // Clean up
         FileHelper::delete($tempThumb);
+
+        // Eagerly cache remote exists call
+        Cache::forever($this->getCacheKey($thumbPath), true);
     }
 
     /**
@@ -821,11 +824,6 @@ class File extends Model
         $result = Cache::rememberForever($this->getCacheKey($filePath), function() use ($filePath) {
             return $this->storageCmd('exists', $filePath);
         });
-
-        // Forget negative results
-        if (!$result) {
-            Cache::forget($this->getCacheKey($filePath));
-        }
 
         return $result;
     }
