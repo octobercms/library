@@ -658,13 +658,15 @@ class File extends Model
         }
 
         // Publish to storage
-        $this->copyLocalToStorage($tempThumb, $thumbPath);
+        $success = $this->copyLocalToStorage($tempThumb, $thumbPath);
 
         // Clean up
         FileHelper::delete($tempThumb);
 
         // Eagerly cache remote exists call
-        Cache::forever($this->getCacheKey($thumbPath), true);
+        if ($success) {
+            Cache::forever($this->getCacheKey($thumbPath), true);
+        }
     }
 
     /**
