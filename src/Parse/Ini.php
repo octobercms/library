@@ -1,5 +1,7 @@
 <?php namespace October\Rain\Parse;
 
+use Exception;
+
 /**
  * Initialization (INI) configuration parser that uses "October flavoured INI",
  * with the following improvements:
@@ -144,12 +146,23 @@ class Ini
      * @param int $level Specifies the level of array value.
      * @return string Returns the INI file string.
      */
-    public function render($vars = [], $level = 1)
+    public function render($vars = [], $options = [])
     {
+        extract(array_merge([
+            'exceptionOnInvalidKey' => false,
+        ], $options));
+
         $content = '';
         $sections = [];
 
         foreach ($vars as $key => $value) {
+            if ($this->validateKeyName($key) !== true) {
+                if ($exceptionOnInvalidKey) {
+                    throw new Exception("Key name [$key] is invalid for INI syntax");
+                }
+                continue;
+            }
+
             if (is_array($value)) {
                 if ($this->isFinalArray($value)) {
                     foreach ($value as $_value) {
@@ -268,5 +281,20 @@ class Ini
         return !empty($array) &&
             !count(array_filter($array, 'is_array')) &&
             !count(array_filter(array_keys($array), 'is_string'));
+    }
+
+    /**
+     * validateKeyName returns false if an invalid key name is found
+     */
+    protected function validateKeyName($keyName): bool
+    {
+        $invalidChars = '?{}|&~!()^"#;=';
+        foreach (str_split($invalidChars) as $char) {
+            if (strpos($keyName, $char) !== false) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
