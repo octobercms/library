@@ -644,9 +644,7 @@ class File extends Model
         $tempFile = $this->getLocalTempPath();
         $tempThumb = $this->getLocalTempPath($thumbFile);
 
-        /*
-         * Generate thumbnail
-         */
+        // Generate thumbnail
         $this->copyStorageToLocal($this->getDiskPath(), $tempFile);
 
         try {
@@ -659,12 +657,16 @@ class File extends Model
             FileHelper::delete($tempFile);
         }
 
-        /*
-         * Publish to storage and clean up
-         */
-        $this->copyLocalToStorage($tempThumb, $thumbPath);
+        // Publish to storage
+        $success = $this->copyLocalToStorage($tempThumb, $thumbPath);
 
+        // Clean up
         FileHelper::delete($tempThumb);
+
+        // Eagerly cache remote exists call
+        if ($success) {
+            Cache::forever($this->getCacheKey($thumbPath), true);
+        }
     }
 
     /**
@@ -683,9 +685,7 @@ class File extends Model
             }
         }
 
-        /*
-         * Delete the collection of files
-         */
+        // Delete the collection of files
         if (!empty($collection)) {
             if ($this->isLocalStorage()) {
                 FileHelper::delete($collection);
@@ -748,17 +748,13 @@ class File extends Model
             return $this->copyLocalToStorage($sourcePath, $destinationPath . $destinationFileName);
         }
 
-        /*
-         * Using local storage, tack on the root path and work locally
-         * this will ensure the correct permissions are used.
-         */
+        // Using local storage, tack on the root path and work locally
+        // this will ensure the correct permissions are used.
         $destinationPath = $this->getLocalRootPath() . '/' . $destinationPath;
 
-        /*
-         * Verify the directory exists, if not try to create it. If creation fails
-         * because the directory was created by a concurrent process then proceed,
-         * otherwise trigger the error.
-         */
+        // Verify the directory exists, if not try to create it. If creation fails
+        // because the directory was created by a concurrent process then proceed,
+        // otherwise trigger the error.
         if (
             !FileHelper::isDirectory($destinationPath) &&
             !FileHelper::makeDirectory($destinationPath, 0755, true, true) &&
@@ -827,14 +823,9 @@ class File extends Model
         }
 
         // Cache remote storage results for performance increase
-        $result = Cache::rememberForever($this->getCacheKey($filePath), function () use ($filePath) {
+        $result = Cache::rememberForever($this->getCacheKey($filePath), function() use ($filePath) {
             return $this->storageCmd('exists', $filePath);
         });
-
-        // Forget negative results
-        if (!$result) {
-            Cache::forget($this->getCacheKey($filePath));
-        }
 
         return $result;
     }
