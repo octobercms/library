@@ -78,7 +78,7 @@ class Markdown
      */
     public function parseIndent($text): string
     {
-        $this->getParser()->setUnmarkedBlockTypes([]);
+        $this->getParser()->setIndentMode(false);
 
         $result = $this->parse($text);
 

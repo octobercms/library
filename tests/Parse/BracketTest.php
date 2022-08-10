@@ -4,7 +4,6 @@ use October\Rain\Parse\Bracket as TextParser;
 
 class BracketTest extends TestCase
 {
-
     public function testParseCombination()
     {
         $content = '{welcome}';
