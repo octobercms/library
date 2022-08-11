@@ -261,7 +261,7 @@ class Application extends ApplicationBase
     {
         return $this['execution.context'] === 'backend';
     }
-    
+
     /**
      * runningInFrontend determines if we are running in the frontend area.
      * @return bool
@@ -438,5 +438,15 @@ class Application extends ApplicationBase
     public function getCachedClassesPath()
     {
         return $this->normalizeCachePath('APP_CLASSES_CACHE', 'framework/classes.php');
+    }
+
+    /**
+     * getNamespace returns the application namespace.
+     * @return string
+     * @throws \RuntimeException
+     */
+    public function getNamespace()
+    {
+        return 'App\\';
     }
 }
