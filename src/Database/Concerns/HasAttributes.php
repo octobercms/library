@@ -19,18 +19,14 @@ trait HasAttributes
     {
         $attributes = $this->getArrayableAttributes();
 
-        /*
-         * Before Event
-         */
+        // Before Event
         foreach ($attributes as $key => $value) {
             if (($eventValue = $this->fireEvent('model.beforeGetAttribute', [$key], true)) !== null) {
                 $attributes[$key] = $eventValue;
             }
         }
 
-        /*
-         * Dates
-         */
+        // Dates
         foreach ($this->getDates() as $key) {
             if (!isset($attributes[$key])) {
                 continue;
@@ -41,9 +37,7 @@ trait HasAttributes
             );
         }
 
-        /*
-         * Mutate
-         */
+        // Mutate
         $mutatedAttributes = $this->getMutatedAttributes();
 
         foreach ($mutatedAttributes as $key) {
@@ -57,9 +51,7 @@ trait HasAttributes
             );
         }
 
-        /*
-         * Casts
-         */
+        // Casts
         foreach ($this->casts as $key => $value) {
             if (
                 !array_key_exists($key, $attributes) ||
@@ -74,16 +66,12 @@ trait HasAttributes
             );
         }
 
-        /*
-         * Appends
-         */
+        // Appends
         foreach ($this->getArrayableAppends() as $key) {
             $attributes[$key] = $this->mutateAttributeForArray($key, null);
         }
 
-        /*
-         * Jsonable
-         */
+        // Jsonable
         foreach ($this->jsonable as $key) {
             if (
                 !array_key_exists($key, $attributes) ||
@@ -103,9 +91,7 @@ trait HasAttributes
             }
         }
 
-        /*
-         * After Event
-         */
+        // After Event
         foreach ($attributes as $key => $value) {
             if (($eventValue = $this->fireEvent('model.getAttribute', [$key, $value], true)) !== null) {
                 $attributes[$key] = $eventValue;
@@ -161,10 +147,8 @@ trait HasAttributes
 
         $attr = parent::getAttributeValue($key);
 
-        /*
-         * Return valid json (boolean, array) if valid, otherwise
-         * jsonable fields will return a string for invalid data.
-         */
+        // Return valid json (boolean, array) if valid, otherwise
+        // jsonable fields will return a string for invalid data.
         if ($this->isJsonable($key) && !empty($attr)) {
             $_attr = json_decode($attr, true);
             if (json_last_error() === JSON_ERROR_NONE) {
@@ -210,16 +194,12 @@ trait HasAttributes
      */
     public function setAttribute($key, $value)
     {
-        /*
-         * Attempting to set attribute [null] on model.
-         */
+        // Attempting to set attribute [null] on model.
         if (empty($key)) {
             throw new Exception('Cannot access empty model attribute.');
         }
 
-        /*
-         * Handle direct relation setting
-         */
+        // Handle direct relation setting
         if ($this->hasRelation($key) && !$this->hasSetMutator($key)) {
             return $this->setRelationValue($key, $value);
         }
@@ -241,16 +221,12 @@ trait HasAttributes
             $value = $_value;
         }
 
-        /*
-         * Jsonable
-         */
+        // Jsonable
         if ($this->isJsonable($key) && (!empty($value) || is_array($value))) {
-            $value = json_encode($value);
+            $value = json_encode($value, JSON_UNESCAPED_UNICODE);
         }
 
-        /*
-         * Trim strings
-         */
+        // Trim strings
         if ($this->trimStrings && is_string($value)) {
             $value = trim($value);
         }
