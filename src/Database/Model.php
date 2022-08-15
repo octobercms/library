@@ -379,9 +379,7 @@ class Model extends EloquentModel
             return false;
         }
 
-        /*
-         * Validate attributes before trying to save
-         */
+        // Validate attributes before trying to save
         foreach ($this->attributes as $attribute => $value) {
             if (is_array($value)) {
                 throw new Exception(sprintf('Unexpected type of array when attempting to save attribute "%s", try adding it to the $jsonable property.', $attribute));
@@ -401,10 +399,8 @@ class Model extends EloquentModel
             return $result;
         }
 
-        /*
-         * If there is nothing to update, Eloquent will not fire afterSave(),
-         * events should still fire for consistency.
-         */
+        // If there is nothing to update, Eloquent will not fire afterSave(),
+        // events should still fire for consistency.
         if ($result === null) {
             $this->fireModelEvent('updated', false);
             $this->fireModelEvent('saved', false);
