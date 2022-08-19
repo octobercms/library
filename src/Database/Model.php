@@ -8,20 +8,19 @@ use DateTimeInterface;
 use Exception;
 
 /**
- * Active Record base class.
- *
- * Extends Eloquent with added extendability and deferred bindings.
+ * Model is an active record base class that extends Eloquent with added
+ * extendability and deferred bindings.
  *
  * @package october\database
  * @author Alexey Bobkov, Samuel Georges
  */
 class Model extends EloquentModel
 {
-    use Concerns\HasReplication;
-    use Concerns\HasAttributes;
-    use Concerns\HasRelationships;
-    use Concerns\HasJsonable;
     use Concerns\HasEvents;
+    use Concerns\HasJsonable;
+    use Concerns\HasAttributes;
+    use Concerns\HasReplication;
+    use Concerns\HasRelationships;
     use \October\Rain\Support\Traits\Emitter;
     use \October\Rain\Extension\ExtendableTrait;
     use \October\Rain\Database\Traits\DeferredBinding;
@@ -32,12 +31,12 @@ class Model extends EloquentModel
     public $implement;
 
     /**
-     * @var array Make the model's attributes public so behaviors can modify them.
+     * @var array attributes are public so behaviors can modify them.
      */
     public $attributes = [];
 
     /**
-     * @var array List of datetime attributes to convert to an instance of Carbon/DateTime objects.
+     * @var array dates are attributes to convert to an instance of Carbon/DateTime objects.
      */
     protected $dates = [];
 
@@ -152,7 +151,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Create a new model instance that is existing.
+     * newFromBuilder creates a new model instance that is existing.
      * @param  array  $attributes
      * @return \Illuminate\Database\Eloquent\Model|static
      */
@@ -178,8 +177,7 @@ class Model extends EloquentModel
     //
 
     /**
-     * Get a fresh timestamp for the model.
-     *
+     * freshTimestamp for the model.
      * @return \October\Rain\Argon\Argon
      */
     public function freshTimestamp()
@@ -188,7 +186,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Return a timestamp as DateTime object.
+     * asDateTime returns a timestamp as DateTime object.
      *
      * @param  mixed  $value
      * @return \Carbon\Carbon
@@ -221,8 +219,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Convert a DateTime to a storable string.
-     *
+     * fromDateTime convert a DateTime to a storable string.
      * @param  \DateTime|int  $value
      * @return string
      */
@@ -236,8 +233,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Create a new Eloquent query builder for the model.
-     *
+     * newEloquentBuilder for the model.
      * @param  \October\Rain\Database\QueryBuilder $query
      * @return \October\Rain\Database\Builder
      */
@@ -247,8 +243,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Get a new query builder instance for the connection.
-     *
+     * newBaseQueryBuilder instance for the connection.
      * @return \October\Rain\Database\QueryBuilder
      */
     protected function newBaseQueryBuilder()
@@ -263,9 +258,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Create a new Model Collection instance.
-     *
-     * @param  array  $models
+     * newCollection instance.
      * @return \October\Rain\Database\Collection
      */
     public function newCollection(array $models = [])
@@ -277,16 +270,25 @@ class Model extends EloquentModel
     // Magic
     //
 
+    /**
+     * __get
+     */
     public function __get($name)
     {
         return $this->extendableGet($name);
     }
 
+    /**
+     * __set
+     */
     public function __set($name, $value)
     {
         return $this->extendableSet($name, $value);
     }
 
+    /**
+     * __call
+     */
     public function __call($name, $params)
     {
         /*
@@ -301,8 +303,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Determine if an attribute or relation exists on the model.
-     *
+     * __isset determines if an attribute or relation exists on the model.
      * @param  string  $key
      * @return bool
      */
@@ -316,7 +317,7 @@ class Model extends EloquentModel
     //
 
     /**
-     * Create a generic pivot model instance.
+     * newPivot as a generic pivot model instance.
      * @param  \October\Rain\Database\Model  $parent
      * @param  array  $attributes
      * @param  string  $table
@@ -332,7 +333,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Create a pivot model instance specific to a relation.
+     * newRelationPivot instance specific to a relation.
      * @param  \October\Rain\Database\Model  $parent
      * @param  string  $relationName
      * @param  array   $attributes
@@ -415,7 +416,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Save the model to the database.
+     * save the model to the database.
      * @param array $options
      * @param null $sessionKey
      * @return bool
@@ -428,7 +429,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Save the model and all of its relationships.
+     * push saves the model and all of its relationships.
      * @param array $options
      * @param null $sessionKey
      * @return bool
@@ -467,7 +468,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Pushes the first level of relations even if the parent
+     * alwaysPush pushes the first level of relations even if the parent
      * model has no changes.
      * @param array $options
      * @param string $sessionKey
@@ -478,63 +479,13 @@ class Model extends EloquentModel
         return $this->push(['always' => true] + (array) $options, $sessionKey);
     }
 
-    //
-    // Deleting
-    //
-
     /**
-     * Perform the actual delete query on this model instance.
-     * @return void
+     * performDeleteOnModel performs the actual delete query on this model instance.
      */
     protected function performDeleteOnModel()
     {
         $this->performDeleteOnRelations();
 
         $this->setKeysForSaveQuery($this->newQueryWithoutScopes())->delete();
-    }
-
-    /**
-     * Locates relations with delete flag and cascades the delete event.
-     * @return void
-     */
-    protected function performDeleteOnRelations()
-    {
-        $definitions = $this->getRelationDefinitions();
-        foreach ($definitions as $type => $relations) {
-            /*
-             * Hard 'delete' definition
-             */
-            foreach ($relations as $name => $options) {
-                if (!Arr::get($options, 'delete', false)) {
-                    continue;
-                }
-
-                if (!$relation = $this->{$name}) {
-                    continue;
-                }
-
-                if ($relation instanceof EloquentModel) {
-                    $relation->forceDelete();
-                }
-                elseif ($relation instanceof CollectionBase) {
-                    $relation->each(function ($model) {
-                        $model->forceDelete();
-                    });
-                }
-            }
-
-            /*
-             * Belongs-To-Many should clean up after itself by default
-             */
-            if ($type === 'belongsToMany') {
-                foreach ($relations as $name => $options) {
-                    if (!Arr::get($options, 'detach', true)) {
-                        return;
-                    }
-
-                    $this->{$name}()->detach();
-                }
-            }
-        }
     }
 }
