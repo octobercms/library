@@ -99,6 +99,24 @@ class StylesheetMinifyTest extends TestCase
         $this->assertEquals($output, $mockAsset->getContent());
     }
 
+    public function testMinifyPreservationInVar()
+    {
+        $input  = ''.
+            'select:focus {
+                --ring-inset: var(--empty, /*!*/ /*!*/);
+                --ring-offset-width: 0px;
+                --ring-offset-color: #fff;
+                border-color: red;
+            }';
+        $output = 'select:focus{--ring-inset:var(--empty,/*!*/ /*!*/);--ring-offset-width:0px;--ring-offset-color:#fff;border-color:red}';
+
+        $mockAsset = new MockAsset($input);
+        $result    = new StylesheetMinify();
+        $result->filterDump($mockAsset);
+
+        $this->assertEquals($output, $mockAsset->getContent());
+    }
+
     public function testUnitPreservationInVar()
     {
         $input  = '--offset-width: 0px';
