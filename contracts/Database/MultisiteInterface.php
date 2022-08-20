@@ -11,5 +11,11 @@ interface MultisiteInterface
     /**
      * findOrCreateForSite
      */
-    public function findOrCreateForSite(string $siteId);
+    public function findOrCreateForSite(string $siteId = null);
+
+    /**
+     * isMultisiteEnabled
+     * @return bool
+     */
+    public function isMultisiteEnabled();
 }

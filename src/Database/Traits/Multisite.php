@@ -56,8 +56,16 @@ trait Multisite
     /**
      * findOrCreateForSite
      */
-    public function findOrCreateForSite($siteId)
+    public function findOrCreateForSite($siteId = null)
     {
+        if ($siteId === null) {
+            $siteId = Site::getSiteIdFromContext();
+        }
+
+        if ((int) $this->{$this->getSiteIdColumn()} === (int) $siteId) {
+            return $this;
+        }
+
         $otherModel = $this->newSiteQuery($siteId)->first();
 
         // Replicate
