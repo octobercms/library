@@ -4,7 +4,7 @@ use Site;
 use October\Rain\Database\Scopes\MultisiteScope;
 
 /**
- * Multisite trait allows for site-based of models, the database
+ * Multisite trait allows for site-based models, the database
  * table should contain site_id and site_root_id keys
  *
  * @package october\database
@@ -12,6 +12,12 @@ use October\Rain\Database\Scopes\MultisiteScope;
  */
 trait Multisite
 {
+    /**
+     * @var array propagatable list of attributes to propagate to other sites.
+     *
+     * protected $propagatable = [];
+     */
+
     /**
      * bootMultisite trait for a model.
      */
@@ -54,29 +60,73 @@ trait Multisite
     }
 
     /**
+     * propagateToSite will save propagated fields to other records
+     */
+    public function propagateToSite($siteId)
+    {
+        if ($this->isModelUsingSameSite($siteId)) {
+            return;
+        }
+
+        $otherModel = $this->findOtherSiteModel($siteId);
+
+        // Other model already exists, so propagate
+        if ($otherModel->exists) {
+            foreach ($this->propagatable as $field) {
+                $otherModel->$field = $this->$field;
+            }
+        }
+
+        $otherModel->save();
+
+        return $otherModel;
+    }
+
+    /**
      * findOrCreateForSite
      */
     public function findOrCreateForSite($siteId = null)
+    {
+        $otherModel = $this->findOtherSiteModel($siteId);
+
+        if (!$otherModel->exists) {
+            $otherModel->save();
+        }
+
+        return $otherModel;
+    }
+
+    /**
+     * findOtherModel
+     */
+    protected function findOtherSiteModel($siteId = null)
     {
         if ($siteId === null) {
             $siteId = Site::getSiteIdFromContext();
         }
 
-        if ((int) $this->{$this->getSiteIdColumn()} === (int) $siteId) {
+        if ($this->isModelUsingSameSite($siteId)) {
             return $this;
         }
 
         $otherModel = $this->newSiteQuery($siteId)->first();
 
-        // Replicate
+        // Replicate without save
         if (!$otherModel) {
             $otherModel = $this->replicate();
             $otherModel->{$this->getSiteIdColumn()} = $siteId;
             $otherModel->site_root_id = $this->site_root_id ?: $this->id;
-            $otherModel->save();
         }
 
         return $otherModel;
+    }
+
+    /**
+     * isModelUsingSameSite
+     */
+    protected function isModelUsingSameSite($siteId = null)
+    {
+        return (int) $this->{$this->getSiteIdColumn()} === (int) $siteId;
     }
 
     /**
