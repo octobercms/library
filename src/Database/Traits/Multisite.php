@@ -34,6 +34,12 @@ trait Multisite
         $this->bindEvent('model.beforeSave', function() {
             $this->{$this->getSiteIdColumn()} = Site::getSiteIdFromContext();
         });
+
+        $this->bindEvent('model.afterSave', function() {
+            if ($this->getSaveOption('propagate') === true) {
+                $this->afterSavePropagate();
+            }
+        });
     }
 
     /**
@@ -43,6 +49,18 @@ trait Multisite
     public function isMultisiteEnabled()
     {
         return true;
+    }
+
+    /**
+     * afterSavePropagate event
+     */
+    public function afterSavePropagate()
+    {
+        if (!$this->isMultisiteEnabled()) {
+            return;
+        }
+
+        // ...
     }
 
     /**

@@ -41,6 +41,11 @@ class Model extends EloquentModel
     protected $dates = [];
 
     /**
+     * @var array savingOptions used by the {@link save()} method.
+     */
+    protected $savingOptions = [];
+
+    /**
      * @var bool trimStrings will trim all string attributes of whitespace
      */
     public $trimStrings = true;
@@ -364,6 +369,9 @@ class Model extends EloquentModel
      */
     protected function saveInternal($options = [])
     {
+        $this->savingOptions = $options;
+        $this->sessionKey = $options['sessionKey'] ?? null;
+
         /**
          * @event model.saveInternal
          * Called before the model is saved
@@ -416,6 +424,15 @@ class Model extends EloquentModel
     }
 
     /**
+     * getSaveOption returns an option used while saving the model.
+     * @return mixed
+     */
+    public function getSaveOption($key)
+    {
+        return $this->savingOptions[$key] ?? null;
+    }
+
+    /**
      * save the model to the database.
      * @param array $options
      * @param null $sessionKey
@@ -423,9 +440,7 @@ class Model extends EloquentModel
      */
     public function save(array $options = null, $sessionKey = null)
     {
-        $this->sessionKey = $sessionKey;
-
-        return $this->saveInternal((array) $options);
+        return $this->saveInternal((array) $options + ['sessionKey' => $sessionKey]);
     }
 
     /**
