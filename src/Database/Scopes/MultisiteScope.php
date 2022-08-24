@@ -55,6 +55,15 @@ class MultisiteScope implements ScopeInterface
     }
 
     /**
+     * hasConstraints returns true if site constraints are currently applied
+     * @return bool
+     */
+    public static function hasConstraints()
+    {
+        return static::$constraints;
+    }
+
+    /**
      * noConstraints runs a callback with this scope constraint disabled.
      * @return mixed
      */

@@ -2,6 +2,7 @@
 
 use Site;
 use October\Rain\Database\Scopes\MultisiteScope;
+use Exception;
 
 /**
  * Multisite trait allows for site-based models, the database
@@ -19,6 +20,12 @@ trait Multisite
      */
 
     /**
+     * @var bool propagatableSync will enforce model structures between all sites
+     *
+     * protected $propagatableSync = true;
+     */
+
+    /**
      * bootMultisite trait for a model.
      */
     public static function bootMultisite()
@@ -31,13 +38,24 @@ trait Multisite
      */
     public function initializeMultisite()
     {
+        if (!is_array($this->propagatable)) {
+            throw new Exception(sprintf(
+                'The $propagatable property in %s must be an array to use the Multisite trait.',
+                get_class($this)
+            ));
+        }
+
         $this->bindEvent('model.beforeSave', function() {
-            $this->{$this->getSiteIdColumn()} = Site::getSiteIdFromContext();
+            if (MultisiteScope::hasConstraints()) {
+                $this->{$this->getSiteIdColumn()} = Site::getSiteIdFromContext();
+            }
         });
 
         $this->bindEvent('model.afterSave', function() {
             if ($this->getSaveOption('propagate') === true) {
-                $this->afterSavePropagate();
+                MultisiteScope::noConstraints(function() {
+                    $this->afterSavePropagate();
+                });
             }
         });
     }
@@ -52,6 +70,25 @@ trait Multisite
     }
 
     /**
+     * isMultisiteSyncEnabled
+     */
+    public function isMultisiteSyncEnabled()
+    {
+        return property_exists($this, 'propagatableSync')
+            ? (bool) $this->propagatableSync
+            : false;
+    }
+
+    /**
+     * getMultisiteSyncSites
+     * @return array
+     */
+    public function getMultisiteSyncSites()
+    {
+        return Site::listSiteIds();
+    }
+
+    /**
      * afterSavePropagate event
      */
     public function afterSavePropagate()
@@ -60,33 +97,49 @@ trait Multisite
             return;
         }
 
-        // ...
+        $otherModels = $this->newOtherSiteQuery()->get();
+        $otherSites = $otherModels->pluck('site_id')->all();
+
+        // Propagate attributes to known records
+        if ($this->propagatable) {
+            foreach ($otherModels as $model) {
+                $this->propagateToSite($model->site_id, $model);
+            }
+        }
+
+        // Sync non-existent records
+        if ($this->isMultisiteSyncEnabled()) {
+            $missingSites = array_diff($this->getMultisiteSyncSites(), $otherSites);
+            foreach ($missingSites as $missingSite) {
+                $this->propagateToSite($missingSite);
+            }
+        }
     }
 
     /**
-     * newSiteQuery
+     * newOtherSiteQuery
      */
-    public function newSiteQuery($siteId)
+    public function newOtherSiteQuery()
     {
         return $this->newQueryWithoutScopes()
             ->where(function($q) {
                 $q->where('id', $this->site_root_id ?: $this->id);
                 $q->orWhere('site_root_id', $this->site_root_id ?: $this->id);
-            })
-            ->where($this->getSiteIdColumn(), $siteId)
-        ;
+            });
     }
 
     /**
      * propagateToSite will save propagated fields to other records
      */
-    public function propagateToSite($siteId)
+    public function propagateToSite($siteId, $otherModel = null)
     {
         if ($this->isModelUsingSameSite($siteId)) {
             return;
         }
 
-        $otherModel = $this->findOtherSiteModel($siteId);
+        if ($otherModel === null) {
+            $otherModel = $this->findOtherSiteModel($siteId);
+        }
 
         // Other model already exists, so propagate
         if ($otherModel->exists) {
@@ -115,7 +168,7 @@ trait Multisite
     }
 
     /**
-     * findOtherModel
+     * findOtherSiteModel
      */
     protected function findOtherSiteModel($siteId = null)
     {
@@ -127,7 +180,10 @@ trait Multisite
             return $this;
         }
 
-        $otherModel = $this->newSiteQuery($siteId)->first();
+        $otherModel = $this
+            ->newOtherSiteQuery()
+            ->where($this->getSiteIdColumn(), $siteId)
+            ->first();
 
         // Replicate without save
         if (!$otherModel) {
