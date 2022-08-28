@@ -34,6 +34,17 @@ trait Multisite
     }
 
     /**
+     * addPropagatable attributes for the model.
+     * @param  array|string|null  $attributes
+     */
+    public function addPropagatable($attributes = null)
+    {
+        $attributes = is_array($attributes) ? $attributes : func_get_args();
+
+        $this->propagatable = array_merge($this->propagatable, $attributes);
+    }
+
+    /**
      * initializeMultisite
      */
     public function initializeMultisite()
