@@ -270,6 +270,13 @@ trait ExtendableTrait
     {
         $classMethods = $this->getClassMethods();
 
+        if (is_string($interface) && !interface_exists($interface)) {
+            throw new Exception(sprintf(
+                'Interface %s does not exist',
+                $interface
+            ));
+        }
+
         $interfaceMethods = (array) get_class_methods($interface);
         foreach ($interfaceMethods as $methodName) {
             if (!in_array($methodName, $classMethods)) {

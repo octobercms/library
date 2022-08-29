@@ -478,8 +478,8 @@ trait Validation
      * Note that it will only be checked up to the next level, if another dependent rule is found
      * then it will just assume the field is required.
      * @param  string  $attribute
-     * @param boolean $checkDependencies
-     * @return boolean
+     * @param bool $checkDependencies
+     * @return bool
      */
     public function isAttributeRequired($attribute, $checkDependencies = true)
     {

@@ -45,6 +45,15 @@ trait Multisite
     }
 
     /**
+     * isAttributePropagatable
+     * @return bool
+     */
+    public function isAttributePropagatable($attribute)
+    {
+        return in_array($attribute, $this->propagatable);
+    }
+
+    /**
      * initializeMultisite
      */
     public function initializeMultisite()
