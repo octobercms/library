@@ -3,6 +3,7 @@
 use Site;
 use October\Rain\Database\Scopes\MultisiteScope;
 use Exception;
+use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 
 /**
  * Multisite trait allows for site-based models, the database
@@ -34,26 +35,6 @@ trait Multisite
     }
 
     /**
-     * addPropagatable attributes for the model.
-     * @param  array|string|null  $attributes
-     */
-    public function addPropagatable($attributes = null)
-    {
-        $attributes = is_array($attributes) ? $attributes : func_get_args();
-
-        $this->propagatable = array_merge($this->propagatable, $attributes);
-    }
-
-    /**
-     * isAttributePropagatable
-     * @return bool
-     */
-    public function isAttributePropagatable($attribute)
-    {
-        return in_array($attribute, $this->propagatable);
-    }
-
-    /**
      * initializeMultisite
      */
     public function initializeMultisite()
@@ -78,6 +59,26 @@ trait Multisite
                 });
             }
         });
+    }
+
+    /**
+     * addPropagatable attributes for the model.
+     * @param  array|string|null  $attributes
+     */
+    public function addPropagatable($attributes = null)
+    {
+        $attributes = is_array($attributes) ? $attributes : func_get_args();
+
+        $this->propagatable = array_merge($this->propagatable, $attributes);
+    }
+
+    /**
+     * isAttributePropagatable
+     * @return bool
+     */
+    public function isAttributePropagatable($attribute)
+    {
+        return in_array($attribute, $this->propagatable);
     }
 
     /**
@@ -161,16 +162,33 @@ trait Multisite
             $otherModel = $this->findOtherSiteModel($siteId);
         }
 
-        // Other model already exists, so propagate
-        if ($otherModel->exists) {
-            foreach ($this->propagatable as $field) {
-                $otherModel->$field = $this->$field;
+        // Perform propagation
+        foreach ($this->propagatable as $name) {
+            if ($otherModel->hasRelation($name)) {
+                $otherModel->propagateRelation($name, $this);
+            }
+            else {
+                $otherModel->$name = $this->$name;
             }
         }
 
         $otherModel->save();
 
         return $otherModel;
+    }
+
+    /**
+     * propagateRelation
+     */
+    public function propagateRelation($name, $model)
+    {
+        $relationObject = $this->$name();
+        if ($relationObject instanceof HasOneOrMany) {
+            // ...
+        }
+        else {
+            // ...
+        }
     }
 
     /**
