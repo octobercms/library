@@ -59,6 +59,12 @@ trait Multisite
                 });
             }
         });
+
+        $this->bindEvent('model.afterCreate', function() {
+            if (!$this->site_root_id) {
+                $this->newQuery()->where($this->getKeyName(), $this->id)->update(['site_root_id' => $this->id]);
+            }
+        });
     }
 
     /**
@@ -180,7 +186,7 @@ trait Multisite
     /**
      * propagateRelation
      */
-    public function propagateRelation($name, $model)
+    public function propagateRelation($name, $model, $siteId)
     {
         $relationObject = $this->$name();
         if ($relationObject instanceof HasOneOrMany) {
