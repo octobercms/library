@@ -68,6 +68,15 @@ trait Multisite
     }
 
     /**
+     * savePropagate the model, including to other sites
+     * @return bool
+     */
+    public function savePropagate($options = null, $sessionKey = null)
+    {
+        return $this->saveInternal((array) $options + ['propagate' => true, 'sessionKey' => $sessionKey]);
+    }
+
+    /**
      * addPropagatable attributes for the model.
      * @param  array|string|null  $attributes
      */
