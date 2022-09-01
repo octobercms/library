@@ -177,13 +177,15 @@ trait Multisite
             $otherModel = $this->findOtherSiteModel($siteId);
         }
 
-        // Perform propagation
-        foreach ($this->propagatable as $name) {
-            if ($otherModel->hasRelation($name)) {
-                $otherModel->propagateRelation($name, $this);
-            }
-            else {
-                $otherModel->$name = $this->$name;
+        // Perform propagation for existing records
+        if ($otherModel->exists) {
+            foreach ($this->propagatable as $name) {
+                if ($otherModel->hasRelation($name)) {
+                    $otherModel->propagateRelation($name, $this);
+                }
+                else {
+                    $otherModel->$name = $this->$name;
+                }
             }
         }
 
