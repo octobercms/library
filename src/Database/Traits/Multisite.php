@@ -67,6 +67,33 @@ trait Multisite
                 $this->newQuery()->where($this->getKeyName(), $this->id)->update(['site_root_id' => $this->id]);
             }
         });
+
+        $this->defineMultisiteRelations();
+    }
+
+    /**
+     * defineMultisiteRelations will spin over every relation and apply propagation config
+     */
+    protected function defineMultisiteRelations()
+    {
+        foreach ($this->getRelationDefinitions() as $type => $relations) {
+            foreach ($this->$type as $name => $definition) {
+                if (!$this->isAttributePropagatable($name)) {
+                    continue;
+                }
+
+                if (!is_array($this->$type[$name])) {
+                    $this->$type[$name] = (array) $this->$type[$name];
+                }
+
+                if ($type === 'belongsToMany') {
+                    $this->$type[$name]['parentKey'] = 'site_root_id';
+                }
+                else {
+                    $this->$type[$name]['key'] = 'site_root_id';
+                }
+            }
+        }
     }
 
     /**
