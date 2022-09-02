@@ -4,6 +4,8 @@ use Site;
 use October\Rain\Database\Scopes\MultisiteScope;
 use Exception;
 use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
+use October\Rain\Database\Relations\AttachOne;
+use October\Rain\Database\Relations\AttachMany;
 
 /**
  * Multisite trait allows for site-based models, the database
@@ -200,12 +202,21 @@ trait Multisite
     public function propagateRelation($name, $model, $siteId)
     {
         $relationObject = $this->$name();
-        if ($relationObject instanceof HasOneOrMany) {
-            // ...
+        $relationModel = $this->makeRelation($name);
+
+        // Determine comparison attributes
+        $compareAttr = [];
+        if ($relationObject instanceof AttachOne || $relationObject instanceof AttachMany) {
+            $compareAttr = ['disk_name'];
         }
-        else {
-            // ...
+        elseif (
+            $relationModel instanceof \October\Rain\Database\Model &&
+            $relationModel->isClassInstanceOf(\October\Contracts\Database\MultisiteInterface::class)
+        ) {
+            $compareAttr = ['site_root_id'];
         }
+
+        $this->replicateRelationCopy($name, $model->$name, $compareAttr);
     }
 
     /**

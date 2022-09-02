@@ -75,6 +75,23 @@ trait HasReplication
     }
 
     /**
+     * replicateRelationTransfer will move a relation from an existing model
+     */
+    public function replicateRelationTransfer($name, $models)
+    {
+        // ...
+    }
+
+    /**
+     * replicateRelationCopy will copy the relation from an existing model, matching attributes
+     * to prevent rework
+     */
+    public function replicateRelationCopy($name, $models, $attributes = [])
+    {
+        // ...
+    }
+
+    /**
      * isRelationReplicable determines whether the specified relation should be replicated
      * when replicate() is called instead of save() on the model. Default: false.
      */
