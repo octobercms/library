@@ -183,40 +183,16 @@ trait Multisite
         if ($otherModel->exists) {
             foreach ($this->propagatable as $name) {
                 if ($otherModel->hasRelation($name)) {
-                    $otherModel->propagateRelation($name, $this);
+                    continue;
                 }
-                else {
-                    $otherModel->$name = $this->$name;
-                }
+
+                $otherModel->$name = $this->$name;
             }
         }
 
         $otherModel->save();
 
         return $otherModel;
-    }
-
-    /**
-     * propagateRelation
-     */
-    public function propagateRelation($name, $model, $siteId)
-    {
-        $relationObject = $this->$name();
-        $relationModel = $this->makeRelation($name);
-
-        // Determine comparison attributes
-        $compareAttr = [];
-        if ($relationObject instanceof AttachOne || $relationObject instanceof AttachMany) {
-            $compareAttr = ['disk_name'];
-        }
-        elseif (
-            $relationModel instanceof \October\Rain\Database\Model &&
-            $relationModel->isClassInstanceOf(\October\Contracts\Database\MultisiteInterface::class)
-        ) {
-            $compareAttr = ['site_root_id'];
-        }
-
-        $this->replicateRelationCopy($name, $model->$name, $compareAttr);
     }
 
     /**
