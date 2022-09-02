@@ -80,8 +80,12 @@ trait HasReplication
      */
     public function isRelationReplicable(string $name): bool
     {
-        $definition = $this->getRelationDefinition($name);
+        $relationType = $this->getRelationType($name);
+        if ($relationType === 'morphTo') {
+            return false;
+        }
 
+        $definition = $this->getRelationDefinition($name);
         if (!array_key_exists('replicate', $definition)) {
             return true;
         }
