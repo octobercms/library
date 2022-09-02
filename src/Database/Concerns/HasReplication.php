@@ -75,9 +75,9 @@ trait HasReplication
     }
 
     /**
-     * replicateRelationTransfer will move a relation from an existing model
+     * replicateRelationMove will move a relation from an existing model
      */
-    public function replicateRelationTransfer($name, $models)
+    public function replicateRelationMove($name, $models)
     {
         // ...
     }
@@ -93,14 +93,14 @@ trait HasReplication
 
     /**
      * isRelationReplicable determines whether the specified relation should be replicated
-     * when replicate() is called instead of save() on the model. Default: false.
+     * when replicate() is called instead of save() on the model. Default: true.
      */
     public function isRelationReplicable(string $name): bool
     {
         $definition = $this->getRelationDefinition($name);
 
         if (!array_key_exists('replicate', $definition)) {
-            return false;
+            return true;
         }
 
         return (bool) $definition['replicate'];
