@@ -3,9 +3,6 @@
 use Site;
 use October\Rain\Database\Scopes\MultisiteScope;
 use Exception;
-use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
-use October\Rain\Database\Relations\AttachOne;
-use October\Rain\Database\Relations\AttachMany;
 
 /**
  * Multisite trait allows for site-based models, the database
@@ -49,14 +46,16 @@ trait Multisite
         }
 
         $this->bindEvent('model.beforeSave', function() {
-            if (MultisiteScope::hasConstraints()) {
-                $this->{$this->getSiteIdColumn()} = Site::getSiteIdFromContext();
+            if (Site::hasGlobalContext()) {
+                return;
             }
+
+            $this->{$this->getSiteIdColumn()} = Site::getSiteIdFromContext();
         });
 
         $this->bindEvent('model.afterSave', function() {
             if ($this->getSaveOption('propagate') === true) {
-                MultisiteScope::noConstraints(function() {
+                Site::withGlobalContext(function() {
                     $this->afterSavePropagate();
                 });
             }

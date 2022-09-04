@@ -15,11 +15,6 @@ use Closure;
 class MultisiteScope implements ScopeInterface
 {
     /**
-     * @var bool constraints of this scope applied
-     */
-    protected static $constraints = true;
-
-    /**
      * @var array extensions to be added to the builder.
      */
     protected $extensions = ['WithSites'];
@@ -29,7 +24,7 @@ class MultisiteScope implements ScopeInterface
      */
     public function apply(BuilderBase $builder, ModelBase $model)
     {
-        if ($model->isMultisiteEnabled() && static::$constraints) {
+        if ($model->isMultisiteEnabled() && !Site::hasGlobalContext()) {
             $builder->where($model->getQualifiedSiteIdColumn(), Site::getSiteIdFromContext());
         }
     }
@@ -51,33 +46,6 @@ class MultisiteScope implements ScopeInterface
     {
         foreach ($this->extensions as $extension) {
             $this->{"add{$extension}"}($builder);
-        }
-    }
-
-    /**
-     * hasConstraints returns true if site constraints are currently applied
-     * @return bool
-     */
-    public static function hasConstraints()
-    {
-        return static::$constraints;
-    }
-
-    /**
-     * noConstraints runs a callback with this scope constraint disabled.
-     * @return mixed
-     */
-    public static function noConstraints(Closure $callback)
-    {
-        $previous = static::$constraints;
-
-        static::$constraints = false;
-
-        try {
-            return $callback();
-        }
-        finally {
-            static::$constraints = $previous;
         }
     }
 }
