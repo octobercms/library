@@ -179,9 +179,7 @@ trait HasRelationships
         foreach (static::$relationTypes as $type) {
             $result[$type] = $this->{$type};
 
-            /*
-             * Apply default values for the relation type
-             */
+            // Apply default values for the relation type
             if ($defaults = $this->getRelationDefaults($type)) {
                 foreach ($result[$type] as $relation => $options) {
                     $result[$type][$relation] = (array) $options + $defaults;

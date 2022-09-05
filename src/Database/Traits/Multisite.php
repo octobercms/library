@@ -3,7 +3,6 @@
 use Site;
 use October\Rain\Database\Scopes\MultisiteScope;
 use Exception;
-use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 
 /**
  * Multisite trait allows for site-based models, the database
@@ -47,14 +46,16 @@ trait Multisite
         }
 
         $this->bindEvent('model.beforeSave', function() {
-            if (MultisiteScope::hasConstraints()) {
-                $this->{$this->getSiteIdColumn()} = Site::getSiteIdFromContext();
+            if (Site::hasGlobalContext()) {
+                return;
             }
+
+            $this->{$this->getSiteIdColumn()} = Site::getSiteIdFromContext();
         });
 
         $this->bindEvent('model.afterSave', function() {
             if ($this->getSaveOption('propagate') === true) {
-                MultisiteScope::noConstraints(function() {
+                Site::withGlobalContext(function() {
                     $this->afterSavePropagate();
                 });
             }
@@ -62,9 +63,49 @@ trait Multisite
 
         $this->bindEvent('model.afterCreate', function() {
             if (!$this->site_root_id) {
-                $this->newQuery()->where($this->getKeyName(), $this->id)->update(['site_root_id' => $this->id]);
+                $this->site_root_id = $this->id;
+                $this->newQuery()
+                    ->where($this->getKeyName(), $this->id)
+                    ->update(['site_root_id' => $this->site_root_id])
+                ;
             }
         });
+
+        $this->defineMultisiteRelations();
+    }
+
+    /**
+     * defineMultisiteRelations will spin over every relation and apply propagation config
+     */
+    protected function defineMultisiteRelations()
+    {
+        foreach ($this->getRelationDefinitions() as $type => $relations) {
+            foreach ($this->$type as $name => $definition) {
+                if (!$this->isAttributePropagatable($name)) {
+                    continue;
+                }
+
+                if (!is_array($this->$type[$name])) {
+                    $this->$type[$name] = (array) $this->$type[$name];
+                }
+
+                if ($type === 'belongsToMany') {
+                    $this->$type[$name]['parentKey'] = 'site_root_id';
+                }
+                else {
+                    $this->$type[$name]['key'] = 'site_root_id';
+                }
+            }
+        }
+    }
+
+    /**
+     * savePropagate the model, including to other sites
+     * @return bool
+     */
+    public function savePropagate($options = null, $sessionKey = null)
+    {
+        return $this->saveInternal((array) $options + ['propagate' => true, 'sessionKey' => $sessionKey]);
     }
 
     /**
@@ -168,12 +209,13 @@ trait Multisite
             $otherModel = $this->findOtherSiteModel($siteId);
         }
 
-        // Perform propagation
-        foreach ($this->propagatable as $name) {
-            if ($otherModel->hasRelation($name)) {
-                $otherModel->propagateRelation($name, $this);
-            }
-            else {
+        // Perform propagation for existing records
+        if ($otherModel->exists) {
+            foreach ($this->propagatable as $name) {
+                if ($otherModel->hasRelation($name)) {
+                    continue;
+                }
+
                 $otherModel->$name = $this->$name;
             }
         }
@@ -181,20 +223,6 @@ trait Multisite
         $otherModel->save();
 
         return $otherModel;
-    }
-
-    /**
-     * propagateRelation
-     */
-    public function propagateRelation($name, $model, $siteId)
-    {
-        $relationObject = $this->$name();
-        if ($relationObject instanceof HasOneOrMany) {
-            // ...
-        }
-        else {
-            // ...
-        }
     }
 
     /**
