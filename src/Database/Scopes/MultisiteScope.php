@@ -4,7 +4,6 @@ use Site;
 use Illuminate\Database\Eloquent\Model as ModelBase;
 use Illuminate\Database\Eloquent\Scope as ScopeInterface;
 use Illuminate\Database\Eloquent\Builder as BuilderBase;
-use Closure;
 
 /**
  * MultisiteScope
