@@ -41,12 +41,10 @@ class Manager
         $this->assertResourceLimits();
         $this->assertHomeVariableSet();
 
-        $composer = $this->makeComposer();
-
-        $installer = Installer::create($this->output, $composer);
-
         try {
             $this->assertHomeDirectory();
+            $installer = Installer::create($this->output, $this->makeComposer());
+            $installer->setUpdate(true);
             $installer->run();
         }
         finally {
@@ -102,25 +100,15 @@ class Manager
     }
 
     /**
-     * getJsonPath returns a path to the composer.json file
-     */
-    protected function getJsonPath(): string
-    {
-        return base_path('composer.json');
-    }
-
-    /**
      * makeComposer returns a new instance of composer
      */
     protected function makeComposer(): Composer
     {
-        // Prepare and validate config
-        $file = new JsonFile($this->getJsonPath());
-        $file->validateSchema(JsonFile::LAX_SCHEMA);
-        $config = $file->read();
+        $composer = Factory::create($this->output, $this->getJsonPath());
 
-        // Create composer instance
-        $composer = Factory::create($this->output, $config);
+        // Disable scripts
+        $composer->getEventDispatcher()->setRunScripts(false);
+
         return $composer;
     }
 
@@ -179,5 +167,21 @@ class Manager
         }
 
         return $version;
+    }
+
+    /**
+     * getJsonPath returns a path to the composer.json file
+     */
+    protected function getJsonPath(): string
+    {
+        return base_path('composer.json');
+    }
+
+    /**
+     * getLockPath returns a path to the composer.lock file
+     */
+    protected function getLockPath(): string
+    {
+        return base_path('composer.lock');
     }
 }
