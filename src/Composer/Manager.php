@@ -1,12 +1,15 @@
 <?php namespace October\Rain\Composer;
 
-use Composer\Installer;
-use Composer\Composer;
 use Composer\Factory;
+use Composer\Composer;
+use Composer\Installer;
 use Composer\Json\JsonFile;
+use Composer\IO\IOInterface;
 use Composer\Semver\VersionParser;
 use Composer\Config\JsonConfigSource;
-use Composer\IO\IOInterface;
+use Composer\DependencyResolver\Request;
+use Exception;
+use Throwable;
 
 /**
  * Manager super class for working with Composer
@@ -18,6 +21,7 @@ class Manager
 {
     use \October\Rain\Support\Traits\Singleton;
     use \October\Rain\Composer\HasOutput;
+    use \October\Rain\Composer\HasAssertions;
     use \October\Rain\Composer\HasRequirements;
 
     /**
@@ -55,17 +59,57 @@ class Manager
     /**
      * require runs the "composer require" command
      */
-    public function require($package, $version = null)
+    public function require(array $requirements)
     {
-        // ...
+        $this->assertResourceLimits();
+        $this->assertHomeVariableSet();
+        $this->backupComposerFile();
+
+        $statusCode = 1;
+        $lastException = new Exception('Failed to update composer');
+
+        try {
+            $this->assertHomeDirectory();
+            $this->writePackages($requirements);
+
+            $composer = $this->makeComposer();
+            $installer = Installer::create($this->output, $composer);
+            $installer->setUpdate(true);
+            $installer->setUpdateAllowTransitiveDependencies(Request::UPDATE_LISTED_WITH_TRANSITIVE_DEPS);
+
+            // If no lock is present, or the file is brand new, we do not do a
+            // partial update as this is not supported by the Installer
+            if ($composer->getLocker()->isLocked()) {
+                $installer->setUpdateAllowList(array_keys($requirements));
+            }
+
+            $statusCode = $installer->run();
+        }
+        catch (Throwable $ex) {
+            $statusCode = 1;
+            $lastException = $ex;
+        }
+        finally {
+            $this->assertWorkingDirectory();
+        }
+
+        if ($statusCode !== 0) {
+            $this->restoreComposerFile();
+            throw $lastException;
+        }
     }
 
     /**
      * remove runs the "composer remove" command
      */
-    public function remove($package)
+    public function remove(array $packageNames)
     {
-        // ...
+        $requirements = [];
+        foreach ($packageNames as $package) {
+            $requirements[$package] = false;
+        }
+
+        $this->require($requirements);
     }
 
     /**
@@ -107,7 +151,7 @@ class Manager
         $composer = Factory::create($this->output, $this->getJsonPath());
 
         // Disable scripts
-        $composer->getEventDispatcher()->setRunScripts(false);
+        // $composer->getEventDispatcher()->setRunScripts(false);
 
         return $composer;
     }
@@ -175,13 +219,5 @@ class Manager
     protected function getJsonPath(): string
     {
         return base_path('composer.json');
-    }
-
-    /**
-     * getLockPath returns a path to the composer.lock file
-     */
-    protected function getLockPath(): string
-    {
-        return base_path('composer.lock');
     }
 }

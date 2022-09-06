@@ -7,9 +7,10 @@ use Composer\IO\IOInterface;
 use Composer\IO\NullIO;
 use Composer\IO\BufferIO;
 use Composer\Util\Platform;
+use Composer\Json\JsonManipulator;
 
 /**
- * HasOutput for composer
+ * HasRequirements for composer
  *
  * @package october\composer
  * @author Alexey Bobkov, Samuel Georges
@@ -17,53 +18,74 @@ use Composer\Util\Platform;
 trait HasRequirements
 {
     /**
-     * @var string workingDir
+     * @var string composerBackup contents
      */
-    protected $workingDir;
+    protected $composerBackup;
 
     /**
-     * assertResourceLimits
+     * writePackages
      */
-    protected function assertResourceLimits()
+    protected function writePackages(array $requirements)
     {
-        @set_time_limit(3600);
-        ini_set('max_input_time', 0);
-        ini_set('max_execution_time', 0);
+        $sortPackages = false;
+        $isDev = false;
+        $requireKey = $isDev ? 'require-dev' : 'require';
+        $removeKey = $isDev ? 'require' : 'require-dev';
+        $json = new JsonFile($this->getJsonPath());
+
+        if (!$this->updateFileCleanly($json, $requirements, $requireKey, $removeKey, $sortPackages)) {
+            $composerDefinition = $json->read();
+            foreach ($requirements as $package => $version) {
+                $composerDefinition[$requireKey][$package] = $version;
+                unset($composerDefinition[$removeKey][$package]);
+                if (isset($composerDefinition[$removeKey]) && count($composerDefinition[$removeKey]) === 0) {
+                    unset($composerDefinition[$removeKey]);
+                }
+            }
+            $json->write($composerDefinition);
+        }
     }
 
     /**
-     * assertHomeVariableSet
+     * updateFileCleanly
      */
-    protected function assertHomeVariableSet()
+    protected function updateFileCleanly(JsonFile $json, array $new, string $requireKey, string $removeKey, bool $sortPackages): bool
     {
-        // Something usable is already set
-        $osHome = Platform::isWindows() ? 'APPDATA' : 'HOME';
-        if (getenv('COMPOSER_HOME') || getenv($osHome)) {
-            return;
+        $contents = file_get_contents($json->getPath());
+
+        $manipulator = new JsonManipulator($contents);
+
+        foreach ($new as $package => $constraint) {
+            if (!$manipulator->addLink($requireKey, $package, $constraint, $sortPackages)) {
+                return false;
+            }
+            if (!$manipulator->removeSubNode($removeKey, $package)) {
+                return false;
+            }
         }
 
-        $tempPath = temp_path('composer');
-        if (!file_exists($tempPath)) {
-            @mkdir($tempPath);
+        $manipulator->removeMainKeyIfEmpty($removeKey);
+
+        file_put_contents($json->getPath(), $manipulator->getContents());
+
+        return true;
+    }
+
+    /**
+     * restoreComposerFile
+     */
+    protected function restoreComposerFile()
+    {
+        if ($this->composerBackup) {
+            file_put_contents($this->getJsonPath(), $this->composerBackup);
         }
-
-        putenv('COMPOSER_HOME='.$tempPath);
     }
 
     /**
-     * assertHomeDirectory
+     * backupComposerFile
      */
-    protected function assertHomeDirectory()
+    protected function backupComposerFile()
     {
-        $this->workingDir = getcwd();
-        chdir(dirname($this->getJsonPath()));
-    }
-
-    /**
-     * assertWorkingDirectory
-     */
-    protected function assertWorkingDirectory()
-    {
-        chdir($this->workingDir);
+        $this->composerBackup = file_get_contents($this->getJsonPath());
     }
 }
