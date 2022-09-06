@@ -14,6 +14,8 @@ use Throwable;
 /**
  * Manager super class for working with Composer
  *
+ * @method static Manager instance()
+ *
  * @package october\composer
  * @author Alexey Bobkov, Samuel Georges
  */
@@ -144,6 +146,25 @@ class Manager
     }
 
     /**
+     * addAuthCredentials will add credentials to an auth config file
+     */
+    public function addAuthCredentials($hostname, $username, $password, $type = null)
+    {
+        if ($type === null) {
+            $type = 'http-basic';
+        }
+
+        $file = new JsonFile($this->getAuthPath());
+
+        $config = new JsonConfigSource($file, true);
+
+        $config->addConfigSetting($type.'.'.$hostname, [
+            'username' => $username,
+            'password' => $password
+        ]);
+    }
+
+    /**
      * makeComposer returns a new instance of composer
      */
     protected function makeComposer(): Composer
@@ -219,5 +240,13 @@ class Manager
     protected function getJsonPath(): string
     {
         return base_path('composer.json');
+    }
+
+    /**
+     * getAuthPath returns a path to the auth.json file
+     */
+    protected function getAuthPath(): string
+    {
+        return base_path('auth.json');
     }
 }
