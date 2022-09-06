@@ -66,7 +66,7 @@ class Manager
         $this->backupComposerFile();
 
         $statusCode = 1;
-        $lastException = new Exception('Failed to update composer');
+        $lastException = new Exception('Failed to update composer dependencies');
 
         try {
             $this->assertHomeDirectory();

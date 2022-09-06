@@ -1,11 +1,5 @@
 <?php namespace October\Rain\Composer;
 
-use Composer\Json\JsonFile;
-use Composer\Semver\VersionParser;
-use Composer\Config\JsonConfigSource;
-use Composer\IO\IOInterface;
-use Composer\IO\NullIO;
-use Composer\IO\BufferIO;
 use Composer\Util\Platform;
 
 /**
