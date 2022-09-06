@@ -17,7 +17,8 @@ trait HasRequirements
     protected $composerBackup;
 
     /**
-     * writePackages
+     * writePackages stores package changes to disk. The requirements key is the package name and the value
+     * is the version constraint or false to remove the requirement.
      */
     protected function writePackages(array $requirements)
     {
@@ -26,43 +27,49 @@ trait HasRequirements
         $requireKey = $isDev ? 'require-dev' : 'require';
         $removeKey = $isDev ? 'require' : 'require-dev';
         $json = new JsonFile($this->getJsonPath());
+        $result = null;
 
-        if (!$this->updateFileCleanly($json, $requirements, $requireKey, $removeKey, $sortPackages)) {
-            $composerDefinition = $json->read();
-            foreach ($requirements as $package => $version) {
-                $composerDefinition[$requireKey][$package] = $version;
-                unset($composerDefinition[$removeKey][$package]);
-                if (isset($composerDefinition[$removeKey]) && count($composerDefinition[$removeKey]) === 0) {
-                    unset($composerDefinition[$removeKey]);
-                }
-            }
-            $json->write($composerDefinition);
-        }
-    }
-
-    /**
-     * updateFileCleanly
-     */
-    protected function updateFileCleanly(JsonFile $json, array $new, string $requireKey, string $removeKey, bool $sortPackages): bool
-    {
+        // Update cleanly
         $contents = file_get_contents($json->getPath());
-
         $manipulator = new JsonManipulator($contents);
 
-        foreach ($new as $package => $constraint) {
-            if (!$manipulator->addLink($requireKey, $package, $constraint, $sortPackages)) {
-                return false;
+        foreach ($requirements as $package => $version) {
+            if ($version !== false) {
+                $result = $manipulator->addLink($requireKey, $package, $version, $sortPackages);
             }
-            if (!$manipulator->removeSubNode($removeKey, $package)) {
-                return false;
+            else {
+                $result = $manipulator->removeSubNode($requireKey, $package);
+            }
+
+            if ($result) {
+                $result = $manipulator->removeSubNode($removeKey, $package);
             }
         }
 
-        $manipulator->removeMainKeyIfEmpty($removeKey);
+        if ($result) {
+            $manipulator->removeMainKeyIfEmpty($removeKey);
+            file_put_contents($json->getPath(), $manipulator->getContents());
+            return;
+        }
 
-        file_put_contents($json->getPath(), $manipulator->getContents());
+        // Fallback update
+        $composerDefinition = $json->read();
+        foreach ($requirements as $package => $version) {
+            if ($version !== false) {
+                $composerDefinition[$requireKey][$package] = $version;
+            }
+            else {
+                unset($composerDefinition[$requireKey][$package]);
+            }
 
-        return true;
+            unset($composerDefinition[$removeKey][$package]);
+
+            if (isset($composerDefinition[$removeKey]) && count($composerDefinition[$removeKey]) === 0) {
+                unset($composerDefinition[$removeKey]);
+            }
+        }
+
+        $json->write($composerDefinition);
     }
 
     /**

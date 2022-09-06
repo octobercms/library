@@ -169,7 +169,7 @@ class Manager
      */
     protected function makeComposer(): Composer
     {
-        $composer = Factory::create($this->output, $this->getJsonPath());
+        $composer = Factory::create($this->output);
 
         // Disable scripts
         // $composer->getEventDispatcher()->setRunScripts(false);
