@@ -24,6 +24,7 @@ class Manager
     use \October\Rain\Support\Traits\Singleton;
     use \October\Rain\Composer\HasOutput;
     use \October\Rain\Composer\HasAssertions;
+    use \October\Rain\Composer\HasAutoloader;
     use \October\Rain\Composer\HasRequirements;
 
     /**
