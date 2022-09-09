@@ -4,7 +4,7 @@ use Url;
 use Http;
 use Config;
 use Illuminate\Console\Command;
-use October\Rain\Process\ComposerPhp;
+use October\Rain\Composer\Manager as ComposerManager;
 use Exception;
 
 /**
@@ -53,7 +53,7 @@ class ProjectSetCommand extends Command
             $this->storeProjectDetails($result);
 
             // Add gateway as a composer repo
-            (new ComposerPhp)->addRepository('octobercms', 'composer', $this->getComposerUrl());
+            ComposerManager::instance()->addRepository('octobercms', 'composer', $this->getComposerUrl());
 
             $this->output->success(__("Thanks for being a customer of October CMS!"));
         }
