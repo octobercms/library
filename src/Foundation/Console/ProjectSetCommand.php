@@ -53,7 +53,7 @@ class ProjectSetCommand extends Command
             $this->storeProjectDetails($result);
 
             // Add gateway as a composer repo
-            ComposerManager::instance()->addRepository('octobercms', 'composer', $this->getComposerUrl());
+            ComposerManager::instance()->addOctoberRepository($this->getComposerUrl());
 
             $this->output->success(__("Thanks for being a customer of October CMS!"));
         }

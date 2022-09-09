@@ -26,6 +26,7 @@ class Manager
     use \October\Rain\Composer\HasAssertions;
     use \October\Rain\Composer\HasAutoloader;
     use \October\Rain\Composer\HasRequirements;
+    use \October\Rain\Composer\HasOctoberCommands;
 
     /**
      * @var IOInterface output
@@ -134,16 +135,40 @@ class Manager
     /**
      * addRepository will add a repository to the composer config
      */
-    public function addRepository($name, $type, $address)
+    public function addRepository($name, $type, $address, $options = [])
     {
         $file = new JsonFile($this->getJsonPath());
 
         $config = new JsonConfigSource($file);
 
-        $config->addRepository($name, [
+        $config->addRepository($name, array_merge([
             'type' => $type,
             'url' => $address
-        ]);
+        ], $options));
+    }
+
+    /**
+     * hasRepository return true if the composer config contains the repo address
+     */
+    public function hasRepository($address): bool
+    {
+        $file = new JsonFile($this->getJsonPath());
+
+        $config = $file->read();
+
+        $repos = $config['repositories'] ?? [];
+
+        foreach ($repos as $repo) {
+            if (!isset($repo['url'])) {
+                continue;
+            }
+
+            if (rtrim($repo['url'], '/') === $address) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
