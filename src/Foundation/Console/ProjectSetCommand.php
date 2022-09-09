@@ -89,15 +89,11 @@ class ProjectSetCommand extends Command
         }
 
         // Save authentication token
-        $composerUrl = $this->getComposerUrl(false);
-        $this->injectJsonToFile(base_path('auth.json'), [
-            'http-basic' => [
-                $composerUrl => [
-                    'username' => $result['email'],
-                    'password' => $result['project_id']
-                ]
-            ]
-        ]);
+        ComposerManager::instance()->addAuthCredentials(
+            $this->getComposerUrl(false),
+            $result['email'],
+            $result['project_id']
+        );
     }
 
     /**
@@ -186,23 +182,6 @@ class ProjectSetCommand extends Command
         }
 
         return $http->post($url, $postData);
-    }
-
-    /**
-     * setComposerAuth configures authentication for composer and October CMS
-     */
-    protected function setComposerAuth($email, $projectKey)
-    {
-        $composerUrl = $this->getComposerUrl(false);
-
-        $this->injectJsonToFile(base_path('auth.json'), [
-            'http-basic' => [
-                $composerUrl => [
-                    'username' => $email,
-                    'password' => $projectKey
-                ]
-            ]
-        ]);
     }
 
     /**
