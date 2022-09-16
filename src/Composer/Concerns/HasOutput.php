@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Composer;
+<?php namespace October\Rain\Composer\Concerns;
 
 use Composer\IO\IOInterface;
 use Composer\IO\NullIO;

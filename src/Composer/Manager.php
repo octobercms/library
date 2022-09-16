@@ -21,12 +21,12 @@ use Throwable;
  */
 class Manager
 {
+    use Concerns\HasOutput;
+    use Concerns\HasAssertions;
+    use Concerns\HasAutoloader;
+    use Concerns\HasRequirements;
+    use Concerns\HasOctoberCommands;
     use \October\Rain\Support\Traits\Singleton;
-    use \October\Rain\Composer\HasOutput;
-    use \October\Rain\Composer\HasAssertions;
-    use \October\Rain\Composer\HasAutoloader;
-    use \October\Rain\Composer\HasRequirements;
-    use \October\Rain\Composer\HasOctoberCommands;
 
     /**
      * @var IOInterface output

@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Composer;
+<?php namespace October\Rain\Composer\Concerns;
 
 /**
  * HasAutoloader for composer
