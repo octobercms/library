@@ -2,7 +2,7 @@
 
 use October\Rain\Filesystem\Filesystem;
 use Exception;
-use Error;
+use Throwable;
 
 /**
  * ClassLoader is a custom autoloader used by October CMS, it uses folder names
@@ -131,7 +131,7 @@ class ClassLoader
     {
         require_once $this->basePath.DIRECTORY_SEPARATOR.$path;
 
-        $this->manifest[$class] = $path;
+        $this->manifest[$class] = $this->files->normalizePath($path);
 
         $this->manifestDirty = true;
     }
@@ -253,7 +253,7 @@ class ClassLoader
                     $manifest = [];
                 }
             }
-            catch (Error $ex) {}
+            catch (Throwable $ex) {}
         }
 
         $this->manifest += $manifest;

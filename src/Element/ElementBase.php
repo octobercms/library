@@ -39,7 +39,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     /**
      * evalConfig override method
      */
-    protected function evalConfig(array $config)
+    public function evalConfig(array $config)
     {
     }
 

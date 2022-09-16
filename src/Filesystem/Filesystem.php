@@ -200,9 +200,10 @@ class Filesystem extends FilesystemBase
     }
 
     /**
-     * normalizePath normalizes the directory separator, often used by Win systems
-     * @param  string $path Path name
-     * @return string       Normalized path
+     * normalizePath returns a normalized version of the supplied path for use in
+     * combined Windows and Unix systems.
+     * @param  string $path
+     * @return string
      */
     public function normalizePath($path)
     {
