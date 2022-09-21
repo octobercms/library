@@ -29,11 +29,6 @@ class Manager
     use \October\Rain\Support\Traits\Singleton;
 
     /**
-     * @var IOInterface output
-     */
-    protected $output;
-
-    /**
      * init singleton
      */
     public function init()

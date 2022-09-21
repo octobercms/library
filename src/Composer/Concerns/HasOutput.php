@@ -1,8 +1,11 @@
 <?php namespace October\Rain\Composer\Concerns;
 
-use Composer\IO\IOInterface;
 use Composer\IO\NullIO;
 use Composer\IO\BufferIO;
+use Composer\IO\ConsoleIO;
+use Composer\IO\IOInterface;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Command\Command;
 
 /**
  * HasOutput for composer
@@ -12,6 +15,11 @@ use Composer\IO\BufferIO;
  */
 trait HasOutput
 {
+    /**
+     * @var IOInterface output
+     */
+    protected $output;
+
     /**
      * setOutput
      */
@@ -26,11 +34,19 @@ trait HasOutput
     }
 
     /**
-     * setOutputAsBuffer
+     * setOutputCommand
+     */
+    public function setOutputCommand(Command $command, InputInterface $input)
+    {
+        $this->setOutput(new ConsoleIO($input, $command->getOutput(), $command->getHelperSet()));
+    }
+
+    /**
+     * setOutputBuffer
      */
     public function setOutputBuffer()
     {
-        $this->output = new BufferIO();
+        $this->setOutput(new BufferIO());
     }
 
     /**
