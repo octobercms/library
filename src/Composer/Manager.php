@@ -143,6 +143,18 @@ class Manager
     }
 
     /**
+     * removeRepository will remove a repository from the composer config
+     */
+    public function removeRepository($name)
+    {
+        $file = new JsonFile($this->getJsonPath());
+
+        $config = new JsonConfigSource($file);
+
+        $config->removeConfigSetting($name);
+    }
+
+    /**
      * hasRepository return true if the composer config contains the repo address
      */
     public function hasRepository($address): bool
