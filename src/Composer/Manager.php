@@ -112,6 +112,27 @@ class Manager
     }
 
     /**
+     * addPackages without update
+     */
+    public function addPackages(array $requirements)
+    {
+        $this->writePackages($requirements);
+    }
+
+    /**
+     * removePackages without update
+     */
+    public function removePackages(array $packageNames)
+    {
+        $requirements = [];
+        foreach ($packageNames as $package) {
+            $requirements[$package] = false;
+        }
+
+        $this->writePackages($requirements);
+    }
+
+    /**
      * listPackages returns a list of directly installed packages
      */
     public function listPackages()
