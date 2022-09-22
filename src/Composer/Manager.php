@@ -1,10 +1,10 @@
 <?php namespace October\Rain\Composer;
 
+use Config;
 use Composer\Factory;
 use Composer\Composer;
 use Composer\Installer;
 use Composer\Json\JsonFile;
-use Composer\IO\IOInterface;
 use Composer\Semver\VersionParser;
 use Composer\Config\JsonConfigSource;
 use Composer\DependencyResolver\Request;
@@ -48,6 +48,7 @@ class Manager
             $this->assertHomeDirectory();
             $installer = Installer::create($this->output, $this->makeComposer());
             $installer->setUpdate(true);
+            $installer->setDevMode(Config::get('app.debug', false));
             $installer->run();
         }
         finally {
@@ -74,6 +75,7 @@ class Manager
             $composer = $this->makeComposer();
             $installer = Installer::create($this->output, $composer);
             $installer->setUpdate(true);
+            $installer->setDevMode(Config::get('app.debug', false));
             $installer->setUpdateAllowTransitiveDependencies(Request::UPDATE_LISTED_WITH_TRANSITIVE_DEPS);
 
             // If no lock is present, or the file is brand new, we do not do a
