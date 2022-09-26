@@ -46,10 +46,12 @@ class Manager
 
         try {
             $this->assertHomeDirectory();
-            $installer = Installer::create($this->output, $this->makeComposer());
-            $installer->setUpdate(true);
-            $installer->setDevMode(Config::get('app.debug', false));
-            $installer->run();
+
+            Installer::create($this->output, $this->makeComposer())
+                ->setDevMode(Config::get('app.debug', false))
+                ->setPreferSource()
+                ->setUpdate(true)
+                ->run();
         }
         finally {
             $this->assertWorkingDirectory();
@@ -73,10 +75,11 @@ class Manager
             $this->writePackages($requirements);
 
             $composer = $this->makeComposer();
-            $installer = Installer::create($this->output, $composer);
-            $installer->setUpdate(true);
-            $installer->setDevMode(Config::get('app.debug', false));
-            $installer->setUpdateAllowTransitiveDependencies(Request::UPDATE_LISTED_WITH_TRANSITIVE_DEPS);
+            $installer = Installer::create($this->output, $composer)
+                ->setDevMode(Config::get('app.debug', false))
+                ->setPreferSource()
+                ->setUpdate(true)
+                ->setUpdateAllowTransitiveDependencies(Request::UPDATE_LISTED_WITH_TRANSITIVE_DEPS);
 
             // If no lock is present, or the file is brand new, we do not do a
             // partial update as this is not supported by the Installer
@@ -228,7 +231,7 @@ class Manager
         $composer = Factory::create($this->output);
 
         // Disable scripts
-        // $composer->getEventDispatcher()->setRunScripts(false);
+        $composer->getEventDispatcher()->setRunScripts(false);
 
         return $composer;
     }
