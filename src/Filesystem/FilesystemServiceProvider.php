@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Filesystem;
 
-use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Filesystem\FilesystemServiceProvider as FilesystemServiceProviderBase;
 
 /**
@@ -55,11 +54,11 @@ class FilesystemServiceProvider extends FilesystemServiceProviderBase
      */
     protected function configureDefaultPermissions($config, $files)
     {
-        if ($config->get('filesystems.disks.local.permissions.file.public', null) === null) {
+        if ($config->get('filesystems.disks.local.permissions.file.public') === null) {
             $config->set('filesystems.disks.local.permissions.file.public', $files->getFilePermissions());
         }
 
-        if ($config->get('filesystems.disks.local.permissions.dir.public', null) === null) {
+        if ($config->get('filesystems.disks.local.permissions.dir.public') === null) {
             $config->set('filesystems.disks.local.permissions.dir.public', $files->getFolderPermissions());
         }
     }

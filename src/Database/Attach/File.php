@@ -907,7 +907,7 @@ class File extends Model
      */
     protected function copyStorageToLocal($storagePath, $localPath)
     {
-        return FileHelper::put($localPath, $this->getDisk()->get($storagePath));
+        return FileHelper::put($localPath, $this->getDisk()->readStream($storagePath));
     }
 
     /**
@@ -915,7 +915,12 @@ class File extends Model
      */
     protected function copyLocalToStorage($localPath, $storagePath)
     {
-        return $this->getDisk()->put($storagePath, FileHelper::get($localPath), $this->isPublic() ? 'public' : null);
+        return $this->getDisk()->putFileAs(
+            dirname($storagePath),
+            $localPath,
+            basename($storagePath),
+            $this->isPublic() ? 'public' : 'private'
+        );
     }
 
     //
