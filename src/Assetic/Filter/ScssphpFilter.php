@@ -160,7 +160,7 @@ class ScssphpFilter implements DependencyExtractorInterface
         $resourcesFolder .= '/sourcemap';
 
         if (
-            Config::get('system.storage.media.disk') === 'local' &&
+            Config::get('system.storage.resources.disk') === 'local' &&
             Config::get('system.relative_links') === true
         ) {
             return $resourcesFolder;
