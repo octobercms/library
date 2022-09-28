@@ -942,10 +942,10 @@ class File extends Model
     public function getStorageDirectory()
     {
         if ($this->isPublic()) {
-            return 'uploads/public/';
+            return 'public/';
         }
 
-        return 'uploads/protected/';
+        return 'protected/';
     }
 
     /**
@@ -954,10 +954,10 @@ class File extends Model
     public function getPublicPath()
     {
         if ($this->isPublic()) {
-            return 'http://localhost/uploads/public/';
+            return 'http://localhost/storage/uploads/public/';
         }
 
-        return 'http://localhost/uploads/protected/';
+        return 'http://localhost/storage/uploads/protected/';
     }
 
     /**
@@ -1008,6 +1008,6 @@ class File extends Model
      */
     protected function getLocalRootPath()
     {
-        return storage_path() . '/app';
+        return storage_path('app/uploads');
     }
 }
