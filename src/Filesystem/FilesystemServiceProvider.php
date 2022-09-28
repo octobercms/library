@@ -12,6 +12,8 @@ class FilesystemServiceProvider extends FilesystemServiceProviderBase
      */
     public function register()
     {
+        $this->registerCoreDisks($this->app['config']);
+
         $this->registerNativeFilesystem();
 
         $this->registerFlysystem();
@@ -47,6 +49,41 @@ class FilesystemServiceProvider extends FilesystemServiceProviderBase
 
             return $files;
         });
+    }
+
+    /**
+     * registerCoreDisks ensures
+     */
+    protected function registerCoreDisks($config)
+    {
+        if ($config->get('filesystems.disks.uploads') === null) {
+            $config->set('filesystems.disks.uploads', [
+                'driver' => 'local',
+                'root' => storage_path('app/uploads'),
+                'url' => '/storage/app/uploads',
+                'throw' => false,
+            ]);
+        }
+
+        if ($config->get('filesystems.disks.media') === null) {
+            $config->set('filesystems.disks.media', [
+                'driver' => 'local',
+                'root' => storage_path('app/media'),
+                'url' => '/storage/app/media',
+                'visibility' => 'public',
+                'throw' => false,
+            ]);
+        }
+
+        if ($config->get('filesystems.disks.resources') === null) {
+            $config->set('filesystems.disks.resources', [
+                'driver' => 'local',
+                'root' => storage_path('app/resources'),
+                'url' => '/storage/app/resources',
+                'visibility' => 'public',
+                'throw' => false,
+            ]);
+        }
     }
 
     /**
