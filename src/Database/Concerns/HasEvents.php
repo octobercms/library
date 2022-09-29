@@ -333,4 +333,42 @@ trait HasEvents
          *
          */
     }
+
+    /**
+     * beforeRelation is fired on the relation object before it is created
+     */
+    protected function beforeRelation($name, $relation)
+    {
+        /**
+         * @event model.beforeRelation
+         * Called when a new instance of a related model is created
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.beforeRelation', function (string $relationName, \Illuminate\Database\Eloquent\Relations\Relation $relatedObject) use (\October\Rain\Database\Model $model) {
+         *         // Implement scope
+         *         $relatedObject->withLocked();
+         *     });
+         *
+         */
+    }
+
+    /**
+     * beforeRelation is fired on the relation model instance after it is created
+     */
+    protected function afterRelation($name, $model)
+    {
+        /**
+         * @event model.afterRelation
+         * Called when a new instance of a related model is created
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.afterRelation', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
+         *         // Transfer custom properties
+         *         $relatedModel->isLocked = $model->isLocked;
+         *     });
+         *
+         */
+    }
 }
