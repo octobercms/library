@@ -229,19 +229,11 @@ trait HasRelationships
     {
         $model = $this->newRelatedInstance($relationClass);
 
-        /**
-         * @event model.newRelatedInstance
-         * Called when a new instance of a related model is created
-         *
-         * Example usage:
-         *
-         *     $model->bindEvent('model.newRelatedInstance', function (string $relationName, \October\Rain\Database\Model $relatedModel) use (\October\Rain\Database\Model $model) {
-         *         // Transfer custom properties
-         *         $relatedModel->isLocked = $model->isLocked;
-         *     });
-         *
-         */
+        // @deprecated
         $this->fireEvent('model.newRelatedInstance', [$relationName, $model]);
+
+        $this->fireEvent('model.afterRelation', [$relationName, $model]);
+        $this->afterRelation($relationName, $model);
 
         return $model;
     }
@@ -358,6 +350,10 @@ trait HasRelationships
             default:
                 throw new InvalidArgumentException(sprintf("There is no such relation type known as '%s' on model '%s'.", $relationType, get_called_class()));
         }
+
+        // Relation hook event
+        $this->fireEvent('model.beforeRelation', [$relationName, $relationObj]);
+        $this->beforeRelation($relationName, $relationObj);
 
         return $relationObj;
     }
