@@ -240,6 +240,17 @@ trait Multisite
     }
 
     /**
+     * findForSite
+     */
+    public function findForSite($siteId = null)
+    {
+        return $this
+            ->newOtherSiteQuery()
+            ->where($this->getSiteIdColumn(), $siteId)
+            ->first();
+    }
+
+    /**
      * findOtherSiteModel
      */
     protected function findOtherSiteModel($siteId = null)
@@ -252,10 +263,7 @@ trait Multisite
             return $this;
         }
 
-        $otherModel = $this
-            ->newOtherSiteQuery()
-            ->where($this->getSiteIdColumn(), $siteId)
-            ->first();
+        $otherModel = $this->findForSite($siteId);
 
         // Replicate without save
         if (!$otherModel) {
