@@ -296,10 +296,8 @@ class Model extends EloquentModel
      */
     public function __call($name, $params)
     {
-        /*
-         * Never call handleRelation() anywhere else as it could
-         * break getRelationCaller(), use $this->{$name}() instead
-         */
+        // Never call handleRelation() anywhere else as it could
+        // break getRelationCaller(), use $this->{$name}() instead
         if ($this->hasRelation($name)) {
             return $this->handleRelation($name);
         }
