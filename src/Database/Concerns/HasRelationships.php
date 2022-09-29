@@ -230,9 +230,6 @@ trait HasRelationships
     {
         $model = $this->newRelatedInstance($relationClass);
 
-        // @deprecated
-        $this->fireEvent('model.newRelatedInstance', [$relationName, $model]);
-
         $this->fireEvent('model.afterRelation', [$relationName, $model]);
         $this->afterRelation($relationName, $model);
 
