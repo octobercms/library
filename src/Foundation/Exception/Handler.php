@@ -65,7 +65,7 @@ class Handler extends ExceptionHandler
          *         }
          *     });
          */
-        if (Event::fire('exception.beforeReport', [&$exception], true) === false) {
+        if (Event::fire('exception.beforeReport', [$exception], true) === false) {
             return;
         }
 
@@ -128,7 +128,7 @@ class Handler extends ExceptionHandler
 
         /**
          * @event exception.beforeRender
-         * Fired before the exception renders and returns an optional custom response.
+         * Fires as the exception renders and returns an optional custom response.
          *
          * Example usage
          *
@@ -170,6 +170,9 @@ class Handler extends ExceptionHandler
         }
         elseif ($exception instanceof ForbiddenException) {
             $code = 403;
+        }
+        elseif ($exception instanceof NotFoundHttpException) {
+            $code = 404;
         }
         elseif ($exception instanceof AjaxException) {
             $code = 406;
