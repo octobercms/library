@@ -64,7 +64,7 @@ trait Multisite
         $this->bindEvent('model.afterCreate', function() {
             if (!$this->site_root_id) {
                 $this->site_root_id = $this->id;
-                $this->newQuery()
+                $this->newQueryWithoutScopes()
                     ->where($this->getKeyName(), $this->id)
                     ->update(['site_root_id' => $this->site_root_id])
                 ;
