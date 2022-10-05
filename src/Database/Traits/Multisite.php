@@ -102,6 +102,7 @@ trait Multisite
                 $this->$type[$name] = (array) $this->$type[$name];
             }
 
+            // Override the local key to the shared root identifier
             if ($type === 'belongsToMany') {
                 $this->$type[$name]['parentKey'] = 'site_root_id';
             }
@@ -231,11 +232,17 @@ trait Multisite
         // Perform propagation for existing records
         if ($otherModel->exists) {
             foreach ($this->propagatable as $name) {
-                if ($otherModel->hasRelation($name)) {
-                    continue;
-                }
+                $relationType = $this->getRelationType($name);
 
-                $otherModel->$name = $this->$name;
+                // Propagate local key relation
+                if ($relationType === 'belongsTo') {
+                    $fkName = $this->$name()->getForeignKeyName();
+                    $otherModel->$fkName = $this->$fkName;
+                }
+                // Propagate local attribute (not a relation)
+                elseif (!$relationType) {
+                    $otherModel->$name = $this->$name;
+                }
             }
         }
 
