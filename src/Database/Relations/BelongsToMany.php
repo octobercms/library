@@ -347,9 +347,7 @@ class BelongsToMany extends BelongsToManyBase
      */
     public function setSimpleValue($value)
     {
-        /*
-         * Nulling the relationship
-         */
+        // Nulling the relationship
         if (!$value) {
             // Disassociate in memory immediately
             $this->parent->setRelation(
@@ -364,23 +362,19 @@ class BelongsToMany extends BelongsToManyBase
             return;
         }
 
-        /*
-         * Convert models to keys
-         */
+        // Convert models to keys
         if ($value instanceof Model) {
-            $value = $value->getKey();
+            $value = $value->{$this->getRelatedKeyName()};
         }
         elseif (is_array($value)) {
             foreach ($value as $_key => $_value) {
                 if ($_value instanceof Model) {
-                    $value[$_key] = $_value->getKey();
+                    $value[$_key] = $_value->{$this->getRelatedKeyName()};
                 }
             }
         }
 
-        /*
-         * Setting the relationship
-         */
+        // Setting the relationship
         $relationCollection = $value instanceof CollectionBase
             ? $value
             : $this->newSimpleRelationQuery((array) $value)->get();
@@ -403,7 +397,7 @@ class BelongsToMany extends BelongsToManyBase
 
         $query = $model->newQuery();
 
-        return $query->whereIn($model->getKeyName(), $ids);
+        return $query->whereIn($this->getRelatedKeyName(), $ids);
     }
 
     /**
@@ -419,9 +413,10 @@ class BelongsToMany extends BelongsToManyBase
         $sessionKey = $this->parent->sessionKey;
 
         if ($this->parent->relationLoaded($relationName)) {
-            $related = $this->getRelated();
-
-            $value = $this->parent->getRelation($relationName)->pluck($related->getKeyName())->all();
+            $value = $this->parent->getRelation($relationName)
+                ->pluck($this->getRelatedKeyName())
+                ->all()
+            ;
         }
         else {
             $value = $this->allRelatedIds($sessionKey)->all();
@@ -437,13 +432,11 @@ class BelongsToMany extends BelongsToManyBase
      */
     public function allRelatedIds($sessionKey = null)
     {
-        $related = $this->getRelated();
-
-        $fullKey = $related->getQualifiedKeyName();
+        $fullKey = $this->getQualifiedRelatedKeyName();
 
         $query = $sessionKey ? $this->withDeferred($sessionKey) : $this;
 
-        return $query->getQuery()->select($fullKey)->pluck($related->getKeyName());
+        return $query->getQuery()->select($fullKey)->pluck($this->getRelatedKeyName());
     }
 
     /**

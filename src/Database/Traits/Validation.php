@@ -191,8 +191,7 @@ trait Validation
      */
     public function forceSave($options = null, $sessionKey = null)
     {
-        $this->sessionKey = $sessionKey;
-        return $this->saveInternal(['force' => true] + (array) $options);
+        return $this->saveInternal((array) $options + ['force' => true, 'sessionKey' => $sessionKey]);
     }
 
     /**
@@ -478,8 +477,8 @@ trait Validation
      * Note that it will only be checked up to the next level, if another dependent rule is found
      * then it will just assume the field is required.
      * @param  string  $attribute
-     * @param boolean $checkDependencies
-     * @return boolean
+     * @param bool $checkDependencies
+     * @return bool
      */
     public function isAttributeRequired($attribute, $checkDependencies = true)
     {

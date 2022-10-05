@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Concerns;
 
+use October\Rain\Support\Arr;
 use October\Rain\Support\Str;
 use October\Rain\Database\Relations\BelongsTo;
 use October\Rain\Database\Relations\BelongsToMany;
@@ -13,6 +14,8 @@ use October\Rain\Database\Relations\AttachMany;
 use October\Rain\Database\Relations\AttachOne;
 use October\Rain\Database\Relations\HasManyThrough;
 use October\Rain\Database\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
+use Illuminate\Database\Eloquent\Collection as CollectionBase;
 use InvalidArgumentException;
 
 /**
@@ -176,9 +179,7 @@ trait HasRelationships
         foreach (static::$relationTypes as $type) {
             $result[$type] = $this->{$type};
 
-            /*
-             * Apply default values for the relation type
-             */
+            // Apply default values for the relation type
             if ($defaults = $this->getRelationDefaults($type)) {
                 foreach ($result[$type] as $relation => $options) {
                     $result[$type][$relation] = (array) $options + $defaults;
@@ -228,9 +229,6 @@ trait HasRelationships
     protected function makeRelationInternal(string $relationName, string $relationClass)
     {
         $model = $this->newRelatedInstance($relationClass);
-
-        // @deprecated
-        $this->fireEvent('model.newRelatedInstance', [$relationName, $model]);
 
         $this->fireEvent('model.afterRelation', [$relationName, $model]);
         $this->afterRelation($relationName, $model);
@@ -816,5 +814,46 @@ trait HasRelationships
     protected function setRelationValue($relationName, $value)
     {
         $this->$relationName()->setSimpleValue($value);
+    }
+
+    /**
+     * performDeleteOnRelations locates relations with delete flag and cascades
+     * the delete event.
+     */
+    protected function performDeleteOnRelations()
+    {
+        $definitions = $this->getRelationDefinitions();
+        foreach ($definitions as $type => $relations) {
+            // Hard 'delete' definition
+            foreach ($relations as $name => $options) {
+                if (!Arr::get($options, 'delete', false)) {
+                    continue;
+                }
+
+                if (!$relation = $this->{$name}) {
+                    continue;
+                }
+
+                if ($relation instanceof EloquentModel) {
+                    $relation->forceDelete();
+                }
+                elseif ($relation instanceof CollectionBase) {
+                    $relation->each(function ($model) {
+                        $model->forceDelete();
+                    });
+                }
+            }
+
+            // Belongs-To-Many should clean up after itself by default
+            if ($type === 'belongsToMany') {
+                foreach ($relations as $name => $options) {
+                    if (!Arr::get($options, 'detach', true)) {
+                        return;
+                    }
+
+                    $this->{$name}()->detach();
+                }
+            }
+        }
     }
 }

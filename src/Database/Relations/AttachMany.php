@@ -38,9 +38,7 @@ class AttachMany extends MorphManyBase
      */
     public function setSimpleValue($value)
     {
-        /*
-         * Newly uploaded file(s)
-         */
+        // Newly uploaded file(s)
         if ($this->isValidFileData($value)) {
             $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
                 $this->create(['data' => $value]);
@@ -59,9 +57,7 @@ class AttachMany extends MorphManyBase
                 }
             });
         }
-        /*
-         * Existing File model
-         */
+        // Existing File model
         elseif ($value instanceof FileModel) {
             $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
                 $this->add($value);

@@ -1,11 +1,11 @@
 <?php namespace October\Rain\Database\Attach;
 
 use Log;
+use Http;
 use Cache;
 use Storage;
 use Response;
 use File as FileHelper;
-use October\Rain\Network\Http;
 use October\Rain\Database\Model;
 use October\Rain\Resize\Resizer;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -174,15 +174,15 @@ class File extends Model
     {
         $data = Http::get($url);
 
-        if ($data->code !== 200) {
-            throw new Exception(sprintf('Error getting file "%s", error code: %d', $data->url, $data->code));
+        if ($data->status() !== 200) {
+            throw new Exception(sprintf('Error getting file "%s", error code: %d', $url, $data->status()));
         }
 
         if (empty($filename)) {
             $filename = FileHelper::basename($url);
         }
 
-        return $this->fromData($data, $filename);
+        return $this->fromData($data->body(), $filename);
     }
 
     //
@@ -942,10 +942,10 @@ class File extends Model
     public function getStorageDirectory()
     {
         if ($this->isPublic()) {
-            return 'uploads/public/';
+            return 'public/';
         }
 
-        return 'uploads/protected/';
+        return 'protected/';
     }
 
     /**
@@ -954,10 +954,10 @@ class File extends Model
     public function getPublicPath()
     {
         if ($this->isPublic()) {
-            return 'http://localhost/uploads/public/';
+            return 'http://localhost/storage/uploads/public/';
         }
 
-        return 'http://localhost/uploads/protected/';
+        return 'http://localhost/storage/uploads/protected/';
     }
 
     /**
@@ -1008,6 +1008,6 @@ class File extends Model
      */
     protected function getLocalRootPath()
     {
-        return storage_path() . '/app';
+        return storage_path('app/uploads');
     }
 }

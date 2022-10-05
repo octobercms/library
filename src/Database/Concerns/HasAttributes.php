@@ -27,44 +27,17 @@ trait HasAttributes
         }
 
         // Dates
-        foreach ($this->getDates() as $key) {
-            if (!isset($attributes[$key])) {
-                continue;
-            }
-
-            $attributes[$key] = $this->serializeDate(
-                $this->asDateTime($attributes[$key])
-            );
-        }
+        $attributes = $this->addDateAttributesToArray($attributes);
 
         // Mutate
-        $mutatedAttributes = $this->getMutatedAttributes();
-
-        foreach ($mutatedAttributes as $key) {
-            if (!array_key_exists($key, $attributes)) {
-                continue;
-            }
-
-            $attributes[$key] = $this->mutateAttributeForArray(
-                $key,
-                $attributes[$key]
-            );
-        }
+        $attributes = $this->addMutatedAttributesToArray(
+            $attributes, $mutatedAttributes = $this->getMutatedAttributes()
+        );
 
         // Casts
-        foreach ($this->casts as $key => $value) {
-            if (
-                !array_key_exists($key, $attributes) ||
-                in_array($key, $mutatedAttributes)
-            ) {
-                continue;
-            }
-
-            $attributes[$key] = $this->castAttribute(
-                $key,
-                $attributes[$key]
-            );
-        }
+        $attributes = $this->addCastAttributesToArray(
+            $attributes, $mutatedAttributes
+        );
 
         // Appends
         foreach ($this->getArrayableAppends() as $key) {
@@ -72,24 +45,9 @@ trait HasAttributes
         }
 
         // Jsonable
-        foreach ($this->jsonable as $key) {
-            if (
-                !array_key_exists($key, $attributes) ||
-                in_array($key, $mutatedAttributes)
-            ) {
-                continue;
-            }
-
-            // Prevent double decoding of jsonable attributes.
-            if (!is_string($attributes[$key])) {
-                continue;
-            }
-
-            $jsonValue = json_decode($attributes[$key], true);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                $attributes[$key] = $jsonValue;
-            }
-        }
+        $attributes = $this->addJsonableAttributesToArray(
+            $attributes, $mutatedAttributes
+        );
 
         // After Event
         foreach ($attributes as $key => $value) {

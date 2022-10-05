@@ -93,12 +93,14 @@ trait NestedTree
         // Define relationships
         $this->hasMany['children'] = [
             get_class($this),
-            'key' => $this->getParentColumnName()
+            'key' => $this->getParentColumnName(),
+            'replicate' => false
         ];
 
         $this->belongsTo['parent'] = [
             get_class($this),
-            'key' => $this->getParentColumnName()
+            'key' => $this->getParentColumnName(),
+            'replicate' => false
         ];
 
         // Bind events
@@ -743,7 +745,8 @@ trait NestedTree
     public function setDefaultLeftAndRight()
     {
         $highRight = $this
-            ->newQueryWithoutScopes()
+            ->newNestedTreeQuery()
+            ->reorder()
             ->orderBy($this->getRightColumnName(), 'desc')
             ->limit(1)
             ->first()

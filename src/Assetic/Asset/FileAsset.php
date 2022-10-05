@@ -3,6 +3,7 @@
 use October\Rain\Assetic\Filter\FilterInterface;
 use October\Rain\Assetic\Util\VarUtils;
 use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * FileAsset represents an asset loaded from a file.
@@ -17,7 +18,7 @@ class FileAsset extends BaseAsset
     protected $source;
 
     /**
-     * __construc.
+     * __construct.
      *
      * @param string $source     An absolute path
      * @param array  $filters    An array of filters
@@ -27,16 +28,16 @@ class FileAsset extends BaseAsset
      *
      * @throws InvalidArgumentException If the supplied root doesn't match the source when guessing the path
      */
-    public function __construct($source, $filters = array(), $sourceRoot = null, $sourcePath = null, array $vars = array())
+    public function __construct($source, $filters = [], $sourceRoot = null, $sourcePath = null, array $vars = [])
     {
-        if (null === $sourceRoot) {
+        if ($sourceRoot === null) {
             $sourceRoot = dirname($source);
-            if (null === $sourcePath) {
+            if ($sourcePath === null) {
                 $sourcePath = basename($source);
             }
         }
         elseif (null === $sourcePath) {
-            if (0 !== strpos($source, $sourceRoot)) {
+            if (strpos($source, $sourceRoot) !== 0) {
                 throw new InvalidArgumentException(sprintf('The source "%s" is not in the root directory "%s"', $source, $sourceRoot));
             }
 
@@ -56,7 +57,7 @@ class FileAsset extends BaseAsset
         $source = VarUtils::resolve($this->source, $this->getVars(), $this->getValues());
 
         if (!is_file($source)) {
-            throw new \RuntimeException(sprintf('The source file "%s" does not exist.', $source));
+            throw new RuntimeException(sprintf('The source file "%s" does not exist.', $source));
         }
 
         $this->doLoad(file_get_contents($source), $additionalFilter);
@@ -70,7 +71,7 @@ class FileAsset extends BaseAsset
         $source = VarUtils::resolve($this->source, $this->getVars(), $this->getValues());
 
         if (!is_file($source)) {
-            throw new \RuntimeException(sprintf('The source file "%s" does not exist.', $source));
+            throw new RuntimeException(sprintf('The source file "%s" does not exist.', $source));
         }
 
         return filemtime($source);

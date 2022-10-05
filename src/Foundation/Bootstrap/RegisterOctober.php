@@ -15,19 +15,16 @@ class RegisterOctober
     public function bootstrap(Application $app)
     {
         // Workaround for CLI and URL based in subdirectory
-        //
         if ($app->runningInConsole()) {
             $app['url']->forceRootUrl($app['config']->get('app.url'));
         }
 
         // Register singletons
-        //
         $app->singleton('string', function () {
             return new \October\Rain\Support\Str;
         });
 
         // Change paths based on config
-        //
         if ($storagePath = $app['config']->get('system.storage_path')) {
             $app->useStoragePath($this->parseConfiguredPath($app, $storagePath));
         }
@@ -66,7 +63,6 @@ class RegisterOctober
         ]);
 
         // Initialize class loader cache
-        //
         $loader = $app->make(ClassLoader::class);
         $loader->initManifest($app->getCachedClassesPath());
     }

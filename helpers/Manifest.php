@@ -3,6 +3,6 @@
 /**
  * Manifest
  *
- * @see \Manifest\Classes\ManifestCache
+ * @see \System\Classes\ManifestCache
  */
 class Manifest extends System\Facades\Manifest {}

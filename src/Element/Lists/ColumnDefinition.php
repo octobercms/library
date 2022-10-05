@@ -16,6 +16,7 @@ use October\Rain\Element\ElementBase;
  * @method ColumnDefinition searchable(bool $searchable) searchable specifies if this column can be searched
  * @method ColumnDefinition invisible(bool $invisible) invisible is hidden in default list settings
  * @method ColumnDefinition clickable(bool $clickable) clickable disables the default click behavior when the column is clicked
+ * @method ColumnDefinition order(int $order) order number when displaying
  *
  * @package october\element
  * @author Alexey Bobkov, Samuel Georges
@@ -34,6 +35,7 @@ class ColumnDefinition extends ElementBase
             ->searchable(false)
             ->invisible(false)
             ->clickable()
+            ->order(-1)
         ;
     }
 

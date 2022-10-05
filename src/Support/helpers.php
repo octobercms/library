@@ -266,18 +266,6 @@ if (!function_exists('collect')) {
     }
 }
 
-if (!function_exists('is_countable')) {
-    /**
-     * is_countable is a polyfill for `is_countable` method provided in PHP 7.3
-     * @param  mixed  $var
-     * @return boolean
-     */
-    function is_countable($value)
-    {
-        return (is_array($value) || $value instanceof Countable);
-    }
-}
-
 if (!function_exists('array_add')) {
     /**
      * array_add adds an element to an array using "dot" notation if it doesn't exist

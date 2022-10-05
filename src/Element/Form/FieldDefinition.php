@@ -26,6 +26,7 @@ use October\Rain\Element\ElementBase;
  * @method FieldDefinition commentAbove(string $comment) commentAbove the form field
  * @method FieldDefinition commentHtml(bool $commentHtml) commentHtml if the comment is in HTML format
  * @method FieldDefinition placeholder(string $placeholder) placeholder to display when there is no value supplied
+ * @method FieldDefinition order(int $order) order number when displaying
  *
  * @package october\element
  * @author Alexey Bobkov, Samuel Georges
@@ -55,6 +56,7 @@ class FieldDefinition extends ElementBase
             ->spanClass('')
             ->comment('')
             ->placeholder('')
+            ->order(-1)
         ;
     }
 

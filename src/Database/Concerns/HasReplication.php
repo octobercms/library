@@ -76,14 +76,18 @@ trait HasReplication
 
     /**
      * isRelationReplicable determines whether the specified relation should be replicated
-     * when replicate() is called instead of save() on the model. Default: false.
+     * when replicate() is called instead of save() on the model. Default: true.
      */
     public function isRelationReplicable(string $name): bool
     {
-        $definition = $this->getRelationDefinition($name);
-
-        if (!array_key_exists('replicate', $definition)) {
+        $relationType = $this->getRelationType($name);
+        if ($relationType === 'morphTo') {
             return false;
+        }
+
+        $definition = $this->getRelationDefinition($name);
+        if (!array_key_exists('replicate', $definition)) {
+            return true;
         }
 
         return (bool) $definition['replicate'];

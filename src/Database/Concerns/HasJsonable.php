@@ -58,4 +58,32 @@ trait HasJsonable
 
         return $this;
     }
+
+    /**
+     * addJsonableAttributesToArray
+     * @return array
+     */
+    protected function addJsonableAttributesToArray(array $attributes, array $mutatedAttributes)
+    {
+        foreach ($this->jsonable as $key) {
+            if (
+                !array_key_exists($key, $attributes) ||
+                in_array($key, $mutatedAttributes)
+            ) {
+                continue;
+            }
+
+            // Prevent double decoding of jsonable attributes.
+            if (!is_string($attributes[$key])) {
+                continue;
+            }
+
+            $jsonValue = json_decode($attributes[$key], true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $attributes[$key] = $jsonValue;
+            }
+        }
+
+        return $attributes;
+    }
 }

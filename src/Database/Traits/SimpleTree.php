@@ -49,12 +49,14 @@ trait SimpleTree
         // Define relationships
         $this->hasMany['children'] = [
             get_class($this),
-            'key' => $this->getParentColumnName()
+            'key' => $this->getParentColumnName(),
+            'replicate' => false
         ];
 
         $this->belongsTo['parent'] = [
             get_class($this),
-            'key' => $this->getParentColumnName()
+            'key' => $this->getParentColumnName(),
+            'replicate' => false
         ];
     }
 
@@ -155,9 +157,7 @@ trait SimpleTree
 
         $collection = $query->getQuery()->get($columns);
 
-        /*
-         * Assign all child nodes to their parents
-         */
+        // Assign all child nodes to their parents
         $pairMap = [];
         $rootItems = [];
         foreach ($collection as $record) {
@@ -172,10 +172,8 @@ trait SimpleTree
             }
         }
 
-        /*
-         * Recursive helper function
-         */
-        $buildCollection = function (
+        // Recursive helper function
+        $buildCollection = function(
             $items,
             $map,
             $depth = 0
@@ -202,9 +200,7 @@ trait SimpleTree
                     $result[] = $indentString . $item->{$column};
                 }
 
-                /*
-                 * Add the children
-                 */
+                // Add the children
                 $childItems = array_get($map, $item->{$idName}, []);
                 if (count($childItems) > 0) {
                     $result = $result + $buildCollection($childItems, $map, $depth + 1);
@@ -214,15 +210,9 @@ trait SimpleTree
             return $result;
         };
 
-        /*
-         * Build a nested collection
-         */
+        // Build a nested collection
         return $buildCollection($rootItems, $pairMap);
     }
-
-    //
-    // Column getters
-    //
 
     /**
      * getParentColumnName

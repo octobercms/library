@@ -1,6 +1,6 @@
 <?php namespace October\Rain\Assetic\Filter;
 
-
+use Url;
 use File;
 use Config;
 use Storage;
@@ -8,10 +8,9 @@ use October\Rain\Assetic\Asset\AssetInterface;
 use October\Rain\Assetic\Factory\AssetFactory;
 use October\Rain\Assetic\Util\SassUtils;
 use ScssPhp\ScssPhp\Compiler;
-use ScssPhp\ScssPhp\OutputStyle;
 
 /**
- * Loads SCSS files using the PHP implementation of scss, scssphp.
+ * ScssphpFilter loads SCSS files using the PHP implementation of scss, scssphp.
  *
  * Scss files are mostly compatible, but there are slight differences.
  *
@@ -138,10 +137,8 @@ class ScssphpFilter implements DependencyExtractorInterface
      */
     protected function getSourceMapLocalPath(): string
     {
-        $path = rtrim(Config::get('system.storage.resources.path', '/storage/app/resources'), '/');
+        $path = rtrim(Config::get('filesystems.disks.resources.root', storage_path('app/resources')), '/');
         $path .= '/sourcemap';
-
-        $path = base_path($path);
 
         if (!File::isDirectory($path)) {
             File::makeDirectory($path, 0755, true, true);
@@ -155,17 +152,16 @@ class ScssphpFilter implements DependencyExtractorInterface
      */
     protected function getSourceMapPublicUrl(): string
     {
-        $disk = Storage::disk(Config::get('system.storage.resources.disk'));
-        $resourcesFolder = Config::get('system.storage.resources.folder');
-        $resourcesFolder .= '/sourcemap';
+        $fullPath = Config::get('filesystems.disks.resources.url', '/storage/app/resources');
+        $fullPath .= '/sourcemap';
 
         if (
-            Config::get('system.storage.media.disk') === 'local' &&
+            Config::get('filesystems.disks.resources.driver') === 'local' &&
             Config::get('system.relative_links') === true
         ) {
-            return $resourcesFolder;
+            return Url::toRelative($fullPath);
         }
 
-        return $disk->url($resourcesFolder);
+        return Url::asset($fullPath);
     }
 }

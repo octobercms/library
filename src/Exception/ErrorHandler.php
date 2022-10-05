@@ -52,8 +52,6 @@ class ErrorHandler
                  : static::getDetailedMessage($proposedException);
         }
 
-        $this->beforeHandleError($proposedException);
-
         // Clear the output buffer
         while (ob_get_level()) {
             ob_end_clean();
@@ -138,15 +136,6 @@ class ErrorHandler
     //
     // Overrides
     //
-
-    /**
-     * beforeHandleError for when we are about to display an error page to the user,
-     * provide an opportunity to handle extra functions.
-     * @return void
-     */
-    public function beforeHandleError($exception)
-    {
-    }
 
     /**
      * handleCustomError checks if using a custom error page, if so return the contents.
