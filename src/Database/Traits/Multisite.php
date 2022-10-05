@@ -81,20 +81,35 @@ trait Multisite
     {
         foreach ($this->getRelationDefinitions() as $type => $relations) {
             foreach ($this->$type as $name => $definition) {
-                if (!$this->isAttributePropagatable($name)) {
-                    continue;
+                if ($this->isAttributePropagatable($name)) {
+                    $this->defineMultisiteRelation($name, $type);
                 }
+            }
+        }
+    }
 
-                if (!is_array($this->$type[$name])) {
-                    $this->$type[$name] = (array) $this->$type[$name];
-                }
+    /**
+     * defineMultisiteRelation
+     */
+    protected function defineMultisiteRelation($name, $type = null)
+    {
+        if ($type === null) {
+            $type = $this->getRelationType($name);
+        }
 
-                if ($type === 'belongsToMany') {
-                    $this->$type[$name]['parentKey'] = 'site_root_id';
-                }
-                else {
-                    $this->$type[$name]['key'] = 'site_root_id';
-                }
+        if ($type) {
+            if (!is_array($this->$type[$name])) {
+                $this->$type[$name] = (array) $this->$type[$name];
+            }
+
+            if ($type === 'belongsToMany') {
+                $this->$type[$name]['parentKey'] = 'site_root_id';
+            }
+            elseif (in_array($type, ['hasOne', 'hasMany'])) {
+                $this->$type[$name]['otherKey'] = 'site_root_id';
+            }
+            elseif (in_array($type, ['attachOne', 'attachMany'])) {
+                $this->$type[$name]['key'] = 'site_root_id';
             }
         }
     }
@@ -117,6 +132,10 @@ trait Multisite
         $attributes = is_array($attributes) ? $attributes : func_get_args();
 
         $this->propagatable = array_merge($this->propagatable, $attributes);
+
+        foreach ($attributes as $attribute) {
+            $this->defineMultisiteRelation($attribute);
+        }
     }
 
     /**
