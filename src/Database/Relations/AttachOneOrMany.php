@@ -188,14 +188,14 @@ trait AttachOneOrMany
 
             // Associate the model
             if ($this->parent->exists) {
-                $model->setAttribute($this->getForeignKeyName(), $this->parent->getKey());
+                $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
                 $model->setAttribute($this->getMorphType(), $this->morphClass);
                 $model->setAttribute('field', $this->relationName);
                 $model->save();
             }
             else {
                 $this->parent->bindEventOnce('model.afterSave', function () use ($model) {
-                    $model->setAttribute($this->getForeignKeyName(), $this->parent->getKey());
+                    $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
                     $model->setAttribute($this->getMorphType(), $this->morphClass);
                     $model->setAttribute('field', $this->relationName);
                     $model->save();
@@ -321,7 +321,7 @@ trait AttachOneOrMany
     protected function isModelRemovable($model): bool
     {
         return
-            ((string) $model->getAttribute($this->getForeignKeyName()) === (string) $this->parent->getKey()) &&
+            ((string) $model->getAttribute($this->getForeignKeyName()) === (string) $this->getParentKey()) &&
             $model->getAttribute($this->getMorphType()) === $this->morphClass &&
             $model->getAttribute('field') === $this->relationName;
     }

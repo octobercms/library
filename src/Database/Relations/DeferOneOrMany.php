@@ -23,9 +23,7 @@ trait DeferOneOrMany
 
         $newQuery->from($this->related->getTable());
 
-        /*
-         * No join table will be used, strip the selected "pivot_" columns
-         */
+        // No join table will be used, strip the selected "pivot_" columns
         if ($this instanceof BelongsToManyBase) {
             $this->orphanMode = true;
         }
@@ -34,9 +32,7 @@ trait DeferOneOrMany
 
             if ($this->parent->exists) {
                 if ($this instanceof MorphToMany) {
-                    /*
-                     * Custom query for MorphToMany since a "join" cannot be used
-                     */
+                    // Custom query for MorphToMany since a "join" cannot be used
                     $query->whereExists(function ($query) {
                         $query
                             ->select($this->parent->getConnection()->raw(1))
@@ -47,9 +43,7 @@ trait DeferOneOrMany
                     });
                 }
                 elseif ($this instanceof BelongsToManyBase) {
-                    /*
-                     * Custom query for BelongsToManyBase since a "join" cannot be used
-                     */
+                    // Custom query for BelongsToManyBase since a "join" cannot be used
                     $query->whereExists(function ($query) {
                         $query
                             ->select($this->parent->getConnection()->raw(1))
@@ -59,9 +53,7 @@ trait DeferOneOrMany
                     });
                 }
                 else {
-                    /*
-                     * Trick the relation to add constraints to this nested query
-                     */
+                    // Trick the relation to add constraints to this nested query
                     $this->query = $query;
                     $this->addConstraints();
                 }
@@ -69,9 +61,7 @@ trait DeferOneOrMany
                 $this->addDefinedConstraintsToQuery($this);
             }
 
-            /*
-             * Bind (Add)
-             */
+            // Bind (Add)
             $query = $query->orWhereIn($this->getWithDeferredQualifiedKeyName(), function ($query) use ($sessionKey) {
                 $query
                     ->select('slave_id')
@@ -83,9 +73,7 @@ trait DeferOneOrMany
             });
         });
 
-        /*
-         * Unbind (Remove)
-         */
+        // Unbind (Remove)
         $newQuery->whereNotIn($this->getWithDeferredQualifiedKeyName(), function ($query) use ($sessionKey) {
             $query
                 ->select('slave_id')
@@ -110,9 +98,7 @@ trait DeferOneOrMany
 
         $modelQuery->setQuery($newQuery);
 
-        /*
-         * Apply global scopes
-         */
+        // Apply global scopes
         foreach ($this->related->getGlobalScopes() as $identifier => $scope) {
             $modelQuery->withGlobalScope($identifier, $scope);
         }
