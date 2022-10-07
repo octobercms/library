@@ -10,4 +10,8 @@ use Illuminate\Support\ServiceProvider as ServiceProviderBase;
  */
 abstract class ServiceProvider extends ServiceProviderBase
 {
+    /**
+     * @var \October\Rain\Foundation\Application app instance
+     */
+    protected $app;
 }

@@ -1,8 +1,7 @@
 <?php namespace October\Rain\Support;
 
-use October\Rain\Support\Facades\File;
 use October\Contracts\Support\OctoberPackage;
-use Illuminate\Support\ServiceProvider as ServiceProviderBase;
+use October\Rain\Support\ServiceProvider as ServiceProviderBase;
 
 /**
  * ModuleServiceProvider
