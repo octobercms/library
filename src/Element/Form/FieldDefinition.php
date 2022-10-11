@@ -158,8 +158,6 @@ class FieldDefinition extends ElementBase
             return true;
         }
 
-        $haystack = is_array($this->context) ? $this->context : [$this->context];
-
-        return in_array($context, $haystack);
+        return in_array($context, (array) $this->context);
     }
 }
