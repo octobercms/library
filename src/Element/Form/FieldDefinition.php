@@ -147,7 +147,7 @@ class FieldDefinition extends ElementBase
     /**
      * matchesContext returns true if the field matches the supplied context
      */
-    public function matchesContext(string $context): bool
+    public function matchesContext($context): bool
     {
         if ($this->context === null) {
             return true;
