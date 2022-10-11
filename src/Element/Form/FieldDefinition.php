@@ -148,4 +148,18 @@ class FieldDefinition extends ElementBase
 
         return $this;
     }
+
+    /**
+     * matchesContext returns true if the field matches the supplied context
+     */
+    public function matchesContext(string $context): bool
+    {
+        if ($this->context === null) {
+            return true;
+        }
+
+        $haystack = is_array($this->context) ? $this->context : [$this->context];
+
+        return in_array($context, $haystack);
+    }
 }

@@ -17,6 +17,11 @@ interface FormElement
     public function addFormField(string $fieldName = null, string $label = null): FieldDefinition;
 
     /**
+     * getFormContext returns the current form context, e.g. create, update
+     */
+    public function getFormContext(): string;
+
+    /**
      * getFormFieldset returns the current fieldset definition
      */
     public function getFormFieldset(): FieldsetDefinition;
