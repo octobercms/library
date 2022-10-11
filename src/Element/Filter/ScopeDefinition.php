@@ -40,21 +40,6 @@ class ScopeDefinition extends ElementBase
     }
 
     /**
-     * useConfig
-     */
-    public function useConfig(array $config): ElementBase
-    {
-        parent::useConfig($config);
-
-        // The valueFrom attribute defaults to the scopeName attribute
-        if (isset($this->config['scopeName']) && !isset($this->config['valueFrom'])) {
-            $this->config['valueFrom'] = $this->config['scopeName'];
-        }
-
-        return $this;
-    }
-
-    /**
      * displayAs type for this scope. Supported modes are:
      * - group - filter by a group of IDs. Default.
      * - checkbox - filter by a simple toggle switch.

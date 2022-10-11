@@ -67,11 +67,6 @@ class FieldDefinition extends ElementBase
     {
         parent::useConfig($config);
 
-        // The valueFrom attribute defaults to the fieldName attribute
-        if (isset($this->config['fieldName']) && !isset($this->config['valueFrom'])) {
-            $this->config['valueFrom'] = $this->config['fieldName'];
-        }
-
         // The config default proxies to defaults
         if (array_key_exists('default', $this->config)) {
             $this->defaults($this->config['default']);
