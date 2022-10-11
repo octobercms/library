@@ -10,9 +10,11 @@ class FlashServiceProvider extends ServiceProvider implements DeferrableProvider
      */
     public function register()
     {
-        $this->app->singleton('flash', function ($app) {
-            return new FlashBag;
+        $this->app->singleton('flash', function () {
+            return new FlashBag();
         });
+
+        $this->app->alias('flash', FlashBag::class);
     }
 
     /**
