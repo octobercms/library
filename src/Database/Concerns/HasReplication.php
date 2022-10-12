@@ -40,7 +40,7 @@ trait HasReplication
         foreach ($definitions as $type => $relations) {
             foreach ($relations as $name => $options) {
                 if ($this->isRelationReplicable($name)) {
-                    $instance->replicateRelation($name, $this->$name);
+                    $this->replicateRelationInternal($instance->$name(), $this->$name);
                 }
             }
         }
@@ -49,9 +49,9 @@ trait HasReplication
     }
 
     /**
-     * replicateRelation on this model with the supplied ones
+     * replicateRelationInternal on the model instance with the supplied ones
      */
-    public function replicateRelation($name, $models)
+    protected function replicateRelationInternal($relationObject, $models)
     {
         if ($models instanceof CollectionBase) {
             $models = $models->all();
@@ -62,8 +62,6 @@ trait HasReplication
         else {
             $models = (array) $models;
         }
-
-        $relationObject = $this->$name();
 
         foreach (array_filter($models) as $model) {
             if ($relationObject instanceof HasOneOrMany) {
@@ -79,7 +77,7 @@ trait HasReplication
      * isRelationReplicable determines whether the specified relation should be replicated
      * when replicateWithRelations() is called instead of save() on the model. Default: true.
      */
-    public function isRelationReplicable(string $name): bool
+    protected function isRelationReplicable(string $name): bool
     {
         $relationType = $this->getRelationType($name);
         if ($relationType === 'morphTo') {
