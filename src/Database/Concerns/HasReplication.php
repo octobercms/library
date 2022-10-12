@@ -11,12 +11,13 @@ use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 trait HasReplication
 {
     /**
-     * replicate the model into a new, non-existing instance.
+     * replicateWithRelations replicates the model into a new, non-existing instance,
+     * including replicating relations.
      *
      * @param  array|null  $except
      * @return static
      */
-    public function replicate(array $except = null)
+    public function replicateWithRelations(array $except = null)
     {
         $defaults = [
             $this->getKeyName(),
@@ -66,7 +67,7 @@ trait HasReplication
 
         foreach (array_filter($models) as $model) {
             if ($relationObject instanceof HasOneOrMany) {
-                $relationObject->add($model->replicate());
+                $relationObject->add($model->replicateWithRelations());
             }
             else {
                 $relationObject->add($model);
@@ -76,7 +77,7 @@ trait HasReplication
 
     /**
      * isRelationReplicable determines whether the specified relation should be replicated
-     * when replicate() is called instead of save() on the model. Default: true.
+     * when replicateWithRelations() is called instead of save() on the model. Default: true.
      */
     public function isRelationReplicable(string $name): bool
     {
