@@ -9,6 +9,27 @@ use Illuminate\Contracts\Foundation\Application;
  */
 class RegisterOctober
 {
+    protected $cachePaths = [
+        'cms',
+        'cms/cache',
+        'cms/combiner',
+        'cms/twig',
+        'framework',
+        'framework/cache',
+        'framework/views',
+        'temp',
+        'temp/public',
+    ];
+
+    protected $storagePaths = [
+        'app',
+        'app/media',
+        'app/uploads',
+        'framework',
+        'framework/sessions',
+        'logs',
+    ];
+
     /**
      * bootstrap the application
      */
@@ -41,26 +62,15 @@ class RegisterOctober
             $app->useThemesPath($this->parseConfiguredPath($app, $themesPath));
         }
 
-        $this->makeSystemPaths($app->cachePath(), [
-            'cms',
-            'cms/cache',
-            'cms/combiner',
-            'cms/twig',
-            'framework',
-            'framework/cache',
-            'framework/views',
-            'temp',
-            'temp/public',
-        ]);
-
-        $this->makeSystemPaths($app->storagePath(), [
-            'app',
-            'app/media',
-            'app/uploads',
-            'framework',
-            'framework/sessions',
-            'logs',
-        ]);
+        // Make system paths
+        if($app->cachePath() === $app->storagePath()) {
+            $this->makeSystemPaths($app->cachePath(), array_unique(
+                array_merge($this->cachePaths, $this->storagePaths)
+            ));
+        } else {
+            $this->makeSystemPaths($app->cachePath(), $this->cachePaths);
+            $this->makeSystemPaths($app->storagePath(), $this->storagePaths);
+        }
 
         // Initialize class loader cache
         $loader = $app->make(ClassLoader::class);
