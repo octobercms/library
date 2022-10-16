@@ -9,6 +9,9 @@ use Illuminate\Contracts\Foundation\Application;
  */
 class RegisterOctober
 {
+    /**
+     * cachePaths used by the system
+     */
     protected $cachePaths = [
         'cms',
         'cms/cache',
@@ -21,6 +24,9 @@ class RegisterOctober
         'temp/public',
     ];
 
+    /**
+     * storagePaths used by the system
+     */
     protected $storagePaths = [
         'app',
         'app/media',
@@ -63,11 +69,12 @@ class RegisterOctober
         }
 
         // Make system paths
-        if($app->cachePath() === $app->storagePath()) {
+        if ($app->cachePath() === $app->storagePath()) {
             $this->makeSystemPaths($app->cachePath(), array_unique(
                 array_merge($this->cachePaths, $this->storagePaths)
             ));
-        } else {
+        }
+        else {
             $this->makeSystemPaths($app->cachePath(), $this->cachePaths);
             $this->makeSystemPaths($app->storagePath(), $this->storagePaths);
         }
