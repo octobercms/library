@@ -75,13 +75,15 @@ trait Sortable
         foreach ($itemIds as $id) {
             $sortOrder = $sortKeyMap[$id] ?? null;
             if ($sortOrder !== null) {
-                $upsert[] = ['id' => $id, 'sort_order' => $sortOrder];
+                $upsert[] = ['id' => $id, 'sort_order' => (int) $sortOrder];
             }
         }
 
         if ($upsert) {
             foreach ($upsert as $update) {
-                $this->newQuery()->where($this->getKeyName(), $update['id'])->update([$this->getSortOrderColumn() => $update['sort_order']]);
+                $this->newQuery()
+                    ->where($this->getKeyName(), $update['id'])
+                    ->update([$this->getSortOrderColumn() => $update['sort_order']]);
             }
         }
     }
