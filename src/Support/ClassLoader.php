@@ -68,8 +68,11 @@ class ClassLoader
      */
     public function load($class): bool
     {
-        if (isset($this->manifest[$class])) {
-            require_once $this->basePath.DIRECTORY_SEPARATOR.$this->manifest[$class];
+        if (
+            isset($this->manifest[$class]) &&
+            file_exists($fullPath = $this->basePath.DIRECTORY_SEPARATOR.$this->manifest[$class])
+        ) {
+            require_once $fullPath;
             return true;
         }
 
