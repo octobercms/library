@@ -70,9 +70,9 @@ class ClassLoader
     {
         if (
             isset($this->manifest[$class]) &&
-            file_exists($fullPath = $this->basePath.DIRECTORY_SEPARATOR.$this->manifest[$class])
+            is_file($fullPath = $this->basePath.DIRECTORY_SEPARATOR.$this->manifest[$class])
         ) {
-            require_once $fullPath;
+            require $fullPath;
             return true;
         }
 
@@ -132,7 +132,7 @@ class ClassLoader
      */
     protected function includeClass(string $class, string $path): void
     {
-        require_once $this->basePath.DIRECTORY_SEPARATOR.$path;
+        require $this->basePath.DIRECTORY_SEPARATOR.$path;
 
         $this->manifest[$class] = $this->files->normalizePath($path);
 
