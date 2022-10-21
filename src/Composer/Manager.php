@@ -1,7 +1,6 @@
 <?php namespace October\Rain\Composer;
 
 use Config;
-use Composer\Factory;
 use Composer\Composer;
 use Composer\Installer;
 use Composer\Json\JsonFile;
