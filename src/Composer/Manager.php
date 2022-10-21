@@ -46,6 +46,7 @@ class Manager
 
         try {
             $this->assertHomeDirectory();
+            $this->assertComposerWarmedUp();
 
             Installer::create($this->output, $this->makeComposer())
                 ->setDevMode(Config::get('app.debug', false))
@@ -72,6 +73,7 @@ class Manager
 
         try {
             $this->assertHomeDirectory();
+            $this->assertComposerWarmedUp();
             $this->writePackages($requirements);
 
             $composer = $this->makeComposer();
