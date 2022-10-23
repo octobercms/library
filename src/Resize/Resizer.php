@@ -458,7 +458,14 @@ class Resizer
             case 'jpeg':
                 // Check JPG support is enabled
                 if (imagetypes() & IMG_JPG) {
-                    imagejpeg($image, $savePath, $imageQuality);
+                    $width = imagesx($image);
+                    $height = imagesy($image);
+
+                    $imageCanvas = imagecreatetruecolor($width, $height);
+                    $white = imagecolorallocate($imageCanvas, 255, 255, 255);
+                    imagefill($imageCanvas, 0, 0, $white);
+                    imagecopy($imageCanvas, $image, 0, 0, 0, 0, $width, $height);
+                    imagejpeg($imageCanvas, $savePath, $imageQuality);
                 }
                 break;
 
