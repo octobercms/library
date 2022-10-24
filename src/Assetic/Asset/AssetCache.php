@@ -175,8 +175,7 @@ class AssetCache implements AssetInterface
     }
 
     /**
-     * Returns a cache key for the current asset.
-     *
+     * getCacheKey returns a cache key for the current asset.
      * The key is composed of everything but an asset's content:
      *
      *  * source root
