@@ -2,6 +2,8 @@
 
 use BackendMenu;
 use Backend\Classes\Controller;
+use Backend\Behaviors\FormController;
+use Backend\Behaviors\ListController;
 
 /**
  * {{title_name}} Backend Controller
@@ -9,28 +11,15 @@ use Backend\Classes\Controller;
 class {{studly_name}} extends Controller
 {
     public $implement = [
-        \Backend\Behaviors\FormController::class,
-        \Backend\Behaviors\ListController::class
+        FormController::class,
+        ListController::class
     ];
 
-    /**
-     * @var string formConfig file
-     */
     public $formConfig = 'config_form.yaml';
-
-    /**
-     * @var string listConfig file
-     */
     public $listConfig = 'config_list.yaml';
 
-    /**
-     * @var array required permissions
-     */
     public $requiredPermissions = ['{{lower_author}}.{{lower_plugin}}.{{lower_name}}'];
 
-    /**
-     * __construct the controller
-     */
     public function __construct()
     {
         parent::__construct();
