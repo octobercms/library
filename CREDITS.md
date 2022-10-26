@@ -13,3 +13,6 @@ https://github.com/kriswallsmith/assetic
 
 "http_build_url() for PHP", Copyright (c) 2015 Jake A. Smith
 https://github.com/jakeasmith/http_build_url
+
+"Twig extensions", Copyright (c) 2016 Vojta Svoboda
+https://github.com/vojtasvoboda/oc-twigextensions-plugin
