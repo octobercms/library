@@ -247,14 +247,25 @@ trait HasAttributes
 
     /**
      * addFillable attributes for the model.
-     *
      * @param  array|string|null  $attributes
      * @return void
      */
     public function addFillable($attributes = null)
     {
-        $attributes = is_array($attributes) ? $attributes : func_get_args();
+        $this->fillable = array_merge(
+            $this->fillable, is_array($attributes) ? $attributes : func_get_args()
+        );
+    }
 
-        $this->fillable = array_merge($this->fillable, $attributes);
+    /**
+     * addVisible attributes for the model.
+     * @param  array|string|null  $attributes
+     * @return void
+     */
+    public function addVisible($attributes = null)
+    {
+        $this->visible = array_merge(
+            $this->visible, is_array($attributes) ? $attributes : func_get_args()
+        );
     }
 }

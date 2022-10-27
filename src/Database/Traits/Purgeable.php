@@ -11,13 +11,13 @@ use Exception;
 trait Purgeable
 {
     /**
-     * @var array List of attribute names which should not be saved to the database.
+     * @var array purgeable attribute names which should not be saved to the database.
      *
      * protected $purgeable = [];
      */
 
     /**
-     * @var array List of original attribute values before they were purged.
+     * @var array originalPurgeableValues before they were purged.
      */
     protected $originalPurgeableValues = [];
 
@@ -40,7 +40,7 @@ trait Purgeable
     }
 
     /**
-     * Adds an attribute to the purgeable attributes list
+     * addPurgeable adds an attribute to the purgeable attributes list
      * @param  array|string|null  $attributes
      * @return void
      */
@@ -52,7 +52,7 @@ trait Purgeable
     }
 
     /**
-     * Removes purged attributes from the dataset, used before saving.
+     * purgeAttributes removes purged attributes from the dataset, used before saving.
      * @param $attributes mixed Attribute(s) to purge, if unspecified, $purgable property is used
      * @return array Current attribute set
      */
@@ -80,7 +80,7 @@ trait Purgeable
     }
 
     /**
-     * Returns a collection of fields that will be hashed.
+     * getPurgeableAttributes returns a collection of fields that will be hashed.
      */
     public function getPurgeableAttributes()
     {
@@ -88,7 +88,7 @@ trait Purgeable
     }
 
     /**
-     * Returns the original values of any purged attributes.
+     * getOriginalPurgeValues returns the original values of any purged attributes.
      */
     public function getOriginalPurgeValues()
     {
@@ -96,7 +96,7 @@ trait Purgeable
     }
 
     /**
-     * Returns the original values of any purged attributes.
+     * getOriginalPurgeValue returns the original values of any purged attributes.
      */
     public function getOriginalPurgeValue($attribute)
     {
@@ -104,7 +104,7 @@ trait Purgeable
     }
 
     /**
-     * Restores the original values of any purged attributes.
+     * restorePurgedValues restores the original values of any purged attributes.
      */
     public function restorePurgedValues()
     {

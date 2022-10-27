@@ -44,7 +44,7 @@ trait Hashable
     }
 
     /**
-     * Adds an attribute to the hashable attributes list
+     * addHashable adds an attribute to the hashable attributes list
      * @param  array|string|null  $attributes
      * @return $this
      */
@@ -58,7 +58,7 @@ trait Hashable
     }
 
     /**
-     * Hashes an attribute value and saves it in the original locker.
+     * makeHashValue hashes an attribute value and saves it in the original locker.
      * @param  string $key   Attribute
      * @param  string $value Value to hash
      * @return string        Hashed value
@@ -70,7 +70,7 @@ trait Hashable
     }
 
     /**
-     * Checks if the supplied plain value matches the stored hash value.
+     * checkHashValue checks if the supplied plain value matches the stored hash value.
      * @param  string $key   Attribute to check
      * @param  string $value Value to check
      * @return bool
@@ -81,7 +81,7 @@ trait Hashable
     }
 
     /**
-     * Returns a collection of fields that will be hashed.
+     * getHashableAttributes returns a collection of fields that will be hashed.
      * @return array
      */
     public function getHashableAttributes()
@@ -90,7 +90,7 @@ trait Hashable
     }
 
     /**
-     * Returns the original values of any hashed attributes.
+     * getOriginalHashValues returns the original values of any hashed attributes.
      * @return array
      */
     public function getOriginalHashValues()
@@ -99,7 +99,7 @@ trait Hashable
     }
 
     /**
-     * Returns the original values of any hashed attributes.
+     * getOriginalHashValue returns the original values of any hashed attributes.
      * @return mixed
      */
     public function getOriginalHashValue($attribute)
