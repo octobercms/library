@@ -63,16 +63,6 @@ trait Sortable
             return;
         }
 
-        // Build incrementing reference pool
-        if ($referencePool === true) {
-            $referencePool = range(1, count($itemIds));
-        }
-
-        // Invalid pool, halt
-        if ($referencePool && !is_array($referencePool)) {
-            return;
-        }
-
         $sortKeyMap = $this->processSortableOrdersInternal($itemIds, $referencePool);
         if (count($itemIds) !== count($sortKeyMap)) {
             throw new Exception('Invalid setSortableOrder call - count of itemIds do not match count of referencePool');
@@ -100,23 +90,29 @@ trait Sortable
      */
     protected function processSortableOrdersInternal($itemIds, $referencePool = null): array
     {
-        // Extract a reference pool from the database
-        if (!$referencePool) {
-            $referencePool = $this->newQuery()
-                ->whereIn($this->getKeyName(), $itemIds)
-                ->pluck($this->getSortOrderColumn())
-                ->all();
+        // Build incrementing reference pool
+        if ($referencePool === true) {
+            $referencePool = range(1, count($itemIds));
         }
+        else {
+            // Extract a reference pool from the database
+            if (!$referencePool) {
+                $referencePool = $this->newQuery()
+                    ->whereIn($this->getKeyName(), $itemIds)
+                    ->pluck($this->getSortOrderColumn())
+                    ->all();
+            }
 
-        // Check for corrupt values, if found, reset with a unique pool
-        $originalCount = count($referencePool);
-        $referencePool = array_unique(array_filter($referencePool, 'strlen'));
-        if ($originalCount !== count($referencePool)) {
-            $referencePool = $itemIds;
+            // Check for corrupt values, if found, reset with a unique pool
+            $originalCount = count($referencePool);
+            $referencePool = array_unique(array_filter($referencePool, 'strlen'));
+            if ($originalCount !== count($referencePool)) {
+                $referencePool = $itemIds;
+            }
+
+            // Sort pool to apply against the sorted items
+            sort($referencePool);
         }
-
-        // Sort pool to apply against the sorted items
-        sort($referencePool);
 
         // Process the item orders to a sort key map
         $result = [];
