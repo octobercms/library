@@ -18,6 +18,7 @@ class UrlServiceProvider extends ServiceProvider
     {
         $this->registerUrlGeneratorPolicy();
         $this->registerRelativeHelper();
+        $this->registerPjaxCached();
     }
 
     /**
@@ -59,6 +60,18 @@ class UrlServiceProvider extends ServiceProvider
 
         $provider->macro('toRelative', function($url) use ($provider) {
             return parse_url($provider->to($url), PHP_URL_PATH);
+        });
+    }
+
+    /**
+     * registerPjaxCached
+     */
+    public function registerPjaxCached()
+    {
+        $provider = $this->app['request'];
+
+        $provider->macro('pjaxCached', function() use ($provider) {
+            return $provider->headers->get('X-PJAX-CACHED') == true;
         });
     }
 }

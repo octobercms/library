@@ -39,16 +39,18 @@ class Manager
     /**
      * update runs the "composer update" command
      */
-    public function update()
+    public function update(array $packages = [])
     {
         $this->assertResourceLimits();
         $this->assertHomeVariableSet();
 
         try {
             $this->assertHomeDirectory();
+            $this->assertComposerWarmedUp();
 
             Installer::create($this->output, $this->makeComposer())
                 ->setDevMode(Config::get('app.debug', false))
+                ->setUpdateAllowList($packages)
                 ->setPreferSource()
                 ->setUpdate(true)
                 ->run();
@@ -72,6 +74,7 @@ class Manager
 
         try {
             $this->assertHomeDirectory();
+            $this->assertComposerWarmedUp();
             $this->writePackages($requirements);
 
             $composer = $this->makeComposer();

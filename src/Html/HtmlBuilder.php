@@ -394,13 +394,14 @@ class HtmlBuilder
     }
 
     /**
-     * strip removes HTML from a string
-     * @param $string String to strip HTML from
+     * strip removes HTML from a string, with allowed tags, e.g. <p>
+     * @param $string
+     * @param $allow
      * @return string
      */
-    public static function strip($string)
+    public static function strip($string, $allow = '')
     {
-        return htmlspecialchars_decode(strip_tags($string));
+        return htmlspecialchars_decode(strip_tags($string, $allow));
     }
 
     /**

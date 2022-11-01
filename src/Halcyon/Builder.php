@@ -216,12 +216,12 @@ class Builder
     }
 
     /**
-     * lists gets an array with the values of a given column
+     * pluck gets an array with the values of a given column
      * @param  string  $column
      * @param  string  $key
-     * @return array
+     * @return Collection
      */
-    public function lists($column, $key = null)
+    public function pluck($column, $key = null)
     {
         $select = is_null($key) ? [$column] : [$column, $key];
 
@@ -234,7 +234,18 @@ class Builder
 
         $collection = new Collection($results);
 
-        return $collection->lists($column, $key);
+        return $collection->pluck($column, $key);
+    }
+
+    /**
+     * lists is short-hand for pluck()->all()
+     * @param  string  $column
+     * @param  string  $key
+     * @return array
+     */
+    public function lists($column, $key = null)
+    {
+        return $this->pluck($column, $key)->all();
     }
 
     /**
