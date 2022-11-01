@@ -82,10 +82,11 @@ trait SortableRelation
 
     /**
      * setSortableRelationOrder sets the sort order of records to the specified orders. If the orders is
-     * undefined, the record identifier is used.
+     * undefined, the record identifier is used. If reference pool is true, then an incrementing
+     * pool is used.
      * @param string $relationName
      * @param mixed $itemIds
-     * @param array $itemOrders
+     * @param  array|null|bool $referencePool
      */
     public function setSortableRelationOrder($relationName, $itemIds, $referencePool = null)
     {
@@ -97,6 +98,12 @@ trait SortableRelation
             return;
         }
 
+        // Build incrementing reference pool
+        if ($referencePool === true) {
+            $referencePool = range(1, count($itemIds));
+        }
+
+        // Invalid pool, halt
         if ($referencePool && !is_array($referencePool)) {
             return;
         }

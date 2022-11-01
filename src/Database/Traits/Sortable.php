@@ -51,9 +51,10 @@ trait Sortable
 
     /**
      * setSortableOrder sets the sort order of records to the specified orders, suppling
-     * a reference pool of sorted values.
+     * a reference pool of sorted values. If reference pool is true, then an incrementing
+     * pool is used.
      * @param  mixed $itemIds
-     * @param  array $availableOrderRefs
+     * @param  array|null|bool $referencePool
      * @return void
      */
     public function setSortableOrder($itemIds, $referencePool = null)
@@ -62,6 +63,12 @@ trait Sortable
             return;
         }
 
+        // Build incrementing reference pool
+        if ($referencePool === true) {
+            $referencePool = range(1, count($itemIds));
+        }
+
+        // Invalid pool, halt
         if ($referencePool && !is_array($referencePool)) {
             return;
         }
