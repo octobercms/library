@@ -158,11 +158,11 @@ class Manager implements StatefulGuard
         $loginCredentialKey = isset($credentials[$loginName]) ? $loginName : 'login';
 
         if (empty($credentials[$loginCredentialKey])) {
-            throw new AuthException(sprintf('The "%s" attribute is required.', $loginCredentialKey));
+            throw new AuthException("The '{$loginCredentialKey}' attribute is required.", 100);
         }
 
         if (empty($credentials['password'])) {
-            throw new AuthException('The password attribute is required.');
+            throw new AuthException('The password attribute is required.', 102);
         }
 
         // If the fallback 'login' was provided and did not match the necessary
@@ -343,10 +343,7 @@ class Manager implements StatefulGuard
         // Activation is required, user not activated
         if ($this->requireActivation && !$user->is_activated) {
             $login = $user->getLogin();
-            throw new AuthException(sprintf(
-                'Cannot login user "%s" as they are not activated.',
-                $login
-            ));
+            throw new AuthException("Cannot login user '{$login}' as they are not activated.", 300);
         }
 
         $this->user = $user;

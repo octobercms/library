@@ -176,18 +176,14 @@ class Throttle extends Model
      */
     public function check()
     {
+        $userLogin = $this->user ? $this->user->getLogin() : '??';
+
         if ($this->is_banned) {
-            throw new AuthException(sprintf(
-                'User [%s] has been banned.',
-                $this->user->getLogin()
-            ));
+            throw new AuthException("User '{$userLogin}' has been banned.", 302);
         }
 
         if ($this->checkSuspended()) {
-            throw new AuthException(sprintf(
-                'User [%s] has been suspended.',
-                $this->user->getLogin()
-            ));
+            throw new AuthException("User '{$userLogin}' has been suspended.", 301);
         }
 
         return true;

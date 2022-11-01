@@ -131,9 +131,9 @@ trait HasUser
 
     /**
      * findUserByCredentials finds a user by the given credentials.
-     * @param array $credentials The credentials to find a user by
-     * @throws AuthException If the credentials are invalid
-     * @return Models\User The requested user
+     * @param array $credentials
+     * @throws AuthException
+     * @return Models\User
      */
     public function findUserByCredentials(array $credentials)
     {
@@ -141,7 +141,7 @@ trait HasUser
         $loginName = $model->getLoginName();
 
         if (!array_key_exists($loginName, $credentials)) {
-            throw new AuthException(sprintf('Login attribute "%s" was not provided.', $loginName));
+            throw new AuthException("Login attribute '{$loginName}' was not provided.", 101);
         }
 
         $query = $this->createUserModelQuery();
@@ -163,7 +163,7 @@ trait HasUser
 
         $user = $query->first();
         if (!$this->validateUserModel($user)) {
-            throw new AuthException('A user was not found with the given credentials.');
+            throw new AuthException('A user was not found with the given credentials.', 200);
         }
 
         /*
@@ -173,14 +173,11 @@ trait HasUser
             if (!$user->checkHashValue($credential, $value)) {
                 // Incorrect password
                 if ($credential === 'password') {
-                    throw new AuthException(sprintf(
-                        'A user was found to match all plain text credentials however hashed credential "%s" did not match.',
-                        $credential
-                    ));
+                    throw new AuthException("A user was found to match all plain text credentials however hashed credential '{$credential}' did not match.", 201);
                 }
 
                 // User not found
-                throw new AuthException('A user was not found with the given credentials.');
+                throw new AuthException('A user was not found with the given credentials.', 200);
             }
         }
 
@@ -190,7 +187,7 @@ trait HasUser
     /**
      * validateUserModel perform additional checks on the user model.
      * @param $user
-     * @return boolean
+     * @return bool
      */
     protected function validateUserModel($user)
     {

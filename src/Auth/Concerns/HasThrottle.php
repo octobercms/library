@@ -31,7 +31,7 @@ trait HasThrottle
     {
         $user = $this->findUserByLogin($loginName);
         if (!$user) {
-            throw new AuthException("A user was not found with the given credentials.");
+            throw new AuthException('A user was not found with the given credentials.', 200);
         }
 
         $userId = $user->getKey();
