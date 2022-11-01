@@ -137,11 +137,9 @@ trait SortableRelation
         }
 
         // Check for corrupt values, if found, reset with a unique pool
-        $countRefPool = count($referencePool);
-        if (
-            $countRefPool !== count(array_unique($referencePool)) ||
-            $countRefPool !== count(array_filter($referencePool))
-        ) {
+        $originalCount = count($referencePool);
+        $referencePool = array_unique(array_filter($referencePool, 'strlen'));
+        if ($originalCount !== count($referencePool)) {
             $referencePool = $itemIds;
         }
 
