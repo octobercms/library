@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Auth;
 
-use Lang;
 use Config;
 use October\Rain\Exception\ApplicationException;
 use Exception;
@@ -51,14 +50,14 @@ class AuthException extends ApplicationException
     public function __construct($message = '', $code = 0, Exception $previous = null)
     {
         if ($this->useSoftErrors()) {
-            $message = Lang::get(static::$errorMessage);
+            $message = static::$errorMessage;
         }
 
         if (isset(static::$errorCodes[$code])) {
             $this->errorType = static::$errorCodes[$code];
         }
 
-        parent::__construct($message, $code, $previous);
+        parent::__construct(__($message), $code, $previous);
     }
 
     /**

@@ -141,7 +141,7 @@ trait HasUser
         $loginName = $model->getLoginName();
 
         if (!array_key_exists($loginName, $credentials)) {
-            throw new AuthException("Login attribute '{$loginName}' was not provided.", 101);
+            throw new AuthException("The {$loginName} attribute is required.", 101);
         }
 
         $query = $this->createUserModelQuery();
@@ -173,7 +173,7 @@ trait HasUser
             if (!$user->checkHashValue($credential, $value)) {
                 // Incorrect password
                 if ($credential === 'password') {
-                    throw new AuthException("A user was found to match all plain text credentials however hashed credential '{$credential}' did not match.", 201);
+                    throw new AuthException('A user was found but the password did not match.', 201);
                 }
 
                 // User not found
