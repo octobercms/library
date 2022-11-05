@@ -1,4 +1,6 @@
-<?php namespace {{studly_author}}\{{studly_plugin}}\Controllers;
+<?php
+
+namespace {{studly_author}}\{{studly_plugin}}\Controllers;
 
 use BackendMenu;
 use Backend\Classes\Controller;
