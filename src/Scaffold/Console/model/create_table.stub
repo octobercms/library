@@ -1,4 +1,4 @@
-<?php namespace {{studly_author}}\{{studly_plugin}}\Updates;
+<?php namespace {{namespace_php}}\Updates;
 
 use Schema;
 use October\Rain\Database\Schema\Blueprint;
@@ -11,7 +11,7 @@ class Create{{studly_plural_name}}Table extends Migration
 {
     public function up()
     {
-        Schema::create('{{lower_author}}_{{lower_plugin}}_{{snake_plural_name}}', function (Blueprint $table) {
+        Schema::create('{{namespace_table}}_{{snake_plural_name}}', function(Blueprint $table) {
             $table->id();
             $table->timestamps();
         });
@@ -19,6 +19,6 @@ class Create{{studly_plural_name}}Table extends Migration
 
     public function down()
     {
-        Schema::dropIfExists('{{lower_author}}_{{lower_plugin}}_{{snake_plural_name}}');
+        Schema::dropIfExists('{{namespace_table}}_{{snake_plural_name}}');
     }
 }

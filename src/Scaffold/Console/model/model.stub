@@ -1,15 +1,23 @@
-<?php namespace {{studly_author}}\{{studly_plugin}}\Models;
+<?php namespace {{namespace_php}}\Models;
 
 use Model;
 
 /**
  * {{studly_name}} Model
+ *
+ * @link https://docs.octobercms.com/3.x/extend/system/models.html
  */
 class {{studly_name}} extends Model
 {
     use \October\Rain\Database\Traits\Validation;
 
-    public $table = '{{lower_author}}_{{lower_plugin}}_{{snake_plural_name}}';
+    /**
+     * @var string table name
+     */
+    public $table = '{{namespace_table}}_{{snake_plural_name}}';
 
+    /**
+     * @var array rules for validation
+     */
     public $rules = [];
 }

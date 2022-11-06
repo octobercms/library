@@ -1,18 +1,18 @@
 <?php namespace October\Rain\Scaffold\Console;
 
-use October\Rain\Scaffold\GeneratorCommand;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
+use October\Rain\Scaffold\GeneratorCommandBase;
 
 /**
  * CreateModel
  */
-class CreateModel extends GeneratorCommand
+class CreateModel extends GeneratorCommandBase
 {
     /**
-     * @var string name of console command
+     * @var string signature for the command
      */
-    protected $name = 'create:model';
+    protected $signature = 'create:model {namespace : App or Plugin Namespace (eg: RainLab.Blog)}
+        {name : The name of the model. Eg: Post}
+        {--force : Overwrite existing files with generated ones}';
 
     /**
      * @var string description of the console command
@@ -22,56 +22,27 @@ class CreateModel extends GeneratorCommand
     /**
      * @var string type of class being generated
      */
-    protected $type = 'Model';
+    protected $typeLabel = 'Model';
 
     /**
-     * @var array stubs is a mapping of stub to generated file
+     * makeStubs makes all stubs
      */
-    protected $stubs = [
-        'model/model.stub' => 'models/{{studly_name}}.php',
-        'model/fields.stub' => 'models/{{lower_name}}/fields.yaml',
-        'model/columns.stub' => 'models/{{lower_name}}/columns.yaml',
-        'model/create_table.stub' => 'updates/create_{{snake_plural_name}}_table.php',
-    ];
+    public function makeStubs()
+    {
+        $this->makeStub('model/model.stub', 'models/{{studly_name}}.php');
+        $this->makeStub('model/fields.stub', 'models/{{lower_name}}/fields.yaml');
+        $this->makeStub('model/columns.stub', 'models/{{lower_name}}/columns.yaml');
+        $this->makeStub('model/create_table.stub', 'updates/create_{{snake_plural_name}}_table.php');
+    }
 
     /**
      * prepareVars prepares variables for stubs
      */
     protected function prepareVars(): array
     {
-        $pluginCode = $this->argument('plugin');
-
-        $parts = explode('.', $pluginCode);
-        $plugin = array_pop($parts);
-        $author = array_pop($parts);
-
-        $model = $this->argument('model');
-
         return [
-            'name' => $model,
-            'author' => $author,
-            'plugin' => $plugin
-        ];
-    }
-
-    /**
-     * getArguments get the console command arguments
-     */
-    protected function getArguments()
-    {
-        return [
-            ['plugin', InputArgument::REQUIRED, 'The name of the plugin. Eg: RainLab.Blog'],
-            ['model', InputArgument::REQUIRED, 'The name of the model. Eg: Post'],
-        ];
-    }
-
-    /**
-     * getOptions get the console command options
-     */
-    protected function getOptions()
-    {
-        return [
-            ['force', null, InputOption::VALUE_NONE, 'Overwrite existing files with generated ones.'],
+            'name' => $this->argument('name'),
+            'namespace' => $this->argument('namespace')
         ];
     }
 }
