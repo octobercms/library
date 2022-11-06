@@ -1,37 +1,15 @@
-<?php
-
-namespace {{studly_author}}\{{studly_plugin}}\Models;
+<?php namespace {{studly_author}}\{{studly_plugin}}\Models;
 
 use Model;
-use October\Rain\Database\Traits\Validation;
 
 /**
  * {{studly_name}} Model
  */
 class {{studly_name}} extends Model
 {
-    use Validation;
+    use \October\Rain\Database\Traits\Validation;
 
     public $table = '{{lower_author}}_{{lower_plugin}}_{{snake_plural_name}}';
 
-    protected $fillable = [];
-
     public $rules = [];
-
-    protected $casts = [];
-
-    protected $dates = [
-        'created_at',
-        'updated_at'
-    ];
-
-    public $hasOne = [];
-    public $hasMany = [];
-    public $belongsTo = [];
-    public $belongsToMany = [];
-    public $morphTo = [];
-    public $morphOne = [];
-    public $morphMany = [];
-    public $attachOne = [];
-    public $attachMany = [];
 }

@@ -4,6 +4,9 @@ use October\Rain\Scaffold\GeneratorCommand;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 
+/**
+ * CreateModel
+ */
 class CreateModel extends GeneratorCommand
 {
     /**
@@ -25,9 +28,9 @@ class CreateModel extends GeneratorCommand
      * @var array stubs is a mapping of stub to generated file
      */
     protected $stubs = [
-        'model/model.stub'        => 'models/{{studly_name}}.php',
-        'model/fields.stub'       => 'models/{{lower_name}}/fields.yaml',
-        'model/columns.stub'      => 'models/{{lower_name}}/columns.yaml',
+        'model/model.stub' => 'models/{{studly_name}}.php',
+        'model/fields.stub' => 'models/{{lower_name}}/fields.yaml',
+        'model/columns.stub' => 'models/{{lower_name}}/columns.yaml',
         'model/create_table.stub' => 'updates/create_{{snake_plural_name}}_table.php',
     ];
 
