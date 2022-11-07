@@ -1,6 +1,6 @@
 <div data-control="toolbar">
     <a
-        href="<?= Backend::url('{{lower_author}}/{{lower_plugin}}/{{lower_name}}/create') ?>"
+        href="<?= Backend::url('{{namespace_path}}/{{lower_name}}/create') ?>"
         class="btn btn-primary oc-icon-plus">
         <?= e(trans('backend::lang.list.create_button', ['name'=>'{{title_singular_name}}'])) ?>
     </a>

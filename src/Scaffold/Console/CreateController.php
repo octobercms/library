@@ -13,7 +13,7 @@ class CreateController extends GeneratorCommandBase
      */
     protected $signature = 'create:controller {namespace : App or Plugin Namespace (eg: Acme.Blog)}
         {name : The name of the controller. Eg: Posts}
-        {--model : Define which model name to use, otherwise the singular controller name is used.}
+        {--model= : Define which model name to use, otherwise the singular controller name is used.}
         {--o|overwrite : Overwrite existing files with generated ones}';
 
     /**

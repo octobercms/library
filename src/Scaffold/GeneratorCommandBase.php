@@ -135,7 +135,12 @@ abstract class GeneratorCommandBase extends Command
         // Namespace processed manually
         if (isset($vars['namespace'])) {
             $vars['namespace_php'] = $this->getNamespacePhp();
+            $vars['namespace_path'] = $this->getNamespacePath();
             $vars['namespace_table'] = $this->getNamespaceTable();
+
+            $vars['namespace_local'] = $this->isAppNamespace()
+                ? '~/'.$this->getNamespacePath()
+                : '$/'.$this->getNamespacePath();
         }
 
         return $vars;
@@ -162,22 +167,6 @@ abstract class GeneratorCommandBase extends Command
     }
 
     /**
-     * getNamespaceTable
-     */
-    protected function getNamespaceTable(): string
-    {
-        if ($this->isAppNamespace()) {
-            return 'app';
-        }
-
-        [$author, $plugin] = $this->getFormattedNamespace();
-        $author = mb_strtolower($author);
-        $plugin = mb_strtolower($plugin);
-
-        return "{$author}_{$plugin}";
-    }
-
-    /**
      * getNamespacePhp
      */
     protected function getNamespacePhp(): string
@@ -191,6 +180,38 @@ abstract class GeneratorCommandBase extends Command
         $plugin = Str::studly($plugin);
 
         return "{$author}\\{$plugin}";
+    }
+
+    /**
+     * getNamespacePhp
+     */
+    protected function getNamespacePath(): string
+    {
+        if ($this->isAppNamespace()) {
+            return 'app';
+        }
+
+        [$author, $plugin] = $this->getFormattedNamespace();
+        $author = mb_strtolower($author);
+        $plugin = mb_strtolower($plugin);
+
+        return "{$author}/{$plugin}";
+    }
+
+    /**
+     * getNamespaceTable
+     */
+    protected function getNamespaceTable(): string
+    {
+        if ($this->isAppNamespace()) {
+            return 'app';
+        }
+
+        [$author, $plugin] = $this->getFormattedNamespace();
+        $author = mb_strtolower($author);
+        $plugin = mb_strtolower($plugin);
+
+        return "{$author}_{$plugin}";
     }
 
     /**
