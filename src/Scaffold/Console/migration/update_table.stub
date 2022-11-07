@@ -16,13 +16,8 @@ class {{studly_name}} extends Migration
      */
     public function up()
     {
-        Schema::create('{{table}}', function(Blueprint $table) {
-            $table->id();
-{% if timestamps %}
-            $table->timestamps();
-{% endif %}{% if softDeletes %}
-            $table->softDeletes();
-{% endif %}
+        Schema::table('{{table}}', function(Blueprint $table) {
+            // ...
         });
     }
 
@@ -31,6 +26,8 @@ class {{studly_name}} extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('{{table}}');
+        Schema::table('{{table}}', function(Blueprint $table) {
+            // ...
+        });
     }
 }
