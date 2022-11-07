@@ -1,4 +1,4 @@
-<?php namespace {{studly_author}}\{{studly_plugin}}\Console;
+<?php namespace {{namespace_php}}\Console;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
@@ -6,6 +6,8 @@ use Symfony\Component\Console\Input\InputArgument;
 
 /**
  * {{studly_name}} Command
+ *
+ * @link https://docs.octobercms.com/3.x/extend/console-commands.html
  */
 class {{studly_name}} extends Command
 {

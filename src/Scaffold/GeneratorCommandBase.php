@@ -101,8 +101,15 @@ abstract class GeneratorCommandBase extends Command
         $cases = ['upper', 'lower', 'snake', 'studly', 'camel', 'title'];
         $modifiers = ['plural', 'singular', 'title'];
 
+        // Splice in author and plugin name automatically
+        [$author, $plugin] = $this->getFormattedNamespace();
+        $vars += [
+            'author' => $author,
+            'plugin' => $plugin,
+        ];
+
+        // Process variables
         foreach ($vars as $key => $var) {
-            // Process namespace manually
             if ($key === 'namespace') {
                 continue;
             }
@@ -125,7 +132,7 @@ abstract class GeneratorCommandBase extends Command
             }
         }
 
-        // Namespace specific
+        // Namespace processed manually
         if (isset($vars['namespace'])) {
             $vars['namespace_php'] = $this->getNamespacePhp();
             $vars['namespace_table'] = $this->getNamespaceTable();
@@ -163,11 +170,11 @@ abstract class GeneratorCommandBase extends Command
             return 'app';
         }
 
-        [$author, $name] = $this->getFormattedNamespace();
+        [$author, $plugin] = $this->getFormattedNamespace();
         $author = mb_strtolower($author);
-        $name = mb_strtolower($name);
+        $plugin = mb_strtolower($plugin);
 
-        return "{$author}_{$name}";
+        return "{$author}_{$plugin}";
     }
 
     /**
@@ -179,11 +186,11 @@ abstract class GeneratorCommandBase extends Command
             return 'App';
         }
 
-        [$author, $name] = $this->getFormattedNamespace();
+        [$author, $plugin] = $this->getFormattedNamespace();
         $author = Str::studly($author);
-        $name = Str::studly($name);
+        $plugin = Str::studly($plugin);
 
-        return "{$author}\\{$name}";
+        return "{$author}\\{$plugin}";
     }
 
     /**
@@ -195,11 +202,11 @@ abstract class GeneratorCommandBase extends Command
             return app_path();
         }
 
-        [$author, $name] = $this->getFormattedNamespace();
+        [$author, $plugin] = $this->getFormattedNamespace();
         $author = mb_strtolower($author);
-        $name = mb_strtolower($name);
+        $plugin = mb_strtolower($plugin);
 
-        return plugins_path("{$author}/{$name}");
+        return plugins_path("{$author}/{$plugin}");
     }
 
     /**
@@ -231,7 +238,7 @@ abstract class GeneratorCommandBase extends Command
             return [$parts[0], $parts[1]];
         }
 
-        return [$namespace, null];
+        return [$namespace, $namespace];
     }
 
     /**
