@@ -1,5 +1,5 @@
 {
-    "name": "{{lower_author}}/{{lower_name}}-plugin",
+    "name": "{{lower_author}}/{{lower_plugin}}-plugin",
     "type": "october-plugin",
     "description": "No description provided yet...",
     "require": {
