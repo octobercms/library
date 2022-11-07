@@ -59,7 +59,7 @@ class Plugin extends PluginBase
         return []; // Remove this line to activate
 
         return [
-            '{{lower_author}}.{{lower_plugin}}.some_permission' => [
+            '{{lower_namespace_code}}.some_permission' => [
                 'tab' => '{{plugin}}',
                 'label' => 'Some permission'
             ],
@@ -78,7 +78,7 @@ class Plugin extends PluginBase
                 'label' => '{{plugin}}',
                 'url' => Backend::url('{{lower_author}}/{{lower_plugin}}/mycontroller'),
                 'icon' => 'icon-leaf',
-                'permissions' => ['{{lower_author}}.{{lower_plugin}}.*'],
+                'permissions' => ['{{lower_namespace_code}}.*'],
                 'order' => 500,
             ],
         ];

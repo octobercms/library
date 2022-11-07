@@ -101,6 +101,18 @@ abstract class GeneratorCommandBase extends Command
         $cases = ['upper', 'lower', 'snake', 'studly', 'camel', 'title'];
         $modifiers = ['plural', 'singular', 'title'];
 
+        // Namespace processed manually
+        if (isset($vars['namespace'])) {
+            $vars['namespace_php'] = $this->getNamespacePhp();
+            $vars['namespace_code'] = $this->getNamespaceCode();
+            $vars['namespace_path'] = $this->getNamespacePath();
+            $vars['namespace_table'] = $this->getNamespaceTable();
+
+            $vars['namespace_local'] = $this->isAppNamespace()
+                ? '~/'.$this->getNamespacePath()
+                : '$/'.$this->getNamespacePath();
+        }
+
         // Splice in author and plugin name automatically
         [$author, $plugin] = $this->getFormattedNamespace();
         $vars += [
@@ -110,10 +122,6 @@ abstract class GeneratorCommandBase extends Command
 
         // Process variables
         foreach ($vars as $key => $var) {
-            if ($key === 'namespace') {
-                continue;
-            }
-
             // Apply cases, and cases with modifiers
             foreach ($cases as $case) {
                 $primaryKey = $case . '_' . $key;
@@ -130,17 +138,6 @@ abstract class GeneratorCommandBase extends Command
                 $primaryKey = $modifier . '_' . $key;
                 $vars[$primaryKey] = $this->modifyString($modifier, $var);
             }
-        }
-
-        // Namespace processed manually
-        if (isset($vars['namespace'])) {
-            $vars['namespace_php'] = $this->getNamespacePhp();
-            $vars['namespace_path'] = $this->getNamespacePath();
-            $vars['namespace_table'] = $this->getNamespaceTable();
-
-            $vars['namespace_local'] = $this->isAppNamespace()
-                ? '~/'.$this->getNamespacePath()
-                : '$/'.$this->getNamespacePath();
         }
 
         return $vars;
@@ -167,7 +164,7 @@ abstract class GeneratorCommandBase extends Command
     }
 
     /**
-     * getNamespacePhp
+     * getNamespacePhp produces a PHP namespace (e.g. Acme\Blog)
      */
     protected function getNamespacePhp(): string
     {
@@ -183,7 +180,23 @@ abstract class GeneratorCommandBase extends Command
     }
 
     /**
-     * getNamespacePhp
+     * getNamespaceCode produces a namespace code (e.g. Acme.Blog)
+     */
+    protected function getNamespaceCode(): string
+    {
+        if ($this->isAppNamespace()) {
+            return 'App';
+        }
+
+        [$author, $plugin] = $this->getFormattedNamespace();
+        $author = Str::studly($author);
+        $plugin = Str::studly($plugin);
+
+        return "{$author}.{$plugin}";
+    }
+
+    /**
+     * getNamespacePath produces a path for URL or local (e.g. acme/blog)
      */
     protected function getNamespacePath(): string
     {
@@ -199,7 +212,7 @@ abstract class GeneratorCommandBase extends Command
     }
 
     /**
-     * getNamespaceTable
+     * getNamespaceTable produces a table name (e.g. acme_blog)
      */
     protected function getNamespaceTable(): string
     {
@@ -215,7 +228,7 @@ abstract class GeneratorCommandBase extends Command
     }
 
     /**
-     * getDestinationPath gets the plugin path from the input
+     * getDestinationPath gets the app or plugin local path
      */
     protected function getDestinationPath(): string
     {
