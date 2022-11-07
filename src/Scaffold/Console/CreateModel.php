@@ -12,7 +12,10 @@ class CreateModel extends GeneratorCommandBase
      */
     protected $signature = 'create:model {namespace : App or Plugin Namespace (eg: RainLab.Blog)}
         {name : The name of the model. Eg: Post}
-        {--force : Overwrite existing files with generated ones}';
+        {--soft-deletes : Implement soft deletion on this model}
+        {--no-timestamps : Disable auto-timestamps on this model}
+        {--no-migration : Do not generate a migration file for this model}
+        {--o|overwrite : Overwrite existing files with generated ones}';
 
     /**
      * @var string description of the console command
@@ -32,7 +35,10 @@ class CreateModel extends GeneratorCommandBase
         $this->makeStub('model/model.stub', 'models/{{studly_name}}.php');
         $this->makeStub('model/fields.stub', 'models/{{lower_name}}/fields.yaml');
         $this->makeStub('model/columns.stub', 'models/{{lower_name}}/columns.yaml');
-        $this->makeStub('model/create_table.stub', 'updates/create_{{snake_plural_name}}_table.php');
+
+        if (!$this->option('no-migration')) {
+            $this->makeStub('model/create_table.stub', 'updates/create_{{snake_plural_name}}_table.php');
+        }
     }
 
     /**
@@ -42,7 +48,9 @@ class CreateModel extends GeneratorCommandBase
     {
         return [
             'name' => $this->argument('name'),
-            'namespace' => $this->argument('namespace')
+            'namespace' => $this->argument('namespace'),
+            'softDeletes' => $this->option('soft-deletes'),
+            'timestamps' => !$this->option('no-timestamps')
         ];
     }
 }

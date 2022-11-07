@@ -10,6 +10,9 @@ use Model;
 class {{studly_name}} extends Model
 {
     use \October\Rain\Database\Traits\Validation;
+{% if softDeletes %}
+    use \October\Rain\Database\Traits\SoftDelete;
+{% endif %}
 
     /**
      * @var string table name
@@ -20,4 +23,19 @@ class {{studly_name}} extends Model
      * @var array rules for validation
      */
     public $rules = [];
+{% if softDeletes %}
+
+    /**
+     * @var array dates used by the model
+     */
+    protected $dates = [
+        'deleted_at'
+    ];
+{% endif %}{% if not timestamps %}
+
+    /**
+     * @var bool timestamps disabled by default
+     */
+    public $timestamps = false;
+{% endif %}
 }
