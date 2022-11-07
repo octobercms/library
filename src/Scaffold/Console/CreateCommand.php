@@ -11,7 +11,7 @@ class CreateCommand extends GeneratorCommandBase
      * @var string signature for the command
      */
     protected $signature = 'create:command {namespace : App or Plugin Namespace (eg: Acme.Blog)}
-        {name : The name of the model. Eg: ProcessJobs}
+        {name : The name of the command. Eg: ProcessJobs}
         {--o|overwrite : Overwrite existing files with generated ones}';
 
     /**

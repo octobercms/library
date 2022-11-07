@@ -1,11 +1,19 @@
 <?php namespace October\Rain\Scaffold\Console;
 
-use October\Rain\Scaffold\GeneratorCommand;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
+use October\Rain\Scaffold\GeneratorCommandBase;
 
-class CreateComponent extends GeneratorCommand
+/**
+ * CreateComponent
+ */
+class CreateComponent extends GeneratorCommandBase
 {
+    /**
+     * @var string signature for the command
+     */
+    protected $signature = 'create:component {namespace : App or Plugin Namespace (eg: Acme.Blog)}
+        {name : The name of the component. Eg: Posts}
+        {--o|overwrite : Overwrite existing files with generated ones}';
+
     /**
      * @var string name of console command
      */
@@ -19,53 +27,25 @@ class CreateComponent extends GeneratorCommand
     /**
      * @var string type of class being generated
      */
-    protected $type = 'Component';
+    protected $typeLabel = 'Component';
 
     /**
-     * @var array stubs is a mapping of stub to generated file
+     * makeStubs makes all stubs
      */
-    protected $stubs = [
-        'component/component.stub'  => 'components/{{studly_name}}.php',
-        'component/default.stub' => 'components/{{lower_name}}/default.htm',
-    ];
+    public function makeStubs()
+    {
+        $this->makeStub('component/component.stub', 'components/{{studly_name}}.php');
+        $this->makeStub('component/default.stub', 'components/{{lower_name}}/default.htm');
+    }
 
     /**
      * prepareVars prepares variables for stubs
      */
     protected function prepareVars(): array
     {
-        $pluginCode = $this->argument('plugin');
-
-        $parts = explode('.', $pluginCode);
-        $plugin = array_pop($parts);
-        $author = array_pop($parts);
-        $component = $this->argument('component');
-
         return [
-            'name' => $component,
-            'author' => $author,
-            'plugin' => $plugin
-        ];
-    }
-
-    /**
-     * getArguments get the console command arguments
-     */
-    protected function getArguments()
-    {
-        return [
-            ['plugin', InputArgument::REQUIRED, 'The name of the plugin to create. Eg: RainLab.Blog'],
-            ['component', InputArgument::REQUIRED, 'The name of the component. Eg: Posts'],
-        ];
-    }
-
-    /**
-     * getOptions get the console command options
-     */
-    protected function getOptions()
-    {
-        return [
-            ['force', null, InputOption::VALUE_NONE, 'Overwrite existing files with generated ones.']
+            'name' => $this->argument('name'),
+            'namespace' => $this->argument('namespace'),
         ];
     }
 }
