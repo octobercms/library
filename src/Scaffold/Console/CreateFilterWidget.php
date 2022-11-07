@@ -27,7 +27,7 @@ class CreateFilterWidget extends GeneratorCommandBase
     /**
      * @var string type of class being generated
      */
-    protected $typeLabel = 'FilterWidget';
+    protected $typeLabel = 'Filter Widget';
 
     /**
      * makeStubs makes all stubs
