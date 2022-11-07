@@ -101,16 +101,9 @@ abstract class GeneratorCommandBase extends Command
         $cases = ['upper', 'lower', 'snake', 'studly', 'camel', 'title'];
         $modifiers = ['plural', 'singular', 'title'];
 
-        // Namespace processed manually
+        // Namespace modifiers
         if (isset($vars['namespace'])) {
-            $vars['namespace_php'] = $this->getNamespacePhp();
-            $vars['namespace_code'] = $this->getNamespaceCode();
-            $vars['namespace_path'] = $this->getNamespacePath();
-            $vars['namespace_table'] = $this->getNamespaceTable();
-
-            $vars['namespace_local'] = $this->isAppNamespace()
-                ? '~/'.$this->getNamespacePath()
-                : '$/'.$this->getNamespacePath();
+            $vars += $this->getNamespaceModifiers();
         }
 
         // Splice in author and plugin name automatically
@@ -164,51 +157,33 @@ abstract class GeneratorCommandBase extends Command
     }
 
     /**
-     * getNamespacePhp produces a PHP namespace (e.g. Acme\Blog)
+     * getNamespaceModifiers
      */
-    protected function getNamespacePhp(): string
+    protected function getNamespaceModifiers(): array
     {
         if ($this->isAppNamespace()) {
-            return 'App';
+            return [
+                'namespace_php' => 'App',
+                'namespace_code' => 'App',
+                'namespace_path' => 'app',
+                'namespace_table' => 'app',
+                'namespace_local' => '~/app',
+            ];
         }
 
         [$author, $plugin] = $this->getFormattedNamespace();
-        $author = Str::studly($author);
-        $plugin = Str::studly($plugin);
+        $sAuthor = Str::studly($author);
+        $sPlugin = Str::studly($plugin);
+        $lAuthor = mb_strtolower($author);
+        $lPlugin = mb_strtolower($plugin);
 
-        return "{$author}\\{$plugin}";
-    }
-
-    /**
-     * getNamespaceCode produces a namespace code (e.g. Acme.Blog)
-     */
-    protected function getNamespaceCode(): string
-    {
-        if ($this->isAppNamespace()) {
-            return 'App';
-        }
-
-        [$author, $plugin] = $this->getFormattedNamespace();
-        $author = Str::studly($author);
-        $plugin = Str::studly($plugin);
-
-        return "{$author}.{$plugin}";
-    }
-
-    /**
-     * getNamespacePath produces a path for URL or local (e.g. acme/blog)
-     */
-    protected function getNamespacePath(): string
-    {
-        if ($this->isAppNamespace()) {
-            return 'app';
-        }
-
-        [$author, $plugin] = $this->getFormattedNamespace();
-        $author = mb_strtolower($author);
-        $plugin = mb_strtolower($plugin);
-
-        return "{$author}/{$plugin}";
+        return [
+            'namespace_php' => "{$sAuthor}\\{$sPlugin}",
+            'namespace_code' => "{$sAuthor}.{$sPlugin}",
+            'namespace_path' => "{$lAuthor}/{$lPlugin}",
+            'namespace_table' => "{$lAuthor}_{$lPlugin}",
+            'namespace_local' => "$/{$lAuthor}/{$lPlugin}",
+        ];
     }
 
     /**
@@ -216,15 +191,7 @@ abstract class GeneratorCommandBase extends Command
      */
     protected function getNamespaceTable(): string
     {
-        if ($this->isAppNamespace()) {
-            return 'app';
-        }
-
-        [$author, $plugin] = $this->getFormattedNamespace();
-        $author = mb_strtolower($author);
-        $plugin = mb_strtolower($plugin);
-
-        return "{$author}_{$plugin}";
+        return $this->getNamespaceModifiers()['namespace_table'];
     }
 
     /**
@@ -236,11 +203,7 @@ abstract class GeneratorCommandBase extends Command
             return app_path();
         }
 
-        [$author, $plugin] = $this->getFormattedNamespace();
-        $author = mb_strtolower($author);
-        $plugin = mb_strtolower($plugin);
-
-        return plugins_path("{$author}/{$plugin}");
+        return plugins_path($this->getNamespaceModifiers()['namespace_path']);
     }
 
     /**
