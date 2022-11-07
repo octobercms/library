@@ -37,7 +37,14 @@ class CreateModel extends GeneratorCommandBase
         $this->makeStub('model/columns.stub', 'models/{{lower_name}}/columns.yaml');
 
         if (!$this->option('no-migration')) {
-            $this->makeStub('model/create_table.stub', 'updates/create_{{snake_plural_name}}_table.php');
+            $this->call('create:migration', array_filter([
+                'name' => 'Create'.$this->vars['studly_plural_name'].'Table',
+                'namespace' => $this->argument('namespace'),
+                '--table' => $this->vars['namespace_table'] . '_' . $this->vars['snake_plural_name'],
+                '--soft-deletes' => $this->option('soft-deletes'),
+                '--no-timestamps' => $this->option('no-timestamps'),
+                '--overwrite' => $this->option('overwrite')
+            ]));
         }
     }
 
