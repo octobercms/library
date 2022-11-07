@@ -1,9 +1,11 @@
-<?php namespace {{studly_author}}\{{studly_plugin}}\FilterWidgets;
+<?php namespace {{namespace_php}}\FilterWidgets;
 
 use Backend\Classes\FilterWidgetBase;
 
 /**
  * {{studly_name}} Filter Widget
+ *
+ * @link https://docs.octobercms.com/3.x/extend/lists/filter-widgets.html
  */
 class {{studly_name}} extends FilterWidgetBase
 {
@@ -47,8 +49,8 @@ class {{studly_name}} extends FilterWidgetBase
      */
     public function loadAssets()
     {
-        $this->addCss('css/{{lower_name}}.css', '{{author}}.{{plugin}}');
-        $this->addJs('js/{{lower_name}}.js', '{{author}}.{{plugin}}');
+        $this->addCss('css/{{lower_name}}.css');
+        $this->addJs('js/{{lower_name}}.js');
     }
 
     /**
