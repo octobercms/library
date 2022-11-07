@@ -39,11 +39,21 @@ class CreateMigration extends GeneratorCommandBase
      */
     public function makeStubs()
     {
-        if ($this->isCreate) {
-            $this->makeStub('migration/create_table.stub', 'updates/{{snake_name}}.php');
+        if ($this->isAppNamespace()) {
+            if ($this->isCreate) {
+                $this->makeStub('migration/create_app_table.stub', 'database/migrations/'.$this->getDatePrefix().'_{{snake_name}}.php');
+            }
+            else {
+                $this->makeStub('migration/update_app_table.stub', 'database/migrations/'.$this->getDatePrefix().'_{{snake_name}}.php');
+            }
         }
         else {
-            $this->makeStub('migration/update_table.stub', 'updates/{{snake_name}}.php');
+            if ($this->isCreate) {
+                $this->makeStub('migration/create_table.stub', 'updates/{{snake_name}}.php');
+            }
+            else {
+                $this->makeStub('migration/update_table.stub', 'updates/{{snake_name}}.php');
+            }
         }
     }
 
@@ -109,5 +119,14 @@ class CreateMigration extends GeneratorCommandBase
         }
 
         return $this->getNamespaceTable() . '_' .$tableName;
+    }
+
+    /**
+     * getDatePrefix
+     * @return string
+     */
+    protected function getDatePrefix()
+    {
+        return date('Y_m_d_His');
     }
 }

@@ -46,7 +46,7 @@ abstract class GeneratorCommandBase extends Command
 
         $this->makeStubs();
 
-        $this->info("{$this->typeLabel} created successfully.");
+        $this->components->info("{$this->typeLabel} created successfully.");
     }
 
     /**
@@ -159,12 +159,11 @@ abstract class GeneratorCommandBase extends Command
      */
     protected function getNamespaceTable(): string
     {
-        [$author, $name] = $this->getFormattedNamespace();
-
-        if (mb_strtolower($author) === 'app') {
+        if ($this->isAppNamespace()) {
             return 'app';
         }
 
+        [$author, $name] = $this->getFormattedNamespace();
         $author = mb_strtolower($author);
         $name = mb_strtolower($name);
 
@@ -176,12 +175,11 @@ abstract class GeneratorCommandBase extends Command
      */
     protected function getNamespacePhp(): string
     {
-        [$author, $name] = $this->getFormattedNamespace();
-
-        if (mb_strtolower($author) === 'app') {
+        if ($this->isAppNamespace()) {
             return 'App';
         }
 
+        [$author, $name] = $this->getFormattedNamespace();
         $author = Str::studly($author);
         $name = Str::studly($name);
 
@@ -193,12 +191,11 @@ abstract class GeneratorCommandBase extends Command
      */
     protected function getDestinationPath(): string
     {
-        [$author, $name] = $this->getFormattedNamespace();
-
-        if (mb_strtolower($author) === 'app') {
+        if ($this->isAppNamespace()) {
             return app_path();
         }
 
+        [$author, $name] = $this->getFormattedNamespace();
         $author = mb_strtolower($author);
         $name = mb_strtolower($name);
 
@@ -243,5 +240,13 @@ abstract class GeneratorCommandBase extends Command
     protected function getNamespaceInput(): string
     {
         return $this->argument('namespace');
+    }
+
+    /**
+     * isAppNamespace
+     */
+    protected function isAppNamespace(): bool
+    {
+        return mb_strtolower(trim($this->getNamespaceInput())) === 'app';
     }
 }
