@@ -5,6 +5,8 @@ use Backend\Classes\Controller;
 
 /**
  * {{title_name}} Backend Controller
+ *
+ * @link https://docs.octobercms.com/3.x/extend/system/controllers.html
  */
 class {{studly_name}} extends Controller
 {
