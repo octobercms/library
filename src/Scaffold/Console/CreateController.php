@@ -20,7 +20,7 @@ class CreateController extends GeneratorCommand
     /**
      * @var string type of class being generated
      */
-    protected $type = 'Controller';
+    protected $typeLabel = 'Controller';
 
     /**
      * @var array stubs is a mapping of stub to generated file

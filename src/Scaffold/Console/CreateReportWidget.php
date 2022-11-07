@@ -1,18 +1,18 @@
 <?php namespace October\Rain\Scaffold\Console;
 
-use October\Rain\Scaffold\GeneratorCommand;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
+use October\Rain\Scaffold\GeneratorCommandBase;
 
 /**
  * CreateReportWidget
  */
-class CreateReportWidget extends GeneratorCommand
+class CreateReportWidget extends GeneratorCommandBase
 {
     /**
-     * @var string name of console command
+     * @var string signature for the command
      */
-    protected $name = 'create:reportwidget';
+    protected $signature = 'create:reportwidget {namespace : App or Plugin Namespace (eg: Acme.Blog)}
+        {name : The name of the report widget. Eg: TopPages}
+        {--o|overwrite : Overwrite existing files with generated ones}';
 
     /**
      * @var string description of the console command
@@ -22,54 +22,25 @@ class CreateReportWidget extends GeneratorCommand
     /**
      * @var string type of class being generated
      */
-    protected $type = 'ReportWidget';
+    protected $typeLabel = 'Report Widget';
 
     /**
-     * @var array stubs is a mapping of stub to generated file
+     * makeStubs makes all stubs
      */
-    protected $stubs = [
-        'reportwidget/reportwidget.stub' => 'reportwidgets/{{studly_name}}.php',
-        'reportwidget/widget.stub'       => 'reportwidgets/{{lower_name}}/partials/_{{lower_name}}.php',
-    ];
+    public function makeStubs()
+    {
+        $this->makeStub('reportwidget/reportwidget.stub', 'reportwidgets/{{studly_name}}.php');
+        $this->makeStub('reportwidget/widget.stub', 'reportwidgets/{{lower_name}}/partials/_{{lower_name}}.php');
+    }
 
     /**
      * prepareVars prepares variables for stubs
      */
-    protected function prepareVars()
-    {
-        $pluginCode = $this->argument('plugin');
-
-        $parts = explode('.', $pluginCode);
-        $plugin = array_pop($parts);
-        $author = array_pop($parts);
-
-        $widget = $this->argument('widget');
-
-        return [
-            'name' => $widget,
-            'author' => $author,
-            'plugin' => $plugin
-        ];
-    }
-
-    /**
-     * getArguments get the console command arguments
-     */
-    protected function getArguments()
+    protected function prepareVars(): array
     {
         return [
-            ['plugin', InputArgument::REQUIRED, 'The name of the plugin. Eg: RainLab.Google'],
-            ['widget', InputArgument::REQUIRED, 'The name of the report widget. Eg: TopPages'],
-        ];
-    }
-
-    /**
-     * getOptions get the console command options
-     */
-    protected function getOptions()
-    {
-        return [
-            ['force', null, InputOption::VALUE_NONE, 'Overwrite existing files with generated ones.'],
+            'name' => $this->argument('name'),
+            'namespace' => $this->argument('namespace'),
         ];
     }
 }
