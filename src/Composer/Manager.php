@@ -236,9 +236,11 @@ class Manager
         // Disable scripts
         $composer->getEventDispatcher()->setRunScripts(false);
 
-        // Discard changes
+        // Discard changes to prevent corrupt state
         $composer->getConfig()->merge([
-            'discard-changes' => true
+            'config' => [
+                'discard-changes' => true
+            ]
         ]);
 
         return $composer;
