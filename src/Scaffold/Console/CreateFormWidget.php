@@ -1,15 +1,15 @@
 <?php namespace October\Rain\Scaffold\Console;
 
-use October\Rain\Scaffold\GeneratorCommand;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
+use October\Rain\Scaffold\GeneratorCommandBase;
 
-class CreateFormWidget extends GeneratorCommand
+class CreateFormWidget extends GeneratorCommandBase
 {
     /**
-     * @var string name of console command
+     * @var string signature for the command
      */
-    protected $name = 'create:formwidget';
+    protected $signature = 'create:formwidget {namespace : App or Plugin Namespace (eg: Acme.Blog)}
+        {name : The name of the form widget. Eg: PostList}
+        {--o|overwrite : Overwrite existing files with generated ones}';
 
     /**
      * @var string description of the console command
@@ -19,56 +19,27 @@ class CreateFormWidget extends GeneratorCommand
     /**
      * @var string type of class being generated
      */
-    protected $type = 'FormWidget';
+    protected $typeLabel = 'Form Widget';
 
     /**
-     * @var array stubs is a mapping of stub to generated file
+     * makeStubs makes all stubs
      */
-    protected $stubs = [
-        'formwidget/formwidget.stub'      => 'formwidgets/{{studly_name}}.php',
-        'formwidget/partial.stub'         => 'formwidgets/{{lower_name}}/partials/_{{lower_name}}.php',
-        'formwidget/stylesheet.stub'      => 'formwidgets/{{lower_name}}/assets/css/{{lower_name}}.css',
-        'formwidget/javascript.stub'      => 'formwidgets/{{lower_name}}/assets/js/{{lower_name}}.js',
-    ];
+    public function makeStubs()
+    {
+        $this->makeStub('formwidget/formwidget.stub', 'formwidgets/{{studly_name}}.php');
+        $this->makeStub('formwidget/partial.stub', 'formwidgets/{{lower_name}}/partials/_{{lower_name}}.php');
+        $this->makeStub('formwidget/stylesheet.stub', 'formwidgets/{{lower_name}}/assets/css/{{lower_name}}.css');
+        $this->makeStub('formwidget/javascript.stub', 'formwidgets/{{lower_name}}/assets/js/{{lower_name}}.js');
+    }
 
     /**
      * prepareVars prepares variables for stubs
      */
     protected function prepareVars(): array
     {
-        $pluginCode = $this->argument('plugin');
-
-        $parts = explode('.', $pluginCode);
-        $plugin = array_pop($parts);
-        $author = array_pop($parts);
-
-        $widget = $this->argument('widget');
-
         return [
-            'name' => $widget,
-            'author' => $author,
-            'plugin' => $plugin
-        ];
-    }
-
-    /**
-     * getArguments get the console command arguments
-     */
-    protected function getArguments()
-    {
-        return [
-            ['plugin', InputArgument::REQUIRED, 'The name of the plugin. Eg: RainLab.Blog'],
-            ['widget', InputArgument::REQUIRED, 'The name of the form widget. Eg: PostList'],
-        ];
-    }
-
-    /**
-     * getOptions get the console command options
-     */
-    protected function getOptions()
-    {
-        return [
-            ['force', null, InputOption::VALUE_NONE, 'Overwrite existing files with generated ones.'],
+            'name' => $this->argument('name'),
+            'namespace' => $this->argument('namespace'),
         ];
     }
 }

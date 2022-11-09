@@ -156,9 +156,7 @@ class BelongsTo extends BelongsToBase
         }
 
         if ($value instanceof Model) {
-            /*
-             * Non existent model, use a single serve event to associate it again when ready
-             */
+            // Non existent model, use a single serve event to associate it again when ready
             if (!$value->exists) {
                 $value->bindEventOnce('model.afterSave', function () use ($value) {
                     $this->associate($value);

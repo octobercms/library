@@ -1,0 +1,35 @@
+<?php
+
+use October\Rain\Database\Schema\Blueprint;
+use October\Rain\Database\Updates\Migration;
+
+/**
+ * {{studly_name}} Migration
+ *
+ * @link https://docs.octobercms.com/3.x/extend/database/structure.html
+ */
+return new class extends Migration
+{
+    /**
+     * up builds the migration
+     */
+    public function up()
+    {
+        Schema::create('{{table}}', function(Blueprint $table) {
+            $table->id();
+{% if timestamps %}
+            $table->timestamps();
+{% endif %}{% if softDeletes %}
+            $table->softDeletes();
+{% endif %}
+        });
+    }
+
+    /**
+     * down reverses the migration
+     */
+    public function down()
+    {
+        Schema::dropIfExists('{{table}}');
+    }
+};

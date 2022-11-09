@@ -1,32 +1,41 @@
-<?php namespace {{studly_author}}\{{studly_plugin}}\Controllers;
+<?php namespace {{namespace_php}}\Controllers;
 
 use BackendMenu;
 use Backend\Classes\Controller;
 
 /**
  * {{title_name}} Backend Controller
+ *
+ * @link https://docs.octobercms.com/3.x/extend/system/controllers.html
  */
 class {{studly_name}} extends Controller
 {
+{% if form or list %}
     public $implement = [
+{% if form %}
         \Backend\Behaviors\FormController::class,
-        \Backend\Behaviors\ListController::class
+{% endif %}{% if list %}
+        \Backend\Behaviors\ListController::class,
+{% endif %}
     ];
+{% endif %}{% if form %}
 
     /**
      * @var string formConfig file
      */
     public $formConfig = 'config_form.yaml';
+{% endif %}{% if list %}
 
     /**
      * @var string listConfig file
      */
     public $listConfig = 'config_list.yaml';
+{% endif %}
 
     /**
      * @var array required permissions
      */
-    public $requiredPermissions = ['{{lower_author}}.{{lower_plugin}}.{{lower_name}}'];
+    public $requiredPermissions = ['{{lower_namespace_code}}.{{lower_name}}'];
 
     /**
      * __construct the controller
@@ -35,6 +44,6 @@ class {{studly_name}} extends Controller
     {
         parent::__construct();
 
-        BackendMenu::setContext('{{studly_author}}.{{studly_plugin}}', '{{lower_plugin}}', '{{lower_name}}');
+        BackendMenu::setContext('{{namespace_code}}', '{{lower_plugin}}', '{{lower_name}}');
     }
 }

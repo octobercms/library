@@ -28,10 +28,10 @@ class Updater
         Model::unguard();
 
         if ($object instanceof Updates\Migration) {
-            $object->up();
+            $this->runMethod($object, 'up');
         }
         elseif ($object instanceof Updates\Seeder) {
-            $object->run();
+            $this->runMethod($object, 'run');
         }
 
         Model::reguard();
@@ -55,7 +55,7 @@ class Updater
         Model::unguard();
 
         if ($object instanceof Updates\Migration) {
-            $object->down();
+            $this->runMethod($object, 'down');
         }
 
         Model::reguard();
@@ -79,6 +79,14 @@ class Updater
         if ($class = $this->getClassFromFile($file)) {
             return new $class;
         }
+    }
+
+    /**
+     * runMethod on a migration or seed
+     */
+    protected function runMethod($migration, $method)
+    {
+        $migration->{$method}();
     }
 
     /**
@@ -125,9 +133,7 @@ class Updater
             }
 
             for (; $i < count($tokens); $i++) {
-                /*
-                 * Namespace opening
-                 */
+                // Namespace opening
                 if ($tokens[$i][0] === T_NAMESPACE) {
                     for ($j = $i + 1; $j < count($tokens); $j++) {
                         if ($tokens[$j] === ';') {
@@ -138,9 +144,7 @@ class Updater
                     }
                 }
 
-                /*
-                 * Class opening
-                 */
+                // Class opening
                 if ($tokens[$i][0] === T_CLASS && $tokens[$i-1][1] !== '::') {
                     $class = $tokens[$i+2][1];
                     break;

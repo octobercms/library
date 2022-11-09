@@ -1,10 +1,12 @@
-<?php namespace {{studly_author}}\{{studly_plugin}}\ReportWidgets;
+<?php namespace {{namespace_php}}\ReportWidgets;
 
 use Backend\Classes\ReportWidgetBase;
 use Exception;
 
 /**
  * {{studly_name}} Report Widget
+ *
+ * @link https://docs.octobercms.com/3.x/extend/backend/report-widgets.html
  */
 class {{studly_name}} extends ReportWidgetBase
 {
@@ -19,12 +21,19 @@ class {{studly_name}} extends ReportWidgetBase
     public function defineProperties()
     {
         return [
-            'title' => [
-                'title' => 'backend::lang.dashboard.widget_title_label',
+            'name' => [
+                'title' => 'Name',
                 'default' => '{{title_name}} Report Widget',
                 'type' => 'string',
-                'validationPattern' => '^.+$',
-                'validationMessage' => 'backend::lang.dashboard.widget_title_error',
+                'validation' => [
+                    'required' => [
+                        'message' => 'The Name field is required'
+                    ],
+                    'regex' => [
+                        'message' => 'The Name field can contain only Latin letters.',
+                        'pattern' => '^[a-zA-Z]+$'
+                    ]
+                ]
             ],
         ];
     }
@@ -45,7 +54,7 @@ class {{studly_name}} extends ReportWidgetBase
     }
 
     /**
-     * Prepares the report widget view data
+     * prepareVars for the report widget
      */
     public function prepareVars()
     {

@@ -1,19 +1,16 @@
 <?php namespace October\Rain\Scaffold;
 
-use ReflectionClass;
+use Twig;
 use October\Rain\Support\Str;
 use Illuminate\Console\Command;
 use October\Rain\Filesystem\Filesystem;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
+use ReflectionClass;
 use Exception;
-use Twig;
 
 /**
- * GeneratorCommand
- * @deprecated use GeneratorCommandBase
+ * GeneratorCommandBase base class
  */
-abstract class GeneratorCommand extends Command
+abstract class GeneratorCommandBase extends Command
 {
     /**
      * @var \October\Rain\Filesystem\Filesystem files is the filesystem instance
@@ -21,14 +18,9 @@ abstract class GeneratorCommand extends Command
     protected $files;
 
     /**
-     * @var string type of class being generated
+     * @var string typeLabel of class being generated
      */
-    protected $type;
-
-    /**
-     * @var array stubs is a mapping of stub to generated file
-     */
-    protected $stubs = [];
+    protected $typeLabel;
 
     /**
      * @var array vars to use in stubs
@@ -54,7 +46,7 @@ abstract class GeneratorCommand extends Command
 
         $this->makeStubs();
 
-        $this->info($this->type . ' created successfully.');
+        $this->components->info("{$this->typeLabel} created successfully.");
     }
 
     /**
@@ -65,41 +57,26 @@ abstract class GeneratorCommand extends Command
     /**
      * makeStubs makes all stubs
      */
-    public function makeStubs()
-    {
-        $stubs = array_keys($this->stubs);
-
-        foreach ($stubs as $stub) {
-            $this->makeStub($stub);
-        }
-    }
+    abstract public function makeStubs();
 
     /**
      * makeStub makes a single stub
      */
-    public function makeStub(string $stubName)
+    public function makeStub(string $stubName, string $outputName)
     {
-        if (!isset($this->stubs[$stubName])) {
-            return;
-        }
-
         $sourceFile = $this->getSourcePath() . '/' . $stubName;
-        $destinationFile = $this->getDestinationPath() . '/' . $this->stubs[$stubName];
+        $destinationFile = $this->getDestinationPath() . '/' . $outputName;
         $destinationContent = $this->files->get($sourceFile);
 
-        /*
-         * Parse each variable in to the destination content and path
-         */
+        // Parse each variable in to the destination content and path
         $destinationContent = Twig::parse($destinationContent, $this->vars);
         $destinationFile = Twig::parse($destinationFile, $this->vars);
 
         $this->makeDirectory($destinationFile);
 
-        /*
-         * Make sure this file does not already exist
-         */
-        if ($this->files->exists($destinationFile) && !$this->option('force')) {
-            throw new Exception('Stop everything!!! This file already exists: ' . $destinationFile);
+        // Make sure this file does not already exist
+        if ($this->files->exists($destinationFile) && !$this->option('overwrite')) {
+            throw new Exception('Process halted! This file already exists: ' . $destinationFile);
         }
 
         $this->files->put($destinationFile, $destinationContent);
@@ -124,10 +101,21 @@ abstract class GeneratorCommand extends Command
         $cases = ['upper', 'lower', 'snake', 'studly', 'camel', 'title'];
         $modifiers = ['plural', 'singular', 'title'];
 
+        // Namespace modifiers
+        if (isset($vars['namespace'])) {
+            $vars += $this->getNamespaceModifiers();
+        }
+
+        // Splice in author and plugin name automatically
+        [$author, $plugin] = $this->getFormattedNamespace();
+        $vars += [
+            'author' => $author,
+            'plugin' => $plugin,
+        ];
+
+        // Process variables
         foreach ($vars as $key => $var) {
-            /*
-             * Apply cases, and cases with modifiers
-             */
+            // Apply cases, and cases with modifiers
             foreach ($cases as $case) {
                 $primaryKey = $case . '_' . $key;
                 $vars[$primaryKey] = $this->modifyString($case, $var);
@@ -138,9 +126,7 @@ abstract class GeneratorCommand extends Command
                 }
             }
 
-            /*
-             * Apply modifiers
-             */
+            // Apply modifiers
             foreach ($modifiers as $modifier) {
                 $primaryKey = $modifier . '_' . $key;
                 $vars[$primaryKey] = $this->modifyString($modifier, $var);
@@ -171,17 +157,53 @@ abstract class GeneratorCommand extends Command
     }
 
     /**
-     * getDestinationPath gets the plugin path from the input
+     * getNamespaceModifiers
+     */
+    protected function getNamespaceModifiers(): array
+    {
+        if ($this->isAppNamespace()) {
+            return [
+                'namespace_php' => 'App',
+                'namespace_code' => 'App',
+                'namespace_path' => 'app',
+                'namespace_table' => 'app',
+                'namespace_local' => '~/app',
+            ];
+        }
+
+        [$author, $plugin] = $this->getFormattedNamespace();
+        $sAuthor = Str::studly($author);
+        $sPlugin = Str::studly($plugin);
+        $lAuthor = mb_strtolower($author);
+        $lPlugin = mb_strtolower($plugin);
+
+        return [
+            'namespace_php' => "{$sAuthor}\\{$sPlugin}",
+            'namespace_code' => "{$sAuthor}.{$sPlugin}",
+            'namespace_path' => "{$lAuthor}/{$lPlugin}",
+            'namespace_table' => "{$lAuthor}_{$lPlugin}",
+            'namespace_local' => "$/{$lAuthor}/{$lPlugin}",
+        ];
+    }
+
+    /**
+     * getNamespaceTable produces a table name (e.g. acme_blog)
+     */
+    protected function getNamespaceTable(): string
+    {
+        return $this->getNamespaceModifiers()['namespace_table'];
+    }
+
+    /**
+     * getDestinationPath gets the app or plugin local path
      */
     protected function getDestinationPath(): string
     {
-        $plugin = $this->getPluginInput();
+        if ($this->isAppNamespace()) {
+            return app_path();
+        }
 
-        $parts = explode('.', $plugin);
-        $name = array_pop($parts);
-        $author = array_pop($parts);
-
-        return plugins_path(strtolower($author) . '/' . strtolower($name));
+        return plugins_path($this->getNamespaceModifiers()['namespace_path']);
     }
 
     /**
@@ -196,30 +218,39 @@ abstract class GeneratorCommand extends Command
     }
 
     /**
-     * getPluginInput gets the desired plugin name from the input
+     * getFormattedNamespace returns a tuple of author and plugin name, or app,
+     * where returned array takes format of [author, name]
      */
-    protected function getPluginInput(): string
+    protected function getFormattedNamespace(): array
     {
-        return $this->argument('plugin');
+        $namespace = $this->getNamespaceInput();
+
+        if (strpos($namespace, '.') !== false) {
+            $parts = explode('.', $namespace);
+            return [$parts[0], $parts[1]];
+        }
+
+        if (strpos($namespace, '\\') !== false) {
+            $parts = explode('\\', $namespace);
+            return [$parts[0], $parts[1]];
+        }
+
+        return [$namespace, $namespace];
     }
 
     /**
-     * getArguments get the console command arguments
+     * getNamespaceInput gets the desired plugin name from the input
      */
-    protected function getArguments()
+    protected function getNamespaceInput(): string
     {
-        return [
-            ['plugin', InputArgument::REQUIRED, 'The name of the plugin to create. Eg: RainLab.Blog'],
-        ];
+        return $this->argument('namespace');
     }
 
     /**
-     * getOptions get the console command options
+     * isAppNamespace
      */
-    protected function getOptions()
+    protected function isAppNamespace(): bool
     {
-        return [
-            ['force', null, InputOption::VALUE_NONE, 'Overwrite existing files with generated ones.'],
-        ];
+        return mb_strtolower(trim($this->getNamespaceInput())) === 'app';
     }
 }

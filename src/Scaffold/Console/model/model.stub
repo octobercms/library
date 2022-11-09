@@ -1,72 +1,41 @@
-<?php namespace {{studly_author}}\{{studly_plugin}}\Models;
+<?php namespace {{namespace_php}}\Models;
 
 use Model;
 
 /**
  * {{studly_name}} Model
+ *
+ * @link https://docs.octobercms.com/3.x/extend/system/models.html
  */
 class {{studly_name}} extends Model
 {
     use \October\Rain\Database\Traits\Validation;
+{% if softDeletes %}
+    use \October\Rain\Database\Traits\SoftDelete;
+{% endif %}
 
     /**
-     * @var string table associated with the model
+     * @var string table name
      */
-    public $table = '{{lower_author}}_{{lower_plugin}}_{{snake_plural_name}}';
-
-    /**
-     * @var array guarded attributes aren't mass assignable
-     */
-    protected $guarded = ['*'];
-
-    /**
-     * @var array fillable attributes are mass assignable
-     */
-    protected $fillable = [];
+    public $table = '{{namespace_table}}_{{snake_plural_name}}';
 
     /**
      * @var array rules for validation
      */
     public $rules = [];
+{% if softDeletes %}
 
     /**
-     * @var array Attributes to be cast to native types
-     */
-    protected $casts = [];
-
-    /**
-     * @var array jsonable attribute names that are json encoded and decoded from the database
-     */
-    protected $jsonable = [];
-
-    /**
-     * @var array appends attributes to the API representation of the model (ex. toArray())
-     */
-    protected $appends = [];
-
-    /**
-     * @var array hidden attributes removed from the API representation of the model (ex. toArray())
-     */
-    protected $hidden = [];
-
-    /**
-     * @var array dates attributes that should be mutated to dates
+     * @var array dates used by the model
      */
     protected $dates = [
-        'created_at',
-        'updated_at'
+        'deleted_at'
     ];
+{% endif %}{% if not timestamps %}
 
     /**
-     * @var array hasOne and other relations
+     * @var bool timestamps disabled by default
      */
-    public $hasOne = [];
-    public $hasMany = [];
-    public $belongsTo = [];
-    public $belongsToMany = [];
-    public $morphTo = [];
-    public $morphOne = [];
-    public $morphMany = [];
-    public $attachOne = [];
-    public $attachMany = [];
+    public $timestamps = false;
+{% endif %}
 }

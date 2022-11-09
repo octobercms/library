@@ -1,16 +1,18 @@
-<?php namespace {{studly_author}}\{{studly_plugin}}\FormWidgets;
+<?php namespace {{namespace_php}}\FormWidgets;
 
 use Backend\Classes\FormWidgetBase;
 
 /**
  * {{studly_name}} Form Widget
+ *
+ * @link https://docs.octobercms.com/3.x/extend/forms/form-widgets.html
  */
 class {{studly_name}} extends FormWidgetBase
 {
     /**
      * @inheritDoc
      */
-    protected $defaultAlias = '{{lower_author}}_{{lower_plugin}}_{{snake_name}}';
+    protected $defaultAlias = '{{lower_plugin}}_{{snake_name}}';
 
     /**
      * @inheritDoc
@@ -43,8 +45,8 @@ class {{studly_name}} extends FormWidgetBase
      */
     public function loadAssets()
     {
-        $this->addCss('css/{{lower_name}}.css', '{{author}}.{{plugin}}');
-        $this->addJs('js/{{lower_name}}.js', '{{author}}.{{plugin}}');
+        $this->addCss('css/{{lower_name}}.css');
+        $this->addJs('js/{{lower_name}}.js');
     }
 
     /**

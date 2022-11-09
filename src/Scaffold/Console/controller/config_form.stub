@@ -6,25 +6,25 @@
 name: {{title_singular_name}}
 
 # Model Form Field configuration
-form: $/{{lower_author}}/{{lower_plugin}}/models/{{lower_model}}/fields.yaml
+form: {{namespace_local}}/models/{{lower_model}}/fields.yaml
 
 # Model Class name
-modelClass: {{studly_author}}\{{studly_plugin}}\Models\{{studly_model}}
+modelClass: {{namespace_php}}\Models\{{studly_model}}
 
 # Default redirect location
-defaultRedirect: {{lower_author}}/{{lower_plugin}}/{{lower_name}}
+defaultRedirect: {{namespace_path}}/{{lower_name}}
 
 # Create page
 create:
     title: backend::lang.form.create_title
-    redirect: {{lower_author}}/{{lower_plugin}}/{{lower_name}}/update/:id
-    redirectClose: {{lower_author}}/{{lower_plugin}}/{{lower_name}}
+    redirect: {{namespace_path}}/{{lower_name}}/update/:id
+    redirectClose: {{namespace_path}}/{{lower_name}}
 
 # Update page
 update:
     title: backend::lang.form.update_title
-    redirect: {{lower_author}}/{{lower_plugin}}/{{lower_name}}
-    redirectClose: {{lower_author}}/{{lower_plugin}}/{{lower_name}}
+    redirect: {{namespace_path}}/{{lower_name}}
+    redirectClose: {{namespace_path}}/{{lower_name}}
 
 # Preview page
 preview:

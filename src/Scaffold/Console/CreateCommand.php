@@ -1,15 +1,18 @@
 <?php namespace October\Rain\Scaffold\Console;
 
-use October\Rain\Scaffold\GeneratorCommand;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
+use October\Rain\Scaffold\GeneratorCommandBase;
 
-class CreateCommand extends GeneratorCommand
+/**
+ * CreateCommand
+ */
+class CreateCommand extends GeneratorCommandBase
 {
     /**
-     * @var string name of console command
+     * @var string signature for the command
      */
-    protected $name = 'create:command';
+    protected $signature = 'create:command {namespace : App or Plugin Namespace (eg: Acme.Blog)}
+        {name : The name of the command. Eg: ProcessJobs}
+        {--o|overwrite : Overwrite existing files with generated ones}';
 
     /**
      * @var string description of the console command
@@ -19,52 +22,24 @@ class CreateCommand extends GeneratorCommand
     /**
      * @var string type of class being generated
      */
-    protected $type = 'Command';
+    protected $typeLabel = 'Command';
 
     /**
-     * @var array stubs is a mapping of stub to generated file
+     * makeStubs makes all stubs
      */
-    protected $stubs = [
-        'command/command.stub' => 'console/{{studly_name}}.php',
-    ];
+    public function makeStubs()
+    {
+        $this->makeStub('command/command.stub', 'console/{{studly_name}}.php');
+    }
 
     /**
      * prepareVars prepares variables for stubs
      */
     protected function prepareVars(): array
     {
-        $pluginCode = $this->argument('plugin');
-
-        $parts = explode('.', $pluginCode);
-        $plugin = array_pop($parts);
-        $author = array_pop($parts);
-        $command = $this->argument('command-name');
-
         return [
-            'name' => $command,
-            'author' => $author,
-            'plugin' => $plugin
-        ];
-    }
-
-    /**
-     * getArguments get the console command arguments
-     */
-    protected function getArguments()
-    {
-        return [
-            ['plugin', InputArgument::REQUIRED, 'The name of the plugin. Eg: RainLab.Blog'],
-            ['command-name', InputArgument::REQUIRED, 'The name of the command. Eg: MyCommand'],
-        ];
-    }
-
-    /**
-     * getOptions get the console command options
-     */
-    protected function getOptions()
-    {
-        return [
-            ['force', null, InputOption::VALUE_NONE, 'Overwrite existing files with generated ones.']
+            'name' => $this->argument('name'),
+            'namespace' => $this->argument('namespace'),
         ];
     }
 }

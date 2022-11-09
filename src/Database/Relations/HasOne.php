@@ -28,21 +28,6 @@ class HasOne extends HasOneBase
     }
 
     /**
-     * Get the results of the relationship.
-     * @return mixed
-     */
-    public function getResults()
-    {
-        // New models have no possibility of having a relationship here
-        // so prevent the first orphaned relation from being used.
-        if (!$this->parent->exists) {
-            return null;
-        }
-
-        return parent::getResults();
-    }
-
-    /**
      * setSimpleValue helper for setting this relationship using various expected
      * values. For example, $model->relation = $value;
      */
