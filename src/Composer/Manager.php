@@ -51,7 +51,7 @@ class Manager
             Installer::create($this->output, $this->makeComposer())
                 ->setDevMode(Config::get('app.debug', false))
                 ->setUpdateAllowList($packages)
-                ->setPreferSource()
+                ->setPreferDist()
                 ->setUpdate(true)
                 ->run();
         }
@@ -80,7 +80,7 @@ class Manager
             $composer = $this->makeComposer();
             $installer = Installer::create($this->output, $composer)
                 ->setDevMode(Config::get('app.debug', false))
-                ->setPreferSource()
+                ->setPreferDist()
                 ->setUpdate(true)
                 ->setUpdateAllowTransitiveDependencies(Request::UPDATE_LISTED_WITH_TRANSITIVE_DEPS);
 
@@ -235,6 +235,11 @@ class Manager
 
         // Disable scripts
         $composer->getEventDispatcher()->setRunScripts(false);
+
+        // Discard changes
+        $composer->getConfig()->merge([
+            'discard-changes' => true
+        ]);
 
         return $composer;
     }
