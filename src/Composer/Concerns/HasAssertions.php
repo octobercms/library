@@ -5,6 +5,7 @@ use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
 use DirectoryIterator;
 use RegexIterator;
+use Throwable;
 
 /**
  * HasAssertions for composer
@@ -36,16 +37,23 @@ trait HasAssertions
     {
         // Something usable is already set
         $osHome = Platform::isWindows() ? 'APPDATA' : 'HOME';
-        if (getenv('COMPOSER_HOME') || getenv($osHome)) {
+        if (Platform::getEnv('COMPOSER_HOME') || Platform::getEnv($osHome)) {
             return;
         }
 
+        // Prepare a home location for composer
         $tempPath = temp_path('composer');
         if (!file_exists($tempPath)) {
             @mkdir($tempPath);
         }
 
-        putenv('COMPOSER_HOME='.$tempPath);
+        try {
+            Platform::putEnv('COMPOSER_HOME', $tempPath);
+        }
+        catch (Throwable $ex) {
+            // putenv() may be blocked for security reasons
+            $_SERVER['COMPOSER_HOME'] = $_ENV['COMPOSER_HOME'] = $tempPath;
+        }
     }
 
     /**
