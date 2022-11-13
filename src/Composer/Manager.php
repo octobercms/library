@@ -41,6 +41,7 @@ class Manager
      */
     public function update(array $packages = [])
     {
+        $this->assertCompatibility();
         $this->assertResourceLimits();
         $this->assertHomeVariableSet();
 
@@ -65,6 +66,7 @@ class Manager
      */
     public function require(array $requirements)
     {
+        $this->assertCompatibility();
         $this->assertResourceLimits();
         $this->assertHomeVariableSet();
         $this->backupComposerFile();
@@ -83,10 +85,6 @@ class Manager
                 ->setPreferDist()
                 ->setUpdate(true)
                 ->setUpdateAllowTransitiveDependencies(Request::UPDATE_LISTED_WITH_TRANSITIVE_DEPS);
-
-            // Even though this is @deprecated, there is no other way to stop a
-            // putenv() call from happening inside in the Installer
-            $installer->setRunScripts(false);
 
             // If no lock is present, or the file is brand new, we do not do a
             // partial update as this is not supported by the Installer

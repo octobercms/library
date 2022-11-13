@@ -20,6 +20,17 @@ trait HasAssertions
     protected $workingDir;
 
     /**
+     * assertCompatibility
+     */
+    protected function assertCompatibility()
+    {
+        // Function may be disabled for security reasons
+        if (!function_exists('putenv')) {
+            require_once __DIR__ . '/../resources/compat.php';
+        }
+    }
+
+    /**
      * assertResourceLimits
      */
     protected function assertResourceLimits()
@@ -46,13 +57,7 @@ trait HasAssertions
             @mkdir($tempPath);
         }
 
-        // Function may be disabled for security reasons
-        if (function_exists('putenv')) {
-            Platform::putEnv('COMPOSER_HOME', $tempPath);
-        }
-        else {
-            $_SERVER['COMPOSER_HOME'] = $_ENV['COMPOSER_HOME'] = $tempPath;
-        }
+        Platform::putEnv('COMPOSER_HOME', $tempPath);
     }
 
     /**
