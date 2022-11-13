@@ -41,8 +41,7 @@ class Manager
      */
     public function update(array $packages = [])
     {
-        $this->assertCompatibility();
-        $this->assertResourceLimits();
+        $this->assertEnvironmentReady();
         $this->assertHomeVariableSet();
 
         try {
@@ -66,8 +65,7 @@ class Manager
      */
     public function require(array $requirements)
     {
-        $this->assertCompatibility();
-        $this->assertResourceLimits();
+        $this->assertEnvironmentReady();
         $this->assertHomeVariableSet();
         $this->backupComposerFile();
 

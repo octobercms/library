@@ -20,24 +20,19 @@ trait HasAssertions
     protected $workingDir;
 
     /**
-     * assertCompatibility
+     * assertEnvironmentReady
      */
-    protected function assertCompatibility()
+    protected function assertEnvironmentReady()
     {
-        // Function may be disabled for security reasons
-        if (!function_exists('putenv')) {
-            require_once __DIR__ . '/../resources/compat.php';
-        }
-    }
-
-    /**
-     * assertResourceLimits
-     */
-    protected function assertResourceLimits()
-    {
+        // Address resource limits
         @set_time_limit(3600);
         ini_set('max_input_time', 0);
         ini_set('max_execution_time', 0);
+
+        // Function may be disabled for security reasons
+        if (!function_exists('putenv')) {
+            require_once __DIR__ . '/../resources/putenv.php';
+        }
     }
 
     /**
