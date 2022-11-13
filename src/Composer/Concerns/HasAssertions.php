@@ -5,7 +5,6 @@ use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
 use DirectoryIterator;
 use RegexIterator;
-use Throwable;
 
 /**
  * HasAssertions for composer
@@ -47,11 +46,11 @@ trait HasAssertions
             @mkdir($tempPath);
         }
 
-        try {
+        // Function may be disabled for security reasons
+        if (function_exists('putenv')) {
             Platform::putEnv('COMPOSER_HOME', $tempPath);
         }
-        catch (Throwable $ex) {
-            // putenv() may be blocked for security reasons
+        else {
             $_SERVER['COMPOSER_HOME'] = $_ENV['COMPOSER_HOME'] = $tempPath;
         }
     }
