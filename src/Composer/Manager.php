@@ -84,6 +84,10 @@ class Manager
                 ->setUpdate(true)
                 ->setUpdateAllowTransitiveDependencies(Request::UPDATE_LISTED_WITH_TRANSITIVE_DEPS);
 
+            // Even though this is @deprecated, there is no other way to stop a
+            // putenv() call from happening inside in the Installer
+            $installer->setRunScripts(false);
+
             // If no lock is present, or the file is brand new, we do not do a
             // partial update as this is not supported by the Installer
             if ($composer->getLocker()->isLocked()) {
