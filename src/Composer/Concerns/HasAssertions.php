@@ -20,13 +20,19 @@ trait HasAssertions
     protected $workingDir;
 
     /**
-     * assertResourceLimits
+     * assertEnvironmentReady
      */
-    protected function assertResourceLimits()
+    protected function assertEnvironmentReady()
     {
+        // Address resource limits
         @set_time_limit(3600);
         ini_set('max_input_time', 0);
         ini_set('max_execution_time', 0);
+
+        // Function may be disabled for security reasons
+        if (!function_exists('putenv')) {
+            require_once __DIR__ . '/../resources/putenv.php';
+        }
     }
 
     /**
@@ -36,16 +42,17 @@ trait HasAssertions
     {
         // Something usable is already set
         $osHome = Platform::isWindows() ? 'APPDATA' : 'HOME';
-        if (getenv('COMPOSER_HOME') || getenv($osHome)) {
+        if (Platform::getEnv('COMPOSER_HOME') || Platform::getEnv($osHome)) {
             return;
         }
 
+        // Prepare a home location for composer
         $tempPath = temp_path('composer');
         if (!file_exists($tempPath)) {
             @mkdir($tempPath);
         }
 
-        putenv('COMPOSER_HOME='.$tempPath);
+        Platform::putEnv('COMPOSER_HOME', $tempPath);
     }
 
     /**
