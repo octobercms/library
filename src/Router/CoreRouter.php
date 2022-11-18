@@ -4,7 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Router as RouterBase;
 
 /**
- * CoreRouter
+ * CoreRouter adds extra events to the base router and ensures late routes
+ * are registered with the caching system.
  *
  * @package october\router
  * @author Alexey Bobkov, Samuel Georges
@@ -12,12 +13,12 @@ use Illuminate\Routing\Router as RouterBase;
 class CoreRouter extends RouterBase
 {
     /**
-     * @var bool Router registered
+     * @var bool routerEventsBooted
      */
     protected $routerEventsBooted = false;
 
     /**
-     * Dispatch the request to the application.
+     * dispatch the request to the application.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
@@ -36,7 +37,7 @@ class CoreRouter extends RouterBase
     }
 
     /**
-     * Register a new "before" filter with the router.
+     * before is a new filter registered with the router.
      *
      * @param  string|callable  $callback
      * @return void
@@ -47,7 +48,7 @@ class CoreRouter extends RouterBase
     }
 
     /**
-     * Register a new "after" filter with the router.
+     * after is a new filter registered with the router.
      *
      * @param  string|callable  $callback
      * @return void
@@ -58,7 +59,7 @@ class CoreRouter extends RouterBase
     }
 
     /**
-     * Register routers found within "before" filter, some are registered here.
+     * registerLateRoutes found within "before" filter, some are registered here.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return void
