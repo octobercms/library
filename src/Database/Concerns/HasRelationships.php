@@ -207,6 +207,22 @@ trait HasRelationships
     }
 
     /**
+     * isRelationTypeSingular returns true if the relation is expected to return
+     * a single record versus a collection of records.
+     */
+    public function isRelationTypeSingular($name): bool
+    {
+        return in_array($this->getRelationType($name), [
+            'hasOne',
+            'belongsTo',
+            'morphTo',
+            'morphOne',
+            'attachOne',
+            'hasOneThrough'
+        ]);
+    }
+
+    /**
      * makeRelation returns a relation class object
      * @param string $name Relation name
      * @return object
