@@ -11,21 +11,23 @@ use Illuminate\Routing\RoutingServiceProvider as RoutingServiceProviderBase;
 class RoutingServiceProvider extends RoutingServiceProviderBase
 {
     /**
-     * Bootstrap any application services.
-     *
-     * @return void
+     * boot any application services.
      */
     public function boot()
     {
         if ($this->app->routesAreCached()) {
             $this->loadCachedRoutes();
         }
+        else {
+            $this->app->booted(function () {
+                $this->app['router']->getRoutes()->refreshNameLookups();
+                $this->app['router']->getRoutes()->refreshActionLookups();
+            });
+        }
     }
 
     /**
-     * Load the cached routes for the application.
-     *
-     * @return void
+     * loadCachedRoutes for the application.
      */
     protected function loadCachedRoutes()
     {
@@ -35,9 +37,7 @@ class RoutingServiceProvider extends RoutingServiceProviderBase
     }
 
     /**
-     * Register the router instance.
-     *
-     * @return void
+     * registerRouter instance.
      */
     protected function registerRouter()
     {
