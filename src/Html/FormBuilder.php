@@ -46,12 +46,34 @@ class FormBuilder
     /**
      * @var array reserved form open attributes.
      */
-    protected $reserved = ['method', 'url', 'route', 'action', 'files', 'request', 'model', 'sessionKey'];
+    protected $reserved = [
+        'method',
+        'url',
+        'route',
+        'action',
+        'files',
+        'request',
+        'model',
+        'sessionKey'
+    ];
 
     /**
      * @var array reservedAjax form open attributes.
      */
-    protected $reservedAjax = ['request', 'success', 'error', 'complete', 'confirm', 'redirect', 'update', 'data', 'validate', 'flash'];
+    protected $reservedAjax = [
+        'request',
+        'success',
+        'error',
+        'complete',
+        'confirm',
+        'redirect',
+        'update',
+        'data',
+        'validate',
+        'flash',
+        'bulk',
+        'download'
+     ];
 
     /**
      * @var array spoofedMethods are form methods that should be spoofed, in uppercase.
@@ -163,9 +185,7 @@ class FormBuilder
             $attributes['data-request-' . $property] = $value;
         }
 
-        /*
-         * The `files` option is a hybrid
-         */
+        // The `files` option is a hybrid
         if (isset($options['files'])) {
             $attributes['data-request-files'] = $options['files'];
         }
