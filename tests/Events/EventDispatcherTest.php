@@ -1,6 +1,7 @@
 <?php
 
 use October\Rain\Events\Dispatcher;
+use October\Rain\Events\PriorityDispatcher;
 use October\Rain\Events\FakeDispatcher;
 
 /**
@@ -13,7 +14,11 @@ class EventDispatcherTest extends TestCase
      */
     public function testFakerClass(): void
     {
-        Event::swap(new FakeDispatcher(new Dispatcher));
+        $dispatcher = new PriorityDispatcher;
+
+        $dispatcher->setLaravelDispatcher(new Dispatcher);
+
+        Event::swap(new FakeDispatcher($dispatcher));
 
         Event::fire(EventDispatcherTest::class);
 
