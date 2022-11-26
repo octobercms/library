@@ -11,6 +11,14 @@ use Illuminate\Support\Testing\Fakes\EventFake as EventFakeBase;
 class FakeDispatcher extends EventFakeBase
 {
     /**
+     * __construct a new event fake instance.
+     */
+    public function __construct(PriorityDispatcher $dispatcher, $eventsToFake = [])
+    {
+        parent::__construct($dispatcher->getLaravelDispatcher(), $eventsToFake);
+    }
+
+    /**
      * fire proxies to dispatch
      */
     public function fire(...$args)

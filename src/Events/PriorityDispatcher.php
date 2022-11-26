@@ -138,13 +138,21 @@ class PriorityDispatcher
     }
 
     /**
-     * setLaravelDispatcher sets the queue resolver implementation.
+     * setLaravelDispatcher sets the event resolver implementation.
      */
     public function setLaravelDispatcher(DispatcherContract $dispatcher): PriorityDispatcher
     {
         $this->laravelEvents = $dispatcher;
 
         return $this;
+    }
+
+    /**
+     * getLaravelDispatcher returns the base event resolver.
+     */
+    public function getLaravelDispatcher(): DispatcherContract
+    {
+        return $this->laravelEvents;
     }
 
     /**

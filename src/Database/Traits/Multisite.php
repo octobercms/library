@@ -252,20 +252,6 @@ trait Multisite
     }
 
     /**
-     * findOrCreateForSite
-     */
-    public function findOrCreateForSite($siteId = null)
-    {
-        $otherModel = $this->findOtherSiteModel($siteId);
-
-        if (!$otherModel->exists) {
-            $otherModel->save();
-        }
-
-        return $otherModel;
-    }
-
-    /**
      * findForSite
      */
     public function findForSite($siteId = null)
@@ -274,6 +260,29 @@ trait Multisite
             ->newOtherSiteQuery()
             ->where($this->getSiteIdColumn(), $siteId)
             ->first();
+    }
+
+    /**
+     * findOrCreateForSite
+     */
+    public function findOrCreateForSite($siteId = null)
+    {
+        $otherModel = $this->findOtherSiteModel($siteId);
+
+        // Newly created model
+        if (!$otherModel->exists) {
+            $otherModel->save();
+        }
+
+        // Restoring a trashed model
+        if (
+            $otherModel->isClassInstanceOf(\October\Contracts\Database\SoftDeleteInterface::class) &&
+            $otherModel->trashed()
+        ) {
+            $otherModel->restore();
+        }
+
+        return $otherModel;
     }
 
     /**
