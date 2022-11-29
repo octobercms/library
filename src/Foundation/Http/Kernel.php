@@ -4,6 +4,9 @@ use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 /**
  * Kernel
+ *
+ * @package october\foundation
+ * @author Alexey Bobkov, Samuel Georges
  */
 class Kernel extends HttpKernel
 {
