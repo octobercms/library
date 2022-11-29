@@ -26,10 +26,14 @@ class CheckForMaintenanceMode extends CheckForMaintenanceModeBase
             $view = View::exists('app::maintenance') ? 'app::maintenance' : 'system::maintenance';
             $data = $this->app->maintenanceMode()->data();
 
-            return Response::make(View::make($view, [
-                'message' => $ex->getMessage(),
-                'retryAfter' => $data['retry'] ?? null,
-            ]), 503);
+            return Response::make(
+                View::make($view, [
+                    'message' => $ex->getMessage(),
+                    'retryAfter' => $data['retry'] ?? null,
+                ]),
+                $ex->getStatusCode(),
+                $ex->getHeaders()
+            );
         }
     }
 }
