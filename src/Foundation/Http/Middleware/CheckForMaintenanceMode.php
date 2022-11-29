@@ -3,41 +3,32 @@
 use View;
 use Closure;
 use Response;
-use Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode as Middleware;
-use Illuminate\Foundation\Http\Exceptions\MaintenanceModeException;
+use Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode as CheckForMaintenanceModeBase;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class CheckForMaintenanceMode extends Middleware
+/**
+ * CheckForMaintenanceMode
+ *
+ * @package october\foundation
+ * @author Alexey Bobkov, Samuel Georges
+ */
+class CheckForMaintenanceMode extends CheckForMaintenanceModeBase
 {
     /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return mixed
-     *
-     * @throws \Symfony\Component\HttpKernel\Exception\HttpException
+     * handle an incoming request.
      */
     public function handle($request, Closure $next)
     {
         try {
             return parent::handle($request, $next);
         }
-        catch (MaintenanceModeException $ex) {
-            // Check if there is a project level view to override the system one
-            View::addNamespace('base', base_path());
-
-            if (View::exists('base::maintenance')) {
-                $view = 'base::maintenance';
-            }
-            else {
-                $view = 'system::maintenance';
-            }
+        catch (HttpException $ex) {
+            $view = View::exists('app::maintenance') ? 'app::maintenance' : 'system::maintenance';
+            $data = $this->app->maintenanceMode()->data();
 
             return Response::make(View::make($view, [
-                'message'           => $ex->getMessage(),
-                'wentDownAt'        => $ex->wentDownAt,
-                'retryAfter'        => $ex->retryAfter,
-                'willBeAvailableAt' => $ex->willBeAvailableAt,
+                'message' => $ex->getMessage(),
+                'retryAfter' => $data['retry'] ?? null,
             ]), 503);
         }
     }

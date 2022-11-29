@@ -4,8 +4,17 @@ use Config;
 use Illuminate\Contracts\Encryption\Encrypter as EncrypterContract;
 use Illuminate\Cookie\Middleware\EncryptCookies as EncryptCookiesBase;
 
+/**
+ * EncryptCookies
+ *
+ * @package october\foundation
+ * @author Alexey Bobkov, Samuel Georges
+ */
 class EncryptCookies extends EncryptCookiesBase
 {
+    /**
+     * __construct
+     */
     public function __construct(EncrypterContract $encrypter)
     {
         parent::__construct($encrypter);
