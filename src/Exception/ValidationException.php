@@ -3,7 +3,6 @@
 use Illuminate\Support\MessageBag;
 use Illuminate\Validation\Validator;
 use InvalidArgumentException;
-use Throwable;
 use Exception;
 
 /**

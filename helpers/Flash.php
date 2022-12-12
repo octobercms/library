@@ -3,6 +3,6 @@
 /**
  * Flash
  *
- * @see \October\Rain\Support\FlashBag
+ * @see \October\Rain\Flash\FlashBag
  */
 class Flash extends October\Rain\Support\Facades\Flash {}
