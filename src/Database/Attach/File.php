@@ -274,10 +274,10 @@ class File extends Model
     /**
      * output the raw file contents
      * @param string $disposition see the download method @deprecated
-     * @param bool $returnResponse This will always return a response soon @deprecated
+     * @param bool $returnResponse Direct output will be removed soon, chain with ->send() @deprecated
      * @return Response
      */
-    public function output($disposition = 'inline', $returnResponse = false)
+    public function output($disposition = 'inline', $returnResponse = true)
     {
         if ($disposition === 'attachment') {
             return $this->download();
@@ -289,8 +289,7 @@ class File extends Model
             return $response;
         }
 
-        $response->sendHeaders();
-        $response->sendContent();
+        $response->send();
     }
 
     /**
@@ -306,11 +305,11 @@ class File extends Model
      *     'extension' => 'auto',
      *     'disposition' => 'inline',
      * ]
-     * @param bool $returnResponse This will always return a response soon @deprecated
+     * @param bool $returnResponse Direct output will be removed soon, chain with ->send() @deprecated
      * @todo Refactor thumb to resources and recommend it be local, if remote, still use content grabber
      * @return Response|void
      */
-    public function outputThumb($width, $height, $options = [], $returnResponse = false)
+    public function outputThumb($width, $height, $options = [], $returnResponse = true)
     {
         $disposition = array_get($options, 'disposition', 'inline');
         $options = $this->getDefaultThumbOptions($options);
@@ -338,8 +337,7 @@ class File extends Model
             return $response;
         }
 
-        $response->sendHeaders();
-        $response->sendContent();
+        $response->send();
     }
 
     //
