@@ -190,8 +190,16 @@ class File extends Model
     //
 
     /**
-     * getPathAttribute helper attribute for getPath
+     * getUrlAttribute helper attribute for getUrl
      * @return string
+     */
+    public function getUrlAttribute()
+    {
+        return $this->getUrl();
+    }
+
+    /**
+     * @deprecated see getUrlAttribute
      */
     public function getPathAttribute()
     {
@@ -403,7 +411,15 @@ class File extends Model
     }
 
     /**
-     * getPath returns the public address to access the file
+     * getUrl returns a URL for this attachment
+     */
+    public function getUrl()
+    {
+        return $this->getPath();
+    }
+
+    /**
+     * getPath returns the URL path to access this file or a thumb file
      */
     public function getPath($fileName = null)
     {
@@ -514,7 +530,7 @@ class File extends Model
     }
 
     //
-    // Image handling
+    // Image Handling
     //
 
     /**
@@ -535,7 +551,7 @@ class File extends Model
     }
 
     /**
-     * getThumb generates and returns a thumbnail path
+     * getThumbUrl generates and returns a thumbnail URL path
      *
      * @param integer $width
      * @param integer $height
@@ -547,12 +563,12 @@ class File extends Model
      *     'interlace' => false,
      *     'extension' => 'auto',
      * ]
-     * @return string The URL to the generated thumbnail
+     * @return string
      */
-    public function getThumb($width, $height, $options = [])
+    public function getThumbUrl($width, $height, $options = [])
     {
         if (!$this->isImage() || !$this->hasFile($this->disk_name)) {
-            return $this->getPath();
+            return $this->getUrl();
         }
 
         $width = (int) $width;
@@ -580,6 +596,15 @@ class File extends Model
         }
 
         return $thumbPublic;
+    }
+
+    /**
+     * getThumb is shorter syntax for getThumbUrl
+     * @return string
+     */
+    public function getThumb($width, $height, $options = [])
+    {
+        return $this->getThumbUrl($width, $height, $options);
     }
 
     /**
