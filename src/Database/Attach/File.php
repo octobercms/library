@@ -251,24 +251,31 @@ class File extends Model
     }
 
     //
-    // Raw output
+    // Output and Download
     //
 
     /**
+     * download the file contents
+     * @return Response
+     */
+    public function download()
+    {
+        return Response::download($this->getLocalPath(), $this->file_name);
+    }
+
+    /**
      * output the raw file contents
-     * @param string $disposition The Content-Disposition to set, defaults to inline
-     * @param bool $returnResponse
-     * @return Response|void
+     * @param string $disposition see the download method @deprecated
+     * @param bool $returnResponse This will always return a response soon @deprecated
+     * @return Response
      */
     public function output($disposition = 'inline', $returnResponse = false)
     {
-        $response = Response::make($this->getContents())->withHeaders([
-            'Content-type' => $this->getContentType(),
-            'Content-Disposition' => $disposition . '; filename="' . $this->file_name . '"',
-            'Cache-Control' => 'private, no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0',
-            'Accept-Ranges' => 'bytes',
-            'Content-Length' => $this->file_size,
-        ]);
+        if ($disposition === 'attachment') {
+            return $this->download();
+        }
+
+        $response = Response::file($this->getLocalPath());
 
         if ($returnResponse) {
             return $response;
@@ -291,7 +298,8 @@ class File extends Model
      *     'extension' => 'auto',
      *     'disposition' => 'inline',
      * ]
-     * @param bool $returnResponse
+     * @param bool $returnResponse This will always return a response soon @deprecated
+     * @todo Refactor thumb to resources and recommend it be local, if remote, still use content grabber
      * @return Response|void
      */
     public function outputThumb($width, $height, $options = [], $returnResponse = false)
@@ -625,9 +633,7 @@ class File extends Model
         $filePath = $rootPath.'/'.$this->getDiskPath();
         $thumbPath = $rootPath.'/'.$thumbPath;
 
-        /*
-         * Generate thumbnail
-         */
+        // Generate thumbnail
         Resizer::open($filePath)
             ->resize($width, $height, $options)
             ->save($thumbPath)
