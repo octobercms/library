@@ -106,17 +106,6 @@ trait Sluggable
     }
 
     /**
-     * newSluggableQuery returns a query that excludes the current record if it exists
-     * @return Builder
-     */
-    protected function newSluggableQuery()
-    {
-        return $this->exists
-            ? $this->newQueryWithoutScopes()->where($this->getKeyName(), '<>', $this->getKey())
-            : $this->newQueryWithoutScopes();
-    }
-
-    /**
      * getSluggableSourceAttributeValue using dotted notation.
      * Eg: author.name
      * @return mixed
@@ -147,5 +136,24 @@ trait Sluggable
     public function getSluggableSeparator()
     {
         return defined('static::SLUG_SEPARATOR') ? static::SLUG_SEPARATOR : '-';
+    }
+
+    /**
+     * newSluggableQuery returns a query that excludes the current record if it exists
+     * @return Builder
+     */
+    protected function newSluggableQuery()
+    {
+        $query = $this->newQuery();
+
+        if ($this->exists) {
+            $query->where($this->getKeyName(), '<>', $this->getKey());
+        }
+
+        if ($this->isClassInstanceOf(\October\Contracts\Database\SoftDeleteInterface::class)) {
+            $query->withTrashed();
+        }
+
+        return $query;
     }
 }
