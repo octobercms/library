@@ -154,6 +154,13 @@ trait Sluggable
             $query->withTrashed();
         }
 
+        if (
+            $this->isClassInstanceOf(\October\Contracts\Database\MultisiteInterface::class) &&
+            $this->isMultisiteEnabled()
+        ) {
+            $query->withSite($this->{$this->getSiteIdColumn()});
+        }
+
         return $query;
     }
 }
