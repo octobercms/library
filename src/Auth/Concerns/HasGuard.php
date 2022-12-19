@@ -16,6 +16,10 @@ trait HasGuard
      */
     public function check()
     {
+        if ($this->checkCache !== null) {
+            return $this->checkCache;
+        }
+
         if (is_null($this->user)) {
             // Find persistence code
             $userArray = $this->getPersistCodeFromSession();
@@ -27,7 +31,7 @@ trait HasGuard
 
             // Look up user
             if (!$user = $this->findUserById($id)) {
-                return false;
+                return $this->checkCache = false;
             }
 
             // Confirm the persistence code is valid, otherwise reject
@@ -50,7 +54,7 @@ trait HasGuard
 
             if ($throttle->is_banned || $throttle->checkSuspended()) {
                 $this->logout();
-                return false;
+                return $this->checkCache = false;
             }
         }
 

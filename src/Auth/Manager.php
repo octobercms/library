@@ -87,6 +87,12 @@ class Manager implements StatefulGuard
     public $ipAddress = '0.0.0.0';
 
     /**
+     * @var bool|null checkCache adds a specific cache to the check() method to reduce
+     * the number of database calls.
+     */
+    protected $checkCache = null;
+
+    /**
      * init the singleton
      */
     protected function init()
