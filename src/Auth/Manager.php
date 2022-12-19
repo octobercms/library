@@ -1,10 +1,7 @@
 <?php namespace October\Rain\Auth;
 
-use Cookie;
-use Session;
 use Request;
 use Illuminate\Contracts\Auth\StatefulGuard;
-use Illuminate\Contracts\Auth\Authenticatable;
 
 /**
  * Manager for authentication
@@ -19,6 +16,8 @@ class Manager implements StatefulGuard
     use \October\Rain\Auth\Concerns\HasSession;
     use \October\Rain\Auth\Concerns\HasThrottle;
     use \October\Rain\Auth\Concerns\HasImpersonation;
+    use \October\Rain\Auth\Concerns\HasStatefulGuard;
+    use \October\Rain\Auth\Concerns\HasGuard;
 
     /**
      * @var Models\User user that is currently logged in
@@ -126,30 +125,22 @@ class Manager implements StatefulGuard
     }
 
     /**
-     * attempt to authenticate a user using the given credentials.
-     *
-     * @param array $credentials The user login details
-     * @param bool $remember Store a non-expire cookie for the user
-     * @throws AuthException If authentication fails
-     * @return Models\User The successfully logged in user
+     * authenticate the given user according to the passed credentials
      */
-    public function attempt(array $credentials = [], $remember = false)
+    public function authenticate(array $credentials, $remember = true)
     {
-        return !!$this->authenticate($credentials, $remember);
-    }
+        $user = $this->validateInternal($credentials);
 
-    /**
-     * validate a user's credentials.
-     * @return bool
-     */
-    public function validate(array $credentials = [])
-    {
-        return !!$this->validateInternal($credentials);
+        $user->clearResetPassword();
+
+        $this->login($user, $remember);
+
+        return $this->user;
     }
 
     /**
      * validateInternal a user's credentials, method used internally.
-     * @return User
+     * @return Models\User
      */
     protected function validateInternal(array $credentials = [])
     {
@@ -200,213 +191,5 @@ class Manager implements StatefulGuard
         }
 
         return $user;
-    }
-
-    /**
-     * authenticate the given user according to the passed credentials
-     */
-    public function authenticate(array $credentials, $remember = true)
-    {
-        $user = $this->validateInternal($credentials);
-
-        $user->clearResetPassword();
-
-        $this->login($user, $remember);
-
-        return $this->user;
-    }
-
-    /**
-     * check to see if the user is logged in and activated, and hasn't been banned or suspended.
-     * @return bool
-     */
-    public function check()
-    {
-        if (is_null($this->user)) {
-            // Find persistence code
-            $userArray = $this->getPersistCodeFromSession();
-            if (!$userArray) {
-                return false;
-            }
-
-            [$id, $persistCode] = $userArray;
-
-            // Look up user
-            if (!$user = $this->findUserById($id)) {
-                return false;
-            }
-
-            // Confirm the persistence code is valid, otherwise reject
-            if (!$user->checkPersistCode($persistCode)) {
-                return false;
-            }
-
-            // Pass
-            $this->user = $user;
-        }
-
-        // Check cached user is activated
-        if (!($user = $this->getUser()) || ($this->requireActivation && !$user->is_activated)) {
-            return false;
-        }
-
-        // Throttle check
-        if ($this->useThrottle) {
-            $throttle = $this->findThrottleByUserId($user->getKey(), $this->ipAddress);
-
-            if ($throttle->is_banned || $throttle->checkSuspended()) {
-                $this->logout();
-                return false;
-            }
-        }
-
-        // Role impersonation
-        if ($this->isRoleImpersonator()) {
-            $this->applyRoleImpersonation($this->user);
-        }
-
-        return true;
-    }
-
-    /**
-     * guest determines if the current user is a guest.
-     * @return bool
-     */
-    public function guest()
-    {
-        return false;
-    }
-
-    /**
-     * user will return the currently authenticated user.
-     * @return \Illuminate\Contracts\Auth\Authenticatable|null
-     */
-    public function user()
-    {
-        return $this->getUser();
-    }
-
-    /**
-     * id for the currently authenticated user.
-     * @return int|null
-     */
-    public function id()
-    {
-        if ($user = $this->getUser()) {
-            return $user->getAuthIdentifier();
-        }
-
-        return null;
-    }
-
-    /**
-     * once logs a user into the application without sessions or cookies.
-     * @param  array  $credentials
-     * @return bool
-     */
-    public function once(array $credentials = [])
-    {
-        $this->useSession = false;
-
-        $user = $this->authenticate($credentials);
-
-        $this->useSession = true;
-
-        return !!$user;
-    }
-
-    /**
-     * onceUsingId logs the given user ID into the application without sessions or cookies.
-     * @param  mixed  $id
-     * @return \Illuminate\Contracts\Auth\Authenticatable|false
-     */
-    public function onceUsingId($id)
-    {
-        if (!is_null($user = $this->findUserById($id))) {
-            $this->setUser($user);
-
-            return $user;
-        }
-
-        return false;
-    }
-
-    /**
-     * login the given user and sets properties in the session.
-     * @throws AuthException If the user is not activated and $this->requireActivation = true
-     */
-    public function login(Authenticatable $user, $remember = true)
-    {
-        // Fire the 'beforeLogin' event
-        $user->beforeLogin();
-
-        // Activation is required, user not activated
-        if ($this->requireActivation && !$user->is_activated) {
-            $login = $user->getLogin();
-            throw new AuthException('Cannot login user since they are not activated.', 300);
-        }
-
-        $this->user = $user;
-
-        // Create session/cookie data to persist the session
-        if ($this->useSession) {
-            $this->setPersistCodeToSession($user, $remember);
-        }
-
-        // Fire the 'afterLogin' event
-        $user->afterLogin();
-    }
-
-    /**
-     * loginUsingId logs the given user ID into the application.
-     * @param  mixed  $id
-     * @param  bool   $remember
-     * @return \Illuminate\Contracts\Auth\Authenticatable
-     */
-    public function loginUsingId($id, $remember = false)
-    {
-        if (!is_null($user = $this->findUserById($id))) {
-            $this->login($user, $remember);
-
-            return $user;
-        }
-
-        return false;
-    }
-
-    /**
-     * viaRemember determines if the user was authenticated via "remember me" cookie.
-     * @return bool
-     */
-    public function viaRemember()
-    {
-        return $this->viaRemember;
-    }
-
-    /**
-     * logout logs the current user out.
-     */
-    public function logout()
-    {
-        // Initialize the current auth session before trying to remove it
-        if (is_null($this->user) && !$this->check()) {
-            return;
-        }
-
-        if ($this->isImpersonator()) {
-            $this->user = $this->getImpersonator();
-            $this->stopImpersonate();
-            return;
-        }
-
-        if ($this->user) {
-            $this->user->setRememberToken(null);
-            $this->user->forceSave();
-        }
-
-        $this->user = null;
-
-        Session::invalidate();
-        Cookie::queue(Cookie::forget($this->sessionKey));
     }
 }

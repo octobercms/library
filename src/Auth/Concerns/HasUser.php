@@ -70,23 +70,6 @@ trait HasUser
     }
 
     /**
-     * hasUser determines if the guard has a user instance.
-     * @return bool
-     */
-    public function hasUser()
-    {
-        return !is_null($this->user);
-    }
-
-    /**
-     * setUser will set the current user.
-     */
-    public function setUser(Authenticatable $user)
-    {
-        $this->user = $user;
-    }
-
-    /**
      * getUser returns the current user, if any.
      * @return Authenticatable|null
      */
