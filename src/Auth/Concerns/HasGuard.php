@@ -36,7 +36,7 @@ trait HasGuard
 
             // Confirm the persistence code is valid, otherwise reject
             if (!$user->checkPersistCode($persistCode)) {
-                return false;
+                return $this->checkCache = false;
             }
 
             // Pass
@@ -54,7 +54,7 @@ trait HasGuard
 
             if ($throttle->is_banned || $throttle->checkSuspended()) {
                 $this->logout();
-                return $this->checkCache = false;
+                return false;
             }
         }
 
