@@ -354,7 +354,7 @@ trait ExtendableTrait
     /**
      * getClassMethodAsReflector
      */
-    public function getClassMethodAsReflector(string $name): ?ReflectionFunctionAbstract
+    public function getClassMethodAsReflector(string $name): ReflectionFunctionAbstract
     {
         $extandableMethod = $this->getExtendableMethodFromExtensions($name);
         if ($extandableMethod !== null) {
@@ -366,7 +366,7 @@ trait ExtendableTrait
             return new ReflectionFunction($extandableDynamicMethod);
         }
 
-        return null;
+        return new ReflectionMethod($this, $name);
     }
 
     /**
