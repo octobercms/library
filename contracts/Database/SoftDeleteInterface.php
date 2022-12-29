@@ -19,4 +19,10 @@ interface SoftDeleteInterface
      * @return bool|null
      */
     public function restore();
+
+    /**
+     * forceDelete on a soft deleted model.
+     * @return void
+     */
+    public function forceDelete();
 }
