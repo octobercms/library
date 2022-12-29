@@ -41,6 +41,7 @@ trait HasRelationships
      *         'items' => 'Item'
      *     ];
      * }
+     *
      * @var array
      */
     public $hasMany = [];
@@ -49,6 +50,8 @@ trait HasRelationships
      * protected $hasOne = [
      *     'owner' => ['User', 'key' => 'user_id']
      * ];
+     *
+     * @var array
      */
     public $hasOne = [];
 
@@ -56,6 +59,8 @@ trait HasRelationships
      * protected $belongsTo = [
      *     'parent' => ['Category', 'key' => 'parent_id']
      * ];
+     *
+     * @var array
      */
     public $belongsTo = [];
 
@@ -63,6 +68,8 @@ trait HasRelationships
      * protected $belongsToMany = [
      *     'groups' => ['Group', 'table'=> 'join_groups_users']
      * ];
+     *
+     * @var array
      */
     public $belongsToMany = [];
 
@@ -70,6 +77,8 @@ trait HasRelationships
      * protected $morphTo = [
      *     'pictures' => []
      * ];
+     *
+     * @var array
      */
     public $morphTo = [];
 
@@ -77,6 +86,8 @@ trait HasRelationships
      * protected $morphOne = [
      *     'log' => ['History', 'name' => 'user']
      * ];
+     *
+     * @var array
      */
     public $morphOne = [];
 
@@ -84,6 +95,8 @@ trait HasRelationships
      * protected $morphMany = [
      *     'log' => ['History', 'name' => 'user']
      * ];
+     *
+     * @var array
      */
     public $morphMany = [];
 
@@ -91,15 +104,22 @@ trait HasRelationships
      * protected $morphToMany = [
      *     'tag' => ['Tag', 'table' => 'tagables', 'name' => 'tagable']
      * ];
+     *
+     * @var array
      */
     public $morphToMany = [];
 
+    /**
+     * @var array
+     */
     public $morphedByMany = [];
 
     /**
      * protected $attachOne = [
      *     'picture' => ['October\Rain\Database\Attach\File', 'public' => false]
      * ];
+     *
+     * @var array
      */
     public $attachOne = [];
 
@@ -107,6 +127,8 @@ trait HasRelationships
      * protected $attachMany = [
      *     'pictures' => ['October\Rain\Database\Attach\File', 'name'=> 'imageable']
      * ];
+     *
+     * @var array
      */
     public $attachMany = [];
 
@@ -114,6 +136,8 @@ trait HasRelationships
      * protected $hasManyThrough = [
      *     'posts' => ['Posts', 'through' => 'User']
      * ];
+     *
+     * @var array
      */
     public $hasManyThrough = [];
 
@@ -121,6 +145,8 @@ trait HasRelationships
      * protected $hasOneThrough = [
      *     'post' => ['Posts', 'through' => 'User']
      * ];
+     *
+     * @var array
      */
     public $hasOneThrough = [];
 
