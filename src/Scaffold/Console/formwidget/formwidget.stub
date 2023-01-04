@@ -9,30 +9,18 @@ use Backend\Classes\FormWidgetBase;
  */
 class {{studly_name}} extends FormWidgetBase
 {
-    /**
-     * @inheritDoc
-     */
     protected $defaultAlias = '{{lower_plugin}}_{{snake_name}}';
 
-    /**
-     * @inheritDoc
-     */
     public function init()
     {
     }
 
-    /**
-     * @inheritDoc
-     */
     public function render()
     {
         $this->prepareVars();
         return $this->makePartial('{{lower_name}}');
     }
 
-    /**
-     * prepareVars for view data
-     */
     public function prepareVars()
     {
         $this->vars['name'] = $this->formField->getName();
@@ -40,18 +28,12 @@ class {{studly_name}} extends FormWidgetBase
         $this->vars['model'] = $this->model;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function loadAssets()
     {
         $this->addCss('css/{{lower_name}}.css');
         $this->addJs('js/{{lower_name}}.js');
     }
 
-    /**
-     * @inheritDoc
-     */
     public function getSaveValue($value)
     {
         return $value;
