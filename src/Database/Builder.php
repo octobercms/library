@@ -110,25 +110,25 @@ class Builder extends BuilderModel
      * @param  int  $perPage
      * @param  array  $columns
      * @param  string $pageName
-     * @param  int  $currentPage
+     * @param  int  $page
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate($perPage = null, $columns = ['*'], $pageName = 'page', $currentPage = null)
+    public function paginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
     {
         // Legacy signature support
-        // paginate($perPage, $currentPage, $columns, $pageName)
+        // paginate($perPage, $page, $columns, $pageName)
         if (!is_array($columns)) {
             $_currentPage = $columns;
             $_columns = $pageName;
-            $_pageName = $currentPage;
+            $_pageName = $page;
 
             $columns = is_array($_columns) ? $_columns : ['*'];
             $pageName = $_pageName !== null ? $_pageName : 'page';
-            $currentPage = is_array($_currentPage) ? null : $_currentPage;
+            $page = is_array($_currentPage) ? null : $_currentPage;
         }
 
-        if (!$currentPage) {
-            $currentPage = Paginator::resolveCurrentPage($pageName);
+        if (!$page) {
+            $page = Paginator::resolveCurrentPage($pageName);
         }
 
         if (!$perPage) {
@@ -136,9 +136,9 @@ class Builder extends BuilderModel
         }
 
         $total = $this->toBase()->getCountForPagination();
-        $this->forPage((int) $currentPage, (int) $perPage);
+        $this->forPage((int) $page, (int) $perPage);
 
-        return $this->paginator($this->get($columns), $total, $perPage, $currentPage, [
+        return $this->paginator($this->get($columns), $total, $perPage, $page, [
             'path' => Paginator::resolveCurrentPath(),
             'pageName' => $pageName
         ]);
