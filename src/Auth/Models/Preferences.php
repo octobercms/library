@@ -47,7 +47,7 @@ class Preferences extends Model
     {
         $user = Manager::instance()->getUser();
         if (!$user) {
-            throw new AuthException('User is not logged in');
+            throw new AuthException('User is not logged in', 400);
         }
 
         return $user;

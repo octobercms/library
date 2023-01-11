@@ -9,6 +9,7 @@ use October\Rain\Scaffold\Console\CreateComponent;
 use October\Rain\Scaffold\Console\CreateFormWidget;
 use October\Rain\Scaffold\Console\CreateReportWidget;
 use October\Rain\Scaffold\Console\CreateFilterWidget;
+use October\Rain\Scaffold\Console\CreateContentField;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
 
@@ -34,6 +35,7 @@ class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvi
         $this->app->singleton('command.create.formwidget', CreateFormWidget::class);
         $this->app->singleton('command.create.reportwidget', CreateReportWidget::class);
         $this->app->singleton('command.create.filterwidget', CreateFilterWidget::class);
+        $this->app->singleton('command.create.contentfield', CreateContentField::class);
         $this->app->singleton('command.create.command', CreateCommand::class);
 
         $this->commands('command.create.plugin');
@@ -44,6 +46,7 @@ class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvi
         $this->commands('command.create.formwidget');
         $this->commands('command.create.reportwidget');
         $this->commands('command.create.filterwidget');
+        $this->commands('command.create.contentfield');
         $this->commands('command.create.command');
     }
 
@@ -62,6 +65,7 @@ class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvi
             'command.create.formwidget',
             'command.create.reportwidget',
             'command.create.filterwidget',
+            'command.create.contentfield',
             'command.create.command'
         ];
     }

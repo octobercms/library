@@ -19,17 +19,18 @@ class FlashBag extends MessageBag
     const SESSION_KEY = '_flash_oc';
 
     /**
-     * All of the newly registered messages.
-     *
-     * @var array
+     * @var array newMessages all of the newly registered messages.
      */
     protected $newMessages = [];
 
     /**
-     * Session instance.
+     * @var \Session session instance.
      */
     protected $session;
 
+    /**
+     * __construct
+     */
     public function __construct(array $messages = [])
     {
         parent::__construct($messages);
@@ -44,7 +45,7 @@ class FlashBag extends MessageBag
     }
 
     /**
-     * Checks to see if any message is available.
+     * check to see if any message is available.
      * @return bool
      */
     public function check()
@@ -53,7 +54,7 @@ class FlashBag extends MessageBag
     }
 
     /**
-     * Get first message for every key in the bag.
+     * all gets first message for every key in the bag.
      * @param string|null $format
      * @return array
      */
@@ -71,7 +72,19 @@ class FlashBag extends MessageBag
     }
 
     /**
-     * Gets all the flash messages of a given type.
+     * messages
+     */
+    public function messages()
+    {
+        $messages = parent::messages();
+
+        $this->purge();
+
+        return $messages;
+    }
+
+    /**
+     * get all the flash messages of a given type.
      * @param string $key
      * @param string|null $format
      * @return array
@@ -86,7 +99,7 @@ class FlashBag extends MessageBag
     }
 
     /**
-     * Gets / Sets an error message
+     * error gets or sets an error message
      * @param string|null $message
      * @return array|FlashBag
      */
@@ -158,7 +171,7 @@ class FlashBag extends MessageBag
     }
 
     /**
-     * Stores the flash data to the session.
+     * store the flash data to the session.
      */
     public function store()
     {
@@ -166,7 +179,7 @@ class FlashBag extends MessageBag
     }
 
     /**
-     * Removes an object with a specified key or erases the flash data.
+     * forget removes an object with a specified key or erases the flash data.
      * @param string $key Specifies a key to remove, optional
      */
     public function forget($key = null)
@@ -188,8 +201,8 @@ class FlashBag extends MessageBag
         }
     }
 
-    /*
-     * Removes all flash data from the session.
+    /**
+     * purge all flash data from the session.
      */
     public function purge()
     {

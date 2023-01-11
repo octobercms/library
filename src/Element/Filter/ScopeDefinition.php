@@ -15,7 +15,7 @@ use October\Rain\Element\ElementBase;
  * @method ScopeDefinition options(mixed $options) options for the scope
  * @method ScopeDefinition dependsOn(array $scopes) dependsOn other scopes, when the other scopes are modified, this scope will update
  * @method ScopeDefinition context(string $context) context visibility of this scope
- * @method ScopeDefinition default(mixed $value) default value for the scope
+ * @method ScopeDefinition defaults(mixed $value) default value for the scope
  * @method ScopeDefinition conditions(string $sql) conditions to apply in raw SQL format
  * @method ScopeDefinition scope(string $method) scope method for the model
  * @method ScopeDefinition cssClass(string $class) cssClass to attach to the scope container
@@ -37,6 +37,21 @@ class ScopeDefinition extends ElementBase
             ->disabled(false)
             ->displayAs('group')
         ;
+    }
+
+    /**
+     * useConfig
+     */
+    public function useConfig(array $config): ElementBase
+    {
+        parent::useConfig($config);
+
+        // The config default proxies to defaults
+        if (array_key_exists('default', $this->config)) {
+            $this->defaults($this->config['default']);
+        }
+
+        return $this;
     }
 
     /**
@@ -85,7 +100,7 @@ class ScopeDefinition extends ElementBase
     }
 
     /**
-     * setScopeValue
+     * setScopeValue and merge the values as config
      */
     public function setScopeValue($value)
     {

@@ -42,8 +42,7 @@ trait SortableRelation
             $order = $this->$relationName()->max($column);
 
             foreach ((array) $attached as $id) {
-                $order++;
-                $this->$relationName()->updateExistingPivot($id, [$column => $order]);
+                $this->$relationName()->updateExistingPivot($id, [$column => ++$order]);
             }
         });
 
@@ -83,36 +82,79 @@ trait SortableRelation
 
     /**
      * setSortableRelationOrder sets the sort order of records to the specified orders. If the orders is
-     * undefined, the record identifier is used.
+     * undefined, the record identifier is used. If reference pool is true, then an incrementing
+     * pool is used.
      * @param string $relationName
      * @param mixed $itemIds
-     * @param array $itemOrders
+     * @param  array|null|bool $referencePool
      */
-    public function setSortableRelationOrder($relationName, $itemIds, $itemOrders = null)
+    public function setSortableRelationOrder($relationName, $itemIds, $referencePool = null)
     {
         if (!$this->isSortableRelation($relationName)) {
             throw new Exception("Invalid setSortableRelationOrder call - the relation '{$relationName}' is not sortable");
         }
 
         if (!is_array($itemIds)) {
-            $itemIds = [$itemIds];
+            return;
         }
 
-        if ($itemOrders === null) {
-            $itemOrders = $itemIds;
-        }
-
-        if (count($itemIds) != count($itemOrders)) {
+        $sortKeyMap = $this->processSortableRelationOrdersInternal($relationName, $itemIds, $referencePool);
+        if (count($itemIds) !== count($sortKeyMap)) {
             throw new Exception('Invalid setSortableRelationOrder call - count of itemIds do not match count of itemOrders');
         }
 
-        foreach ($itemIds as $index => $id) {
-            $order = $itemOrders[$index];
-
-            $this->$relationName()->updateExistingPivot($id, [
-                $this->getRelationSortOrderColumn($relationName) => (int) $order
-            ]);
+        $upsert = [];
+        foreach ($itemIds as $id) {
+            $sortOrder = $sortKeyMap[$id] ?? null;
+            if ($sortOrder !== null) {
+                $upsert[] = ['id' => $id, 'sort_order' => (int) $sortOrder];
+            }
         }
+
+        if ($upsert) {
+            foreach ($upsert as $update) {
+                $this->$relationName()->updateExistingPivot($update['id'], [
+                    $this->getRelationSortOrderColumn($relationName) => $update['sort_order']
+                ]);
+            }
+        }
+    }
+
+    /**
+     * processSortableRelationOrdersInternal
+     */
+    protected function processSortableRelationOrdersInternal($relationName, $itemIds, $referencePool = null): array
+    {
+        // Build incrementing reference pool
+        if ($referencePool === true) {
+            $referencePool = range(1, count($itemIds));
+        }
+        else {
+            // Extract a reference pool from the database
+            if (!$referencePool) {
+                $referencePool = $this->$relationName()
+                    ->whereIn($this->getKeyName(), $itemIds)
+                    ->pluck($this->getRelationSortOrderColumn($relationName))
+                    ->all();
+            }
+
+            // Check for corrupt values, if found, reset with a unique pool
+            $referencePool = array_unique(array_filter($referencePool, 'strlen'));
+            if (count($referencePool) !== count($itemIds)) {
+                $referencePool = $itemIds;
+            }
+
+            // Sort pool to apply against the sorted items
+            sort($referencePool);
+        }
+
+        // Process the item orders to a sort key map
+        $result = [];
+        foreach ($itemIds as $index => $id) {
+            $result[$id] = $referencePool[$index];
+        }
+
+        return $result;
     }
 
     /**

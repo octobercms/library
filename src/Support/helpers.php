@@ -6,14 +6,14 @@ use October\Rain\Support\Collection;
 
 if (!function_exists('input')) {
     /**
-     * input returns an input parameter or the default value.
+     * input returns all user input or the default value ($_POST + $_GET + $_FILES).
      * Supports HTML Array names.
      *
      *     $value = input('value', 'not found');
      *     $name = input('contact[name]');
      *     $name = input('contact[location][city]');
      *
-     * Booleans are converted from strings
+     * Booleans are converted from string values.
      * @param string $name
      * @param string $default
      * @return string
@@ -21,23 +21,21 @@ if (!function_exists('input')) {
     function input($name = null, $default = null)
     {
         if ($name === null) {
-            return Request::input();
+            return Request::all();
         }
 
-        /*
-         * Array field name, eg: field[key][key2][key3]
-         */
+        // Array field name, eg: field[key][key2][key3]
         if (class_exists('October\Rain\Html\Helper')) {
             $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
         }
 
-        return Request::input($name, $default);
+        return array_get(Request::all(), $name, $default);
     }
 }
 
 if (!function_exists('post')) {
     /**
-     * post is an identical function to input(), however restricted to POST methods.
+     * post is an identical function to input(), however restricted to POST methods ($_POST).
      */
     function post($name = null, $default = null)
     {
@@ -60,7 +58,7 @@ if (!function_exists('post')) {
 
 if (!function_exists('get')) {
     /**
-     * get is an identical function to input(), however restricted to GET values.
+     * get is an identical function to input(), however restricted to GET values ($_GET).
      */
     function get($name = null, $default = null)
     {
@@ -74,6 +72,25 @@ if (!function_exists('get')) {
         }
 
         return array_get(Request::query(), $name, $default);
+    }
+}
+
+if (!function_exists('files')) {
+    /**
+     * files obtains a file item from the request ($_FILES).
+     */
+    function files($name = null, $default = null)
+    {
+        if ($name === null) {
+            return Request::allFiles();
+        }
+
+        // Array field name, eg: field[key][key2][key3]
+        if (class_exists('October\Rain\Html\Helper')) {
+            $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
+        }
+
+        return array_get(Request::allFiles(), $name, $default);
     }
 }
 

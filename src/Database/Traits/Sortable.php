@@ -51,18 +51,15 @@ trait Sortable
 
     /**
      * setSortableOrder sets the sort order of records to the specified orders, suppling
-     * a reference pool of sorted values.
+     * a reference pool of sorted values. If reference pool is true, then an incrementing
+     * pool is used.
      * @param  mixed $itemIds
-     * @param  array $availableOrderRefs
+     * @param  array|null|bool $referencePool
      * @return void
      */
     public function setSortableOrder($itemIds, $referencePool = null)
     {
         if (!is_array($itemIds)) {
-            return;
-        }
-
-        if ($referencePool && !is_array($referencePool)) {
             return;
         }
 
@@ -75,13 +72,15 @@ trait Sortable
         foreach ($itemIds as $id) {
             $sortOrder = $sortKeyMap[$id] ?? null;
             if ($sortOrder !== null) {
-                $upsert[] = ['id' => $id, 'sort_order' => $sortOrder];
+                $upsert[] = ['id' => $id, 'sort_order' => (int) $sortOrder];
             }
         }
 
         if ($upsert) {
             foreach ($upsert as $update) {
-                $this->newQuery()->where($this->getKeyName(), $update['id'])->update([$this->getSortOrderColumn() => $update['sort_order']]);
+                $this->newQuery()
+                    ->where($this->getKeyName(), $update['id'])
+                    ->update([$this->getSortOrderColumn() => $update['sort_order']]);
             }
         }
     }
@@ -91,25 +90,28 @@ trait Sortable
      */
     protected function processSortableOrdersInternal($itemIds, $referencePool = null): array
     {
-        // Extract a reference pool from the database
-        if (!$referencePool) {
-            $referencePool = $this->newQuery()
-                ->whereIn($this->getKeyName(), $itemIds)
-                ->pluck($this->getSortOrderColumn())
-                ->all();
+        // Build incrementing reference pool
+        if ($referencePool === true) {
+            $referencePool = range(1, count($itemIds));
         }
+        else {
+            // Extract a reference pool from the database
+            if (!$referencePool) {
+                $referencePool = $this->newQuery()
+                    ->whereIn($this->getKeyName(), $itemIds)
+                    ->pluck($this->getSortOrderColumn())
+                    ->all();
+            }
 
-        // Check for corrupt values, if found, reset with a unique pool
-        $countRefPool = count($referencePool);
-        if (
-            $countRefPool !== count(array_unique($referencePool)) ||
-            $countRefPool !== count(array_filter($referencePool))
-        ) {
-            $referencePool = $itemIds;
+            // Check for corrupt values, if found, reset with a unique pool
+            $referencePool = array_unique(array_filter($referencePool, 'strlen'));
+            if (count($referencePool) !== count($itemIds)) {
+                $referencePool = $itemIds;
+            }
+
+            // Sort pool to apply against the sorted items
+            sort($referencePool);
         }
-
-        // Sort pool to apply against the sorted items
-        sort($referencePool);
 
         // Process the item orders to a sort key map
         $result = [];

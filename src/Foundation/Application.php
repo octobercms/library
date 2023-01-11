@@ -37,15 +37,6 @@ class Application extends ApplicationBase
     protected $cachePath;
 
     /**
-     * publicPath gets the path to the public / web directory
-     * @return string
-     */
-    public function publicPath()
-    {
-        return $this->basePath;
-    }
-
-    /**
      * registerBaseServiceProviders registers all of the base service providers
      */
     protected function registerBaseServiceProviders()
@@ -82,6 +73,25 @@ class Application extends ApplicationBase
         $this->instance('path.themes', $this->themesPath());
         $this->instance('path.cache', $this->cachePath());
         $this->instance('path.temp', $this->tempPath());
+    }
+
+    /**
+     * publicPath gets the path to the public / web directory
+     * @return string
+     */
+    public function publicPath()
+    {
+        return $this->hasPublicFolder()
+            ? $this->basePath.DIRECTORY_SEPARATOR.'public'
+            : $this->basePath;
+    }
+
+    /**
+     * hasPublicFolder returns true if a public folder exists, initiated by october:mirror
+     */
+    public function hasPublicFolder()
+    {
+        return file_exists($this->basePath.DIRECTORY_SEPARATOR.'public');
     }
 
     /**

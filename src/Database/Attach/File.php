@@ -190,8 +190,16 @@ class File extends Model
     //
 
     /**
-     * getPathAttribute helper attribute for getPath
+     * getUrlAttribute helper attribute for getUrl
      * @return string
+     */
+    public function getUrlAttribute()
+    {
+        return $this->getUrl();
+    }
+
+    /**
+     * @deprecated see getUrlAttribute
      */
     public function getPathAttribute()
     {
@@ -251,31 +259,37 @@ class File extends Model
     }
 
     //
-    // Raw output
+    // Output and Download
     //
 
     /**
-     * output the raw file contents
-     * @param string $disposition The Content-Disposition to set, defaults to inline
-     * @param bool $returnResponse
-     * @return Response|void
+     * download the file contents
+     * @return Response
      */
-    public function output($disposition = 'inline', $returnResponse = false)
+    public function download()
     {
-        $response = Response::make($this->getContents())->withHeaders([
-            'Content-type' => $this->getContentType(),
-            'Content-Disposition' => $disposition . '; filename="' . $this->file_name . '"',
-            'Cache-Control' => 'private, no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0',
-            'Accept-Ranges' => 'bytes',
-            'Content-Length' => $this->file_size,
-        ]);
+        return Response::download($this->getLocalPath(), $this->file_name);
+    }
+
+    /**
+     * output the raw file contents
+     * @param string $disposition see the download method @deprecated
+     * @param bool $returnResponse Direct output will be removed soon, chain with ->send() @deprecated
+     * @return Response
+     */
+    public function output($disposition = 'inline', $returnResponse = true)
+    {
+        if ($disposition === 'attachment') {
+            return $this->download();
+        }
+
+        $response = Response::file($this->getLocalPath());
 
         if ($returnResponse) {
             return $response;
         }
 
-        $response->sendHeaders();
-        $response->sendContent();
+        $response->send();
     }
 
     /**
@@ -291,10 +305,11 @@ class File extends Model
      *     'extension' => 'auto',
      *     'disposition' => 'inline',
      * ]
-     * @param bool $returnResponse
+     * @param bool $returnResponse Direct output will be removed soon, chain with ->send() @deprecated
+     * @todo Refactor thumb to resources and recommend it be local, if remote, still use content grabber
      * @return Response|void
      */
-    public function outputThumb($width, $height, $options = [], $returnResponse = false)
+    public function outputThumb($width, $height, $options = [], $returnResponse = true)
     {
         $disposition = array_get($options, 'disposition', 'inline');
         $options = $this->getDefaultThumbOptions($options);
@@ -322,8 +337,7 @@ class File extends Model
             return $response;
         }
 
-        $response->sendHeaders();
-        $response->sendContent();
+        $response->send();
     }
 
     //
@@ -395,7 +409,15 @@ class File extends Model
     }
 
     /**
-     * getPath returns the public address to access the file
+     * getUrl returns a URL for this attachment
+     */
+    public function getUrl()
+    {
+        return $this->getPath();
+    }
+
+    /**
+     * getPath returns the URL path to access this file or a thumb file
      */
     public function getPath($fileName = null)
     {
@@ -506,7 +528,7 @@ class File extends Model
     }
 
     //
-    // Image handling
+    // Image Handling
     //
 
     /**
@@ -527,7 +549,7 @@ class File extends Model
     }
 
     /**
-     * getThumb generates and returns a thumbnail path
+     * getThumbUrl generates and returns a thumbnail URL path
      *
      * @param integer $width
      * @param integer $height
@@ -539,12 +561,12 @@ class File extends Model
      *     'interlace' => false,
      *     'extension' => 'auto',
      * ]
-     * @return string The URL to the generated thumbnail
+     * @return string
      */
-    public function getThumb($width, $height, $options = [])
+    public function getThumbUrl($width, $height, $options = [])
     {
         if (!$this->isImage() || !$this->hasFile($this->disk_name)) {
-            return $this->getPath();
+            return $this->getUrl();
         }
 
         $width = (int) $width;
@@ -572,6 +594,15 @@ class File extends Model
         }
 
         return $thumbPublic;
+    }
+
+    /**
+     * getThumb is shorter syntax for getThumbUrl
+     * @return string
+     */
+    public function getThumb($width, $height, $options = [])
+    {
+        return $this->getThumbUrl($width, $height, $options);
     }
 
     /**
@@ -625,9 +656,7 @@ class File extends Model
         $filePath = $rootPath.'/'.$this->getDiskPath();
         $thumbPath = $rootPath.'/'.$thumbPath;
 
-        /*
-         * Generate thumbnail
-         */
+        // Generate thumbnail
         Resizer::open($filePath)
             ->resize($width, $height, $options)
             ->save($thumbPath)

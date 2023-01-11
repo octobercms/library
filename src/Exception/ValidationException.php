@@ -3,7 +3,6 @@
 use Illuminate\Support\MessageBag;
 use Illuminate\Validation\Validator;
 use InvalidArgumentException;
-use Throwable;
 use Exception;
 
 /**
@@ -32,9 +31,9 @@ class ValidationException extends Exception
     /**
      * __construct the validation exception.
      */
-    public function __construct($validation, $code = 0, Throwable $previous = null)
+    public function __construct($validation)
     {
-        parent::__construct('The given data was invalid.', $code, $previous);
+        parent::__construct();
 
         if (is_null($validation)) {
             $this->errors = new MessageBag([]);
