@@ -24,7 +24,7 @@ trait SoftDelete
     {
         static::addGlobalScope(new SoftDeletingScope);
 
-        static::restoring(function ($model) {
+        static::restoring(function($model) {
             /**
              * @event model.beforeRestore
              * Called before the model is restored from a soft delete
@@ -42,7 +42,7 @@ trait SoftDelete
             }
         });
 
-        static::restored(function ($model) {
+        static::restored(function($model) {
             /**
              * @event model.afterRestore
              * Called after the model is restored from a soft delete
@@ -90,11 +90,12 @@ trait SoftDelete
     {
         if ($this->forceDeleting) {
             $this->performDeleteOnRelations();
-            return $this->newQuery()->withTrashed()->where($this->getKeyName(), $this->getKey())->forceDelete();
+            $this->newQuery()->withTrashed()->where($this->getKeyName(), $this->getKey())->forceDelete();
+            $this->exists = false;
         }
 
         $this->performSoftDeleteOnRelations();
-        return $this->runSoftDelete();
+        $this->runSoftDelete();
     }
 
     /**

@@ -425,9 +425,9 @@ class Model extends EloquentModel
      * getSaveOption returns an option used while saving the model.
      * @return mixed
      */
-    public function getSaveOption($key)
+    public function getSaveOption($key, $default = null)
     {
-        return $this->savingOptions[$key] ?? null;
+        return $this->savingOptions[$key] ?? $default;
     }
 
     /**
