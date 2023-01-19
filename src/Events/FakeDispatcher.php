@@ -13,9 +13,12 @@ class FakeDispatcher extends EventFakeBase
     /**
      * __construct a new event fake instance.
      */
-    public function __construct(PriorityDispatcher $dispatcher, $eventsToFake = [])
+    public function __construct($dispatcher, $eventsToFake = [])
     {
-        parent::__construct($dispatcher->getLaravelDispatcher(), $eventsToFake);
+        parent::__construct(
+            $dispatcher instanceof PriorityDispatcher ? $dispatcher->getLaravelDispatcher() : $dispatcher,
+            $eventsToFake
+        );
     }
 
     /**
