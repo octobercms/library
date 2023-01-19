@@ -91,7 +91,6 @@ trait SoftDelete
         if ($this->forceDeleting) {
             $this->performDeleteOnRelations();
             $this->newQuery()->withTrashed()->where($this->getKeyName(), $this->getKey())->forceDelete();
-            $this->exists = false;
         }
 
         $this->performSoftDeleteOnRelations();
