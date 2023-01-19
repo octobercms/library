@@ -1,6 +1,10 @@
 <?php namespace {{namespace_php}}\Models;
 
 use Model;
+use October\Rain\Database\Traits\Validation;
+{% if softDeletes %}
+use October\Rain\Database\Traits\SoftDelete;
+{% endif %}
 
 /**
  * {{studly_name}} Model
@@ -9,9 +13,9 @@ use Model;
  */
 class {{studly_name}} extends Model
 {
-    use \October\Rain\Database\Traits\Validation;
+    use Validation;
 {% if softDeletes %}
-    use \October\Rain\Database\Traits\SoftDelete;
+    use SoftDelete;
 {% endif %}
 
     /**
