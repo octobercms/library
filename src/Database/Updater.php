@@ -74,7 +74,11 @@ class Updater
             return;
         }
 
-        require_once $file;
+        $object = require_once $file;
+
+        if (is_object($object)) {
+            return $object;
+        }
 
         if ($class = $this->getClassFromFile($file)) {
             return new $class;
