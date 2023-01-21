@@ -15,15 +15,13 @@ trait Multisite
 {
     /**
      * @var array propagatable list of attributes to propagate to other sites.
-     *
-     * protected $propagatable = [];
      */
+    protected $propagatable = [];
 
     /**
      * @var bool propagatableSync will enforce model structures between all sites
-     *
-     * protected $propagatableSync = true;
      */
+    protected $propagatableSync = false;
 
     /**
      * bootMultisite trait for a model.
@@ -45,33 +43,51 @@ trait Multisite
             ));
         }
 
-        $this->bindEvent('model.beforeSave', function() {
-            if (Site::hasGlobalContext()) {
-                return;
-            }
+        $this->bindEvent('model.beforeSave', [$this, 'multisiteBeforeSave']);
 
-            $this->{$this->getSiteIdColumn()} = Site::getSiteIdFromContext();
-        });
+        $this->bindEvent('model.afterSave', [$this, 'multisiteAfterSave']);
 
-        $this->bindEvent('model.afterSave', function() {
-            if ($this->getSaveOption('propagate') === true) {
-                Site::withGlobalContext(function() {
-                    $this->afterSavePropagate();
-                });
-            }
-        });
-
-        $this->bindEvent('model.afterCreate', function() {
-            if (!$this->site_root_id) {
-                $this->site_root_id = $this->id;
-                $this->newQueryWithoutScopes()
-                    ->where($this->getKeyName(), $this->id)
-                    ->update(['site_root_id' => $this->site_root_id])
-                ;
-            }
-        });
+        $this->bindEvent('model.afterCreate', [$this, 'multisiteAfterCreate']);
 
         $this->defineMultisiteRelations();
+    }
+
+    /**
+     * multisiteBeforeSave constructor event
+     */
+    public function multisiteBeforeSave()
+    {
+        if (Site::hasGlobalContext()) {
+            return;
+        }
+
+        $this->{$this->getSiteIdColumn()} = Site::getSiteIdFromContext();
+    }
+
+    /**
+     * multisiteAfterSave constructor event
+     */
+    public function multisiteAfterSave()
+    {
+        if ($this->getSaveOption('propagate') === true) {
+            Site::withGlobalContext(function() {
+                $this->afterSavePropagate();
+            });
+        }
+    }
+
+    /**
+     * multisiteAfterCreate constructor event
+     */
+    public function multisiteAfterCreate()
+    {
+        if (!$this->site_root_id) {
+            $this->site_root_id = $this->id;
+            $this->newQueryWithoutScopes()
+                ->where($this->getKeyName(), $this->id)
+                ->update(['site_root_id' => $this->site_root_id])
+            ;
+        }
     }
 
     /**

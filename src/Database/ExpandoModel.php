@@ -32,17 +32,17 @@ class ExpandoModel extends Model
     {
         parent::__construct($attributes);
 
-        $this->addJsonable($this->expandoColumn);
-
         $this->bindEvent('model.afterFetch', [$this, 'expandoAfterFetch'], $this->expandoPriority);
 
         $this->bindEvent('model.saveInternal', [$this, 'expandoSaveInternal'], $this->expandoPriority);
 
         $this->bindEvent('model.afterSave', [$this, 'expandoAfterSave'], $this->expandoPriority);
+
+        $this->addJsonable($this->expandoColumn);
     }
 
     /**
-     * afterModelFetch event
+     * afterModelFetch constructor event
      */
     public function expandoAfterFetch()
     {
@@ -52,7 +52,7 @@ class ExpandoModel extends Model
     }
 
     /**
-     * saveModelInternal
+     * saveModelInternal constructor event
      */
     public function expandoSaveInternal()
     {
@@ -65,7 +65,7 @@ class ExpandoModel extends Model
     }
 
     /**
-     * expandoAfterSave
+     * expandoAfterSave constructor event
      */
     public function expandoAfterSave()
     {
