@@ -15,13 +15,15 @@ trait Multisite
 {
     /**
      * @var array propagatable list of attributes to propagate to other sites.
+     *
+     * protected $propagatable = [];
      */
-    protected $propagatable = [];
 
     /**
      * @var bool propagatableSync will enforce model structures between all sites
+     *
+     * protected $propagatableSync = false;
      */
-    protected $propagatableSync = false;
 
     /**
      * bootMultisite trait for a model.
@@ -103,13 +105,15 @@ trait Multisite
      */
     public function multisiteAfterCreate()
     {
-        if (!$this->site_root_id) {
-            $this->site_root_id = $this->id;
-            $this->newQueryWithoutScopes()
-                ->where($this->getKeyName(), $this->id)
-                ->update(['site_root_id' => $this->site_root_id])
-            ;
+        if ($this->site_root_id) {
+            return;
         }
+
+        $this->site_root_id = $this->id;
+        $this->newQueryWithoutScopes()
+            ->where($this->getKeyName(), $this->id)
+            ->update(['site_root_id' => $this->site_root_id])
+        ;
     }
 
     /**
