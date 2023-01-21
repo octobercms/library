@@ -69,11 +69,33 @@ trait Multisite
      */
     public function multisiteAfterSave()
     {
-        if ($this->getSaveOption('propagate') === true) {
-            Site::withGlobalContext(function() {
-                $this->afterSavePropagate();
-            });
+        if ($this->getSaveOption('propagate') !== true) {
+            return;
         }
+
+        if (!$this->isMultisiteEnabled()) {
+            return;
+        }
+
+        Site::withGlobalContext(function() {
+            $otherModels = $this->newOtherSiteQuery()->get();
+            $otherSites = $otherModels->pluck('site_id')->all();
+
+            // Propagate attributes to known records
+            if ($this->propagatable) {
+                foreach ($otherModels as $model) {
+                    $this->propagateToSite($model->site_id, $model);
+                }
+            }
+
+            // Sync non-existent records
+            if ($this->isMultisiteSyncEnabled()) {
+                $missingSites = array_diff($this->getMultisiteSyncSites(), $otherSites);
+                foreach ($missingSites as $missingSite) {
+                    $this->propagateToSite($missingSite);
+                }
+            }
+        });
     }
 
     /**
@@ -193,34 +215,6 @@ trait Multisite
     }
 
     /**
-     * afterSavePropagate event
-     */
-    public function afterSavePropagate()
-    {
-        if (!$this->isMultisiteEnabled()) {
-            return;
-        }
-
-        $otherModels = $this->newOtherSiteQuery()->get();
-        $otherSites = $otherModels->pluck('site_id')->all();
-
-        // Propagate attributes to known records
-        if ($this->propagatable) {
-            foreach ($otherModels as $model) {
-                $this->propagateToSite($model->site_id, $model);
-            }
-        }
-
-        // Sync non-existent records
-        if ($this->isMultisiteSyncEnabled()) {
-            $missingSites = array_diff($this->getMultisiteSyncSites(), $otherSites);
-            foreach ($missingSites as $missingSite) {
-                $this->propagateToSite($missingSite);
-            }
-        }
-    }
-
-    /**
      * newOtherSiteQuery
      */
     public function newOtherSiteQuery()
@@ -268,7 +262,7 @@ trait Multisite
     }
 
     /**
-     * findForSite
+     * findForSite will locate a record for a specific site.
      */
     public function findForSite($siteId = null)
     {
