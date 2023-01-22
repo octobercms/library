@@ -6,7 +6,7 @@
 class Dongle
 {
     /**
-     * @var DB db helper object
+     * @var \Db db helper object
      */
     protected $db;
 
@@ -40,13 +40,64 @@ class Dongle
     /**
      * parse transforms an SQL statement to match the active driver.
      */
-    public function parse(string $sql): string
+    public function parse(string $sql, array $params = []): string
     {
+        if ($params) {
+            $sql = $this->parseParameters($sql, $params);
+        }
+
         $sql = $this->parseGroupConcat($sql);
+
         $sql = $this->parseConcat($sql);
+
         $sql = $this->parseIfNull($sql);
+
         $sql = $this->parseBooleanExpression($sql);
+
         return $sql;
+    }
+
+    /**
+     * parseParameters replaces :column_name with array value without requiring a
+     * list of names. Example: custom_country_id = :country_id → custom_country_id = 7
+     */
+    public function parseParameters(string $sql, array $params)
+    {
+        if (preg_match_all('/\:([\w]+)/', $sql, $matches)) {
+            return $this->parseValues($sql, $params, $matches[1]);
+        }
+
+        return $sql;
+    }
+
+    /**
+     * parseValues will protect parameter values by quoting them or handling safe values.
+     */
+    public function parseValues(string $sql, array $data, array $paramNames)
+    {
+        $toReplace = [];
+
+        foreach ($paramNames as $param) {
+            if (!array_key_exists($param, $data)) {
+                continue;
+            }
+
+            $parsedValue = $data[$param];
+
+            if (is_string($parsedValue)) {
+                $parsedValue = $this->db->getPdo()->quote($parsedValue);
+            }
+            elseif (is_numeric($parsedValue)) {
+                $parsedValue = +$parsedValue;
+            }
+            else {
+                continue;
+            }
+
+            $toReplace[':'.$param] = $parsedValue;
+        }
+
+        return strtr($sql, $toReplace);
     }
 
     /**
