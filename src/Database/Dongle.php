@@ -40,12 +40,8 @@ class Dongle
     /**
      * parse transforms an SQL statement to match the active driver.
      */
-    public function parse(string $sql, array $params = []): string
+    public function parse(string $sql): string
     {
-        if ($params) {
-            $sql = $this->parseParameters($sql, $params);
-        }
-
         $sql = $this->parseGroupConcat($sql);
 
         $sql = $this->parseConcat($sql);
@@ -58,16 +54,16 @@ class Dongle
     }
 
     /**
-     * parseParameters replaces :column_name with array value without requiring a
+     * parseParams replaces :column_name with array value without requiring a
      * list of names. Example: custom_country_id = :country_id → custom_country_id = 7
      */
-    public function parseParameters(string $sql, array $params)
+    public function parseParams(string $sql, array $params)
     {
         if (preg_match_all('/\:([\w]+)/', $sql, $matches)) {
-            return $this->parseValues($sql, $params, $matches[1]);
+            $sql = $this->parseValues($sql, $params, $matches[1]);
         }
 
-        return $sql;
+        return $this->parse($sql);
     }
 
     /**
@@ -78,20 +74,19 @@ class Dongle
         $toReplace = [];
 
         foreach ($paramNames as $param) {
-            if (!array_key_exists($param, $data)) {
-                continue;
+            $parsedValue = array_key_exists($param, $data) ? $data[$param] : null;
+
+            if (is_null($parsedValue)) {
+                $parsedValue = 'NULL';
             }
-
-            $parsedValue = $data[$param];
-
-            if (is_string($parsedValue)) {
+            elseif (is_string($parsedValue)) {
                 $parsedValue = $this->db->getPdo()->quote($parsedValue);
             }
             elseif (is_numeric($parsedValue)) {
                 $parsedValue = +$parsedValue;
             }
             else {
-                continue;
+                $parsedValue = "''";
             }
 
             $toReplace[':'.$param] = $parsedValue;
