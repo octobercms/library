@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class DbUsers extends Migration
+return new class extends Migration
 {
     public function up()
     {
@@ -31,4 +31,4 @@ class DbUsers extends Migration
     {
         Schema::drop('users');
     }
-}
+};

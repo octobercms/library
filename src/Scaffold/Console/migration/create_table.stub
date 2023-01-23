@@ -9,7 +9,7 @@ use October\Rain\Database\Updates\Migration;
  *
  * @link https://docs.octobercms.com/3.x/extend/database/structure.html
  */
-class {{studly_name}} extends Migration
+return new class extends Migration
 {
     /**
      * up builds the migration
@@ -33,4 +33,4 @@ class {{studly_name}} extends Migration
     {
         Schema::dropIfExists('{{table}}');
     }
-}
+};
