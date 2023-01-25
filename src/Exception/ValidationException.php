@@ -1,9 +1,9 @@
 <?php namespace October\Rain\Exception;
 
-use Illuminate\Support\MessageBag;
+use Validator as ValidatorFacade;
+use Illuminate\Validation\ValidationException as ValidationExceptionBase;
 use Illuminate\Validation\Validator;
 use InvalidArgumentException;
-use Exception;
 
 /**
  * ValidationException class
@@ -11,7 +11,7 @@ use Exception;
  * @package october\exception
  * @author Alexey Bobkov, Samuel Georges
  */
-class ValidationException extends Exception
+class ValidationException extends ValidationExceptionBase
 {
     /**
      * @var array fields that are invalid
@@ -33,22 +33,31 @@ class ValidationException extends Exception
      */
     public function __construct($validation)
     {
-        parent::__construct();
+        parent::__construct($this->resolveToValidator($validation));
 
-        if (is_null($validation)) {
-            $this->errors = new MessageBag([]);
-        }
-        elseif ($validation instanceof Validator) {
-            $this->errors = $validation->messages();
-        }
-        elseif (is_array($validation)) {
-            $this->errors = new MessageBag($validation);
-        }
-        else {
-            throw new InvalidArgumentException('ValidationException constructor requires instance of Validator or array');
-        }
+        $this->errors = $this->validator->errors();
 
         $this->evalErrors();
+    }
+
+    /**
+     * resolveToValidator resolves general input for the validation exception
+     */
+    protected function resolveToValidator($validation)
+    {
+        if ($validation instanceof Validator) {
+            return $validation;
+        }
+
+        if (is_null($validation)) {
+            return ValidatorFacade::make([], []);
+        }
+
+        if (is_array($validation)) {
+            return ValidatorFacade::make([], [])->errors()->merge($validation);
+        }
+
+        throw new InvalidArgumentException('ValidationException constructor requires instance of Validator or array');
     }
 
     /**
