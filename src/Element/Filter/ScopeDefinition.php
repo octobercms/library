@@ -8,6 +8,7 @@ use October\Rain\Element\ElementBase;
  * @method ScopeDefinition useConfig(array $config) useConfig applies the supplied configuration
  * @method ScopeDefinition scopeName(string $name) scopeName for this scope
  * @method ScopeDefinition label(string $label) label for this scope
+ * @method ScopeDefinition shortLabel(string $shortLabel) shortLabel used in list headers
  * @method ScopeDefinition value(mixed $value) current value for this scope
  * @method ScopeDefinition nameFrom(string $column) nameFrom model attribute to use for the display name
  * @method ScopeDefinition valueFrom(mixed $value) valueFrom model attribute to use for the source value
