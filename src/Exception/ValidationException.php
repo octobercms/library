@@ -42,22 +42,25 @@ class ValidationException extends ValidationExceptionBase
 
     /**
      * resolveToValidator resolves general input for the validation exception
+     * @param  mixed  $validation
      */
     protected function resolveToValidator($validation)
     {
-        if ($validation instanceof Validator) {
-            return $validation;
-        }
+        $validator = $validation;
 
         if (is_null($validation)) {
-            return ValidatorFacade::make([], []);
+            $validator = ValidatorFacade::make([], []);
+        }
+        elseif (is_array($validation)) {
+            $validator = ValidatorFacade::make([], []);
+            $validator->errors()->merge($validation);
         }
 
-        if (is_array($validation)) {
-            return ValidatorFacade::make([], [])->errors()->merge($validation);
+        if (!$validator instanceof Validator) {
+            throw new InvalidArgumentException('ValidationException constructor requires instance of Validator or array');
         }
 
-        throw new InvalidArgumentException('ValidationException constructor requires instance of Validator or array');
+        return $validator;
     }
 
     /**
