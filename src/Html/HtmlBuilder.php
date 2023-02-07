@@ -538,4 +538,18 @@ class HtmlBuilder
 
         return $html;
     }
+
+    /**
+     * isValidColor determines if a given string is a valid CSS color value
+     */
+    public function isValidColor(string $value): Bool
+    {
+        return starts_with($value, [
+            '#',
+            'var(',
+            'rgb(',
+            'rgba(',
+            'hsl('
+        ]);
+    }
 }
