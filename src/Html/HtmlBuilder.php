@@ -542,7 +542,7 @@ class HtmlBuilder
     /**
      * isValidColor determines if a given string is a valid CSS color value
      */
-    public function isValidColor(string $value): Bool
+    public function isValidColor(string $value): bool
     {
         return starts_with($value, [
             '#',
