@@ -11,7 +11,7 @@ use October\Rain\Database\Models\DeferredBinding as DeferredBindingModel;
 trait DeferredBinding
 {
     /**
-     * @var string sessionKey is A unique session key used for deferred binding
+     * @var string sessionKey is a unique session key used for deferred binding
      */
     public $sessionKey;
 
