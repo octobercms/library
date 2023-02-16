@@ -20,23 +20,18 @@ class ExpandoModel extends Model
     protected $expandoPassthru = [];
 
     /**
-     * @var int expandoPriority events should come first but make room for others,
-     * assuming a range of 1 to 1000.
-     */
-    protected $expandoPriority = 300;
-
-    /**
      * __construct
      */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
 
-        $this->bindEvent('model.afterFetch', [$this, 'expandoAfterFetch'], $this->expandoPriority);
+        $this->bindEvent('model.afterFetch', [$this, 'expandoAfterFetch']);
 
-        $this->bindEvent('model.saveInternal', [$this, 'expandoSaveInternal'], $this->expandoPriority);
+        $this->bindEvent('model.afterSave', [$this, 'expandoAfterSave']);
 
-        $this->bindEvent('model.afterSave', [$this, 'expandoAfterSave'], $this->expandoPriority);
+        // Process attributes last for traits with attribute modifiers
+        $this->bindEvent('model.saveInternal', [$this, 'expandoSaveInternal'], -1);
 
         $this->addJsonable($this->expandoColumn);
     }
