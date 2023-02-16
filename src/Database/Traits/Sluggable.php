@@ -57,7 +57,7 @@ trait Sluggable
      */
     public function setSluggedValue($slugAttribute, $sourceAttributes, $maxLength = 175)
     {
-        if (!isset($this->{$slugAttribute}) || !mb_strlen($this->{$slugAttribute})) {
+        if (!array_key_exists($slugAttribute, $this->attributes) || !mb_strlen($this->attributes[$slugAttribute])) {
             if (!is_array($sourceAttributes)) {
                 $sourceAttributes = [$sourceAttributes];
             }
@@ -72,16 +72,16 @@ trait Sluggable
             $slug = Str::slug($slug, $this->getSluggableSeparator());
         }
         else {
-            $slug = $this->{$slugAttribute};
+            $slug = $this->attributes[$slugAttribute] ?? '';
         }
 
         // Source attributes contain empty values, nothing to slug and this
         // happens when the attributes are not required by the validator
         if (!mb_strlen(trim($slug))) {
-            return $this->{$slugAttribute} = '';
+            return $this->attributes[$slugAttribute] = '';
         }
 
-        return $this->{$slugAttribute} = $this->getSluggableUniqueAttributeValue($slugAttribute, $slug);
+        return $this->attributes[$slugAttribute] = $this->getSluggableUniqueAttributeValue($slugAttribute, $slug);
     }
 
     /**
