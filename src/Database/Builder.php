@@ -3,11 +3,10 @@
 use Illuminate\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder as BuilderModel;
 use October\Rain\Support\Facades\DbDongle;
+use Closure;
 
 /**
- * Query builder class.
- *
- * Extends Eloquent builder class.
+ * Builder class for queries, extends the Eloquent builder class.
  *
  * @package october\database
  * @author Alexey Bobkov, Samuel Georges
@@ -17,8 +16,7 @@ class Builder extends BuilderModel
     use \October\Rain\Database\Concerns\HasNicerPagination;
 
     /**
-     * Get an array with the values of a given column.
-     *
+     * lists gets an array with the values of a given column.
      * @param  string  $column
      * @param  string|null  $key
      * @return array
@@ -29,11 +27,11 @@ class Builder extends BuilderModel
     }
 
     /**
-     * Perform a search on this query for term found in columns.
+     * searchWhere performs a search on this query for term found in columns.
      * @param  string $term  Search query
      * @param  array $columns Table columns to search
      * @param  string $mode  Search mode: all, any, exact.
-     * @return self
+     * @return static
      */
     public function searchWhere($term, $columns = [], $mode = 'all')
     {
@@ -41,15 +39,46 @@ class Builder extends BuilderModel
     }
 
     /**
-     * Add an "or search where" clause to the query.
+     * orSearchWhere adds an "or search where" clause to the query.
      * @param  string $term  Search query
      * @param  array $columns Table columns to search
      * @param  string $mode  Search mode: all, any, exact.
-     * @return self
+     * @return static
      */
     public function orSearchWhere($term, $columns = [], $mode = 'all')
     {
         return $this->searchWhereInternal($term, $columns, $mode, 'or');
+    }
+
+    /**
+     * searchWhereRelation performs a search on a relationship query.
+     *
+     * @param  string $term  Search query
+     * @param  string  $relation
+     * @param  array $columns Table columns to search
+     * @param  string $mode  Search mode: all, any, exact.
+     * @return static
+     */
+    public function searchWhereRelation($term, $relation, $columns = [], $mode = 'all')
+    {
+        return $this->whereHas($relation, function ($query) use ($term, $columns, $mode) {
+            $query->searchWhere($term, $columns, $mode);
+        });
+    }
+
+    /**
+     * orSearchWhereRelation adds an "or where" clause to a search relationship query.
+     * @param  string $term  Search query
+     * @param  string  $relation
+     * @param  array $columns Table columns to search
+     * @param  string $mode  Search mode: all, any, exact.
+     * @return static
+     */
+    public function orSearchWhereRelation($term, $relation, $columns = [], $mode = 'all')
+    {
+        return $this->orWhereHas($relation, function ($query) use ($term, $columns, $mode) {
+            $query->searchWhere($term, $columns, $mode);
+        });
     }
 
     /**
