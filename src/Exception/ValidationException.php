@@ -72,7 +72,7 @@ class ValidationException extends ValidationExceptionBase
 
         foreach ($this->errors->getMessages() as $field => $messages) {
             $fieldName = implode('.', array_merge($this->fieldPrefix, [$field]));
-            $this->fields[$fieldName] = $messages;
+            $this->fields[$fieldName] = (array) $messages;
         }
 
         $this->message = $this->errors->first();
