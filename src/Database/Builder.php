@@ -3,7 +3,6 @@
 use Illuminate\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder as BuilderModel;
 use October\Rain\Support\Facades\DbDongle;
-use Closure;
 
 /**
  * Builder class for queries, extends the Eloquent builder class.
