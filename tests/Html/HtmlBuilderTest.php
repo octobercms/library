@@ -28,7 +28,7 @@ class HtmlBuilderTest extends TestCase
 
         $this->assertEquals(trim('
             <p>The quick brown fox jumped over the lazy dog</p>
-            <p>The...</p>
+            <p>Th...</p>
         '), $result);
     }
 
