@@ -163,7 +163,7 @@ trait Validation
             return $this->$relationName()->getValidationValue();
         }
 
-        return $this->getRelationValue($relationName);
+        return $this->$relationName;
     }
 
     /**
