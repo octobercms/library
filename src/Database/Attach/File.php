@@ -230,7 +230,7 @@ class File extends Model
 
     /**
      * getWidthAttribute helper attribute for get image width
-     * @return string
+     * @return string|bool
      */
     public function getWidthAttribute()
     {
@@ -242,7 +242,7 @@ class File extends Model
 
     /**
      * getHeightAttribute helper attribute for get image height
-     * @return string
+     * @return string|bool
      */
     public function getHeightAttribute()
     {
