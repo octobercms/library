@@ -10,6 +10,7 @@ use October\Rain\Scaffold\Console\CreateFormWidget;
 use October\Rain\Scaffold\Console\CreateReportWidget;
 use October\Rain\Scaffold\Console\CreateFilterWidget;
 use October\Rain\Scaffold\Console\CreateContentField;
+use October\Rain\Scaffold\Console\CreateJob;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
 
@@ -37,6 +38,7 @@ class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvi
         $this->app->singleton('command.create.filterwidget', CreateFilterWidget::class);
         $this->app->singleton('command.create.contentfield', CreateContentField::class);
         $this->app->singleton('command.create.command', CreateCommand::class);
+        $this->app->singleton('command.create.job', CreateJob::class);
 
         $this->commands('command.create.plugin');
         $this->commands('command.create.model');
@@ -48,6 +50,7 @@ class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvi
         $this->commands('command.create.filterwidget');
         $this->commands('command.create.contentfield');
         $this->commands('command.create.command');
+        $this->commands('command.create.job');
     }
 
     /**
@@ -66,7 +69,8 @@ class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvi
             'command.create.reportwidget',
             'command.create.filterwidget',
             'command.create.contentfield',
-            'command.create.command'
+            'command.create.command',
+            'command.create.job'
         ];
     }
 }
