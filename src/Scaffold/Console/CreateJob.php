@@ -2,6 +2,9 @@
 
 use October\Rain\Scaffold\GeneratorCommandBase;
 
+/**
+ * CreateJob
+ */
 class CreateJob extends GeneratorCommandBase
 {
     /**
