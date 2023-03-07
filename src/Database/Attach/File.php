@@ -230,27 +230,25 @@ class File extends Model
 
     /**
      * getWidthAttribute helper attribute for get image width
-     * @return string
+     * @return string|bool
      */
     public function getWidthAttribute()
     {
         if ($this->isImage()) {
             $dimensions = $this->getImageDimensions();
-
-            return $dimensions[0];
+            return is_array($dimensions) ? $dimensions[0] : null;
         }
     }
 
     /**
      * getHeightAttribute helper attribute for get image height
-     * @return string
+     * @return string|bool
      */
     public function getHeightAttribute()
     {
         if ($this->isImage()) {
             $dimensions = $this->getImageDimensions();
-
-            return $dimensions[1];
+            return is_array($dimensions) ? $dimensions[1] : null;
         }
     }
 
