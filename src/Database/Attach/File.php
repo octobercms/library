@@ -236,8 +236,7 @@ class File extends Model
     {
         if ($this->isImage()) {
             $dimensions = $this->getImageDimensions();
-
-            return $dimensions[0];
+            return is_array($dimensions) ? $dimensions[0] : null;
         }
     }
 
@@ -249,8 +248,7 @@ class File extends Model
     {
         if ($this->isImage()) {
             $dimensions = $this->getImageDimensions();
-
-            return $dimensions[1];
+            return is_array($dimensions) ? $dimensions[1] : null;
         }
     }
 
