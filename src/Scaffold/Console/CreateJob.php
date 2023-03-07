@@ -24,13 +24,6 @@ class CreateJob extends BaseScaffoldCommand
     protected $description = 'Creates a new job class.';
 
     /**
-     * @var array List of commands that this command replaces (aliases)
-     */
-    protected $replaces = [
-        'make:job',
-    ];
-
-    /**
      * @var string The type of class being generated.
      */
     protected $type = 'Job';
