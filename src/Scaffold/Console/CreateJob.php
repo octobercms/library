@@ -13,7 +13,7 @@ class CreateJob extends BaseScaffoldCommand
      * @var string The name and signature of this command.
      */
     protected $signature = 'create:job
-        {plugin : The name of the plugin. <info>(eg: Winter.Blog)</info>}
+        {plugin : The name of the plugin. <info>(eg: Acme.Blog)</info>}
         {name : The name of the job class to generate. <info>(eg: ImportPosts)</info>}
         {--s|sync : Overwrite existing files with generated files.}
         {--f|force : Overwrite existing files with generated files.}';
