@@ -2,7 +2,7 @@
 
 use October\Rain\Scaffold\GeneratorCommandBase;
 
-class CreateJob extends BaseScaffoldCommand
+class CreateJob extends GeneratorCommandBase
 {
     /**
      * @var string|null The default command name for lazy loading.
