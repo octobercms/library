@@ -2,6 +2,9 @@
 
 use October\Rain\Scaffold\GeneratorCommandBase;
 
+/**
+ * CreateFormWidget
+ */
 class CreateFormWidget extends GeneratorCommandBase
 {
     /**
