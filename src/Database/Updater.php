@@ -13,6 +13,11 @@ use ReflectionClass;
 class Updater
 {
     /**
+     * @var array requiredPathCache paths that have already been required.
+     */
+    protected static $requiredPathCache = [];
+
+    /**
      * setUp a migration or seed file.
      */
     public function setUp($file)
@@ -80,9 +85,15 @@ class Updater
             return new $class;
         }
 
-        $migration = require $path;
+        $migration = static::$requiredPathCache[$path] ??= require $path;
 
-        return is_object($migration) ? $migration : new $class;
+        if (is_object($migration)) {
+            return method_exists($migration, '__construct')
+                    ? require $path
+                    : clone $migration;
+        }
+
+        return new $class;
     }
 
     /**
