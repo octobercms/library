@@ -163,6 +163,17 @@ trait Validation
             return $this->$relationName()->getValidationValue();
         }
 
+        // Looks for deferred records
+        if (
+            $this->sessionKey &&
+            !$this->relationLoaded($relationName) &&
+            $this->hasDeferred($this->sessionKey, $relationName)
+        ) {
+            $fetchMethod = $this->isRelationTypeSingular($relationName) ? 'first' : 'get';
+            return $this->$relationName()->withDeferred($this->sessionKey)->$fetchMethod();
+        }
+
+        // Allows validation of nested attributes
         return $this->$relationName;
     }
 
