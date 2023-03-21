@@ -8,45 +8,45 @@ use October\Rain\Scaffold\GeneratorCommandBase;
 class CreateJob extends GeneratorCommandBase
 {
     /**
-     * @var string|null The default command name for lazy loading.
-     */
-    protected static $defaultName = 'create:job';
-
-    /**
-     * @var string The name and signature of this command.
+     * @var string signature for the command
      */
     protected $signature = 'create:job
-        {plugin : The name of the plugin. <info>(eg: Acme.Blog)</info>}
+        {namespace : App or Plugin Namespace. <info>(eg: Acme.Blog)</info>}
         {name : The name of the job class to generate. <info>(eg: ImportPosts)</info>}
-        {--s|sync : Overwrite existing files with generated files.}
-        {--f|force : Overwrite existing files with generated files.}';
+        {--s|sync : Indicates that job should be synchronous}
+        {--o|overwrite : Overwrite existing files with generated ones}';
 
     /**
-     * @var string The console command description.
+     * @var string description of the console command
      */
     protected $description = 'Creates a new job class.';
 
     /**
-     * @var string The type of class being generated.
+     * @var string typeLabel of class being generated
      */
-    protected $type = 'Job';
+    protected $typeLabel = 'Job';
 
     /**
-     * @var array A mapping of stubs to generated files.
+     * makeStubs makes all stubs
      */
-    protected $stubs = [
-        'scaffold/job/job.queued.stub' => 'jobs/{{studly_name}}.php',
-    ];
-
-    /**
-     * @inheritDoc
-     */
-    public function prepareVars(): array
+    public function makeStubs()
     {
         if ($this->option('sync')) {
-            $this->stubs['scaffold/job/job.stub'] = 'jobs/{{studly_name}}.php';
+            $this->makeStub('job/job.stub', 'jobs/{{studly_name}}.php');
         }
+        else {
+            $this->makeStub('job/job.queued.stub', 'jobs/{{studly_name}}.php');
+        }
+    }
 
-        return parent::prepareVars();
+    /**
+     * prepareVars prepares variables for stubs
+     */
+    protected function prepareVars(): array
+    {
+        return [
+            'name' => $this->argument('name'),
+            'namespace' => $this->argument('namespace'),
+        ];
     }
 }

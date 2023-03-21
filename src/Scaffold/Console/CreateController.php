@@ -24,7 +24,7 @@ class CreateController extends GeneratorCommandBase
     protected $description = 'Creates a new controller.';
 
     /**
-     * @var string type of class being generated
+     * @var string typeLabel of class being generated
      */
     protected $typeLabel = 'Controller';
 
