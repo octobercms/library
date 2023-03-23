@@ -6,7 +6,7 @@
 class Dongle
 {
     /**
-     * @var DB db helper object
+     * @var \Db db helper object
      */
     protected $db;
 
@@ -43,10 +43,56 @@ class Dongle
     public function parse(string $sql): string
     {
         $sql = $this->parseGroupConcat($sql);
+
         $sql = $this->parseConcat($sql);
+
         $sql = $this->parseIfNull($sql);
+
         $sql = $this->parseBooleanExpression($sql);
+
         return $sql;
+    }
+
+    /**
+     * parseParams replaces :column_name with array value without requiring a
+     * list of names. Example: custom_country_id = :country_id → custom_country_id = 7
+     */
+    public function parseParams(string $sql, array $params)
+    {
+        if (preg_match_all('/\:([\w]+)/', $sql, $matches)) {
+            $sql = $this->parseValues($sql, $params, $matches[1]);
+        }
+
+        return $this->parse($sql);
+    }
+
+    /**
+     * parseValues will protect parameter values by quoting them or handling safe values.
+     */
+    public function parseValues(string $sql, array $data, array $paramNames)
+    {
+        $toReplace = [];
+
+        foreach ($paramNames as $param) {
+            $parsedValue = array_key_exists($param, $data) ? $data[$param] : null;
+
+            if (is_null($parsedValue)) {
+                $parsedValue = 'NULL';
+            }
+            elseif (is_string($parsedValue)) {
+                $parsedValue = $this->db->getPdo()->quote($parsedValue);
+            }
+            elseif (is_numeric($parsedValue)) {
+                $parsedValue = +$parsedValue;
+            }
+            else {
+                $parsedValue = "''";
+            }
+
+            $toReplace[':'.$param] = $parsedValue;
+        }
+
+        return strtr($sql, $toReplace);
     }
 
     /**

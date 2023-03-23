@@ -509,7 +509,7 @@ trait NestedTree
         }
 
         $values = $parentIds = [];
-        $results = $query->getQuery()->orderBy($this->getLeftColumnName())->get($columns);
+        $results = $query->orderBy($this->getLeftColumnName())->get($columns);
         foreach ($results as $result) {
             $parentId = $result->{$this->getParentColumnName()};
             if ($parentId && !isset($parentIds[$parentId])) {

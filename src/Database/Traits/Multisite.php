@@ -22,7 +22,7 @@ trait Multisite
     /**
      * @var bool propagatableSync will enforce model structures between all sites
      *
-     * protected $propagatableSync = true;
+     * protected $propagatableSync = false;
      */
 
     /**
@@ -45,33 +45,75 @@ trait Multisite
             ));
         }
 
-        $this->bindEvent('model.beforeSave', function() {
-            if (Site::hasGlobalContext()) {
-                return;
-            }
+        $this->bindEvent('model.beforeSave', [$this, 'multisiteBeforeSave']);
 
-            $this->{$this->getSiteIdColumn()} = Site::getSiteIdFromContext();
-        });
+        $this->bindEvent('model.afterSave', [$this, 'multisiteAfterSave']);
 
-        $this->bindEvent('model.afterSave', function() {
-            if ($this->getSaveOption('propagate') === true) {
-                Site::withGlobalContext(function() {
-                    $this->afterSavePropagate();
-                });
-            }
-        });
-
-        $this->bindEvent('model.afterCreate', function() {
-            if (!$this->site_root_id) {
-                $this->site_root_id = $this->id;
-                $this->newQueryWithoutScopes()
-                    ->where($this->getKeyName(), $this->id)
-                    ->update(['site_root_id' => $this->site_root_id])
-                ;
-            }
-        });
+        $this->bindEvent('model.afterCreate', [$this, 'multisiteAfterCreate']);
 
         $this->defineMultisiteRelations();
+    }
+
+    /**
+     * multisiteBeforeSave constructor event
+     */
+    public function multisiteBeforeSave()
+    {
+        if (Site::hasGlobalContext()) {
+            return;
+        }
+
+        $this->{$this->getSiteIdColumn()} = Site::getSiteIdFromContext();
+    }
+
+    /**
+     * multisiteAfterSave constructor event
+     */
+    public function multisiteAfterSave()
+    {
+        if ($this->getSaveOption('propagate') !== true) {
+            return;
+        }
+
+        if (!$this->isMultisiteEnabled()) {
+            return;
+        }
+
+        Site::withGlobalContext(function() {
+            $otherModels = $this->newOtherSiteQuery()->get();
+            $otherSites = $otherModels->pluck('site_id')->all();
+
+            // Propagate attributes to known records
+            if ($this->propagatable) {
+                foreach ($otherModels as $model) {
+                    $this->propagateToSite($model->site_id, $model);
+                }
+            }
+
+            // Sync non-existent records
+            if ($this->isMultisiteSyncEnabled()) {
+                $missingSites = array_diff($this->getMultisiteSyncSites(), $otherSites);
+                foreach ($missingSites as $missingSite) {
+                    $this->propagateToSite($missingSite);
+                }
+            }
+        });
+    }
+
+    /**
+     * multisiteAfterCreate constructor event
+     */
+    public function multisiteAfterCreate()
+    {
+        if ($this->site_root_id) {
+            return;
+        }
+
+        $this->site_root_id = $this->id;
+        $this->newQueryWithoutScopes()
+            ->where($this->getKeyName(), $this->id)
+            ->update(['site_root_id' => $this->site_root_id])
+        ;
     }
 
     /**
@@ -177,34 +219,6 @@ trait Multisite
     }
 
     /**
-     * afterSavePropagate event
-     */
-    public function afterSavePropagate()
-    {
-        if (!$this->isMultisiteEnabled()) {
-            return;
-        }
-
-        $otherModels = $this->newOtherSiteQuery()->get();
-        $otherSites = $otherModels->pluck('site_id')->all();
-
-        // Propagate attributes to known records
-        if ($this->propagatable) {
-            foreach ($otherModels as $model) {
-                $this->propagateToSite($model->site_id, $model);
-            }
-        }
-
-        // Sync non-existent records
-        if ($this->isMultisiteSyncEnabled()) {
-            $missingSites = array_diff($this->getMultisiteSyncSites(), $otherSites);
-            foreach ($missingSites as $missingSite) {
-                $this->propagateToSite($missingSite);
-            }
-        }
-    }
-
-    /**
      * newOtherSiteQuery
      */
     public function newOtherSiteQuery()
@@ -252,7 +266,7 @@ trait Multisite
     }
 
     /**
-     * findForSite
+     * findForSite will locate a record for a specific site.
      */
     public function findForSite($siteId = null)
     {

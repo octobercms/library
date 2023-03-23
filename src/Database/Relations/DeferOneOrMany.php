@@ -13,9 +13,10 @@ trait DeferOneOrMany
 {
     /**
      * withDeferred returns the model query with deferred bindings added
+     * @param string|null $sessionKey
      * @return \Illuminate\Database\Query\Builder
      */
-    public function withDeferred($sessionKey)
+    public function withDeferred($sessionKey = null)
     {
         $modelQuery = $this->query;
 
@@ -23,13 +24,17 @@ trait DeferOneOrMany
 
         $newQuery->from($this->related->getTable());
 
+        // Guess the key from the parent model
+        if ($sessionKey === null) {
+            $sessionKey = $this->parent->sessionKey;
+        }
+
         // No join table will be used, strip the selected "pivot_" columns
         if ($this instanceof BelongsToManyBase) {
             $this->orphanMode = true;
         }
 
         $newQuery->where(function ($query) use ($sessionKey) {
-
             if ($this->parent->exists) {
                 if ($this instanceof MorphToMany) {
                     // Custom query for MorphToMany since a "join" cannot be used

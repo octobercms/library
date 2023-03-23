@@ -31,6 +31,18 @@ trait DeferredBinding
     }
 
     /**
+     * hasDeferred returns true if a deferred record exists for a relation
+     */
+    public function hasDeferred($sessionKey = null, $relationName = null): bool
+    {
+        if ($sessionKey === null) {
+            $sessionKey = $this->sessionKey;
+        }
+
+        return DeferredBindingModel::hasDeferredActions(get_class($this), $sessionKey, $relationName);
+    }
+
+    /**
      * bindDeferred binds a deferred relationship to the supplied record
      */
     public function bindDeferred($relation, $record, $sessionKey, $pivotData = []): DeferredBindingModel
@@ -167,9 +179,7 @@ trait DeferredBinding
                 continue;
             }
 
-            /*
-             * Find the slave model
-             */
+            // Find the slave model
             $slaveClass = $binding->slave_type;
             $slaveModel = $this->makeRelation($relationName);
             if (!is_a($slaveModel, $slaveClass)) {
@@ -181,10 +191,8 @@ trait DeferredBinding
                 continue;
             }
 
-            /*
-             * Bind/Unbind the relationship, save the related model with any
-             * deferred bindings it might have and delete the binding action
-             */
+            // Bind/Unbind the relationship, save the related model with any
+            // deferred bindings it might have and delete the binding action
             $relationObj = $this->$relationName();
             if ($binding->is_bind) {
                 if (in_array($relationType, ['belongsToMany', 'morphToMany', 'morphedByMany'])) {

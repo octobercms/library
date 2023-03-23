@@ -31,6 +31,11 @@ class DeferredBinding extends Model
     protected $nullable = ['pivot_data'];
 
     /**
+     * @var array hasDeferredCache is a cache for the hasDeferredActions check
+     */
+    protected static $hasDeferredCache = [];
+
+    /**
      * beforeCreate prevents duplicates and conflicting binds
      */
     public function beforeCreate()
@@ -62,6 +67,28 @@ class DeferredBinding extends Model
             ->where('session_key', $this->session_key)
             ->first()
         ;
+    }
+
+    /**
+     * hasDeferredActions allows efficient and informed checks used by validation
+     */
+    public static function hasDeferredActions($masterType, $sessionKey, $fieldName = null): bool
+    {
+        $cacheKey = "{$masterType}.{$sessionKey}";
+
+        if (!array_key_exists($cacheKey, self::$hasDeferredCache)) {
+            self::$hasDeferredCache[$cacheKey] = self::where('master_type', $masterType)
+                ->where('session_key', $sessionKey)
+                ->pluck('master_field')
+                ->all()
+            ;
+        }
+
+        if ($fieldName !== null) {
+            return in_array($fieldName, self::$hasDeferredCache[$cacheKey]);
+        }
+
+        return (bool) self::$hasDeferredCache[$cacheKey];
     }
 
     /**
@@ -100,6 +127,14 @@ class DeferredBinding extends Model
     {
         $this->deleteSlaveRecord();
         $this->delete();
+    }
+
+    /**
+     * afterDelete
+     */
+    public function afterDelete()
+    {
+        self::$hasDeferredCache = [];
     }
 
     /**

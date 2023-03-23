@@ -234,10 +234,16 @@ class File extends Model
      */
     public function getWidthAttribute()
     {
-        if ($this->isImage()) {
-            $dimensions = $this->getImageDimensions();
-            return is_array($dimensions) ? $dimensions[0] : null;
+        if (!$this->isImage()) {
+            return null;
         }
+
+        $dimensions = $this->getImageDimensions();
+        if (!$dimensions) {
+            return null;
+        }
+
+        return $dimensions[0];
     }
 
     /**
@@ -246,10 +252,16 @@ class File extends Model
      */
     public function getHeightAttribute()
     {
-        if ($this->isImage()) {
-            $dimensions = $this->getImageDimensions();
-            return is_array($dimensions) ? $dimensions[1] : null;
+        if (!$this->isImage()) {
+            return null;
         }
+
+        $dimensions = $this->getImageDimensions();
+        if (!$dimensions) {
+            return null;
+        }
+
+        return $dimensions[1];
     }
 
     /**

@@ -24,6 +24,24 @@ trait SoftDelete
     {
         static::addGlobalScope(new SoftDeletingScope);
 
+        static::softDeleted(function($model) {
+            /**
+             * @event model.afterTrash
+             * Called after the model is soft deleted (trashed)
+             *
+             * Example usage:
+             *
+             *     $model->bindEvent('model.afterTrash', function() use (\October\Rain\Database\Model $model) {
+             *         \Log::info("{$model->name} has been trashed!");
+             *     });
+             *
+             */
+            $model->fireEvent('model.afterTrash');
+            if ($model->methodExists('afterTrash')) {
+                $model->afterTrash();
+            }
+        });
+
         static::restoring(function($model) {
             /**
              * @event model.beforeRestore
@@ -31,7 +49,7 @@ trait SoftDelete
              *
              * Example usage:
              *
-             *     $model->bindEvent('model.beforeRestore', function () use (\October\Rain\Database\Model $model) {
+             *     $model->bindEvent('model.beforeRestore', function() use (\October\Rain\Database\Model $model) {
              *         \Log::info("{$model->name} is going to be restored!");
              *     });
              *
@@ -49,7 +67,7 @@ trait SoftDelete
              *
              * Example usage:
              *
-             *     $model->bindEvent('model.afterRestore', function () use (\October\Rain\Database\Model $model) {
+             *     $model->bindEvent('model.afterRestore', function() use (\October\Rain\Database\Model $model) {
              *         \Log::info("{$model->name} has been brought back to life!");
              *     });
              *
@@ -90,10 +108,14 @@ trait SoftDelete
     {
         if ($this->forceDeleting) {
             $this->performDeleteOnRelations();
-            $this->newQuery()->withTrashed()->where($this->getKeyName(), $this->getKey())->forceDelete();
+
+            $this->setKeysForSaveQuery($this->newQuery()->withTrashed())->forceDelete();
+
+            $this->exists = false;
         }
 
         $this->performSoftDeleteOnRelations();
+
         $this->runSoftDelete();
     }
 
@@ -131,11 +153,25 @@ trait SoftDelete
      */
     protected function runSoftDelete()
     {
-        $query = $this->newQuery()->where($this->getKeyName(), $this->getKey());
+        $query = $this->setKeysForSaveQuery($this->newQuery());
 
-        $this->{$this->getDeletedAtColumn()} = $time = $this->freshTimestamp();
+        $time = $this->freshTimestamp();
 
-        $query->update(array($this->getDeletedAtColumn() => $this->fromDateTime($time)));
+        $columns = [$this->getDeletedAtColumn() => $this->fromDateTime($time)];
+
+        $this->{$this->getDeletedAtColumn()} = $time;
+
+        if ($this->timestamps && ! is_null($this->getUpdatedAtColumn())) {
+            $this->{$this->getUpdatedAtColumn()} = $time;
+
+            $columns[$this->getUpdatedAtColumn()] = $this->fromDateTime($time);
+        }
+
+        $query->update($columns);
+
+        $this->syncOriginalAttributes(array_keys($columns));
+
+        $this->fireModelEvent('trashed', false);
     }
 
     /**
@@ -158,6 +194,8 @@ trait SoftDelete
         // Once we have saved the model, we will fire the "restored" event so this
         // developer will do anything they need to after a restore operation is
         // totally finished. Then we will return the result of the save call.
+        $this->exists = true;
+
         $result = $this->save();
 
         $this->fireModelEvent('restored', false);
@@ -224,6 +262,16 @@ trait SoftDelete
         $column = $instance->getQualifiedDeletedAtColumn();
 
         return $instance->newQueryWithoutScope(new SoftDeletingScope)->whereNotNull($column);
+    }
+
+    /**
+     * softDeleted registers a "trashed" model event callback with the dispatcher.
+     * @param  \Closure|string  $callback
+     * @return void
+     */
+    public static function softDeleted($callback)
+    {
+        static::registerModelEvent('trashed', $callback);
     }
 
     /**
