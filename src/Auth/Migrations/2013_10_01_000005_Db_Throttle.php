@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class DbThrottle extends Migration
+return new class extends Migration
 {
     public function up()
     {
@@ -24,4 +24,4 @@ class DbThrottle extends Migration
     {
         Schema::drop('throttle');
     }
-}
+};

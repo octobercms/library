@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Database;
 
-use File;
 use Model;
 use Exception;
+use ReflectionClass;
 
 /**
  * Updater executes database migration and seed scripts based on their filename.
@@ -12,6 +12,11 @@ use Exception;
  */
 class Updater
 {
+    /**
+     * @var array requiredPathCache paths that have already been required.
+     */
+    protected static $requiredPathCache = [];
+
     /**
      * setUp a migration or seed file.
      */
@@ -68,17 +73,27 @@ class Updater
      * @param  string  $file
      * @return object
      */
-    public function resolve($file)
+    public function resolve(string $path)
     {
-        if (!File::isFile($file)) {
+        if (!is_file($path)) {
             return;
         }
 
-        require_once $file;
+        $class = $this->getClassFromFile($path);
 
-        if ($class = $this->getClassFromFile($file)) {
+        if (class_exists($class) && realpath($path) == (new ReflectionClass($class))->getFileName()) {
             return new $class;
         }
+
+        $migration = static::$requiredPathCache[$path] ??= require $path;
+
+        if (is_object($migration)) {
+            return method_exists($migration, '__construct')
+                    ? require $path
+                    : clone $migration;
+        }
+
+        return new $class;
     }
 
     /**

@@ -55,9 +55,9 @@ class Translator extends TranslatorBase
     protected function getValidationSpecific($key, $replace, $locale)
     {
         if (
-            starts_with($key, 'validation.') &&
-            !starts_with($key, 'validation.custom.') &&
-            !starts_with($key, 'validation.attributes.')
+            str_starts_with($key, 'validation.') &&
+            !str_starts_with($key, 'validation.custom.') &&
+            !str_starts_with($key, 'validation.attributes.')
         ) {
             $nativeKey = 'system::'.$key;
             $line = $this->get($nativeKey, $replace, $locale);

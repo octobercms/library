@@ -11,7 +11,7 @@ use October\Rain\Database\Models\DeferredBinding as DeferredBindingModel;
 trait DeferredBinding
 {
     /**
-     * @var string sessionKey is A unique session key used for deferred binding
+     * @var string sessionKey is a unique session key used for deferred binding
      */
     public $sessionKey;
 
@@ -28,6 +28,18 @@ trait DeferredBinding
             $this->getRelationType($relationName),
             $this->getDeferrableRelationTypes()
         );
+    }
+
+    /**
+     * hasDeferred returns true if a deferred record exists for a relation
+     */
+    public function hasDeferred($sessionKey = null, $relationName = null): bool
+    {
+        if ($sessionKey === null) {
+            $sessionKey = $this->sessionKey;
+        }
+
+        return DeferredBindingModel::hasDeferredActions(get_class($this), $sessionKey, $relationName);
     }
 
     /**
@@ -167,9 +179,7 @@ trait DeferredBinding
                 continue;
             }
 
-            /*
-             * Find the slave model
-             */
+            // Find the slave model
             $slaveClass = $binding->slave_type;
             $slaveModel = $this->makeRelation($relationName);
             if (!is_a($slaveModel, $slaveClass)) {
@@ -181,10 +191,8 @@ trait DeferredBinding
                 continue;
             }
 
-            /*
-             * Bind/Unbind the relationship, save the related model with any
-             * deferred bindings it might have and delete the binding action
-             */
+            // Bind/Unbind the relationship, save the related model with any
+            // deferred bindings it might have and delete the binding action
             $relationObj = $this->$relationName();
             if ($binding->is_bind) {
                 if (in_array($relationType, ['belongsToMany', 'morphToMany', 'morphedByMany'])) {

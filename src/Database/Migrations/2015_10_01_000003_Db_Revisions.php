@@ -3,7 +3,7 @@
 use October\Rain\Database\Schema\Blueprint;
 use October\Rain\Database\Updates\Migration;
 
-class DbRevisions extends Migration
+return new class extends Migration
 {
     public function up()
     {
@@ -25,4 +25,4 @@ class DbRevisions extends Migration
     {
         Schema::dropIfExists('revisions');
     }
-}
+};

@@ -329,6 +329,7 @@ trait AttachOneOrMany
             return true;
         }
 
+        // @deprecated this method should be replaced by an instanceof UploadedFile check
         if (is_string($value) && file_exists($value)) {
             return true;
         }

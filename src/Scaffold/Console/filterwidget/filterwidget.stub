@@ -9,34 +9,22 @@ use Backend\Classes\FilterWidgetBase;
  */
 class {{studly_name}} extends FilterWidgetBase
 {
-    /**
-     * @inheritDoc
-     */
     public function init()
     {
     }
 
-    /**
-     * @inheritDoc
-     */
     public function render()
     {
         $this->prepareVars();
         return $this->makePartial('{{lower_name}}');
     }
 
-    /**
-     * @inheritDoc
-     */
     public function renderForm()
     {
         $this->prepareVars();
         return $this->makePartial('{{lower_name}}_form');
     }
 
-    /**
-     * prepareVars for view data
-     */
     public function prepareVars()
     {
         $this->vars['scope'] = $this->filterScope;
@@ -44,18 +32,12 @@ class {{studly_name}} extends FilterWidgetBase
         $this->vars['value'] = $this->getLoadValue();
     }
 
-    /**
-     * @inheritDoc
-     */
     public function loadAssets()
     {
         $this->addCss('css/{{lower_name}}.css');
         $this->addJs('js/{{lower_name}}.js');
     }
 
-    /**
-     * getActiveValue
-     */
     public function getActiveValue()
     {
         if (post('clearScope')) {
@@ -69,9 +51,6 @@ class {{studly_name}} extends FilterWidgetBase
         return post('Filter');
     }
 
-    /**
-     * applyScopeToQuery
-     */
     public function applyScopeToQuery($query)
     {
         $hasDiscount = $this->filterScope->value;

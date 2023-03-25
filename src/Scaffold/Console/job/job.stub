@@ -1,0 +1,27 @@
+<?php namespace {{namespace_php}}\Jobs;
+
+use Illuminate\Foundation\Bus\Dispatchable;
+
+/**
+ * {{studly_name}} Job
+ */
+class {{studly_name}}
+{
+    use Dispatchable;
+
+    /**
+     * __construct a new job instance.
+     */
+    public function __construct()
+    {
+        //
+    }
+
+    /**
+     * handle the job.
+     */
+    public function handle(): void
+    {
+        //
+    }
+}

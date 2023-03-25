@@ -95,25 +95,30 @@ class File extends Model
     //
 
     /**
-     * fromPost creates a file object from a file an uploaded file
-     * @param UploadedFile $uploadedFile
+     * fromPost creates a file object from a file an uploaded file, the input can be an
+     * upload object or the input name from a file postback.
+     * @param string|UploadedFile $fileInput
      * @return $this
      */
-    public function fromPost($uploadedFile)
+    public function fromPost($fileInput)
     {
-        if ($uploadedFile === null) {
+        if (is_string($fileInput)) {
+            $fileInput = files($fileInput);
+        }
+
+        if (!$fileInput) {
             return;
         }
 
-        $this->file_name = $uploadedFile->getClientOriginalName();
-        $this->file_size = $uploadedFile->getSize();
-        $this->content_type = $uploadedFile->getMimeType();
+        $this->file_name = $fileInput->getClientOriginalName();
+        $this->file_size = $fileInput->getSize();
+        $this->content_type = $fileInput->getMimeType();
         $this->disk_name = $this->getDiskName();
 
         // getRealPath() can be empty for some environments (IIS)
-        $realPath = empty(trim($uploadedFile->getRealPath()))
-            ? $uploadedFile->getPath() . DIRECTORY_SEPARATOR . $uploadedFile->getFileName()
-            : $uploadedFile->getRealPath();
+        $realPath = empty(trim($fileInput->getRealPath()))
+            ? $fileInput->getPath() . DIRECTORY_SEPARATOR . $fileInput->getFileName()
+            : $fileInput->getRealPath();
 
         $this->putFile($realPath, $this->disk_name);
 
@@ -225,28 +230,38 @@ class File extends Model
 
     /**
      * getWidthAttribute helper attribute for get image width
-     * @return string
+     * @return string|null
      */
     public function getWidthAttribute()
     {
-        if ($this->isImage()) {
-            $dimensions = $this->getImageDimensions();
-
-            return $dimensions[0];
+        if (!$this->isImage()) {
+            return null;
         }
+
+        $dimensions = $this->getImageDimensions();
+        if (!$dimensions) {
+            return null;
+        }
+
+        return $dimensions[0];
     }
 
     /**
      * getHeightAttribute helper attribute for get image height
-     * @return string
+     * @return string|null
      */
     public function getHeightAttribute()
     {
-        if ($this->isImage()) {
-            $dimensions = $this->getImageDimensions();
-
-            return $dimensions[1];
+        if (!$this->isImage()) {
+            return null;
         }
+
+        $dimensions = $this->getImageDimensions();
+        if (!$dimensions) {
+            return null;
+        }
+
+        return $dimensions[1];
     }
 
     /**
@@ -497,13 +512,12 @@ class File extends Model
      */
     public function beforeSave()
     {
-        /*
-         * Process the data property
-         */
+        // Process the data property
         if ($this->data !== null) {
             if ($this->data instanceof UploadedFile) {
                 $this->fromPost($this->data);
             }
+            // @deprecated see AttachOneOrMany::isValidFileData
             else {
                 $this->fromFile($this->data);
             }

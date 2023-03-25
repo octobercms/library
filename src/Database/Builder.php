@@ -5,9 +5,7 @@ use Illuminate\Database\Eloquent\Builder as BuilderModel;
 use October\Rain\Support\Facades\DbDongle;
 
 /**
- * Query builder class.
- *
- * Extends Eloquent builder class.
+ * Builder class for queries, extends the Eloquent builder class.
  *
  * @package october\database
  * @author Alexey Bobkov, Samuel Georges
@@ -17,8 +15,7 @@ class Builder extends BuilderModel
     use \October\Rain\Database\Concerns\HasNicerPagination;
 
     /**
-     * Get an array with the values of a given column.
-     *
+     * lists gets an array with the values of a given column.
      * @param  string  $column
      * @param  string|null  $key
      * @return array
@@ -29,11 +26,11 @@ class Builder extends BuilderModel
     }
 
     /**
-     * Perform a search on this query for term found in columns.
+     * searchWhere performs a search on this query for term found in columns.
      * @param  string $term  Search query
      * @param  array $columns Table columns to search
      * @param  string $mode  Search mode: all, any, exact.
-     * @return self
+     * @return static
      */
     public function searchWhere($term, $columns = [], $mode = 'all')
     {
@@ -41,15 +38,46 @@ class Builder extends BuilderModel
     }
 
     /**
-     * Add an "or search where" clause to the query.
+     * orSearchWhere adds an "or search where" clause to the query.
      * @param  string $term  Search query
      * @param  array $columns Table columns to search
      * @param  string $mode  Search mode: all, any, exact.
-     * @return self
+     * @return static
      */
     public function orSearchWhere($term, $columns = [], $mode = 'all')
     {
         return $this->searchWhereInternal($term, $columns, $mode, 'or');
+    }
+
+    /**
+     * searchWhereRelation performs a search on a relationship query.
+     *
+     * @param  string $term  Search query
+     * @param  string  $relation
+     * @param  array $columns Table columns to search
+     * @param  string $mode  Search mode: all, any, exact.
+     * @return static
+     */
+    public function searchWhereRelation($term, $relation, $columns = [], $mode = 'all')
+    {
+        return $this->whereHas($relation, function ($query) use ($term, $columns, $mode) {
+            $query->searchWhere($term, $columns, $mode);
+        });
+    }
+
+    /**
+     * orSearchWhereRelation adds an "or where" clause to a search relationship query.
+     * @param  string $term  Search query
+     * @param  string  $relation
+     * @param  array $columns Table columns to search
+     * @param  string $mode  Search mode: all, any, exact.
+     * @return static
+     */
+    public function orSearchWhereRelation($term, $relation, $columns = [], $mode = 'all')
+    {
+        return $this->orWhereHas($relation, function ($query) use ($term, $columns, $mode) {
+            $query->searchWhere($term, $columns, $mode);
+        });
     }
 
     /**
@@ -69,13 +97,16 @@ class Builder extends BuilderModel
             $mode = 'all';
         }
 
+        $grammar = $this->query->getGrammar();
+
         if ($mode === 'exact') {
-            $this->where(function ($query) use ($columns, $term) {
+            $this->where(function ($query) use ($columns, $term, $grammar) {
                 foreach ($columns as $field) {
                     if (!strlen($term)) {
                         continue;
                     }
-                    $fieldSql = $this->query->raw(sprintf("lower(%s)", DbDongle::cast($field, 'TEXT')));
+                    $rawField = DbDongle::cast($grammar->wrap($field), 'TEXT');
+                    $fieldSql = $this->query->raw(sprintf("lower(%s)", $rawField));
                     $termSql = '%'.trim(mb_strtolower($term)).'%';
                     $query->orWhere($fieldSql, 'LIKE', $termSql);
                 }
@@ -85,14 +116,15 @@ class Builder extends BuilderModel
             $words = explode(' ', $term);
             $wordBoolean = $mode === 'any' ? 'or' : 'and';
 
-            $this->where(function ($query) use ($columns, $words, $wordBoolean) {
+            $this->where(function ($query) use ($columns, $words, $wordBoolean, $grammar) {
                 foreach ($columns as $field) {
-                    $query->orWhere(function ($query) use ($field, $words, $wordBoolean) {
+                    $query->orWhere(function ($query) use ($field, $words, $wordBoolean, $grammar) {
                         foreach ($words as $word) {
                             if (!strlen($word)) {
                                 continue;
                             }
-                            $fieldSql = $this->query->raw(sprintf("lower(%s)", DbDongle::cast($field, 'TEXT')));
+                            $rawField = DbDongle::cast($grammar->wrap($field), 'TEXT');
+                            $fieldSql = $this->query->raw(sprintf("lower(%s)", $rawField));
                             $wordSql = '%'.trim(mb_strtolower($word)).'%';
                             $query->where($fieldSql, 'LIKE', $wordSql, $wordBoolean);
                         }
@@ -110,25 +142,25 @@ class Builder extends BuilderModel
      * @param  int  $perPage
      * @param  array  $columns
      * @param  string $pageName
-     * @param  int  $currentPage
+     * @param  int  $page
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate($perPage = null, $columns = ['*'], $pageName = 'page', $currentPage = null)
+    public function paginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
     {
         // Legacy signature support
-        // paginate($perPage, $currentPage, $columns, $pageName)
+        // paginate($perPage, $page, $columns, $pageName)
         if (!is_array($columns)) {
             $_currentPage = $columns;
             $_columns = $pageName;
-            $_pageName = $currentPage;
+            $_pageName = $page;
 
             $columns = is_array($_columns) ? $_columns : ['*'];
             $pageName = $_pageName !== null ? $_pageName : 'page';
-            $currentPage = is_array($_currentPage) ? null : $_currentPage;
+            $page = is_array($_currentPage) ? null : $_currentPage;
         }
 
-        if (!$currentPage) {
-            $currentPage = Paginator::resolveCurrentPage($pageName);
+        if (!$page) {
+            $page = Paginator::resolveCurrentPage($pageName);
         }
 
         if (!$perPage) {
@@ -136,9 +168,9 @@ class Builder extends BuilderModel
         }
 
         $total = $this->toBase()->getCountForPagination();
-        $this->forPage((int) $currentPage, (int) $perPage);
+        $this->forPage((int) $page, (int) $perPage);
 
-        return $this->paginator($this->get($columns), $total, $perPage, $currentPage, [
+        return $this->paginator($this->get($columns), $total, $perPage, $page, [
             'path' => Paginator::resolveCurrentPath(),
             'pageName' => $pageName
         ]);

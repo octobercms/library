@@ -9,9 +9,6 @@ use Cms\Classes\ComponentBase;
  */
 class {{studly_name}} extends ComponentBase
 {
-    /**
-     * componentDetails
-     */
     public function componentDetails()
     {
         return [
@@ -21,8 +18,6 @@ class {{studly_name}} extends ComponentBase
     }
 
     /**
-     * defineProperties for the component
-     *
      * @link https://docs.octobercms.com/3.x/element/inspector-types.html
      */
     public function defineProperties()

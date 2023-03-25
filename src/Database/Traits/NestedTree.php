@@ -509,7 +509,7 @@ trait NestedTree
         }
 
         $values = $parentIds = [];
-        $results = $query->getQuery()->orderBy($this->getLeftColumnName())->get($columns);
+        $results = $query->orderBy($this->getLeftColumnName())->get($columns);
         foreach ($results as $result) {
             $parentId = $result->{$this->getParentColumnName()};
             if ($parentId && !isset($parentIds[$parentId])) {
@@ -789,6 +789,33 @@ trait NestedTree
             $nest = 1;
             $buildFunc($records, $nest);
         });
+    }
+
+    /**
+     * resetTreeOrphans can be used to locate orphaned records, those that refer
+     * to a parent_id value where the associated record no longer exists, and
+     * promote them to be visible in the collection again, by setting the
+     * parent column to null.
+     */
+    public function resetTreeOrphans()
+    {
+        $orphanMap = [];
+        $recordMap = $this
+            ->newNestedTreeQuery()
+            ->pluck($this->getParentColumnName(), $this->getKeyName())
+            ->all();
+
+        foreach ($recordMap as $id => $parent) {
+            if ($parent && !array_key_exists($parent, $recordMap)) {
+                $orphanMap[] = $id;
+            }
+        }
+
+        if ($orphanMap) {
+            $this->newNestedTreeQuery()
+                ->whereIn($this->getKeyName(), $orphanMap)
+                ->update([$this->getParentColumnName() => null]);
+        }
     }
 
     //

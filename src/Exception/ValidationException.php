@@ -1,9 +1,9 @@
 <?php namespace October\Rain\Exception;
 
-use Illuminate\Support\MessageBag;
+use Validator as ValidatorFacade;
+use Illuminate\Validation\ValidationException as ValidationExceptionBase;
 use Illuminate\Validation\Validator;
 use InvalidArgumentException;
-use Exception;
 
 /**
  * ValidationException class
@@ -11,7 +11,7 @@ use Exception;
  * @package october\exception
  * @author Alexey Bobkov, Samuel Georges
  */
-class ValidationException extends Exception
+class ValidationException extends ValidationExceptionBase
 {
     /**
      * @var array fields that are invalid
@@ -33,22 +33,34 @@ class ValidationException extends Exception
      */
     public function __construct($validation)
     {
-        parent::__construct();
+        parent::__construct($this->resolveToValidator($validation));
+
+        $this->errors = $this->validator->errors();
+
+        $this->evalErrors();
+    }
+
+    /**
+     * resolveToValidator resolves general input for the validation exception
+     * @param  mixed  $validation
+     */
+    protected function resolveToValidator($validation)
+    {
+        $validator = $validation;
 
         if (is_null($validation)) {
-            $this->errors = new MessageBag([]);
-        }
-        elseif ($validation instanceof Validator) {
-            $this->errors = $validation->messages();
+            $validator = ValidatorFacade::make([], []);
         }
         elseif (is_array($validation)) {
-            $this->errors = new MessageBag($validation);
+            $validator = ValidatorFacade::make([], []);
+            $validator->errors()->merge($validation);
         }
-        else {
+
+        if (!$validator instanceof Validator) {
             throw new InvalidArgumentException('ValidationException constructor requires instance of Validator or array');
         }
 
-        $this->evalErrors();
+        return $validator;
     }
 
     /**
@@ -60,7 +72,7 @@ class ValidationException extends Exception
 
         foreach ($this->errors->getMessages() as $field => $messages) {
             $fieldName = implode('.', array_merge($this->fieldPrefix, [$field]));
-            $this->fields[$fieldName] = $messages;
+            $this->fields[$fieldName] = (array) $messages;
         }
 
         $this->message = $this->errors->first();

@@ -3,7 +3,7 @@
 use October\Rain\Database\Schema\Blueprint;
 use October\Rain\Database\Updates\Migration;
 
-class DbDeferredBindings extends Migration
+return new class extends Migration
 {
     public function up()
     {
@@ -23,4 +23,4 @@ class DbDeferredBindings extends Migration
     {
         Schema::dropIfExists('deferred_bindings');
     }
-}
+};

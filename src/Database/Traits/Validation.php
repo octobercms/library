@@ -69,11 +69,11 @@ trait Validation
             ));
         }
 
-        $this->bindEvent('model.saveInternal', function ($data, $options) {
+        $this->bindEvent('model.saveInternal', function() {
             // If forcing the save event, the beforeValidate/afterValidate
             // events should still fire for consistency. So validate an
             // empty set of rules and messages.
-            $this->validationForced = array_get($options, 'force', false);
+            $this->validationForced = $this->getSaveOption('force', false);
 
             if ($this->validationForced) {
                 $valid = $this->validate([], []);
@@ -163,7 +163,18 @@ trait Validation
             return $this->$relationName()->getValidationValue();
         }
 
-        return $this->getRelationValue($relationName);
+        // Looks for deferred records
+        if (
+            $this->sessionKey &&
+            !$this->relationLoaded($relationName) &&
+            $this->hasDeferred($this->sessionKey, $relationName)
+        ) {
+            $fetchMethod = $this->isRelationTypeSingular($relationName) ? 'first' : 'get';
+            return $this->$relationName()->withDeferred($this->sessionKey)->$fetchMethod();
+        }
+
+        // Allows validation of nested attributes
+        return $this->$relationName;
     }
 
     /**

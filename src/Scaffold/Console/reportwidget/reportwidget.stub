@@ -10,14 +10,8 @@ use Exception;
  */
 class {{studly_name}} extends ReportWidgetBase
 {
-    /**
-     * @inheritDoc
-     */
     protected $defaultAlias = '{{studly_name}}ReportWidget';
 
-    /**
-     * defineProperties for the widget
-     */
     public function defineProperties()
     {
         return [
@@ -38,9 +32,6 @@ class {{studly_name}} extends ReportWidgetBase
         ];
     }
 
-    /**
-     * @inheritDoc
-     */
     public function render()
     {
         try {
@@ -53,16 +44,10 @@ class {{studly_name}} extends ReportWidgetBase
         return $this->makePartial('{{lower_name}}');
     }
 
-    /**
-     * prepareVars for the report widget
-     */
     public function prepareVars()
     {
     }
 
-    /**
-     * @inheritDoc
-     */
     protected function loadAssets()
     {
     }
