@@ -12,9 +12,9 @@ use Symfony\Component\Console\Input\InputArgument;
 class {{studly_name}} extends Command
 {
     /**
-     * @var string name is the console command name
+     * @var string signature for the console command.
      */
-    protected $name = '{{lower_plugin}}:{{lower_name}}';
+    protected $signature = '{{lower_plugin}}:{{lower_name}} {user}';
 
     /**
      * @var string description is the console command description
@@ -22,26 +22,12 @@ class {{studly_name}} extends Command
     protected $description = 'No description provided yet...';
 
     /**
-     * handle executes the console command
+     * handle executes the console command.
      */
     public function handle()
     {
-        $this->output->writeln('Hello world!');
-    }
+        $username = $this->argument('user');
 
-    /**
-     * getArguments get the console command arguments
-     */
-    protected function getArguments()
-    {
-        return [];
-    }
-
-    /**
-     * getOptions get the console command options
-     */
-    protected function getOptions()
-    {
-        return [];
+        $this->output->writeln("Hello {$username}!");
     }
 }
