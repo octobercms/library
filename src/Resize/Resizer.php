@@ -194,11 +194,8 @@ class Resizer
             return null;
         }
 
-        /*
-         * Reading the exif data is prone to fail due to bad data
-         */
+        // Reading the exif data is prone to fail due to bad data
         $exif = @exif_read_data($filePath);
-
         if (!isset($exif['Orientation'])) {
             return null;
         }
@@ -339,16 +336,12 @@ class Resizer
 
         $this->image = $imageResized;
 
-        /*
-         * Apply sharpness
-         */
+        // Apply sharpness
         if ($sharpen = $this->getOption('sharpen')) {
             $this->sharpen($sharpen);
         }
 
-        /*
-         * If mode is crop: find center and use for the cropping.
-         */
+        // If mode is crop: find center and use for the cropping.
         if ($this->getOption('mode') === 'crop') {
             $offset = $this->getOption('offset');
             $cropStartX = ($optimalWidth  / 2) - ($newWidth  / 2) - $offset[0];
@@ -372,7 +365,7 @@ class Resizer
         $image = $this->image;
 
         // Normalize sharpening value
-        $kernelCenter = exp((80 - (float)$sharpness) / 18) + 9;
+        $kernelCenter = exp((80 - ((float) $sharpness)) / 18) + 9;
 
         $matrix = [
             [-1, -1, -1],
@@ -532,7 +525,11 @@ class Resizer
                 $this->retainImageTransparency($img);
                 break;
             default:
-                throw new Exception(sprintf('Invalid mime type: %s. Accepted types: image/jpeg, image/gif, image/png, image/webp.', $this->mime));
+                throw new Exception("Invalid mime type: {$this->mime}. Accepted types: image/jpeg, image/gif, image/png, image/webp.");
+        }
+
+        if ($img === false) {
+            throw new Exception("Resizer failed opening the file for reading ({$this->mime}).");
         }
 
         return $img;
