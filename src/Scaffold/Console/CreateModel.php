@@ -10,7 +10,8 @@ class CreateModel extends GeneratorCommandBase
     /**
      * @var string signature for the command
      */
-    protected $signature = 'create:model {namespace : App or Plugin Namespace (eg: Acme.Blog)}
+    protected $signature = 'create:model
+        {namespace : App or Plugin Namespace. <info>(eg: Acme.Blog)</info>}
         {name : The name of the model. Eg: Post}
         {--soft-deletes : Implement soft deletion on this model}
         {--no-timestamps : Disable auto-timestamps on this model}

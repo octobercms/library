@@ -10,7 +10,8 @@ class CreateComponent extends GeneratorCommandBase
     /**
      * @var string signature for the command
      */
-    protected $signature = 'create:component {namespace : App or Plugin Namespace (eg: Acme.Blog)}
+    protected $signature = 'create:component
+        {namespace : App or Plugin Namespace. <info>(eg: Acme.Blog)</info>}
         {name : The name of the component. Eg: Posts}
         {--o|overwrite : Overwrite existing files with generated ones}';
 

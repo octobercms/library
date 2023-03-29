@@ -11,7 +11,8 @@ class CreateMigration extends GeneratorCommandBase
     /**
      * @var string signature for the command
      */
-    protected $signature = 'create:migration {namespace : App or Plugin Namespace (eg: RainLab.Blog)}
+    protected $signature = 'create:migration
+        {namespace : App or Plugin Namespace. <info>(eg: Acme.Blog)</info>}
         {name : The name of the model. Eg: Post}
         {--create= : The table to be created}
         {--table= : The table to migrate}

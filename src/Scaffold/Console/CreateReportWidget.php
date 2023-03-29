@@ -10,7 +10,8 @@ class CreateReportWidget extends GeneratorCommandBase
     /**
      * @var string signature for the command
      */
-    protected $signature = 'create:reportwidget {namespace : App or Plugin Namespace (eg: Acme.Blog)}
+    protected $signature = 'create:reportwidget
+        {namespace : App or Plugin Namespace. <info>(eg: Acme.Blog)</info>}
         {name : The name of the report widget. Eg: TopPages}
         {--o|overwrite : Overwrite existing files with generated ones}';
 

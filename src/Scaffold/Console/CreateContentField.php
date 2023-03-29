@@ -10,7 +10,8 @@ class CreateContentField extends GeneratorCommandBase
     /**
      * @var string signature for the command
      */
-    protected $signature = 'create:contentfield {namespace : App or Plugin Namespace (eg: Acme.Blog)}
+    protected $signature = 'create:contentfield
+        {namespace : App or Plugin Namespace. <info>(eg: Acme.Blog)</info>}
         {name : The name of the content field. Eg: IconPicker}
         {--o|overwrite : Overwrite existing files with generated ones}';
 

@@ -10,7 +10,8 @@ class CreateFormWidget extends GeneratorCommandBase
     /**
      * @var string signature for the command
      */
-    protected $signature = 'create:formwidget {namespace : App or Plugin Namespace (eg: Acme.Blog)}
+    protected $signature = 'create:formwidget
+        {namespace : App or Plugin Namespace. <info>(eg: Acme.Blog)</info>}
         {name : The name of the form widget. Eg: PostList}
         {--o|overwrite : Overwrite existing files with generated ones}';
 
