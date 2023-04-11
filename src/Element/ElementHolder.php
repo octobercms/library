@@ -14,6 +14,38 @@ use Traversable;
 class ElementHolder extends ElementBase implements IteratorAggregate
 {
     /**
+     * @var array touchedElements is used by getTouchedElements
+     */
+    protected $touchedElements = [];
+
+    /**
+     * getTouchedElements return field names that have been accessed
+     */
+    public function getTouchedElements(): array
+    {
+        return $this->touchedElements;
+    }
+
+    /**
+     * get an element from the holder instance.
+     * @param  string  $key
+     * @param  mixed  $default
+     * @return mixed
+     */
+    public function get($key, $default = null)
+    {
+        if (isset($this->touchedElements[$key])) {
+            return $this->touchedElements[$key];
+        }
+
+        if (isset($this->config[$key])) {
+            return $this->touchedElements[$key] = $this->config[$key];
+        }
+
+        return parent::get($key, $default);
+    }
+
+    /**
      * getIterator for the elements.
      */
     public function getIterator(): Traversable
