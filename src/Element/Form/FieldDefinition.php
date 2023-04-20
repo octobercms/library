@@ -149,7 +149,7 @@ class FieldDefinition extends ElementBase
      */
     public function matchesContext($context): bool
     {
-        if ($this->context === null) {
+        if ($context === '*' || $this->context === null) {
             return true;
         }
 

@@ -11,7 +11,7 @@ use October\Rain\Element\Lists\ColumnDefinition;
 interface ListElement
 {
     /**
-     * defineColumn
+     * defineColumn adds a column to the list element
      */
     public function defineColumn(string $columnName = null, string $label = null): ColumnDefinition;
 }

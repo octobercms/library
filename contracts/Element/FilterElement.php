@@ -11,7 +11,7 @@ use October\Rain\Element\Filter\ScopeDefinition;
 interface FilterElement
 {
     /**
-     * defineScope
+     * defineScope adds a scope to the filter element
      */
     public function defineScope(string $scopeName = null, string $label = null): ScopeDefinition;
 }
