@@ -5,9 +5,9 @@ use October\Rain\Support\Facade;
 /**
  * Yaml
  *
- * @method static string parse(string $contents)
- * @method static string parseFile(string $fileName)
- * @method static string parseFileCached(string $fileName)
+ * @method static array parse(string $contents)
+ * @method static array parseFile(string $fileName)
+ * @method static array parseFileCached(string $fileName)
  * @method static string render(array $vars, array $options = [])
  *
  * @see \October\Rain\Parse\Yaml
