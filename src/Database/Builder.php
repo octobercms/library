@@ -240,4 +240,21 @@ class Builder extends BuilderModel
 
         return parent::addWhereExistsQuery($query, $boolean, $not);
     }
+
+    /**
+     * whereBelongsTo introduces a nicer syntax that places the relation name first,
+     * since Laravel's base method is too helpful via assumption.
+     */
+    public function whereBelongsTo($related, $relationshipName = null, $boolean = 'and')
+    {
+        if (is_string($related) && !is_string($relationshipName)) {
+            $_related = $relationshipName;
+            $_relationshipName = $related;
+
+            $relationshipName = $_relationshipName;
+            $related = $_related;
+        }
+
+        return parent::whereBelongsTo($related, $relationshipName, $boolean);
+    }
 }
