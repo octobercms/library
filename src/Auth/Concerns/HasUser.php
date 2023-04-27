@@ -169,7 +169,7 @@ trait HasUser
 
     /**
      * validateUserModel perform additional checks on the user model.
-     * @param $user
+     * @param object $user
      * @return bool
      */
     protected function validateUserModel($user)

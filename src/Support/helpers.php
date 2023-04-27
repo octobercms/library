@@ -365,7 +365,7 @@ if (!function_exists('array_flatten')) {
      * @param  int  $depth
      * @return array
      */
-    function array_flatten($array, $depth = INF)
+    function array_flatten($array, $depth = PHP_INT_MAX)
     {
         return Arr::flatten($array, $depth);
     }

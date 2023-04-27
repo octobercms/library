@@ -33,7 +33,7 @@ use October\Rain\Support\Facade;
  * @method static string getIdAttribute(string $name, array $attributes)
  * @method static string getValueAttribute(string $name, string $value = null)
  * @method static string old(string $name)
- * @method static string bool oldInputIsEmpty()
+ * @method static bool oldInputIsEmpty()
  * @method static \Illuminate\Session\Store getSessionStore()
  * @method static \October\Rain\Html\FormBuilder setSessionStore(\Illuminate\Session\Store $session)
  * @method static string value(string $name, string $value = null)
