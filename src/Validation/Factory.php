@@ -12,7 +12,7 @@ class Factory extends FactoryBase
      */
     protected function resolve(array $data, array $rules, array $messages, array $customAttributes)
     {
-        if (is_null($this->resolver)) {
+        if ($this->resolver === null) {
             return new Validator($this->translator, $data, $rules, $messages, $customAttributes);
         }
 
