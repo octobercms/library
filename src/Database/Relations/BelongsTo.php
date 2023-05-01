@@ -33,6 +33,18 @@ class BelongsTo extends BelongsToBase
     }
 
     /**
+     * create a new instance of this related model with deferred binding support
+     */
+    public function create(array $attributes = [], $sessionKey = null)
+    {
+        $model = parent::create($attributes);
+
+        $this->add($model, $sessionKey);
+
+        return $model;
+    }
+
+    /**
      * add a model to this relationship type.
      */
     public function add(Model $model, $sessionKey = null)

@@ -136,7 +136,7 @@ class Model extends EloquentModel
      */
     public function newInstance($attributes = [], $exists = false)
     {
-        $model = parent::newInstance($attributes, $exists);
+        $model = parent::newInstance([], $exists);
 
         /**
          * @event model.newInstance
@@ -151,6 +151,9 @@ class Model extends EloquentModel
          *
          */
         $this->fireEvent('model.newInstance', [$model]);
+
+        // Fill last so the above event can modify fillable
+        $model->fill((array) $attributes);
 
         return $model;
     }

@@ -43,7 +43,6 @@
             "helpers/"
         ],
         "psr-4": {
-            "Assetic\\": "src/Assetic/Assetic/",
             "October\\Rain\\": "src/",
             "October\\Contracts\\": "contracts/"
         }

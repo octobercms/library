@@ -16,7 +16,7 @@ if (!function_exists('input')) {
      * Booleans are converted from string values.
      * @param string $name
      * @param string $default
-     * @return string
+     * @return mixed
      */
     function input($name = null, $default = null)
     {
@@ -97,9 +97,6 @@ if (!function_exists('files')) {
 if (!function_exists('trace_log')) {
     /**
      * trace_log writes a trace message to a log file
-     * @param mixed $message Specifies a message to log. The message can be an object, array or string.
-     * @param string $level Specifies a level to use. If this parameter is omitted, the default listener will be used (info).
-     * @return void
      */
     function trace_log()
     {
@@ -368,7 +365,7 @@ if (!function_exists('array_flatten')) {
      * @param  int  $depth
      * @return array
      */
-    function array_flatten($array, $depth = INF)
+    function array_flatten($array, $depth = PHP_INT_MAX)
     {
         return Arr::flatten($array, $depth);
     }

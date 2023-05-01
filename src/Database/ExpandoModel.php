@@ -41,7 +41,7 @@ class ExpandoModel extends Model
      */
     public function expandoAfterFetch()
     {
-        $this->attributes = array_merge($this->{$this->expandoColumn}, $this->attributes);
+        $this->attributes = array_merge((array) $this->{$this->expandoColumn}, $this->attributes);
 
         $this->syncOriginal();
     }

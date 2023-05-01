@@ -7,7 +7,8 @@ class CreatePlugin extends GeneratorCommandBase
     /**
      * @var string signature for the command
      */
-    protected $signature = 'create:plugin {namespace : The name of the plugin to create (eg: Acme.Blog)}
+    protected $signature = 'create:plugin
+        {namespace : The name of the plugin to create. <info>(eg: Acme.Blog)</info>}
         {--o|overwrite : Overwrite existing files with generated ones}';
 
     /**

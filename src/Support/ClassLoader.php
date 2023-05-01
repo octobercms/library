@@ -148,7 +148,9 @@ class ClassLoader
             return;
         }
 
-        $this->registered = spl_autoload_register([$this, 'load']);
+        $this->registered = spl_autoload_register(function($class) {
+            $this->load($class);
+        }, true, true);
     }
 
     /**

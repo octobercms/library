@@ -1,0 +1,17 @@
+<?php namespace {{namespace_php}}\Tests;
+
+use PluginTestCase;
+
+/**
+ * {{studly_name}} Test
+ */
+class {{studly_name}} extends PluginTestCase
+{
+    /**
+     * test_example is a basic test
+     */
+    public function test_example()
+    {
+        $this->assertTrue(true);
+    }
+}

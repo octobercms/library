@@ -11,7 +11,8 @@ class CreateController extends GeneratorCommandBase
     /**
      * @var string signature for the command
      */
-    protected $signature = 'create:controller {namespace : App or Plugin Namespace (eg: Acme.Blog)}
+    protected $signature = 'create:controller
+        {namespace : App or Plugin Namespace. <info>(eg: Acme.Blog)</info>}
         {name : The name of the controller. Eg: Posts}
         {--model= : Define which model name to use, otherwise the singular controller name is used.}
         {--no-form : Do not implement a form for this controller}

@@ -67,7 +67,12 @@ class Dongle
     }
 
     /**
-     * parseValues will protect parameter values by quoting them or handling safe values.
+     * parseValues will protect parameter values by quoting them or handling safe values. Eg:
+     *
+     *     username = :value   → username = 'foobar'
+     *     username = :value%  → username = 'foobar%'
+     *     username = %:value  → username = '%foobar'
+     *     username = %:value% → username = '%foobar%'
      */
     public function parseValues(string $sql, array $data, array $paramNames)
     {
@@ -76,20 +81,29 @@ class Dongle
         foreach ($paramNames as $param) {
             $parsedValue = array_key_exists($param, $data) ? $data[$param] : null;
 
-            if (is_null($parsedValue)) {
-                $parsedValue = 'NULL';
-            }
-            elseif (is_string($parsedValue)) {
-                $parsedValue = $this->db->getPdo()->quote($parsedValue);
-            }
-            elseif (is_numeric($parsedValue)) {
-                $parsedValue = +$parsedValue;
+            if (is_string($parsedValue)) {
+                $pdo = $this->db->getPdo();
+                $toReplace['%:'.$param.'%'] = $pdo->quote('%'.$parsedValue.'%');
+                $toReplace['%:'.$param] = $pdo->quote('%'.$parsedValue);
+                $toReplace[':'.$param.'%'] = $pdo->quote($parsedValue.'%');
+                $toReplace[':'.$param] = $pdo->quote($parsedValue);
             }
             else {
-                $parsedValue = "''";
-            }
+                if (is_null($parsedValue)) {
+                    $parsedValue = 'NULL';
+                }
+                elseif (is_numeric($parsedValue)) {
+                    $parsedValue = +$parsedValue;
+                }
+                else {
+                    $parsedValue = "''";
+                }
 
-            $toReplace[':'.$param] = $parsedValue;
+                $toReplace['%:'.$param.'%'] = $parsedValue;
+                $toReplace['%:'.$param] = $parsedValue;
+                $toReplace[':'.$param.'%'] = $parsedValue;
+                $toReplace[':'.$param] = $parsedValue;
+            }
         }
 
         return strtr($sql, $toReplace);
