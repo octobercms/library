@@ -174,7 +174,9 @@ trait Validation
         }
 
         // Allows validation of nested attributes
-        return $this->$relationName;
+        return $this->isRelationTypeSingular($relationName)
+            ? $this->$relationName
+            : $this->getRelationValue($relationName);
     }
 
     /**

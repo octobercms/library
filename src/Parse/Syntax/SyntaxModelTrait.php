@@ -35,7 +35,7 @@ trait SyntaxModelTrait
             }
 
             if ($params['type'] === 'fileupload') {
-                $this->attachOne[$field] = 'System\Models\File';
+                $this->attachOne[$field] = \System\Models\File::class;
             }
         }
     }

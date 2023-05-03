@@ -32,7 +32,7 @@ trait HasRelationships
      * that make the class file less cluttered.
      *
      * It should be declared with keys as the relation name, and value being a mixed array.
-     * The relation type $morphTo does not include a classname as the first value.
+     * The relation type $morphTo does not include a class name as the first value.
      *
      * Example:
      * class Order extends Model
