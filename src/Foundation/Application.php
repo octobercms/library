@@ -79,11 +79,11 @@ class Application extends ApplicationBase
      * publicPath gets the path to the public / web directory
      * @return string
      */
-    public function publicPath()
+    public function publicPath($path = '')
     {
         return $this->hasPublicFolder()
-            ? $this->basePath.DIRECTORY_SEPARATOR.'public'
-            : $this->basePath;
+                ? $this->joinPaths($this->basePath('public'), $path)
+                : $this->joinPaths($this->basePath, $path);
     }
 
     /**
@@ -91,7 +91,7 @@ class Application extends ApplicationBase
      */
     public function hasPublicFolder()
     {
-        return file_exists($this->basePath.DIRECTORY_SEPARATOR.'public');
+        return file_exists($this->basePath('public'));
     }
 
     /**
@@ -101,8 +101,7 @@ class Application extends ApplicationBase
      */
     public function langPath($path = '')
     {
-        return ($this->langPath ?: $this->path().DIRECTORY_SEPARATOR.'lang')
-            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
+        return $this->joinPaths($this->langPath ?: $this->basePath('lang'), $path);
     }
 
     /**
@@ -112,8 +111,7 @@ class Application extends ApplicationBase
      */
     public function storagePath($path = '')
     {
-        return ($this->storagePath ?: $this->basePath.DIRECTORY_SEPARATOR.'storage')
-            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
+        return $this->joinPaths($this->storagePath ?: $this->basePath('storage'), $path);
     }
 
     /**
@@ -123,8 +121,7 @@ class Application extends ApplicationBase
      */
     public function cachePath($path = '')
     {
-        return ($this->cachePath ?: $this->basePath.DIRECTORY_SEPARATOR.'storage')
-            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
+        return $this->joinPaths($this->cachePath ?: $this->basePath('storage'), $path);
     }
 
     /**
@@ -150,8 +147,7 @@ class Application extends ApplicationBase
      */
     public function pluginsPath($path = '')
     {
-        return ($this->pluginsPath ?: $this->basePath.DIRECTORY_SEPARATOR.'plugins')
-            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
+        return $this->joinPaths($this->pluginsPath ?: $this->basePath('plugins'), $path);
     }
 
     /**
@@ -175,8 +171,7 @@ class Application extends ApplicationBase
      */
     public function themesPath($path = '')
     {
-        return ($this->themesPath ?: $this->basePath.DIRECTORY_SEPARATOR.'themes')
-            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
+        return $this->joinPaths($this->themesPath ?: $this->basePath('themes'), $path);
     }
 
     /**
@@ -200,8 +195,7 @@ class Application extends ApplicationBase
      */
     public function tempPath($path = ''): string
     {
-        return ($this->cachePath().DIRECTORY_SEPARATOR.'temp')
-            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
+        return $this->joinPaths($this->cachePath('temp'), $path);
     }
 
     /**
@@ -213,12 +207,26 @@ class Application extends ApplicationBase
     protected function normalizeCachePath($key, $default)
     {
         if (is_null($env = Env::get($key))) {
-            return $this->cachePath().DIRECTORY_SEPARATOR.$default;
+            return $this->cachePath($default);
         }
 
         return Str::startsWith($env, '/')
             ? $env
             : $this->basePath($env);
+    }
+
+    /**
+     * joinPaths together
+     *
+     * @todo Can be removed if Laravel >= 10
+     *
+     * @param  string  $basePath
+     * @param  string  $path
+     * @return string
+     */
+    public function joinPaths($basePath, $path = '')
+    {
+        return $basePath.($path != '' ? DIRECTORY_SEPARATOR.ltrim($path, DIRECTORY_SEPARATOR) : '');
     }
 
     /**
