@@ -118,7 +118,7 @@ trait DeferOneOrMany
      */
     protected function getWithDeferredQualifiedKeyName()
     {
-        return $this->parent->getConnection()->raw(
+        return DbDongle::rawValue(
             DbDongle::getTablePrefix() . $this->related->getQualifiedKeyName()
         );
     }

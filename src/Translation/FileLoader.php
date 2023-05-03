@@ -19,6 +19,8 @@ class FileLoader extends FileLoaderBase
 
     /**
      * @var array paths are used by default for the loader.
+     *
+     * @todo Can be removed if Laravel >= 10
      */
     protected $paths;
 

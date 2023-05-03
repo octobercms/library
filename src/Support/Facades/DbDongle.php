@@ -5,8 +5,9 @@ use October\Rain\Support\Facade;
 /**
  * DbDongle
  *
- * @method static mixed raw(string $sql)
- * @method static string parse(string $sql)
+ * @method static mixed raw(string $sql, array $params = null)
+ * @method static string rawValue(string $sql)
+ * @method static string parse(string $sql, array $params = null)
  * @method static string parseGroupConcat(string $sql)
  * @method static string parseConcat(string $sql)
  * @method static string parseIfNull(string $sql)
