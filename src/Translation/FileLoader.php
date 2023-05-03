@@ -11,17 +11,34 @@ use Illuminate\Translation\FileLoader as FileLoaderBase;
 class FileLoader extends FileLoaderBase
 {
     /**
+     * @var string path is a single path for the loader.
+     *
+     * @todo Can be removed if Laravel >= 10
+     */
+    protected $path;
+
+    /**
+     * @var array paths are used by default for the loader.
+     */
+    protected $paths;
+
+    /**
      * loadNamespaceOverrides loads a local namespaced translation group for overrides
      */
     protected function loadNamespaceOverrides(array $lines, $locale, $group, $namespace)
     {
-        $namespace = str_replace('.', '/', $namespace);
-        $file = "{$this->path}/{$namespace}/{$locale}/{$group}.php";
+        $paths = (array) $this->path ?: $this->paths;
 
-        if ($this->files->exists($file)) {
-            return array_replace_recursive($lines, $this->files->getRequire($file));
-        }
+        return collect($paths)
+            ->reduce(function ($output, $path) use ($lines, $locale, $group, $namespace) {
+                $namespace = str_replace('.', '/', $namespace);
+                $file = "{$path}/{$namespace}/{$locale}/{$group}.php";
 
-        return $lines;
+                if ($this->files->exists($file)) {
+                    return array_replace_recursive($lines, $this->files->getRequire($file));
+                }
+
+                return $lines;
+            }, []);
     }
 }
