@@ -261,9 +261,7 @@ class Application extends ApplicationBase
     }
 
     /**
-     * fatal registers an error handler for fatal errors.
-     * @param  \Closure  $callback
-     * @return void
+     * @deprecated use App::error with an Error exception type
      */
     public function fatal(callable $callback)
     {
