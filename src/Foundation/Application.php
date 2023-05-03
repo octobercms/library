@@ -15,6 +15,7 @@ use Carbon\Laravel\ServiceProvider as CarbonServiceProvider;
 use Illuminate\Support\Env;
 use Throwable;
 use Closure;
+use Error;
 
 /**
  * Application foundation class as an extension of Laravel
@@ -254,9 +255,9 @@ class Application extends ApplicationBase
      * @param  \Closure  $callback
      * @return void
      */
-    public function error(Closure $callback)
+    public function error(callable $callback)
     {
-        $this->make(\Illuminate\Contracts\Debug\ExceptionHandler::class)->error($callback);
+        $this->make(\Illuminate\Contracts\Debug\ExceptionHandler::class)->renderable($callback);
     }
 
     /**
@@ -264,10 +265,10 @@ class Application extends ApplicationBase
      * @param  \Closure  $callback
      * @return void
      */
-    public function fatal(Closure $callback)
+    public function fatal(callable $callback)
     {
-        $this->error(function ($e) use ($callback) {
-            return call_user_func($callback, $e);
+        $this->error(function(Error $e) use ($callback) {
+            return $callback($e);
         });
     }
 
