@@ -13,9 +13,23 @@ use ReflectionClass;
 class Updater
 {
     /**
+     * @var bool skippingErrors determines if exceptions should be thrown
+     */
+    protected static $skippingErrors = false;
+
+    /**
      * @var array requiredPathCache paths that have already been required.
      */
     protected static $requiredPathCache = [];
+
+    /**
+     * skipErrors will continue through exceptions
+     * @param  bool  $state
+     */
+    public static function skipErrors($state = true)
+    {
+        static::$skippingErrors = $state;
+    }
 
     /**
      * setUp a migration or seed file.
@@ -101,7 +115,14 @@ class Updater
      */
     protected function runMethod($migration, $method)
     {
-        $migration->{$method}();
+        try {
+            $migration->{$method}();
+        }
+        catch (Exception $ex) {
+            if (!static::$skippingErrors) {
+                throw $ex;
+            }
+        }
     }
 
     /**
