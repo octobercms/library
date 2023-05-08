@@ -90,7 +90,7 @@ class ExceptionBase extends Exception
      */
     public function getNiceFile()
     {
-        return str_replace(base_path(), '~', $this->getFile());
+        return File::nicePath($this->getFile());
     }
 
     /**
