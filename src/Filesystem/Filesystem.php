@@ -211,6 +211,16 @@ class Filesystem extends FilesystemBase
     }
 
     /**
+     * nicePath returns a nice path that is suitable for sharing.
+     * @param  string $path
+     * @return string
+     */
+    public function nicePath($path)
+    {
+        return $this->normalizePath(str_replace(base_path(), '~', $path));
+    }
+
+    /**
      * symbolizePath converts a path using path symbol. Returns the original path if
      * no symbol is used and no default is specified.
      * @param  string $path

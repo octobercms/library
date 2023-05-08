@@ -830,13 +830,8 @@ trait NestedTree
      */
     protected function moveTo($target, $position)
     {
-        // Validate target
-        if ($target instanceof \October\Rain\Database\Model) {
-            $target->reload();
-        }
-        else {
-            $target = $this->newNestedTreeQuery()->find($target);
-        }
+        // Resolve target
+        $target = $this->resolveMoveTarget($target);
 
         // Validate move
         if (!$this->validateMove($this, $target, $position)) {
@@ -873,7 +868,7 @@ trait NestedTree
         $grammar = $connection->getQueryGrammar();
         $pdo = $connection->getPdo();
 
-        $parentId = ($position === 'child')
+        $parentId = $position === 'child'
             ? $target->getKey()
             : $target->getParentId();
 
@@ -922,6 +917,32 @@ trait NestedTree
         ;
 
         return $result;
+    }
+
+    /**
+     * resolveMoveTarget checks that the target is something usable
+     * @return \October\Rain\Database\Model|null
+     */
+    protected function resolveMoveTarget($target)
+    {
+        if ($target instanceof \Illuminate\Database\Eloquent\Model) {
+            $target = $target->getKey();
+        }
+
+        if (!$target) {
+            return null;
+        }
+
+        $query = $this->newNestedTreeQuery();
+
+        if (
+            $this->isClassInstanceOf(\October\Contracts\Database\MultisiteInterface::class) &&
+            $this->isMultisiteEnabled()
+        ) {
+            return $query->applyOtherSiteRoot($target)->first();
+        }
+
+        return $query->find($target);
     }
 
     /**
