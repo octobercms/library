@@ -12,6 +12,21 @@ use voku\helper\ASCII;
 class Str extends StrHelper
 {
     /**
+     * slug adds extra sugar to convert slashes to separators
+     *
+     * @param  string  $title
+     * @param  string  $separator
+     * @param  string|null  $language
+     * @param  array<string, string>  $dictionary
+     * @return string
+     */
+    public static function slug($title, $separator = '-', $language = 'en', $dictionary = ['@' => 'at'])
+    {
+        $title = str_replace(['\\', '/'], ' ', (string) $title);
+
+        return parent::slug($title, $separator, $language, $dictionary);
+    }
+    /**
      * ascii applies transliterate when the language is not found
      *
      * @param  string  $value

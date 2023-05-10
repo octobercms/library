@@ -9,7 +9,7 @@ use Illuminate\Support\MessageBag;
 use Exception;
 
 /**
- * Validation
+ * Validation trait for models
  *
  * @package october\database
  * @author Alexey Bobkov, Samuel Georges
@@ -89,7 +89,7 @@ trait Validation
     }
 
     /**
-     * setValidationAttributeNames programatically sets multiple validation attribute names
+     * setValidationAttributeNames programmatically sets multiple validation attribute names
      * @param array $attributeNames
      */
     public function setValidationAttributeNames($attributeNames)
@@ -98,7 +98,7 @@ trait Validation
     }
 
     /**
-     * setValidationAttributeName programatically sets the validation attribute names, will take
+     * setValidationAttributeName programmatically sets the validation attribute names, will take
      * lower priority to model defined attribute names found in `$attributeNames`
      * @param string $attr
      * @param string $name
@@ -398,13 +398,13 @@ trait Validation
                 continue;
             }
 
-            // Normalize rulesets
+            // Normalize rule sets
             //
             if (!is_array($ruleParts)) {
                 $ruleParts = explode('|', $ruleParts);
             }
 
-            // Analyse each rule individually
+            // Analyze each rule individually
             //
             foreach ($ruleParts as $key => $rulePart) {
                 // Allow rule objects
