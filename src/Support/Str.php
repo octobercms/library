@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Support;
 
 use Illuminate\Support\Str as StrHelper;
+use voku\helper\ASCII;
 
 /**
  * Str helper
@@ -11,18 +12,15 @@ use Illuminate\Support\Str as StrHelper;
 class Str extends StrHelper
 {
     /**
-     * slug adds a transliterate step since we want to avoid empty strings and
-     * Laravel doesn't do this by default for some reason.
+     * ascii applies transliterate when the language is not found
      *
-     * @param  string  $title
-     * @param  string  $separator
-     * @param  string|null  $language
-     * @param  array<string, string>  $dictionary
+     * @param  string  $value
+     * @param  string  $language
      * @return string
      */
-    public static function slug($title, $separator = '-', $language = 'en', $dictionary = ['@' => 'at'])
+    public static function ascii($value, $language = 'en')
     {
-        return parent::slug(static::transliterate($title), $separator, $language, $dictionary);
+        return ASCII::to_ascii((string) $value, $language, true, false, true);
     }
 
     /**
