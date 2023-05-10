@@ -168,13 +168,25 @@ trait NestedTree
     public function moveToNewParent()
     {
         $parentId = $this->moveToNewParentId;
+        if ($parentId === false) {
+            return;
+        }
 
         if ($parentId === null) {
             $this->makeRoot();
+            return;
         }
-        elseif ($parentId !== false) {
-            $this->makeChildOf($parentId);
+
+        $parentModel = $this->resolveMoveTarget($parentId);
+        if ($parentModel) {
+            $this->makeChildOf($parentModel);
+            return;
         }
+
+        // Nullify parent since nothing valid was found
+        $this->newNestedTreeQuery()
+            ->where($this->getKeyName(), $this->getKey())
+            ->update([$this->getParentColumnName() => null]);
     }
 
     /**
@@ -830,8 +842,13 @@ trait NestedTree
      */
     protected function moveTo($target, $position)
     {
-        // Resolve target
-        $target = $this->resolveMoveTarget($target);
+        // Validate target
+        if ($target instanceof \October\Rain\Database\Model) {
+            $target->reload();
+        }
+        else {
+            $target = $this->resolveMoveTarget($target);
+        }
 
         // Validate move
         if (!$this->validateMove($this, $target, $position)) {
@@ -920,29 +937,21 @@ trait NestedTree
     }
 
     /**
-     * resolveMoveTarget checks that the target is something usable
+     * resolveMoveTarget
      * @return \October\Rain\Database\Model|null
      */
-    protected function resolveMoveTarget($target)
+    protected function resolveMoveTarget($targetId)
     {
-        if ($target instanceof \Illuminate\Database\Eloquent\Model) {
-            $target = $target->getKey();
-        }
-
-        if (!$target) {
-            return null;
-        }
-
         $query = $this->newNestedTreeQuery();
 
         if (
             $this->isClassInstanceOf(\October\Contracts\Database\MultisiteInterface::class) &&
             $this->isMultisiteEnabled()
         ) {
-            return $query->applyOtherSiteRoot($target)->first();
+            return $query->applyOtherSiteRoot($targetId)->first();
         }
 
-        return $query->find($target);
+        return $query->find($targetId);
     }
 
     /**
