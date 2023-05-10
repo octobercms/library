@@ -69,7 +69,7 @@ trait Sluggable
 
             $slug = implode(' ', $slugArr);
             $slug = mb_substr($slug, 0, $maxLength);
-            $slug = Str::slug(Str::transliterate($slug), $this->getSluggableSeparator());
+            $slug = Str::slug($slug, $this->getSluggableSeparator());
         }
         else {
             $slug = $this->attributes[$slugAttribute] ?? '';

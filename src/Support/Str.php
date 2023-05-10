@@ -11,6 +11,21 @@ use Illuminate\Support\Str as StrHelper;
 class Str extends StrHelper
 {
     /**
+     * slug adds a transliterate step since we want to avoid empty strings and
+     * Laravel doesn't do this by default for some reason.
+     *
+     * @param  string  $title
+     * @param  string  $separator
+     * @param  string|null  $language
+     * @param  array<string, string>  $dictionary
+     * @return string
+     */
+    public static function slug($title, $separator = '-', $language = 'en', $dictionary = ['@' => 'at'])
+    {
+        return parent::slug(static::transliterate($title), $separator, $language, $dictionary);
+    }
+
+    /**
      * ordinal converts number to its ordinal English form
      *
      * This method converts 13 to 13th, 2 to 2nd ...
