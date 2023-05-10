@@ -141,7 +141,7 @@ trait Sluggable
 
     /**
      * newSluggableQuery returns a query that excludes the current record if it exists
-     * @return Builder
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     protected function newSluggableQuery()
     {
