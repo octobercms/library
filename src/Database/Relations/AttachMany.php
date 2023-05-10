@@ -87,25 +87,7 @@ class AttachMany extends MorphManyBase
     }
 
     /**
-     * getValidationValue helper for getting this relationship validation value.
-     * @return array|null
-     */
-    public function getValidationValue()
-    {
-        if ($value = $this->getSimpleValueInternal()) {
-            $files = [];
-            foreach ($value as $file) {
-                $files[] = $this->makeValidationFile($file);
-            }
-
-            return $files;
-        }
-
-        return null;
-    }
-
-    /**
-     * getSimpleValueInternal method used by `getSimpleValue` and `getValidationValue`.
+     * getSimpleValueInternal method used by `getSimpleValue`
      * @return array|null
      */
     protected function getSimpleValueInternal()
@@ -124,5 +106,22 @@ class AttachMany extends MorphManyBase
         }
 
         return $value;
+    }
+
+    /**
+     * @deprecated this method is removed in October CMS v4
+     */
+    public function getValidationValue()
+    {
+        if ($value = $this->getSimpleValueInternal()) {
+            $files = [];
+            foreach ($value as $file) {
+                $files[] = $this->makeValidationFile($file);
+            }
+
+            return $files;
+        }
+
+        return null;
     }
 }

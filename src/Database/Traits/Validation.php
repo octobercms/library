@@ -157,26 +157,64 @@ trait Validation
      */
     protected function getRelationValidationValue($relationName)
     {
-        $relationType = $this->getRelationType($relationName);
-
-        if ($relationType === 'attachOne' || $relationType === 'attachMany') {
-            return $this->$relationName()->getValidationValue();
-        }
-
-        // Looks for deferred records
+        // Locate records, with deferred logic
         if (
             $this->sessionKey &&
             !$this->relationLoaded($relationName) &&
             $this->hasDeferred($this->sessionKey, $relationName)
         ) {
             $fetchMethod = $this->isRelationTypeSingular($relationName) ? 'first' : 'get';
-            return $this->$relationName()->withDeferred($this->sessionKey)->$fetchMethod();
+            $data = $this->$relationName()->withDeferred($this->sessionKey)->$fetchMethod();
+        }
+        else {
+            $data = $this->$relationName;
         }
 
-        // Allows validation of nested attributes
-        return $this->isRelationTypeSingular($relationName)
-            ? $this->$relationName
-            : $this->getRelationValue($relationName);
+        // DRY logic to post-process validation data
+        $processValidationValue = function($value) {
+            // Attachments
+            if ($value instanceof \October\Rain\Database\Attach\File) {
+                $localPath = $value->getLocalPath();
+
+                // Exception handling for UploadedFile
+                if (file_exists($localPath)) {
+                    return new \Symfony\Component\HttpFoundation\File\UploadedFile(
+                        $localPath,
+                        $value->file_name,
+                        $value->content_type,
+                        null,
+                        true
+                    );
+                }
+
+                // Fallback to string
+                $value = $localPath;
+            }
+
+            return $value;
+        };
+
+        // Process singular
+        if ($this->isRelationTypeSingular($relationName)) {
+            return $processValidationValue($data);
+        }
+
+        // Process multi
+        if ($data instanceof \Illuminate\Support\Collection) {
+            $data = $data->all();
+        }
+
+        if (!$data || !is_array($data)) {
+            return null;
+        }
+
+        $result = [];
+
+        foreach ($data as $key => $value) {
+            $result[$key] = $processValidationValue($value);
+        }
+
+        return $result;
     }
 
     /**
