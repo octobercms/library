@@ -28,8 +28,10 @@ class SluggableTest extends TestCase
             $table->timestamps();
         });
 
-        // Mock app instance
-        App::shouldReceive('getLocale')->andReturn('en');
+        // Mock app instance for this test
+        App::swap(new class {
+            public function getLocale() { return 'en'; }
+        });
     }
 
     /**
