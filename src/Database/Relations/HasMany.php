@@ -89,8 +89,17 @@ class HasMany extends HasManyBase
         $value = null;
         $relationName = $this->relationName;
 
-        if ($relation = $this->parent->$relationName) {
-            $value = $relation->pluck($this->localKey)->all();
+        if ($this->parent->relationLoaded($relationName)) {
+            $value = $this->parent->getRelation($relationName)
+                ->pluck($this->getLocalKeyName())
+                ->all()
+            ;
+        }
+        else {
+            $value = $this->query->getQuery()
+                ->pluck($this->getLocalKeyName())
+                ->all()
+            ;
         }
 
         return $value;
