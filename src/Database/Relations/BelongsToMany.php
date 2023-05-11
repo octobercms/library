@@ -434,7 +434,7 @@ class BelongsToMany extends BelongsToManyBase
     {
         $fullKey = $this->getQualifiedRelatedKeyName();
 
-        $query = $sessionKey ? $this->withDeferred($sessionKey) : $this;
+        $query = $sessionKey ? $this->withDeferred($sessionKey) : $this->query;
 
         return $query->getQuery()->select($fullKey)->pluck($this->getRelatedKeyName());
     }
