@@ -94,17 +94,19 @@ class Updater
         }
 
         $class = $this->getClassFromFile($path);
-
         if (class_exists($class) && realpath($path) == (new ReflectionClass($class))->getFileName()) {
             return new $class;
         }
 
         $migration = static::$requiredPathCache[$path] ??= require $path;
-
         if (is_object($migration)) {
             return method_exists($migration, '__construct')
-                    ? require $path
-                    : clone $migration;
+                ? require $path
+                : clone $migration;
+        }
+
+        if (str_ends_with($class, 'class@anonymous')) {
+            throw new Exception("Anonymous class in [{$path}] could not be resolved");
         }
 
         return new $class;
@@ -182,6 +184,12 @@ class Updater
 
                 // Class opening
                 if ($tokens[$i][0] === T_CLASS && $tokens[$i-1][1] !== '::') {
+                    // Anonymous Class
+                    if ($tokens[$i-2][0] === T_NEW && $tokens[$i-4][0] === T_RETURN) {
+                        $class = 'class@anonymous';
+                        break;
+                    }
+
                     $class = $tokens[$i+2][1];
                     break;
                 }
