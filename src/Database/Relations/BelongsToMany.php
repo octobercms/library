@@ -407,9 +407,7 @@ class BelongsToMany extends BelongsToManyBase
     public function getSimpleValue()
     {
         $value = [];
-
         $relationName = $this->relationName;
-
         $sessionKey = $this->parent->sessionKey;
 
         if ($this->parent->relationLoaded($relationName)) {
