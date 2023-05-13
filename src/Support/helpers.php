@@ -176,6 +176,27 @@ if (!function_exists('traceSql')) {
     }
 }
 
+if (!function_exists('traceBack')) {
+    /**
+     * traceBack is an alias for trace_back()
+     */
+    function traceBack(int $distance = 25)
+    {
+        trace_back($distance);
+    }
+}
+
+if (!function_exists('trace_back')) {
+    /**
+     * trace_back logs a simple backtrace from the call point
+     * @return void
+     */
+    function trace_back(int $distance = 25)
+    {
+        trace_log(debug_backtrace(2, $distance));
+    }
+}
+
 if (!function_exists('plugins_path')) {
     /**
      * plugins_path gets the path to the plugins folder
