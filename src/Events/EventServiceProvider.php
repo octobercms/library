@@ -24,7 +24,7 @@ class EventServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton('events.priority', function ($app) {
-            return (new PriorityDispatcher)->setLaravelDispatcher($app['events']);
+            return (new PriorityDispatcher($app))->setLaravelDispatcher($app['events']);
         });
     }
 }
