@@ -20,11 +20,11 @@ trait HasFactory
             ->state(is_callable($count) || is_array($count) ? $count : $state);
     }
 
-    public function factoryForModel($class)
+    public static function factoryForModel(string $class)
     {
-        $class = str_replace('Models', 'Factories', $class);
+        $factory = str_replace('Models', 'Factories', $class) . 'Factory';
 
-        return static::$class.'Factory';
+        return $factory::new();
     }
 
     /**
