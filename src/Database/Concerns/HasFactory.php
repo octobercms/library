@@ -22,6 +22,8 @@ trait HasFactory
 
     public function factoryForModel($class)
     {
+        $class = str_replace('Models', 'Factories', $class);
+
         return static::$class.'Factory';
     }
 
