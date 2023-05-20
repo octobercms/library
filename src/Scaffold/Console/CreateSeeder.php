@@ -30,7 +30,7 @@ class CreateSeeder extends GeneratorCommandBase
      */
     public function makeStubs()
     {
-        $this->makeStub('seeders/seeder.stub', 'seeder/{{studly_name}}.php');
+        $this->makeStub('seeder/seeder.stub', 'seeders/{{studly_name}}.php');
     }
 
     /**
