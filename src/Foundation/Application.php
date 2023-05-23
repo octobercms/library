@@ -388,9 +388,17 @@ class Application extends ApplicationBase
     /**
      * registerClassAlias registers a new global alias, useful for facades
      */
-    public function registerClassAlias(string $key, string $class)
+    public function registerClassAlias(string $alias, string $class)
     {
-        AliasLoader::getInstance()->alias($key, $class);
+        $this->registerClassAliases([$alias => $class]);
+    }
+
+    /**
+     * registerClassAliases registers multiple global aliases, useful for renamed classes
+     */
+    public function registerClassAliases(array $aliases)
+    {
+        AliasLoader::getInstance($aliases);
     }
 
     //
