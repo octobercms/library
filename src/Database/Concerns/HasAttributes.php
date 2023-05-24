@@ -61,7 +61,7 @@ trait HasAttributes
 
     /**
      * getAttribute from the model.
-     * Overrided from {@link Eloquent} to implement recognition of the relation.
+     * Overridden from {@link Eloquent} to implement recognition of the relation.
      * @return mixed
      */
     public function getAttribute($key)
