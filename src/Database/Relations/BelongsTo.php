@@ -195,16 +195,7 @@ class BelongsTo extends BelongsToBase
     }
 
     /**
-     * getOtherKey gets the associated key of the relationship
-     * @return string
-     */
-    public function getOtherKeyName()
-    {
-        return $this->getOwnerKeyName();
-    }
-
-    /**
-     * @deprecated use getOtherKeyName
+     * @deprecated use getOwnerKeyName
      */
     public function getOtherKey()
     {

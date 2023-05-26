@@ -52,15 +52,15 @@ trait DefinedConstraints
         if (array_get($args, 'count')) {
             if ($relation instanceof BelongsToManyBase) {
                 $relation->countMode = true;
+                $keyName = $relation->getQualifiedForeignPivotKeyName();
+            }
+            else {
+                $keyName = $relation->getForeignKeyName();
             }
 
             $countSql = $this->parent->getConnection()->raw('count(*) as count');
 
-            $relation
-                ->select($relation->getForeignKey(), $countSql)
-                ->groupBy($relation->getForeignKey())
-                ->orderBy($relation->getForeignKey())
-            ;
+            $relation->select($keyName, $countSql)->groupBy($keyName)->orderBy($keyName);
         }
     }
 
