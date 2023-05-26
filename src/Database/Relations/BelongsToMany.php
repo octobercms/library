@@ -438,8 +438,7 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
-     * getForeignKey gets the fully qualified foreign key for the relation
-     * @return string
+     * @deprecated use getQualifiedForeignPivotKeyName
      */
     public function getForeignKey()
     {
@@ -447,8 +446,7 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
-     * getOtherKey gets the fully qualified "other key" for the relation
-     * @return string
+     * @deprecated use getQualifiedRelatedPivotKeyName
      */
     public function getOtherKey()
     {

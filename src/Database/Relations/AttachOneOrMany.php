@@ -373,8 +373,16 @@ trait AttachOneOrMany
     }
 
     /**
-     * getForeignKey gets the foreign key for the relationship
+     * getOtherKeyName gets the associated "other" key name of the relationship
      * @return string
+     */
+    public function getOtherKeyName()
+    {
+        return $this->getLocalKeyName();
+    }
+
+    /**
+     * @deprecated use getForeignKeyName
      */
     public function getForeignKey()
     {
@@ -382,8 +390,7 @@ trait AttachOneOrMany
     }
 
     /**
-     * getOtherKey gets the associated "other" key of the relationship
-     * @return string
+     * @deprecated use getOtherKeyName
      */
     public function getOtherKey()
     {
