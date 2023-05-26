@@ -72,7 +72,7 @@ class HasManyThrough extends HasManyThroughBase
         }
         else {
             $value = $this->query->getQuery()
-                ->pluck($this->getRelatedKeyName())
+                ->pluck($this->getQualifiedRelatedKeyName())
                 ->all()
             ;
         }
@@ -87,5 +87,14 @@ class HasManyThrough extends HasManyThroughBase
     public function getRelatedKeyName()
     {
         return $this->related->getKeyName();
+    }
+
+    /**
+     * getQualifiedRelatedKeyName
+     * @return string
+     */
+    public function getQualifiedRelatedKeyName()
+    {
+        return $this->related->getQualifiedKeyName();
     }
 }
