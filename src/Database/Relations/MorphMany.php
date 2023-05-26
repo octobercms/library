@@ -63,18 +63,23 @@ class MorphMany extends MorphManyBase
             }
         }
         else {
-            $collection = $this->getRelated()->whereIn($this->localKey, (array) $value)->get();
+            $collection = $this->getRelated()
+                ->whereIn($this->getRelatedKeyName(), (array) $value)
+                ->get()
+            ;
         }
 
         if ($collection) {
             $this->parent->setRelation($this->relationName, $collection);
 
             $this->parent->bindEventOnce('model.afterSave', function () use ($collection) {
-                $existingIds = $collection->pluck($this->localKey)->all();
-                $this->whereNotIn($this->localKey, $existingIds)->update([
+                $existingIds = $collection->pluck($this->getRelatedKeyName())->all();
+
+                $this->whereNotIn($this->getRelatedKeyName(), $existingIds)->update([
                     $this->getForeignKeyName() => null,
                     $this->getMorphType() => null
                 ]);
+
                 $collection->each(function ($instance) {
                     $instance->setAttribute($this->getForeignKeyName(), $this->getParentKey());
                     $instance->setAttribute($this->getMorphType(), $this->morphClass);

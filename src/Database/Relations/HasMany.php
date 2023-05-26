@@ -53,13 +53,16 @@ class HasMany extends HasManyBase
             $collection = $value;
 
             if ($this->parent->exists) {
-                $collection->each(function ($instance) {
+                $collection->each(function($instance) {
                     $instance->setAttribute($this->getForeignKeyName(), $this->getParentKey());
                 });
             }
         }
         else {
-            $collection = $this->getRelated()->whereIn($this->localKey, (array) $value)->get();
+            $collection = $this->getRelated()
+                ->whereIn($this->getRelatedKeyName(), (array) $value)
+                ->get()
+            ;
         }
 
         if (!$collection) {
@@ -69,9 +72,11 @@ class HasMany extends HasManyBase
         $this->parent->setRelation($this->relationName, $collection);
 
         $this->parent->bindEventOnce('model.afterSave', function() use ($collection) {
-            $existingIds = $collection->pluck($this->localKey)->all();
-            $this->whereNotIn($this->localKey, $existingIds)
-                ->update([$this->getForeignKeyName() => null]);
+            $existingIds = $collection->pluck($this->getRelatedKeyName())->all();
+
+            $this->whereNotIn($this->getRelatedKeyName(), $existingIds)->update([
+                $this->getForeignKeyName() => null
+            ]);
 
             $collection->each(function($instance) {
                 $instance->setAttribute($this->getForeignKeyName(), $this->getParentKey());
