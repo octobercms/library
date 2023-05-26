@@ -206,12 +206,12 @@ trait HasOneOrMany
     }
 
     /**
-     * getOtherKey of the relationship
+     * getRelatedKeyName
      * @return string
      */
-    public function getOtherKeyName()
+    public function getRelatedKeyName()
     {
-        return $this->getLocalKeyName();
+        return $this->related->getKeyName();
     }
 
     /**
@@ -223,7 +223,7 @@ trait HasOneOrMany
     }
 
     /**
-     * @deprecated use getOtherKeyName
+     * @deprecated use getLocalKeyName
      */
     public function getOtherKey()
     {

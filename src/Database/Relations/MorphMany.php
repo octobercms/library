@@ -95,13 +95,13 @@ class MorphMany extends MorphManyBase
 
         if ($this->parent->relationLoaded($relationName)) {
             $value = $this->parent->getRelation($relationName)
-                ->pluck($this->getLocalKeyName())
+                ->pluck($this->getRelatedKeyName())
                 ->all()
             ;
         }
         else {
             $value = $this->query->getQuery()
-                ->pluck($this->getLocalKeyName())
+                ->pluck($this->getRelatedKeyName())
                 ->all()
             ;
         }
