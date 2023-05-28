@@ -12,7 +12,7 @@ class StylesheetMinifyTest extends TestCase
         $output = 'body{width:calc(99.9% * 1/1 - 0px);height:0px}';
 
         $mockAsset = new MockAsset($input);
-        $result    = new StylesheetMinify();
+        $result = new StylesheetMinify();
         $result->filterDump($mockAsset);
 
         $this->assertEquals($output, $mockAsset->getContent());
@@ -40,7 +40,7 @@ class StylesheetMinifyTest extends TestCase
         $output = '.view{}';
 
         $mockAsset = new MockAsset($input);
-        $result    = new StylesheetMinify();
+        $result = new StylesheetMinify();
         $result->filterDump($mockAsset);
 
         $this->assertEquals($output, $mockAsset->getContent());
@@ -57,7 +57,7 @@ class StylesheetMinifyTest extends TestCase
         $output = 'body{background:blue}/**/.view{color:red}';
 
         $mockAsset = new MockAsset($input);
-        $result    = new StylesheetMinify();
+        $result = new StylesheetMinify();
         $result->filterDump($mockAsset);
 
         $this->assertEquals($output, $mockAsset->getContent());
@@ -81,7 +81,7 @@ class StylesheetMinifyTest extends TestCase
         $output = 'body{}';
 
         $mockAsset = new MockAsset($input);
-        $result    = new StylesheetMinify();
+        $result = new StylesheetMinify();
         $result->filterDump($mockAsset);
 
         $this->assertEquals($output, $mockAsset->getContent());
@@ -93,7 +93,7 @@ class StylesheetMinifyTest extends TestCase
         $output = '--ring-inset:var(--empty,/*!*/ /*!*/);';
 
         $mockAsset = new MockAsset($input);
-        $result    = new StylesheetMinify();
+        $result = new StylesheetMinify();
         $result->filterDump($mockAsset);
 
         $this->assertEquals($output, $mockAsset->getContent());
@@ -111,7 +111,7 @@ class StylesheetMinifyTest extends TestCase
         $output = 'select:focus{--ring-inset:var(--empty,/*!*/ /*!*/);--ring-offset-width:0px;--ring-offset-color:#fff;border-color:red}';
 
         $mockAsset = new MockAsset($input);
-        $result    = new StylesheetMinify();
+        $result = new StylesheetMinify();
         $result->filterDump($mockAsset);
 
         $this->assertEquals($output, $mockAsset->getContent());
@@ -123,7 +123,7 @@ class StylesheetMinifyTest extends TestCase
         $output = '--offset-width:0px';
 
         $mockAsset = new MockAsset($input);
-        $result    = new StylesheetMinify();
+        $result = new StylesheetMinify();
         $result->filterDump($mockAsset);
 
         $this->assertEquals($output, $mockAsset->getContent());
@@ -144,7 +144,23 @@ class StylesheetMinifyTest extends TestCase
         $output = '[class^="icon-"]:before,[class*=" icon-"]:before{speak:none}.icon-large:before{speak:initial}';
 
         $mockAsset = new MockAsset($input);
-        $result    = new StylesheetMinify();
+        $result = new StylesheetMinify();
+        $result->filterDump($mockAsset);
+
+        $this->assertEquals($output, $mockAsset->getContent());
+    }
+
+    public function testSourceMappingUrlWithSpecialComment()
+    {
+        $input = ''.
+            '/*! keep me */*,:after,:before { opacity: 1; }body {background: purple;}
+
+            /*# sourceMappingUrl*/';
+
+        $output = '/*! keep me */*,:after,:before{opacity:1}body{background:purple}';
+
+        $mockAsset = new MockAsset($input);
+        $result = new StylesheetMinify();
         $result->filterDump($mockAsset);
 
         $this->assertEquals($output, $mockAsset->getContent());

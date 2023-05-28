@@ -88,7 +88,7 @@ class HasOne extends HasOneBase
         $relationName = $this->relationName;
 
         if ($related = $this->parent->{$relationName}) {
-            $key = $this->getLocalKeyName();
+            $key = $this->getRelatedKeyName();
             $value = $related->{$key};
         }
 

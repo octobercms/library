@@ -34,6 +34,10 @@ class StylesheetMinify implements FilterInterface
         // Remove spaces before and after comment
         $css = preg_replace('/(\s+)(\/\*[^!](.*?)\*\/)(\s+)/', '$2', $css);
 
+        // Add a space after retained /*! comments to prevent valid CSS from appearing as a
+        // removable comment, eg: /*! keepme */*,:after{content:'nuked'}/*another comment*/
+        $css = preg_replace('#(/\*!.*?\*/)(\*)#s', '$1 $2', $css);
+
         // Remove comment blocks, everything between /* and */, ignore /*! comments
         $css = preg_replace('#/\*[^\!].*?\*/#s', '', $css);
 
@@ -53,7 +57,7 @@ class StylesheetMinify implements FilterInterface
         // -6.0100em to -6.01em, .0100 to .01, 1.200px to 1.2px
         $css = preg_replace('/((?<!\\\\)\:|\s)(\-?)(\d?\.\d+?)0+([^\d])/S', '$1$2$3$4', $css);
 
-        // Shortern 6-character hex color codes to 3-character where possible
+        // Shorten 6-character hex color codes to 3-character where possible
         $css = preg_replace('/#([a-f0-9])\\1([a-f0-9])\\2([a-f0-9])\\3/i', '#\1\2\3', $css);
 
         return trim($css);

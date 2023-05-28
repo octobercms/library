@@ -186,4 +186,13 @@ trait MorphOneOrMany
             ((string) $model->getAttribute($this->getForeignKeyName()) === (string) $this->getParentKey()) &&
             $model->getAttribute($this->getMorphType()) === $this->morphClass;
     }
+
+    /**
+     * getRelatedKeyName
+     * @return string
+     */
+    public function getRelatedKeyName()
+    {
+        return $this->related->getKeyName();
+    }
 }

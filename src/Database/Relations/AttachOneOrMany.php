@@ -338,24 +338,6 @@ trait AttachOneOrMany
     }
 
     /**
-     * getForeignKey gets the foreign key for the relationship
-     * @return string
-     */
-    public function getForeignKey()
-    {
-        return $this->foreignKey;
-    }
-
-    /**
-     * getOtherKey gets the associated "other" key of the relationship
-     * @return string
-     */
-    public function getOtherKey()
-    {
-        return $this->localKey;
-    }
-
-    /**
      * @deprecated this method is removed in October CMS v4
      */
     public function makeValidationFile($value)
@@ -383,5 +365,21 @@ trait AttachOneOrMany
          */
 
         return $value;
+    }
+
+    /**
+     * @deprecated use getForeignKeyName
+     */
+    public function getForeignKey()
+    {
+        return $this->foreignKey;
+    }
+
+    /**
+     * @deprecated use getLocalKeyName
+     */
+    public function getOtherKey()
+    {
+        return $this->localKey;
     }
 }

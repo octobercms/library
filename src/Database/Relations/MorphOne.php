@@ -97,7 +97,7 @@ class MorphOne extends MorphOneBase
         $relationName = $this->relationName;
 
         if ($related = $this->parent->$relationName) {
-            $key = $this->getLocalKeyName();
+            $key = $this->getRelatedKeyName();
             $value = $related->{$key};
         }
 
