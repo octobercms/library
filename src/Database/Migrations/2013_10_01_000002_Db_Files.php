@@ -15,14 +15,14 @@ return new class extends Migration
             $table->string('content_type');
             $table->string('title')->nullable();
             $table->text('description')->nullable();
-            $table->string('field')->nullable()->index();
+            $table->string('field')->nullable();
             $table->integer('attachment_id')->nullable();
             $table->string('attachment_type')->nullable();
             $table->boolean('is_public')->default(true);
             $table->integer('sort_order')->nullable();
             $table->timestamps();
 
-            $table->index(['attachment_id', 'attachment_type'], 'files_master_index');
+            $table->index(['attachment_id', 'attachment_type', 'field'], 'files_master_index');
         });
     }
 
