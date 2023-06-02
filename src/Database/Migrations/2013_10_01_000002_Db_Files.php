@@ -22,7 +22,7 @@ return new class extends Migration
             $table->integer('sort_order')->nullable();
             $table->timestamps();
 
-            $table->index(['attachment_id', 'attachment_type', 'field'], 'files_master_index');
+            $table->index(['attachment_type', 'attachment_id', 'field'], 'files_master_index');
         });
     }
 
