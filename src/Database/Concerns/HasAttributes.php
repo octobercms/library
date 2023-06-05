@@ -231,6 +231,24 @@ trait HasAttributes
     }
 
     /**
+     * getDates returns the attributes that should be converted to dates.
+     * @return array
+     */
+    public function getDates()
+    {
+        if (!$this->usesTimestamps()) {
+            return $this->dates;
+        }
+
+        $defaults = [
+            $this->getCreatedAtColumn(),
+            $this->getUpdatedAtColumn(),
+        ];
+
+        return array_unique(array_merge($this->dates, $defaults));
+    }
+
+    /**
      * addDateAttribute adds a datetime attribute to convert to an instance
      * of Carbon/DateTime object.
      * @param string   $attribute
