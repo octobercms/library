@@ -30,8 +30,6 @@ class Handler extends ExceptionHandler
         \October\Rain\Exception\ForbiddenException::class,
         \October\Rain\Exception\ValidationException::class,
         \October\Rain\Exception\ApplicationException::class,
-        \Illuminate\Database\Eloquent\ModelNotFoundException::class,
-        \Symfony\Component\HttpKernel\Exception\HttpException::class,
     ];
 
     /**
