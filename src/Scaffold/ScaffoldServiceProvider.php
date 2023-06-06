@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Scaffold;
 
 use October\Rain\Scaffold\Console\CreateCommand;
+use October\Rain\Scaffold\Console\CreateFactory;
 use October\Rain\Scaffold\Console\CreatePlugin;
 use October\Rain\Scaffold\Console\CreateModel;
 use October\Rain\Scaffold\Console\CreateMigration;
@@ -10,6 +11,7 @@ use October\Rain\Scaffold\Console\CreateFormWidget;
 use October\Rain\Scaffold\Console\CreateReportWidget;
 use October\Rain\Scaffold\Console\CreateFilterWidget;
 use October\Rain\Scaffold\Console\CreateContentField;
+use October\Rain\Scaffold\Console\CreateSeeder;
 use October\Rain\Scaffold\Console\CreateTest;
 use October\Rain\Scaffold\Console\CreateJob;
 use Illuminate\Contracts\Support\DeferrableProvider;
@@ -41,6 +43,8 @@ class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvi
         $this->app->singleton('command.create.command', CreateCommand::class);
         $this->app->singleton('command.create.test', CreateTest::class);
         $this->app->singleton('command.create.job', CreateJob::class);
+        $this->app->singleton('command.create.factory', CreateFactory::class);
+        $this->app->singleton('command.create.seeder', CreateSeeder::class);
 
         $this->commands('command.create.plugin');
         $this->commands('command.create.model');
@@ -54,6 +58,8 @@ class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvi
         $this->commands('command.create.command');
         $this->commands('command.create.test');
         $this->commands('command.create.job');
+        $this->commands('command.create.factory');
+        $this->commands('command.create.seeder');
     }
 
     /**
@@ -73,7 +79,10 @@ class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvi
             'command.create.filterwidget',
             'command.create.contentfield',
             'command.create.command',
-            'command.create.job'
+            'command.create.test',
+            'command.create.job',
+            'command.create.factory',
+            'command.create.seeder',
         ];
     }
 }
