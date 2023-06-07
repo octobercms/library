@@ -1,4 +1,4 @@
-<?php namespace {{namespace_php}}\Seeders;
+<?php namespace {{namespace_php}}\Updates;
 
 use Seeder;
 
