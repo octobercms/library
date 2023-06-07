@@ -1,16 +1,16 @@
-<?php
+<?php namespace {{namespace_php}}\Seeders;
 
-namespace {{namespace_php}}\Seeders;
+use Seeder;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-
+/**
+ * {{studly_name}}
+ */
 class {{studly_name}} extends Seeder
 {
     /**
-     * Run the database seeds.
+     * run the database seeds.
      */
-    public function run(): void
+    public function run()
     {
         //
     }

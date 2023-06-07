@@ -1,17 +1,17 @@
-<?php
+<?php namespace {{namespace_php}}\Factories;
 
-namespace {{namespace_php}}\Factories;
+use October\Rain\Database\Factories\Factory;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-
+/**
+ * {{studly_name}}
+ */
 class {{studly_name}} extends Factory
 {
     /**
-     * Define the model's default state.
-     *
+     * definition for the default state.
      * @return array<string, mixed>
      */
-    public function definition(): array
+    public function definition()
     {
         return [
             //

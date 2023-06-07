@@ -1,11 +1,15 @@
-<?php namespace October\Rain\Database\Concerns;
+<?php namespace October\Rain\Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-
+/**
+ * HasFactory implements factory support for a model
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges, Samuell
+ */
 trait HasFactory
 {
     /**
-     * Get a new factory instance for the model.
+     * factory gets a new factory instance for the model.
      *
      * @param  callable|array|int|null  $count
      * @param  callable|array  $state
@@ -20,15 +24,18 @@ trait HasFactory
             ->state(is_callable($count) || is_array($count) ? $count : $state);
     }
 
-    public static function factoryForModel(string $class)
+    /**
+     * factoryForModel guesses a factory class based on the model class
+     */
+    protected static function factoryForModel(string $modelName)
     {
-        $factory = str_replace('Models', 'Factories', $class) . 'Factory';
+        $factory = str_replace('Models\\', 'Factories\\', $modelName) . 'Factory';
 
         return $factory::new();
     }
 
     /**
-     * Create a new factory instance for the model.
+     * newFactory creates a new factory instance for the model.
      *
      * @return \Illuminate\Database\Eloquent\Factories\Factory<static>
      */
