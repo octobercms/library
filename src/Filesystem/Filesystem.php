@@ -217,7 +217,10 @@ class Filesystem extends FilesystemBase
      */
     public function nicePath($path)
     {
-        return $this->normalizePath(str_replace(base_path(), '~', $path));
+        return $this->normalizePath(str_replace([
+            base_path(),
+            $this->normalizePath(base_path())
+        ], '~', $path));
     }
 
     /**
