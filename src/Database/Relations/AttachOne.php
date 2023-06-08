@@ -67,27 +67,14 @@ class AttachOne extends MorphOneBase
      */
     public function getSimpleValue()
     {
-        if ($value = $this->getSimpleValueInternal()) {
-            return $value->getPath();
-        }
-
-        return null;
-    }
-
-    /**
-     * getSimpleValueInternal method used by `getSimpleValue` and `getValidationValue`.
-     * @return Model|null
-     */
-    protected function getSimpleValueInternal()
-    {
         $value = null;
+        $relationName = $this->relationName;
 
-        $file = ($sessionKey = $this->parent->sessionKey)
-            ? $this->withDeferred($sessionKey)->first()
-            : $this->parent->{$this->relationName};
-
-        if ($file) {
-            $value = $file;
+        if ($this->parent->relationLoaded($relationName)) {
+            $value = $this->parent->getRelation($relationName);
+        }
+        else {
+            $value = $this->getResults();
         }
 
         return $value;
@@ -103,5 +90,23 @@ class AttachOne extends MorphOneBase
         }
 
         return null;
+    }
+
+    /**
+     * @deprecated this method is removed in October CMS v4
+     */
+    protected function getSimpleValueInternal()
+    {
+        $value = null;
+
+        $file = ($sessionKey = $this->parent->sessionKey)
+            ? $this->withDeferred($sessionKey)->first()
+            : $this->parent->{$this->relationName};
+
+        if ($file) {
+            $value = $file;
+        }
+
+        return $value;
     }
 }

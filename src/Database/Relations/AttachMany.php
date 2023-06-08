@@ -73,36 +73,20 @@ class AttachMany extends MorphManyBase
     public function getSimpleValue()
     {
         $value = null;
+        $relationName = $this->relationName;
 
-        $files = $this->getSimpleValueInternal();
+        if ($this->parent->relationLoaded($relationName)) {
+            $files = $this->parent->getRelation($relationName);
+        }
+        else {
+            $files = $this->getResults();
+        }
 
         if ($files) {
             $value = [];
             foreach ($value as $file) {
                 $value[] = $file->getPath();
             }
-        }
-
-        return $value;
-    }
-
-    /**
-     * getSimpleValueInternal method used by `getSimpleValue`
-     * @return array|null
-     */
-    protected function getSimpleValueInternal()
-    {
-        $value = null;
-
-        $files = ($sessionKey = $this->parent->sessionKey)
-            ? $this->withDeferred($sessionKey)->get()
-            : $this->parent->{$this->relationName};
-
-        if ($files) {
-            $value = [];
-            $files->each(function ($file) use (&$value) {
-                $value[] = $file;
-            });
         }
 
         return $value;
@@ -123,5 +107,26 @@ class AttachMany extends MorphManyBase
         }
 
         return null;
+    }
+
+    /**
+     * @deprecated this method is removed in October CMS v4
+     */
+    protected function getSimpleValueInternal()
+    {
+        $value = null;
+
+        $files = ($sessionKey = $this->parent->sessionKey)
+            ? $this->withDeferred($sessionKey)->get()
+            : $this->parent->{$this->relationName};
+
+        if ($files) {
+            $value = [];
+            $files->each(function ($file) use (&$value) {
+                $value[] = $file;
+            });
+        }
+
+        return $value;
     }
 }

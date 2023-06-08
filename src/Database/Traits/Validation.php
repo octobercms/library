@@ -284,7 +284,6 @@ trait Validation
         }
 
         // Perform validation
-        //
         $rules = is_null($rules) ? $this->rules : $rules;
         $rules = $this->processValidationRules($rules);
         $success = true;
@@ -299,10 +298,7 @@ trait Validation
 
             // Add relation values, if specified.
             foreach ($rules as $attribute => $rule) {
-                if (
-                    !$this->hasRelation($attribute) ||
-                    array_key_exists($attribute, $data)
-                ) {
+                if (!$this->hasRelation($attribute) || array_key_exists($attribute, $data)) {
                     continue;
                 }
 
@@ -312,7 +308,6 @@ trait Validation
             // Compatibility with Hashable trait
             // Remove all hashable values regardless, add the original values back
             // only if they are part of the data being validated.
-            //
             if (method_exists($this, 'getHashableAttributes')) {
                 $cleanAttributes = array_diff_key($data, array_flip($this->getHashableAttributes()));
                 $hashedAttributes = array_intersect_key($this->getOriginalHashValues(), $data);
@@ -322,7 +317,6 @@ trait Validation
             // Compatibility with Encryptable trait
             // Remove all encryptable values regardless, add the original values back
             // only if they are part of the data being validated.
-            //
             if (method_exists($this, 'getEncryptableAttributes')) {
                 $cleanAttributes = array_diff_key($data, array_flip($this->getEncryptableAttributes()));
                 $encryptedAttributes = array_intersect_key($this->getOriginalEncryptableValues(), $data);
@@ -330,7 +324,6 @@ trait Validation
             }
 
             // Custom messages, translate internal references
-            //
             if (property_exists($this, 'customMessages') && is_null($customMessages)) {
                 $customMessages = $this->customMessages;
             }
@@ -346,7 +339,6 @@ trait Validation
             $customMessages = $transCustomMessages;
 
             // Attribute names, translate internal references
-            //
             $attrNames = (array) $this->validationDefaultAttrNames;
 
             if (property_exists($this, 'attributeNames')) {
@@ -364,14 +356,12 @@ trait Validation
             $attrNames = $transAttrNames;
 
             // Translate any externally defined attribute names
-            //
             $translations = Lang::get('validation.attributes');
             if (is_array($translations)) {
                 $attrNames = array_merge($translations, $attrNames);
             }
 
             // Hand over to the validator
-            //
             $validator = self::makeValidator(
                 $data,
                 $rules,
@@ -430,20 +420,17 @@ trait Validation
 
         foreach ($rules as $field => $ruleParts) {
             // Trim empty rules
-            //
             if (is_string($ruleParts) && trim($ruleParts) === '') {
                 unset($rules[$field]);
                 continue;
             }
 
             // Normalize rule sets
-            //
             if (!is_array($ruleParts)) {
                 $ruleParts = explode('|', $ruleParts);
             }
 
             // Analyze each rule individually
-            //
             foreach ($ruleParts as $key => $rulePart) {
                 // Allow rule objects
                 if (is_object($rulePart)) {
@@ -470,9 +457,7 @@ trait Validation
 
     /**
      * processRuleFieldNames processes field names in a rule array
-     *
      * Converts any field names using array notation (ie. `field[child]`) into dot notation (ie. `field.child`)
-     *
      * @param array $rules Rules array
      * @return array
      */
