@@ -177,9 +177,9 @@ class BelongsToMany extends BelongsToManyBase
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.beforeDetach', function (string $relationName, ?array $ids) use (\October\Rain\Database\Model $model) {
-         *         foreach ($ids as $id) {
-         *             if (!$model->isRelationValid($ids)) {
+         *     $model->bindEvent('model.relation.beforeDetach', function (string $relationName, ?array $parsedIds) use (\October\Rain\Database\Model $model) {
+         *         foreach ((array) $parsedIds as $id) {
+         *             if (!$model->isRelationValid($parsedIds)) {
          *                 return false;
          *             }
          *         }
@@ -193,7 +193,7 @@ class BelongsToMany extends BelongsToManyBase
         /*
          * See \Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable
          */
-        $result = parent::detach($parsedIds, $touch);
+        $results = parent::detach($parsedIds, $touch);
 
         /**
          * @event model.relation.detach
@@ -201,14 +201,14 @@ class BelongsToMany extends BelongsToManyBase
          *
          * Example usage:
          *
-         *     $model->bindEvent('model.relation.detach', function (string $relationName, ?array $ids) use (\October\Rain\Database\Model $model) {
+         *     $model->bindEvent('model.relation.detach', function (string $relationName, ?array $parsedIds, int $results) use (\October\Rain\Database\Model $model) {
          *         foreach ($ids as $id) {
-         *             traceLog("Relation {$relationName} was removed", $ids);
+         *             traceLog("Relation {$relationName} was removed", (array) $parsedIds);
          *         }
          *     });
          *
          */
-        $this->parent->fireEvent('model.relation.detach', [$this->relationName, $parsedIds, $result]);
+        $this->parent->fireEvent('model.relation.detach', [$this->relationName, $parsedIds, $results]);
     }
 
     /**
