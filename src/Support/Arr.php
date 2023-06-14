@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Support;
 
+use Lang;
 use Illuminate\Support\Arr as ArrHelper;
 
 /**
@@ -24,5 +25,22 @@ class Arr extends ArrHelper
         }
 
         return $results;
+    }
+
+    /**
+     * trans will translate an array, usually for dropdown and checkboxlist options
+     */
+    public static function trans(array $arr): array
+    {
+        foreach ($arr as &$val) {
+            if (is_array($val)) {
+                $val = array_map([Lang::class, 'get'], $val);
+            }
+            else {
+                $val = Lang::get($val);
+            }
+        }
+
+        return $arr;
     }
 }
