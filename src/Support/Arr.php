@@ -32,14 +32,11 @@ class Arr extends ArrHelper
      */
     public static function trans(array $arr): array
     {
-        foreach ($arr as &$val) {
-            if (is_array($val)) {
-                $val = array_map([Lang::class, 'get'], $val);
+        array_walk_recursive($arr, function(&$value, $key) {
+            if (is_string($value)) {
+                $value = Lang::get($value);
             }
-            else {
-                $val = Lang::get($val);
-            }
-        }
+        });
 
         return $arr;
     }
