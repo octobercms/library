@@ -3,13 +3,7 @@
 use App;
 
 /**
- * Singleton IoC class
- *
- * A self binding, self contained single class that supports IoC.
- * Usage: myObject::instance()
- *
- * @package october\support
- * @author Alexey Bobkov, Samuel Georges
+ * @deprecated use App::singleton() with a manually built class
  */
 class Singleton
 {
