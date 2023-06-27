@@ -28,6 +28,6 @@ class Site extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'site.manager';
+        return 'system.sites';
     }
 }
