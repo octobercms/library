@@ -19,38 +19,69 @@ class Extendable
     use ExtendableTrait;
 
     /**
-     * @var array Extensions implemented by this class.
+     * @var array implement extensions for this class.
      */
     public $implement = [];
 
     /**
-     * Constructor
+     * __construct the extendable class
      */
     public function __construct()
     {
         $this->extendableConstruct();
     }
 
+    /**
+     * __get an undefined property
+     */
     public function __get($name)
     {
         return $this->extendableGet($name);
     }
 
+    /**
+     * __set an undefined property
+     */
     public function __set($name, $value)
     {
         $this->extendableSet($name, $value);
     }
 
+    /**
+     * __call calls an undefined local method
+     */
     public function __call($name, $params)
     {
         return $this->extendableCall($name, $params);
     }
 
+    /**
+     * __callStatic calls an undefined static method
+     */
     public static function __callStatic($name, $params)
     {
         return self::extendableCallStatic($name, $params);
     }
 
+    /**
+     * __sleep prepare the object for serialization.
+     */
+    public function __sleep()
+    {
+        $this->extendableDestruct();
+    }
+
+    /**
+     * __wakeup when a model is being unserialized, check if it needs to be booted.
+     */
+    public function __wakeup()
+    {
+        $this->extendableConstruct();
+    }
+
+    /**
+     * extend this class with a closure
+     */
     public static function extend(callable $callback)
     {
         self::extendableExtendCallback($callback);
