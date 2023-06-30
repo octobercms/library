@@ -77,6 +77,14 @@ abstract class ModuleServiceProvider extends ServiceProviderBase implements Octo
     /**
      * @inheritDoc
      */
+    public function registerPageSnippets()
+    {
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function registerContentFields()
     {
         return [];

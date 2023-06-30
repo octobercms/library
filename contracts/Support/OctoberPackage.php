@@ -32,6 +32,17 @@ interface OctoberPackage
     public function registerComponents();
 
     /**
+     * registerPageSnippets registers any CMS snippets implemented in this package.
+     *
+     *     return [
+     *        \Acme\Demo\Components\YouTubeVideo::class => 'youtubeVideo',
+     *     ];
+     *
+     * @return array
+     */
+    public function registerPageSnippets();
+
+    /**
      * registerContentFields registers content fields used by tailor implemented in this package.
      *
      *     return [
