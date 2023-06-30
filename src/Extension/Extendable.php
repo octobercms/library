@@ -69,6 +69,8 @@ class Extendable
     public function __sleep()
     {
         $this->extendableDestruct();
+
+        return array_keys(get_object_vars($this));
     }
 
     /**
