@@ -32,16 +32,36 @@ class Dongle
     /**
      * raw transforms and executes a raw SQL statement
      */
-    public function raw(string $sql)
+    public function raw(string $sql, array $params = null)
     {
-        return $this->db->raw($this->parse($sql));
+        return $this->db->raw($this->parse($sql, $params));
     }
 
     /**
-     * parse transforms an SQL statement to match the active driver.
+     * rawValue converts a raw expression to a string
+     *
+     * @todo Can be refactored if Laravel >= 10
      */
-    public function parse(string $sql): string
+    public function rawValue($sql): string
     {
+        if (interface_exists(\Illuminate\Contracts\Database\Query\Expression::class)) {
+            return $this->db->raw($sql)->getValue($this->db->connection()->getQueryGrammar());
+        }
+
+        return (string) $this->db->raw($sql);
+    }
+
+    /**
+     * parse transforms an SQL statement to match the active driver. If params are supplied,
+     * replaces :column_name with array value without requiring a list of names.
+     * Example: custom_country_id = :country_id → custom_country_id = 7
+     */
+    public function parse(string $sql, array $params = null): string
+    {
+        if (is_array($params) && preg_match_all('/\:([\w]+)/', $sql, $matches)) {
+            $sql = $this->parseValues($sql, $params, $matches[1]);
+        }
+
         $sql = $this->parseGroupConcat($sql);
 
         $sql = $this->parseConcat($sql);
@@ -51,19 +71,6 @@ class Dongle
         $sql = $this->parseBooleanExpression($sql);
 
         return $sql;
-    }
-
-    /**
-     * parseParams replaces :column_name with array value without requiring a
-     * list of names. Example: custom_country_id = :country_id → custom_country_id = 7
-     */
-    public function parseParams(string $sql, array $params)
-    {
-        if (preg_match_all('/\:([\w]+)/', $sql, $matches)) {
-            $sql = $this->parseValues($sql, $params, $matches[1]);
-        }
-
-        return $this->parse($sql);
     }
 
     /**
@@ -298,5 +305,13 @@ class Dongle
     public function getTablePrefix(): string
     {
         return $this->db->getTablePrefix();
+    }
+
+    /**
+     * @deprecated use parse with second argument
+     */
+    public function parseParams(string $sql, array $params)
+    {
+        return $this->parse($sql, $params);
     }
 }

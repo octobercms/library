@@ -15,6 +15,7 @@ use Carbon\Laravel\ServiceProvider as CarbonServiceProvider;
 use Illuminate\Support\Env;
 use Throwable;
 use Closure;
+use Error;
 
 /**
  * Application foundation class as an extension of Laravel
@@ -79,11 +80,11 @@ class Application extends ApplicationBase
      * publicPath gets the path to the public / web directory
      * @return string
      */
-    public function publicPath()
+    public function publicPath($path = '')
     {
         return $this->hasPublicFolder()
-            ? $this->basePath.DIRECTORY_SEPARATOR.'public'
-            : $this->basePath;
+                ? $this->joinPaths($this->basePath('public'), $path)
+                : $this->joinPaths($this->basePath, $path);
     }
 
     /**
@@ -91,7 +92,7 @@ class Application extends ApplicationBase
      */
     public function hasPublicFolder()
     {
-        return file_exists($this->basePath.DIRECTORY_SEPARATOR.'public');
+        return file_exists($this->basePath('public'));
     }
 
     /**
@@ -101,8 +102,7 @@ class Application extends ApplicationBase
      */
     public function langPath($path = '')
     {
-        return ($this->langPath ?: $this->path().DIRECTORY_SEPARATOR.'lang')
-            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
+        return $this->joinPaths($this->langPath ?: $this->basePath('lang'), $path);
     }
 
     /**
@@ -112,8 +112,7 @@ class Application extends ApplicationBase
      */
     public function storagePath($path = '')
     {
-        return ($this->storagePath ?: $this->basePath.DIRECTORY_SEPARATOR.'storage')
-            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
+        return $this->joinPaths($this->storagePath ?: $this->basePath('storage'), $path);
     }
 
     /**
@@ -123,8 +122,7 @@ class Application extends ApplicationBase
      */
     public function cachePath($path = '')
     {
-        return ($this->cachePath ?: $this->basePath.DIRECTORY_SEPARATOR.'storage')
-            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
+        return $this->joinPaths($this->cachePath ?: $this->basePath('storage'), $path);
     }
 
     /**
@@ -150,8 +148,7 @@ class Application extends ApplicationBase
      */
     public function pluginsPath($path = '')
     {
-        return ($this->pluginsPath ?: $this->basePath.DIRECTORY_SEPARATOR.'plugins')
-            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
+        return $this->joinPaths($this->pluginsPath ?: $this->basePath('plugins'), $path);
     }
 
     /**
@@ -175,8 +172,7 @@ class Application extends ApplicationBase
      */
     public function themesPath($path = '')
     {
-        return ($this->themesPath ?: $this->basePath.DIRECTORY_SEPARATOR.'themes')
-            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
+        return $this->joinPaths($this->themesPath ?: $this->basePath('themes'), $path);
     }
 
     /**
@@ -200,8 +196,7 @@ class Application extends ApplicationBase
      */
     public function tempPath($path = ''): string
     {
-        return ($this->cachePath().DIRECTORY_SEPARATOR.'temp')
-            .($path != '' ? DIRECTORY_SEPARATOR.$path : '');
+        return $this->joinPaths($this->cachePath('temp'), $path);
     }
 
     /**
@@ -213,12 +208,26 @@ class Application extends ApplicationBase
     protected function normalizeCachePath($key, $default)
     {
         if (is_null($env = Env::get($key))) {
-            return $this->cachePath().DIRECTORY_SEPARATOR.$default;
+            return $this->cachePath($default);
         }
 
         return Str::startsWith($env, '/')
             ? $env
             : $this->basePath($env);
+    }
+
+    /**
+     * joinPaths together
+     *
+     * @todo Can be removed if Laravel >= 10
+     *
+     * @param  string  $basePath
+     * @param  string  $path
+     * @return string
+     */
+    public function joinPaths($basePath, $path = '')
+    {
+        return $basePath.($path != '' ? DIRECTORY_SEPARATOR.ltrim($path, DIRECTORY_SEPARATOR) : '');
     }
 
     /**
@@ -246,20 +255,18 @@ class Application extends ApplicationBase
      * @param  \Closure  $callback
      * @return void
      */
-    public function error(Closure $callback)
+    public function error(callable $callback)
     {
-        $this->make(\Illuminate\Contracts\Debug\ExceptionHandler::class)->error($callback);
+        $this->make(\Illuminate\Contracts\Debug\ExceptionHandler::class)->renderable($callback);
     }
 
     /**
-     * fatal registers an error handler for fatal errors.
-     * @param  \Closure  $callback
-     * @return void
+     * @deprecated use App::error with an Error exception type
      */
-    public function fatal(Closure $callback)
+    public function fatal(callable $callback)
     {
-        $this->error(function ($e) use ($callback) {
-            return call_user_func($callback, $e);
+        $this->error(function(Error $e) use ($callback) {
+            return $callback($e);
         });
     }
 
@@ -381,9 +388,17 @@ class Application extends ApplicationBase
     /**
      * registerClassAlias registers a new global alias, useful for facades
      */
-    public function registerClassAlias(string $key, string $class)
+    public function registerClassAlias(string $alias, string $class)
     {
-        AliasLoader::getInstance()->alias($key, $class);
+        $this->registerClassAliases([$alias => $class]);
+    }
+
+    /**
+     * registerClassAliases registers multiple global aliases, useful for renamed classes
+     */
+    public function registerClassAliases(array $aliases)
+    {
+        AliasLoader::getInstance($aliases);
     }
 
     //

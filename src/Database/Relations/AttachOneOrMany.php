@@ -338,12 +338,7 @@ trait AttachOneOrMany
     }
 
     /**
-     * makeValidationFile creates a file object suitable for validation, called from
-     * the `getValidationValue` method. Value can be a file model,
-     * UploadedFile object (expected) or potentially a string.
-     *
-     * @param mixed $value
-     * @return UploadedFile|string
+     * @deprecated this method is removed in October CMS v4
      */
     public function makeValidationFile($value)
     {

@@ -5,14 +5,16 @@ use PHPUnit\Framework\Assert;
 class TestCase extends PHPUnit\Framework\TestCase
 {
     /**
-     * Creates the application.
-     *
-     * @return Symfony\Component\HttpKernel\HttpKernelInterface
+     * createApplication for the test
+     * @return \Symfony\Component\HttpKernel\HttpKernelInterface
      */
     public function createApplication()
     {
     }
 
+    /**
+     * callProtectedMethod
+     */
     protected static function callProtectedMethod($object, $name, $params = [])
     {
         $className = get_class($object);

@@ -1,8 +1,6 @@
 <?php
 
 /**
- * BackendUi
- *
- * @see \Backend\Helpers\BackendUi
+ * @deprecated see \Ui
  */
 class BackendUi extends Backend\Facades\BackendUi {}

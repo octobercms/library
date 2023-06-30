@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Traits;
 
+use App;
 use October\Rain\Support\Str;
 use Exception;
 
@@ -69,7 +70,7 @@ trait Sluggable
 
             $slug = implode(' ', $slugArr);
             $slug = mb_substr($slug, 0, $maxLength);
-            $slug = Str::slug($slug, $this->getSluggableSeparator());
+            $slug = Str::slug($slug, $this->getSluggableSeparator(), App::getLocale());
         }
         else {
             $slug = $this->attributes[$slugAttribute] ?? '';
@@ -140,7 +141,7 @@ trait Sluggable
 
     /**
      * newSluggableQuery returns a query that excludes the current record if it exists
-     * @return Builder
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     protected function newSluggableQuery()
     {

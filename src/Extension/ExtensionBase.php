@@ -10,6 +10,9 @@ class ExtensionBase
 {
     use ExtensionTrait;
 
+    /**
+     * extend this class with a closure
+     */
     public static function extend(callable $callback)
     {
         self::extensionExtendCallback($callback);

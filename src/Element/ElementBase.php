@@ -57,7 +57,6 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
 
     /**
      * getConfig returns the entire config array
-     * @return array
      */
     public function getConfig($key = null, $default = null)
     {
@@ -71,8 +70,6 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     /**
      * get an attribute from the element instance.
      * @param  string  $key
-     * @param  mixed  $default
-     * @return mixed
      */
     public function get($key, $default = null)
     {
