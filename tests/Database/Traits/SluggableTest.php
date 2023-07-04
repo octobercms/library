@@ -5,16 +5,19 @@
  */
 class SluggableTest extends TestCase
 {
+    /**
+     * setUp test
+     */
     public function setUp(): void
     {
         $capsule = new Illuminate\Database\Capsule\Manager;
         $capsule->addConnection([
-            'driver'   => 'sqlite',
+            'driver' => 'sqlite',
             'database' => ':memory:',
-            'prefix'   => ''
+            'prefix' => ''
         ]);
 
-        # Create the dataset in the connection with the tables
+        // Create the dataset in the connection with the tables
         $capsule->setAsGlobal();
         $capsule->bootEloquent();
 
@@ -24,8 +27,16 @@ class SluggableTest extends TestCase
             $table->string('slug')->unique();
             $table->timestamps();
         });
+
+        // Mock app instance for this test
+        App::swap(new class {
+            public function getLocale() { return 'en'; }
+        });
     }
 
+    /**
+     * testSlugGeneration
+     */
     public function testSlugGeneration()
     {
         $testModel1 = TestModelSluggable::create(['name' => 'test']);

@@ -338,12 +338,7 @@ trait AttachOneOrMany
     }
 
     /**
-     * makeValidationFile creates a file object suitable for validation, called from
-     * the `getValidationValue` method. Value can be a file model,
-     * UploadedFile object (expected) or potentially a string.
-     *
-     * @param mixed $value
-     * @return UploadedFile|string
+     * @deprecated this method is removed in October CMS v4
      */
     public function makeValidationFile($value)
     {
@@ -373,8 +368,7 @@ trait AttachOneOrMany
     }
 
     /**
-     * getForeignKey gets the foreign key for the relationship
-     * @return string
+     * @deprecated use getForeignKeyName
      */
     public function getForeignKey()
     {
@@ -382,8 +376,7 @@ trait AttachOneOrMany
     }
 
     /**
-     * getOtherKey gets the associated "other" key of the relationship
-     * @return string
+     * @deprecated use getLocalKeyName
      */
     public function getOtherKey()
     {

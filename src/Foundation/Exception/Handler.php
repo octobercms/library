@@ -3,15 +3,15 @@
 use Log;
 use Event;
 use Response;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Contracts\Support\Responsable;
+use Illuminate\Support\Reflector;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use October\Rain\Exception\ForbiddenException;
 use October\Rain\Exception\NotFoundException;
 use October\Rain\Exception\AjaxException;
-use ReflectionFunction;
-use ReflectionClass;
 use Throwable;
 use Exception;
 use Closure;
@@ -30,8 +30,6 @@ class Handler extends ExceptionHandler
         \October\Rain\Exception\ForbiddenException::class,
         \October\Rain\Exception\ValidationException::class,
         \October\Rain\Exception\ApplicationException::class,
-        \Illuminate\Database\Eloquent\ModelNotFoundException::class,
-        \Symfony\Component\HttpKernel\Exception\HttpException::class,
     ];
 
     /**
@@ -75,6 +73,17 @@ class Handler extends ExceptionHandler
             return;
         }
 
+        if (Reflector::isCallable($reportCallable = [$exception, 'report']) &&
+            $this->container->call($reportCallable) !== false) {
+            return;
+        }
+
+        foreach ($this->reportCallbacks as $reportCallback) {
+            if ($reportCallback->handles($exception) && $reportCallback($exception) === false) {
+                return;
+            }
+        }
+
         if (class_exists('Log')) {
             Log::error($exception);
         }
@@ -101,7 +110,7 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-        // Exception occured before system has booted
+        // Exception occurred before system has booted
         if (!$this->hasBootedEvents()) {
             return parent::render($request, $exception);
         }
@@ -113,17 +122,15 @@ class Handler extends ExceptionHandler
 
         // Convert to public-friendly exception
         $exception = $this->prepareException($this->mapException($exception));
-        $statusCode = $this->getStatusCode($exception);
 
         // Custom handlers
-        if ($response = $this->callCustomHandlers($exception)) {
-            if ($response instanceof \Symfony\Component\HttpFoundation\Response) {
-                return $response;
-            }
+        if ($response = $this->renderViaCallbacks($request, $exception)) {
+            return $response;
+        }
 
-            if (!is_null($response)) {
-                return Response::make($response, $statusCode);
-            }
+        // Exception is a response
+        if ($exception instanceof HttpResponseException) {
+            return $exception->getResponse();
         }
 
         /**
@@ -136,6 +143,7 @@ class Handler extends ExceptionHandler
          *         return 'An error happened!';
          *     });
          */
+        $statusCode = $this->getStatusCode($exception);
         if ($event = Event::fire('exception.beforeRender', [$exception, $statusCode, $request], true)) {
             return Response::make($event, $statusCode);
         }
@@ -199,81 +207,37 @@ class Handler extends ExceptionHandler
     //
 
     /**
-     * error registers an application error handler.
-     *
-     * @param  \Closure  $callback
-     * @return void
+     * @deprecated use renderable
      */
-    public function error(Closure $callback)
+    public function error(callable $callback)
     {
-        array_unshift($this->handlers, $callback);
+        $this->renderable($callback);
     }
 
     /**
-     * callCustomHandlers handles the given exception.
-     *
-     * @param  \Exception  $exception
-     * @param  bool  $fromConsole
-     * @return void
+     * renderViaCallbacks tries to render a response from request and exception via render callbacks.
+     * @param  \Illuminate\Http\Request  $request
+     * @return mixed
      */
-    protected function callCustomHandlers($exception, $fromConsole = false)
+    protected function renderViaCallbacks($request, Throwable $e)
     {
-        foreach ($this->handlers as $handler) {
-            // If this exception handler does not handle the given exception, we will just
-            // go the next one. A handler may type-hint an exception that it handles so
-            //  we can have more granularity on the error handling for the developer.
-            if (!$this->handlesException($handler, $exception)) {
-                continue;
-            }
+        foreach ($this->renderCallbacks as $renderCallback) {
+            foreach ($this->firstClosureParameterTypes($renderCallback) as $type) {
+                if (!is_a($e, $type)) {
+                    continue;
+                }
 
-            $code = $this->getStatusCode($exception);
+                $response = $renderCallback($e, $request);
+                if (!$response) {
+                    continue;
+                }
 
-            // We will wrap this handler in a try / catch and avoid white screens of death
-            // if any exceptions are thrown from a handler itself. This way we will get
-            // at least some errors, and avoid errors with no data or not log writes.
-            try {
-                $response = $handler($exception, $code, $fromConsole);
-            }
-            catch (Exception $e) {
-                $response = $this->convertExceptionToResponse($e);
-            }
-            // If this handler returns a "non-null" response, we will return it so it will
-            // get sent back to the browsers. Once the handler returns a valid response
-            // we will cease iterating through them and calling these other handlers.
-            if (isset($response) && ! is_null($response)) {
+                if (is_string($response)) {
+                    return Response::make($response);
+                }
+
                 return $response;
             }
-        }
-    }
-
-    /**
-     * handlesException determine if the given handler handles this exception.
-     * @param  \Closure    $handler
-     * @param  \Exception  $exception
-     * @return bool
-     */
-    protected function handlesException(Closure $handler, $exception)
-    {
-        $reflection = new ReflectionFunction($handler);
-        return $reflection->getNumberOfParameters() === 0 || $this->hints($reflection, $exception);
-    }
-
-    /**
-     * hints determines if the given handler type hints the exception.
-     * @param  \ReflectionFunction  $reflection
-     * @param  \Exception  $exception
-     * @return bool
-     */
-    protected function hints(ReflectionFunction $reflection, $exception)
-    {
-        $parameters = $reflection->getParameters();
-        $expected = $parameters[0];
-
-        try {
-            return (new ReflectionClass($expected->getType()->getName()))->isInstance($exception);
-        }
-        catch (Throwable $t) {
-            return false;
         }
     }
 

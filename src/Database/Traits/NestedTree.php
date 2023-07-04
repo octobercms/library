@@ -168,13 +168,25 @@ trait NestedTree
     public function moveToNewParent()
     {
         $parentId = $this->moveToNewParentId;
+        if ($parentId === false) {
+            return;
+        }
 
         if ($parentId === null) {
             $this->makeRoot();
+            return;
         }
-        elseif ($parentId !== false) {
-            $this->makeChildOf($parentId);
+
+        $parentModel = $this->resolveMoveTarget($parentId);
+        if ($parentModel) {
+            $this->makeChildOf($parentModel);
+            return;
         }
+
+        // Nullify parent since nothing valid was found
+        $this->newNestedTreeQuery()
+            ->where($this->getKeyName(), $this->getKey())
+            ->update([$this->getParentColumnName() => null]);
     }
 
     /**
@@ -835,7 +847,7 @@ trait NestedTree
             $target->reload();
         }
         else {
-            $target = $this->newNestedTreeQuery()->find($target);
+            $target = $this->resolveMoveTarget($target);
         }
 
         // Validate move
@@ -873,7 +885,7 @@ trait NestedTree
         $grammar = $connection->getQueryGrammar();
         $pdo = $connection->getPdo();
 
-        $parentId = ($position === 'child')
+        $parentId = $position === 'child'
             ? $target->getKey()
             : $target->getParentId();
 
@@ -922,6 +934,24 @@ trait NestedTree
         ;
 
         return $result;
+    }
+
+    /**
+     * resolveMoveTarget
+     * @return \October\Rain\Database\Model|null
+     */
+    protected function resolveMoveTarget($targetId)
+    {
+        $query = $this->newNestedTreeQuery();
+
+        if (
+            $this->isClassInstanceOf(\October\Contracts\Database\MultisiteInterface::class) &&
+            $this->isMultisiteEnabled()
+        ) {
+            return $query->applyOtherSiteRoot($targetId)->first();
+        }
+
+        return $query->find($targetId);
     }
 
     /**

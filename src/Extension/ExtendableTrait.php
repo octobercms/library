@@ -52,9 +52,7 @@ trait ExtendableTrait
      */
     public function extendableConstruct()
     {
-        /*
-         * Apply init callbacks
-         */
+        // Apply init callbacks
         $classes = array_merge([get_class($this)], class_parents($this));
         foreach ($classes as $class) {
             if (isset(self::$extendableCallbacks[$class]) && is_array(self::$extendableCallbacks[$class])) {
@@ -64,13 +62,8 @@ trait ExtendableTrait
             }
         }
 
-        /*
-         * Apply extensions
-         */
+        // Apply extensions, soft implement behaviors with @
         foreach ($this->extensionExtractImplements() as $useClass) {
-            /*
-             * Soft implement
-             */
             if (substr($useClass, 0, 1) === '@') {
                 $useClass = substr($useClass, 1);
                 if (!class_exists($useClass)) {
@@ -80,6 +73,19 @@ trait ExtendableTrait
 
             $this->extendClassWith($useClass);
         }
+    }
+
+    /**
+     * extendableDestruct should be called when serializing the object
+     */
+    public function extendableDestruct()
+    {
+        $this->extensionData = [
+            'extensions' => [],
+            'methods' => [],
+            'dynamicMethods' => [],
+            'dynamicProperties' => []
+        ];
     }
 
     /**
@@ -478,7 +484,7 @@ trait ExtendableTrait
 
         // Undefined property, throw an exception to catch it,
         // otherwise some PHP versions will segfault
-        // @todo Restore if year >= 2023
+        // @deprecated Restore if year >= 2024 or v4
         // if (!$found) {
         //     throw new BadMethodCallException(sprintf(
         //         'Call to undefined property %s::%s',

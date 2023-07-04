@@ -96,9 +96,9 @@ class MorphOne extends MorphOneBase
         $value = null;
         $relationName = $this->relationName;
 
-        if ($this->parent->$relationName) {
-            $key = $this->getForeignKeyName();
-            $value = $this->parent->$relationName->$key;
+        if ($related = $this->parent->$relationName) {
+            $key = $this->getRelatedKeyName();
+            $value = $related->{$key};
         }
 
         return $value;

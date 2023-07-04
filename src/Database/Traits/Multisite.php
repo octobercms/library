@@ -191,46 +191,6 @@ trait Multisite
     }
 
     /**
-     * isMultisiteEnabled allows for programmatic toggling
-     * @return bool
-     */
-    public function isMultisiteEnabled()
-    {
-        return true;
-    }
-
-    /**
-     * isMultisiteSyncEnabled
-     */
-    public function isMultisiteSyncEnabled()
-    {
-        return property_exists($this, 'propagatableSync')
-            ? (bool) $this->propagatableSync
-            : false;
-    }
-
-    /**
-     * getMultisiteSyncSites
-     * @return array
-     */
-    public function getMultisiteSyncSites()
-    {
-        return Site::listSiteIds();
-    }
-
-    /**
-     * newOtherSiteQuery
-     */
-    public function newOtherSiteQuery()
-    {
-        return $this->newQueryWithoutScopes()
-            ->where(function($q) {
-                $q->where('id', $this->site_root_id ?: $this->id);
-                $q->orWhere('site_root_id', $this->site_root_id ?: $this->id);
-            });
-    }
-
-    /**
      * propagateToSite will save propagated fields to other records
      */
     public function propagateToSite($siteId, $otherModel = null)
@@ -263,6 +223,63 @@ trait Multisite
         $otherModel->save();
 
         return $otherModel;
+    }
+
+    /**
+     * isMultisiteEnabled allows for programmatic toggling
+     * @return bool
+     */
+    public function isMultisiteEnabled()
+    {
+        return true;
+    }
+
+    /**
+     * isMultisiteSyncEnabled
+     */
+    public function isMultisiteSyncEnabled()
+    {
+        return property_exists($this, 'propagatableSync')
+            ? (bool) $this->propagatableSync
+            : false;
+    }
+
+    /**
+     * getMultisiteSyncSites
+     * @return array
+     */
+    public function getMultisiteSyncSites()
+    {
+        return Site::listSiteIds();
+    }
+
+    /**
+     * scopeApplyOtherSiteRoot is used to resolve a model using its ID or its root ID.
+     * For example, finding a model using attributes from another site, or finding
+     * all connected models for all sites.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string|\Illuminate\Database\Eloquent\Model $idOrModel
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeApplyOtherSiteRoot($query, $idOrModel)
+    {
+        if ($idOrModel instanceof \Illuminate\Database\Eloquent\Model) {
+            $idOrModel = $idOrModel->site_root_id ?: $idOrModel->id;
+        }
+
+        return $query->where(function($q) use ($idOrModel) {
+            $q->where('id', $idOrModel);
+            $q->orWhere('site_root_id', $idOrModel);
+        });
+    }
+
+    /**
+     * newOtherSiteQuery
+     */
+    public function newOtherSiteQuery()
+    {
+        return $this->newQueryWithoutScopes()->applyOtherSiteRoot($this);
     }
 
     /**

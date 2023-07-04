@@ -1,8 +1,6 @@
 <?php namespace {{namespace_php}}\Console;
 
 use Illuminate\Console\Command;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
 
 /**
  * {{studly_name}} Command

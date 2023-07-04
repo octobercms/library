@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Halcyon\Exception;
 
+use File;
 use RuntimeException;
 
 /**
@@ -32,6 +33,6 @@ class FileExistsException extends RuntimeException
      */
     public function getInvalidPath(): string
     {
-        return $this->invalidPath;
+        return File::nicePath($this->invalidPath);
     }
 }

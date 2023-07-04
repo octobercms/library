@@ -504,4 +504,28 @@ class Model extends EloquentModel
 
         $this->setKeysForSaveQuery($this->newQueryWithoutScopes())->delete();
     }
+
+    /**
+     * __sleep prepare the object for serialization.
+     */
+    public function __sleep()
+    {
+        $this->unbindEvent();
+
+        $this->extendableDestruct();
+
+        return parent::__sleep();
+    }
+
+    /**
+     * __wakeup when a model is being unserialized, check if it needs to be booted.
+     */
+    public function __wakeup()
+    {
+        parent::__wakeup();
+
+        $this->bootNicerEvents();
+
+        $this->extendableConstruct();
+    }
 }

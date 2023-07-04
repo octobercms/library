@@ -162,7 +162,13 @@ class MailerTest extends TestCase
      */
     protected function mockMailer()
     {
-        Mail::swap(new FakeMailer);
+        $app = new class {
+            public function getLocale() { return 'en'; }
+        };
+
+        $manager = new \Illuminate\Mail\MailManager($app);
+
+        Mail::swap(new FakeMailer($manager));
     }
 
     /**

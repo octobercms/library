@@ -28,6 +28,7 @@
                     type="button"
                     data-request="onSave"
                     data-request-data="close:1"
+                    data-browser-redirect-back
                     data-hotkey="ctrl+enter, cmd+enter"
                     data-load-indicator="<?= e(trans('backend::lang.form.saving_name', ['name'=>$formRecordName])) ?>"
                     class="btn btn-default">

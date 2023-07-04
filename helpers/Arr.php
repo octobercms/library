@@ -3,6 +3,6 @@
 /**
  * Arr
  *
- * @see \Illuminate\Support\Arr
+ * @see \October\Rain\Support\Arr
  */
-class Arr extends Illuminate\Support\Arr {}
+class Arr extends October\Rain\Support\Arr {}

@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Support;
 
 use Illuminate\Support\Str as StrHelper;
+use voku\helper\ASCII;
 
 /**
  * Str helper
@@ -10,6 +11,33 @@ use Illuminate\Support\Str as StrHelper;
  */
 class Str extends StrHelper
 {
+    /**
+     * slug adds extra sugar to convert slashes to separators
+     *
+     * @param  string  $title
+     * @param  string  $separator
+     * @param  string|null  $language
+     * @param  array<string, string>  $dictionary
+     * @return string
+     */
+    public static function slug($title, $separator = '-', $language = 'en', $dictionary = ['@' => 'at'])
+    {
+        $title = str_replace(['\\', '/'], ' ', (string) $title);
+
+        return parent::slug($title, $separator, $language, $dictionary);
+    }
+    /**
+     * ascii applies transliterate when the language is not found
+     *
+     * @param  string  $value
+     * @param  string  $language
+     * @return string
+     */
+    public static function ascii($value, $language = 'en')
+    {
+        return ASCII::to_ascii((string) $value, $language, true, false, true);
+    }
+
     /**
      * ordinal converts number to its ordinal English form
      *

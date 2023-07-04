@@ -68,7 +68,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
     }
 
     /**
-     * select returns all templates, with availableoptions:
+     * select returns all templates, with available options:
      *
      * - columns: only return specific columns, eg: ['fileName', 'mtime', 'content']
      * - extensions: extensions to search for, eg: ['htm', 'md', 'twig']
@@ -180,10 +180,8 @@ class FileDatasource extends Datasource implements DatasourceInterface
 
         $path = $this->makeFilePath($dirName, $fileName, $extension);
 
-        /*
-         * The same file is safe to rename when the case is changed
-         * eg: FooBar -> foobar
-         */
+        // The same file is safe to rename when the case is changed
+        // eg: FooBar -> foobar
         $iFileChanged = ($oldFileName !== null && strcasecmp($oldFileName, $fileName) !== 0) ||
             ($oldExtension !== null && strcasecmp($oldExtension, $extension) !== 0);
 
@@ -191,9 +189,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
             throw (new FileExistsException)->setInvalidPath($path);
         }
 
-        /*
-         * File to be renamed, as delete and recreate
-         */
+        // File to be renamed, as delete and recreate
         $fileChanged = ($oldFileName !== null && strcmp($oldFileName, $fileName) !== 0) ||
             ($oldExtension !== null && strcmp($oldExtension, $extension) !== 0);
 

@@ -19,7 +19,7 @@ class MailServiceProvider extends MailServiceProviderBase
             // Extensibility
             $this->app['events']->dispatch('mailer.beforeRegister', [$this]);
 
-            // Inheritence
+            // Inheritance
             $manager = new MailManager($app);
 
             // Extensibility

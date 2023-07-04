@@ -9,7 +9,7 @@ use Illuminate\Support\MessageBag;
 use Exception;
 
 /**
- * Validation
+ * Validation trait for models
  *
  * @package october\database
  * @author Alexey Bobkov, Samuel Georges
@@ -89,7 +89,7 @@ trait Validation
     }
 
     /**
-     * setValidationAttributeNames programatically sets multiple validation attribute names
+     * setValidationAttributeNames programmatically sets multiple validation attribute names
      * @param array $attributeNames
      */
     public function setValidationAttributeNames($attributeNames)
@@ -98,7 +98,7 @@ trait Validation
     }
 
     /**
-     * setValidationAttributeName programatically sets the validation attribute names, will take
+     * setValidationAttributeName programmatically sets the validation attribute names, will take
      * lower priority to model defined attribute names found in `$attributeNames`
      * @param string $attr
      * @param string $name
@@ -157,24 +157,64 @@ trait Validation
      */
     protected function getRelationValidationValue($relationName)
     {
-        $relationType = $this->getRelationType($relationName);
-
-        if ($relationType === 'attachOne' || $relationType === 'attachMany') {
-            return $this->$relationName()->getValidationValue();
-        }
-
-        // Looks for deferred records
+        // Locate records, with deferred logic
         if (
             $this->sessionKey &&
             !$this->relationLoaded($relationName) &&
             $this->hasDeferred($this->sessionKey, $relationName)
         ) {
             $fetchMethod = $this->isRelationTypeSingular($relationName) ? 'first' : 'get';
-            return $this->$relationName()->withDeferred($this->sessionKey)->$fetchMethod();
+            $data = $this->$relationName()->withDeferred($this->sessionKey)->$fetchMethod();
+        }
+        else {
+            $data = $this->$relationName;
         }
 
-        // Allows validation of nested attributes
-        return $this->$relationName;
+        // DRY logic to post-process validation data
+        $processValidationValue = function($value) {
+            // Attachments
+            if ($value instanceof \October\Rain\Database\Attach\File) {
+                $localPath = $value->getLocalPath();
+
+                // Exception handling for UploadedFile
+                if (file_exists($localPath)) {
+                    return new \Symfony\Component\HttpFoundation\File\UploadedFile(
+                        $localPath,
+                        $value->file_name,
+                        $value->content_type,
+                        null,
+                        true
+                    );
+                }
+
+                // Fallback to string
+                $value = $localPath;
+            }
+
+            return $value;
+        };
+
+        // Process singular
+        if ($this->isRelationTypeSingular($relationName)) {
+            return $processValidationValue($data);
+        }
+
+        // Process multi
+        if ($data instanceof \Illuminate\Support\Collection) {
+            $data = $data->all();
+        }
+
+        if (!$data || !is_array($data)) {
+            return null;
+        }
+
+        $result = [];
+
+        foreach ($data as $key => $value) {
+            $result[$key] = $processValidationValue($value);
+        }
+
+        return $result;
     }
 
     /**
@@ -244,7 +284,6 @@ trait Validation
         }
 
         // Perform validation
-        //
         $rules = is_null($rules) ? $this->rules : $rules;
         $rules = $this->processValidationRules($rules);
         $success = true;
@@ -259,10 +298,7 @@ trait Validation
 
             // Add relation values, if specified.
             foreach ($rules as $attribute => $rule) {
-                if (
-                    !$this->hasRelation($attribute) ||
-                    array_key_exists($attribute, $data)
-                ) {
+                if (!$this->hasRelation($attribute) || array_key_exists($attribute, $data)) {
                     continue;
                 }
 
@@ -272,7 +308,6 @@ trait Validation
             // Compatibility with Hashable trait
             // Remove all hashable values regardless, add the original values back
             // only if they are part of the data being validated.
-            //
             if (method_exists($this, 'getHashableAttributes')) {
                 $cleanAttributes = array_diff_key($data, array_flip($this->getHashableAttributes()));
                 $hashedAttributes = array_intersect_key($this->getOriginalHashValues(), $data);
@@ -282,7 +317,6 @@ trait Validation
             // Compatibility with Encryptable trait
             // Remove all encryptable values regardless, add the original values back
             // only if they are part of the data being validated.
-            //
             if (method_exists($this, 'getEncryptableAttributes')) {
                 $cleanAttributes = array_diff_key($data, array_flip($this->getEncryptableAttributes()));
                 $encryptedAttributes = array_intersect_key($this->getOriginalEncryptableValues(), $data);
@@ -290,7 +324,6 @@ trait Validation
             }
 
             // Custom messages, translate internal references
-            //
             if (property_exists($this, 'customMessages') && is_null($customMessages)) {
                 $customMessages = $this->customMessages;
             }
@@ -306,7 +339,6 @@ trait Validation
             $customMessages = $transCustomMessages;
 
             // Attribute names, translate internal references
-            //
             $attrNames = (array) $this->validationDefaultAttrNames;
 
             if (property_exists($this, 'attributeNames')) {
@@ -324,14 +356,12 @@ trait Validation
             $attrNames = $transAttrNames;
 
             // Translate any externally defined attribute names
-            //
             $translations = Lang::get('validation.attributes');
             if (is_array($translations)) {
                 $attrNames = array_merge($translations, $attrNames);
             }
 
             // Hand over to the validator
-            //
             $validator = self::makeValidator(
                 $data,
                 $rules,
@@ -390,20 +420,17 @@ trait Validation
 
         foreach ($rules as $field => $ruleParts) {
             // Trim empty rules
-            //
             if (is_string($ruleParts) && trim($ruleParts) === '') {
                 unset($rules[$field]);
                 continue;
             }
 
-            // Normalize rulesets
-            //
+            // Normalize rule sets
             if (!is_array($ruleParts)) {
                 $ruleParts = explode('|', $ruleParts);
             }
 
-            // Analyse each rule individually
-            //
+            // Analyze each rule individually
             foreach ($ruleParts as $key => $rulePart) {
                 // Allow rule objects
                 if (is_object($rulePart)) {
@@ -430,9 +457,7 @@ trait Validation
 
     /**
      * processRuleFieldNames processes field names in a rule array
-     *
      * Converts any field names using array notation (ie. `field[child]`) into dot notation (ie. `field.child`)
-     *
      * @param array $rules Rules array
      * @return array
      */

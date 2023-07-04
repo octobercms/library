@@ -61,7 +61,7 @@ trait HasAttributes
 
     /**
      * getAttribute from the model.
-     * Overrided from {@link Eloquent} to implement recognition of the relation.
+     * Overridden from {@link Eloquent} to implement recognition of the relation.
      * @return mixed
      */
     public function getAttribute($key)
@@ -228,6 +228,24 @@ trait HasAttributes
     public function addCasts($attributes)
     {
         $this->casts = array_merge($this->casts, $attributes);
+    }
+
+    /**
+     * getDates returns the attributes that should be converted to dates.
+     * @return array
+     */
+    public function getDates()
+    {
+        if (!$this->usesTimestamps()) {
+            return $this->dates;
+        }
+
+        $defaults = [
+            $this->getCreatedAtColumn(),
+            $this->getUpdatedAtColumn(),
+        ];
+
+        return array_unique(array_merge($this->dates, $defaults));
     }
 
     /**

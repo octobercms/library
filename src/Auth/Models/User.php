@@ -328,7 +328,7 @@ class User extends Model implements Authenticatable
 
     /**
      * attemptRehashPassword will check if a password needs to be rehashed and apply the
-     * new hashing algorithim to the current password supplied as plaintext.
+     * new hashing algorithm to the current password supplied as plaintext.
      */
     public function attemptRehashPassword(string $currentPassword): bool
     {

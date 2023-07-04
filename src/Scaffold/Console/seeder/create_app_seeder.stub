@@ -1,0 +1,17 @@
+<?php namespace {{namespace_php}}\Database\Seeders;
+
+use Seeder;
+
+/**
+ * {{studly_name}}
+ */
+class {{studly_name}} extends Seeder
+{
+    /**
+     * run the database seeds.
+     */
+    public function run()
+    {
+        //
+    }
+}

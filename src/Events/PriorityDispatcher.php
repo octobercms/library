@@ -1,6 +1,9 @@
 <?php namespace October\Rain\Events;
 
+use Str;
+use Illuminate\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
+use Illuminate\Contracts\Container\Container as ContainerContract;
 
 /**
  * PriorityDispatcher is a global event emitter with priority assignment.
@@ -16,9 +19,24 @@ class PriorityDispatcher
     const FORWARD_CALL_FLAG = '___FORWARD_CALL___';
 
     /**
+     * @var \Illuminate\Contracts\Container\Container container for IoC
+     */
+    protected $container;
+
+    /**
      * @var DispatcherContract laravelEvents instance.
      */
     protected $laravelEvents;
+
+    /**
+     * __construct a new event dispatcher instance.
+     * @param  \Illuminate\Contracts\Container\Container|null  $container
+     * @return void
+     */
+    public function __construct(ContainerContract $container = null)
+    {
+        $this->container = $container ?: new Container;
+    }
 
     /**
      * listen registers an event listener with the dispatcher.
@@ -74,7 +92,7 @@ class PriorityDispatcher
     }
 
     /**
-     * fireEvent inherits logic from the Emitter, modified to foward call to Laravel events
+     * fireEvent inherits logic from the Emitter, modified to forward call to Laravel events
      * @param string $event
      * @param array $params
      * @param boolean $halt
@@ -107,6 +125,14 @@ class PriorityDispatcher
                 $isLaravel = true;
             }
             else {
+                if (is_string($callback)) {
+                    $callback = $this->createClassCallback($callback);
+                }
+
+                if (is_array($callback) && isset($callback[0]) && is_string($callback[0])) {
+                    $callback = $this->createClassCallback($callback);
+                }
+
                 $response = $callback(...$params);
                 $isLaravel = false;
             }
@@ -153,6 +179,29 @@ class PriorityDispatcher
     public function getLaravelDispatcher(): DispatcherContract
     {
         return $this->laravelEvents;
+    }
+
+    /**
+     * createClassCallback passes what is usually a static method call through the IoC
+     * container to create a callable instance.
+     */
+    protected function createClassCallback($callback)
+    {
+        if (is_callable($callback)) {
+            return $callback;
+        }
+
+        [$class, $method] = is_array($callback)
+            ? $callback
+            : Str::parseCallback($callback, 'handle');
+
+        if (!method_exists($class, $method)) {
+            $method = '__invoke';
+        }
+
+        $listener = $this->container->make($class);
+
+        return [$listener, $method];
     }
 
     /**

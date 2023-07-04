@@ -64,10 +64,37 @@ class HasManyThrough extends HasManyThroughBase
         $value = null;
         $relationName = $this->relationName;
 
-        if ($relation = $this->farParent->$relationName) {
-            $value = $relation->pluck($this->localKey)->all();
+        if ($this->farParent->relationLoaded($relationName)) {
+            $value = $this->farParent->getRelation($relationName)
+                ->pluck($this->getRelatedKeyName())
+                ->all()
+            ;
+        }
+        else {
+            $value = $this->query->getQuery()
+                ->pluck($this->getQualifiedRelatedKeyName())
+                ->all()
+            ;
         }
 
         return $value;
+    }
+
+    /**
+     * getRelatedKeyName
+     * @return string
+     */
+    public function getRelatedKeyName()
+    {
+        return $this->related->getKeyName();
+    }
+
+    /**
+     * getQualifiedRelatedKeyName
+     * @return string
+     */
+    public function getQualifiedRelatedKeyName()
+    {
+        return $this->related->getQualifiedKeyName();
     }
 }

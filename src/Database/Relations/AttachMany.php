@@ -73,8 +73,14 @@ class AttachMany extends MorphManyBase
     public function getSimpleValue()
     {
         $value = null;
+        $relationName = $this->relationName;
 
-        $files = $this->getSimpleValueInternal();
+        if ($this->parent->relationLoaded($relationName)) {
+            $files = $this->parent->getRelation($relationName);
+        }
+        else {
+            $files = $this->getResults();
+        }
 
         if ($files) {
             $value = [];
@@ -87,8 +93,7 @@ class AttachMany extends MorphManyBase
     }
 
     /**
-     * getValidationValue helper for getting this relationship validation value.
-     * @return array|null
+     * @deprecated this method is removed in October CMS v4
      */
     public function getValidationValue()
     {
@@ -105,8 +110,7 @@ class AttachMany extends MorphManyBase
     }
 
     /**
-     * getSimpleValueInternal method used by `getSimpleValue` and `getValidationValue`.
-     * @return array|null
+     * @deprecated this method is removed in October CMS v4
      */
     protected function getSimpleValueInternal()
     {
