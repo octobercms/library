@@ -1,4 +1,4 @@
-<?php namespace {{namespace_php}}\Factories;
+<?php namespace {{namespace_php}}\Updates\Factories;
 
 use October\Rain\Database\Factories\Factory;
 
