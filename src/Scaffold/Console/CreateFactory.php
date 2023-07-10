@@ -12,7 +12,7 @@ class CreateFactory extends GeneratorCommandBase
      */
     protected $signature = 'create:factory
         {namespace : App or Plugin Namespace. <info>(eg: Acme.Blog)</info>}
-        {name : The name of the job class to generate. <info>(eg: PostFactory)</info>}
+        {name : The name of the factory class to generate. <info>(eg: PostFactory)</info>}
         {--o|overwrite : Overwrite existing files with generated ones}';
 
     /**
@@ -30,7 +30,7 @@ class CreateFactory extends GeneratorCommandBase
      */
     public function makeStubs()
     {
-        $this->makeStub('factory/factory.stub', 'factories/{{studly_name}}.php');
+        $this->makeStub('factory/factory.stub', 'updates/factories/{{studly_name}}.php');
     }
 
     /**
