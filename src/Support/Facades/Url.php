@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\URL as UrlBase;
 /**
  * Url
  *
- * @deprecated use \Url
  * @see \Illuminate\Routing\UrlGenerator
  */
 class Url extends UrlBase

@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Validator as ValidatorBase;
 /**
  * Validator
  *
- * @deprecated use \Validator
  * @see \October\Rain\Validation\Factory
  */
 class Validator extends ValidatorBase
