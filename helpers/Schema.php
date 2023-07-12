@@ -5,4 +5,4 @@
  *
  * @see \Illuminate\Database\Schema\Builder
  */
-class Schema extends Illuminate\Support\Facades\Schema {}
+class Schema extends October\Rain\Support\Facades\Schema {}
