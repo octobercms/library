@@ -59,7 +59,10 @@ class UrlServiceProvider extends ServiceProvider
         $provider = $this->app['url'];
 
         $provider->macro('toRelative', function($url) use ($provider) {
-            return parse_url($provider->to($url), PHP_URL_PATH);
+            $fullUrl = $provider->to($url);
+            return parse_url($fullUrl, PHP_URL_PATH)
+                . (($query = parse_url($fullUrl, PHP_URL_QUERY)) ? '?' . $query : '')
+                . (($query = parse_url($fullUrl, PHP_URL_FRAGMENT)) ? '#' . $query : '');
         });
     }
 
