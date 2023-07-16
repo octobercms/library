@@ -17,7 +17,7 @@ class AjaxException extends ExceptionBase
     /**
      * __construct the exception
      */
-    public function __construct($contents)
+    public function __construct($contents = '')
     {
         if (is_string($contents)) {
             $contents = ['result' => $contents];
@@ -34,5 +34,13 @@ class AjaxException extends ExceptionBase
     public function getContents()
     {
         return $this->contents;
+    }
+
+    /**
+     * addContent is used to add extra data to an AJAX exception
+     */
+    public function addContent(string $key, $val)
+    {
+        $this->contents[$key] = $val;
     }
 }
