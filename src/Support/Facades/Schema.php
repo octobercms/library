@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Schema as SchemaBase;
 /**
  * Schema
  *
- * @deprecated use \Schema
  * @see \Illuminate\Database\Schema\Builder
  */
 class Schema extends SchemaBase

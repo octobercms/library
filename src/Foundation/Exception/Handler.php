@@ -144,7 +144,7 @@ class Handler extends ExceptionHandler
          *     });
          */
         $statusCode = $this->getStatusCode($exception);
-        if ($event = Event::fire('exception.beforeRender', [$exception, $statusCode, $request], true)) {
+        if (($event = Event::fire('exception.beforeRender', [$exception, $statusCode, $request], true)) !== null) {
             return Response::make($event, $statusCode);
         }
 
