@@ -62,7 +62,7 @@ class UrlServiceProvider extends ServiceProvider
             $fullUrl = $provider->to($url);
             return parse_url($fullUrl, PHP_URL_PATH)
                 . (($query = parse_url($fullUrl, PHP_URL_QUERY)) ? '?' . $query : '')
-                . (($query = parse_url($fullUrl, PHP_URL_FRAGMENT)) ? '#' . $query : '');
+                . (($fragment = parse_url($fullUrl, PHP_URL_FRAGMENT)) ? '#' . $fragment : '');
         });
     }
 
