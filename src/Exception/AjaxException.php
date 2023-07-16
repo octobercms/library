@@ -17,10 +17,13 @@ class AjaxException extends ExceptionBase
     /**
      * __construct the exception
      */
-    public function __construct($contents = '')
+    public function __construct($contents = null)
     {
         if (is_string($contents)) {
             $contents = ['result' => $contents];
+        }
+        elseif (!is_array($contents)) {
+            $contents = [];
         }
 
         $this->contents = $contents;
