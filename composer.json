@@ -17,6 +17,7 @@
         "php": "^8.0.2",
         "composer/composer": "^2.0.0",
         "doctrine/dbal": "^2.13.3|^3.1.4",
+        "jenssegers/agent": "^2.6",
         "linkorb/jsmin-php": "~1.0",
         "wikimedia/less.php": "~3.0",
         "scssphp/scssphp": "~1.0",
