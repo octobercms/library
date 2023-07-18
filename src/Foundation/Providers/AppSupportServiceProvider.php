@@ -11,6 +11,7 @@ class AppSupportServiceProvider extends AggregateServiceProvider
      * provides gets the services provided by the provider
      */
     protected $providers = [
+        \October\Rain\Auth\AuthServiceProvider::class,
         \October\Rain\Database\DatabaseServiceProvider::class,
         \October\Rain\Halcyon\HalcyonServiceProvider::class,
         \October\Rain\Filesystem\FilesystemServiceProvider::class,

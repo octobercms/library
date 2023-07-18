@@ -21,6 +21,7 @@ class AppDeferSupportServiceProvider extends AggregateServiceProvider implements
         \October\Rain\Resize\ResizeServiceProvider::class,
         \October\Rain\Validation\ValidationServiceProvider::class,
         \October\Rain\Translation\TranslationServiceProvider::class,
+        \Illuminate\Auth\Passwords\PasswordResetServiceProvider:: class,
 
         // Console
         \October\Rain\Foundation\Providers\ArtisanServiceProvider::class,
