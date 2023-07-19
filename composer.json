@@ -20,6 +20,7 @@
         "jenssegers/agent": "^2.6",
         "linkorb/jsmin-php": "~1.0",
         "wikimedia/less.php": "~3.0",
+        "pragmarx/google2fa": "^8.0",
         "scssphp/scssphp": "~1.0",
         "symfony/yaml": "^6.0",
         "twig/twig": "~3.0",
