@@ -58,12 +58,12 @@ class UrlServiceProvider extends ServiceProvider
     {
         $provider = $this->app['url'];
 
-        $provider->macro('toRelative', function($url) use ($provider) {
-            $fullUrl = $provider->to($url);
-            return parse_url($fullUrl, PHP_URL_PATH)
-                . (($query = parse_url($fullUrl, PHP_URL_QUERY)) ? '?' . $query : '')
-                . (($fragment = parse_url($fullUrl, PHP_URL_FRAGMENT)) ? '#' . $fragment : '')
-                ?: '/';
+        $provider->macro('toRelative', function(...$args) use ($provider) {
+            return (new \October\Rain\Html\UrlMixin($provider))->toRelative(...$args);
+        });
+
+        $provider->macro('toSigned', function(...$args) use ($provider) {
+            return (new \October\Rain\Html\UrlMixin($provider))->toSigned(...$args);
         });
     }
 
