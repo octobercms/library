@@ -26,11 +26,29 @@ class CreateFactory extends GeneratorCommandBase
     protected $typeLabel = 'Factory';
 
     /**
+     * handle executes the console command
+     */
+    public function handle()
+    {
+        if (!ends_with($this->argument('name'), 'Factory')) {
+            $this->components->error('Factory classes names must end in "Factory"');
+            return;
+        }
+
+        parent::handle();
+    }
+
+    /**
      * makeStubs makes all stubs
      */
     public function makeStubs()
     {
-        $this->makeStub('factory/factory.stub', 'updates/factories/{{studly_name}}.php');
+        if ($this->isAppNamespace()) {
+            $this->makeStub('factory/factory_app.stub', 'database/factories/{{studly_name}}.php');
+        }
+        else {
+            $this->makeStub('factory/factory.stub', 'updates/factories/{{studly_name}}.php');
+        }
     }
 
     /**

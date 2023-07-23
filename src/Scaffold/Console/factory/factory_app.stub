@@ -1,0 +1,20 @@
+<?php namespace {{namespace_php}}\Database\Factories;
+
+use October\Rain\Database\Factories\Factory;
+
+/**
+ * {{studly_name}}
+ */
+class {{studly_name}} extends Factory
+{
+    /**
+     * definition for the default state.
+     * @return array<string, mixed>
+     */
+    public function definition()
+    {
+        return [
+            //
+        ];
+    }
+}
