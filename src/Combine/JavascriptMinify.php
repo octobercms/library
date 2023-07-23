@@ -17,7 +17,7 @@ class JavascriptMinify
      */
     public function minify($css)
     {
-        return JSMin::minify($contents);
+        return JSMin::minify($css);
     }
 
     /**
