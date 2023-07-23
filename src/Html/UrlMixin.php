@@ -63,7 +63,7 @@ class UrlMixin
 
         $key = Config::get('app.key');
 
-        $signUrl = http_build_url($url, http_build_query(['query' => $parameters]));
+        $signUrl = http_build_url($url, ['query' => http_build_query($parameters)]);
 
         $signature = hash_hmac('sha256', $signUrl, $key);
 
