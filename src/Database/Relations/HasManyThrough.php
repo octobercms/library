@@ -36,11 +36,13 @@ class HasManyThrough extends HasManyThroughBase
      */
     public function addDefinedConstraints()
     {
-        $args = $this->farParent->getRelationDefinition($this->relationName);
+        if (static::$constraints) {
+            $args = $this->farParent->getRelationDefinition($this->relationName);
 
-        $this->addDefinedConstraintsToRelation($this, $args);
+            $this->addDefinedConstraintsToRelation($this, $args);
 
-        $this->addDefinedConstraintsToQuery($this, $args);
+            $this->addDefinedConstraintsToQuery($this, $args);
+        }
     }
 
     /**

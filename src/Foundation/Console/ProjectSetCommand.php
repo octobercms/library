@@ -143,7 +143,7 @@ class ProjectSetCommand extends Command
      */
     protected function createServerUrl($uri)
     {
-        $gateway = env('APP_UPDATE_GATEWAY', Config::get('system.update_gateway', 'https://gateway.octobercms.com/api'));
+        $gateway = Config::get('system.update_gateway', 'https://gateway.octobercms.com/api');
         if (substr($gateway, -1) != '/') {
             $gateway .= '/';
         }
@@ -189,7 +189,7 @@ class ProjectSetCommand extends Command
      */
     protected function getComposerUrl(bool $withProtocol = true): string
     {
-        $gateway = env('APP_COMPOSER_GATEWAY', Config::get('system.composer_gateway', 'gateway.octobercms.com'));
+        $gateway = Config::get('system.composer_gateway', 'gateway.octobercms.com');
 
         return $withProtocol ? 'https://'.$gateway : $gateway;
     }
@@ -214,7 +214,7 @@ class ProjectSetCommand extends Command
     }
 
     /**
-     * mergeRecursive substitues the native PHP array_merge_recursive to be
+     * mergeRecursive substitutes the native PHP array_merge_recursive to be
      * more config friendly. Scalar values are replaced instead of being
      * merged in to their own new array.
      */

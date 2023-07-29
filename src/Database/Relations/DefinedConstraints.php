@@ -16,11 +16,13 @@ trait DefinedConstraints
      */
     public function addDefinedConstraints(): void
     {
-        $args = $this->parent->getRelationDefinition($this->relationName);
+        if (static::$constraints) {
+            $args = $this->parent->getRelationDefinition($this->relationName);
 
-        $this->addDefinedConstraintsToRelation($this, $args);
+            $this->addDefinedConstraintsToRelation($this, $args);
 
-        $this->addDefinedConstraintsToQuery($this, $args);
+            $this->addDefinedConstraintsToQuery($this, $args);
+        }
     }
 
     /**

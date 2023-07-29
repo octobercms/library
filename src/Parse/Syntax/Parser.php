@@ -14,6 +14,11 @@ class Parser
     const CHAR_CLOSE = '}';
 
     /**
+     * @var string template to parse
+     */
+    protected $template;
+
+    /**
      * @var \October\Rain\Parse\Syntax\FieldParser Field parser instance.
      */
     protected $fieldParser;
@@ -30,12 +35,11 @@ class Parser
     protected $varPrefix = '';
 
     /**
-     * Constructor.
-     * Available options:
-     * - varPrefix: Prefix to add to every top level parameter.
-     * - tagPrefix: Prefix to add to all tags, in addition to tags without a prefix.
+     * __construct parser, with available options:
+     *   - varPrefix: Prefix to add to every top level parameter.
+     *   - tagPrefix: Prefix to add to all tags, in addition to tags without a prefix.
+     * @param string $template
      * @param array $options
-     * @param string $template Template to parse.
      */
     public function __construct($template = null, $options = [])
     {
@@ -105,8 +109,8 @@ class Parser
     }
 
     /**
-     * Returns the template with fields replaced with the simple
-     * templating engine used by the TextParser class.
+     * toView returns the template with fields replaced with the simple
+     * template engine used by the TextParser class.
      * @return string
      */
     public function toView()
@@ -115,7 +119,7 @@ class Parser
     }
 
     /**
-     * Parses the template to a specific view engine (Twig, Simple)
+     * toViewEngine parses the template to a specific view engine (Twig, Simple)
      * @param  string $engine
      * @return string
      */
@@ -134,6 +138,9 @@ class Parser
         return $template;
     }
 
+    /**
+     * processRepeatingTag
+     */
     protected function processRepeatingTag($engine, $template, $field, $tagDetails)
     {
         $prefixField = $this->varPrefix.$field;
@@ -172,6 +179,9 @@ class Parser
         return $template;
     }
 
+    /**
+     * processTag
+     */
     protected function processTag($engine, $template, $field, $tagString)
     {
         $prefixField = $this->varPrefix.$field;
@@ -182,7 +192,7 @@ class Parser
     }
 
     /**
-     * Processes a field type and converts it to the Twig engine.
+     * evalTwigViewField processes a field type and converts it to the Twig engine.
      * @param  string $field
      * @param  array $params
      * @param  string $prefix
@@ -194,9 +204,7 @@ class Parser
             return '';
         }
 
-        /*
-         * Used by Twig for loop
-         */
+        // Used by Twig for loop
         if ($prefix) {
             $field = $prefix.'.'.$field;
         }

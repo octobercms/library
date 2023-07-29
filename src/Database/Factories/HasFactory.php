@@ -29,7 +29,12 @@ trait HasFactory
      */
     protected static function factoryForModel(string $modelName)
     {
-        $factory = str_replace('Models\\', 'Factories\\', $modelName) . 'Factory';
+        if (strpos($modelName, 'App\\') === 0) {
+            $factory = str_replace('Models\\', 'Database\\Factories\\', $modelName) . 'Factory';
+        }
+        else {
+            $factory = str_replace('Models\\', 'Updates\\Factories\\', $modelName) . 'Factory';
+        }
 
         return $factory::new();
     }
