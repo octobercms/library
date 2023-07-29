@@ -11,7 +11,7 @@ use Exception;
 class FieldParser
 {
     /**
-     * @var string Template contents
+     * @var string template contents
      */
     protected $template = '';
 
@@ -199,10 +199,10 @@ class FieldParser
 
             $field['fields'] = $innerFields;
             $tags[$name] = [
-                'tags'     => $innerTags,
+                'tags' => $innerTags,
                 'template' => $outerTemplate,
-                'open'     => $openTag,
-                'close'    => $closeTag
+                'open' => $openTag,
+                'close' => $closeTag
             ];
 
             // Remove the inner content of the repeater
@@ -322,7 +322,7 @@ class FieldParser
     }
 
     /**
-     * Converts parameter string to an array.
+     * processParamsRegex converts parameter string to an array.
      *
      *  In: name="test" comment="This is a test"
      *  Out: ['name' => 'test', 'comment' => 'This is a test']
