@@ -1,5 +1,10 @@
 <?php namespace October\Rain\Argon;
 
+use Carbon\Carbon;
+use Carbon\CarbonImmutable;
+use Carbon\CarbonInterval;
+use Carbon\CarbonPeriod;
+use Illuminate\Support\DateFactory;
 use October\Rain\Support\ServiceProvider;
 
 /**
@@ -15,6 +20,7 @@ class ArgonServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        DateFactory::useClass(\October\Rain\Argon\Argon::class);
     }
 
     /**
@@ -24,23 +30,26 @@ class ArgonServiceProvider extends ServiceProvider
     {
         $locale = $this->app['config']->get('app.locale');
 
-        $this->setArgonLocale($locale);
+        $this->setCarbonLocale($locale);
 
         $this->app['events']->listen('locale.changed', function ($locale) {
-            $this->setArgonLocale($locale);
+            $this->setCarbonLocale($locale);
         });
     }
 
     /**
-     * setArgonLocale sets the locale using the correct load order.
+     * setCarbonLocale sets the locale using the correct load order.
      */
-    protected function setArgonLocale($locale)
+    protected function setCarbonLocale($locale)
     {
-        Argon::setLocale($locale);
+        Carbon::setLocale($locale);
+        CarbonImmutable::setLocale($locale);
+        CarbonPeriod::setLocale($locale);
+        CarbonInterval::setLocale($locale);
 
         $fallbackLocale = $this->getFallbackLocale($locale);
         if ($locale !== $fallbackLocale) {
-            Argon::setFallbackLocale($fallbackLocale);
+            Carbon::setFallbackLocale($fallbackLocale);
         }
     }
 
