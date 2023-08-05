@@ -30,14 +30,6 @@ trait ExtendableTrait
     ];
 
     /**
-     * @var array extendableCallbacks is used to extend the constructor of an extendable class. Eg:
-     *
-     *     Class::extend(function($obj) { })
-     *
-     */
-    protected static $extendableCallbacks = [];
-
-    /**
      * @var array extendableStaticMethods is a collection of static methods used by behaviors
      */
     protected static $extendableStaticMethods = [];
@@ -55,8 +47,8 @@ trait ExtendableTrait
         // Apply init callbacks
         $classes = array_merge([get_class($this)], class_parents($this));
         foreach ($classes as $class) {
-            if (isset(self::$extendableCallbacks[$class]) && is_array(self::$extendableCallbacks[$class])) {
-                foreach (self::$extendableCallbacks[$class] as $callback) {
+            if (isset(Container::$classCallbacks[$class]) && is_array(Container::$classCallbacks[$class])) {
+                foreach (Container::$classCallbacks[$class] as $callback) {
                     call_user_func($callback, $this);
                 }
             }
@@ -97,21 +89,21 @@ trait ExtendableTrait
     {
         $class = get_called_class();
         if (
-            !isset(self::$extendableCallbacks[$class]) ||
-            !is_array(self::$extendableCallbacks[$class])
+            !isset(Container::$classCallbacks[$class]) ||
+            !is_array(Container::$classCallbacks[$class])
         ) {
-            self::$extendableCallbacks[$class] = [];
+            Container::$classCallbacks[$class] = [];
         }
 
-        self::$extendableCallbacks[$class][] = $callback;
+        Container::$classCallbacks[$class][] = $callback;
     }
 
     /**
-     * clearExtendedClasses clears the list of extended classes so they will be re-extended
+     * @deprecated use \October\Rain\Extension\Container::clearExtensions()
      */
     public static function clearExtendedClasses()
     {
-        self::$extendableCallbacks = [];
+        Container::clearExtensions();
     }
 
     /**
@@ -543,9 +535,7 @@ trait ExtendableTrait
                 array_key_exists('implement', $defaultProperties) &&
                 ($implement = $defaultProperties['implement'])
             ) {
-                /*
-                 * Apply extensions
-                 */
+                // Apply extensions
                 if (is_string($implement)) {
                     $uses = explode(',', $implement);
                 }
