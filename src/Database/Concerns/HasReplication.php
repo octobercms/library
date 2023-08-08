@@ -69,15 +69,9 @@ trait HasReplication
 
         foreach ($definitions as $type => $relations) {
             foreach ($relations as $name => $options) {
-                if (!$this->isRelationReplicable($name)) {
-                    continue;
+                if ($this->isRelationReplicable($name, $isMultisite, $isDuplicate)) {
+                    $this->replicateRelationInternal($instance->$name(), $this->$name);
                 }
-
-                if (!$isDuplicate && $isMultisite && $this->isAttributePropagatable($name)) {
-                    continue;
-                }
-
-                $this->replicateRelationInternal($instance->$name(), $this->$name);
             }
         }
 
@@ -113,10 +107,15 @@ trait HasReplication
      * isRelationReplicable determines whether the specified relation should be replicated
      * when replicateWithRelations() is called instead of save() on the model. Default: true.
      */
-    protected function isRelationReplicable(string $name): bool
+    protected function isRelationReplicable(string $name, bool $isMultisite, bool $isDuplicate): bool
     {
         $relationType = $this->getRelationType($name);
         if ($relationType === 'morphTo') {
+            return false;
+        }
+
+        // Relation is shared via propagation
+        if (!$isDuplicate && $isMultisite && $this->isAttributePropagatable($name)) {
             return false;
         }
 
