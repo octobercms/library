@@ -19,13 +19,39 @@ trait HasReplication
      */
     public function replicateWithRelations(array $except = null)
     {
+        return $this->replicateRelationsInternal($except);
+    }
+
+    /**
+     * duplicateWithRelations replicates a model with special multisite duplication logic.
+     * To avoid duplication of has many relations, the logic only propagates relations on
+     * the parent model since they are shared via site_root_id beyond this point.
+     *
+     * @param  array|null  $except
+     * @return static
+     */
+    public function duplicateWithRelations(array $except = null)
+    {
+        return $this->replicateRelationsInternal($except, ['isDuplicate' => true]);
+    }
+
+    /**
+     * replicateRelationsInternal
+     */
+    protected function replicateRelationsInternal(array $except = null, array $options = [])
+    {
+        extract(array_merge([
+            'isDuplicate' => false
+        ], $options));
+
         $defaults = [
             $this->getKeyName(),
             $this->getCreatedAtColumn(),
             $this->getUpdatedAtColumn(),
         ];
 
-        if ($this->isClassInstanceOf(\October\Contracts\Database\MultisiteInterface::class)) {
+        $isMultisite = $this->isClassInstanceOf(\October\Contracts\Database\MultisiteInterface::class);
+        if ($isMultisite) {
             $defaults[] = 'site_root_id';
         }
 
@@ -43,9 +69,15 @@ trait HasReplication
 
         foreach ($definitions as $type => $relations) {
             foreach ($relations as $name => $options) {
-                if ($this->isRelationReplicable($name)) {
-                    $this->replicateRelationInternal($instance->$name(), $this->$name);
+                if (!$this->isRelationReplicable($name)) {
+                    continue;
                 }
+
+                if (!$isDuplicate && $isMultisite && $this->isAttributePropagatable($name)) {
+                    continue;
+                }
+
+                $this->replicateRelationInternal($instance->$name(), $this->$name);
             }
         }
 
