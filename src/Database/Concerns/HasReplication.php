@@ -25,6 +25,10 @@ trait HasReplication
             $this->getUpdatedAtColumn(),
         ];
 
+        if ($this->isClassInstanceOf(\October\Contracts\Database\MultisiteInterface::class)) {
+            $defaults[] = 'site_root_id';
+        }
+
         $attributes = Arr::except(
             $this->attributes, $except ? array_unique(array_merge($except, $defaults)) : $defaults
         );
