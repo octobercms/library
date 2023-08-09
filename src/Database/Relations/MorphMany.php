@@ -39,10 +39,7 @@ class MorphMany extends MorphManyBase
         if (!$value) {
             if ($this->parent->exists) {
                 $this->parent->bindEventOnce('model.afterSave', function () {
-                    $this->update([
-                        $this->getForeignKeyName() => null,
-                        $this->getMorphType() => null
-                    ]);
+                    $this->ensureRelationIsEmpty();
                 });
             }
             return;
