@@ -8,11 +8,11 @@ class SyntaxFieldParserTest extends TestCase
     public function testParse()
     {
         $content = '';
-        $content .= '{text '.PHP_EOL.'name="field1"'.PHP_EOL.' label="Field 1"}{/text}'.PHP_EOL;
-        $content .= '{textarea name="field1" label="Field 1 Again"}{/textarea}'.PHP_EOL;
-        $content .= '{text name="field2" label="Field 2"}Default Text{/text}'.PHP_EOL;
-        $content .= '{textarea '.PHP_EOL.'name="field3" '.PHP_EOL.'label="Field 3"}Default Text{/textarea}'.PHP_EOL;
-        $content .= '{textarea name="field4" label="Field 4"}Invalid Tag{/invalid}'.PHP_EOL;
+        $content .= '{text ' . PHP_EOL . 'name="field1"' . PHP_EOL . ' label="Field 1"}{/text}' . PHP_EOL;
+        $content .= '{textarea name="field1" label="Field 1 Again"}{/textarea}' . PHP_EOL;
+        $content .= '{text name="field2" label="Field 2"}Default Text{/text}' . PHP_EOL;
+        $content .= '{textarea ' . PHP_EOL . 'name="field3" ' . PHP_EOL . 'label="Field 3"}Default Text{/textarea}' . PHP_EOL;
+        $content .= '{textarea name="field4" label="Field 4"}Invalid Tag{/invalid}' . PHP_EOL;
 
         $result = FieldParser::parse($content);
         $tags = $result->getTags();
@@ -44,13 +44,13 @@ class SyntaxFieldParserTest extends TestCase
     public function testParseWithPrefix()
     {
         $content = '';
-        $content .= '{text '.PHP_EOL.'name="field1"'.PHP_EOL.' label="Ignore me"}{/oc:text}'.PHP_EOL;
-        $content .= '{text '.PHP_EOL.'name="field1"'.PHP_EOL.' label="Field 1"}{/text}'.PHP_EOL;
-        $content .= '{textarea name="field1" label="Field 1 Again"}{/textarea}'.PHP_EOL;
-        $content .= '{oc:text name="field2" label="Field 2"}Default Text{/oc:text}'.PHP_EOL;
-        $content .= '{oc:textarea '.PHP_EOL.'name="field3" '.PHP_EOL.'label="Field 3"}Default Text{/oc:textarea}'.PHP_EOL;
-        $content .= '{oc:textarea name="field4" label="Field 4"}Invalid Tag{/oc:invalid}'.PHP_EOL;
-        $content .= '{occ:textarea name="field1" label="Ignore me too"}{/occ:textarea}'.PHP_EOL;
+        $content .= '{text ' . PHP_EOL . 'name="field1"' . PHP_EOL . ' label="Ignore me"}{/oc:text}' . PHP_EOL;
+        $content .= '{text ' . PHP_EOL . 'name="field1"' . PHP_EOL . ' label="Field 1"}{/text}' . PHP_EOL;
+        $content .= '{textarea name="field1" label="Field 1 Again"}{/textarea}' . PHP_EOL;
+        $content .= '{oc:text name="field2" label="Field 2"}Default Text{/oc:text}' . PHP_EOL;
+        $content .= '{oc:textarea ' . PHP_EOL . 'name="field3" ' . PHP_EOL . 'label="Field 3"}Default Text{/oc:textarea}' . PHP_EOL;
+        $content .= '{oc:textarea name="field4" label="Field 4"}Invalid Tag{/oc:invalid}' . PHP_EOL;
+        $content .= '{occ:textarea name="field1" label="Ignore me too"}{/occ:textarea}' . PHP_EOL;
 
         $result = FieldParser::parse($content, ['tagPrefix' => 'oc:']);
         $tags = $result->getTags();
@@ -84,8 +84,8 @@ class SyntaxFieldParserTest extends TestCase
     public function testParseDropdownAndRadio()
     {
         $content = '';
-        $content .= '{dropdown name="field1" label="Field 1" options="one|two"}{/dropdown}'.PHP_EOL;
-        $content .= '{radio name="field2" label="Field 2" options="y:Yes|n:No|m:Maybe"}{/radio}'.PHP_EOL;
+        $content .= '{dropdown name="field1" label="Field 1" options="one|two"}{/dropdown}' . PHP_EOL;
+        $content .= '{radio name="field2" label="Field 2" options="y:Yes|n:No|m:Maybe"}{/radio}' . PHP_EOL;
         $content .= '{variable type="dropdown" name="dropdown" label="Pick one" options="One|Two"}{/variable}';
         $content .= '{variable type="radio" name="radio" label="Thoughts?" options="y:Yeah|n:Nah|m:Mebbe"}{/variable}';
 
@@ -121,18 +121,18 @@ class SyntaxFieldParserTest extends TestCase
     public function testParseRepeater()
     {
         $content = '';
-        $content .= '{text name="field1" label="Field 1"}{/text}'.PHP_EOL;
-        $content .= '{repeater name="repeater1" label="Repeater 1"}'.PHP_EOL;
-            $content .= '{textarea name="field1" label="Field 1 Again"}This Default Text{/textarea}'.PHP_EOL;
-            $content .= '{text name="field2" label="Field 2"}{/text}'.PHP_EOL;
-        $content .= '{/repeater}'.PHP_EOL;
-        $content .= '{textarea name="field3" label="Field 3"}Default Text{/textarea}'.PHP_EOL;
-        $content .= '{textarea name="field4" label="Field 4"}Invalid Tag{/invalid}'.PHP_EOL;
-        $content .= '{repeater name="repeater2" label="Repeater 2"}'.PHP_EOL;
-            $content .= '{textarea name="field5" label="Field 5 Again"}{/textarea}'.PHP_EOL;
-            $content .= '{text name="field6" label="Field 6"}Some Default Text{/text}'.PHP_EOL;
-        $content .= '{/repeater}'.PHP_EOL;
-        $content .= '{richeditor name="field7" label="Field 7"}{/richeditor}'.PHP_EOL;
+        $content .= '{text name="field1" label="Field 1"}{/text}' . PHP_EOL;
+        $content .= '{repeater name="repeater1" label="Repeater 1"}' . PHP_EOL;
+        $content .= '{textarea name="field1" label="Field 1 Again"}This Default Text{/textarea}' . PHP_EOL;
+        $content .= '{text name="field2" label="Field 2"}{/text}' . PHP_EOL;
+        $content .= '{/repeater}' . PHP_EOL;
+        $content .= '{textarea name="field3" label="Field 3"}Default Text{/textarea}' . PHP_EOL;
+        $content .= '{textarea name="field4" label="Field 4"}Invalid Tag{/invalid}' . PHP_EOL;
+        $content .= '{repeater name="repeater2" label="Repeater 2"}' . PHP_EOL;
+        $content .= '{textarea name="field5" label="Field 5 Again"}{/textarea}' . PHP_EOL;
+        $content .= '{text name="field6" label="Field 6"}Some Default Text{/text}' . PHP_EOL;
+        $content .= '{/repeater}' . PHP_EOL;
+        $content .= '{richeditor name="field7" label="Field 7"}{/richeditor}' . PHP_EOL;
 
         $result = FieldParser::parse($content);
         $tags = $result->getTags();
@@ -199,8 +199,8 @@ class SyntaxFieldParserTest extends TestCase
     {
         $parser = new FieldParser;
         $content = '';
-        $content .= '{text name="websiteName" label="Website Name" size="large"}{/text}'.PHP_EOL;
-        $content .= '{text name="blogName" label="Blog Name" color="re\"d"}October CMS{/text}'.PHP_EOL;
+        $content .= '{text name="websiteName" label="Website Name" size="large"}{/text}' . PHP_EOL;
+        $content .= '{text name="blogName" label="Blog Name" color="re\"d"}October CMS{/text}' . PHP_EOL;
         $content .= '{text name="storeName" label="Store Name" shape="circle"}{/text}';
         $content .= '{text label="Unnamed" distance="400m"}Foobar{/text}';
         $content .= '{foobar name="nullName" label="Valid tag, not searched by this test"}{/foobar}';
@@ -271,8 +271,8 @@ class SyntaxFieldParserTest extends TestCase
     {
         $parser = new FieldParser;
         $content = '';
-        $content .= '{text name="websiteName" label="Website Name"}{/text}'.PHP_EOL;
-        $content .= '{text name="blogName" label="Blog Name"}October CMS{/text}'.PHP_EOL;
+        $content .= '{text name="websiteName" label="Website Name"}{/text}' . PHP_EOL;
+        $content .= '{text name="blogName" label="Blog Name"}October CMS{/text}' . PHP_EOL;
         $content .= '{text name="storeName" label="Store Name"}{/text}';
         $result = self::callProtectedMethod($parser, 'processTagsRegex', [$content, ['text']]);
 

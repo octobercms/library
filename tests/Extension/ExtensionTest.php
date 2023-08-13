@@ -22,6 +22,7 @@ class ExtensionTest extends TestCase
 /*
  * Example class that has extensions enabled
  */
+
 class ExtensionTestExampleExtendableClass extends Extendable
 {
     public $implement = ['ExtensionTestExampleBehaviorClass1'];

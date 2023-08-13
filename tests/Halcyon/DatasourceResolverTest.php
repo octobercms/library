@@ -1,8 +1,8 @@
 <?php
 
 use October\Rain\Filesystem\Filesystem;
-use October\Rain\Halcyon\Datasource\Resolver;
 use October\Rain\Halcyon\Datasource\FileDatasource;
+use October\Rain\Halcyon\Datasource\Resolver;
 
 class DatasourceResolverTest extends TestCase
 {

@@ -34,12 +34,12 @@ class HalcyonTestPageWithValidation extends HalcyonTestPage
     use \October\Rain\Halcyon\Traits\Validation;
 
     public $customMessages = [
-       'required' => 'The :attribute field is required.'
+        'required' => 'The :attribute field is required.'
     ];
 
     public $attributeNames = [
-       'title' => 'title',
-       'viewBag.meta_title' => 'meta title'
+        'title' => 'title',
+        'viewBag.meta_title' => 'meta title'
     ];
 
     public $rules = [

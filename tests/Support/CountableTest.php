@@ -1,4 +1,5 @@
 <?php
+
 class CountableTest extends TestCase
 {
     public function testCountable()

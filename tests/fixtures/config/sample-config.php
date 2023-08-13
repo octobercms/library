@@ -15,7 +15,7 @@ return [
 
     'debug' => true,
 
-    "debugAgain"  =>  FALSE ,
+    "debugAgain" => FALSE,
 
     "bullyIan" => 0,
 
@@ -51,7 +51,7 @@ return [
 
     'timezone' => "October's time",
 
-    "timezoneAgain"               =>         'Something "else"'         ,
+    "timezoneAgain" => 'Something "else"',
 
     /*
     |--------------------------------------------------------------------------
@@ -72,40 +72,40 @@ return [
     'connections' => [
 
         'sqlite' => [
-            'driver'   => 'sqlite',
-            'database' => __DIR__.'/../database/production.sqlite',
-            'prefix'   => '',
+            'driver' => 'sqlite',
+            'database' => __DIR__ . '/../database/production.sqlite',
+            'prefix' => '',
         ],
 
         'mysql' => [
-            'driver'    => ['rabble' => 'mysql'],
-            'host'      => 'localhost',
-            'database'  => 'database',
-            'username'  => 'root',
-            'password'  => '',
-            'charset'   => 'utf8',
-            'collation' => 'utf8_unicode_ci',
-            'prefix'    => '',
-        ],
-
-        'sqlsrv' => [
-            'driver'   => 'sqlsrv',
-            'host'     => 'localhost',
+            'driver' => ['rabble' => 'mysql'],
+            'host' => 'localhost',
             'database' => 'database',
             'username' => 'root',
             'password' => '',
-            'prefix'   => '',
+            'charset' => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix' => '',
+        ],
+
+        'sqlsrv' => [
+            'driver' => 'sqlsrv',
+            'host' => 'localhost',
+            'database' => 'database',
+            'username' => 'root',
+            'password' => '',
+            'prefix' => '',
         ],
 
         'pgsql' => [
-            'driver'   => 'pgsql',
-            'host'     => 'localhost',
+            'driver' => 'pgsql',
+            'host' => 'localhost',
             'database' => 'database',
             'username' => 'root',
             'password' => false,
-            'charset'  => 'utf8',
-            'prefix'   => '',
-            'schema'   => 'public',
+            'charset' => 'utf8',
+            'prefix' => '',
+            'schema' => 'public',
         ],
     ],
 
@@ -138,9 +138,9 @@ return [
         'cluster' => false,
 
         'default' => [
-            'host'     => '127.0.0.1',
+            'host' => '127.0.0.1',
             'password' => null,
-            'port'     => 6379,
+            'port' => 6379,
             'database' => 0,
         ],
 

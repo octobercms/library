@@ -1,11 +1,11 @@
 <?php namespace October\Rain\Translation;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Support\DeferrableProvider;
+use Illuminate\Support\ServiceProvider;
 
 /**
  * TranslationServiceProvider is a custom translator implemenation based on Laravel
-  *
+ *
  * @package october\translation
  * @author Alexey Bobkov, Samuel Georges
  */

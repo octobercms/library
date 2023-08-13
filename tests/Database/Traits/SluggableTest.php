@@ -29,8 +29,12 @@ class SluggableTest extends TestCase
         });
 
         // Mock app instance for this test
-        App::swap(new class {
-            public function getLocale() { return 'en'; }
+        App::swap(new class
+        {
+            public function getLocale()
+            {
+                return 'en';
+            }
         });
     }
 

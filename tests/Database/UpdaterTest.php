@@ -6,7 +6,7 @@ class UpdaterTest extends TestCase
 {
     public function setUp(): void
     {
-        include_once __DIR__.'/../fixtures/database/SampleClass.php';
+        include_once __DIR__ . '/../fixtures/database/SampleClass.php';
 
         $this->updater = new Updater();
     }

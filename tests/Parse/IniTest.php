@@ -7,7 +7,7 @@ class IniTest extends TestCase
 
     public function testBasic()
     {
-        $path = __DIR__.'/../fixtures/parse/basic.ini';
+        $path = __DIR__ . '/../fixtures/parse/basic.ini';
         $this->assertFileExists($path);
         $content = $this->getContents($path);
 
@@ -56,7 +56,7 @@ class IniTest extends TestCase
 
     public function testArray()
     {
-        $path = __DIR__.'/../fixtures/parse/array.ini';
+        $path = __DIR__ . '/../fixtures/parse/array.ini';
         $this->assertFileExists($path);
         $content = $this->getContents($path);
 
@@ -79,7 +79,7 @@ class IniTest extends TestCase
 
     public function testObject()
     {
-        $path = __DIR__.'/../fixtures/parse/object.ini';
+        $path = __DIR__ . '/../fixtures/parse/object.ini';
         $this->assertFileExists($path);
         $content = $this->getContents($path);
 
@@ -110,7 +110,7 @@ class IniTest extends TestCase
 
     public function testComments()
     {
-        $path = __DIR__.'/../fixtures/parse/comments.ini';
+        $path = __DIR__ . '/../fixtures/parse/comments.ini';
         $this->assertFileExists($path);
         $content = $this->getContents($path);
 
@@ -137,7 +137,7 @@ class IniTest extends TestCase
         $this->assertArrayHasKey('file', $result['database']);
         $this->assertEquals($vars, $result);
 
-        $path = __DIR__.'/../fixtures/parse/comments-clean.ini';
+        $path = __DIR__ . '/../fixtures/parse/comments-clean.ini';
         $this->assertFileExists($path);
         $content = $this->getContents($path);
 
@@ -149,7 +149,7 @@ class IniTest extends TestCase
 
     public function testComplex()
     {
-        $path = __DIR__.'/../fixtures/parse/complex.ini';
+        $path = __DIR__ . '/../fixtures/parse/complex.ini';
         $this->assertFileExists($path);
         $content = $this->getContents($path);
 
@@ -250,7 +250,7 @@ class IniTest extends TestCase
 
     public function testMultilinesValues()
     {
-        $path = __DIR__.'/../fixtures/parse/multilines-value.ini';
+        $path = __DIR__ . '/../fixtures/parse/multilines-value.ini';
         $this->assertFileExists($path);
         $content = $this->getContents($path);
 
@@ -286,11 +286,11 @@ class IniTest extends TestCase
         $parser = new IniParser;
 
         $data = [
-            'var1'=>'value 1',
-            'var2'=>'value 21'
+            'var1' => 'value 1',
+            'var2' => 'value 21'
         ];
 
-        $path = __DIR__.'/../fixtures/parse/simple.ini';
+        $path = __DIR__ . '/../fixtures/parse/simple.ini';
         $this->assertFileExists($path);
 
         $str = $parser->render($data);
@@ -308,11 +308,11 @@ class IniTest extends TestCase
                 'sectionVar4' => 'section value 4'
             ],
             'emptysection' => [],
-            'var1'=>'value 1',
-            'var2'=>'value 21'
+            'var1' => 'value 1',
+            'var2' => 'value 21'
         ];
 
-        $path = __DIR__.'/../fixtures/parse/sections.ini';
+        $path = __DIR__ . '/../fixtures/parse/sections.ini';
         $this->assertFileExists($path);
 
         $str = $parser->render($data);
@@ -336,20 +336,20 @@ class IniTest extends TestCase
                     'subsection value 2'
                 ]
             ],
-            'var1'=>'value 1',
-            'var2'=>'value 21'
+            'var1' => 'value 1',
+            'var2' => 'value 21'
         ];
 
-        $path = __DIR__.'/../fixtures/parse/subsections.ini';
+        $path = __DIR__ . '/../fixtures/parse/subsections.ini';
         $this->assertFileExists($path);
 
         $str = $parser->render($data);
         $this->assertEquals($this->getContents($path), $str);
     }
 
-   //
-   // Helpers
-   //
+    //
+    // Helpers
+    //
 
     protected function getContents($path)
     {

@@ -8,7 +8,7 @@ class StylesheetMinifyTest extends TestCase
 {
     public function testSpaceRemoval()
     {
-        $input  = 'body{width: calc(99.9% * 1/1 - 0px); height: 0px;}';
+        $input = 'body{width: calc(99.9% * 1/1 - 0px); height: 0px;}';
         $output = 'body{width:calc(99.9% * 1/1 - 0px);height:0px}';
 
         $mockAsset = new MockAsset($input);
@@ -20,8 +20,8 @@ class StylesheetMinifyTest extends TestCase
 
     public function testEmptyClassPreserve()
     {
-        $input = ''.
-        '.view { /*
+        $input = '' .
+            '.view { /*
             * Text
             */
             /*
@@ -48,8 +48,8 @@ class StylesheetMinifyTest extends TestCase
 
     public function testEmptyCommentPreserve()
     {
-        $input = ''.
-        '
+        $input = '' .
+            '
         body { background: blue; }
         /**/
         .view { color: red; }';
@@ -65,7 +65,7 @@ class StylesheetMinifyTest extends TestCase
 
     public function testSpecialCommentPreservation()
     {
-        $input  = 'body {/*! Keep me */}';
+        $input = 'body {/*! Keep me */}';
         $output = 'body{/*! Keep me */}';
 
         $mockAsset = new MockAsset($input);
@@ -77,7 +77,7 @@ class StylesheetMinifyTest extends TestCase
 
     public function testCommentRemoval()
     {
-        $input  = 'body{/* First comment */} /* Second comment */';
+        $input = 'body{/* First comment */} /* Second comment */';
         $output = 'body{}';
 
         $mockAsset = new MockAsset($input);
@@ -89,7 +89,7 @@ class StylesheetMinifyTest extends TestCase
 
     public function testCommentPreservationInVar()
     {
-        $input  = '--ring-inset: var(--empty, /*!*/ /*!*/);';
+        $input = '--ring-inset: var(--empty, /*!*/ /*!*/);';
         $output = '--ring-inset:var(--empty,/*!*/ /*!*/);';
 
         $mockAsset = new MockAsset($input);
@@ -101,7 +101,7 @@ class StylesheetMinifyTest extends TestCase
 
     public function testMinifyPreservationInVar()
     {
-        $input  = ''.
+        $input = '' .
             'select:focus {
                 --ring-inset: var(--empty, /*!*/ /*!*/);
                 --ring-offset-width: 0px;
@@ -119,7 +119,7 @@ class StylesheetMinifyTest extends TestCase
 
     public function testUnitPreservationInVar()
     {
-        $input  = '--offset-width: 0px';
+        $input = '--offset-width: 0px';
         $output = '--offset-width:0px';
 
         $mockAsset = new MockAsset($input);
@@ -131,7 +131,7 @@ class StylesheetMinifyTest extends TestCase
 
     public function testAttributeSelectorsWithLess()
     {
-        $input = ''.
+        $input = '' .
             '[class^="icon-"]:before,
             [class*=" icon-"]:before {
                 speak: none;
@@ -152,7 +152,7 @@ class StylesheetMinifyTest extends TestCase
 
     public function testSourceMappingUrlWithSpecialComment()
     {
-        $input = ''.
+        $input = '' .
             '/*! keep me */*,:after,:before { opacity: 1; }body {background: purple;}
 
             /*# sourceMappingUrl*/';

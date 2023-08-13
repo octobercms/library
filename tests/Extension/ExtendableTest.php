@@ -56,7 +56,7 @@ class ExtendableTest extends TestCase
 
     public function testDynamicallyImplementingClass()
     {
-        ExtendableTestExampleImplementableClass::extend(function($obj) {
+        ExtendableTestExampleImplementableClass::extend(function ($obj) {
             $obj->implementClassWith('ExtendableTestExampleBehaviorClass2');
             $obj->implementClassWith('ExtendableTestExampleBehaviorClass2');
             $obj->implementClassWith('ExtendableTestExampleBehaviorClass2');
@@ -296,6 +296,7 @@ class ExtendableTestExampleBehaviorClass2 extends ExtensionBase
 /*
  * Example class that has an invalid implementation
  */
+
 class ExtendableTestInvalidExtendableClass extends Extendable
 {
     public $implement = 24;
@@ -306,6 +307,7 @@ class ExtendableTestInvalidExtendableClass extends Extendable
 /*
  * Example class that has extensions enabled
  */
+
 class ExtendableTestExampleExtendableClass extends Extendable
 {
     public $implement = ['ExtendableTestExampleBehaviorClass1'];
@@ -357,6 +359,7 @@ class ExtendableTestExampleClass
 /*
  * Example class with soft implement failure
  */
+
 class ExtendableTestExampleExtendableSoftImplementFakeClass extends Extendable
 {
     public $implement = ['@RabbleRabbleRabble'];
@@ -370,6 +373,7 @@ class ExtendableTestExampleExtendableSoftImplementFakeClass extends Extendable
 /*
  * Example class with soft implement success
  */
+
 class ExtendableTestExampleExtendableSoftImplementRealClass extends Extendable
 {
     public $implement = ['@ExtendableTestExampleBehaviorClass1'];
@@ -378,6 +382,7 @@ class ExtendableTestExampleExtendableSoftImplementRealClass extends Extendable
 /*
  * Example class with soft implement hybrid
  */
+
 class ExtendableTestExampleExtendableSoftImplementComboClass extends Extendable
 {
     public $implement = [
@@ -390,6 +395,7 @@ class ExtendableTestExampleExtendableSoftImplementComboClass extends Extendable
 /*
  * Example class that has extensions enabled using dot notation
  */
+
 class ExtendableTestExampleExtendableClassDotNotation extends Extendable
 {
     public $implement = ['ExtendableTest.ExampleBehaviorClass1'];

@@ -1,7 +1,7 @@
 <?php
 
-use October\Rain\Mail\Mailer;
 use October\Rain\Mail\FakeMailer;
+use October\Rain\Mail\Mailer;
 use Symfony\Component\Mailer\Transport\NullTransport;
 
 /**
@@ -162,8 +162,12 @@ class MailerTest extends TestCase
      */
     protected function mockMailer()
     {
-        $app = new class {
-            public function getLocale() { return 'en'; }
+        $app = new class
+        {
+            public function getLocale()
+            {
+                return 'en';
+            }
         };
 
         $manager = new \Illuminate\Mail\MailManager($app);

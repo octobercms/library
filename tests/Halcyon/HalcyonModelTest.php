@@ -1,9 +1,9 @@
 <?php
 
-use October\Rain\Halcyon\Model;
-use October\Rain\Halcyon\Datasource\Resolver;
-use October\Rain\Halcyon\Datasource\FileDatasource;
 use October\Rain\Filesystem\Filesystem;
+use October\Rain\Halcyon\Datasource\FileDatasource;
+use October\Rain\Halcyon\Datasource\Resolver;
+use October\Rain\Halcyon\Model;
 
 class HalcyonModelTest extends TestCase
 {
@@ -11,9 +11,9 @@ class HalcyonModelTest extends TestCase
 
     public function setUp(): void
     {
-        include_once __DIR__.'/../fixtures/halcyon/models/Page.php';
-        include_once __DIR__.'/../fixtures/halcyon/models/Menu.php';
-        include_once __DIR__.'/../fixtures/halcyon/models/Content.php';
+        include_once __DIR__ . '/../fixtures/halcyon/models/Page.php';
+        include_once __DIR__ . '/../fixtures/halcyon/models/Menu.php';
+        include_once __DIR__ . '/../fixtures/halcyon/models/Content.php';
 
         $this->setDatasourceResolver();
 
@@ -64,7 +64,7 @@ class HalcyonModelTest extends TestCase
 
     public function testCreatePage()
     {
-        @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/testfile.htm');
+        @unlink($targetFile = __DIR__ . '/../fixtures/halcyon/themes/theme1/pages/testfile.htm');
 
         HalcyonTestPage::create([
             'fileName' => 'testfile.htm',
@@ -99,7 +99,7 @@ ESC;
 
     public function testCreatePageMarkupSections()
     {
-        @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/testfile.htm');
+        @unlink($targetFile = __DIR__ . '/../fixtures/halcyon/themes/theme1/pages/testfile.htm');
 
         $markup = <<< ESC
 function onStart() { }
@@ -133,7 +133,7 @@ ESC;
 
     public function testCreateMenu()
     {
-        @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/menus/testfile.htm');
+        @unlink($targetFile = __DIR__ . '/../fixtures/halcyon/themes/theme1/menus/testfile.htm');
 
         HalcyonTestMenu::create([
             'fileName' => 'testfile',
@@ -153,7 +153,7 @@ ESC;
 
     public function testCreatePageInDirectoryPass()
     {
-        @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/walking/on-sunshine.htm');
+        @unlink($targetFile = __DIR__ . '/../fixtures/halcyon/themes/theme1/pages/walking/on-sunshine.htm');
 
         HalcyonTestPage::create([
             'fileName' => 'walking/on-sunshine.htm',
@@ -181,7 +181,7 @@ ESC;
 
     public function testUpdatePage()
     {
-        @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/testfile2.htm');
+        @unlink($targetFile = __DIR__ . '/../fixtures/halcyon/themes/theme1/pages/testfile2.htm');
 
         try {
             $page = HalcyonTestPage::create([
@@ -208,15 +208,14 @@ ESC;
             $this->assertFalse($page->isDirty());
             unset($page->title);
             $this->assertTrue($page->isDirty());
-        }
-        finally {
-            @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/testfile2.htm');
+        } finally {
+            @unlink($targetFile = __DIR__ . '/../fixtures/halcyon/themes/theme1/pages/testfile2.htm');
         }
     }
 
     public function testUpdatePageRenameFile()
     {
-        @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/testfile2.htm');
+        @unlink($targetFile = __DIR__ . '/../fixtures/halcyon/themes/theme1/pages/testfile2.htm');
 
         try {
             $page = HalcyonTestPage::create([
@@ -230,18 +229,17 @@ ESC;
             $page->fileName = 'renamedtest1';
             $page->save();
 
-            $newTargetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/renamedtest1.htm';
+            $newTargetFile = __DIR__ . '/../fixtures/halcyon/themes/theme1/pages/renamedtest1.htm';
             $this->assertFileNotExists($targetFile);
             $this->assertFileExists($newTargetFile);
-        }
-        finally {
+        } finally {
             @unlink($newTargetFile);
         }
     }
 
     public function testUpdatePageRenameFileCase()
     {
-        @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/Test.htm');
+        @unlink($targetFile = __DIR__ . '/../fixtures/halcyon/themes/theme1/pages/Test.htm');
 
         try {
             $page = HalcyonTestPage::create([
@@ -255,10 +253,9 @@ ESC;
             $page->fileName = 'test';
             $page->save();
 
-            $newTargetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/test.htm';
+            $newTargetFile = __DIR__ . '/../fixtures/halcyon/themes/theme1/pages/test.htm';
             $this->assertFileExists($newTargetFile);
-        }
-        finally {
+        } finally {
             @unlink($newTargetFile);
         }
     }
@@ -272,8 +269,8 @@ ESC;
         $this->assertEquals('welcome.htm', $content->fileName);
         $this->assertEquals('<p>Hi friend</p>', $content->markup);
 
-        $targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/content/welcome.htm';
-        $newTargetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/content/welcome.txt';
+        $targetFile = __DIR__ . '/../fixtures/halcyon/themes/theme1/content/welcome.htm';
+        $newTargetFile = __DIR__ . '/../fixtures/halcyon/themes/theme1/content/welcome.txt';
 
         $this->assertFileExists($targetFile);
 
@@ -295,7 +292,7 @@ ESC;
         $this->expectException(\October\Rain\Halcyon\Exception\FileExistsException::class);
         $this->expectExceptionMessage('A file already exists');
 
-        @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/testfile2a.htm');
+        @unlink($targetFile = __DIR__ . '/../fixtures/halcyon/themes/theme1/pages/testfile2a.htm');
 
         $page = HalcyonTestPage::create([
             'fileName' => 'testfile2a',
@@ -316,7 +313,7 @@ ESC;
 
     public function testDeletePage()
     {
-        @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/testfile3.htm');
+        @unlink($targetFile = __DIR__ . '/../fixtures/halcyon/themes/theme1/pages/testfile3.htm');
 
         $page = HalcyonTestPage::create([
             'fileName' => 'testfile3',
@@ -385,7 +382,7 @@ ESC;
 
     public function testAddDynamicProperty()
     {
-        @unlink($targetFile = __DIR__.'/../fixtures/halcyon/themes/theme1/pages/dynamicproperty.htm');
+        @unlink($targetFile = __DIR__ . '/../fixtures/halcyon/themes/theme1/pages/dynamicproperty.htm');
 
         try {
             $page = HalcyonTestPage::create([
@@ -410,8 +407,7 @@ ESC;
             $this->assertNotNull($page);
             $this->assertArrayNotHasKey('myDynamicProperty', $page->attributes);
             $this->assertFalse(property_exists($page, 'myDynamicProperty'));
-        }
-        finally {
+        } finally {
             @unlink($targetFile);
         }
     }
@@ -434,11 +430,11 @@ ESC;
 
     protected function setDatasourceResolver()
     {
-        $theme1 = new FileDatasource(realpath(__DIR__.'/../fixtures/halcyon/themes/theme1'), new Filesystem);
+        $theme1 = new FileDatasource(realpath(__DIR__ . '/../fixtures/halcyon/themes/theme1'), new Filesystem);
         $this->resolver = new Resolver(['theme1' => $theme1]);
         $this->resolver->setDefaultDatasource('theme1');
 
-        $theme2 = new FileDatasource(realpath(__DIR__.'/../fixtures/halcyon/themes/theme2'), new Filesystem);
+        $theme2 = new FileDatasource(realpath(__DIR__ . '/../fixtures/halcyon/themes/theme2'), new Filesystem);
         $this->resolver->addDatasource('theme2', $theme2);
 
         Model::setDatasourceResolver($this->resolver);

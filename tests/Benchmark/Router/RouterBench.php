@@ -65,16 +65,16 @@ class RouterBench
         // Build padded routes
         $routes = [];
         foreach ($this->fixtures as $index => $rule) {
-            $routes['pad1'.$index] = '/pad1/'.$rule;
-            $routes['pad2'.$index] = '/pad2/'.$rule;
-            $routes['pad3'.$index] = '/pad3/'.$rule;
-            $routes['pad3'.$index] = '/pad4/'.$rule;
-            $routes['pad3'.$index] = '/pad5/'.$rule;
+            $routes['pad1' . $index] = '/pad1/' . $rule;
+            $routes['pad2' . $index] = '/pad2/' . $rule;
+            $routes['pad3' . $index] = '/pad3/' . $rule;
+            $routes['pad3' . $index] = '/pad4/' . $rule;
+            $routes['pad3' . $index] = '/pad5/' . $rule;
         }
 
         // Final target at end (120 routes)
         foreach ($this->fixtures as $index => $rule) {
-            $routes['rule'.$index] = $rule;
+            $routes['rule' . $index] = $rule;
         }
 
         // Register with router
@@ -94,7 +94,7 @@ class RouterBench
         $router = new Router;
 
         foreach ($this->routes as $index => $rule) {
-            $router->route('rule'.$index, $rule);
+            $router->route('rule' . $index, $rule);
         }
 
         $router->match('authors/test/details');

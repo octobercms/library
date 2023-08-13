@@ -1,8 +1,8 @@
 <?php
 
 use October\Rain\Events\Dispatcher;
-use October\Rain\Events\PriorityDispatcher;
 use October\Rain\Events\FakeDispatcher;
+use October\Rain\Events\PriorityDispatcher;
 
 /**
  * EventDispatcherTest

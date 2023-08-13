@@ -41,8 +41,7 @@ class Translator extends TranslatorBase
             foreach ($key as $innerKey => $innerValue) {
                 $this->set($innerKey, $innerValue, $locale);
             }
-        }
-        else {
+        } else {
             $locale = $locale ?: $this->locale;
 
             $this->loaded['*']['*'][$locale][$key] = $value;
@@ -59,7 +58,7 @@ class Translator extends TranslatorBase
             !str_starts_with($key, 'validation.custom.') &&
             !str_starts_with($key, 'validation.attributes.')
         ) {
-            $nativeKey = 'system::'.$key;
+            $nativeKey = 'system::' . $key;
             $line = $this->get($nativeKey, $replace, $locale);
             if ($line !== $nativeKey) {
                 return $line;
@@ -72,9 +71,9 @@ class Translator extends TranslatorBase
     /**
      * trans returns the translation for a given key
      *
-     * @param  array|string  $id
-     * @param  array   $parameters
-     * @param  string  $locale
+     * @param array|string $id
+     * @param array $parameters
+     * @param string $locale
      * @return string
      */
     public function trans($id, array $parameters = [], $locale = null)
@@ -85,10 +84,10 @@ class Translator extends TranslatorBase
     /**
      * transChoice gets a translation according to an integer value
      *
-     * @param  string  $id
-     * @param  int     $number
-     * @param  array   $parameters
-     * @param  string  $locale
+     * @param string $id
+     * @param int $number
+     * @param array $parameters
+     * @param string $locale
      * @return string
      */
     public function transChoice($id, $number, array $parameters = [], $locale = null)
@@ -99,7 +98,7 @@ class Translator extends TranslatorBase
     /**
      * localeArray gets the array of locales to be checked
      *
-     * @param  string|null  $locale
+     * @param string|null $locale
      * @return array
      */
     protected function localeArray($locale)

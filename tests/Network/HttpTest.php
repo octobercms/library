@@ -1,7 +1,7 @@
 <?php
 
-use October\Rain\Network\Http;
 use October\Rain\Exception\ApplicationException;
+use October\Rain\Network\Http;
 
 class HttpTest extends TestCase
 {
@@ -155,7 +155,7 @@ class HttpTest extends TestCase
         $http->data([
             'foo' => 'bar',
             'bar' => 'foo',
-            'test' => ['a','b']
+            'test' => ['a', 'b']
         ]);
         $this->assertEquals('foo=bar&bar=foo&test%5B0%5D=a&test%5B1%5D=b', $http->getRequestData());
     }
@@ -189,7 +189,7 @@ class HttpTest extends TestCase
         $http->data([
             'foo' => 'bar',
             'bar' => 'foo',
-            'test' => ['a','b']
+            'test' => ['a', 'b']
         ]);
         $this->assertEquals('foo=bar&bar=foo&test%5B0%5D=a&test%5B1%5D=b', $http->getRequestData());
     }
@@ -201,7 +201,7 @@ class HttpTest extends TestCase
         $http->data([
             'foo' => 'bar',
             'bar' => 'foo',
-            'test' => ['a','b']
+            'test' => ['a', 'b']
         ]);
         $http->dataFile('testfile', __DIR__ . '/../fixtures/lang/en/lang.php');
 

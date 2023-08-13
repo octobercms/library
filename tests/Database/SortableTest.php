@@ -6,9 +6,9 @@ class SortableTest extends TestCase
     {
         $capsule = new Illuminate\Database\Capsule\Manager;
         $capsule->addConnection([
-            'driver'   => 'sqlite',
+            'driver' => 'sqlite',
             'database' => ':memory:',
-            'prefix'   => ''
+            'prefix' => ''
         ]);
         $capsule->setAsGlobal();
         $capsule->bootEloquent();
