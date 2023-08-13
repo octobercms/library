@@ -1,19 +1,19 @@
 <?php namespace October\Rain\Database\Traits;
 
 /**
- * BaseIdentifiable trait adds random base64 identifiers to a model used as a random
+ * BaseIdentifier trait adds random base64 identifiers to a model used as a random
  * lookup key that is immune to enumeration attacks. The model is assumed to have
  * the attribute: baseid.
  *
  * @package october\database
  * @author Alexey Bobkov, Samuel Georges
  */
-trait BaseIdentifiable
+trait BaseIdentifier
 {
     /**
-     * initializeBaseIdentifiable trait for a model.
+     * initializeBaseIdentifier trait for a model.
      */
-    public function initializeBaseIdentifiable()
+    public function initializeBaseIdentifier()
     {
         $this->bindEvent('model.saveInternal', function () {
             $this->baseIdentifyAttributes();
@@ -27,7 +27,7 @@ trait BaseIdentifiable
     {
         $baseidAttribute = $this->getBaseIdentifierColumnName();
         if (!$this->{$baseidAttribute}) {
-            $this->attributes[$baseidAttribute] = $this->getBaseIdentifiableUniqueAttributeValue($baseidAttribute);
+            $this->attributes[$baseidAttribute] = $this->getBaseIdentifierUniqueAttributeValue($baseidAttribute);
         }
     }
 
@@ -40,12 +40,12 @@ trait BaseIdentifiable
     }
 
     /**
-     * getBaseIdentifiableUniqueAttributeValue ensures a unique attribute value, if the value
+     * getBaseIdentifierUniqueAttributeValue ensures a unique attribute value, if the value
      * is already used another base identifier is created. Returns a safe value that is unique.
      * @param string $name
      * @return string
      */
-    protected function getBaseIdentifiableUniqueAttributeValue($name)
+    protected function getBaseIdentifierUniqueAttributeValue($name)
     {
         $value = $this->generateBaseIdentifier();
 
