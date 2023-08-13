@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Assetic;
 
-use October\Rain\Assetic\Filter\FilterInterface;
 use InvalidArgumentException;
+use October\Rain\Assetic\Filter\FilterInterface;
 
 /**
  * FilterManager manages the available filters.

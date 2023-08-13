@@ -1,11 +1,11 @@
 <?php namespace October\Rain\Database\Traits;
 
 use DbDongle;
-use October\Rain\Database\Collection;
-use October\Rain\Database\TreeCollection;
-use October\Rain\Database\Scopes\NestedTreeScope;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Exception;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use October\Rain\Database\Collection;
+use October\Rain\Database\Scopes\NestedTreeScope;
+use October\Rain\Database\TreeCollection;
 
 /**
  * NestedTree is a nested set model trait
@@ -151,12 +151,10 @@ trait NestedTree
         // Parent is not set or unchanged
         if (!$isDirty) {
             $this->moveToNewParentId = false;
-        }
-        // Created as a root node
+        } // Created as a root node
         elseif (!$this->exists && !$parentId) {
             $this->moveToNewParentId = false;
-        }
-        // Parent has been set
+        } // Parent has been set
         else {
             $this->moveToNewParentId = $parentId;
         }
@@ -211,21 +209,18 @@ trait NestedTree
             $this->newNestedTreeQuery()
                 ->where($leftCol, '>', $left)
                 ->where($rightCol, '<', $right)
-                ->delete()
-            ;
+                ->delete();
 
             // Update left and right indexes for the remaining nodes
             $diff = $right - $left + 1;
 
             $this->newNestedTreeQuery()
                 ->where($leftCol, '>', $right)
-                ->decrement($leftCol, $diff)
-            ;
+                ->decrement($leftCol, $diff);
 
             $this->newNestedTreeQuery()
                 ->where($rightCol, '>', $right)
-                ->decrement($rightCol, $diff)
-            ;
+                ->decrement($rightCol, $diff);
         });
     }
 
@@ -249,13 +244,11 @@ trait NestedTree
 
             $this->newNestedTreeQuery()
                 ->where($leftCol, '>=', $left)
-                ->increment($leftCol, $diff)
-            ;
+                ->increment($leftCol, $diff);
 
             $this->newNestedTreeQuery()
                 ->where($rightCol, '>=', $left)
-                ->increment($rightCol, $diff)
-            ;
+                ->increment($rightCol, $diff);
         });
     }
 
@@ -276,8 +269,7 @@ trait NestedTree
                 ->update([
                     $this->getDeletedAtColumn() => null,
                     $this->getUpdatedAtColumn() => $this->{$this->getUpdatedAtColumn()}
-                ])
-            ;
+                ]);
         });
     }
 
@@ -430,8 +422,7 @@ trait NestedTree
     {
         $query
             ->where($this->getLeftColumnName(), '>=', $this->getLeft())
-            ->where($this->getLeftColumnName(), '<', $this->getRight())
-        ;
+            ->where($this->getLeftColumnName(), '<', $this->getRight());
 
         return $includeSelf ? $query : $query->withoutSelf();
     }
@@ -444,8 +435,7 @@ trait NestedTree
     {
         $query
             ->where($this->getLeftColumnName(), '<=', $this->getLeft())
-            ->where($this->getRightColumnName(), '>=', $this->getRight())
-        ;
+            ->where($this->getRightColumnName(), '>=', $this->getRight());
 
         return $includeSelf ? $query : $query->withoutSelf();
     }
@@ -474,8 +464,7 @@ trait NestedTree
 
         return $query
             ->allChildren()
-            ->whereRaw($rightCol . ' - ' . $leftCol . ' = 1')
-        ;
+            ->whereRaw($rightCol . ' - ' . $leftCol . ' = 1');
     }
 
     /**
@@ -489,8 +478,7 @@ trait NestedTree
                 $query->whereNull($this->getParentColumnName());
                 $query->orWhere($this->getParentColumnName(), 0);
             })
-            ->get()
-        ;
+            ->get();
     }
 
     /**
@@ -506,9 +494,9 @@ trait NestedTree
     /**
      * scopeListsNested gets an array with values of a given column. Values are indented
      * according to their depth.
-     * @param  string $column Array values
-     * @param  string $key    Array keys
-     * @param  string $indent Character to indent depth
+     * @param string $column Array values
+     * @param string $key Array keys
+     * @param string $indent Character to indent depth
      * @return array
      */
     public function scopeListsNested($query, $column, $key = null, $indent = '&nbsp;&nbsp;&nbsp;')
@@ -530,9 +518,9 @@ trait NestedTree
 
             $parentIds[$result->{$this->getKeyName()}] = true;
             $values[$result->{$resultKeyName}] = str_repeat(
-                $indent,
-                $result->{$this->getDepthColumnName()}
-            ) . $result->{$column};
+                    $indent,
+                    $result->{$this->getDepthColumnName()}
+                ) . $result->{$column};
         }
 
         return $values;
@@ -563,8 +551,7 @@ trait NestedTree
                     $query->whereNull($this->getParentColumnName());
                     $query->orWhere($this->getParentColumnName(), 0);
                 })
-                ->first()
-            ;
+                ->first();
         }
 
         $parentId = $this->getParentId();
@@ -741,8 +728,7 @@ trait NestedTree
 
             $this->newNestedTreeQuery()
                 ->where($this->getKeyName(), $this->getKey())
-                ->update([$this->getDepthColumnName() => $level])
-            ;
+                ->update([$this->getDepthColumnName() => $level]);
 
             $this->setAttribute($this->getDepthColumnName(), $level);
         });
@@ -761,8 +747,7 @@ trait NestedTree
             ->reorder()
             ->orderBy($this->getRightColumnName(), 'desc')
             ->limit(1)
-            ->first()
-        ;
+            ->first();
 
         $maxRight = 0;
         if ($highRight !== null) {
@@ -782,7 +767,7 @@ trait NestedTree
     public function resetTreeNesting()
     {
         $this->getConnection()->transaction(function () {
-            $buildFunc = function($items, &$nest, $level = 0) use (&$buildFunc) {
+            $buildFunc = function ($items, &$nest, $level = 0) use (&$buildFunc) {
                 $items->each(function ($item) use (&$nest, $level, $buildFunc) {
                     $item->setAttribute($this->getLeftColumnName(), $nest++);
                     $item->setAttribute($this->getDepthColumnName(), $level);
@@ -795,8 +780,7 @@ trait NestedTree
             $records = $this
                 ->newNestedTreeQuery()
                 ->whereNull($this->getParentColumnName())
-                ->get()
-            ;
+                ->get();
 
             $nest = 1;
             $buildFunc($records, $nest);
@@ -836,7 +820,7 @@ trait NestedTree
 
     /**
      * moveTo is a handler for all node alignments.
-     * @param mixed  $target
+     * @param mixed $target
      * @param string $position
      * @return \October\Rain\Database\Model
      */
@@ -845,8 +829,7 @@ trait NestedTree
         // Validate target
         if ($target instanceof \October\Rain\Database\Model) {
             $target->reload();
-        }
-        else {
+        } else {
             $target = $this->resolveMoveTarget($target);
         }
 
@@ -891,8 +874,7 @@ trait NestedTree
 
         if ($parentId === null) {
             $parentId = 'NULL';
-        }
-        else {
+        } else {
             $parentId = $pdo->quote($parentId);
         }
 
@@ -923,15 +905,13 @@ trait NestedTree
             ->where(function ($query) use ($leftColumn, $rightColumn, $a, $d) {
                 $query
                     ->whereBetween($leftColumn, [$a, $d])
-                    ->orWhereBetween($rightColumn, [$a, $d])
-                ;
+                    ->orWhereBetween($rightColumn, [$a, $d]);
             })
             ->update([
                 $leftColumn => $connection->raw($leftSql),
                 $rightColumn => $connection->raw($rightSql),
                 $parentColumn => $connection->raw($parentSql)
-            ])
-        ;
+            ]);
 
         return $result;
     }
@@ -1070,7 +1050,7 @@ trait NestedTree
      */
     public function getQualifiedParentColumnName()
     {
-        return $this->getTable(). '.' .$this->getParentColumnName();
+        return $this->getTable() . '.' . $this->getParentColumnName();
     }
 
     /**

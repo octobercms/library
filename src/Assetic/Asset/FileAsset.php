@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Assetic\Asset;
 
+use InvalidArgumentException;
 use October\Rain\Assetic\Filter\FilterInterface;
 use October\Rain\Assetic\Util\VarUtils;
-use InvalidArgumentException;
 use RuntimeException;
 
 /**
@@ -20,11 +20,11 @@ class FileAsset extends BaseAsset
     /**
      * __construct.
      *
-     * @param string $source     An absolute path
-     * @param array  $filters    An array of filters
+     * @param string $source An absolute path
+     * @param array $filters An array of filters
      * @param string $sourceRoot The source asset root directory
      * @param string $sourcePath The source asset path
-     * @param array  $vars
+     * @param array $vars
      *
      * @throws InvalidArgumentException If the supplied root doesn't match the source when guessing the path
      */
@@ -35,8 +35,7 @@ class FileAsset extends BaseAsset
             if ($sourcePath === null) {
                 $sourcePath = basename($source);
             }
-        }
-        elseif (null === $sourcePath) {
+        } elseif (null === $sourcePath) {
             if (strpos($source, $sourceRoot) !== 0) {
                 throw new InvalidArgumentException(sprintf('The source "%s" is not in the root directory "%s"', $source, $sourceRoot));
             }

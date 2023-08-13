@@ -16,7 +16,7 @@ trait HasJsonable
     /**
      * addJsonable attributes for the model.
      *
-     * @param  array|string|null  $attributes
+     * @param array|string|null $attributes
      * @return void
      */
     public function addJsonable($attributes = null)
@@ -49,7 +49,7 @@ trait HasJsonable
     /**
      * jsonable attributes set for the model.
      *
-     * @param  array  $jsonable
+     * @param array $jsonable
      * @return $this
      */
     public function jsonable(array $jsonable)

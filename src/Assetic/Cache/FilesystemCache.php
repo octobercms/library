@@ -1,7 +1,6 @@
 <?php namespace October\Rain\Assetic\Cache;
 
 use File;
-use October\Rain\Assetic\Cache\CacheInterface;
 use RuntimeException;
 
 /**
@@ -31,7 +30,7 @@ class FilesystemCache implements CacheInterface
      */
     public function has($key)
     {
-        return file_exists($this->dir.'/'.$key);
+        return file_exists($this->dir . '/' . $key);
     }
 
     /**
@@ -39,10 +38,10 @@ class FilesystemCache implements CacheInterface
      */
     public function get($key)
     {
-        $path = $this->dir.'/'.$key;
+        $path = $this->dir . '/' . $key;
 
         if (!file_exists($path)) {
-            throw new RuntimeException('There is no cached value for '.$key);
+            throw new RuntimeException('There is no cached value for ' . $key);
         }
 
         return file_get_contents($path);
@@ -54,13 +53,13 @@ class FilesystemCache implements CacheInterface
     public function set($key, $value)
     {
         if (!is_dir($this->dir) && false === @mkdir($this->dir, 0755, true)) {
-            throw new RuntimeException('Unable to create directory '.$this->dir);
+            throw new RuntimeException('Unable to create directory ' . $this->dir);
         }
 
-        $path = $this->dir.'/'.$key;
+        $path = $this->dir . '/' . $key;
 
         if (false === @file_put_contents($path, $value)) {
-            throw new RuntimeException('Unable to write file '.$path);
+            throw new RuntimeException('Unable to write file ' . $path);
         }
 
         File::chmod($path);
@@ -71,10 +70,10 @@ class FilesystemCache implements CacheInterface
      */
     public function remove($key)
     {
-        $path = $this->dir.'/'.$key;
+        $path = $this->dir . '/' . $key;
 
         if (file_exists($path) && false === @unlink($path)) {
-            throw new RuntimeException('Unable to remove file '.$path);
+            throw new RuntimeException('Unable to remove file ' . $path);
         }
     }
 }

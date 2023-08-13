@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database;
 
-use Illuminate\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder as BuilderModel;
+use Illuminate\Pagination\Paginator;
 use October\Rain\Support\Facades\DbDongle;
 
 /**
@@ -16,8 +16,8 @@ class Builder extends BuilderModel
 
     /**
      * lists gets an array with the values of a given column.
-     * @param  string  $column
-     * @param  string|null  $key
+     * @param string $column
+     * @param string|null $key
      * @return array
      */
     public function lists($column, $key = null)
@@ -27,9 +27,9 @@ class Builder extends BuilderModel
 
     /**
      * searchWhere performs a search on this query for term found in columns.
-     * @param  string $term  Search query
-     * @param  array $columns Table columns to search
-     * @param  string $mode  Search mode: all, any, exact.
+     * @param string $term Search query
+     * @param array $columns Table columns to search
+     * @param string $mode Search mode: all, any, exact.
      * @return static
      */
     public function searchWhere($term, $columns = [], $mode = 'all')
@@ -39,9 +39,9 @@ class Builder extends BuilderModel
 
     /**
      * orSearchWhere adds an "or search where" clause to the query.
-     * @param  string $term  Search query
-     * @param  array $columns Table columns to search
-     * @param  string $mode  Search mode: all, any, exact.
+     * @param string $term Search query
+     * @param array $columns Table columns to search
+     * @param string $mode Search mode: all, any, exact.
      * @return static
      */
     public function orSearchWhere($term, $columns = [], $mode = 'all')
@@ -52,10 +52,10 @@ class Builder extends BuilderModel
     /**
      * searchWhereRelation performs a search on a relationship query.
      *
-     * @param  string $term  Search query
-     * @param  string  $relation
-     * @param  array $columns Table columns to search
-     * @param  string $mode  Search mode: all, any, exact.
+     * @param string $term Search query
+     * @param string $relation
+     * @param array $columns Table columns to search
+     * @param string $mode Search mode: all, any, exact.
      * @return static
      */
     public function searchWhereRelation($term, $relation, $columns = [], $mode = 'all')
@@ -67,10 +67,10 @@ class Builder extends BuilderModel
 
     /**
      * orSearchWhereRelation adds an "or where" clause to a search relationship query.
-     * @param  string $term  Search query
-     * @param  string  $relation
-     * @param  array $columns Table columns to search
-     * @param  string $mode  Search mode: all, any, exact.
+     * @param string $term Search query
+     * @param string $relation
+     * @param array $columns Table columns to search
+     * @param string $mode Search mode: all, any, exact.
      * @return static
      */
     public function orSearchWhereRelation($term, $relation, $columns = [], $mode = 'all')
@@ -107,12 +107,11 @@ class Builder extends BuilderModel
                     }
                     $rawField = DbDongle::cast($grammar->wrap($field), 'TEXT');
                     $fieldSql = $this->query->raw(sprintf("lower(%s)", $rawField));
-                    $termSql = '%'.trim(mb_strtolower($term)).'%';
+                    $termSql = '%' . trim(mb_strtolower($term)) . '%';
                     $query->orWhere($fieldSql, 'LIKE', $termSql);
                 }
             }, null, null, $boolean);
-        }
-        else {
+        } else {
             $words = explode(' ', $term);
             $wordBoolean = $mode === 'any' ? 'or' : 'and';
 
@@ -125,7 +124,7 @@ class Builder extends BuilderModel
                             }
                             $rawField = DbDongle::cast($grammar->wrap($field), 'TEXT');
                             $fieldSql = $this->query->raw(sprintf("lower(%s)", $rawField));
-                            $wordSql = '%'.trim(mb_strtolower($word)).'%';
+                            $wordSql = '%' . trim(mb_strtolower($word)) . '%';
                             $query->where($fieldSql, 'LIKE', $wordSql, $wordBoolean);
                         }
                     });
@@ -139,10 +138,10 @@ class Builder extends BuilderModel
     /**
      * paginate the given query.
      *
-     * @param  int  $perPage
-     * @param  array  $columns
-     * @param  string $pageName
-     * @param  int  $page
+     * @param int $perPage
+     * @param array $columns
+     * @param string $pageName
+     * @param int $page
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function paginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
@@ -179,10 +178,10 @@ class Builder extends BuilderModel
     /**
      * simplePaginate the given query into a simple paginator.
      *
-     * @param  int  $perPage
-     * @param  array  $columns
-     * @param  string $pageName
-     * @param  int  $currentPage
+     * @param int $perPage
+     * @param array $columns
+     * @param string $pageName
+     * @param int $currentPage
      * @return \Illuminate\Contracts\Pagination\Paginator
      */
     public function simplePaginate($perPage = null, $columns = ['*'], $pageName = 'page', $currentPage = null)
@@ -217,13 +216,13 @@ class Builder extends BuilderModel
 
     /**
      * Dynamically handle calls into the query instance.
-     * @param  string  $method
-     * @param  array   $parameters
+     * @param string $method
+     * @param array $parameters
      * @return mixed
      */
     public function __call($method, $parameters)
     {
-        if ($this->model->methodExists($scope = 'scope'.ucfirst($method))) {
+        if ($this->model->methodExists($scope = 'scope' . ucfirst($method))) {
             return $this->callScope([$this->model, $scope], $parameters);
         }
 

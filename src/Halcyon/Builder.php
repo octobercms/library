@@ -1,14 +1,14 @@
 <?php namespace October\Rain\Halcyon;
 
+use ApplicationException;
+use BadMethodCallException;
 use Carbon\Carbon;
+use October\Rain\Halcyon\Datasource\DatasourceInterface;
 use October\Rain\Halcyon\Exception\InvalidDirectoryNameException;
 use October\Rain\Halcyon\Exception\InvalidExtensionException;
-use October\Rain\Halcyon\Exception\MissingFileNameException;
 use October\Rain\Halcyon\Exception\InvalidFileNameException;
-use October\Rain\Halcyon\Datasource\DatasourceInterface;
+use October\Rain\Halcyon\Exception\MissingFileNameException;
 use October\Rain\Halcyon\Processors\Processor;
-use BadMethodCallException;
-use ApplicationException;
 
 /**
  * Builder for Halcyon queries
@@ -109,7 +109,7 @@ class Builder
 
     /**
      * whereFileName switches mode to select a single template by its name
-     * @param  string  $fileName
+     * @param string $fileName
      * @return $this
      */
     public function whereFileName($fileName)
@@ -121,7 +121,7 @@ class Builder
 
     /**
      * from sets the directory name which the query is targeting
-     * @param  string  $dirName
+     * @param string $dirName
      * @return $this
      */
     public function from($dirName)
@@ -133,7 +133,7 @@ class Builder
 
     /**
      * offset sets the "offset" value of the query
-     * @param  int  $value
+     * @param int $value
      * @return $this
      */
     public function offset($value)
@@ -145,7 +145,7 @@ class Builder
 
     /**
      * skip is an alias to set the "offset" value of the query
-     * @param  int  $value
+     * @param int $value
      * @return \October\Rain\Halcyon\Builder|static
      */
     public function skip($value)
@@ -155,7 +155,7 @@ class Builder
 
     /**
      * limit sets the "limit" value of the query
-     * @param  int  $value
+     * @param int $value
      * @return $this
      */
     public function limit($value)
@@ -169,7 +169,7 @@ class Builder
 
     /**
      * take is an alias to set the "limit" value of the query
-     * @param  int  $value
+     * @param int $value
      * @return \October\Rain\Halcyon\Builder|static
      */
     public function take($value)
@@ -179,7 +179,7 @@ class Builder
 
     /**
      * find a single template by its file name.
-     * @param  string $fileName
+     * @param string $fileName
      * @return mixed|static
      */
     public function find($fileName)
@@ -198,15 +198,14 @@ class Builder
 
     /**
      * get executes the query as a "select" statement
-     * @param  array  $columns
+     * @param array $columns
      * @return \October\Rain\Halcyon\Collection|static[]
      */
     public function get($columns = ['*'])
     {
         if (!is_null($this->cacheMinutes)) {
             $results = $this->getCached($columns);
-        }
-        else {
+        } else {
             $results = $this->getFresh($columns);
         }
 
@@ -217,8 +216,8 @@ class Builder
 
     /**
      * pluck gets an array with the values of a given column
-     * @param  string  $column
-     * @param  string  $key
+     * @param string $column
+     * @param string $key
      * @return Collection
      */
     public function pluck($column, $key = null)
@@ -227,8 +226,7 @@ class Builder
 
         if (!is_null($this->cacheMinutes)) {
             $results = $this->getCached($select);
-        }
-        else {
+        } else {
             $results = $this->getFresh($select);
         }
 
@@ -239,8 +237,8 @@ class Builder
 
     /**
      * lists is short-hand for pluck()->all()
-     * @param  string  $column
-     * @param  string  $key
+     * @param string $column
+     * @param string $key
      * @return array
      */
     public function lists($column, $key = null)
@@ -250,7 +248,7 @@ class Builder
 
     /**
      * getFresh executes the query as a fresh "select" statement
-     * @param  array  $columns
+     * @param array $columns
      * @return \October\Rain\Halcyon\Collection|static[]
      */
     public function getFresh($columns = ['*'])
@@ -370,7 +368,7 @@ class Builder
 
     /**
      * delete a record from the database.
-     * @param  string  $fileName
+     * @param string $fileName
      * @return int
      */
     public function delete()
@@ -405,7 +403,7 @@ class Builder
 
     /**
      * getModels gets the hydrated models
-     * @param  array  $results
+     * @param array $results
      * @return \October\Rain\Halcyon\Model[]
      */
     public function getModels(array $results)
@@ -490,8 +488,7 @@ class Builder
         if (strlen($extension) && !in_array($extension, $allowedExtensions)) {
             throw (new InvalidExtensionException)
                 ->setInvalidExtension($extension)
-                ->setAllowedExtensions($allowedExtensions)
-            ;
+                ->setAllowedExtensions($allowedExtensions);
         }
     }
 
@@ -543,8 +540,8 @@ class Builder
 
     /**
      * remember indicates that the query results should be cached
-     * @param  \DateTime|int  $minutes
-     * @param  string  $key
+     * @param \DateTime|int $minutes
+     * @param string $key
      * @return $this
      */
     public function remember($minutes, $key = null)
@@ -556,7 +553,7 @@ class Builder
 
     /**
      * rememberForever indicates that the query results should be cached forever
-     * @param  string  $key
+     * @param string $key
      * @return $this
      */
     public function rememberForever($key = null)
@@ -566,7 +563,7 @@ class Builder
 
     /**
      * cacheTags indicates that the results, if cached, should use the given cache tags
-     * @param  array|mixed  $cacheTags
+     * @param array|mixed $cacheTags
      * @return $this
      */
     public function cacheTags($cacheTags)
@@ -578,7 +575,7 @@ class Builder
 
     /**
      * cacheDriver indicate that the results, if cached, should use the given cache driver
-     * @param  string  $cacheDriver
+     * @param string $cacheDriver
      * @return $this
      */
     public function cacheDriver($cacheDriver)
@@ -590,7 +587,7 @@ class Builder
 
     /**
      * getCached executes the query as a cached "select" statement
-     * @param  array  $columns
+     * @param array $columns
      * @return array
      */
     public function getCached($columns = ['*'])
@@ -621,8 +618,7 @@ class Builder
             $result = $callback();
             if ($minutes < 0) {
                 $cache->forever($key, $result);
-            }
-            else {
+            } else {
                 $expiresAt = Carbon::now()->addMinutes($minutes);
                 $cache->put($key, $result, $expiresAt);
             }
@@ -636,7 +632,7 @@ class Builder
     /**
      * isCacheBusted returns true if the cache for the file is busted. This only applies
      * to single record selection
-     * @param  array  $result
+     * @param array $result
      * @return bool
      */
     protected function isCacheBusted($result)
@@ -692,12 +688,12 @@ class Builder
         $payload[] = $this->limit;
         $payload[] = $this->offset;
 
-        return 'halcyon_'.$this->from.'_'.$this->datasource->makeCacheKey(implode('-', $payload));
+        return 'halcyon_' . $this->from . '_' . $this->datasource->makeCacheKey(implode('-', $payload));
     }
 
     /**
      * getCacheCallback used when caching queries
-     * @param  string  $fileName
+     * @param string $fileName
      * @return \Closure
      */
     protected function getCacheCallback($columns)
@@ -709,7 +705,7 @@ class Builder
 
     /**
      * processInitCacheData initializes the cache data of each record
-     * @param  array  $data
+     * @param array $data
      * @return array
      */
     protected function processInitCacheData($data)
@@ -727,8 +723,8 @@ class Builder
 
     /**
      * __call handles dynamic method calls into the method
-     * @param  string  $method
-     * @param  array   $parameters
+     * @param string $method
+     * @param array $parameters
      * @return mixed
      *
      * @throws \BadMethodCallException

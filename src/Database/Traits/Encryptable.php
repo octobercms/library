@@ -59,8 +59,8 @@ trait Encryptable
 
     /**
      * makeEncryptableValue encrypts an attribute value and saves it in the original locker
-     * @param  string $key   Attribute
-     * @param  string $value Value to encrypt
+     * @param string $key Attribute
+     * @param string $value Value to encrypt
      * @return string Encrypted value
      */
     public function makeEncryptableValue($key, $value)
@@ -72,7 +72,7 @@ trait Encryptable
 
     /**
      * getEncryptableValue decrypts an attribute value
-     * @param  string $key Attribute
+     * @param string $key Attribute
      * @return string Decrypted value
      */
     public function getEncryptableValue($key)

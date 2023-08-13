@@ -135,8 +135,7 @@ class Router
             // Static segment
             if (strpos($patternSegment, ':') !== 0) {
                 $url[] = $patternSegment;
-            }
-            // Dynamic segment
+            } // Dynamic segment
             else {
                 $paramName = Helper::getParameterName($patternSegment);
 
@@ -154,15 +153,13 @@ class Router
                 // Use supplied parameter value
                 if ($parameterExists) {
                     $url[] = $parameters[$paramName];
-                }
-                // Look for a specified default value
+                } // Look for a specified default value
                 elseif ($optional) {
                     $url[] = $defaultValue ?: static::$defaultValue;
 
                     // Do not set $lastPopulatedIndex
                     continue;
-                }
-                // Non optional field, use the default value
+                } // Non optional field, use the default value
                 else {
                     $url[] = static::$defaultValue;
                 }

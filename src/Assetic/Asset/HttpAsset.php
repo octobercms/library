@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Assetic\Asset;
 
+use InvalidArgumentException;
 use October\Rain\Assetic\Filter\FilterInterface;
 use October\Rain\Assetic\Util\VarUtils;
-use InvalidArgumentException;
 use RuntimeException;
 
 /**
@@ -25,19 +25,18 @@ class HttpAsset extends BaseAsset
     /**
      * __construct.
      *
-     * @param string  $sourceUrl    The source URL
-     * @param array   $filters      An array of filters
-     * @param bool    $ignoreErrors
-     * @param array   $vars
+     * @param string $sourceUrl The source URL
+     * @param array $filters An array of filters
+     * @param bool $ignoreErrors
+     * @param array $vars
      *
      * @throws InvalidArgumentException If the first argument is not an URL
      */
     public function __construct($sourceUrl, $filters = [], $ignoreErrors = false, array $vars = array())
     {
         if (strpos($sourceUrl, '//') === 0) {
-            $sourceUrl = 'http:'.$sourceUrl;
-        }
-        elseif (strpos($sourceUrl, '://') === false) {
+            $sourceUrl = 'http:' . $sourceUrl;
+        } elseif (strpos($sourceUrl, '://') === false) {
             throw new InvalidArgumentException(sprintf('"%s" is not a valid URL.', $sourceUrl));
         }
 
@@ -47,7 +46,7 @@ class HttpAsset extends BaseAsset
         list($scheme, $url) = explode('://', $sourceUrl, 2);
         list($host, $path) = explode('/', $url, 2);
 
-        parent::__construct($filters, $scheme.'://'.$host, $path, $vars);
+        parent::__construct($filters, $scheme . '://' . $host, $path, $vars);
     }
 
     /**

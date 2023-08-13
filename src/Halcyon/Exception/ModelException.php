@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Halcyon\Exception;
 
-use October\Rain\Halcyon\Model;
 use October\Rain\Exception\ValidationException;
+use October\Rain\Halcyon\Model;
 
 /**
  * ModelException used when validation fails, contains the invalid model for easy analysis

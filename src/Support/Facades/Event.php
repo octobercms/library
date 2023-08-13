@@ -1,9 +1,9 @@
 <?php namespace October\Rain\Support\Facades;
 
-use Model;
 use Cache;
-use October\Rain\Events\FakeDispatcher;
 use Illuminate\Support\Facades\Event as EventBase;
+use Model;
+use October\Rain\Events\FakeDispatcher;
 
 /**
  * Event

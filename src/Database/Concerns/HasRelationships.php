@@ -1,22 +1,22 @@
 <?php namespace October\Rain\Database\Concerns;
 
-use October\Rain\Support\Arr;
-use October\Rain\Support\Str;
+use Illuminate\Database\Eloquent\Collection as CollectionBase;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
+use InvalidArgumentException;
+use October\Rain\Database\Relations\AttachMany;
+use October\Rain\Database\Relations\AttachOne;
 use October\Rain\Database\Relations\BelongsTo;
 use October\Rain\Database\Relations\BelongsToMany;
 use October\Rain\Database\Relations\HasMany;
-use October\Rain\Database\Relations\HasOne;
-use October\Rain\Database\Relations\MorphMany;
-use October\Rain\Database\Relations\MorphToMany;
-use October\Rain\Database\Relations\MorphTo;
-use October\Rain\Database\Relations\MorphOne;
-use October\Rain\Database\Relations\AttachMany;
-use October\Rain\Database\Relations\AttachOne;
 use October\Rain\Database\Relations\HasManyThrough;
+use October\Rain\Database\Relations\HasOne;
 use October\Rain\Database\Relations\HasOneThrough;
-use Illuminate\Database\Eloquent\Model as EloquentModel;
-use Illuminate\Database\Eloquent\Collection as CollectionBase;
-use InvalidArgumentException;
+use October\Rain\Database\Relations\MorphMany;
+use October\Rain\Database\Relations\MorphOne;
+use October\Rain\Database\Relations\MorphTo;
+use October\Rain\Database\Relations\MorphToMany;
+use October\Rain\Support\Arr;
+use October\Rain\Support\Str;
 
 /**
  * HasRelationships concern for a model
@@ -465,7 +465,7 @@ trait HasRelationships
 
         $relationClass = $this->getRelationCustomClass($relationName) ?: HasOne::class;
 
-        return new $relationClass($instance->newQuery(), $this, $instance->getTable().'.'.$primaryKey, $localKey, $relationName);
+        return new $relationClass($instance->newQuery(), $this, $instance->getTable() . '.' . $primaryKey, $localKey, $relationName);
     }
 
     /**
@@ -489,7 +489,7 @@ trait HasRelationships
 
         $relationClass = $this->getRelationCustomClass($relationName) ?: MorphOne::class;
 
-        return new $relationClass($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $localKey, $relationName);
+        return new $relationClass($instance->newQuery(), $this, $table . '.' . $type, $table . '.' . $id, $localKey, $relationName);
     }
 
     /**
@@ -507,7 +507,7 @@ trait HasRelationships
         $instance = $this->makeRelationInternal($relationName, $related);
 
         if (is_null($foreignKey)) {
-            $foreignKey = snake_case($relationName).'_id';
+            $foreignKey = snake_case($relationName) . '_id';
         }
 
         $parentKey = $parentKey ?: $instance->getKeyName();
@@ -531,16 +531,16 @@ trait HasRelationships
         [$type, $id] = $this->getMorphs(Str::snake($name), $type, $id);
 
         return empty($class = $this->{$type})
-                    ? $this->morphEagerTo($name, $type, $id, $ownerKey)
-                    : $this->morphInstanceTo($class, $name, $type, $id, $ownerKey);
+            ? $this->morphEagerTo($name, $type, $id, $ownerKey)
+            : $this->morphInstanceTo($class, $name, $type, $id, $ownerKey);
     }
 
     /**
      * morphEagerTo defines a polymorphic, inverse one-to-one or many relationship.
-     * @param  string  $name
-     * @param  string  $type
-     * @param  string  $id
-     * @param  string  $ownerKey
+     * @param string $name
+     * @param string $type
+     * @param string $id
+     * @param string $ownerKey
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
     protected function morphEagerTo($name, $type, $id, $ownerKey)
@@ -557,11 +557,11 @@ trait HasRelationships
 
     /**
      * morphInstanceTo defines a polymorphic, inverse one-to-one or many relationship
-     * @param  string  $target
-     * @param  string  $name
-     * @param  string  $type
-     * @param  string  $id
-     * @param  string  $ownerKey
+     * @param string $target
+     * @param string $name
+     * @param string $type
+     * @param string $id
+     * @param string $ownerKey
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
     protected function morphInstanceTo($target, $name, $type, $id, $ownerKey)
@@ -599,7 +599,7 @@ trait HasRelationships
 
         $relationClass = $this->getRelationCustomClass($relationName) ?: HasMany::class;
 
-        return new $relationClass($instance->newQuery(), $this, $instance->getTable().'.'.$primaryKey, $localKey, $relationName);
+        return new $relationClass($instance->newQuery(), $this, $instance->getTable() . '.' . $primaryKey, $localKey, $relationName);
     }
 
     /**
@@ -679,7 +679,7 @@ trait HasRelationships
 
         $relationClass = $this->getRelationCustomClass($relationName) ?: MorphMany::class;
 
-        return new $relationClass($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $localKey, $relationName);
+        return new $relationClass($instance->newQuery(), $this, $table . '.' . $type, $table . '.' . $id, $localKey, $relationName);
     }
 
     /**
@@ -730,7 +730,7 @@ trait HasRelationships
 
         $instance = $this->makeRelationInternal($relationName, $related);
 
-        $primaryKey = $primaryKey ?: $name.'_id';
+        $primaryKey = $primaryKey ?: $name . '_id';
 
         $foreignKey = $foreignKey ?: $instance->getForeignKey();
 
@@ -765,7 +765,7 @@ trait HasRelationships
 
         $primaryKey = $primaryKey ?: $this->getForeignKey();
 
-        $foreignKey = $foreignKey ?: $name.'_id';
+        $foreignKey = $foreignKey ?: $name . '_id';
 
         return $this->morphToMany(
             $related,
@@ -801,7 +801,7 @@ trait HasRelationships
 
         $relationClass = $this->getRelationCustomClass($relationName) ?: AttachOne::class;
 
-        return new $relationClass($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $isPublic, $localKey, $relationName);
+        return new $relationClass($instance->newQuery(), $this, $table . '.' . $type, $table . '.' . $id, $isPublic, $localKey, $relationName);
     }
 
     /**
@@ -825,7 +825,7 @@ trait HasRelationships
 
         $relationClass = $this->getRelationCustomClass($relationName) ?: AttachMany::class;
 
-        return new $relationClass($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $isPublic, $localKey, $relationName);
+        return new $relationClass($instance->newQuery(), $this, $table . '.' . $type, $table . '.' . $id, $isPublic, $localKey, $relationName);
     }
 
     /**
@@ -878,8 +878,7 @@ trait HasRelationships
 
                 if ($relation instanceof EloquentModel) {
                     $relation->forceDelete();
-                }
-                elseif ($relation instanceof CollectionBase) {
+                } elseif ($relation instanceof CollectionBase) {
                     $relation->each(function ($model) {
                         $model->forceDelete();
                     });

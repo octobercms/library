@@ -1,9 +1,9 @@
 <?php namespace October\Rain\Database\Concerns;
 
-use October\Rain\Support\Arr;
-use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Collection as CollectionBase;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
+use October\Rain\Support\Arr;
 
 /**
  * HasReplication for a model
@@ -14,7 +14,7 @@ trait HasReplication
      * replicateWithRelations replicates the model into a new, non-existing instance,
      * including replicating relations.
      *
-     * @param  array|null  $except
+     * @param array|null $except
      * @return static
      */
     public function replicateWithRelations(array $except = null)
@@ -55,19 +55,16 @@ trait HasReplication
     {
         if ($models instanceof CollectionBase) {
             $models = $models->all();
-        }
-        elseif ($models instanceof EloquentModel) {
+        } elseif ($models instanceof EloquentModel) {
             $models = [$models];
-        }
-        else {
+        } else {
             $models = (array) $models;
         }
 
         foreach (array_filter($models) as $model) {
             if ($relationObject instanceof HasOneOrMany) {
                 $relationObject->add($model->replicateWithRelations());
-            }
-            else {
+            } else {
                 $relationObject->add($model);
             }
         }

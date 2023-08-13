@@ -20,7 +20,7 @@ class CoreRouter extends RouterBase
     /**
      * dispatch the request to the application.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function dispatch(Request $request)
@@ -39,7 +39,7 @@ class CoreRouter extends RouterBase
     /**
      * before is a new filter registered with the router.
      *
-     * @param  string|callable  $callback
+     * @param string|callable $callback
      * @return void
      */
     public function before($callback)
@@ -50,7 +50,7 @@ class CoreRouter extends RouterBase
     /**
      * after is a new filter registered with the router.
      *
-     * @param  string|callable  $callback
+     * @param string|callable $callback
      * @return void
      */
     public function after($callback)
@@ -61,7 +61,7 @@ class CoreRouter extends RouterBase
     /**
      * registerLateRoutes found within "before" filter, some are registered here.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return void
      */
     public function registerLateRoutes()

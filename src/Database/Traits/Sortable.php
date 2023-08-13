@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database\Traits;
 
-use October\Rain\Database\Scopes\SortableScope;
 use Exception;
+use October\Rain\Database\Scopes\SortableScope;
 
 /**
  * Sortable model trait
@@ -53,8 +53,8 @@ trait Sortable
      * setSortableOrder sets the sort order of records to the specified orders, suppling
      * a reference pool of sorted values. If reference pool is true, then an incrementing
      * pool is used.
-     * @param  mixed $itemIds
-     * @param  array|null|bool $referencePool
+     * @param mixed $itemIds
+     * @param array|null|bool $referencePool
      * @return void
      */
     public function setSortableOrder($itemIds, $referencePool = null)
@@ -93,8 +93,7 @@ trait Sortable
         // Build incrementing reference pool
         if ($referencePool === true) {
             $referencePool = range(1, count($itemIds));
-        }
-        else {
+        } else {
             // Extract a reference pool from the database
             if (!$referencePool) {
                 $referencePool = $this->newQuery()

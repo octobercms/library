@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Foundation\Providers;
 
-use Illuminate\Support\AggregateServiceProvider;
 use Illuminate\Contracts\Support\DeferrableProvider;
+use Illuminate\Support\AggregateServiceProvider;
 
 /**
  * AppDeferSupportServiceProvider supplies deferred providers

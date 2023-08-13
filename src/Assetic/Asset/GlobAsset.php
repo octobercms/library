@@ -24,10 +24,10 @@ class GlobAsset extends AssetCollection
     /**
      * __construct
      *
-     * @param string|array $globs   A single glob path or array of paths
-     * @param array        $filters An array of filters
-     * @param string       $root    The root directory
-     * @param array        $vars
+     * @param string|array $globs A single glob path or array of paths
+     * @param array $filters An array of filters
+     * @param string $root The root directory
+     * @param array $vars
      */
     public function __construct($globs, $filters = [], $root = null, array $vars = [])
     {

@@ -13,8 +13,8 @@ class Input extends Facade
      * get an item from the input data
      * This method is used for all request verbs (GET, POST, PUT, and DELETE)
      *
-     * @param  string|null  $key
-     * @param  mixed   $default
+     * @param string|null $key
+     * @param mixed $default
      * @return mixed
      */
     public static function get($key = null, $default = null)

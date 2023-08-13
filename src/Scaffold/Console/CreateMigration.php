@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Scaffold\Console;
 
-use Str;
 use October\Rain\Scaffold\GeneratorCommandBase;
+use Str;
 
 /**
  * CreateMigration
@@ -42,17 +42,14 @@ class CreateMigration extends GeneratorCommandBase
     {
         if ($this->isAppNamespace()) {
             if ($this->isCreate) {
-                $this->makeStub('migration/create_app_table.stub', 'database/migrations/'.$this->getDatePrefix().'_{{snake_name}}.php');
+                $this->makeStub('migration/create_app_table.stub', 'database/migrations/' . $this->getDatePrefix() . '_{{snake_name}}.php');
+            } else {
+                $this->makeStub('migration/update_app_table.stub', 'database/migrations/' . $this->getDatePrefix() . '_{{snake_name}}.php');
             }
-            else {
-                $this->makeStub('migration/update_app_table.stub', 'database/migrations/'.$this->getDatePrefix().'_{{snake_name}}.php');
-            }
-        }
-        else {
+        } else {
             if ($this->isCreate) {
                 $this->makeStub('migration/create_table.stub', 'updates/{{snake_name}}.php');
-            }
-            else {
+            } else {
                 $this->makeStub('migration/update_table.stub', 'updates/{{snake_name}}.php');
             }
         }
@@ -119,7 +116,7 @@ class CreateMigration extends GeneratorCommandBase
             }
         }
 
-        return $this->getNamespaceTable() . '_' .$tableName;
+        return $this->getNamespaceTable() . '_' . $tableName;
     }
 
     /**

@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Database\Relations;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as CollectionBase;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany as BelongsToManyBase;
 
 /**
@@ -31,21 +31,22 @@ class BelongsToMany extends BelongsToManyBase
     /**
      * __construct a new belongs to many relationship instance.
      *
-     * @param  string  $table
-     * @param  string  $foreignPivotKey
-     * @param  string  $relatedPivotKey
-     * @param  string  $relationName
+     * @param string $table
+     * @param string $foreignPivotKey
+     * @param string $relatedPivotKey
+     * @param string $relationName
      */
     public function __construct(
         Builder $query,
-        Model $parent,
-        $table,
-        $foreignPivotKey,
-        $relatedPivotKey,
-        $parentKey,
-        $relatedKey,
-        $relationName = null
-    ) {
+        Model   $parent,
+                $table,
+                $foreignPivotKey,
+                $relatedPivotKey,
+                $parentKey,
+                $relatedKey,
+                $relationName = null
+    )
+    {
         parent::__construct(
             $query,
             $parent,
@@ -67,11 +68,11 @@ class BelongsToMany extends BelongsToManyBase
     protected function shouldSelect(array $columns = ['*'])
     {
         if ($this->countMode) {
-            return $this->table.'.'.$this->foreignPivotKey.' as pivot_'.$this->foreignPivotKey;
+            return $this->table . '.' . $this->foreignPivotKey . ' as pivot_' . $this->foreignPivotKey;
         }
 
         if ($columns === ['*']) {
-            $columns = [$this->related->getTable().'.*'];
+            $columns = [$this->related->getTable() . '.*'];
         }
 
         if ($this->orphanMode) {
@@ -110,7 +111,7 @@ class BelongsToMany extends BelongsToManyBase
      * This is necessary in order to fire 'model.relation.beforeAttach', 'model.relation.attach' events
      * @param mixed $ids
      * @param array $attributes
-     * @param bool  $touch
+     * @param bool $touch
      */
     public function attach($ids, array $attributes = [], $touch = true)
     {
@@ -225,16 +226,14 @@ class BelongsToMany extends BelongsToManyBase
         if ($sessionKey === null) {
             if ($this->parent->exists) {
                 $this->attach($model, $pivotData);
-            }
-            else {
+            } else {
                 $this->parent->bindEventOnce('model.afterSave', function () use ($model, $pivotData) {
                     $this->attach($model, $pivotData);
                 });
             }
 
             $this->parent->reloadRelations($this->relationName);
-        }
-        else {
+        } else {
             $this->parent->bindDeferred($this->relationName, $model, $sessionKey, $pivotData);
         }
     }
@@ -247,8 +246,7 @@ class BelongsToMany extends BelongsToManyBase
         if ($sessionKey === null) {
             $this->detach($model);
             $this->parent->reloadRelations($this->relationName);
-        }
-        else {
+        } else {
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);
         }
     }
@@ -256,10 +254,10 @@ class BelongsToMany extends BelongsToManyBase
     /**
      * paginate gets a paginator for the "select" statement that complies with October Rain
      *
-     * @param  int    $perPage
-     * @param  int    $currentPage
-     * @param  array  $columns
-     * @param  string  $pageName
+     * @param int $perPage
+     * @param int $currentPage
+     * @param array $columns
+     * @param string $pageName
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function paginate($perPage = null, $columns = ['*'], $pageName = 'page', $currentPage = null)
@@ -288,10 +286,10 @@ class BelongsToMany extends BelongsToManyBase
     /**
      * simplePaginate using a simple paginator.
      *
-     * @param  int|null  $perPage
-     * @param  array  $columns
-     * @param  string  $pageName
-     * @param  int|null  $page
+     * @param int|null $perPage
+     * @param array $columns
+     * @param string $pageName
+     * @param int|null $page
      * @return \Illuminate\Contracts\Pagination\Paginator
      */
     public function simplePaginate($perPage = null, $columns = ['*'], $pageName = 'page', $currentPage = null)
@@ -320,8 +318,8 @@ class BelongsToMany extends BelongsToManyBase
     /**
      * newPivot creates a new pivot model instance
      *
-     * @param  array  $attributes
-     * @param  bool   $exists
+     * @param array $attributes
+     * @param bool $exists
      * @return \Illuminate\Database\Eloquent\Relations\Pivot
      */
     public function newPivot(array $attributes = [], $exists = false)
@@ -365,8 +363,7 @@ class BelongsToMany extends BelongsToManyBase
         // Convert models to keys
         if ($value instanceof Model) {
             $value = $value->{$this->getRelatedKeyName()};
-        }
-        elseif (is_array($value)) {
+        } elseif (is_array($value)) {
             foreach ($value as $_key => $_value) {
                 if ($_value instanceof Model) {
                     $value[$_key] = $_value->{$this->getRelatedKeyName()};
@@ -413,10 +410,8 @@ class BelongsToMany extends BelongsToManyBase
         if ($this->parent->relationLoaded($relationName)) {
             $value = $this->parent->getRelation($relationName)
                 ->pluck($this->getRelatedKeyName())
-                ->all()
-            ;
-        }
-        else {
+                ->all();
+        } else {
             $value = $this->allRelatedIds($sessionKey)->all();
         }
 
@@ -442,7 +437,7 @@ class BelongsToMany extends BelongsToManyBase
      */
     public function getForeignKey()
     {
-        return $this->table.'.'.$this->foreignPivotKey;
+        return $this->table . '.' . $this->foreignPivotKey;
     }
 
     /**
@@ -450,6 +445,6 @@ class BelongsToMany extends BelongsToManyBase
      */
     public function getOtherKey()
     {
-        return $this->table.'.'.$this->relatedPivotKey;
+        return $this->table . '.' . $this->relatedPivotKey;
     }
 }

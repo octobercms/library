@@ -1,11 +1,11 @@
 <?php namespace October\Rain\Composer\Concerns;
 
-use Composer\IO\NullIO;
 use Composer\IO\BufferIO;
 use Composer\IO\ConsoleIO;
 use Composer\IO\IOInterface;
-use Symfony\Component\Console\Input\InputInterface;
+use Composer\IO\NullIO;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
 
 /**
  * HasOutput for composer
@@ -27,8 +27,7 @@ trait HasOutput
     {
         if ($output === null) {
             $this->output = new NullIO();
-        }
-        else {
+        } else {
             $this->output = $output;
         }
     }

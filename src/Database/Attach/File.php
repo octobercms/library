@@ -1,16 +1,16 @@
 <?php namespace October\Rain\Database\Attach;
 
-use Log;
-use Http;
 use Cache;
-use Storage;
-use Response;
+use Exception;
 use File as FileHelper;
+use Http;
+use Log;
 use October\Rain\Database\Model;
 use October\Rain\Resize\Resizer;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Response;
+use Storage;
 use Symfony\Component\HttpFoundation\File\File as FileObj;
-use Exception;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * File attachment model
@@ -81,13 +81,13 @@ class File extends Model
     protected $autoMimeTypes = [
         'docx' => 'application/msword',
         'xlsx' => 'application/excel',
-        'gif'  => 'image/gif',
-        'png'  => 'image/png',
-        'jpg'  => 'image/jpeg',
+        'gif' => 'image/gif',
+        'png' => 'image/png',
+        'jpg' => 'image/jpeg',
         'jpeg' => 'image/jpeg',
         'webp' => 'image/webp',
-        'pdf'  => 'application/pdf',
-        'svg'  => 'image/svg+xml',
+        'pdf' => 'application/pdf',
+        'svg' => 'image/svg+xml',
     ];
 
     //
@@ -321,8 +321,8 @@ class File extends Model
      *     'disposition' => 'inline',
      * ]
      * @param bool $returnResponse Direct output will be removed soon, chain with ->send() @deprecated
-     * @todo Refactor thumb to resources and recommend it be local, if remote, still use content grabber
      * @return Response|void
+     * @todo Refactor thumb to resources and recommend it be local, if remote, still use content grabber
      */
     public function outputThumb($width, $height, $options = [], $returnResponse = true)
     {
@@ -516,8 +516,7 @@ class File extends Model
         if ($this->data !== null) {
             if ($this->data instanceof UploadedFile) {
                 $this->fromPost($this->data);
-            }
-            // @deprecated see AttachOneOrMany::isValidFileData
+            } // @deprecated see AttachOneOrMany::isValidFileData
             else {
                 $this->fromFile($this->data);
             }
@@ -536,8 +535,7 @@ class File extends Model
                 $this->deleteThumbs();
                 $this->deleteFile();
             }
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
         }
     }
 
@@ -596,12 +594,10 @@ class File extends Model
             try {
                 if ($this->isLocalStorage()) {
                     $this->makeThumbLocal($thumbFile, $thumbPath, $width, $height, $options);
-                }
-                else {
+                } else {
                     $this->makeThumbStorage($thumbFile, $thumbPath, $width, $height, $options);
                 }
-            }
-            catch (Exception $ex) {
+            } catch (Exception $ex) {
                 Log::error($ex);
                 return '';
             }
@@ -667,14 +663,13 @@ class File extends Model
     protected function makeThumbLocal($thumbFile, $thumbPath, $width, $height, $options)
     {
         $rootPath = $this->getLocalRootPath();
-        $filePath = $rootPath.'/'.$this->getDiskPath();
-        $thumbPath = $rootPath.'/'.$thumbPath;
+        $filePath = $rootPath . '/' . $this->getDiskPath();
+        $thumbPath = $rootPath . '/' . $thumbPath;
 
         // Generate thumbnail
         Resizer::open($filePath)
             ->resize($width, $height, $options)
-            ->save($thumbPath)
-        ;
+            ->save($thumbPath);
 
         FileHelper::chmod($thumbPath);
     }
@@ -693,10 +688,8 @@ class File extends Model
         try {
             Resizer::open($tempFile)
                 ->resize($width, $height, $options)
-                ->save($tempThumb)
-            ;
-        }
-        finally {
+                ->save($tempThumb);
+        } finally {
             FileHelper::delete($tempFile);
         }
 
@@ -717,7 +710,7 @@ class File extends Model
      */
     public function deleteThumbs()
     {
-        $pattern = 'thumb_'.$this->id.'_';
+        $pattern = 'thumb_' . $this->id . '_';
 
         $directory = $this->getStorageDirectory() . $this->getPartitionDirectory();
         $allFiles = $this->storageCmd('files', $directory);
@@ -732,8 +725,7 @@ class File extends Model
         if (!empty($collection)) {
             if ($this->isLocalStorage()) {
                 FileHelper::delete($collection);
-            }
-            else {
+            } else {
                 $this->getDisk()->delete($collection);
 
                 foreach ($collection as $filePath) {
@@ -759,7 +751,7 @@ class File extends Model
         $ext = strtolower($this->getExtension());
         $name = str_replace('.', '', uniqid('', true));
 
-        return $this->disk_name = !empty($ext) ? $name.'.'.$ext : $name;
+        return $this->disk_name = !empty($ext) ? $name . '.' . $ext : $name;
     }
 
     /**
@@ -825,9 +817,9 @@ class File extends Model
         }
 
         return $this
-            ->newQueryWithoutScopes()
-            ->where('disk_name', $fileName)
-            ->count() === 0;
+                ->newQueryWithoutScopes()
+                ->where('disk_name', $fileName)
+                ->count() === 0;
     }
 
     /**
@@ -866,7 +858,7 @@ class File extends Model
         }
 
         // Cache remote storage results for performance increase
-        $result = Cache::rememberForever($this->getCacheKey($filePath), function() use ($filePath) {
+        $result = Cache::rememberForever($this->getCacheKey($filePath), function () use ($filePath) {
             return $this->storageCmd('exists', $filePath);
         });
 
@@ -937,8 +929,7 @@ class File extends Model
             }, $args);
 
             $result = forward_static_call_array([$interface, $command], $args);
-        }
-        else {
+        } else {
             $result = call_user_func_array([$this->getDisk(), $command], $args);
         }
 
@@ -1035,12 +1026,12 @@ class File extends Model
     }
 
     /**
-    * getPartitionDirectory generates a partition for the file
-    * return /ABC/DE1/234 for an name of ABCDE1234.
-    * @param Attachment $attachment
-    * @param string $styleName
-    * @return mixed
-    */
+     * getPartitionDirectory generates a partition for the file
+     * return /ABC/DE1/234 for an name of ABCDE1234.
+     * @param Attachment $attachment
+     * @param string $styleName
+     * @return mixed
+     */
     protected function getPartitionDirectory()
     {
         return implode('/', array_slice(str_split($this->disk_name, 3), 0, 3)) . '/';

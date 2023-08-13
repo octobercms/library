@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Foundation\Bootstrap;
 
-use Illuminate\Contracts\Foundation\Application;
 use Exception;
+use Illuminate\Contracts\Foundation\Application;
 
 /**
  * LoadEnvironmentFromHost will set the APP_ENV based on a hostname found in the
@@ -32,7 +32,7 @@ class LoadEnvironmentFromHost
      */
     protected function getEnvironmentConfiguration(): ?array
     {
-        $configPath = base_path().'/config/environment.php';
+        $configPath = base_path() . '/config/environment.php';
 
         if (!file_exists($configPath)) {
             return null;
@@ -40,8 +40,7 @@ class LoadEnvironmentFromHost
 
         try {
             $config = require $configPath;
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             $config = [];
         }
 

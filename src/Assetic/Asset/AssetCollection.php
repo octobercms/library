@@ -1,12 +1,12 @@
 <?php namespace October\Rain\Assetic\Asset;
 
+use InvalidArgumentException;
+use IteratorAggregate;
 use October\Rain\Assetic\Asset\Iterator\AssetCollectionFilterIterator;
 use October\Rain\Assetic\Asset\Iterator\AssetCollectionIterator;
 use October\Rain\Assetic\Filter\FilterCollection;
 use October\Rain\Assetic\Filter\FilterInterface;
 use RecursiveIteratorIterator;
-use InvalidArgumentException;
-use IteratorAggregate;
 use SplObjectStorage;
 use Traversable;
 
@@ -60,10 +60,10 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
     /**
      * __construct
      *
-     * @param array  $assets     Assets for the current collection
-     * @param array  $filters    Filters for the current collection
+     * @param array $assets Assets for the current collection
+     * @param array $filters Filters for the current collection
      * @param string $sourceRoot The root directory
-     * @param array  $vars
+     * @param array $vars
      */
     public function __construct($assets = [], $filters = [], $sourceRoot = null, array $vars = [])
     {

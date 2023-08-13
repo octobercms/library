@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Exception;
 
+use Exception;
 use File;
 use Throwable;
-use Exception;
 
 /**
  * ExceptionBase class represents a base interface and set of properties
@@ -184,8 +184,8 @@ class ExceptionBase extends Exception
 
         $endLine = $startLine + 12;
         $lineNum = count($this->fileContent);
-        if ($endLine > $lineNum-1) {
-            $endLine = $lineNum-1;
+        if ($endLine > $lineNum - 1) {
+            $endLine = $lineNum - 1;
         }
 
         $areaLines = array_slice($this->fileContent, $startLine, $endLine - $startLine + 1);
@@ -213,7 +213,7 @@ class ExceptionBase extends Exception
     {
         $lines = $this->getHighlight()->lines;
         foreach ($lines as $index => $line) {
-            $lines[$index] = strlen(trim($line)) ? htmlentities($line) : '&nbsp;'.PHP_EOL;
+            $lines[$index] = strlen(trim($line)) ? htmlentities($line) : '&nbsp;' . PHP_EOL;
         }
         return $lines;
     }
@@ -239,10 +239,10 @@ class ExceptionBase extends Exception
             }
 
             $functionName = (isset($event['class']) && strlen($event['class']))
-                ? $event['class'].$event['type'].$event['function']
+                ? $event['class'] . $event['type'] . $event['function']
                 : $event['function'];
 
-            $file = isset($event['file']) ? '~'.File::localToPublic($event['file']) : null;
+            $file = isset($event['file']) ? '~' . File::localToPublic($event['file']) : null;
             $line = $event['line'] ?? null;
 
             $args = null;
@@ -250,8 +250,8 @@ class ExceptionBase extends Exception
                 $args = $this->formatStackArguments($event['args'], false);
             }
 
-            $result[] = (object)[
-                'id'   => $lastIndex - $index + 1,
+            $result[] = (object) [
+                'id' => $lastIndex - $index + 1,
                 'code' => $functionName,
                 'args' => $args ? htmlentities($args) : '',
                 'file' => $file,
@@ -331,19 +331,15 @@ class ExceptionBase extends Exception
 
                 foreach ($argument as $index => $obj) {
                     if (is_array($obj)) {
-                        $value = 'array('.count($obj).')';
-                    }
-                    elseif (is_object($obj)) {
-                        $value = 'object('.get_class($obj).')';
-                    }
-                    elseif (is_int($obj)) {
+                        $value = 'array(' . count($obj) . ')';
+                    } elseif (is_object($obj)) {
+                        $value = 'object(' . get_class($obj) . ')';
+                    } elseif (is_int($obj)) {
                         $value = $obj;
-                    }
-                    elseif ($obj === null) {
+                    } elseif ($obj === null) {
                         $value = "null";
-                    }
-                    else {
-                        $value = "'".$obj."'";
+                    } else {
+                        $value = "'" . $obj . "'";
                     }
 
                     $items[] = $index . ' => ' . $value;
@@ -351,22 +347,17 @@ class ExceptionBase extends Exception
 
                 if (count($items)) {
                     $arg = 'array(' . count($argument) . ') [' . implode(', ', $items) . ']';
-                }
-                else {
+                } else {
                     $arg = 'array(0)';
                 }
-            }
-            elseif (is_object($argument)) {
-                $arg = 'object('.get_class($argument).')';
-            }
-            elseif ($argument === null) {
+            } elseif (is_object($argument)) {
+                $arg = 'object(' . get_class($argument) . ')';
+            } elseif ($argument === null) {
                 $arg = "null";
-            }
-            elseif (is_int($argument)) {
+            } elseif (is_int($argument)) {
                 $arg = $argument;
-            }
-            else {
-                $arg = "'".$argument."'";
+            } else {
+                $arg = "'" . $argument . "'";
             }
 
             $argsArray[] = $arg;

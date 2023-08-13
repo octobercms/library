@@ -19,7 +19,7 @@ class ServeCommand extends ServeCommandParent
         $this->line("<info>October CMS development server started:</info> http://{$this->host()}:{$this->port()}");
 
         $environmentFile = $this->option('env')
-            ? base_path('.env').'.'.$this->option('env')
+            ? base_path('.env') . '.' . $this->option('env')
             : base_path('.env');
 
         $hasEnvironment = file_exists($environmentFile);
@@ -35,7 +35,7 @@ class ServeCommand extends ServeCommandParent
                 clearstatcache(false, $environmentFile);
             }
 
-            if (! $this->option('no-reload') &&
+            if (!$this->option('no-reload') &&
                 $hasEnvironment &&
                 filemtime($environmentFile) > $environmentLastModified) {
                 $environmentLastModified = filemtime($environmentFile);
@@ -69,12 +69,12 @@ class ServeCommand extends ServeCommandParent
     {
         $server = file_exists(base_path('server.php'))
             ? base_path('server.php')
-            : __DIR__.'/../resources/server.php';
+            : __DIR__ . '/../resources/server.php';
 
         return [
             (new PhpExecutableFinder)->find(false),
             '-S',
-            $this->host().':'.$this->port(),
+            $this->host() . ':' . $this->port(),
             $server,
         ];
     }

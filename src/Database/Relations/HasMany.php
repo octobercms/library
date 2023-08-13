@@ -1,10 +1,10 @@
 <?php namespace October\Rain\Database\Relations;
 
-use October\Rain\Database\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as CollectionBase;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany as HasManyBase;
+use October\Rain\Database\Collection;
 
 /**
  * HasMany
@@ -53,16 +53,14 @@ class HasMany extends HasManyBase
             $collection = $value;
 
             if ($this->parent->exists) {
-                $collection->each(function($instance) {
+                $collection->each(function ($instance) {
                     $instance->setAttribute($this->getForeignKeyName(), $this->getParentKey());
                 });
             }
-        }
-        else {
+        } else {
             $collection = $this->getRelated()
                 ->whereIn($this->getRelatedKeyName(), (array) $value)
-                ->get()
-            ;
+                ->get();
         }
 
         if (!$collection) {
@@ -71,14 +69,14 @@ class HasMany extends HasManyBase
 
         $this->parent->setRelation($this->relationName, $collection);
 
-        $this->parent->bindEventOnce('model.afterSave', function() use ($collection) {
+        $this->parent->bindEventOnce('model.afterSave', function () use ($collection) {
             $existingIds = $collection->pluck($this->getRelatedKeyName())->all();
 
             $this->whereNotIn($this->getRelatedKeyName(), $existingIds)->update([
                 $this->getForeignKeyName() => null
             ]);
 
-            $collection->each(function($instance) {
+            $collection->each(function ($instance) {
                 $instance->setAttribute($this->getForeignKeyName(), $this->getParentKey());
                 $instance->save(['timestamps' => false]);
             });
@@ -97,14 +95,11 @@ class HasMany extends HasManyBase
         if ($this->parent->relationLoaded($relationName)) {
             $value = $this->parent->getRelation($relationName)
                 ->pluck($this->getRelatedKeyName())
-                ->all()
-            ;
-        }
-        else {
+                ->all();
+        } else {
             $value = $this->query->getQuery()
                 ->pluck($this->getRelatedKeyName())
-                ->all()
-            ;
+                ->all();
         }
 
         return $value;

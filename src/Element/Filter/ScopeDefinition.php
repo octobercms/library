@@ -36,8 +36,7 @@ class ScopeDefinition extends ElementBase
         $this
             ->nameFrom('name')
             ->disabled(false)
-            ->displayAs('group')
-        ;
+            ->displayAs('group');
     }
 
     /**

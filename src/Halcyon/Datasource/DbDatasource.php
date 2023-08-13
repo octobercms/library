@@ -1,12 +1,12 @@
 <?php namespace October\Rain\Halcyon\Datasource;
 
+use Carbon\Carbon;
 use Db;
-use October\Rain\Halcyon\Processors\Processor;
+use Exception;
 use October\Rain\Halcyon\Exception\CreateFileException;
 use October\Rain\Halcyon\Exception\DeleteFileException;
 use October\Rain\Halcyon\Exception\FileExistsException;
-use Carbon\Carbon;
-use Exception;
+use October\Rain\Halcyon\Processors\Processor;
 
 /**
  * DbDatasource looks at the database for templates
@@ -65,8 +65,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
 
         if (isset(self::$pathCache[$this->source][$path])) {
             $result = self::$pathCache[$this->source][$path];
-        }
-        else {
+        } else {
             $result = $this->getQuery()->where('path', $path)->first();
         }
 
@@ -142,8 +141,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
                     'mtime' => Carbon::parse($item->updated_at)->timestamp,
                     'record' => $item,
                 ];
-            }
-            else {
+            } else {
                 if (in_array('fileName', $columns)) {
                     $resultItem['fileName'] = $fileName;
                 }
@@ -212,8 +210,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
             $this->flushCache();
 
             return $record['file_size'];
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             throw (new CreateFileException)->setInvalidPath($path);
         }
     }
@@ -265,8 +262,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
             $this->flushCache();
 
             return $fileSize;
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             throw (new CreateFileException)->setInvalidPath($path);
         }
     }
@@ -282,16 +278,14 @@ class DbDatasource extends Datasource implements DatasourceInterface
 
             if ($this->forceDeleting) {
                 $result = $recordQuery->delete();
-            }
-            else {
+            } else {
                 $result = $recordQuery->update(['deleted_at' => Carbon::now()->toDateTimeString()]);
             }
 
             $this->flushCache();
 
             return (bool) $result;
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             throw (new DeleteFileException)->setInvalidPath($path);
         }
     }
@@ -313,8 +307,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
 
             $result = self::$mtimeCache[$this->source][$path];
             return Carbon::parse($result)->timestamp;
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             return null;
         }
     }

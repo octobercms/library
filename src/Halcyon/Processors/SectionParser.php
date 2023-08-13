@@ -39,8 +39,7 @@ class SectionParser
             foreach ($values as &$value) {
                 if (!is_array($value)) {
                     $value = trim($value);
-                }
-                else {
+                } else {
                     $trim($value);
                 }
             }
@@ -64,9 +63,8 @@ class SectionParser
                 $code = preg_replace('/\?>$/', '', $code);
                 $code = trim($code, PHP_EOL);
 
-                $content[] = '<?php'.PHP_EOL.$code.PHP_EOL.'?>';
-            }
-            else {
+                $content[] = '<?php' . PHP_EOL . $code . PHP_EOL . '?>';
+            } else {
                 $content[] = $code;
             }
         }
@@ -74,7 +72,7 @@ class SectionParser
         // Strip content separator from content as a method of escape
         $content[] = implode('', self::splitContentSections($markup));
 
-        $content = trim(implode(PHP_EOL.self::SECTION_SEPARATOR.PHP_EOL, $content));
+        $content = trim(implode(PHP_EOL . self::SECTION_SEPARATOR . PHP_EOL, $content));
 
         return $content;
     }
@@ -133,14 +131,12 @@ class SectionParser
             $result['code'] = trim($result['code'], PHP_EOL);
 
             $result['markup'] = $sections[2];
-        }
-        elseif ($count === 2) {
+        } elseif ($count === 2) {
             $result['settings'] = @$iniParser->parse($sections[0], true)
                 ?: [self::ERROR_INI => $sections[0]];
 
             $result['markup'] = $sections[1];
-        }
-        elseif ($count === 1) {
+        } elseif ($count === 1) {
             $result['markup'] = $sections[0];
         }
 
@@ -162,20 +158,18 @@ class SectionParser
 
         $result = [
             'settings' => null,
-            'code'     => null,
-            'markup'   => null
+            'code' => null,
+            'markup' => null
         ];
 
         if ($count >= 3) {
             $result['settings'] = self::adjustLinePosition($content);
             $result['code'] = self::calculateLinePosition($content);
             $result['markup'] = self::calculateLinePosition($content, 2);
-        }
-        elseif ($count === 2) {
+        } elseif ($count === 2) {
             $result['settings'] = self::adjustLinePosition($content);
             $result['markup'] = self::calculateLinePosition($content);
-        }
-        elseif ($count === 1) {
+        } elseif ($count === 1) {
             $result['markup'] = 1;
         }
 
@@ -190,7 +184,7 @@ class SectionParser
      */
     protected static function splitContentSections($content)
     {
-        return preg_split('/^'.preg_quote(self::SECTION_SEPARATOR).'\s*$/m', $content, -1);
+        return preg_split('/^' . preg_quote(self::SECTION_SEPARATOR) . '\s*$/m', $content, -1);
     }
 
     /**

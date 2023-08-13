@@ -73,6 +73,6 @@ class Helper
         $formName = array_slice($formName, 0, $sliceLength);
         $formNameFirst = array_shift($formName);
 
-        return $formNameFirst.'['.implode('][', $formName).']';
+        return $formNameFirst . '[' . implode('][', $formName) . ']';
     }
 }

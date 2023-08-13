@@ -1,12 +1,13 @@
 <?php namespace October\Rain\Foundation\Providers;
 
-use October\Rain\Foundation\Console\ServeCommand;
-use October\Rain\Foundation\Console\RouteListCommand;
-use October\Rain\Foundation\Console\RouteCacheCommand;
-use October\Rain\Foundation\Console\ProjectSetCommand;
-use October\Rain\Foundation\Console\ClearCompiledCommand;
 use Illuminate\Cache\Console\ClearCommand as CacheClearCommand;
 use Illuminate\Cache\Console\ForgetCommand as CacheForgetCommand;
+use Illuminate\Console\Scheduling\ScheduleClearCacheCommand;
+use Illuminate\Console\Scheduling\ScheduleFinishCommand;
+use Illuminate\Console\Scheduling\ScheduleListCommand;
+use Illuminate\Console\Scheduling\ScheduleRunCommand;
+use Illuminate\Console\Scheduling\ScheduleTestCommand;
+use Illuminate\Console\Scheduling\ScheduleWorkCommand;
 use Illuminate\Database\Console\Seeds\SeedCommand;
 use Illuminate\Database\Console\WipeCommand;
 use Illuminate\Foundation\Console\ConfigCacheCommand;
@@ -22,16 +23,11 @@ use Illuminate\Foundation\Console\OptimizeCommand;
 use Illuminate\Foundation\Console\PackageDiscoverCommand;
 use Illuminate\Foundation\Console\RouteClearCommand;
 use Illuminate\Foundation\Console\StorageLinkCommand;
-use Illuminate\Console\Scheduling\ScheduleClearCacheCommand;
-use Illuminate\Console\Scheduling\ScheduleFinishCommand;
-use Illuminate\Console\Scheduling\ScheduleListCommand;
-use Illuminate\Console\Scheduling\ScheduleRunCommand;
-use Illuminate\Console\Scheduling\ScheduleTestCommand;
-use Illuminate\Console\Scheduling\ScheduleWorkCommand;
 use Illuminate\Foundation\Console\UpCommand;
 use Illuminate\Foundation\Console\VendorPublishCommand;
 use Illuminate\Foundation\Console\ViewCacheCommand;
 use Illuminate\Foundation\Console\ViewClearCommand;
+use Illuminate\Foundation\Providers\ArtisanServiceProvider as ArtisanServiceProviderBase;
 use Illuminate\Queue\Console\ClearCommand as QueueClearCommand;
 use Illuminate\Queue\Console\FlushFailedCommand as FlushFailedQueueCommand;
 use Illuminate\Queue\Console\ForgetFailedCommand as ForgetFailedQueueCommand;
@@ -44,7 +40,11 @@ use Illuminate\Queue\Console\RestartCommand as QueueRestartCommand;
 use Illuminate\Queue\Console\RetryBatchCommand as QueueRetryBatchCommand;
 use Illuminate\Queue\Console\RetryCommand as QueueRetryCommand;
 use Illuminate\Queue\Console\WorkCommand as QueueWorkCommand;
-use Illuminate\Foundation\Providers\ArtisanServiceProvider as ArtisanServiceProviderBase;
+use October\Rain\Foundation\Console\ClearCompiledCommand;
+use October\Rain\Foundation\Console\ProjectSetCommand;
+use October\Rain\Foundation\Console\RouteCacheCommand;
+use October\Rain\Foundation\Console\RouteListCommand;
+use October\Rain\Foundation\Console\ServeCommand;
 
 /**
  * ArtisanServiceProvider

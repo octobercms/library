@@ -1,10 +1,10 @@
 <?php namespace October\Rain\Mail;
 
-use Event;
 use Config;
+use Event;
+use Illuminate\Contracts\Mail\Mailable as MailableContract;
 use Illuminate\Mail\Mailer as MailerBase;
 use Illuminate\Mail\SentMessage;
-use Illuminate\Contracts\Mail\Mailable as MailableContract;
 use Illuminate\Support\Collection;
 
 /**
@@ -25,9 +25,9 @@ class Mailer extends MailerBase
     /**
      * send a new message using a view.
      *
-     * @param  string|array $view
-     * @param  array $data
-     * @param  \Closure|string $callback
+     * @param string|array $view
+     * @param array $data
+     * @param \Closure|string $callback
      * @return mixed
      */
     public function send($view, array $data = [], $callback = null)
@@ -75,8 +75,7 @@ class Mailer extends MailerBase
 
         if (is_bool($raw) && $raw === true) {
             $this->addContentRaw($message, $view, $plain);
-        }
-        else {
+        } else {
             $this->addContent($message, $view, $plain, $raw, $data);
         }
 
@@ -87,27 +86,27 @@ class Mailer extends MailerBase
             $this->setGlobalToAndRemoveCcAndBcc($message);
         }
 
-         /**
-          * @event mailer.prepareSend
-          * Fires before the mailer processes the sending action
-          *
-          * Parameters:
-          * - $view: View code as a string
-          * - $message: Illuminate\Mail\Message object, check Swift_Mime_SimpleMessage for useful functions.
-          *
-          * Example usage (stops the sending process):
-          *
-          *     Event::listen('mailer.prepareSend', function ((\October\Rain\Mail\Mailer) $mailerInstance, (string) $view, (\Illuminate\Mail\Message) $message) {
-          *         return false;
-          *     });
-          *
-          * Or
-          *
-          *     $mailerInstance->bindEvent('mailer.prepareSend', function ((string) $view, (\Illuminate\Mail\Message) $message) {
-          *         return false;
-          *     });
-          *
-          */
+        /**
+         * @event mailer.prepareSend
+         * Fires before the mailer processes the sending action
+         *
+         * Parameters:
+         * - $view: View code as a string
+         * - $message: Illuminate\Mail\Message object, check Swift_Mime_SimpleMessage for useful functions.
+         *
+         * Example usage (stops the sending process):
+         *
+         *     Event::listen('mailer.prepareSend', function ((\October\Rain\Mail\Mailer) $mailerInstance, (string) $view, (\Illuminate\Mail\Message) $message) {
+         *         return false;
+         *     });
+         *
+         * Or
+         *
+         *     $mailerInstance->bindEvent('mailer.prepareSend', function ((string) $view, (\Illuminate\Mail\Message) $message) {
+         *         return false;
+         *     });
+         *
+         */
         if (
             ($this->fireEvent('mailer.prepareSend', [$view, $message], true) === false) ||
             (Event::fire('mailer.prepareSend', [$this, $view, $message], true) === false)
@@ -157,11 +156,11 @@ class Mailer extends MailerBase
      * sendTo is a helper for send() method, the first argument can take a single email or an
      * array of recipients where the key is the address and the value is the name.
      *
-     * @param  array $recipients
-     * @param  string|array $view
-     * @param  array $data
-     * @param  mixed $callback
-     * @param  array $options
+     * @param array $recipients
+     * @param string|array $view
+     * @param array $data
+     * @param mixed $callback
+     * @param array $options
      * @return void
      */
     public function sendTo($recipients, $view, array $data = [], $callback = null, $options = [])
@@ -173,11 +172,10 @@ class Mailer extends MailerBase
         if (is_bool($options)) {
             $queue = $options;
             $bcc = false;
-        }
-        else {
+        } else {
             extract(array_merge([
                 'queue' => false,
-                'bcc'   => false
+                'bcc' => false
             ], $options));
         }
 
@@ -201,10 +199,10 @@ class Mailer extends MailerBase
     /**
      * queue a new e-mail message for sending.
      *
-     * @param  string|array  $view
-     * @param  array  $data
-     * @param  \Closure|string  $callback
-     * @param  string|null  $queue
+     * @param string|array $view
+     * @param array $data
+     * @param \Closure|string $callback
+     * @param string|null $queue
      * @return mixed
      */
     public function queue($view, $data = null, $callback = null, $queue = null)
@@ -212,8 +210,7 @@ class Mailer extends MailerBase
         if (!$view instanceof MailableContract) {
             $mailable = $this->buildQueueMailable($view, $data, $callback, $queue);
             $queue = null;
-        }
-        else {
+        } else {
             $mailable = $view;
             $queue = $queue ?? $data;
         }
@@ -224,10 +221,10 @@ class Mailer extends MailerBase
     /**
      * queueOn queues a new e-mail message for sending on the given queue.
      *
-     * @param  string  $queue
-     * @param  string|array  $view
-     * @param  array  $data
-     * @param  \Closure|string  $callback
+     * @param string $queue
+     * @param string|array $view
+     * @param array $data
+     * @param \Closure|string $callback
      * @return mixed
      */
     public function queueOn($queue, $view, $data = null, $callback = null)
@@ -238,11 +235,11 @@ class Mailer extends MailerBase
     /**
      * later queues a new e-mail message for sending after (n) seconds.
      *
-     * @param  int  $delay
-     * @param  string|array  $view
-     * @param  array  $data
-     * @param  \Closure|string  $callback
-     * @param  string|null  $queue
+     * @param int $delay
+     * @param string|array $view
+     * @param array $data
+     * @param \Closure|string $callback
+     * @param string|null $queue
      * @return mixed
      */
     public function later($delay, $view, $data = null, $callback = null, $queue = null)
@@ -250,8 +247,7 @@ class Mailer extends MailerBase
         if (!$view instanceof MailableContract) {
             $mailable = $this->buildQueueMailable($view, $data, $callback, $queue);
             $queue = null;
-        }
-        else {
+        } else {
             $mailable = $view;
             $queue = $queue ?? $data;
         }
@@ -262,11 +258,11 @@ class Mailer extends MailerBase
     /**
      * laterOn queues a new e-mail message for sending after (n) seconds on the given queue.
      *
-     * @param  string  $queue
-     * @param  int  $delay
-     * @param  string|array  $view
-     * @param  array  $data
-     * @param  \Closure|string  $callback
+     * @param string $queue
+     * @param int $delay
+     * @param string|array $view
+     * @param array $data
+     * @param \Closure|string $callback
      * @return mixed
      */
     public function laterOn($queue, $delay, $view, array $data = null, $callback = null)
@@ -277,7 +273,7 @@ class Mailer extends MailerBase
     /**
      * buildQueueMailable for a queued email job.
      *
-     * @param  mixed  $callback
+     * @param mixed $callback
      * @return mixed
      */
     protected function buildQueueMailable($view, $data, $callback, $queue)
@@ -300,16 +296,15 @@ class Mailer extends MailerBase
     /**
      * raw sends a new message when only a raw text part.
      *
-     * @param  string  $text
-     * @param  mixed  $callback
+     * @param string $text
+     * @param mixed $callback
      * @return int
      */
     public function raw($view, $callback)
     {
         if (!is_array($view)) {
             $view = ['raw' => $view];
-        }
-        elseif (!array_key_exists('raw', $view)) {
+        } elseif (!array_key_exists('raw', $view)) {
             $view['raw'] = true;
         }
 
@@ -319,18 +314,17 @@ class Mailer extends MailerBase
     /**
      * rawTo helper for raw() method, send a new message when only a raw text part.
      *
-     * @param  array $recipients
-     * @param  string  $view
-     * @param  mixed   $callback
-     * @param  array   $options
+     * @param array $recipients
+     * @param string $view
+     * @param mixed $callback
+     * @param array $options
      * @return int
      */
     public function rawTo($recipients, $view, $callback = null, $options = [])
     {
         if (!is_array($view)) {
             $view = ['raw' => $view];
-        }
-        elseif (!array_key_exists('raw', $view)) {
+        } elseif (!array_key_exists('raw', $view)) {
             $view['raw'] = true;
         }
 
@@ -352,13 +346,11 @@ class Mailer extends MailerBase
 
         if (is_string($recipients)) {
             $result[$recipients] = null;
-        }
-        elseif (is_array($recipients) || $recipients instanceof Collection) {
+        } elseif (is_array($recipients) || $recipients instanceof Collection) {
             foreach ($recipients as $address => $person) {
                 if (is_string($person)) {
                     $result[$address] = $person;
-                }
-                elseif (is_object($person)) {
+                } elseif (is_object($person)) {
                     if (empty($person->email) && empty($person->address)) {
                         continue;
                     }
@@ -366,8 +358,7 @@ class Mailer extends MailerBase
                     $address = !empty($person->email) ? $person->email : $person->address;
                     $name = !empty($person->name) ? $person->name : null;
                     $result[$address] = $name;
-                }
-                elseif (is_array($person)) {
+                } elseif (is_array($person)) {
                     if (!$address = array_get($person, 'email', array_get($person, 'address'))) {
                         continue;
                     }
@@ -375,8 +366,7 @@ class Mailer extends MailerBase
                     $result[$address] = array_get($person, 'name');
                 }
             }
-        }
-        elseif (is_object($recipients)) {
+        } elseif (is_object($recipients)) {
             if (!empty($recipients->email) || !empty($recipients->address)) {
                 $address = !empty($recipients->email) ? $recipients->email : $recipients->address;
                 $name = !empty($recipients->name) ? $recipients->name : null;
@@ -390,11 +380,11 @@ class Mailer extends MailerBase
     /**
      * addContent to a given message.
      *
-     * @param  \Illuminate\Mail\Message $message
-     * @param  string $view
-     * @param  string $plain
-     * @param  string $raw
-     * @param  array $data
+     * @param \Illuminate\Mail\Message $message
+     * @param string $view
+     * @param string $plain
+     * @param string $raw
+     * @param array $data
      * @return void
      */
     protected function addContent($message, $view, $plain, $raw, $data)
@@ -479,9 +469,9 @@ class Mailer extends MailerBase
     /**
      * addContentRaw to a given message.
      *
-     * @param  \Illuminate\Mail\Message  $message
-     * @param  string  $html
-     * @param  string  $text
+     * @param \Illuminate\Mail\Message $message
+     * @param string $html
+     * @param string $text
      * @return void
      */
     protected function addContentRaw($message, $html, $text)
@@ -498,7 +488,7 @@ class Mailer extends MailerBase
     /**
      * pretend tells the mailer to not really send messages.
      *
-     * @param  bool  $value
+     * @param bool $value
      * @return void
      */
     public function pretend($value = true)
@@ -507,8 +497,7 @@ class Mailer extends MailerBase
             $this->pretendingOriginal = Config::get('mail.driver');
 
             Config::set('mail.driver', 'log');
-        }
-        else {
+        } else {
             Config::set('mail.driver', $this->pretendingOriginal);
         }
     }

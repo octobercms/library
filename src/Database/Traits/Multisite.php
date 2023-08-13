@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Database\Traits;
 
-use Site;
-use October\Rain\Database\Scopes\MultisiteScope;
 use Exception;
+use October\Rain\Database\Scopes\MultisiteScope;
+use Site;
 
 /**
  * Multisite trait allows for site-based models, the database
@@ -79,7 +79,7 @@ trait Multisite
             return;
         }
 
-        Site::withGlobalContext(function() {
+        Site::withGlobalContext(function () {
             $otherModels = $this->newOtherSiteQuery()->get();
             $otherSites = $otherModels->pluck('site_id')->all();
 
@@ -112,8 +112,7 @@ trait Multisite
         $this->site_root_id = $this->id;
         $this->newQueryWithoutScopes()
             ->where($this->getKeyName(), $this->id)
-            ->update(['site_root_id' => $this->site_root_id])
-        ;
+            ->update(['site_root_id' => $this->site_root_id]);
     }
 
     /**
@@ -147,11 +146,9 @@ trait Multisite
             // Override the local key to the shared root identifier
             if ($type === 'belongsToMany') {
                 $this->$type[$name]['parentKey'] = 'site_root_id';
-            }
-            elseif (in_array($type, ['hasOne', 'hasMany'])) {
+            } elseif (in_array($type, ['hasOne', 'hasMany'])) {
                 $this->$type[$name]['otherKey'] = 'site_root_id';
-            }
-            elseif (in_array($type, ['attachOne', 'attachMany'])) {
+            } elseif (in_array($type, ['attachOne', 'attachMany'])) {
                 $this->$type[$name]['key'] = 'site_root_id';
             }
         }
@@ -168,7 +165,7 @@ trait Multisite
 
     /**
      * addPropagatable attributes for the model.
-     * @param  array|string|null  $attributes
+     * @param array|string|null $attributes
      */
     public function addPropagatable($attributes = null)
     {
@@ -212,8 +209,7 @@ trait Multisite
                 if ($relationType === 'belongsTo') {
                     $fkName = $this->$name()->getForeignKeyName();
                     $otherModel->$fkName = $this->$fkName;
-                }
-                // Propagate local attribute (not a relation)
+                } // Propagate local attribute (not a relation)
                 elseif (!$relationType) {
                     $otherModel->$name = $this->$name;
                 }
@@ -268,7 +264,7 @@ trait Multisite
             $idOrModel = $idOrModel->site_root_id ?: $idOrModel->id;
         }
 
-        return $query->where(function($q) use ($idOrModel) {
+        return $query->where(function ($q) use ($idOrModel) {
             $q->where('id', $idOrModel);
             $q->orWhere('site_root_id', $idOrModel);
         });

@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Database\Traits;
 
+use Exception;
 use October\Rain\Database\Collection;
 use October\Rain\Database\TreeCollection;
-use Exception;
 
 /**
  * SimpleTree model trait
@@ -140,9 +140,9 @@ trait SimpleTree
     /**
      * scopeListsNested gets an array with values of a given column. Values are indented
      * according to their depth.
-     * @param  string $column Array values
-     * @param  string $key    Array keys
-     * @param  string $indent Character to indent depth
+     * @param string $column Array values
+     * @param string $key Array keys
+     * @param string $indent Character to indent depth
      * @return array
      */
     public function scopeListsNested($query, $column, $key = null, $indent = '&nbsp;&nbsp;&nbsp;')
@@ -166,14 +166,13 @@ trait SimpleTree
                     $pairMap[$parentId] = [];
                 }
                 $pairMap[$parentId][] = $record;
-            }
-            else {
+            } else {
                 $rootItems[] = $record;
             }
         }
 
         // Recursive helper function
-        $buildCollection = function(
+        $buildCollection = function (
             $items,
             $map,
             $depth = 0
@@ -195,8 +194,7 @@ trait SimpleTree
 
                 if ($key !== null) {
                     $result[$item->{$key}] = $indentString . $item->{$column};
-                }
-                else {
+                } else {
                     $result[] = $indentString . $item->{$column};
                 }
 
@@ -229,7 +227,7 @@ trait SimpleTree
      */
     public function getQualifiedParentColumnName()
     {
-        return $this->getTable(). '.' .$this->getParentColumnName();
+        return $this->getTable() . '.' . $this->getParentColumnName();
     }
 
     /**

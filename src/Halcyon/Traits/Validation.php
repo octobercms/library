@@ -1,10 +1,10 @@
 <?php namespace October\Rain\Halcyon\Traits;
 
-use Validator;
-use Illuminate\Support\MessageBag;
-use October\Rain\Support\Facades\Input;
-use October\Rain\Halcyon\Exception\ModelException;
 use Exception;
+use Illuminate\Support\MessageBag;
+use October\Rain\Halcyon\Exception\ModelException;
+use October\Rain\Support\Facades\Input;
+use Validator;
 
 trait Validation
 {
@@ -60,8 +60,7 @@ trait Validation
                 $force = array_get($options, 'force', false);
                 if ($force) {
                     $valid = $model->validate([], []);
-                }
-                else {
+                } else {
                     $valid = $model->validate();
                 }
 
@@ -183,8 +182,7 @@ trait Validation
                 if ($this->validationErrors->count() > 0) {
                     $this->validationErrors = new MessageBag;
                 }
-            }
-            else {
+            } else {
                 $this->validationErrors = $validator->messages();
 
                 // Flash input, if available
@@ -237,8 +235,7 @@ trait Validation
                 // Look for required:create and required:update rules
                 if (starts_with($rulePart, 'required:create') && $this->exists) {
                     unset($ruleParts[$key]);
-                }
-                elseif (starts_with($rulePart, 'required:update') && !$this->exists) {
+                } elseif (starts_with($rulePart, 'required:update') && !$this->exists) {
                     unset($ruleParts[$key]);
                 }
             }
@@ -275,7 +272,7 @@ trait Validation
 
     /**
      * isAttributeRequired determines if an attribute is required based on the validation rules.
-     * @param  string  $attribute
+     * @param string $attribute
      * @return bool
      */
     public function isAttributeRequired($attribute)
@@ -351,7 +348,7 @@ trait Validation
 
     /**
      * setModelValidator instance.
-     * @param  \Illuminate\Validation\Validator
+     * @param \Illuminate\Validation\Validator
      * @return void
      */
     public static function setModelValidator($validator)

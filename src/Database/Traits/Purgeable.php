@@ -41,7 +41,7 @@ trait Purgeable
 
     /**
      * addPurgeable adds an attribute to the purgeable attributes list
-     * @param  array|string|null  $attributes
+     * @param array|string|null $attributes
      * @return void
      */
     public function addPurgeable($attributes = null)
@@ -60,8 +60,7 @@ trait Purgeable
     {
         if ($attributesToPurge !== null) {
             $purgeable = is_array($attributesToPurge) ? $attributesToPurge : [$attributesToPurge];
-        }
-        else {
+        } else {
             $purgeable = $this->getPurgeableAttributes();
         }
 
@@ -71,8 +70,7 @@ trait Purgeable
 
         if (is_array($this->originalPurgeableValues)) {
             $this->originalPurgeableValues = array_merge($this->originalPurgeableValues, $originalAttributes);
-        }
-        else {
+        } else {
             $this->originalPurgeableValues = $originalAttributes;
         }
 

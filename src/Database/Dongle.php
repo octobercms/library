@@ -90,26 +90,23 @@ class Dongle
 
             if (is_string($parsedValue)) {
                 $pdo = $this->db->getPdo();
-                $toReplace['%:'.$param.'%'] = $pdo->quote('%'.$parsedValue.'%');
-                $toReplace['%:'.$param] = $pdo->quote('%'.$parsedValue);
-                $toReplace[':'.$param.'%'] = $pdo->quote($parsedValue.'%');
-                $toReplace[':'.$param] = $pdo->quote($parsedValue);
-            }
-            else {
+                $toReplace['%:' . $param . '%'] = $pdo->quote('%' . $parsedValue . '%');
+                $toReplace['%:' . $param] = $pdo->quote('%' . $parsedValue);
+                $toReplace[':' . $param . '%'] = $pdo->quote($parsedValue . '%');
+                $toReplace[':' . $param] = $pdo->quote($parsedValue);
+            } else {
                 if (is_null($parsedValue)) {
                     $parsedValue = 'NULL';
-                }
-                elseif (is_numeric($parsedValue)) {
+                } elseif (is_numeric($parsedValue)) {
                     $parsedValue = +$parsedValue;
-                }
-                else {
+                } else {
                     $parsedValue = "''";
                 }
 
-                $toReplace['%:'.$param.'%'] = $parsedValue;
-                $toReplace['%:'.$param] = $parsedValue;
-                $toReplace[':'.$param.'%'] = $parsedValue;
-                $toReplace[':'.$param] = $parsedValue;
+                $toReplace['%:' . $param . '%'] = $parsedValue;
+                $toReplace['%:' . $param] = $parsedValue;
+                $toReplace[':' . $param . '%'] = $parsedValue;
+                $toReplace[':' . $param] = $parsedValue;
             }
         }
 
@@ -244,7 +241,7 @@ class Dongle
             return $sql;
         }
 
-        return 'CAST('.$sql.' AS '.$asType.')';
+        return 'CAST(' . $sql . ' AS ' . $asType . ')';
     }
 
     /**
@@ -253,8 +250,8 @@ class Dongle
      * This is needed to transition from older Laravel code that set DEFAULT 0, which is an
      * invalid date in newer MySQL versions where NO_ZERO_DATE is included in strict mode.
      *
-     * @param string        $table
-     * @param string|array  $columns Column name(s). Defaults to ['created_at', 'updated_at']
+     * @param string $table
+     * @param string|array $columns Column name(s). Defaults to ['created_at', 'updated_at']
      */
     public function convertTimestamps($table, $columns = null)
     {

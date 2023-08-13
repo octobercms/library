@@ -1,7 +1,6 @@
 <?php namespace October\Rain\Assetic\Filter;
 
 use October\Rain\Assetic\Asset\AssetInterface;
-use October\Rain\Assetic\Filter\FilterInterface;
 
 /**
  * StylesheetMinify CSS Filter
@@ -23,8 +22,8 @@ class StylesheetMinify implements FilterInterface
 
     /**
      * minify CSS
-     * @var $css string CSS code to minify.
      * @return string Minified CSS.
+     * @var $css string CSS code to minify.
      */
     protected function minify($css)
     {

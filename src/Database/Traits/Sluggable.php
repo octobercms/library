@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Database\Traits;
 
 use App;
-use October\Rain\Support\Str;
 use Exception;
+use October\Rain\Support\Str;
 
 /**
  * Sluggable trait performs automatic slug generation for new models
@@ -71,8 +71,7 @@ trait Sluggable
             $slug = implode(' ', $slugArr);
             $slug = mb_substr($slug, 0, $maxLength);
             $slug = Str::slug($slug, $this->getSluggableSeparator(), App::getLocale());
-        }
-        else {
+        } else {
             $slug = $this->attributes[$slugAttribute] ?? '';
         }
 

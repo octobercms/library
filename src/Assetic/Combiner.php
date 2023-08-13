@@ -1,10 +1,10 @@
 <?php namespace October\Rain\Assetic;
 
-use October\Rain\Assetic\Asset\FileAsset;
+use File;
 use October\Rain\Assetic\Asset\AssetCache;
 use October\Rain\Assetic\Asset\AssetCollection;
+use October\Rain\Assetic\Asset\FileAsset;
 use October\Rain\Assetic\Cache\FilesystemCache;
-use File;
 
 /**
  * Combiner helper class
@@ -176,8 +176,7 @@ class Combiner
         if ($extension === null) {
             $this->filters = [];
             $this->prodFilters = [];
-        }
-        else {
+        } else {
             $this->filters[$extension] = [];
             $this->prodFilters[$extension] = [];
         }

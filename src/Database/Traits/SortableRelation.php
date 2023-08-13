@@ -72,7 +72,7 @@ trait SortableRelation
 
                 // Apply sort by the pivot table column name
                 if (!isset($definition['order']) && isset($definition['table'])) {
-                    $this->$type[$name]['order'][] = $definition['table'].'.'.$attrName;
+                    $this->$type[$name]['order'][] = $definition['table'] . '.' . $attrName;
                 }
             }
         }
@@ -86,7 +86,7 @@ trait SortableRelation
      * pool is used.
      * @param string $relationName
      * @param mixed $itemIds
-     * @param  array|null|bool $referencePool
+     * @param array|null|bool $referencePool
      */
     public function setSortableRelationOrder($relationName, $itemIds, $referencePool = null)
     {
@@ -128,8 +128,7 @@ trait SortableRelation
         // Build incrementing reference pool
         if ($referencePool === true) {
             $referencePool = range(1, count($itemIds));
-        }
-        else {
+        } else {
             // Extract a reference pool from the database
             if (!$referencePool) {
                 $referencePool = $this->$relationName()

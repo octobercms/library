@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database\Relations;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne as HasOneBase;
 
 /**
@@ -53,8 +53,7 @@ class HasOne extends HasOneBase
             if ($this->parent->exists) {
                 $instance->setAttribute($this->getForeignKeyName(), $this->getParentKey());
             }
-        }
-        else {
+        } else {
             $instance = $this->getRelated()->find($value);
         }
 
@@ -64,7 +63,7 @@ class HasOne extends HasOneBase
 
         $this->parent->setRelation($this->relationName, $instance);
 
-        $this->parent->bindEventOnce('model.afterSave', function() use ($instance) {
+        $this->parent->bindEventOnce('model.afterSave', function () use ($instance) {
             // Relation is already set, do nothing. This prevents the relationship
             // from being nulled below and left unset because the save will ignore
             // attribute values that are numerically equivalent (not dirty).

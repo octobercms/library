@@ -51,17 +51,14 @@ class MailParser
             $result['text'] = $sections[1];
             $result['html'] = $sections[2];
             $result['css'] = $sections[3];
-        }
-        elseif ($count >= 3) {
+        } elseif ($count >= 3) {
             $result['settings'] = parse_ini_string($sections[0], true);
             $result['text'] = $sections[1];
             $result['html'] = $sections[2];
-        }
-        elseif ($count === 2) {
+        } elseif ($count === 2) {
             $result['settings'] = parse_ini_string($sections[0], true);
             $result['html'] = $sections[1];
-        }
-        elseif ($count === 1) {
+        } elseif ($count === 1) {
             $result['html'] = $sections[0];
         }
 

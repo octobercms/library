@@ -33,8 +33,7 @@ class CreateJob extends GeneratorCommandBase
     {
         if ($this->option('sync')) {
             $this->makeStub('job/job.stub', 'jobs/{{studly_name}}.php');
-        }
-        else {
+        } else {
             $this->makeStub('job/job.queued.stub', 'jobs/{{studly_name}}.php');
         }
     }

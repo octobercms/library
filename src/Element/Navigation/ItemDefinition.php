@@ -24,7 +24,6 @@ class ItemDefinition extends ElementBase
     protected function initDefaultValues()
     {
         $this
-            ->order(-1)
-        ;
+            ->order(-1);
     }
 }

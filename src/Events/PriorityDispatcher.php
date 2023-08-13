@@ -1,9 +1,9 @@
 <?php namespace October\Rain\Events;
 
-use Str;
 use Illuminate\Container\Container;
-use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use Illuminate\Contracts\Container\Container as ContainerContract;
+use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
+use Str;
 
 /**
  * PriorityDispatcher is a global event emitter with priority assignment.
@@ -30,7 +30,7 @@ class PriorityDispatcher
 
     /**
      * __construct a new event dispatcher instance.
-     * @param  \Illuminate\Contracts\Container\Container|null  $container
+     * @param \Illuminate\Contracts\Container\Container|null $container
      * @return void
      */
     public function __construct(ContainerContract $container = null)
@@ -49,8 +49,7 @@ class PriorityDispatcher
     {
         if ($priority === 0) {
             $this->laravelEvents->listen($events, $listener);
-        }
-        else {
+        } else {
             $this->bindEvent($events, $listener, $priority);
         }
     }
@@ -81,7 +80,7 @@ class PriorityDispatcher
 
     /**
      * forget removes a set of listeners from the dispatcher.
-     * @param  string  $event
+     * @param string $event
      * @return void
      */
     public function forget($event)
@@ -123,8 +122,7 @@ class PriorityDispatcher
             if ($callback === self::FORWARD_CALL_FLAG) {
                 $response = $this->laravelEvents->dispatch($event, $params, $halt);
                 $isLaravel = true;
-            }
-            else {
+            } else {
                 if (is_string($callback)) {
                     $callback = $this->createClassCallback($callback);
                 }
@@ -148,8 +146,7 @@ class PriorityDispatcher
             if (!is_null($response)) {
                 if ($isLaravel) {
                     $result = array_merge($result, $response);
-                }
-                else {
+                } else {
                     $result[] = $response;
                 }
             }

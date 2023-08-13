@@ -39,7 +39,7 @@ trait ExtensionTrait
 
     /**
      * extensionExtendCallback is a helper method for `::extend()` static method
-     * @param  callable $callback
+     * @param callable $callback
      * @return void
      */
     public static function extensionExtendCallback($callback)

@@ -1,11 +1,11 @@
 <?php namespace October\Rain\Auth\Models;
 
-use Str;
+use Exception;
 use Hash;
-use October\Rain\Database\Model;
 use Illuminate\Contracts\Auth\Authenticatable;
 use InvalidArgumentException;
-use Exception;
+use October\Rain\Database\Model;
+use Str;
 
 /**
  * User model
@@ -365,8 +365,7 @@ class User extends Model implements Authenticatable
     {
         if ($this->exists && empty($value)) {
             unset($this->attributes['password']);
-        }
-        else {
+        } else {
             $this->attributes['password'] = $value;
 
             // Password has changed, log out all users
@@ -490,8 +489,8 @@ class User extends Model implements Authenticatable
      *
      * Super users have access no matter what.
      *
-     * @param  string|array  $permissions
-     * @param  bool  $all
+     * @param string|array $permissions
+     * @param bool $all
      * @return bool
      */
     public function hasAccess($permissions, $all = true)
@@ -512,16 +511,15 @@ class User extends Model implements Authenticatable
      *
      * Super users don't have access no matter what.
      *
-     * @param  string|array  $permissions
-     * @param  bool  $all
+     * @param string|array $permissions
+     * @param bool $all
      * @return bool
      */
     public function hasPermission($permissions, $all = true)
     {
         if ($this->impersonatingRole) {
             $mergedPermissions = (array) $this->impersonatingRole->permissions;
-        }
-        else {
+        } else {
             $mergedPermissions = $this->getMergedPermissions();
         }
 
@@ -555,8 +553,7 @@ class User extends Model implements Authenticatable
                         break;
                     }
                 }
-            }
-            elseif ((strlen($permission) > 1) && starts_with($permission, '*')) {
+            } elseif ((strlen($permission) > 1) && starts_with($permission, '*')) {
                 $matched = false;
 
                 foreach ($mergedPermissions as $mergedPermission => $value) {
@@ -574,8 +571,7 @@ class User extends Model implements Authenticatable
                         break;
                     }
                 }
-            }
-            else {
+            } else {
                 $matched = false;
 
                 foreach ($mergedPermissions as $mergedPermission => $value) {
@@ -613,8 +609,7 @@ class User extends Model implements Authenticatable
             // accordingly.
             if ($all === true && $matched === false) {
                 return false;
-            }
-            elseif ($all === false && $matched === true) {
+            } elseif ($all === false && $matched === true) {
                 return true;
             }
         }
@@ -624,7 +619,7 @@ class User extends Model implements Authenticatable
 
     /**
      * hasAnyAccess returns if the user has access to any of the given permissions
-     * @param  array  $permissions
+     * @param array $permissions
      * @return bool
      */
     public function hasAnyAccess(array $permissions)
@@ -708,7 +703,7 @@ class User extends Model implements Authenticatable
 
     /**
      * setRememberToken sets the token value for the "remember me" session
-     * @param  string $value
+     * @param string $value
      * @return void
      */
     public function setRememberToken($value)

@@ -13,7 +13,7 @@ class MailManager extends MailManagerBase
 {
     /**
      * resolve the given mailer. Copy of parent method, replacing Mailer class.
-     * @param  string  $name
+     * @param string $name
      * @return \Illuminate\Mail\Mailer
      * @throws \InvalidArgumentException
      */

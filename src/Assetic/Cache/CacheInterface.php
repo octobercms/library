@@ -28,7 +28,7 @@ interface CacheInterface
     /**
      * Sets a value in the cache.
      *
-     * @param string $key   A unique key
+     * @param string $key A unique key
      * @param string $value The value to cache
      */
     public function set($key, $value);

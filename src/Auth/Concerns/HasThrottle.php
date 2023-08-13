@@ -16,7 +16,7 @@ trait HasThrottle
      */
     public function createThrottleModel()
     {
-        $class = '\\'.ltrim($this->throttleModel, '\\');
+        $class = '\\' . ltrim($this->throttleModel, '\\');
         return new $class();
     }
 
@@ -47,7 +47,7 @@ trait HasThrottle
      */
     public function findThrottleByUserId($userId, $ipAddress = null)
     {
-        $cacheKey = md5($userId.$ipAddress);
+        $cacheKey = md5($userId . $ipAddress);
         if (isset($this->throttle[$cacheKey])) {
             return $this->throttle[$cacheKey];
         }

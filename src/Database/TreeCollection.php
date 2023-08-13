@@ -38,8 +38,7 @@ class TreeCollection extends Collection
             if (array_key_exists($parentKey, $collection)) {
                 $collection[$parentKey]->children[] = $model;
                 $nestedKeys[] = $model->getKey();
-            }
-            elseif ($removeOrphans) {
+            } elseif ($removeOrphans) {
                 $nestedKeys[] = $model->getKey();
             }
         }
@@ -57,9 +56,9 @@ class TreeCollection extends Collection
     /**
      * listsNested gets an array with values of a given column. Values are indented according
      * to their depth.
-     * @param  string $value  Array values
-     * @param  string $key    Array keys
-     * @param  string $indent Character to indent depth
+     * @param string $value Array values
+     * @param string $key Array keys
+     * @param string $indent Character to indent depth
      * @return array
      */
     public function listsNested($value, $key = null, $indent = '&nbsp;&nbsp;&nbsp;')
@@ -75,8 +74,7 @@ class TreeCollection extends Collection
             foreach ($items as $item) {
                 if ($key !== null) {
                     $result[$item->{$key}] = $indentString . $item->{$value};
-                }
-                else {
+                } else {
                     $result[] = $indentString . $item->{$value};
                 }
 

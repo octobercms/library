@@ -157,8 +157,8 @@ class FlashBag extends MessageBag
     /**
      * Add a message to the bag and stores it in the session.
      *
-     * @param  string  $key
-     * @param  string  $message
+     * @param string $key
+     * @param string $message
      * @return \October\Rain\Flash\FlashBag
      */
     public function add($key, $message)
@@ -187,8 +187,7 @@ class FlashBag extends MessageBag
         if ($key === null) {
             $this->newMessages = $this->messages = [];
             $this->purge();
-        }
-        else {
+        } else {
             if (isset($this->messages[$key])) {
                 unset($this->messages[$key]);
             }

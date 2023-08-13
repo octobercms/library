@@ -35,8 +35,7 @@ class ColumnDefinition extends ElementBase
             ->searchable(false)
             ->invisible(false)
             ->clickable()
-            ->order(-1)
-        ;
+            ->order(-1);
     }
 
     /**

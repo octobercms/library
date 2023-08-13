@@ -1,11 +1,11 @@
 <?php namespace October\Rain\Extension;
 
-use ReflectionClass;
-use ReflectionMethod;
-use ReflectionFunction;
-use ReflectionFunctionAbstract;
 use BadMethodCallException;
 use Exception;
+use ReflectionClass;
+use ReflectionFunction;
+use ReflectionFunctionAbstract;
+use ReflectionMethod;
 
 /**
  * ExtendableTrait trait is used when access to the underlying base class
@@ -82,7 +82,7 @@ trait ExtendableTrait
 
     /**
      * extendableExtendCallback is a helper method for `::extend()` static method
-     * @param  callable $callback
+     * @param callable $callback
      * @return void
      */
     public static function extendableExtendCallback($callback)
@@ -117,11 +117,9 @@ trait ExtendableTrait
 
         if (is_string($this->implement)) {
             $uses = explode(',', $this->implement);
-        }
-        elseif (is_array($this->implement)) {
+        } elseif (is_array($this->implement)) {
             $uses = $this->implement;
-        }
-        else {
+        } else {
             throw new Exception(sprintf('Class %s contains an invalid $implement value', get_class($this)));
         }
 
@@ -135,8 +133,8 @@ trait ExtendableTrait
     /**
      * extensionExtractMethods extracts the available methods from a behavior and adds it
      * to the list of callable methods
-     * @param  string $extensionName
-     * @param  object $extensionObject
+     * @param string $extensionName
+     * @param object $extensionObject
      * @return void
      */
     protected function extensionExtractMethods($extensionName, $extensionObject)
@@ -163,9 +161,9 @@ trait ExtendableTrait
 
     /**
      * addDynamicMethod programmatically adds a method to the extendable class
-     * @param string   $dynamicName
+     * @param string $dynamicName
      * @param callable $method
-     * @param string   $extension
+     * @param string $extension
      */
     public function addDynamicMethod($dynamicName, $method, $extension = null)
     {
@@ -211,7 +209,7 @@ trait ExtendableTrait
 
     /**
      * extendClassWith dynamically extends a class with a specified behavior
-     * @param  string $extensionName
+     * @param string $extensionName
      * @return void
      */
     public function extendClassWith($extensionName)
@@ -237,7 +235,7 @@ trait ExtendableTrait
 
     /**
      * isClassExtendedWith checks if extendable class is extended with a behavior object
-     * @param  string $name Fully qualified behavior name
+     * @param string $name Fully qualified behavior name
      * @return boolean
      */
     public function isClassExtendedWith($name)
@@ -290,7 +288,7 @@ trait ExtendableTrait
      *
      *     $this->getClassExtension('Backend.Behaviors.FormController')
      *
-     * @param  string $name Fully qualified behavior name
+     * @param string $name Fully qualified behavior name
      * @return mixed
      */
     public function getClassExtension($name)
@@ -305,7 +303,7 @@ trait ExtendableTrait
      *
      *     $this->asExtension('FormController')
      *
-     * @param  string $shortName
+     * @param string $shortName
      * @return mixed
      */
     public function asExtension($shortName)
@@ -324,7 +322,7 @@ trait ExtendableTrait
 
     /**
      * methodExists checks if a method exists, extension equivalent of method_exists()
-     * @param  string $name
+     * @param string $name
      * @return boolean
      */
     public function methodExists($name)
@@ -384,7 +382,7 @@ trait ExtendableTrait
 
     /**
      * propertyExists checks if a property exists, extension equivalent of `property_exists()`
-     * @param  string $name
+     * @param string $name
      * @return boolean
      */
     public function propertyExists($name)
@@ -408,8 +406,8 @@ trait ExtendableTrait
     /**
      * extendableIsAccessible checks if a property is accessible, property equivalent
      * of `is_callable()`
-     * @param  mixed  $class
-     * @param  string $propertyName
+     * @param mixed $class
+     * @param string $propertyName
      * @return boolean
      */
     protected function extendableIsAccessible($class, $propertyName)
@@ -421,7 +419,7 @@ trait ExtendableTrait
 
     /**
      * extendableGet magic method for `__get()`
-     * @param  string $name
+     * @param string $name
      * @return string
      */
     public function extendableGet($name)
@@ -443,8 +441,8 @@ trait ExtendableTrait
 
     /**
      * extendableSet magic method for `__set()`
-     * @param  string $name
-     * @param  string $value
+     * @param string $name
+     * @param string $value
      * @return string
      */
     public function extendableSet($name, $value)
@@ -488,8 +486,8 @@ trait ExtendableTrait
 
     /**
      * extendableCall magic method for `__call()`
-     * @param  string $name
-     * @param  array  $params
+     * @param string $name
+     * @param array $params
      * @return mixed
      */
     public function extendableCall($name, $params = null)
@@ -518,8 +516,8 @@ trait ExtendableTrait
 
     /**
      * extendableCallStatic magic method for `__callStatic()`
-     * @param  string $name
-     * @param  array  $params
+     * @param string $name
+     * @param array $params
      * @return mixed
      */
     public static function extendableCallStatic($name, $params = null)
@@ -538,11 +536,9 @@ trait ExtendableTrait
                 // Apply extensions
                 if (is_string($implement)) {
                     $uses = explode(',', $implement);
-                }
-                elseif (is_array($implement)) {
+                } elseif (is_array($implement)) {
                     $uses = $implement;
-                }
-                else {
+                } else {
                     throw new Exception(sprintf('Class %s contains an invalid $implement value', $className));
                 }
 

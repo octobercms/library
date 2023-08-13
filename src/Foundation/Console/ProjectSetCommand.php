@@ -1,11 +1,11 @@
 <?php namespace October\Rain\Foundation\Console;
 
-use Url;
-use Http;
 use Config;
+use Exception;
+use Http;
 use Illuminate\Console\Command;
 use October\Rain\Composer\Manager as ComposerManager;
-use Exception;
+use Url;
 
 /**
  * ProjectSetCommand the project license key.
@@ -56,8 +56,7 @@ class ProjectSetCommand extends Command
             ComposerManager::instance()->addOctoberRepository($this->getComposerUrl());
 
             $this->output->success(__("Thanks for being a customer of October CMS!"));
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $this->output->error($e->getMessage());
             return 1;
         }
@@ -77,8 +76,7 @@ class ProjectSetCommand extends Command
                 'system::project.owner' => $result['owner'],
                 'system::project.is_active' => $result['is_active']
             ]);
-        }
-        else {
+        } else {
             if (!is_dir($cmsStorePath = storage_path('cms'))) {
                 mkdir($cmsStorePath);
             }
@@ -98,8 +96,8 @@ class ProjectSetCommand extends Command
 
     /**
      * requestServerData contacts the update server for a response.
-     * @param  string $uri      Gateway API URI
-     * @param  array  $postData Extra post data
+     * @param string $uri Gateway API URI
+     * @param array $postData Extra post data
      * @return array
      */
     public function requestServerData(string $uri, array $postData = [])
@@ -115,8 +113,8 @@ class ProjectSetCommand extends Command
         if ($result->status() !== 200) {
             throw new Exception(
                 strlen($contents)
-                ? $contents
-                : __("Response Empty")
+                    ? $contents
+                    : __("Response Empty")
             );
         }
 
@@ -124,8 +122,7 @@ class ProjectSetCommand extends Command
 
         try {
             $resultData = @json_decode($contents, true);
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             throw new Exception(__("Response Invalid"));
         }
 
@@ -138,7 +135,7 @@ class ProjectSetCommand extends Command
 
     /**
      * createServerUrl creates a complete gateway server URL from supplied URI
-     * @param  string $uri URI
+     * @param string $uri URI
      * @return string      URL
      */
     protected function createServerUrl($uri)
@@ -191,7 +188,7 @@ class ProjectSetCommand extends Command
     {
         $gateway = Config::get('system.composer_gateway', 'gateway.octobercms.com');
 
-        return $withProtocol ? 'https://'.$gateway : $gateway;
+        return $withProtocol ? 'https://' . $gateway : $gateway;
     }
 
     /**
@@ -208,7 +205,7 @@ class ProjectSetCommand extends Command
             ? array_merge_recursive($contentsArr, $jsonArr)
             : $this->mergeRecursive($contentsArr, $jsonArr);
 
-        $content = json_encode($newArr, JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT);
+        $content = json_encode($newArr, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 
         file_put_contents($filename, $content);
     }
@@ -228,8 +225,7 @@ class ProjectSetCommand extends Command
                     is_array($val1)
                 ) {
                     $array1[$key] = $this->mergeRecursive($val1, $val2);
-                }
-                else {
+                } else {
                     $array1[$key] = $val2;
                 }
             }

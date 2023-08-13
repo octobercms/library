@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Combine;
 
+use Exception;
 use File;
 use RuntimeException;
-use Exception;
 
 /**
  * JsCompile compiles LESS

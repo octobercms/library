@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Database;
 
-use October\Rain\Database\Updater;
 use Illuminate\Database\MigrationServiceProvider as MigrationServiceProviderBase;
 
 /**

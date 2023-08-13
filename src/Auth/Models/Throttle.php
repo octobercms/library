@@ -78,8 +78,7 @@ class Throttle extends Model
 
         if ($this->getLoginAttempts() >= static::$attemptLimit) {
             $this->suspend();
-        }
-        else {
+        } else {
             $this->save();
         }
     }
@@ -231,7 +230,7 @@ class Throttle extends Model
 
     /**
      * getIsSuspendedAttribute is a get mutator for the suspended property
-     * @param  mixed  $suspended
+     * @param mixed $suspended
      * @return bool
      */
     public function getIsSuspendedAttribute($suspended)
@@ -241,7 +240,7 @@ class Throttle extends Model
 
     /**
      * getIsBannedAttribute is a get mutator for the banned property
-     * @param  mixed  $banned
+     * @param mixed $banned
      * @return bool
      */
     public function getIsBannedAttribute($banned)

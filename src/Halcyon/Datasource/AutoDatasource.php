@@ -86,8 +86,7 @@ class AutoDatasource extends Datasource implements DatasourceInterface
 
         if ($this->primaryDatasource->selectOne($dirName, $findFileName, $findExt)) {
             $result = $this->primaryDatasource->update($dirName, $fileName, $extension, $content, $oldFileName, $oldExtension);
-        }
-        else {
+        } else {
             $result = $this->primaryDatasource->insert($dirName, $fileName, $extension, $content);
         }
 

@@ -25,7 +25,7 @@ class MorphPivot extends Pivot
     /**
      * setKeysForSaveQuery sets the keys for a save update query
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param \Illuminate\Database\Eloquent\Builder $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     protected function setKeysForSaveQuery($query)
@@ -38,7 +38,7 @@ class MorphPivot extends Pivot
     /**
      * setKeysForSelectQuery sets the keys for a select query.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param \Illuminate\Database\Eloquent\Builder $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     protected function setKeysForSelectQuery($query)
@@ -84,7 +84,7 @@ class MorphPivot extends Pivot
 
     /**
      * setMorphType for the pivot
-     * @param  string  $morphType
+     * @param string $morphType
      * @return $this
      */
     public function setMorphType($morphType)
@@ -96,7 +96,7 @@ class MorphPivot extends Pivot
 
     /**
      * setMorphClass for the pivot
-     * @param  string  $morphClass
+     * @param string $morphClass
      * @return \Illuminate\Database\Eloquent\Relations\MorphPivot
      */
     public function setMorphClass($morphClass)
@@ -129,7 +129,7 @@ class MorphPivot extends Pivot
     /**
      * newQueryForRestoration for one or more models by their queueable IDs.
      *
-     * @param  array|int  $ids
+     * @param array|int $ids
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function newQueryForRestoration($ids)
@@ -153,7 +153,7 @@ class MorphPivot extends Pivot
     /**
      * newQueryForCollectionRestoration to restore multiple models by their queueable IDs.
      *
-     * @param  array  $ids
+     * @param array $ids
      * @return \Illuminate\Database\Eloquent\Builder
      */
     protected function newQueryForCollectionRestoration(array $ids)

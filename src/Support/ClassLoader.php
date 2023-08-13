@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Support;
 
-use October\Rain\Filesystem\Filesystem;
 use Exception;
+use October\Rain\Filesystem\Filesystem;
 use Throwable;
 
 /**
@@ -70,7 +70,7 @@ class ClassLoader
     {
         if (
             isset($this->manifest[$class]) &&
-            is_file($fullPath = $this->basePath.DIRECTORY_SEPARATOR.$this->manifest[$class])
+            is_file($fullPath = $this->basePath . DIRECTORY_SEPARATOR . $this->manifest[$class])
         ) {
             require $fullPath;
             return true;
@@ -106,12 +106,12 @@ class ClassLoader
             $directory .= DIRECTORY_SEPARATOR;
         }
 
-        if ($this->isRealFilePath($path = $directory.$lowerClass)) {
+        if ($this->isRealFilePath($path = $directory . $lowerClass)) {
             $this->includeClass($class, $path);
             return true;
         }
 
-        if ($this->isRealFilePath($path = $directory.$upperClass)) {
+        if ($this->isRealFilePath($path = $directory . $upperClass)) {
             $this->includeClass($class, $path);
             return true;
         }
@@ -124,7 +124,7 @@ class ClassLoader
      */
     protected function isRealFilePath(string $path): bool
     {
-        return is_file(realpath($this->basePath.DIRECTORY_SEPARATOR.$path));
+        return is_file(realpath($this->basePath . DIRECTORY_SEPARATOR . $path));
     }
 
     /**
@@ -132,7 +132,7 @@ class ClassLoader
      */
     protected function includeClass(string $class, string $path): void
     {
-        require $this->basePath.DIRECTORY_SEPARATOR.$path;
+        require $this->basePath . DIRECTORY_SEPARATOR . $path;
 
         $this->manifest[$class] = $this->files->normalizePath($path);
 
@@ -148,7 +148,7 @@ class ClassLoader
             return;
         }
 
-        $this->registered = spl_autoload_register(function($class) {
+        $this->registered = spl_autoload_register(function ($class) {
             $this->load($class);
         }, true, true);
     }
@@ -202,8 +202,7 @@ class ClassLoader
     {
         if (is_null($directories)) {
             $this->directories = [];
-        }
-        else {
+        } else {
             $directories = (array) $directories;
 
             $this->directories = array_filter($this->directories, function ($directory) use ($directories) {
@@ -257,8 +256,8 @@ class ClassLoader
                 if (!is_array($manifest)) {
                     $manifest = [];
                 }
+            } catch (Throwable $ex) {
             }
-            catch (Throwable $ex) {}
         }
 
         $this->manifest += $manifest;
@@ -274,12 +273,12 @@ class ClassLoader
         }
 
         if (!is_writable(dirname($this->manifestPath))) {
-            throw new Exception('The '.$this->manifestPath.' directory must be present and writable.');
+            throw new Exception('The ' . $this->manifestPath . ' directory must be present and writable.');
         }
 
         $this->files->put(
             $this->manifestPath,
-            '<?php return '.var_export($manifest, true).';'
+            '<?php return ' . var_export($manifest, true) . ';'
         );
     }
 }

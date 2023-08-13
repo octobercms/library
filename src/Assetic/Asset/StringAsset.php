@@ -15,8 +15,8 @@ class StringAsset extends BaseAsset
     /**
      * __construct
      *
-     * @param string $content    The content of the asset
-     * @param array  $filters    Filters for the asset
+     * @param string $content The content of the asset
+     * @param array $filters Filters for the asset
      * @param string $sourceRoot The source asset root directory
      * @param string $sourcePath The source asset path
      */

@@ -9,8 +9,8 @@ class Seeder extends SeederBase
 {
     /**
      * line writes a string as standard output.
-     * @param  string  $string
-     * @param  string|null  $style
+     * @param string $string
+     * @param string|null $style
      * @return void
      */
     public function line($string, $style = null)

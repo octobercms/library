@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Resize;
 
-use October\Rain\Support\ServiceProvider;
 use Illuminate\Contracts\Support\DeferrableProvider;
+use October\Rain\Support\ServiceProvider;
 
 /**
  * ResizeServiceProvider

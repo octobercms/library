@@ -1,9 +1,9 @@
 <?php namespace October\Rain\Auth\Concerns;
 
 use Cookie;
-use Session;
 use Illuminate\Contracts\Auth\Authenticatable;
 use October\Rain\Auth\AuthException;
+use Session;
 
 /**
  * HasStatefulGuard defines all methods to satisfy the Laravel contract
@@ -18,8 +18,8 @@ trait HasStatefulGuard
      *
      * @param array $credentials The user login details
      * @param bool $remember Store a non-expire cookie for the user
-     * @throws AuthException If authentication fails
      * @return Models\User The successfully logged in user
+     * @throws AuthException If authentication fails
      */
     public function attempt(array $credentials = [], $remember = false)
     {
@@ -28,7 +28,7 @@ trait HasStatefulGuard
 
     /**
      * once logs a user into the application without sessions or cookies.
-     * @param  array  $credentials
+     * @param array $credentials
      * @return bool
      */
     public function once(array $credentials = [])
@@ -69,8 +69,8 @@ trait HasStatefulGuard
 
     /**
      * loginUsingId logs the given user ID into the application.
-     * @param  mixed  $id
-     * @param  bool   $remember
+     * @param mixed $id
+     * @param bool $remember
      * @return \Illuminate\Contracts\Auth\Authenticatable|bool
      */
     public function loginUsingId($id, $remember = false)
@@ -86,7 +86,7 @@ trait HasStatefulGuard
 
     /**
      * onceUsingId logs the given user ID into the application without sessions or cookies.
-     * @param  mixed  $id
+     * @param mixed $id
      * @return \Illuminate\Contracts\Auth\Authenticatable|false
      */
     public function onceUsingId($id)

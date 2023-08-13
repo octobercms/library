@@ -1,10 +1,10 @@
 <?php namespace October\Rain\Database\Relations;
 
-use October\Rain\Database\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as CollectionBase;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany as MorphManyBase;
+use October\Rain\Database\Collection;
 
 /**
  * MorphMany
@@ -61,12 +61,10 @@ class MorphMany extends MorphManyBase
                     $instance->setAttribute($this->getMorphType(), $this->morphClass);
                 });
             }
-        }
-        else {
+        } else {
             $collection = $this->getRelated()
                 ->whereIn($this->getRelatedKeyName(), (array) $value)
-                ->get()
-            ;
+                ->get();
         }
 
         if ($collection) {
@@ -101,14 +99,11 @@ class MorphMany extends MorphManyBase
         if ($this->parent->relationLoaded($relationName)) {
             $value = $this->parent->getRelation($relationName)
                 ->pluck($this->getRelatedKeyName())
-                ->all()
-            ;
-        }
-        else {
+                ->all();
+        } else {
             $value = $this->query->getQuery()
                 ->pluck($this->getRelatedKeyName())
-                ->all()
-            ;
+                ->all();
         }
 
         return $value;

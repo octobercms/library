@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Assetic\Factory;
 
+use LogicException;
 use October\Rain\Assetic\Asset\AssetCollection;
 use October\Rain\Assetic\Asset\AssetCollectionInterface;
 use October\Rain\Assetic\Asset\AssetInterface;
@@ -9,7 +10,6 @@ use October\Rain\Assetic\Asset\HttpAsset;
 use October\Rain\Assetic\AssetManager;
 use October\Rain\Assetic\Filter\DependencyExtractorInterface;
 use October\Rain\Assetic\FilterManager;
-use LogicException;
 
 /**
  * AssetFactory creates asset objects.
@@ -46,7 +46,7 @@ class AssetFactory
     /**
      * __construct
      *
-     * @param string  $root  The default root directory
+     * @param string $root The default root directory
      * @param Boolean $debug Filters prefixed with a "?" will be omitted in debug mode
      */
     public function __construct($root, $debug = false)
@@ -139,9 +139,9 @@ class AssetFactory
      *  * debug:  Forces debug mode on or off for this asset
      *  * root:   An array or string of more root directories
      *
-     * @param array|string $inputs  An array of input strings
+     * @param array|string $inputs An array of input strings
      * @param array|string $filters An array of filter names
-     * @param array        $options An array of options
+     * @param array $options An array of options
      *
      * @return AssetCollection An asset collection
      */
@@ -169,8 +169,7 @@ class AssetFactory
 
         if (!isset($options['root'])) {
             $options['root'] = array($this->root);
-        }
-        else {
+        } else {
             if (!is_array($options['root'])) {
                 $options['root'] = array($options['root']);
             }
@@ -190,8 +189,7 @@ class AssetFactory
             if (is_array($input)) {
                 // nested formula
                 $asset->add(call_user_func_array(array($this, 'createAsset'), $input));
-            }
-            else {
+            } else {
                 $asset->add($this->parseInput($input, $options));
                 $extensions[pathinfo($input, PATHINFO_EXTENSION)] = true;
             }
@@ -201,8 +199,7 @@ class AssetFactory
         foreach ($filters as $filter) {
             if ('?' != $filter[0]) {
                 $asset->ensureFilter($this->getFilter($filter));
-            }
-            elseif (!$options['debug']) {
+            } elseif (!$options['debug']) {
                 $asset->ensureFilter($this->getFilter(substr($filter, 1)));
             }
         }
@@ -211,21 +208,21 @@ class AssetFactory
         if (!empty($options['vars'])) {
             $toAdd = [];
             foreach ($options['vars'] as $var) {
-                if (false !== strpos($options['output'], '{'.$var.'}')) {
+                if (false !== strpos($options['output'], '{' . $var . '}')) {
                     continue;
                 }
 
-                $toAdd[] = '{'.$var.'}';
+                $toAdd[] = '{' . $var . '}';
             }
 
             if ($toAdd) {
-                $options['output'] = str_replace('*', '*.'.implode('.', $toAdd), $options['output']);
+                $options['output'] = str_replace('*', '*.' . implode('.', $toAdd), $options['output']);
             }
         }
 
         // append consensus extension if missing
         if (1 == count($extensions) && !pathinfo($options['output'], PATHINFO_EXTENSION) && $extension = key($extensions)) {
-            $options['output'] .= '.'.$extension;
+            $options['output'] .= '.' . $extension;
         }
 
         // output --> target url
@@ -248,7 +245,7 @@ class AssetFactory
 
         ksort($options);
 
-        return substr(sha1(serialize($inputs).serialize($filters).serialize($options)), 0, 7);
+        return substr(sha1(serialize($inputs) . serialize($filters) . serialize($options)), 0, 7);
     }
 
     /**
@@ -300,8 +297,8 @@ class AssetFactory
      *
      * Both globs and paths will be absolutized using the current root directory.
      *
-     * @param string $input   An input string
-     * @param array  $options An array of options
+     * @param string $input An input string
+     * @param array $options An array of options
      *
      * @return AssetInterface An asset
      */
@@ -313,15 +310,13 @@ class AssetFactory
         if (self::isAbsolutePath($input)) {
             if ($root = self::findRootDir($input, $options['root'])) {
                 $path = ltrim(substr($input, strlen($root)), '/');
-            }
-            else {
+            } else {
                 $path = null;
             }
-        }
-        else {
-            $root  = $this->root;
-            $path  = $input;
-            $input = $this->root.'/'.$path;
+        } else {
+            $root = $this->root;
+            $path = $input;
+            $input = $this->root . '/' . $path;
         }
 
         if (false !== strpos($input, '*')) {
@@ -386,8 +381,8 @@ class AssetFactory
     /**
      * Loops through the root directories and returns the first match.
      *
-     * @param string $path  An absolute path
-     * @param array  $roots An array of root directories
+     * @param string $path An absolute path
+     * @param array $roots An array of root directories
      *
      * @return string|null The matching root directory, if found
      */

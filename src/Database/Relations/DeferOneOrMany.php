@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database\Relations;
 
-use October\Rain\Support\Facades\DbDongle;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany as BelongsToManyBase;
+use October\Rain\Support\Facades\DbDongle;
 
 /**
  * DeferOneOrMany
@@ -42,22 +42,20 @@ trait DeferOneOrMany
                         $query
                             ->select($this->parent->getConnection()->raw(1))
                             ->from($this->table)
-                            ->where($this->getQualifiedRelatedPivotKeyName(), DbDongle::raw(DbDongle::getTablePrefix().$this->related->getQualifiedKeyName()))
+                            ->where($this->getQualifiedRelatedPivotKeyName(), DbDongle::raw(DbDongle::getTablePrefix() . $this->related->getQualifiedKeyName()))
                             ->where($this->getQualifiedForeignPivotKeyName(), $this->parent->getKey())
                             ->where($this->getMorphType(), $this->getMorphClass());
                     });
-                }
-                elseif ($this instanceof BelongsToManyBase) {
+                } elseif ($this instanceof BelongsToManyBase) {
                     // Custom query for BelongsToManyBase since a "join" cannot be used
                     $query->whereExists(function ($query) {
                         $query
                             ->select($this->parent->getConnection()->raw(1))
                             ->from($this->table)
-                            ->where($this->getQualifiedRelatedPivotKeyName(), DbDongle::raw(DbDongle::getTablePrefix().$this->related->getQualifiedKeyName()))
+                            ->where($this->getQualifiedRelatedPivotKeyName(), DbDongle::raw(DbDongle::getTablePrefix() . $this->related->getQualifiedKeyName()))
                             ->where($this->getQualifiedForeignPivotKeyName(), $this->parent->getKey());
                     });
-                }
-                else {
+                } else {
                     // Trick the relation to add constraints to this nested query
                     $this->query = $query;
                     $this->addConstraints();
@@ -87,8 +85,8 @@ trait DeferOneOrMany
                 ->where('master_type', get_class($this->parent))
                 ->where('session_key', $sessionKey)
                 ->where('is_bind', 0)
-                ->whereRaw(DbDongle::parse('id > ifnull((select max(id) from '.DbDongle::getTablePrefix().'deferred_bindings where
-                        slave_id = '.$this->getWithDeferredQualifiedKeyName().' and
+                ->whereRaw(DbDongle::parse('id > ifnull((select max(id) from ' . DbDongle::getTablePrefix() . 'deferred_bindings where
+                        slave_id = ' . $this->getWithDeferredQualifiedKeyName() . ' and
                         master_field = ? and
                         master_type = ? and
                         session_key = ? and

@@ -44,17 +44,16 @@ class AssetCollectionIterator implements RecursiveIterator
      */
     public function __construct(AssetCollectionInterface $coll, SplObjectStorage $clones)
     {
-        $this->assets  = $coll->all();
+        $this->assets = $coll->all();
         $this->filters = $coll->getFilters();
-        $this->vars    = $coll->getVars();
-        $this->output  = $coll->getTargetPath();
-        $this->clones  = $clones;
+        $this->vars = $coll->getVars();
+        $this->output = $coll->getTargetPath();
+        $this->clones = $clones;
 
         if (false === $pos = strrpos($this->output, '.')) {
             $this->output .= '_*';
-        }
-        else {
-            $this->output = substr($this->output, 0, $pos).'_*'.substr($this->output, $pos);
+        } else {
+            $this->output = substr($this->output, 0, $pos) . '_*' . substr($this->output, $pos);
         }
     }
 
@@ -131,7 +130,7 @@ class AssetCollectionIterator implements RecursiveIterator
     private function removeDuplicateVar($name)
     {
         foreach ($this->vars as $var) {
-            $var = '{'.$var.'}';
+            $var = '{' . $var . '}';
             if (false !== strpos($name, $var) && false !== strpos($this->output, $var)) {
                 $name = str_replace($var, '', $name);
             }

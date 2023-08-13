@@ -13,7 +13,7 @@ class Helper
      */
     public static function validateUrl(string $url): bool
     {
-        if ($url && $url[0] !==  '/') {
+        if ($url && $url[0] !== '/') {
             return false;
         }
 
@@ -44,7 +44,7 @@ class Helper
     public static function normalizeUrl($url)
     {
         if (substr($url, 0, 1) !== '/') {
-            $url = '/'.$url;
+            $url = '/' . $url;
         }
 
         if (substr($url, -1) === '/') {
@@ -73,8 +73,7 @@ class Helper
 
         if ($pattern) {
             $segments = preg_split("#(?<!\\\)/#", $url);
-        }
-        else {
+        } else {
             $segments = explode('/', $url);
         }
 
@@ -99,7 +98,7 @@ class Helper
         $url = '';
         foreach ($urlArray as $segment) {
             if (strlen($segment)) {
-                $url .= '/'.trim($segment);
+                $url .= '/' . trim($segment);
             }
         }
 
@@ -130,7 +129,7 @@ class Helper
                 continue;
             }
 
-            $string = str_replace(':'.$column, urlencode((string) $object->{$column}), $string);
+            $string = str_replace(':' . $column, urlencode((string) $object->{$column}), $string);
         }
 
         return $string;
@@ -240,12 +239,12 @@ class Helper
     public static function getSegmentRegExp($segment)
     {
         if (($pos = mb_strpos($segment, '|')) !== false) {
-            $regexp = mb_substr($segment, $pos+1);
+            $regexp = mb_substr($segment, $pos + 1);
             if (!mb_strlen($regexp)) {
                 return false;
             }
 
-            return '/'.$regexp.'/';
+            return '/' . $regexp . '/';
         }
 
         return false;
@@ -269,13 +268,11 @@ class Helper
         $value = false;
 
         if ($regexMarkerPos !== false) {
-            $value = mb_substr($segment, $optMarkerPos+1, $regexMarkerPos-$optMarkerPos-1);
-        }
-        elseif ($wildMarkerPos !== false) {
-            $value = mb_substr($segment, $optMarkerPos+1, $wildMarkerPos-$optMarkerPos-1);
-        }
-        else {
-            $value = mb_substr($segment, $optMarkerPos+1);
+            $value = mb_substr($segment, $optMarkerPos + 1, $regexMarkerPos - $optMarkerPos - 1);
+        } elseif ($wildMarkerPos !== false) {
+            $value = mb_substr($segment, $optMarkerPos + 1, $wildMarkerPos - $optMarkerPos - 1);
+        } else {
+            $value = mb_substr($segment, $optMarkerPos + 1);
         }
 
         return strlen($value) ? $value : false;

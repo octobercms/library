@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Auth;
 
-use Request;
 use Illuminate\Contracts\Auth\StatefulGuard;
+use Request;
 
 /**
  * Manager for authentication
@@ -178,8 +178,7 @@ class Manager implements StatefulGuard
         // Look up the user by authentication credentials.
         try {
             $user = $this->findUserByCredentials($credentials);
-        }
-        catch (AuthException $ex) {
+        } catch (AuthException $ex) {
             if ($this->useThrottle) {
                 $throttle->addLoginAttempt();
             }

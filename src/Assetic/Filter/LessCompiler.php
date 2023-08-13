@@ -1,12 +1,8 @@
 <?php namespace October\Rain\Assetic\Filter;
 
+use Less_Parser;
 use October\Rain\Assetic\Asset\AssetInterface;
 use October\Rain\Assetic\Factory\AssetFactory;
-use October\Rain\Assetic\Filter\LessphpFilter;
-use October\Rain\Assetic\Filter\HashableInterface;
-use October\Rain\Assetic\Filter\DependencyExtractorInterface;
-use October\Rain\Assetic\Filter\FilterInterface;
-use Less_Parser;
 
 /**
  * Less.php Compiler Filter
@@ -85,8 +81,8 @@ class LessCompiler implements FilterInterface, HashableInterface, DependencyExtr
         $children = (new LessphpFilter)->getChildren($factory, $content, $loadPath);
 
         foreach ($children as $child) {
-            $childContent = file_get_contents($child->getSourceRoot().'/'.$child->getSourcePath());
-            $children = array_merge($children, (new LessphpFilter)->getChildren($factory, $childContent, $loadPath.'/'.dirname($child->getSourcePath())));
+            $childContent = file_get_contents($child->getSourceRoot() . '/' . $child->getSourcePath());
+            $children = array_merge($children, (new LessphpFilter)->getChildren($factory, $childContent, $loadPath . '/' . dirname($child->getSourcePath())));
         }
 
         return $children;

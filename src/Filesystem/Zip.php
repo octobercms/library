@@ -67,9 +67,9 @@ class Zip extends ZipArchive
 
     /**
      * extract an existing zip file.
-     * @param  string $source Path for the existing zip
-     * @param  string $destination Path to extract the zip files
-     * @param  array  $options
+     * @param string $source Path for the existing zip
+     * @param string $destination Path to extract the zip files
+     * @param array $options
      * @return bool
      */
     public static function extract($source, $destination, $options = [])
@@ -92,9 +92,9 @@ class Zip extends ZipArchive
 
     /**
      * make creates a new empty zip file.
-     * @param  string $destination Path for the new zip
-     * @param  mixed  $source
-     * @param  array  $options
+     * @param string $destination Path for the new zip
+     * @param mixed $source
+     * @param array $options
      * @return self
      */
     public static function make($destination, $source, $options = [])
@@ -104,11 +104,9 @@ class Zip extends ZipArchive
 
         if (is_string($source)) {
             $zip->add($source, $options);
-        }
-        elseif (is_callable($source)) {
+        } elseif (is_callable($source)) {
             $source($zip);
-        }
-        elseif (is_array($source)) {
+        } elseif (is_array($source)) {
             foreach ($source as $_source) {
                 $zip->add($_source, $options);
             }
@@ -150,8 +148,7 @@ class Zip extends ZipArchive
         if (is_file($source)) {
             $files = [$source];
             $recursive = false;
-        }
-        else {
+        } else {
             $files = glob($source, GLOB_BRACE);
             $folders = glob(dirname($source) . '/*', GLOB_ONLYDIR);
         }
@@ -165,7 +162,7 @@ class Zip extends ZipArchive
                 continue;
             }
 
-            $localpath = $this->removePathPrefix($basedir.'/', dirname($file).'/');
+            $localpath = $this->removePathPrefix($basedir . '/', dirname($file) . '/');
             $localfile = $this->folderPrefix . $localpath . basename($file);
             $this->addFile($file, $localfile);
         }
@@ -183,9 +180,9 @@ class Zip extends ZipArchive
                 continue;
             }
 
-            $localpath = $this->folderPrefix . $this->removePathPrefix($basedir.'/', $folder.'/');
+            $localpath = $this->folderPrefix . $this->removePathPrefix($basedir . '/', $folder . '/');
             $this->addEmptyDir($localpath);
-            $this->add($folder.'/'.$baseglob, array_merge($options, ['basedir' => $basedir]));
+            $this->add($folder . '/' . $baseglob, array_merge($options, ['basedir' => $basedir]));
         }
 
         return $this;
@@ -194,8 +191,8 @@ class Zip extends ZipArchive
 
     /**
      * folder creates a new folder inside the Zip and adds source files (optional)
-     * @param  string $name Folder name
-     * @param  mixed  $source
+     * @param string $name Folder name
+     * @param mixed $source
      * @return self
      */
     public function folder($name, $source = null)
@@ -210,11 +207,9 @@ class Zip extends ZipArchive
 
         if (is_string($source)) {
             $this->add($source);
-        }
-        elseif (is_callable($source)) {
+        } elseif (is_callable($source)) {
             $source($this);
-        }
-        elseif (is_array($source)) {
+        } elseif (is_array($source)) {
             foreach ($source as $_source) {
                 $this->add($_source);
             }
@@ -227,7 +222,7 @@ class Zip extends ZipArchive
     /**
      * remove a file or folder from the zip collection.
      * Does not support wildcards.
-     * @param  string $source
+     * @param string $source
      * @return self
      */
     public function remove($source)
@@ -267,8 +262,7 @@ class Zip extends ZipArchive
         foreach ($paths as $path) {
             if (is_file($path)) {
                 $this->excludedFiles[] = $path;
-            }
-            elseif (is_dir($path)) {
+            } elseif (is_dir($path)) {
                 $this->excludedFolders[] = $path;
             }
         }
@@ -282,8 +276,7 @@ class Zip extends ZipArchive
         if ($normalPath = realpath($path)) {
             if (is_dir($normalPath)) {
                 return in_array($normalPath, $this->excludedFolders);
-            }
-            elseif (is_file($normalPath)) {
+            } elseif (is_file($normalPath)) {
                 return in_array($normalPath, $this->excludedFiles);
             }
         }
@@ -293,8 +286,8 @@ class Zip extends ZipArchive
 
     /**
      * removePathPrefix removes a prefix from a path.
-     * @param  string $prefix /var/sites/
-     * @param  string $path /var/sites/moo/cow/
+     * @param string $prefix /var/sites/
+     * @param string $path /var/sites/moo/cow/
      * @return string moo/cow/
      */
     protected function removePathPrefix($prefix, $path)

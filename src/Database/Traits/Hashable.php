@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database\Traits;
 
-use Hash;
 use Exception;
+use Hash;
 
 /**
  * Hashable
@@ -45,7 +45,7 @@ trait Hashable
 
     /**
      * addHashable adds an attribute to the hashable attributes list
-     * @param  array|string|null  $attributes
+     * @param array|string|null $attributes
      * @return $this
      */
     public function addHashable($attributes = null)
@@ -59,8 +59,8 @@ trait Hashable
 
     /**
      * makeHashValue hashes an attribute value and saves it in the original locker.
-     * @param  string $key   Attribute
-     * @param  string $value Value to hash
+     * @param string $key Attribute
+     * @param string $value Value to hash
      * @return string        Hashed value
      */
     public function makeHashValue($key, $value)
@@ -71,8 +71,8 @@ trait Hashable
 
     /**
      * checkHashValue checks if the supplied plain value matches the stored hash value.
-     * @param  string $key   Attribute to check
-     * @param  string $value Value to check
+     * @param string $key Attribute to check
+     * @param string $value Value to check
      * @return bool
      */
     public function checkHashValue($key, $value)

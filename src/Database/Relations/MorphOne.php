@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database\Relations;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne as MorphOneBase;
 
 /**
@@ -57,8 +57,7 @@ class MorphOne extends MorphOneBase
                 $instance->setAttribute($this->getForeignKeyName(), $this->getParentKey());
                 $instance->setAttribute($this->getMorphType(), $this->morphClass);
             }
-        }
-        else {
+        } else {
             $instance = $this->getRelated()->find($value);
         }
 

@@ -60,7 +60,7 @@ class ArgonServiceProvider extends ServiceProvider
     {
         if ($position = strpos($locale, '-')) {
             $target = substr($locale, 0, $position);
-            $resource = __DIR__ . '/../../../../nesbot/carbon/src/Carbon/Lang/'.$target.'.php';
+            $resource = __DIR__ . '/../../../../nesbot/carbon/src/Carbon/Lang/' . $target . '.php';
             if (file_exists($resource)) {
                 return $target;
             }

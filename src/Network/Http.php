@@ -151,8 +151,8 @@ class Http
 
     /**
      * make the object with common properties
-     * @param string   $url     HTTP request address
-     * @param string   $method  Request method (GET, POST, PUT, DELETE, etc)
+     * @param string $url HTTP request address
+     * @param string $method Request method (GET, POST, PUT, DELETE, etc)
      * @param callable $options Callable helper function to modify the object
      */
     public static function make($url, $method, $options = null): Http
@@ -171,7 +171,7 @@ class Http
     /**
      * get makes a HTTP GET call
      * @param string $url
-     * @param array  $options
+     * @param array $options
      * @return self
      */
     public static function get($url, $options = null): Http
@@ -183,7 +183,7 @@ class Http
     /**
      * post makes a HTTP POST call
      * @param string $url
-     * @param array  $options
+     * @param array $options
      * @return self
      */
     public static function post($url, $options = null): Http
@@ -195,7 +195,7 @@ class Http
     /**
      * delete makes a HTTP DELETE call
      * @param string $url
-     * @param array  $options
+     * @param array $options
      * @return self
      */
     public static function delete($url, $options = null): Http
@@ -207,7 +207,7 @@ class Http
     /**
      * patch makes a HTTP PATCH call
      * @param string $url
-     * @param array  $options
+     * @param array $options
      * @return self
      */
     public static function patch($url, $options = null): Http
@@ -219,7 +219,7 @@ class Http
     /**
      * put makes a HTTP PUT call
      * @param string $url
-     * @param array  $options
+     * @param array $options
      */
     public static function put($url, $options = null): Http
     {
@@ -230,7 +230,7 @@ class Http
     /**
      * options makes a HTTP OPTIONS call
      * @param string $url
-     * @param array  $options
+     * @param array $options
      */
     public static function options($url, $options = null): Http
     {
@@ -244,7 +244,7 @@ class Http
     public function send(): Http
     {
         if (!function_exists('curl_init')) {
-            echo 'cURL PHP extension required.'.PHP_EOL;
+            echo 'cURL PHP extension required.' . PHP_EOL;
             exit(1);
         }
 
@@ -272,8 +272,7 @@ class Http
          */
         if ($this->method === self::METHOD_POST) {
             curl_setopt($curl, CURLOPT_POST, true);
-        }
-        elseif ($this->method !== self::METHOD_GET) {
+        } elseif ($this->method !== self::METHOD_GET) {
             curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $this->method);
         }
 
@@ -283,8 +282,7 @@ class Http
         if ($this->requestData) {
             if (in_array($this->method, [self::METHOD_POST, self::METHOD_PATCH, self::METHOD_PUT])) {
                 curl_setopt($curl, CURLOPT_POSTFIELDS, $this->getRequestData());
-            }
-            elseif (in_array($this->method, [self::METHOD_GET, self::METHOD_DELETE])) {
+            } elseif (in_array($this->method, [self::METHOD_GET, self::METHOD_DELETE])) {
                 curl_setopt($curl, CURLOPT_URL, $this->url . '?' . $this->getRequestData());
             }
         }
@@ -320,8 +318,7 @@ class Http
             curl_setopt($curl, CURLOPT_HEADER, false);
             curl_setopt($curl, CURLOPT_FILE, $stream);
             curl_exec($curl);
-        }
-        /*
+        } /*
          * Execute output to variable
          */
         else {
@@ -444,11 +441,9 @@ class Http
     {
         if ($type === 'http') {
             $this->setOption(CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
-        }
-        elseif ($type === 'socks4') {
+        } elseif ($type === 'socks4') {
             $this->setOption(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
-        }
-        elseif ($type === 'socks5') {
+        } elseif ($type === 'socks5') {
             $this->setOption(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
         }
 
@@ -485,8 +480,7 @@ class Http
     {
         if (defined('CURLOPT_FOLLOWLOCATION') && !ini_get('open_basedir')) {
             $this->setOption(CURLOPT_FOLLOWLOCATION, false);
-        }
-        else {
+        } else {
             $this->maxRedirects = 0;
         }
 
@@ -516,8 +510,8 @@ class Http
 
     /**
      * toFile write the response to a file
-     * @param  string $path   Path to file
-     * @param  string $filter Stream filter as listed in stream_get_filters()
+     * @param string $path Path to file
+     * @param string $filter Stream filter as listed in stream_get_filters()
      */
     public function toFile($path, $filter = null): Http
     {
@@ -560,8 +554,7 @@ class Http
         if (is_string($option) && defined($option)) {
             $optionKey = constant($option);
             $this->requestOptions[$optionKey] = $value;
-        }
-        elseif (is_int($option)) {
+        } elseif (is_int($option)) {
             $constants = get_defined_constants(true);
             $curlOptConstants = array_flip(array_filter($constants['curl'], function ($key) {
                 return strpos($key, 'CURLOPT_') === 0;
@@ -569,12 +562,10 @@ class Http
 
             if (isset($curlOptConstants[$option])) {
                 $this->requestOptions[$option] = $value;
-            }
-            else {
+            } else {
                 throw new ApplicationException('$option parameter must be a CURLOPT constant or equivalent integer');
             }
-        }
-        else {
+        } else {
             throw new ApplicationException('$option parameter must be a CURLOPT constant or equivalent integer');
         }
 
@@ -604,8 +595,7 @@ class Http
                 $key = substr($singleHeader, 0, $delimiter);
                 $val = substr($singleHeader, $delimiter + 2);
                 $headers[$key] = $val;
-            }
-            else {
+            } else {
                 $delimiter = strpos($singleHeader, ' ');
                 if ($delimiter !== false) {
                     $key = substr($singleHeader, 0, $delimiter);

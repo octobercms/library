@@ -13,8 +13,8 @@ trait FormatsMessages
 {
     /**
      * getMessage message for a validation attribute and rule.
-     * @param  string  $attribute
-     * @param  string  $rule
+     * @param string $attribute
+     * @param string $rule
      * @return string
      */
     protected function getMessage($attribute, $rule)
@@ -38,7 +38,7 @@ trait FormatsMessages
 
         $customMessage = $this->getCustomMessageFromTranslator(
             in_array($rule, $this->sizeRules)
-                ? [$customKey.".{$this->getAttributeType($attribute)}", $customKey]
+                ? [$customKey . ".{$this->getAttributeType($attribute)}", $customKey]
                 : $customKey
         );
 
@@ -79,10 +79,10 @@ trait FormatsMessages
 
     /**
      * makeReplacements replace all error message place-holders with actual values.
-     * @param  string  $message
-     * @param  string  $attribute
-     * @param  string  $rule
-     * @param  array  $parameters
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array $parameters
      * @return string
      */
     public function makeReplacements($message, $attribute, $rule, $parameters)
@@ -99,8 +99,7 @@ trait FormatsMessages
 
         if (isset($this->replacers[$lowerRule])) {
             return $this->callReplacer($message, $attribute, $lowerRule, $parameters, $this);
-        }
-        elseif (method_exists($this, $replacer = "replace{$rule}")) {
+        } elseif (method_exists($this, $replacer = "replace{$rule}")) {
             return $this->$replacer($message, $attribute, $rule, $parameters);
         }
 

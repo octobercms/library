@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Support\Facades;
 
-use October\Rain\Mail\FakeMailer;
 use Illuminate\Support\Facades\Mail as MailBase;
+use October\Rain\Mail\FakeMailer;
 
 /**
  * Mail

@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Database\Scopes;
 
+use Illuminate\Database\Eloquent\Builder as BuilderBase;
 use Illuminate\Database\Eloquent\Model as ModelBase;
 use Illuminate\Database\Eloquent\Scope as ScopeInterface;
-use Illuminate\Database\Eloquent\Builder as BuilderBase;
 
 /**
  * NestedTreeScope
@@ -32,8 +32,7 @@ class NestedTreeScope implements ScopeInterface
                 $builder
                     ->withoutGlobalScope($this)
                     ->getQuery()
-                    ->$method(...$args)
-                ;
+                    ->$method(...$args);
 
                 return $builder;
             });

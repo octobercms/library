@@ -17,8 +17,7 @@ class RoutingServiceProvider extends RoutingServiceProviderBase
     {
         if ($this->app->routesAreCached()) {
             $this->loadCachedRoutes();
-        }
-        else {
+        } else {
             $this->app->booted(function () {
                 $this->app['router']->getRoutes()->refreshNameLookups();
                 $this->app['router']->getRoutes()->refreshActionLookups();

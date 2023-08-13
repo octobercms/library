@@ -1,10 +1,10 @@
 <?php namespace October\Rain\Foundation\Http\Middleware;
 
-use View;
 use Closure;
-use Response;
 use Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode as CheckForMaintenanceModeBase;
+use Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use View;
 
 /**
  * CheckForMaintenanceMode
@@ -21,8 +21,7 @@ class CheckForMaintenanceMode extends CheckForMaintenanceModeBase
     {
         try {
             return parent::handle($request, $next);
-        }
-        catch (HttpException $ex) {
+        } catch (HttpException $ex) {
             $view = View::exists('app::maintenance') ? 'app::maintenance' : 'system::maintenance';
             $data = $this->app->maintenanceMode()->data();
 

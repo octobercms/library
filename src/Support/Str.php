@@ -14,10 +14,10 @@ class Str extends StrHelper
     /**
      * slug adds extra sugar to convert slashes to separators
      *
-     * @param  string  $title
-     * @param  string  $separator
-     * @param  string|null  $language
-     * @param  array<string, string>  $dictionary
+     * @param string $title
+     * @param string $separator
+     * @param string|null $language
+     * @param array<string, string> $dictionary
      * @return string
      */
     public static function slug($title, $separator = '-', $language = 'en', $dictionary = ['@' => 'at'])
@@ -26,11 +26,12 @@ class Str extends StrHelper
 
         return parent::slug($title, $separator, $language, $dictionary);
     }
+
     /**
      * ascii applies transliterate when the language is not found
      *
-     * @param  string  $value
-     * @param  string  $language
+     * @param string $value
+     * @param string $language
      * @return string
      */
     public static function ascii($value, $language = 'en')
@@ -49,18 +50,18 @@ class Str extends StrHelper
     public static function ordinal($number)
     {
         if (in_array($number % 100, range(11, 13))) {
-            return $number.'th';
+            return $number . 'th';
         }
 
         switch ($number % 10) {
             case 1:
-                return $number.'st';
+                return $number . 'st';
             case 2:
-                return $number.'nd';
+                return $number . 'nd';
             case 3:
-                return $number.'rd';
+                return $number . 'rd';
             default:
-                return $number.'th';
+                return $number . 'th';
         }
     }
 

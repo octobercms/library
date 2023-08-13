@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database\Relations;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use October\Rain\Database\Attach\File as FileModel;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -56,17 +56,16 @@ trait AttachOneOrMany
 
     /**
      * getRelationExistenceQuery adds the constraints for a relationship count query
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Builder  $parentQuery
-     * @param  array|mixed  $columns
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param \Illuminate\Database\Eloquent\Builder $parentQuery
+     * @param array|mixed $columns
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function getRelationExistenceQuery(Builder $query, Builder $parentQuery, $columns = ['*'])
     {
         if ($parentQuery->getQuery()->from === $query->getQuery()->from) {
             $query = $this->getRelationExistenceQueryForSelfJoin($query, $parentQuery, $columns);
-        }
-        else {
+        } else {
             $query = $query->select($columns)->whereColumn($this->getExistenceCompareKey(), '=', $this->getQualifiedParentKeyName());
         }
 
@@ -77,25 +76,25 @@ trait AttachOneOrMany
 
     /**
      * getRelationExistenceQueryForSelfRelation adds the constraints for a relationship query on the same table
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Builder  $parentQuery
-     * @param  array|mixed  $columns
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param \Illuminate\Database\Eloquent\Builder $parentQuery
+     * @param array|mixed $columns
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function getRelationExistenceQueryForSelfRelation(Builder $query, Builder $parentQuery, $columns = ['*'])
     {
         $query->select($columns)->from(
-            $query->getModel()->getTable().' as '.$hash = $this->getRelationCountHash()
+            $query->getModel()->getTable() . ' as ' . $hash = $this->getRelationCountHash()
         );
 
         $query->getModel()->setTable($hash);
 
-        return $query->whereColumn($hash.'.'.$this->getForeignKeyName(), '=', $this->getQualifiedParentKeyName());
+        return $query->whereColumn($hash . '.' . $this->getForeignKeyName(), '=', $this->getQualifiedParentKeyName());
     }
 
     /**
      * addEagerConstraints sets the field constraint for an eager load of the relation
-     * @param  array  $models
+     * @param array $models
      * @return void
      */
     public function addEagerConstraints(array $models)
@@ -192,8 +191,7 @@ trait AttachOneOrMany
                 $model->setAttribute($this->getMorphType(), $this->morphClass);
                 $model->setAttribute('field', $this->relationName);
                 $model->save();
-            }
-            else {
+            } else {
                 $this->parent->bindEventOnce('model.afterSave', function () use ($model) {
                     $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
                     $model->setAttribute($this->getMorphType(), $this->morphClass);
@@ -205,8 +203,7 @@ trait AttachOneOrMany
             // Use the opportunity to set the relation in memory
             if ($this instanceof AttachOne) {
                 $this->parent->setRelation($this->relationName, $model);
-            }
-            else {
+            } else {
                 $this->parent->reloadRelations($this->relationName);
             }
 
@@ -224,15 +221,14 @@ trait AttachOneOrMany
              *
              */
             $this->parent->fireEvent('model.relation.add', [$this->relationName, $model]);
-        }
-        else {
+        } else {
             $this->parent->bindDeferred($this->relationName, $model, $sessionKey);
         }
     }
 
     /**
      * addMany attaches an array of models to the parent instance with deferred binding support
-     * @param  array  $models
+     * @param array $models
      */
     public function addMany($models, $sessionKey = null)
     {
@@ -272,8 +268,7 @@ trait AttachOneOrMany
 
             if (array_get($options, 'delete', false)) {
                 $model->delete();
-            }
-            else {
+            } else {
                 // Make this model an orphan ;~(
                 $model->setAttribute($this->getForeignKeyName(), null);
                 $model->setAttribute($this->getMorphType(), null);
@@ -284,8 +279,7 @@ trait AttachOneOrMany
             // Use the opportunity to set the relation in memory
             if ($this instanceof AttachOne) {
                 $this->parent->setRelation($this->relationName, null);
-            }
-            else {
+            } else {
                 $this->parent->reloadRelations($this->relationName);
             }
 
@@ -303,8 +297,7 @@ trait AttachOneOrMany
              *
              */
             $this->parent->fireEvent('model.relation.remove', [$this->relationName, $model]);
-        }
-        else {
+        } else {
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);
         }
     }

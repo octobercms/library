@@ -32,7 +32,7 @@ trait HasOneOrMany
 
     /**
      * saveMany is an alias for the addMany() method
-     * @param  array  $models
+     * @param array $models
      * @return array
      */
     public function saveMany($models, $sessionKey = null)
@@ -83,8 +83,7 @@ trait HasOneOrMany
             if ($this->parent->exists) {
                 $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
                 $model->save();
-            }
-            else {
+            } else {
                 $this->parent->bindEventOnce('model.afterSave', function () use ($model) {
                     $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
                     $model->save();
@@ -94,8 +93,7 @@ trait HasOneOrMany
             // Use the opportunity to set the relation in memory
             if ($this instanceof HasOne) {
                 $this->parent->setRelation($this->relationName, $model);
-            }
-            else {
+            } else {
                 $this->parent->reloadRelations($this->relationName);
             }
 
@@ -113,15 +111,14 @@ trait HasOneOrMany
              *
              */
             $this->parent->fireEvent('model.relation.add', [$this->relationName, $model]);
-        }
-        else {
+        } else {
             $this->parent->bindDeferred($this->relationName, $model, $sessionKey);
         }
     }
 
     /**
      * addMany attaches an array of models to the parent instance with deferred binding support
-     * @param  array  $models
+     * @param array $models
      * @return void
      */
     public function addMany($models, $sessionKey = null)
@@ -163,8 +160,7 @@ trait HasOneOrMany
             // Delete or orphan the model
             if (array_get($options, 'delete', false)) {
                 $model->delete();
-            }
-            else {
+            } else {
                 $model->setAttribute($this->getForeignKeyName(), null);
                 $model->save();
             }
@@ -172,8 +168,7 @@ trait HasOneOrMany
             // Use this opportunity to set the relation in memory
             if ($this instanceof HasOne) {
                 $this->parent->setRelation($this->relationName, null);
-            }
-            else {
+            } else {
                 $this->parent->reloadRelations($this->relationName);
             }
 
@@ -191,8 +186,7 @@ trait HasOneOrMany
              *
              */
             $this->parent->fireEvent('model.relation.remove', [$this->relationName, $model]);
-        }
-        else {
+        } else {
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);
         }
     }

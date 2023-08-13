@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Auth\Concerns;
 
-use Session;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Session;
 
 /**
  * HasImpersonation
@@ -38,7 +38,7 @@ trait HasImpersonation
 
         // If this is the first time impersonating, capture the original user
         if (!$this->isImpersonator()) {
-            Session::put($this->sessionKey.'_impersonate', $oldUserId ?: 'NaN');
+            Session::put($this->sessionKey . '_impersonate', $oldUserId ?: 'NaN');
         }
     }
 
@@ -70,12 +70,11 @@ trait HasImpersonation
         // Restore previous user, if possible
         if ($oldUser) {
             $this->setPersistCodeToSession($oldUser, false, true);
-        }
-        else {
+        } else {
             Session::forget($this->sessionKey);
         }
 
-        Session::forget($this->sessionKey.'_impersonate');
+        Session::forget($this->sessionKey . '_impersonate');
     }
 
     /**
@@ -97,7 +96,7 @@ trait HasImpersonation
      */
     public function isImpersonator()
     {
-        return Session::has($this->sessionKey.'_impersonate');
+        return Session::has($this->sessionKey . '_impersonate');
     }
 
     /**
@@ -106,11 +105,11 @@ trait HasImpersonation
      */
     public function getImpersonator()
     {
-        if (!Session::has($this->sessionKey.'_impersonate')) {
+        if (!Session::has($this->sessionKey . '_impersonate')) {
             return null;
         }
 
-        $oldUserId = Session::get($this->sessionKey.'_impersonate');
+        $oldUserId = Session::get($this->sessionKey . '_impersonate');
         if ((!is_string($oldUserId) && !is_int($oldUserId)) || $oldUserId === 'NaN') {
             return null;
         }
@@ -123,7 +122,7 @@ trait HasImpersonation
      */
     public function impersonateRole($role)
     {
-        Session::put($this->sessionKey.'_impersonate_role', $role->getKey());
+        Session::put($this->sessionKey . '_impersonate_role', $role->getKey());
     }
 
     /**
@@ -131,7 +130,7 @@ trait HasImpersonation
      */
     public function isRoleImpersonator(): bool
     {
-        return !empty(Session::has($this->sessionKey.'_impersonate_role'));
+        return !empty(Session::has($this->sessionKey . '_impersonate_role'));
     }
 
     /**
@@ -139,7 +138,7 @@ trait HasImpersonation
      */
     public function stopImpersonateRole()
     {
-        Session::forget($this->sessionKey.'_impersonate_role');
+        Session::forget($this->sessionKey . '_impersonate_role');
     }
 
     /**
@@ -147,7 +146,7 @@ trait HasImpersonation
      */
     protected function applyRoleImpersonation($user)
     {
-        $roleId = Session::get($this->sessionKey.'_impersonate_role');
+        $roleId = Session::get($this->sessionKey . '_impersonate_role');
 
         if ($role = $this->createRoleModel()->find($roleId)) {
             $user->setRoleImpersonation($role);

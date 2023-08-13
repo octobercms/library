@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Support;
 
-use Lang;
 use Illuminate\Support\Arr as ArrHelper;
+use Lang;
 
 /**
  * Arr helper as an extension to Laravel
@@ -32,7 +32,7 @@ class Arr extends ArrHelper
      */
     public static function trans(array $arr): array
     {
-        array_walk_recursive($arr, function(&$value, $key) {
+        array_walk_recursive($arr, function (&$value, $key) {
             if (is_string($value)) {
                 $value = Lang::get($value);
             }

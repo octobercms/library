@@ -1,13 +1,12 @@
 <?php namespace October\Rain\Assetic\Filter;
 
-use Url;
-use File;
 use Config;
-use Storage;
+use File;
 use October\Rain\Assetic\Asset\AssetInterface;
 use October\Rain\Assetic\Factory\AssetFactory;
 use October\Rain\Assetic\Util\SassUtils;
 use ScssPhp\ScssPhp\Compiler;
+use Url;
 
 /**
  * ScssphpFilter loads SCSS files using the PHP implementation of scss, scssphp.
@@ -82,19 +81,18 @@ class ScssphpFilter implements DependencyExtractorInterface
         // Generate source map file
         $useSourceMaps = Config::get('cms.enable_asset_source_maps', false);
         if ($useSourceMaps) {
-            $mapFile = md5($asset->getSourcePath()).'.css.map';
+            $mapFile = md5($asset->getSourcePath()) . '.css.map';
 
             $sc->setSourceMap(Compiler::SOURCE_MAP_FILE);
             $sc->setSourceMapOptions([
-                'sourceMapURL' => $this->getSourceMapPublicUrl().'/'.$mapFile,
+                'sourceMapURL' => $this->getSourceMapPublicUrl() . '/' . $mapFile,
                 'sourceMapBasepath' => '',
                 'sourceRoot' => '/',
             ]);
 
             $result = $sc->compileString($asset->getContent());
-            File::put($this->getSourceMapLocalPath().'/'.$mapFile, $result->getSourceMap());
-        }
-        else {
+            File::put($this->getSourceMapLocalPath() . '/' . $mapFile, $result->getSourceMap());
+        } else {
             $result = $sc->compileString($asset->getContent());
         }
 

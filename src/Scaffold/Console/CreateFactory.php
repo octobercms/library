@@ -45,8 +45,7 @@ class CreateFactory extends GeneratorCommandBase
     {
         if ($this->isAppNamespace()) {
             $this->makeStub('factory/factory_app.stub', 'database/factories/{{studly_name}}.php');
-        }
-        else {
+        } else {
             $this->makeStub('factory/factory.stub', 'updates/factories/{{studly_name}}.php');
         }
     }

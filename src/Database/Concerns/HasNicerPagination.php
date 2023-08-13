@@ -8,8 +8,8 @@ trait HasNicerPagination
     /**
      * paginateAtPage paginates by passing the page number directly
      *
-     * @param  int  $perPage
-     * @param  int  $currentPage
+     * @param int $perPage
+     * @param int $currentPage
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function paginateAtPage($perPage, $currentPage)
@@ -20,8 +20,8 @@ trait HasNicerPagination
     /**
      * paginateCustom paginates using a custom page name.
      *
-     * @param  int  $perPage
-     * @param  string $pageName
+     * @param int $perPage
+     * @param string $pageName
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function paginateCustom($perPage, $pageName)
@@ -32,8 +32,8 @@ trait HasNicerPagination
     /**
      * simplePaginateAtPage simply paginates by passing the page number directly
      *
-     * @param  int  $perPage
-     * @param  int  $currentPage
+     * @param int $perPage
+     * @param int $currentPage
      * @return \Illuminate\Contracts\Pagination\Paginator
      */
     public function simplePaginateAtPage($perPage, $currentPage)
@@ -44,8 +44,8 @@ trait HasNicerPagination
     /**
      * simplePaginateCustom simply paginates using a custom page name.
      *
-     * @param  int  $perPage
-     * @param  string $pageName
+     * @param int $perPage
+     * @param string $pageName
      * @return \Illuminate\Contracts\Pagination\Paginator
      */
     public function simplePaginateCustom($perPage, $pageName)

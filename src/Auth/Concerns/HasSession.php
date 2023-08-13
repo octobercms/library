@@ -38,14 +38,12 @@ trait HasSession
         // Check session first, followed by cookie
         if ($sessionArray = Session::get($this->sessionKey)) {
             $userArray = $sessionArray;
-        }
-        elseif ($cookieArray = Cookie::get($this->sessionKey)) {
+        } elseif ($cookieArray = Cookie::get($this->sessionKey)) {
             if ($isChecking) {
                 $this->viaRemember = true;
             }
             $userArray = @json_decode($cookieArray, true);
-        }
-        else {
+        } else {
             return null;
         }
 

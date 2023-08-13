@@ -56,8 +56,7 @@ class FieldDefinition extends ElementBase
             ->spanClass('')
             ->comment('')
             ->placeholder('')
-            ->order(-1)
-        ;
+            ->order(-1);
     }
 
     /**
@@ -136,8 +135,7 @@ class FieldDefinition extends ElementBase
         // set
         if (is_callable($value)) {
             $this->optionsCallback = $value;
-        }
-        else {
+        } else {
             $this->options = $value;
         }
 

@@ -123,7 +123,7 @@ class FieldParser
 
     /**
      * Returns tag strings for a specific field
-     * @param  string $field
+     * @param string $field
      * @return array
      */
     public function getFieldTags($field)
@@ -142,7 +142,7 @@ class FieldParser
 
     /**
      * Returns defined parameters for a single field
-     * @param  string $field
+     * @param string $field
      * @return array
      */
     public function getFieldParams($field)
@@ -152,7 +152,7 @@ class FieldParser
 
     /**
      * Returns default values for all fields.
-     * @param  array $fields
+     * @param array $fields
      * @return array
      */
     public function getDefaultParams($fields = null)
@@ -171,8 +171,7 @@ class FieldParser
             if ($params['type'] === 'repeater') {
                 $defaults[$field] = [];
                 $defaults[$field][] = $this->getDefaultParams(array_get($params, 'fields', []));
-            }
-            else {
+            } else {
                 $defaults[$field] = $params['default'] ?? null;
             }
         }
@@ -183,7 +182,7 @@ class FieldParser
     /**
      * Processes all repeating tags against a template, this will strip
      * any repeaters from the template for further processing.
-     * @param  string $template
+     * @param string $template
      * @return void
      */
     protected function processRepeaterTags($template)
@@ -207,7 +206,7 @@ class FieldParser
 
             // Remove the inner content of the repeater
             // tag to prevent further parsing
-            $template = str_replace($outerTemplate, $openTag.$closeTag, $template);
+            $template = str_replace($outerTemplate, $openTag . $closeTag, $template);
         }
 
         return [$template, $tags, $fields];
@@ -215,8 +214,8 @@ class FieldParser
 
     /**
      * Processes all registered tags against a template.
-     * @param  string $template
-     * @param  bool $usingTags
+     * @param string $template
+     * @param bool $usingTags
      * @return void
      */
     protected function processTags($template, $usingTags = null)
@@ -246,8 +245,7 @@ class FieldParser
             if (isset($params['name'])) {
                 $name = $params['name'];
                 unset($params['name']);
-            }
-            else {
+            } else {
                 $name = md5($tagString);
             }
 
@@ -278,8 +276,8 @@ class FieldParser
     /**
      * Processes group 2 from the Tag regex and returns
      * an array of captured parameters.
-     * @param  string $value
-     * @param  string $tagName
+     * @param string $value
+     * @param string $tagName
      * @return array
      */
     protected function processParams($value, $tagName)
@@ -289,11 +287,9 @@ class FieldParser
         $defaultValue = '';
         if ($closePos === false) {
             $paramString = $value;
-        }
-        elseif (substr($value, -1) === $close) {
+        } elseif (substr($value, -1) === $close) {
             $paramString = substr($value, 0, -1);
-        }
-        else {
+        } else {
             $paramString = substr($value, 0, $closePos);
             $defaultValue = trim(substr($value, $closePos + 1));
         }
@@ -313,8 +309,7 @@ class FieldParser
 
         if ($tagName === 'checkbox') {
             $params['_content'] = $defaultValue;
-        }
-        else {
+        } else {
             $params['default'] = $defaultValue;
         }
 
@@ -327,7 +322,7 @@ class FieldParser
      *  In: name="test" comment="This is a test"
      *  Out: ['name' => 'test', 'comment' => 'This is a test']
      *
-     * @param  string $string
+     * @param string $string
      * @return array
      */
     protected function processParamsRegex($string)
@@ -362,8 +357,8 @@ class FieldParser
      *  2 - The tag parameters as a string, eg: name="test"} and;
      *  2 - The default text inside the tag (optional), eg: Foobar
      *
-     * @param  string $string
-     * @param  string $tags
+     * @param string $string
+     * @param string $tags
      * @return array
      */
     protected function processTagsRegex($string, $tags)
@@ -378,9 +373,9 @@ class FieldParser
         $tags = implode('|', $tags);
 
         $regex = '#';
-        $regex .= $open.'('.$tags.')\s'; // Group 1
+        $regex .= $open . '(' . $tags . ')\s'; // Group 1
         $regex .= '([\S\s]+?)'; // Group 2 (Non greedy)
-        $regex .= $open.'/(?:\1)'.$close; // Group X (Not captured)
+        $regex .= $open . '/(?:\1)' . $close; // Group X (Not captured)
         $regex .= '#';
 
         preg_match_all($regex, $string, $match);
@@ -395,7 +390,7 @@ class FieldParser
      * one:One|two:Two   -> [one => 'One', two => 'Two']
      * ClassName::method -> [...]
      *
-     * @param  string $optionsString
+     * @param string $optionsString
      * @return array
      */
     protected function processOptionsToArray($optionsString)
@@ -439,12 +434,10 @@ class FieldParser
                     }
 
                     $result[$key] = trim($parts[1]);
-                }
-                else {
+                } else {
                     $result[$index] = trim($optionStr);
                 }
-            }
-            else {
+            } else {
                 $result[$index] = trim($optionStr);
             }
         }

@@ -13,9 +13,9 @@ class Processor
     /**
      * Process the results of a singular "select" query.
      *
-     * @param  \October\Rain\Halcyon\Builder  $query
-     * @param  array  $result
-     * @param  string $fileName
+     * @param \October\Rain\Halcyon\Builder $query
+     * @param array $result
+     * @param string $fileName
      * @return array
      */
     public function processSelectOne(Builder $query, $result)
@@ -32,8 +32,8 @@ class Processor
     /**
      * Process the results of a "select" query.
      *
-     * @param  \October\Rain\Halcyon\Builder  $query
-     * @param  array  $results
+     * @param \October\Rain\Halcyon\Builder $query
+     * @param array $results
      * @return array
      */
     public function processSelect(Builder $query, $results)
@@ -54,8 +54,8 @@ class Processor
 
     /**
      * Helper to break down template content in to a useful array.
-     * @param  int     $mtime
-     * @param  string  $content
+     * @param int $mtime
+     * @param string $content
      * @return array
      */
     protected function parseTemplateContent($query, $result, $fileName)
@@ -69,19 +69,19 @@ class Processor
         $processed = SectionParser::parse($content, $options);
 
         return [
-            'fileName' => $fileName,
-            'content' => $content,
-            'mtime' => array_get($result, 'mtime'),
-            'markup' => $processed['markup'],
-            'code' => $processed['code']
-        ] + $processed['settings'];
+                'fileName' => $fileName,
+                'content' => $content,
+                'mtime' => array_get($result, 'mtime'),
+                'markup' => $processed['markup'],
+                'code' => $processed['code']
+            ] + $processed['settings'];
     }
 
     /**
      * Process the data in to an insert action.
      *
-     * @param  \October\Rain\Halcyon\Builder  $query
-     * @param  array  $data
+     * @param \October\Rain\Halcyon\Builder $query
+     * @param array $data
      * @return string
      */
     public function processInsert(Builder $query, $data)
@@ -97,8 +97,8 @@ class Processor
     /**
      * Process the data in to an update action.
      *
-     * @param  \October\Rain\Halcyon\Builder  $query
-     * @param  array  $data
+     * @param \October\Rain\Halcyon\Builder $query
+     * @param array $data
      * @return string
      */
     public function processUpdate(Builder $query, $data)

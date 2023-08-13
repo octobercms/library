@@ -1,13 +1,13 @@
 <?php namespace October\Rain\Database\Connectors;
 
-use Illuminate\Support\Arr;
 use Illuminate\Database\Connectors\ConnectionFactory as ConnectionFactoryBase;
+use Illuminate\Support\Arr;
+use InvalidArgumentException;
 use October\Rain\Database\Connections\Connection;
 use October\Rain\Database\Connections\MySqlConnection;
-use October\Rain\Database\Connections\SQLiteConnection;
 use October\Rain\Database\Connections\PostgresConnection;
+use October\Rain\Database\Connections\SQLiteConnection;
 use October\Rain\Database\Connections\SqlServerConnection;
-use InvalidArgumentException;
 use PDOException;
 
 class ConnectionFactory extends ConnectionFactoryBase
@@ -16,7 +16,7 @@ class ConnectionFactory extends ConnectionFactoryBase
      * Carbon copy of parent. Except Laravel creates an "uncatchable" exception,
      * this is resolved as part of the override below.
      *
-     * @param  array  $config
+     * @param array $config
      * @return \Closure
      */
     protected function createPdoResolverWithHosts(array $config)
@@ -27,8 +27,7 @@ class ConnectionFactory extends ConnectionFactoryBase
 
                 try {
                     return $this->createConnector($config)->connect($config);
-                }
-                catch (PDOException $e) {
+                } catch (PDOException $e) {
                 }
             }
 
@@ -39,11 +38,11 @@ class ConnectionFactory extends ConnectionFactoryBase
     /**
      * Create a new connection instance.
      *
-     * @param  string   $driver
-     * @param  \PDO     $connection
-     * @param  string   $database
-     * @param  string   $prefix
-     * @param  array    $config
+     * @param string $driver
+     * @param \PDO $connection
+     * @param string $database
+     * @param string $prefix
+     * @param array $config
      * @return \Illuminate\Database\Connection
      *
      * @throws \InvalidArgumentException

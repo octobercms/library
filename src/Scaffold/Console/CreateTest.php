@@ -46,8 +46,7 @@ class CreateTest extends GeneratorCommandBase
         if (!file_exists($this->getDestinationPath() . '/phpunit.xml')) {
             if ($this->isAppNamespace()) {
                 $this->makeStub('test/phpunit.app.stub', 'phpunit.xml');
-            }
-            else {
+            } else {
                 $this->makeStub('test/phpunit.plugin.stub', 'phpunit.xml');
             }
         }

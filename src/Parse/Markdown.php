@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Parse;
 
-use Html;
 use Event;
+use Html;
 use October\Rain\Parse\Parsedown\ParsedownExtra;
 
 /**

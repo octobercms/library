@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Config;
 
-use Illuminate\Config\Repository as RepositoryBase;
 use Arr;
+use Illuminate\Config\Repository as RepositoryBase;
 
 /**
  * Repository for configuration in October CMS
@@ -13,8 +13,8 @@ class Repository extends RepositoryBase
 {
     /**
      * package registers a package configuration
-     * @param  string  $namespace
-     * @param  string  $path
+     * @param string $namespace
+     * @param string $path
      * @return void
      */
     public function package($namespace, $path)
@@ -35,7 +35,7 @@ class Repository extends RepositoryBase
     /**
      * has determines if the given configuration value exists.
      *
-     * @param  string  $key
+     * @param string $key
      * @return bool
      */
     public function has($key)
@@ -46,8 +46,8 @@ class Repository extends RepositoryBase
     /**
      * get the specified configuration value.
      *
-     * @param  array|string  $key
-     * @param  mixed  $default
+     * @param array|string $key
+     * @param mixed $default
      * @return mixed
      */
     public function get($key, $default = null)
@@ -62,7 +62,7 @@ class Repository extends RepositoryBase
     /**
      * getMany configuration values.
      *
-     * @param  array  $keys
+     * @param array $keys
      * @return array
      */
     public function getMany($keys)
@@ -84,8 +84,8 @@ class Repository extends RepositoryBase
     /**
      * set a given configuration value.
      *
-     * @param  array|string  $key
-     * @param  mixed  $value
+     * @param array|string $key
+     * @param mixed $value
      * @return void
      */
     public function set($key, $value = null)

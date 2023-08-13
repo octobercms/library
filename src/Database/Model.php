@@ -1,11 +1,11 @@
 <?php namespace October\Rain\Database;
 
-use October\Rain\Support\Arr;
-use October\Rain\Argon\Argon;
-use Illuminate\Database\Eloquent\Model as EloquentModel;
-use Illuminate\Database\Eloquent\Collection as CollectionBase;
 use DateTimeInterface;
 use Exception;
+use Illuminate\Database\Eloquent\Collection as CollectionBase;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
+use October\Rain\Argon\Argon;
+use October\Rain\Support\Arr;
 
 /**
  * Model is an active record base class that extends Eloquent with added
@@ -97,8 +97,7 @@ class Model extends EloquentModel
     {
         if (!$this->exists) {
             $this->syncOriginal();
-        }
-        elseif ($fresh = static::find($this->getKey())) {
+        } elseif ($fresh = static::find($this->getKey())) {
             $this->setRawAttributes($fresh->getAttributes(), true);
         }
 
@@ -107,15 +106,14 @@ class Model extends EloquentModel
 
     /**
      * reloadRelations for this model.
-     * @param string  $relationName
+     * @param string $relationName
      * @return void
      */
     public function reloadRelations($relationName = null)
     {
         if (!$relationName) {
             $this->setRelations([]);
-        }
-        else {
+        } else {
             unset($this->relations[$relationName]);
         }
     }
@@ -130,8 +128,8 @@ class Model extends EloquentModel
 
     /**
      * newInstance creates a new instance of the given model.
-     * @param  array  $attributes
-     * @param  bool  $exists
+     * @param array $attributes
+     * @param bool $exists
      * @return static
      */
     public function newInstance($attributes = [], $exists = false)
@@ -160,7 +158,7 @@ class Model extends EloquentModel
 
     /**
      * newFromBuilder creates a new model instance that is existing.
-     * @param  array  $attributes
+     * @param array $attributes
      * @return \Illuminate\Database\Eloquent\Model|static
      */
     public function newFromBuilder($attributes = [], $connection = null)
@@ -196,7 +194,7 @@ class Model extends EloquentModel
     /**
      * asDateTime returns a timestamp as DateTime object.
      *
-     * @param  mixed  $value
+     * @param mixed $value
      * @return \Carbon\Carbon
      */
     protected function asDateTime($value)
@@ -228,7 +226,7 @@ class Model extends EloquentModel
 
     /**
      * fromDateTime convert a DateTime to a storable string.
-     * @param  \DateTime|int  $value
+     * @param \DateTime|int $value
      * @return string
      */
     public function fromDateTime($value)
@@ -242,7 +240,7 @@ class Model extends EloquentModel
 
     /**
      * newEloquentBuilder for the model.
-     * @param  \October\Rain\Database\QueryBuilder $query
+     * @param \October\Rain\Database\QueryBuilder $query
      * @return \October\Rain\Database\Builder
      */
     public function newEloquentBuilder($query)
@@ -310,7 +308,7 @@ class Model extends EloquentModel
 
     /**
      * __isset determines if an attribute or relation exists on the model.
-     * @param  string  $key
+     * @param string $key
      * @return bool
      */
     public function __isset($key)
@@ -324,11 +322,11 @@ class Model extends EloquentModel
 
     /**
      * newPivot as a generic pivot model instance.
-     * @param  \October\Rain\Database\Model  $parent
-     * @param  array  $attributes
-     * @param  string  $table
-     * @param  bool  $exists
-     * @param  string|null  $using
+     * @param \October\Rain\Database\Model $parent
+     * @param array $attributes
+     * @param string $table
+     * @param bool $exists
+     * @param string|null $using
      * @return \October\Rain\Database\Pivot
      */
     public function newPivot(EloquentModel $parent, array $attributes, $table, $exists, $using = null)
@@ -340,11 +338,11 @@ class Model extends EloquentModel
 
     /**
      * newRelationPivot instance specific to a relation.
-     * @param  \October\Rain\Database\Model  $parent
-     * @param  string  $relationName
-     * @param  array   $attributes
-     * @param  string  $table
-     * @param  bool    $exists
+     * @param \October\Rain\Database\Model $parent
+     * @param string $relationName
+     * @param array $attributes
+     * @param string $table
+     * @param bool $exists
      * @return \October\Rain\Database\Pivot
      */
     public function newRelationPivot($relationName, $parent, $attributes, $table, $exists)
@@ -465,11 +463,9 @@ class Model extends EloquentModel
 
             if ($models instanceof CollectionBase) {
                 $models = $models->all();
-            }
-            elseif ($models instanceof EloquentModel) {
+            } elseif ($models instanceof EloquentModel) {
                 $models = [$models];
-            }
-            else {
+            } else {
                 $models = (array) $models;
             }
 

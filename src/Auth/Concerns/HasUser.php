@@ -1,9 +1,9 @@
 <?php namespace October\Rain\Auth\Concerns;
 
 use Cookie;
-use Session;
 use Illuminate\Contracts\Auth\Authenticatable;
 use October\Rain\Auth\AuthException;
+use Session;
 
 /**
  * HasUser
@@ -18,7 +18,7 @@ trait HasUser
      */
     public function createUserModel()
     {
-        $class = '\\'.ltrim($this->userModel, '\\');
+        $class = '\\' . ltrim($this->userModel, '\\');
         return new $class();
     }
 
@@ -28,7 +28,7 @@ trait HasUser
      */
     public function createRoleModel()
     {
-        $class = '\\'.ltrim($this->roleModel, '\\');
+        $class = '\\' . ltrim($this->roleModel, '\\');
         return new $class();
     }
 
@@ -115,8 +115,8 @@ trait HasUser
     /**
      * findUserByCredentials finds a user by the given credentials.
      * @param array $credentials
-     * @throws AuthException
      * @return Models\User
+     * @throws AuthException
      */
     public function findUserByCredentials(array $credentials)
     {
@@ -138,8 +138,7 @@ trait HasUser
             // All excepted the hashed attributes
             if (in_array($credential, $hashableAttributes)) {
                 $hashedCredentials = array_merge($hashedCredentials, [$credential => $value]);
-            }
-            else {
+            } else {
                 $query = $query->where($credential, '=', $value);
             }
         }

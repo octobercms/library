@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Assetic;
 
+use InvalidArgumentException;
 use October\Rain\Assetic\Asset\AssetInterface;
 use October\Rain\Assetic\Util\VarUtils;
-use InvalidArgumentException;
 use RuntimeException;
 
 /**
@@ -27,7 +27,7 @@ class AssetWriter
      * __construct
      *
      * @param string $dir
-     * @param array  $values
+     * @param array $values
      * @throws InvalidArgumentException
      */
     public function __construct($dir, array $values = array())
@@ -63,7 +63,7 @@ class AssetWriter
             $asset->setValues($combination);
 
             static::write(
-                $this->dir.'/'.VarUtils::resolve(
+                $this->dir . '/' . VarUtils::resolve(
                     $asset->getTargetPath(),
                     $asset->getVars(),
                     $asset->getValues()
@@ -79,11 +79,11 @@ class AssetWriter
     protected static function write($path, $contents)
     {
         if (!is_dir($dir = dirname($path)) && false === @mkdir($dir, 0755, true)) {
-            throw new RuntimeException('Unable to create directory '.$dir);
+            throw new RuntimeException('Unable to create directory ' . $dir);
         }
 
         if (false === @file_put_contents($path, $contents)) {
-            throw new RuntimeException('Unable to write file '.$path);
+            throw new RuntimeException('Unable to write file ' . $path);
         }
     }
 }

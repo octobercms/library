@@ -57,8 +57,8 @@ class Role extends Model
      * have access to all permissions passed through, unless the
      * "all" flag is set to false.
      *
-     * @param  string|array  $permissions
-     * @param  bool  $all
+     * @param string|array $permissions
+     * @param bool $all
      * @return bool
      */
     public function hasAccess($permissions, $all = true)
@@ -117,8 +117,7 @@ class Role extends Model
                         break;
                     }
                 }
-            }
-            else {
+            } else {
                 $matched = false;
 
                 foreach ($rolePermissions as $rolePermission => $value) {
@@ -157,8 +156,7 @@ class Role extends Model
             // accordingly.
             if ($all === true && $matched === false) {
                 return false;
-            }
-            elseif ($all === false && $matched === true) {
+            } elseif ($all === false && $matched === true) {
                 return true;
             }
         }
@@ -178,7 +176,7 @@ class Role extends Model
 
     /**
      * setPermissionsAttribute validates the permissions when set
-     * @param  array  $permissions
+     * @param array $permissions
      * @return void
      */
     public function setPermissionsAttribute($permissions)

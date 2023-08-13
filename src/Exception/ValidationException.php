@@ -1,9 +1,9 @@
 <?php namespace October\Rain\Exception;
 
-use Validator as ValidatorFacade;
 use Illuminate\Validation\ValidationException as ValidationExceptionBase;
 use Illuminate\Validation\Validator;
 use InvalidArgumentException;
+use Validator as ValidatorFacade;
 
 /**
  * ValidationException class
@@ -42,7 +42,7 @@ class ValidationException extends ValidationExceptionBase
 
     /**
      * resolveToValidator resolves general input for the validation exception
-     * @param  mixed  $validation
+     * @param mixed $validation
      */
     protected function resolveToValidator($validation)
     {
@@ -50,8 +50,7 @@ class ValidationException extends ValidationExceptionBase
 
         if (is_null($validation)) {
             $validator = ValidatorFacade::make([], []);
-        }
-        elseif (is_array($validation)) {
+        } elseif (is_array($validation)) {
             $validator = ValidatorFacade::make([], []);
             $validator->errors()->merge($validation);
         }

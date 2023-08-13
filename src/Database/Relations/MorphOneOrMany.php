@@ -73,8 +73,7 @@ trait MorphOneOrMany
                 $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
                 $model->setAttribute($this->getMorphType(), $this->morphClass);
                 $model->save();
-            }
-            else {
+            } else {
                 $this->parent->bindEventOnce('model.afterSave', function () use ($model) {
                     $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
                     $model->setAttribute($this->getMorphType(), $this->morphClass);
@@ -85,8 +84,7 @@ trait MorphOneOrMany
             // Use the opportunity to set the relation in memory
             if ($this instanceof MorphOne) {
                 $this->parent->setRelation($this->relationName, $model);
-            }
-            else {
+            } else {
                 $this->parent->reloadRelations($this->relationName);
             }
 
@@ -104,8 +102,7 @@ trait MorphOneOrMany
              *
              */
             $this->parent->fireEvent('model.relation.add', [$this->relationName, $model]);
-        }
-        else {
+        } else {
             $this->parent->bindDeferred($this->relationName, $model, $sessionKey);
         }
     }
@@ -142,8 +139,7 @@ trait MorphOneOrMany
             // Delete or orphan the model
             if (array_get($options, 'delete', false)) {
                 $model->delete();
-            }
-            else {
+            } else {
                 $model->setAttribute($this->getForeignKeyName(), null);
                 $model->setAttribute($this->getMorphType(), null);
                 $model->save();
@@ -152,8 +148,7 @@ trait MorphOneOrMany
             // Use this opportunity to set the relation in memory
             if ($this instanceof MorphOne) {
                 $this->parent->setRelation($this->relationName, null);
-            }
-            else {
+            } else {
                 $this->parent->reloadRelations($this->relationName);
             }
 
@@ -171,8 +166,7 @@ trait MorphOneOrMany
              *
              */
             $this->parent->fireEvent('model.relation.remove', [$this->relationName, $model]);
-        }
-        else {
+        } else {
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);
         }
     }

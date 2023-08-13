@@ -11,8 +11,8 @@ trait HasFactory
     /**
      * factory gets a new factory instance for the model.
      *
-     * @param  callable|array|int|null  $count
-     * @param  callable|array  $state
+     * @param callable|array|int|null $count
+     * @param callable|array $state
      * @return \Illuminate\Database\Eloquent\Factories\Factory<static>
      */
     public static function factory($count = null, $state = [])
@@ -31,8 +31,7 @@ trait HasFactory
     {
         if (strpos($modelName, 'App\\') === 0) {
             $factory = str_replace('Models\\', 'Database\\Factories\\', $modelName) . 'Factory';
-        }
-        else {
+        } else {
             $factory = str_replace('Models\\', 'Updates\\Factories\\', $modelName) . 'Factory';
         }
 

@@ -32,7 +32,7 @@ class Definitions
         }
 
         return (array) Config::get(
-            'cms.file_definitions.'.$typeConfig,
+            'cms.file_definitions.' . $typeConfig,
             $this->$typeMethod()
         );
     }
@@ -52,7 +52,7 @@ class Definitions
         }
 
         foreach ($ignorePatterns as $pattern) {
-            if (preg_match('/'.$pattern.'/', $path)) {
+            if (preg_match('/' . $pattern . '/', $path)) {
                 return true;
             }
         }

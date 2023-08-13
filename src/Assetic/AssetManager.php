@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Assetic;
 
-use October\Rain\Assetic\Asset\AssetInterface;
 use InvalidArgumentException;
+use October\Rain\Assetic\Asset\AssetInterface;
 
 /**
  * AssetManager manages assets.
@@ -45,7 +45,7 @@ class AssetManager
     /**
      * set registers an asset to the current asset manager.
      *
-     * @param string         $name  The asset name
+     * @param string $name The asset name
      * @param AssetInterface $asset The asset
      * @throws InvalidArgumentException If the asset name is invalid
      */

@@ -61,8 +61,7 @@ class BlockBuilder
 
         if ($append) {
             $this->append($name, $contents);
-        }
-        else {
+        } else {
             $this->blocks[$name] = $contents;
         }
     }

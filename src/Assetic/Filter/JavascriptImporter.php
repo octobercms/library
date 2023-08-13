@@ -2,7 +2,6 @@
 
 use File;
 use October\Rain\Assetic\Asset\AssetInterface;
-use October\Rain\Assetic\Filter\FilterInterface;
 use RuntimeException;
 
 /**

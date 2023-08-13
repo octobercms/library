@@ -1,9 +1,9 @@
 <?php namespace October\Rain\Composer\Concerns;
 
 use Composer\Util\Platform;
-use RecursiveIteratorIterator;
-use RecursiveDirectoryIterator;
 use DirectoryIterator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use RegexIterator;
 
 /**
@@ -105,7 +105,7 @@ trait HasAssertions
         foreach ($preload as $package) {
             $this->assertPackageLoaded(
                 $package,
-                base_path('vendor/composer/composer/src/'.str_replace("\\", "/", $package))
+                base_path('vendor/composer/composer/src/' . str_replace("\\", "/", $package))
             );
         }
     }

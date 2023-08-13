@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database\Connections;
 
-use October\Rain\Database\QueryBuilder;
 use Illuminate\Database\Connection as ConnectionBase;
+use October\Rain\Database\QueryBuilder;
 
 /**
  * Connection base class
@@ -23,9 +23,9 @@ class Connection extends ConnectionBase
 
     /**
      * logQuery in the connection's query log
-     * @param  string  $query
-     * @param  array   $bindings
-     * @param  float|null  $time
+     * @param string $query
+     * @param array $bindings
+     * @param float|null $time
      * @return void
      */
     public function logQuery($query, $bindings, $time = null)
@@ -39,13 +39,13 @@ class Connection extends ConnectionBase
 
     /**
      * fireConnectionEvent for this connection
-     * @param  string  $event
+     * @param string $event
      * @return void
      */
     protected function fireConnectionEvent($event)
     {
         if (isset($this->events)) {
-            $this->events->dispatch('connection.'.$this->getName().'.'.$event, $this);
+            $this->events->dispatch('connection.' . $this->getName() . '.' . $event, $this);
         }
 
         parent::fireConnectionEvent($event);

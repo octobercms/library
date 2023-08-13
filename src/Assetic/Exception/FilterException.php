@@ -35,7 +35,7 @@ class FilterException extends \RuntimeException implements Exception
         $message = $this->originalMessage;
 
         if (!empty($this->input)) {
-            $message .= "\n\nInput:\n".$this->input;
+            $message .= "\n\nInput:\n" . $this->input;
         }
 
         $this->message = $message;

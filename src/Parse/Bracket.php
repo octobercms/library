@@ -32,9 +32,9 @@ class Bracket
 
     /**
      * Static helper for new instances of this class.
-     * @param  string $template
-     * @param  array $vars
-     * @param  array $options
+     * @param string $template
+     * @param array $vars
+     * @param array $options
      * @return self
      */
     public static function parse($template, $vars = [], $options = [])
@@ -45,8 +45,8 @@ class Bracket
 
     /**
      * Parse a string against data
-     * @param  string $string
-     * @param  array $data
+     * @param string $string
+     * @param array $data
      * @return string
      */
     public function parseString($string, $data)
@@ -58,8 +58,7 @@ class Bracket
         foreach ($data as $key => $value) {
             if (is_array($value)) {
                 $string = $this->parseLoop($key, $value, $string);
-            }
-            else {
+            } else {
                 $string = $this->parseKey($key, $value, $string);
                 $string = $this->parseKeyFilters($key, $value, $string);
                 $string = $this->parseKeyBooleans($key, $value, $string);
@@ -71,9 +70,9 @@ class Bracket
 
     /**
      * Process a single key
-     * @param  string $key
-     * @param  string $value
-     * @param  string $string
+     * @param string $key
+     * @param string $value
+     * @param string $string
      * @return string
      */
     protected function parseKey($key, $value, $string)
@@ -86,16 +85,16 @@ class Bracket
             $value = nl2br($value);
         }
 
-        $returnStr = str_replace(static::CHAR_OPEN.$key.static::CHAR_CLOSE, $value, $string);
+        $returnStr = str_replace(static::CHAR_OPEN . $key . static::CHAR_CLOSE, $value, $string);
 
         return $returnStr;
     }
 
     /**
      * Look for filtered variables and replace them
-     * @param  string $key
-     * @param  string $value
-     * @param  string $string
+     * @param string $key
+     * @param string $value
+     * @param string $string
      * @return string
      */
     protected function parseKeyFilters($key, $value, $string)
@@ -107,7 +106,7 @@ class Bracket
         $returnStr = $string;
 
         foreach ($filters as $filter => $func) {
-            $charKey = static::CHAR_OPEN.$key.'|'.$filter.static::CHAR_CLOSE;
+            $charKey = static::CHAR_OPEN . $key . '|' . $filter . static::CHAR_CLOSE;
 
             if (is_callable($func) && strpos($string, $charKey) !== false) {
                 $returnStr = str_replace($charKey, $func($value), $returnStr);
@@ -122,16 +121,15 @@ class Bracket
      */
     protected function parseKeyBooleans($key, $value, $string)
     {
-        $openKey = static::CHAR_OPEN.'?'.$key.static::CHAR_CLOSE;
-        $closeKey = static::CHAR_OPEN.'/'.$key.static::CHAR_CLOSE;
+        $openKey = static::CHAR_OPEN . '?' . $key . static::CHAR_CLOSE;
+        $closeKey = static::CHAR_OPEN . '/' . $key . static::CHAR_CLOSE;
 
         if ($value) {
             $returnStr = str_replace([$openKey, $closeKey], '', $string);
-        }
-        else {
+        } else {
             $open = preg_quote($openKey);
             $close = preg_quote($closeKey);
-            $returnStr = preg_replace('|'.$open.'[\s\S]+?'.$close.'|s', '', $string);
+            $returnStr = preg_replace('|' . $open . '[\s\S]+?' . $close . '|s', '', $string);
         }
 
         return $returnStr;
@@ -139,9 +137,9 @@ class Bracket
 
     /**
      * Search for open/close keys and process them in a nested fashion
-     * @param  string $key
-     * @param  array  $data
-     * @param  string $string
+     * @param string $key
+     * @param array $data
+     * @param string $string
      * @return string
      */
     protected function parseLoop($key, $data, $string)
@@ -159,8 +157,7 @@ class Bracket
             foreach ($row as $key => $value) {
                 if (is_array($value)) {
                     $matchedText = $this->parseLoop($key, $value, $matchedText);
-                }
-                else {
+                } else {
                     $matchedText = $this->parseKey($key, $value, $matchedText);
                     $matchedText = $this->parseKeyFilters($key, $value, $matchedText);
                     $matchedText = $this->parseKeyBooleans($key, $value, $matchedText);
@@ -176,8 +173,8 @@ class Bracket
     /**
      * Internal method, returns a Regular expression for parsing
      * a looping tag.
-     * @param  string $string
-     * @param  string $key
+     * @param string $string
+     * @param string $key
      * @return string
      */
     protected function parseLoopRegex($string, $key)
@@ -186,10 +183,10 @@ class Bracket
         $close = preg_quote(static::CHAR_CLOSE);
 
         $regex = '|';
-        $regex .= $open.$key.$close; // Open
+        $regex .= $open . $key . $close; // Open
         $regex .= '(.+?)'; // Content
-        $regex .= $open.'/'.$key.$close; // Close
-        $regex .='|s';
+        $regex .= $open . '/' . $key . $close; // Close
+        $regex .= '|s';
 
         preg_match($regex, $string, $match);
         return $match ?: false;

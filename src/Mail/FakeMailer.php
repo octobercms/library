@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Mail;
 
-use October\Rain\Mail\Mailable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Testing\Fakes\MailFake as MailFakeBase;
 
@@ -67,8 +66,7 @@ class FakeMailer extends MailFakeBase
 
         if ($queued) {
             $mailable->view($view)->withSerializedData($data);
-        }
-        else {
+        } else {
             $mailable->view($view, $data);
         }
 

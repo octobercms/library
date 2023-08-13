@@ -1,20 +1,18 @@
 <?php namespace October\Rain\Foundation\Exception;
 
-use Log;
 use Event;
-use Response;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Contracts\Support\Responsable;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Reflector;
-use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Log;
+use October\Rain\Exception\AjaxException;
 use October\Rain\Exception\ForbiddenException;
 use October\Rain\Exception\NotFoundException;
-use October\Rain\Exception\AjaxException;
+use Response;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
-use Exception;
-use Closure;
 
 /**
  * Handler is the core exception handler
@@ -42,7 +40,7 @@ class Handler extends ExceptionHandler
      *
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
      *
-     * @param  \Throwable  $exception
+     * @param \Throwable $exception
      * @return void
      */
     public function report(Throwable $exception)
@@ -104,8 +102,8 @@ class Handler extends ExceptionHandler
     /**
      * render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Throwable  $exception
+     * @param \Illuminate\Http\Request $request
+     * @param \Throwable $exception
      * @return \Illuminate\Http\Response
      */
     public function render($request, Throwable $exception)
@@ -175,17 +173,13 @@ class Handler extends ExceptionHandler
     {
         if ($exception instanceof HttpExceptionInterface) {
             $code = $exception->getStatusCode();
-        }
-        elseif ($exception instanceof ForbiddenException) {
+        } elseif ($exception instanceof ForbiddenException) {
             $code = 403;
-        }
-        elseif ($exception instanceof NotFoundHttpException) {
+        } elseif ($exception instanceof NotFoundHttpException) {
             $code = 404;
-        }
-        elseif ($exception instanceof AjaxException) {
+        } elseif ($exception instanceof AjaxException) {
             $code = 406;
-        }
-        else {
+        } else {
             $code = 500;
         }
 
@@ -216,7 +210,7 @@ class Handler extends ExceptionHandler
 
     /**
      * renderViaCallbacks tries to render a response from request and exception via render callbacks.
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return mixed
      */
     protected function renderViaCallbacks($request, Throwable $e)

@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Html;
 
-use Str;
 use Illuminate\Support\ServiceProvider;
+use Str;
 
 /**
  * UrlServiceProvider
@@ -58,7 +58,7 @@ class UrlServiceProvider extends ServiceProvider
     {
         $provider = $this->app['url'];
 
-        $provider->macro('toRelative', function($url) use ($provider) {
+        $provider->macro('toRelative', function ($url) use ($provider) {
             $fullUrl = $provider->to($url);
             return parse_url($fullUrl, PHP_URL_PATH)
                 . (($query = parse_url($fullUrl, PHP_URL_QUERY)) ? '?' . $query : '')
@@ -73,7 +73,7 @@ class UrlServiceProvider extends ServiceProvider
     {
         $provider = $this->app['request'];
 
-        $provider->macro('pjaxCached', function() use ($provider) {
+        $provider->macro('pjaxCached', function () use ($provider) {
             return $provider->headers->get('X-PJAX-CACHED') == true;
         });
     }

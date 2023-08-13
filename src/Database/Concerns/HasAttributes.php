@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database\Concerns;
 
-use October\Rain\Support\Str;
 use Exception;
+use October\Rain\Support\Str;
 
 /**
  * HasAttributes concern for a model
@@ -86,7 +86,7 @@ trait HasAttributes
 
     /**
      * getAttributeValue gets a plain attribute (not a relationship).
-     * @param  string  $key
+     * @param string $key
      * @return mixed
      */
     public function getAttributeValue($key)
@@ -141,12 +141,12 @@ trait HasAttributes
 
     /**
      * hasGetMutator determines if a get mutator exists for an attribute.
-     * @param  string  $key
+     * @param string $key
      * @return bool
      */
     public function hasGetMutator($key)
     {
-        return $this->methodExists('get'.Str::studly($key).'Attribute');
+        return $this->methodExists('get' . Str::studly($key) . 'Attribute');
     }
 
     /**
@@ -216,18 +216,18 @@ trait HasAttributes
 
     /**
      * hasSetMutator determines if a set mutator exists for an attribute.
-     * @param  string  $key
+     * @param string $key
      * @return bool
      */
     public function hasSetMutator($key)
     {
-        return $this->methodExists('set'.Str::studly($key).'Attribute');
+        return $this->methodExists('set' . Str::studly($key) . 'Attribute');
     }
 
     /**
      * addCasts adds attribute casts for the model.
      *
-     * @param  array $attributes
+     * @param array $attributes
      * @return void
      */
     public function addCasts($attributes)
@@ -256,7 +256,7 @@ trait HasAttributes
     /**
      * addDateAttribute adds a datetime attribute to convert to an instance
      * of Carbon/DateTime object.
-     * @param string   $attribute
+     * @param string $attribute
      * @return void
      */
     public function addDateAttribute($attribute)
@@ -270,7 +270,7 @@ trait HasAttributes
 
     /**
      * addFillable attributes for the model.
-     * @param  array|string|null  $attributes
+     * @param array|string|null $attributes
      * @return void
      */
     public function addFillable($attributes = null)
@@ -282,7 +282,7 @@ trait HasAttributes
 
     /**
      * addVisible attributes for the model.
-     * @param  array|string|null  $attributes
+     * @param array|string|null $attributes
      * @return void
      */
     public function addVisible($attributes = null)

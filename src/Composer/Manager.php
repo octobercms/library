@@ -1,13 +1,13 @@
 <?php namespace October\Rain\Composer;
 
-use Config;
-use Composer\Factory;
 use Composer\Composer;
+use Composer\Config\JsonConfigSource;
+use Composer\DependencyResolver\Request;
+use Composer\Factory;
 use Composer\Installer;
 use Composer\Json\JsonFile;
 use Composer\Semver\VersionParser;
-use Composer\Config\JsonConfigSource;
-use Composer\DependencyResolver\Request;
+use Config;
 use Exception;
 use Throwable;
 
@@ -54,8 +54,7 @@ class Manager
                 ->setPreferDist()
                 ->setUpdate(true)
                 ->run();
-        }
-        finally {
+        } finally {
             $this->assertWorkingDirectory();
         }
     }
@@ -91,12 +90,10 @@ class Manager
             }
 
             $statusCode = $installer->run();
-        }
-        catch (Throwable $ex) {
+        } catch (Throwable $ex) {
             $statusCode = 1;
             $lastException = $ex;
-        }
-        finally {
+        } finally {
             $this->assertWorkingDirectory();
         }
 
@@ -220,7 +217,7 @@ class Manager
 
         $config = new JsonConfigSource($file, true);
 
-        $config->addConfigSetting($type.'.'.$hostname, [
+        $config->addConfigSetting($type . '.' . $hostname, [
             'username' => $username,
             'password' => $password
         ]);

@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Router;
 
-use InvalidArgumentException;
 use Exception;
+use InvalidArgumentException;
 
 /**
  * Rule object for routes
@@ -97,8 +97,7 @@ class Rule
             if (strpos($segment, ':') !== 0) {
                 $staticSegments[] = $segment;
                 $staticSegmentCount++;
-            }
-            else {
+            } else {
                 $dynamicSegmentCount++;
 
                 if (Helper::segmentIsWildcard($segment)) {
@@ -170,8 +169,7 @@ class Rule
                 ) {
                     return false;
                 }
-            }
-            // Dynamic segment
+            } // Dynamic segment
             else {
                 // Initialize the parameter
                 $paramName = Helper::getParameterName($patternSegment);
@@ -182,7 +180,7 @@ class Rule
 
                 // Check if the optional segment has no required segments following it
                 if ($optional && $index < ($this->segmentCount - 1)) {
-                    for ($i = $index+1; $i < $this->segmentCount; $i++) {
+                    for ($i = $index + 1; $i < $this->segmentCount; $i++) {
                         if (!Helper::segmentIsOptional($this->segments[$i])) {
                             $optional = false;
                             break;
@@ -212,8 +210,7 @@ class Rule
                         if (!preg_match($regexp, $urlSegments[$index])) {
                             return false;
                         }
-                    }
-                    catch (Exception $ex) {
+                    } catch (Exception $ex) {
                     }
                 }
 
@@ -307,8 +304,8 @@ class Rule
      * condition callback
      *
      * @param callback $callback Callback function to be used when providing custom route match conditions
-     * @throws InvalidArgumentException When supplied argument is not a valid callback
      * @return callback
+     * @throws InvalidArgumentException When supplied argument is not a valid callback
      */
     public function condition($callback = null)
     {
@@ -332,8 +329,8 @@ class Rule
      * afterMatch callback
      *
      * @param callback $callback Callback function to be used to modify params after a successful match
-     * @throws InvalidArgumentException When supplied argument is not a valid callback
      * @return callback
+     * @throws InvalidArgumentException When supplied argument is not a valid callback
      */
     public function afterMatch($callback = null)
     {

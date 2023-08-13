@@ -190,7 +190,7 @@ abstract class ModuleServiceProvider extends ServiceProviderBase implements Octo
      */
     protected function registerConsoleCommand(string $key, string $class)
     {
-        $key = 'command.'.$key;
+        $key = 'command.' . $key;
 
         $this->app->singleton($key, function ($app) use ($class) {
             return $this->app->make($class);
@@ -201,8 +201,8 @@ abstract class ModuleServiceProvider extends ServiceProviderBase implements Octo
 
     /**
      * loadConfigFrom registers a config file namespace
-     * @param  string  $path
-     * @param  string  $namespace
+     * @param string $path
+     * @param string $namespace
      */
     protected function loadConfigFrom($path, $namespace)
     {

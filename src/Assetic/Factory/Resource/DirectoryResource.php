@@ -13,7 +13,7 @@ class DirectoryResource implements IteratorResourceInterface
     /**
      * Constructor.
      *
-     * @param string $path    A directory path
+     * @param string $path A directory path
      * @param string $pattern A filename pattern
      */
     public function __construct($path, $pattern = null)

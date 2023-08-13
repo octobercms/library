@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Resize;
 
-use Symfony\Component\HttpFoundation\File\File as FileObj;
 use Exception;
+use Symfony\Component\HttpFoundation\File\File as FileObj;
 
 /**
  * Resizer for images
@@ -64,7 +64,7 @@ class Resizer
     public function __construct($file)
     {
         if (!extension_loaded('gd')) {
-            echo 'GD PHP library required.'.PHP_EOL;
+            echo 'GD PHP library required.' . PHP_EOL;
             exit(1);
         }
 
@@ -86,10 +86,10 @@ class Resizer
         $this->image = $this->originalImage = $this->openImage($file);
 
         // Get width and height of our image
-        $this->orientation  = $this->getOrientation($file);
+        $this->orientation = $this->getOrientation($file);
 
         // Get width and height of our image
-        $this->width  = $this->getWidth();
+        $this->width = $this->getWidth();
         $this->height = $this->getHeight();
 
         // Set default options
@@ -125,8 +125,7 @@ class Resizer
             $alphaIndex = imagecolorallocatealpha($img, $alphaColor['red'], $alphaColor['green'], $alphaColor['blue'], 127);
             imagefill($img, 0, 0, $alphaIndex);
             imagecolortransparent($img, $alphaIndex);
-        }
-        elseif ($this->mime === 'image/png' || $this->mime === 'image/webp') {
+        } elseif ($this->mime === 'image/png' || $this->mime === 'image/webp') {
             imagealphablending($img, false);
             imagesavealpha($img, true);
         }
@@ -153,11 +152,11 @@ class Resizer
     public function setOptions(array $options): Resizer
     {
         $this->options = array_merge([
-            'mode'      => 'auto',
-            'offset'    => [0, 0],
-            'sharpen'   => 0,
+            'mode' => 'auto',
+            'offset' => [0, 0],
+            'sharpen' => 0,
             'interlace' => false,
-            'quality'   => 90
+            'quality' => 90
         ], $options);
 
         return $this;
@@ -299,11 +298,9 @@ class Resizer
         if (!$newWidth && !$newHeight) {
             $newWidth = $this->width;
             $newHeight = $this->height;
-        }
-        elseif (!$newWidth) {
+        } elseif (!$newWidth) {
             $newWidth = $this->getSizeByFixedHeight($newHeight);
-        }
-        elseif (!$newHeight) {
+        } elseif (!$newHeight) {
             $newHeight = $this->getSizeByFixedWidth($newWidth);
         }
 
@@ -317,8 +314,7 @@ class Resizer
             // Use imagescale() for GIFs, as it produces better results
             $imageResized = imagescale($rotatedOriginal, (int) $optimalWidth, (int) $optimalHeight, IMG_NEAREST_NEIGHBOUR);
             $this->retainImageTransparency($imageResized);
-        }
-        else {
+        } else {
             // Resample - create image canvas of x, y size
             $imageResized = imagecreatetruecolor((int) $optimalWidth, (int) $optimalHeight);
             $this->retainImageTransparency($imageResized);
@@ -348,7 +344,7 @@ class Resizer
         // If mode is crop: find center and use for the cropping.
         if ($this->getOption('mode') === 'crop') {
             $offset = $this->getOption('offset');
-            $cropStartX = ($optimalWidth  / 2) - ($newWidth  / 2) - $offset[0];
+            $cropStartX = ($optimalWidth / 2) - ($newWidth / 2) - $offset[0];
             $cropStartY = ($optimalHeight / 2) - ($newHeight / 2) - $offset[1];
             $this->crop($cropStartX, $cropStartY, $newWidth, $newHeight);
         }
@@ -598,7 +594,7 @@ class Resizer
 
     /**
      * getSizeByAuto checks to see if an image is portrait or landscape and resizes accordingly.
-     * @param int $newWidth  The width of the image
+     * @param int $newWidth The width of the image
      * @param int $newHeight The height of the image
      */
     protected function getSizeByAuto($newWidth, $newHeight): array
@@ -607,11 +603,9 @@ class Resizer
         if ($newWidth <= 1 && $newHeight <= 1) {
             $newWidth = $this->width;
             $newHeight = $this->height;
-        }
-        elseif ($newWidth <= 1) {
+        } elseif ($newWidth <= 1) {
             $newWidth = $this->getSizeByFixedHeight($newHeight);
-        }
-        // Less than 1 pixel height? (portrait)
+        } // Less than 1 pixel height? (portrait)
         elseif ($newHeight <= 1) {
             $newHeight = $this->getSizeByFixedWidth($newWidth);
         }
@@ -620,23 +614,19 @@ class Resizer
         if ($this->height < $this->width) {
             $optimalWidth = $newWidth;
             $optimalHeight = $this->getSizeByFixedWidth($newWidth);
-        }
-        // Image to be resized is taller (portrait)
+        } // Image to be resized is taller (portrait)
         elseif ($this->height > $this->width) {
             $optimalWidth = $this->getSizeByFixedHeight($newHeight);
             $optimalHeight = $newHeight;
-        }
-        // Image to be resized is a square
+        } // Image to be resized is a square
         else {
             if ($newHeight < $newWidth) {
                 $optimalWidth = $newWidth;
                 $optimalHeight = $this->getSizeByFixedWidth($newWidth);
-            }
-            elseif ($newHeight > $newWidth) {
+            } elseif ($newHeight > $newWidth) {
                 $optimalWidth = $this->getSizeByFixedHeight($newHeight);
                 $optimalHeight = $newHeight;
-            }
-            else {
+            } else {
                 // Square being resized to a square
                 $optimalWidth = $newWidth;
                 $optimalHeight = $newHeight;
@@ -649,23 +639,22 @@ class Resizer
     /**
      * getOptimalCrop attempts to find the best way to crop. Whether crop is based on the
      * image being portrait or landscape.
-     * @param int $newWidth  The width of the image
+     * @param int $newWidth The width of the image
      * @param int $newHeight The height of the image
      */
     protected function getOptimalCrop($newWidth, $newHeight): array
     {
         $heightRatio = $this->height / $newHeight;
-        $widthRatio = $this->width /  $newWidth;
+        $widthRatio = $this->width / $newWidth;
 
         if ($heightRatio < $widthRatio) {
             $optimalRatio = $heightRatio;
-        }
-        else {
+        } else {
             $optimalRatio = $widthRatio;
         }
 
         $optimalHeight = round($this->height / $optimalRatio);
-        $optimalWidth = round($this->width  / $optimalRatio);
+        $optimalWidth = round($this->width / $optimalRatio);
 
         return [$optimalWidth, $optimalHeight];
     }

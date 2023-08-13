@@ -1,21 +1,21 @@
 <?php namespace October\Rain\Scaffold;
 
-use October\Rain\Scaffold\Console\CreateCommand;
-use October\Rain\Scaffold\Console\CreateFactory;
-use October\Rain\Scaffold\Console\CreatePlugin;
-use October\Rain\Scaffold\Console\CreateModel;
-use October\Rain\Scaffold\Console\CreateMigration;
-use October\Rain\Scaffold\Console\CreateController;
-use October\Rain\Scaffold\Console\CreateComponent;
-use October\Rain\Scaffold\Console\CreateFormWidget;
-use October\Rain\Scaffold\Console\CreateReportWidget;
-use October\Rain\Scaffold\Console\CreateFilterWidget;
-use October\Rain\Scaffold\Console\CreateContentField;
-use October\Rain\Scaffold\Console\CreateSeeder;
-use October\Rain\Scaffold\Console\CreateTest;
-use October\Rain\Scaffold\Console\CreateJob;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
+use October\Rain\Scaffold\Console\CreateCommand;
+use October\Rain\Scaffold\Console\CreateComponent;
+use October\Rain\Scaffold\Console\CreateContentField;
+use October\Rain\Scaffold\Console\CreateController;
+use October\Rain\Scaffold\Console\CreateFactory;
+use October\Rain\Scaffold\Console\CreateFilterWidget;
+use October\Rain\Scaffold\Console\CreateFormWidget;
+use October\Rain\Scaffold\Console\CreateJob;
+use October\Rain\Scaffold\Console\CreateMigration;
+use October\Rain\Scaffold\Console\CreateModel;
+use October\Rain\Scaffold\Console\CreatePlugin;
+use October\Rain\Scaffold\Console\CreateReportWidget;
+use October\Rain\Scaffold\Console\CreateSeeder;
+use October\Rain\Scaffold\Console\CreateTest;
 
 /**
  * ScaffoldServiceProvider

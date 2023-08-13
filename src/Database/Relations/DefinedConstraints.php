@@ -53,8 +53,7 @@ trait DefinedConstraints
             if ($relation instanceof BelongsToManyBase) {
                 $relation->countMode = true;
                 $keyName = $relation->getQualifiedForeignPivotKeyName();
-            }
-            else {
+            } else {
                 $keyName = $relation->getForeignKeyName();
             }
 
@@ -103,8 +102,7 @@ trait DefinedConstraints
         if ($scope = array_get($args, 'scope')) {
             if (is_string($scope)) {
                 $query->$scope($this->parent);
-            }
-            else {
+            } else {
                 $scope($query, $this->parent, $this->related);
             }
         }

@@ -36,8 +36,7 @@ trait HasRequirements
         foreach ($requirements as $package => $version) {
             if ($version !== false) {
                 $result = $manipulator->addLink($requireKey, $package, $version, $sortPackages);
-            }
-            else {
+            } else {
                 $result = $manipulator->removeSubNode($requireKey, $package);
             }
 
@@ -57,8 +56,7 @@ trait HasRequirements
         foreach ($requirements as $package => $version) {
             if ($version !== false) {
                 $composerDefinition[$requireKey][$package] = $version;
-            }
-            else {
+            } else {
                 unset($composerDefinition[$requireKey][$package]);
             }
 

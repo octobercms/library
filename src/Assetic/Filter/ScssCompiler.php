@@ -3,10 +3,6 @@
 use Event;
 use October\Rain\Assetic\Asset\AssetInterface;
 use October\Rain\Assetic\Factory\AssetFactory;
-use October\Rain\Assetic\Filter\ScssphpFilter;
-use October\Rain\Assetic\Filter\HashableInterface;
-use October\Rain\Assetic\Filter\DependencyExtractorInterface;
-use October\Rain\Assetic\Filter\FilterInterface;
 
 /**
  * Less.php Compiler Filter

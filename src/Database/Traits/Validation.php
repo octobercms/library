@@ -1,12 +1,12 @@
 <?php namespace October\Rain\Database\Traits;
 
 use App;
-use Lang;
-use Input;
-use Validator;
-use October\Rain\Database\ModelException;
-use Illuminate\Support\MessageBag;
 use Exception;
+use Illuminate\Support\MessageBag;
+use Input;
+use Lang;
+use October\Rain\Database\ModelException;
+use Validator;
 
 /**
  * Validation trait for models
@@ -69,7 +69,7 @@ trait Validation
             ));
         }
 
-        $this->bindEvent('model.saveInternal', function() {
+        $this->bindEvent('model.saveInternal', function () {
             // If forcing the save event, the beforeValidate/afterValidate
             // events should still fire for consistency. So validate an
             // empty set of rules and messages.
@@ -77,8 +77,7 @@ trait Validation
 
             if ($this->validationForced) {
                 $valid = $this->validate([], []);
-            }
-            else {
+            } else {
                 $valid = $this->validate();
             }
 
@@ -165,13 +164,12 @@ trait Validation
         ) {
             $fetchMethod = $this->isRelationTypeSingular($relationName) ? 'first' : 'get';
             $data = $this->$relationName()->withDeferred($this->sessionKey)->$fetchMethod();
-        }
-        else {
+        } else {
             $data = $this->$relationName;
         }
 
         // DRY logic to post-process validation data
-        $processValidationValue = function($value) {
+        $processValidationValue = function ($value) {
             // Attachments
             if ($value instanceof \October\Rain\Database\Attach\File) {
                 $localPath = $value->getLocalPath();
@@ -376,8 +374,7 @@ trait Validation
                 if ($this->validationErrors->count() > 0) {
                     $this->validationErrors = new MessageBag;
                 }
-            }
-            else {
+            } else {
                 $this->validationErrors = $validator->messages();
                 if (Input::hasSession()) {
                     Input::flash();
@@ -439,12 +436,10 @@ trait Validation
                 // Remove primary key unique validation rule if the model already exists
                 if (starts_with($rulePart, 'unique') && $this->exists) {
                     $ruleParts[$key] = $this->processValidationUniqueRule($rulePart, $field);
-                }
-                // Look for required:create and required:update rules
+                } // Look for required:create and required:update rules
                 elseif (starts_with($rulePart, 'required:create') && $this->exists) {
                     unset($ruleParts[$key]);
-                }
-                elseif (starts_with($rulePart, 'required:update') && !$this->exists) {
+                } elseif (starts_with($rulePart, 'required:update') && !$this->exists) {
                     unset($ruleParts[$key]);
                 }
             }
@@ -512,7 +507,7 @@ trait Validation
      * checkDependencies checks the attribute dependencies (for required_if & required_with rules).
      * Note that it will only be checked up to the next level, if another dependent rule is found
      * then it will just assume the field is required.
-     * @param  string  $attribute
+     * @param string $attribute
      * @param bool $checkDependencies
      * @return bool
      */

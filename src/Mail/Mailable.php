@@ -43,7 +43,7 @@ class Mailable extends MailableBase
     /**
      * Set serialized view data for the message.
      *
-     * @param  array  $data
+     * @param array $data
      * @return $this
      */
     public function withSerializedData($data)
@@ -60,7 +60,7 @@ class Mailable extends MailableBase
     /**
      * Set the subject for the message.
      *
-     * @param  \Illuminate\Mail\Message  $message
+     * @param \Illuminate\Mail\Message $message
      * @return $this
      */
     protected function buildSubject($message)

@@ -1,11 +1,11 @@
 <?php namespace October\Rain\Scaffold;
 
-use Twig;
-use October\Rain\Support\Str;
+use Exception;
 use Illuminate\Console\Command;
 use October\Rain\Filesystem\Filesystem;
+use October\Rain\Support\Str;
 use ReflectionClass;
-use Exception;
+use Twig;
 
 /**
  * GeneratorCommandBase base class

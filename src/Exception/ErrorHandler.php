@@ -48,8 +48,8 @@ class ErrorHandler
         // Detect AJAX request and use error 500
         if (Request::ajax()) {
             return $proposedException instanceof AjaxException
-                 ? $proposedException->getContents()
-                 : static::getDetailedMessage($proposedException);
+                ? $proposedException->getContents()
+                : static::getDetailedMessage($proposedException);
         }
 
         // Clear the output buffer
@@ -65,13 +65,11 @@ class ErrorHandler
         // If the exception is already our brand, use it
         if ($proposedException instanceof ExceptionBase) {
             $exception = $proposedException;
-        }
-        // If there is an active mask prepared, use that
+        } // If there is an active mask prepared, use that
         elseif (static::$activeMask !== null) {
             $exception = static::$activeMask;
             $exception->setMask($proposedException);
-        }
-        // Otherwise we should mask it with our own default scent
+        } // Otherwise we should mask it with our own default scent
         else {
             $exception = new ApplicationException($proposedException->getMessage(), 0);
             $exception->setMask($proposedException);
@@ -85,7 +83,7 @@ class ErrorHandler
      */
     protected function isNotFoundException($exception)
     {
-        return array_first($this->notFoundExceptions, function($type) use ($exception) {
+        return array_first($this->notFoundExceptions, function ($type) use ($exception) {
             return $exception instanceof $type;
         });
     }
@@ -112,8 +110,7 @@ class ErrorHandler
     {
         if (count(static::$maskLayers) > 0) {
             static::$activeMask = array_pop(static::$maskLayers);
-        }
-        else {
+        } else {
             static::$activeMask = null;
         }
     }

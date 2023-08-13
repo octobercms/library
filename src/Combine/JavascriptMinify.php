@@ -12,8 +12,8 @@ class JavascriptMinify
 {
     /**
      * minify CSS
-     * @var $css string CSS code to minify.
      * @return string Minified CSS.
+     * @var $css string CSS code to minify.
      */
     public function minify($css)
     {

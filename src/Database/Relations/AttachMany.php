@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database\Relations;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany as MorphManyBase;
 use October\Rain\Database\Attach\File as FileModel;
 
@@ -43,8 +43,7 @@ class AttachMany extends MorphManyBase
             $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
                 $this->create(['data' => $value]);
             });
-        }
-        elseif (is_array($value)) {
+        } elseif (is_array($value)) {
             $files = [];
             foreach ($value as $_value) {
                 if ($this->isValidFileData($_value)) {
@@ -56,8 +55,7 @@ class AttachMany extends MorphManyBase
                     $this->create(['data' => $file]);
                 }
             });
-        }
-        // Existing File model
+        } // Existing File model
         elseif ($value instanceof FileModel) {
             $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
                 $this->add($value);
@@ -77,8 +75,7 @@ class AttachMany extends MorphManyBase
 
         if ($this->parent->relationLoaded($relationName)) {
             $files = $this->parent->getRelation($relationName);
-        }
-        else {
+        } else {
             $files = $this->getResults();
         }
 

@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database;
 
-use Model;
 use Exception;
+use Model;
 use ReflectionClass;
 
 /**
@@ -24,7 +24,7 @@ class Updater
 
     /**
      * skipErrors will continue through exceptions
-     * @param  bool  $state
+     * @param bool $state
      */
     public static function skipErrors($state = true)
     {
@@ -48,8 +48,7 @@ class Updater
 
         if ($object instanceof Updates\Migration) {
             $this->runMethod($object, 'up');
-        }
-        elseif ($object instanceof Updates\Seeder) {
+        } elseif ($object instanceof Updates\Seeder) {
             $this->runMethod($object, 'run');
         }
 
@@ -84,7 +83,7 @@ class Updater
 
     /**
      * resolve a migration instance from a file.
-     * @param  string  $file
+     * @param string $file
      * @return object
      */
     public function resolve(string $path)
@@ -119,8 +118,7 @@ class Updater
     {
         try {
             $migration->{$method}();
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             if (!static::$skippingErrors) {
                 throw $ex;
             }
@@ -134,8 +132,7 @@ class Updater
     {
         if ($object instanceof Updates\Migration) {
             return true;
-        }
-        elseif ($object instanceof Updates\Seeder) {
+        } elseif ($object instanceof Updates\Seeder) {
             return true;
         }
 
@@ -183,14 +180,14 @@ class Updater
                 }
 
                 // Class opening
-                if ($tokens[$i][0] === T_CLASS && $tokens[$i-1][1] !== '::') {
+                if ($tokens[$i][0] === T_CLASS && $tokens[$i - 1][1] !== '::') {
                     // Anonymous Class
-                    if ($tokens[$i-2][0] === T_NEW && $tokens[$i-4][0] === T_RETURN) {
+                    if ($tokens[$i - 2][0] === T_NEW && $tokens[$i - 4][0] === T_RETURN) {
                         $class = 'class@anonymous';
                         break;
                     }
 
-                    $class = $tokens[$i+2][1];
+                    $class = $tokens[$i + 2][1];
                     break;
                 }
             }

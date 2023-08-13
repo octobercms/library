@@ -1,21 +1,20 @@
 <?php namespace October\Rain\Foundation;
 
-use October\Rain\Support\Str;
-use October\Rain\Support\Collection;
-use October\Rain\Filesystem\Filesystem;
-use October\Rain\Events\EventServiceProvider;
-use October\Rain\Router\RoutingServiceProvider;
-use October\Rain\Foundation\Providers\LogServiceProvider;
-use October\Rain\Foundation\Providers\ExecutionContextProvider;
-use Illuminate\Foundation\Application as ApplicationBase;
+use Carbon\Laravel\ServiceProvider as CarbonServiceProvider;
+use Error;
 use Illuminate\Foundation\AliasLoader;
+use Illuminate\Foundation\Application as ApplicationBase;
 use Illuminate\Foundation\PackageManifest;
 use Illuminate\Foundation\ProviderRepository;
-use Carbon\Laravel\ServiceProvider as CarbonServiceProvider;
 use Illuminate\Support\Env;
+use October\Rain\Events\EventServiceProvider;
+use October\Rain\Filesystem\Filesystem;
+use October\Rain\Foundation\Providers\ExecutionContextProvider;
+use October\Rain\Foundation\Providers\LogServiceProvider;
+use October\Rain\Router\RoutingServiceProvider;
+use October\Rain\Support\Collection;
+use October\Rain\Support\Str;
 use Throwable;
-use Closure;
-use Error;
 
 /**
  * Application foundation class as an extension of Laravel
@@ -79,8 +78,8 @@ class Application extends ApplicationBase
     public function publicPath($path = '')
     {
         return $this->hasPublicFolder()
-                ? $this->joinPaths($this->basePath('public'), $path)
-                : $this->joinPaths($this->basePath, $path);
+            ? $this->joinPaths($this->basePath('public'), $path)
+            : $this->joinPaths($this->basePath, $path);
     }
 
     /**
@@ -112,7 +111,7 @@ class Application extends ApplicationBase
 
         $this->instance('path.cache', $path);
 
-        $this->instance('path.temp', $path.DIRECTORY_SEPARATOR.'temp');
+        $this->instance('path.temp', $path . DIRECTORY_SEPARATOR . 'temp');
 
         return $this;
     }
@@ -195,20 +194,20 @@ class Application extends ApplicationBase
     /**
      * joinPaths together
      *
+     * @param string $basePath
+     * @param string $path
+     * @return string
      * @todo Can be removed if Laravel >= 10
      *
-     * @param  string  $basePath
-     * @param  string  $path
-     * @return string
      */
     public function joinPaths($basePath, $path = '')
     {
-        return $basePath.($path != '' ? DIRECTORY_SEPARATOR.ltrim($path, DIRECTORY_SEPARATOR) : '');
+        return $basePath . ($path != '' ? DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR) : '');
     }
 
     /**
      * before logic is called before the router runs.
-     * @param  \Closure|string  $callback
+     * @param \Closure|string $callback
      * @return void
      */
     public function before($callback)
@@ -218,7 +217,7 @@ class Application extends ApplicationBase
 
     /**
      * after logic is called after the router finishes.
-     * @param  \Closure|string  $callback
+     * @param \Closure|string $callback
      * @return void
      */
     public function after($callback)
@@ -228,7 +227,7 @@ class Application extends ApplicationBase
 
     /**
      * error registers an application error handler.
-     * @param  \Closure  $callback
+     * @param \Closure $callback
      * @return void
      */
     public function error(callable $callback)
@@ -241,7 +240,7 @@ class Application extends ApplicationBase
      */
     public function fatal(callable $callback)
     {
-        $this->error(function(Error $e) use ($callback) {
+        $this->error(function (Error $e) use ($callback) {
             return $callback($e);
         });
     }
@@ -272,8 +271,7 @@ class Application extends ApplicationBase
     {
         try {
             $this['db.connection']->getPdo();
-        }
-        catch (Throwable $ex) {
+        } catch (Throwable $ex) {
             return false;
         }
 
@@ -282,7 +280,7 @@ class Application extends ApplicationBase
 
     /**
      * setLocale for the application.
-     * @param  string  $locale
+     * @param string $locale
      * @return void
      */
     public function setLocale($locale)

@@ -35,7 +35,7 @@ trait Nullable
 
     /**
      * addNullable attribute to the nullable attributes list
-     * @param  array|string|null  $attributes
+     * @param array|string|null $attributes
      * @return void
      */
     public function addNullable($attributes = null)
@@ -47,7 +47,7 @@ trait Nullable
 
     /**
      * checkNullableValue checks if the supplied value is empty, excluding zero.
-     * @param  string $value Value to check
+     * @param string $value Value to check
      * @return bool
      */
     public function checkNullableValue($value)
@@ -68,8 +68,7 @@ trait Nullable
             if ($this->checkNullableValue($this->{$field})) {
                 if ($this->exists) {
                     $this->attributes[$field] = null;
-                }
-                else {
+                } else {
                     unset($this->attributes[$field]);
                 }
             }

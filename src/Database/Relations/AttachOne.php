@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database\Relations;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne as MorphOneBase;
 use October\Rain\Database\Attach\File as FileModel;
 
@@ -48,8 +48,7 @@ class AttachOne extends MorphOneBase
                 $file = $this->create(['data' => $value]);
                 $this->parent->setRelation($this->relationName, $file);
             });
-        }
-        // Existing File model
+        } // Existing File model
         elseif ($value instanceof FileModel) {
             $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
                 $this->add($value);
@@ -72,8 +71,7 @@ class AttachOne extends MorphOneBase
 
         if ($this->parent->relationLoaded($relationName)) {
             $value = $this->parent->getRelation($relationName);
-        }
-        else {
+        } else {
             $value = $this->getResults();
         }
 

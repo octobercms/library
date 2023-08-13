@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Auth\Models;
 
-use October\Rain\Database\Model;
 use October\Rain\Auth\AuthException;
 use October\Rain\Auth\Manager;
+use October\Rain\Database\Model;
 
 /**
  * Preferences model for a user

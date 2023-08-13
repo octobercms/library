@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database\Models;
 
-use Event;
 use Carbon\Carbon;
+use Event;
 use October\Rain\Database\Model;
 use Throwable;
 
@@ -65,8 +65,7 @@ class DeferredBinding extends Model
             ->where('slave_type', $this->slave_type)
             ->where('slave_id', $this->slave_id)
             ->where('session_key', $this->session_key)
-            ->first()
-        ;
+            ->first();
     }
 
     /**
@@ -80,8 +79,7 @@ class DeferredBinding extends Model
             self::$hasDeferredCache[$cacheKey] = self::where('master_type', $masterType)
                 ->where('session_key', $sessionKey)
                 ->pluck('master_field')
-                ->all()
-            ;
+                ->all();
         }
 
         if ($fieldName !== null) {
@@ -98,8 +96,7 @@ class DeferredBinding extends Model
     {
         $records = self::where('master_type', $masterType)
             ->where('session_key', $sessionKey)
-            ->get()
-        ;
+            ->get();
 
         foreach ($records as $record) {
             $record->deleteCancel();
@@ -191,8 +188,7 @@ class DeferredBinding extends Model
             if (!$relatedObj->$foreignKey) {
                 $relatedObj->delete();
             }
-        }
-        catch (Throwable $ex) {
+        } catch (Throwable $ex) {
             // Do nothing
         }
     }

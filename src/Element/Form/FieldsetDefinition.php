@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Element\Form;
 
-use October\Rain\Element\ElementBase;
-use IteratorAggregate;
 use ArrayIterator;
+use IteratorAggregate;
+use October\Rain\Element\ElementBase;
 
 /**
  * FieldsetDefinition
@@ -27,8 +27,7 @@ class FieldsetDefinition extends ElementBase implements IteratorAggregate
     {
         $this
             ->defaultTab('Misc')
-            ->suppressTabs(false)
-        ;
+            ->suppressTabs(false);
     }
 
     /**

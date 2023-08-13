@@ -15,8 +15,8 @@ class SqlServerConnection extends Connection
     /**
      * Execute a Closure within a transaction.
      *
-     * @param  \Closure  $callback
-     * @param  int  $attempts
+     * @param \Closure $callback
+     * @param int $attempts
      * @return mixed
      *
      * @throws \Throwable
@@ -39,9 +39,9 @@ class SqlServerConnection extends Connection
                 $this->getPdo()->exec('COMMIT TRAN');
             }
 
-            // If we catch an exception, we will rollback so nothing gets messed
-            // up in the database. Then we'll re-throw the exception so it can
-            // be handled how the developer sees fit for their applications.
+                // If we catch an exception, we will rollback so nothing gets messed
+                // up in the database. Then we'll re-throw the exception so it can
+                // be handled how the developer sees fit for their applications.
             catch (Throwable $e) {
                 $this->getPdo()->exec('ROLLBACK TRAN');
 
@@ -89,8 +89,8 @@ class SqlServerConnection extends Connection
     /**
      * Get the schema state for the connection.
      *
-     * @param  \Illuminate\Filesystem\Filesystem|null  $files
-     * @param  callable|null  $processFactory
+     * @param \Illuminate\Filesystem\Filesystem|null $files
+     * @param callable|null $processFactory
      *
      * @throws \RuntimeException
      */

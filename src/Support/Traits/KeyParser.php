@@ -16,8 +16,8 @@ trait KeyParser
 
     /**
      * setParsedKey value
-     * @param  string  $key
-     * @param  array   $parsed
+     * @param string $key
+     * @param array $parsed
      * @return void
      */
     public function setParsedKey($key, $parsed): void
@@ -44,8 +44,7 @@ trait KeyParser
         // tool for organizing configuration items for things such as modules.
         if (strpos($key, '::') === false) {
             $parsed = $this->keyParserParseBasicSegments($segments);
-        }
-        else {
+        } else {
             $parsed = $this->keyParserParseSegments($key);
         }
 

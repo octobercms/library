@@ -1,11 +1,11 @@
 <?php namespace October\Rain\Parse;
 
 use Cache;
-use Symfony\Component\Yaml\Yaml as YamlComponent;
-use Symfony\Component\Yaml\Dumper;
-use Symfony\Component\Yaml\Parser;
-use Symfony\Component\Yaml\Exception\ParseException;
 use Exception;
+use Symfony\Component\Yaml\Dumper;
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Parser;
+use Symfony\Component\Yaml\Yaml as YamlComponent;
 
 /**
  * Yaml helper class
@@ -38,8 +38,7 @@ class Yaml
 
         try {
             $parsed = $this->parse($contents);
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             throw new ParseException("A syntax error was detected in $fileName. " . $ex->getMessage(), __LINE__, __FILE__);
         }
 
@@ -59,8 +58,7 @@ class Yaml
             return Cache::remember($fileCacheKey, 43200, function () use ($fileName) {
                 return $this->parseFile($fileName);
             });
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             return $this->parseFile($fileName);
         }
     }

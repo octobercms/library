@@ -59,8 +59,8 @@ class Parser
 
     /**
      * Static helper for new instances of this class.
-     * @param  string $template
-     * @param  array $options
+     * @param string $template
+     * @param array $options
      * @return self
      */
     public static function parse($template, $options = [])
@@ -70,8 +70,8 @@ class Parser
 
     /**
      * Renders the template fields to their actual values
-     * @param  array $vars
-     * @param  array $options
+     * @param array $vars
+     * @param array $options
      * @return string
      */
     public function render($vars = [], $options = [])
@@ -120,7 +120,7 @@ class Parser
 
     /**
      * toViewEngine parses the template to a specific view engine (Twig, Simple)
-     * @param  string $engine
+     * @param string $engine
      * @return string
      */
     protected function toViewEngine($engine)
@@ -143,7 +143,7 @@ class Parser
      */
     protected function processRepeatingTag($engine, $template, $field, $tagDetails)
     {
-        $prefixField = $this->varPrefix.$field;
+        $prefixField = $this->varPrefix . $field;
         $params = $this->fieldParser->getFieldParams($field);
         $innerFields = array_get($params, 'fields', []);
         $innerTags = $tagDetails['tags'];
@@ -154,7 +154,7 @@ class Parser
          */
         foreach ($innerTags as $innerField => $tagString) {
             $innerParams = array_get($innerFields, $innerField, []);
-            $tagReplacement = $this->{'eval'.$engine.'ViewField'}($innerField, $innerParams, 'fields');
+            $tagReplacement = $this->{'eval' . $engine . 'ViewField'}($innerField, $innerParams, 'fields');
             $innerTemplate = str_replace($tagString, $tagReplacement, $innerTemplate);
         }
 
@@ -162,7 +162,7 @@ class Parser
          * Replace the opening tag
          */
         $openTag = array_get($tagDetails, 'open', '{repeater}');
-        $openReplacement = $engine === 'Twig' ? '{% for fields in '.$prefixField.' %}' : '{'.$prefixField.'}';
+        $openReplacement = $engine === 'Twig' ? '{% for fields in ' . $prefixField . ' %}' : '{' . $prefixField . '}';
         $openReplacement = $openReplacement . PHP_EOL;
         $innerTemplate = str_replace($openTag, $openReplacement, $innerTemplate);
 
@@ -170,7 +170,7 @@ class Parser
          * Replace the closing tag
          */
         $closeTag = array_get($tagDetails, 'close', '{/repeater}');
-        $closeReplacement = $engine === 'Twig' ? '{% endfor %}' : '{/'.$prefixField.'}';
+        $closeReplacement = $engine === 'Twig' ? '{% endfor %}' : '{/' . $prefixField . '}';
         $closeReplacement = PHP_EOL . $closeReplacement;
         $innerTemplate = str_replace($closeTag, $closeReplacement, $innerTemplate);
 
@@ -184,18 +184,18 @@ class Parser
      */
     protected function processTag($engine, $template, $field, $tagString)
     {
-        $prefixField = $this->varPrefix.$field;
+        $prefixField = $this->varPrefix . $field;
         $params = $this->fieldParser->getFieldParams($field);
-        $tagReplacement = $this->{'eval'.$engine.'ViewField'}($prefixField, $params);
+        $tagReplacement = $this->{'eval' . $engine . 'ViewField'}($prefixField, $params);
         $template = str_replace($tagString, $tagReplacement, $template);
         return $template;
     }
 
     /**
      * evalTwigViewField processes a field type and converts it to the Twig engine.
-     * @param  string $field
-     * @param  array $params
-     * @param  string $prefix
+     * @param string $field
+     * @param array $params
+     * @param string $prefix
      * @return string
      */
     protected function evalTwigViewField($field, $params, $prefix = null)
@@ -206,7 +206,7 @@ class Parser
 
         // Used by Twig for loop
         if ($prefix) {
-            $field = $prefix.'.'.$field;
+            $field = $prefix . '.' . $field;
         }
 
         $type = $params['type'] ?? 'text';
@@ -250,8 +250,8 @@ class Parser
 
     /**
      * Processes a field type and converts it to the Simple engine.
-     * @param  string $field
-     * @param  array $params
+     * @param string $field
+     * @param array $params
      * @return string
      */
     protected function evalSimpleViewField($field, $params, $prefix = null)

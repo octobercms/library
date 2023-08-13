@@ -66,20 +66,18 @@ class Ini
             if (is_array($value)) {
                 if ($this->isFinalArray($value)) {
                     foreach ($value as $_value) {
-                        $content .= $key.'[] = '.$this->evalValue($_value).PHP_EOL;
+                        $content .= $key . '[] = ' . $this->evalValue($_value) . PHP_EOL;
                     }
-                }
-                else {
+                } else {
                     $sections[$key] = $this->renderProperties($value);
                 }
-            }
-            elseif (strlen($value)) {
-                $content .= $key.' = '.$this->evalValue($value).PHP_EOL;
+            } elseif (strlen($value)) {
+                $content .= $key . ' = ' . $this->evalValue($value) . PHP_EOL;
             }
         }
 
         foreach ($sections as $key => $section) {
-            $content .= PHP_EOL.'['.$key.']'.PHP_EOL.$section;
+            $content .= PHP_EOL . '[' . $key . ']' . PHP_EOL . $section;
         }
 
         return trim($content);
@@ -125,7 +123,7 @@ class Ini
                 ($lastName === null || $lastName === $varName) &&
                 strpos($varName, '[]') !== false
             ) {
-                $varName = str_replace('[]', '['.$count.']', $varName);
+                $varName = str_replace('[]', '[' . $count . ']', $varName);
                 $count++;
             }
 
@@ -164,9 +162,9 @@ class Ini
     /**
      * expandProperty expands a single array property from traditional INI syntax.
      * If no key is given to the method, the entire array will be replaced.
-     * @param  array   $array
-     * @param  string  $key
-     * @param  mixed   $value
+     * @param array $array
+     * @param string $key
+     * @param mixed $value
      * @return array
      */
     protected function expandProperty(&$array, $key, $value)
@@ -209,25 +207,22 @@ class Ini
             if (is_array($value)) {
                 if ($this->isFinalArray($value)) {
                     foreach ($value as $_value) {
-                        $content .= $key.'[] = '.$this->evalValue($_value).PHP_EOL;
+                        $content .= $key . '[] = ' . $this->evalValue($_value) . PHP_EOL;
                     }
-                }
-                else {
+                } else {
                     $value = $this->flattenProperties($value);
                     foreach ($value as $_key => $_value) {
                         if (is_array($_value)) {
                             foreach ($_value as $__value) {
-                                $content .= $key.'['.$_key.'][] = '.$this->evalValue($__value).PHP_EOL;
+                                $content .= $key . '[' . $_key . '][] = ' . $this->evalValue($__value) . PHP_EOL;
                             }
-                        }
-                        else {
-                            $content .= $key.'['.$_key.'] = '.$this->evalValue($_value).PHP_EOL;
+                        } else {
+                            $content .= $key . '[' . $_key . '] = ' . $this->evalValue($_value) . PHP_EOL;
                         }
                     }
                 }
-            }
-            elseif (strlen($value)) {
-                $content .= $key.' = '.$this->evalValue($value).PHP_EOL;
+            } elseif (strlen($value)) {
+                $content .= $key . ' = ' . $this->evalValue($value) . PHP_EOL;
             }
         }
 
@@ -236,8 +231,8 @@ class Ini
 
     /**
      * flattenProperties flattens a multi-dimensional associative array for traditional INI syntax.
-     * @param  array   $array
-     * @param  string  $prepend
+     * @param array $array
+     * @param string $prepend
      * @return array
      */
     protected function flattenProperties($array, $prepend = '')
@@ -247,14 +242,12 @@ class Ini
         foreach ($array as $key => $value) {
             if (is_array($value)) {
                 if ($this->isFinalArray($value)) {
-                    $results[$prepend.$key] = $value;
+                    $results[$prepend . $key] = $value;
+                } else {
+                    $results = array_merge($results, $this->flattenProperties($value, $prepend . $key . ']['));
                 }
-                else {
-                    $results = array_merge($results, $this->flattenProperties($value, $prepend.$key.']['));
-                }
-            }
-            else {
-                $results[$prepend.$key] = $value;
+            } else {
+                $results[$prepend . $key] = $value;
             }
         }
 
@@ -278,7 +271,7 @@ class Ini
         $value = str_replace('"', '\"', $value);
         $value = preg_replace('~\\\"([\r\n])~', '\\\"""$1', $value);
 
-        return '"'.$value.'"';
+        return '"' . $value . '"';
     }
 
     /**

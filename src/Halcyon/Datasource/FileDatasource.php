@@ -1,14 +1,14 @@
 <?php namespace October\Rain\Halcyon\Datasource;
 
+use Exception;
 use October\Rain\Filesystem\Filesystem;
-use October\Rain\Halcyon\Processors\Processor;
+use October\Rain\Halcyon\Exception\CreateDirectoryException;
 use October\Rain\Halcyon\Exception\CreateFileException;
 use October\Rain\Halcyon\Exception\DeleteFileException;
 use October\Rain\Halcyon\Exception\FileExistsException;
-use October\Rain\Halcyon\Exception\CreateDirectoryException;
+use October\Rain\Halcyon\Processors\Processor;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use Exception;
 
 /**
  * FileDatasource
@@ -61,8 +61,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
                 'content' => $this->files->get($path),
                 'mtime' => $this->files->lastModified($path)
             ];
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             return null;
         }
     }
@@ -91,8 +90,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
 
         if ($columns === ['*'] || !is_array($columns)) {
             $columns = null;
-        }
-        else {
+        } else {
             $columns = array_flip($columns);
         }
 
@@ -165,8 +163,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
 
         try {
             return $this->files->put($path, $content);
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             throw (new CreateFileException)->setInvalidPath($path);
         }
     }
@@ -199,8 +196,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
 
         try {
             return $this->files->put($path, $content);
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             throw (new CreateFileException)->setInvalidPath($path);
         }
     }
@@ -214,8 +210,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
 
         try {
             return $this->files->delete($path);
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             throw (new DeleteFileException)->setInvalidPath($path);
         }
     }
@@ -229,8 +224,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
             $path = $this->makeFilePath($dirName, $fileName, $extension);
 
             return $this->files->lastModified($path);
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             return null;
         }
     }
@@ -270,7 +264,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
      */
     protected function makeFilePath(string $dirName, string $fileName, string $extension): string
     {
-        return $this->basePath . '/' . $dirName . '/' .$fileName . '.' . $extension;
+        return $this->basePath . '/' . $dirName . '/' . $fileName . '.' . $extension;
     }
 
     /**

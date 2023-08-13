@@ -14,8 +14,8 @@ class PostgresConnection extends Connection
     /**
      * Bind values to their parameters in the given statement.
      *
-     * @param  \PDOStatement  $statement
-     * @param  array  $bindings
+     * @param \PDOStatement $statement
+     * @param array $bindings
      * @return void
      */
     public function bindValues($statement, $bindings)
@@ -74,8 +74,8 @@ class PostgresConnection extends Connection
     /**
      * Get the schema state for the connection.
      *
-     * @param  \Illuminate\Filesystem\Filesystem|null  $files
-     * @param  callable|null  $processFactory
+     * @param \Illuminate\Filesystem\Filesystem|null $files
+     * @param callable|null $processFactory
      * @return \Illuminate\Database\Schema\PostgresSchemaState
      */
     public function getSchemaState(Filesystem $files = null, callable $processFactory = null)

@@ -170,8 +170,7 @@ trait DeferredBinding
 
             if ($include) {
                 $allowedTypes = array_intersect($allowedTypes, (array) $include);
-            }
-            elseif ($exclude) {
+            } elseif ($exclude) {
                 $allowedTypes = array_diff($allowedTypes, (array) $exclude);
             }
 
@@ -197,12 +196,10 @@ trait DeferredBinding
             if ($binding->is_bind) {
                 if (in_array($relationType, ['belongsToMany', 'morphToMany', 'morphedByMany'])) {
                     $relationObj->add($slaveModel, null, (array) $binding->pivot_data);
-                }
-                else {
+                } else {
                     $relationObj->add($slaveModel);
                 }
-            }
-            else {
+            } else {
                 $relationObj->remove($slaveModel);
             }
 
@@ -223,8 +220,7 @@ trait DeferredBinding
         return $binding
             ->where('master_type', get_class($this))
             ->where('session_key', $sessionKey)
-            ->get()
-        ;
+            ->get();
     }
 
     /**

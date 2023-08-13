@@ -31,8 +31,8 @@ class QueryBuilder extends QueryBuilderBase
     /**
      * Get an array with the values of a given column.
      *
-     * @param  string  $column
-     * @param  string|null  $key
+     * @param string $column
+     * @param string|null $key
      * @return array
      */
     public function lists($column, $key = null)
@@ -43,8 +43,8 @@ class QueryBuilder extends QueryBuilderBase
     /**
      * Indicate that the query results should be cached.
      *
-     * @param  \DateTime|int  $minutes
-     * @param  string  $key
+     * @param \DateTime|int $minutes
+     * @param string $key
      * @return $this
      */
     public function remember($minutes, $key = null)
@@ -58,7 +58,7 @@ class QueryBuilder extends QueryBuilderBase
     /**
      * Indicate that the query results should be cached forever.
      *
-     * @param  string  $key
+     * @param string $key
      * @return \Illuminate\Database\Query\Builder|static
      */
     public function rememberForever($key = null)
@@ -69,7 +69,7 @@ class QueryBuilder extends QueryBuilderBase
     /**
      * Indicate that the results, if cached, should use the given cache tags.
      *
-     * @param  array|mixed  $cacheTags
+     * @param array|mixed $cacheTags
      * @return $this
      */
     public function cacheTags($cacheTags)
@@ -113,8 +113,7 @@ class QueryBuilder extends QueryBuilderBase
         // and if we have minutes we will use the typical remember function here.
         if ($minutes < 0) {
             $results = $cache->rememberForever($key, $callback);
-        }
-        else {
+        } else {
             $expiresAt = Carbon::now()->addMinutes($minutes);
             $results = $cache->remember($key, $expiresAt, $callback);
         }
@@ -159,13 +158,13 @@ class QueryBuilder extends QueryBuilderBase
     {
         $name = $this->connection->getName();
 
-        return md5($name.$this->toSql().serialize($this->getBindings()));
+        return md5($name . $this->toSql() . serialize($this->getBindings()));
     }
 
     /**
      * Get the Closure callback used when caching queries.
      *
-     * @param  array  $columns
+     * @param array $columns
      * @return \Closure
      */
     protected function getCacheCallback($columns)
@@ -179,7 +178,7 @@ class QueryBuilder extends QueryBuilderBase
      * Retrieve the "count" result of the query,
      * also strips off any orderBy clause.
      *
-     * @param  string  $columns
+     * @param string $columns
      * @return int
      */
     public function count($columns = '*')

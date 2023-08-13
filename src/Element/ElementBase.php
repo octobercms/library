@@ -1,10 +1,10 @@
 <?php namespace October\Rain\Element;
 
+use ArrayAccess;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
-use October\Rain\Extension\Extendable;
 use JsonSerializable;
-use ArrayAccess;
+use October\Rain\Extension\Extendable;
 
 /**
  * ElementBase class for all elements
@@ -69,7 +69,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
 
     /**
      * get an attribute from the element instance.
-     * @param  string  $key
+     * @param string $key
      */
     public function get($key, $default = null)
     {
@@ -99,7 +99,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
 
     /**
      * toJson converts the element instance to JSON.
-     * @param  int  $options
+     * @param int $options
      * @return string
      */
     public function toJson($options = 0)
@@ -109,7 +109,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
 
     /**
      * offsetExists determines if the given offset exists.
-     * @param  string  $offset
+     * @param string $offset
      * @return bool
      */
     public function offsetExists($offset): bool
@@ -119,7 +119,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
 
     /**
      * offsetGet gets the value for a given offset.
-     * @param  string  $offset
+     * @param string $offset
      * @return mixed
      */
     public function offsetGet($offset): mixed
@@ -129,8 +129,8 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
 
     /**
      * offsetSet sets the value at the given offset.
-     * @param  string  $offset
-     * @param  mixed  $value
+     * @param string $offset
+     * @param mixed $value
      */
     public function offsetSet($offset, $value): void
     {
@@ -139,7 +139,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
 
     /**
      * offsetUnset unsets the value at the given offset.
-     * @param  string  $offset
+     * @param string $offset
      * @return void
      */
     public function offsetUnset($offset): void
@@ -149,8 +149,8 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
 
     /**
      * __call handles dynamic calls to the element instance to set config.
-     * @param  string  $method
-     * @param  array  $parameters
+     * @param string $method
+     * @param array $parameters
      * @return $this
      */
     public function __call($method, $parameters)
@@ -162,7 +162,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
 
     /**
      * __get dynamically retrieves the value of an attribute.
-     * @param  string  $key
+     * @param string $key
      * @return mixed
      */
     public function __get($key)
@@ -173,8 +173,8 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     /**
      * __set dynamically sets the value of an attribute.
      *
-     * @param  string  $key
-     * @param  mixed  $value
+     * @param string $key
+     * @param mixed $value
      * @return void
      */
     public function __set($key, $value)
@@ -185,7 +185,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     /**
      * __isset dynamically checks if an attribute is set.
      *
-     * @param  string  $key
+     * @param string $key
      * @return bool
      */
     public function __isset($key)
@@ -196,7 +196,7 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
     /**
      * __unset dynamically unsets an attribute.
      *
-     * @param  string  $key
+     * @param string $key
      * @return void
      */
     public function __unset($key)

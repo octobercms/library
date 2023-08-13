@@ -32,8 +32,7 @@ class CreateSeeder extends GeneratorCommandBase
     {
         if ($this->isAppNamespace()) {
             $this->makeStub('seeder/create_app_seeder.stub', 'database/seeds/{{studly_name}}.php');
-        }
-        else {
+        } else {
             $this->makeStub('seeder/create_seeder.stub', 'updates/{{snake_name}}.php');
         }
     }

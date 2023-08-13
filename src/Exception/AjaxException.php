@@ -21,8 +21,7 @@ class AjaxException extends ExceptionBase
     {
         if (is_string($contents)) {
             $contents = ['result' => $contents];
-        }
-        elseif (!is_array($contents)) {
+        } elseif (!is_array($contents)) {
             $contents = [];
         }
 

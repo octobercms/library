@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Database\Traits;
 
+use DateTime;
 use Db;
 use Exception;
-use DateTime;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 
 /**

@@ -1,10 +1,10 @@
 <?php namespace October\Rain\Database;
 
-use October\Rain\Database\Schema\Blueprint;
-use October\Rain\Database\Connectors\ConnectionFactory;
-use Illuminate\Database\DatabaseServiceProvider as DatabaseServiceProviderBase;
 use Illuminate\Database\DatabaseManager;
+use Illuminate\Database\DatabaseServiceProvider as DatabaseServiceProviderBase;
 use Illuminate\Database\DatabaseTransactionsManager;
+use October\Rain\Database\Connectors\ConnectionFactory;
+use October\Rain\Database\Schema\Blueprint;
 
 /**
  * DatabaseServiceProvider

@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Config;
 
-use Symfony\Component\Finder\Finder;
 use SplFileInfo;
+use Symfony\Component\Finder\Finder;
 
 /**
  * FileLoader loads package config
@@ -22,7 +22,7 @@ class FileLoader
     /**
      * Get all of the configuration files for the application.
      *
-     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @param \Illuminate\Contracts\Foundation\Application $app
      * @return array
      */
     protected static function getConfigurationFiles(string $path)
@@ -37,7 +37,7 @@ class FileLoader
         foreach (Finder::create()->files()->name('*.php')->in($configPath) as $file) {
             $directory = self::getNestedDirectory($file, $configPath);
 
-            $files[$directory.basename($file->getRealPath(), '.php')] = $file->getRealPath();
+            $files[$directory . basename($file->getRealPath(), '.php')] = $file->getRealPath();
         }
 
         ksort($files, SORT_NATURAL);
@@ -48,8 +48,8 @@ class FileLoader
     /**
      * Get the configuration file nesting path.
      *
-     * @param  \SplFileInfo  $file
-     * @param  string  $configPath
+     * @param \SplFileInfo $file
+     * @param string $configPath
      * @return string
      */
     protected static function getNestedDirectory(SplFileInfo $file, $configPath)
@@ -57,7 +57,7 @@ class FileLoader
         $directory = $file->getPath();
 
         if ($nested = trim(str_replace($configPath, '', $directory), DIRECTORY_SEPARATOR)) {
-            $nested = str_replace(DIRECTORY_SEPARATOR, '.', $nested).'.';
+            $nested = str_replace(DIRECTORY_SEPARATOR, '.', $nested) . '.';
         }
 
         return $nested;

@@ -8,16 +8,16 @@
  */
 abstract class CssUtils
 {
-    const REGEX_URLS            = '/url\((["\']?)(?P<url>.*?)(\\1)\)/';
-    const REGEX_IMPORTS         = '/@import (?:url\()?(\'|"|)(?P<url>[^\'"\)\n\r]*)\1\)?;?/';
+    const REGEX_URLS = '/url\((["\']?)(?P<url>.*?)(\\1)\)/';
+    const REGEX_IMPORTS = '/@import (?:url\()?(\'|"|)(?P<url>[^\'"\)\n\r]*)\1\)?;?/';
     const REGEX_IMPORTS_NO_URLS = '/@import (?!url\()(\'|"|)(?P<url>[^\'"\)\n\r]*)\1;?/';
-    const REGEX_IE_FILTERS      = '/src=(["\']?)(?P<url>.*?)\\1/';
-    const REGEX_COMMENTS        = '/(\/\*[^*]*\*+(?:[^\/][^*]*\*+)*\/)/';
+    const REGEX_IE_FILTERS = '/src=(["\']?)(?P<url>.*?)\\1/';
+    const REGEX_COMMENTS = '/(\/\*[^*]*\*+(?:[^\/][^*]*\*+)*\/)/';
 
     /**
      * Filters all references -- url() and "@import" -- through a callable.
      *
-     * @param string   $content  The CSS
+     * @param string $content The CSS
      * @param callable $callback A PHP callable
      *
      * @return string The filtered CSS
@@ -34,7 +34,7 @@ abstract class CssUtils
     /**
      * Filters all CSS url()'s through a callable.
      *
-     * @param string   $content  The CSS
+     * @param string $content The CSS
      * @param callable $callback A PHP callable
      *
      * @return string The filtered CSS
@@ -51,9 +51,9 @@ abstract class CssUtils
     /**
      * Filters all CSS imports through a callable.
      *
-     * @param string   $content    The CSS
-     * @param callable $callback   A PHP callable
-     * @param Boolean  $includeUrl Whether to include url() in the pattern
+     * @param string $content The CSS
+     * @param callable $callback A PHP callable
+     * @param Boolean $includeUrl Whether to include url() in the pattern
      *
      * @return string The filtered CSS
      */
@@ -69,7 +69,7 @@ abstract class CssUtils
     /**
      * Filters all IE filters (AlphaImageLoader filter) through a callable.
      *
-     * @param string   $content  The CSS
+     * @param string $content The CSS
      * @param callable $callback A PHP callable
      *
      * @return string The filtered CSS
@@ -86,7 +86,7 @@ abstract class CssUtils
     /**
      * Filters each non-comment part through a callable.
      *
-     * @param string   $content  The CSS
+     * @param string $content The CSS
      * @param callable $callback A PHP callable
      *
      * @return string The filtered CSS

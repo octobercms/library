@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database\Relations;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough as HasManyThroughBase;
 
 /**
@@ -67,14 +67,11 @@ class HasManyThrough extends HasManyThroughBase
         if ($this->farParent->relationLoaded($relationName)) {
             $value = $this->farParent->getRelation($relationName)
                 ->pluck($this->getRelatedKeyName())
-                ->all()
-            ;
-        }
-        else {
+                ->all();
+        } else {
             $value = $this->query->getQuery()
                 ->pluck($this->getQualifiedRelatedKeyName())
-                ->all()
-            ;
+                ->all();
         }
 
         return $value;

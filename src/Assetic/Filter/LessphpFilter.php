@@ -139,7 +139,7 @@ class LessphpFilter implements DependencyExtractorInterface
             }
 
             foreach ($loadPaths as $loadPath) {
-                if (file_exists($file = $loadPath.'/'.$reference)) {
+                if (file_exists($file = $loadPath . '/' . $reference)) {
                     $coll = $factory->createAsset($file, array(), array('root' => $loadPath));
                     foreach ($coll as $leaf) {
                         $leaf->ensureFilter($this);

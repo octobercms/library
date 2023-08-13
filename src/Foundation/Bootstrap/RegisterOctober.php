@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Foundation\Bootstrap;
 
-use October\Rain\Support\Str;
-use October\Rain\Support\ClassLoader;
 use Illuminate\Contracts\Foundation\Application;
+use October\Rain\Support\ClassLoader;
+use October\Rain\Support\Str;
 
 /**
  * RegisterOctober specific features
@@ -73,8 +73,7 @@ class RegisterOctober
             $this->makeSystemPaths($app->cachePath(), array_unique(
                 array_merge($this->cachePaths, $this->storagePaths)
             ));
-        }
-        else {
+        } else {
             $this->makeSystemPaths($app->cachePath(), $this->cachePaths);
             $this->makeSystemPaths($app->storagePath(), $this->storagePaths);
         }
@@ -106,7 +105,7 @@ class RegisterOctober
         @mkdir($rootPath);
 
         foreach ($subPaths as $path) {
-            $subPath = $rootPath.DIRECTORY_SEPARATOR.$path;
+            $subPath = $rootPath . DIRECTORY_SEPARATOR . $path;
             if (file_exists($subPath)) {
                 continue;
             }

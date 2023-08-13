@@ -35,7 +35,7 @@ class ExecutionContextProvider extends ServiceProvider
     protected function normalizeUrl($url)
     {
         if (substr($url, 0, 1) !== '/') {
-            $url = '/'.$url;
+            $url = '/' . $url;
         }
 
         if (!strlen($url)) {

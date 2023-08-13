@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Foundation\Bootstrap;
 
-use October\Rain\Support\ClassLoader;
-use October\Rain\Filesystem\Filesystem;
 use Illuminate\Contracts\Foundation\Application;
+use October\Rain\Filesystem\Filesystem;
+use October\Rain\Support\ClassLoader;
 
 /**
  * RegisterClassLoader registers the custom autoloader for October CMS

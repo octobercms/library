@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Auth;
 
 use Config;
-use October\Rain\Exception\ApplicationException;
 use Exception;
+use October\Rain\Exception\ApplicationException;
 
 /**
  * AuthException used when user authentication fails. Implements a softer error message

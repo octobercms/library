@@ -49,10 +49,10 @@ if (!function_exists('http_build_url')) {
      *
      * @see https://github.com/jakeasmith/http_build_url
      *
-     * @param mixed $url     (part(s) of) an URL in form of a string or
+     * @param mixed $url (part(s) of) an URL in form of a string or
      *                       associative array like parse_url() returns
-     * @param mixed $parts   same as the first argument
-     * @param int   $flags   a bitmask of binary or'ed HTTP_URL constants;
+     * @param mixed $parts same as the first argument
+     * @param int $flags a bitmask of binary or'ed HTTP_URL constants;
      *                       HTTP_URL_REPLACE is the default
      * @param array $new_url if set, it will be filled with the parts of the
      *                       composed url like parse_url() would return
@@ -73,14 +73,14 @@ if (!function_exists('http_build_url')) {
         // Set flags - HTTP_URL_STRIP_ALL and HTTP_URL_STRIP_AUTH cover several other flags.
         if ($flags & HTTP_URL_STRIP_ALL) {
             $flags |= HTTP_URL_STRIP_USER
-                   | HTTP_URL_STRIP_PASS
-                   | HTTP_URL_STRIP_PORT
-                   | HTTP_URL_STRIP_PATH
-                   | HTTP_URL_STRIP_QUERY
-                   | HTTP_URL_STRIP_FRAGMENT;
+                | HTTP_URL_STRIP_PASS
+                | HTTP_URL_STRIP_PORT
+                | HTTP_URL_STRIP_PATH
+                | HTTP_URL_STRIP_QUERY
+                | HTTP_URL_STRIP_FRAGMENT;
         } elseif ($flags & HTTP_URL_STRIP_AUTH) {
             $flags |= HTTP_URL_STRIP_USER
-                   | HTTP_URL_STRIP_PASS;
+                | HTTP_URL_STRIP_PASS;
         }
 
         // Filter $url and $replace arrays to strip out unknown segments

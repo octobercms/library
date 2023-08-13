@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database\Traits;
 
-use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Collection as CollectionBase;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 /**
@@ -24,7 +24,7 @@ trait SoftDelete
     {
         static::addGlobalScope(new SoftDeletingScope);
 
-        static::softDeleted(function($model) {
+        static::softDeleted(function ($model) {
             /**
              * @event model.afterTrash
              * Called after the model is soft deleted (trashed)
@@ -42,7 +42,7 @@ trait SoftDelete
             }
         });
 
-        static::restoring(function($model) {
+        static::restoring(function ($model) {
             /**
              * @event model.beforeRestore
              * Called before the model is restored from a soft delete
@@ -60,7 +60,7 @@ trait SoftDelete
             }
         });
 
-        static::restored(function($model) {
+        static::restored(function ($model) {
             /**
              * @event model.afterRestore
              * Called after the model is restored from a soft delete
@@ -138,8 +138,7 @@ trait SoftDelete
 
                 if ($relation instanceof EloquentModel) {
                     $relation->delete();
-                }
-                elseif ($relation instanceof CollectionBase) {
+                } elseif ($relation instanceof CollectionBase) {
                     $relation->each(function ($model) {
                         $model->delete();
                     });
@@ -161,7 +160,7 @@ trait SoftDelete
 
         $this->{$this->getDeletedAtColumn()} = $time;
 
-        if ($this->timestamps && ! is_null($this->getUpdatedAtColumn())) {
+        if ($this->timestamps && !is_null($this->getUpdatedAtColumn())) {
             $this->{$this->getUpdatedAtColumn()} = $time;
 
             $columns[$this->getUpdatedAtColumn()] = $this->fromDateTime($time);
@@ -223,8 +222,7 @@ trait SoftDelete
 
                 if ($relation instanceof EloquentModel) {
                     $relation->restore();
-                }
-                elseif ($relation instanceof CollectionBase) {
+                } elseif ($relation instanceof CollectionBase) {
                     $relation->each(function ($model) {
                         $model->restore();
                     });
@@ -266,7 +264,7 @@ trait SoftDelete
 
     /**
      * softDeleted registers a "trashed" model event callback with the dispatcher.
-     * @param  \Closure|string  $callback
+     * @param \Closure|string $callback
      * @return void
      */
     public static function softDeleted($callback)
@@ -276,7 +274,7 @@ trait SoftDelete
 
     /**
      * restoring registers a restoring model event with the dispatcher.
-     * @param  \Closure|string  $callback
+     * @param \Closure|string $callback
      * @return void
      */
     public static function restoring($callback)
@@ -286,7 +284,7 @@ trait SoftDelete
 
     /**
      * restored registers a restored model event with the dispatcher.
-     * @param  \Closure|string  $callback
+     * @param \Closure|string $callback
      * @return void
      */
     public static function restored($callback)

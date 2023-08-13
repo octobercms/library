@@ -1,12 +1,12 @@
 <?php namespace October\Rain\Scaffold;
 
-use ReflectionClass;
-use October\Rain\Support\Str;
+use Exception;
 use Illuminate\Console\Command;
 use October\Rain\Filesystem\Filesystem;
+use October\Rain\Support\Str;
+use ReflectionClass;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
-use Exception;
 use Twig;
 
 /**

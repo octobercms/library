@@ -1,10 +1,10 @@
 <?php namespace October\Rain\Foundation\Bootstrap;
 
-use October\Rain\Config\Repository;
+use Exception;
+use Illuminate\Contracts\Config\Repository as RepositoryContract;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Bootstrap\LoadConfiguration as LoadConfigurationBase;
-use Illuminate\Contracts\Config\Repository as RepositoryContract;
-use Exception;
+use October\Rain\Config\Repository;
 
 /**
  * LoadConfiguration bootstraps the configuration instance
@@ -54,8 +54,8 @@ class LoadConfiguration extends LoadConfigurationBase
     /**
      * loadConfigurationFiles from all of the files.
      *
-     * @param  \Illuminate\Contracts\Foundation\Application  $app
-     * @param  \Illuminate\Contracts\Config\Repository  $repository
+     * @param \Illuminate\Contracts\Foundation\Application $app
+     * @param \Illuminate\Contracts\Config\Repository $repository
      * @return void
      *
      * @throws \Exception

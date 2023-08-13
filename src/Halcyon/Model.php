@@ -1,16 +1,16 @@
 <?php namespace October\Rain\Halcyon;
 
-use October\Rain\Support\Arr;
-use October\Rain\Support\Str;
+use ArrayAccess;
+use BadMethodCallException;
+use Exception;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Jsonable;
+use JsonSerializable;
 use October\Rain\Extension\Extendable;
 use October\Rain\Halcyon\Datasource\ResolverInterface as Resolver;
-use Illuminate\Contracts\Support\Jsonable;
-use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Contracts\Events\Dispatcher;
-use BadMethodCallException;
-use JsonSerializable;
-use ArrayAccess;
-use Exception;
+use October\Rain\Support\Arr;
+use October\Rain\Support\Str;
 
 /**
  * Model is a base template object, equivalent to a Model in ORM
@@ -131,7 +131,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * __construct a new Halcyon model instance.
-     * @param  array  $attributes
+     * @param array $attributes
      * @return void
      */
     public function __construct(array $attributes = [])
@@ -179,7 +179,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     protected static function bootTraits()
     {
         foreach (class_uses_recursive(get_called_class()) as $trait) {
-            if (method_exists(get_called_class(), $method = 'boot'.class_basename($trait))) {
+            if (method_exists(get_called_class(), $method = 'boot' . class_basename($trait))) {
                 forward_static_call([get_called_class(), $method]);
             }
         }
@@ -263,7 +263,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * addFillable adds fillable attributes for the model.
-     * @param  array|string|null  $attributes
+     * @param array|string|null $attributes
      * @return void
      */
     public function addFillable($attributes = null)
@@ -275,7 +275,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * addPurgeable adds an attribute to the purgeable attributes list
-     * @param  array|string|null  $attributes
+     * @param array|string|null $attributes
      * @return void
      */
     public function addPurgeable($attributes = null)
@@ -327,7 +327,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         $fileName = trim($value);
 
         if (strlen($fileName) && !strlen(pathinfo($value, PATHINFO_EXTENSION))) {
-            $fileName .= '.'.$this->defaultExtension;
+            $fileName .= '.' . $this->defaultExtension;
         }
 
         $this->attributes['fileName'] = $fileName;
@@ -399,7 +399,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * fill the model with an array of attributes.
-     * @param  array  $attributes
+     * @param array $attributes
      * @return $this
      */
     public function fill(array $attributes)
@@ -415,7 +415,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * fillableFromArray gets the fillable attributes of a given array.
-     * @param  array  $attributes
+     * @param array $attributes
      * @return array
      */
     protected function fillableFromArray(array $attributes)
@@ -434,8 +434,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * newInstance creates a new instance of the given model.
-     * @param  array  $attributes
-     * @param  bool  $exists
+     * @param array $attributes
+     * @param bool $exists
      * @return static
      */
     public function newInstance($attributes = [], $exists = false)
@@ -452,8 +452,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * newFromBuilder creates a new model instance that is existing.
-     * @param  array  $attributes
-     * @param  string|null  $datasource
+     * @param array $attributes
+     * @param string|null $datasource
      * @return static
      */
     public function newFromBuilder($attributes = [], $datasource = null)
@@ -475,8 +475,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * hydrate creates a collection of models from plain arrays.
-     * @param  array  $items
-     * @param  string|null  $datasource
+     * @param array $items
+     * @param string|null $datasource
      * @return \October\Rain\Halcyon\Collection
      */
     public static function hydrate(array $items, $datasource = null)
@@ -492,7 +492,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * create saves a new model and return the instance.
-     * @param  array  $attributes
+     * @param array $attributes
      * @return static
      */
     public static function create(array $attributes = [])
@@ -515,7 +515,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * on begins querying the model on a given datasource.
-     * @param  string|null  $datasource
+     * @param string|null $datasource
      * @return \October\Rain\Halcyon\Model
      */
     public static function on($datasource = null)
@@ -542,7 +542,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * isFillable determines if the given attribute may be mass assigned.
-     * @param  string  $key
+     * @param string $key
      * @return bool
      */
     public function isFillable($key)
@@ -564,7 +564,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * toJson converts the model instance to JSON.
-     * @param  int  $options
+     * @param int $options
      * @return string
      */
     public function toJson($options = 0)
@@ -640,7 +640,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * getAttribute gets a plain attribute.
-     * @param  string  $key
+     * @param string $key
      * @return mixed
      */
     public function getAttribute($key)
@@ -669,7 +669,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * getAttributeFromArray gets an attribute from the $attributes array.
-     * @param  string  $key
+     * @param string $key
      * @return mixed
      */
     protected function getAttributeFromArray($key)
@@ -681,29 +681,29 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * hasGetMutator determines if a get mutator exists for an attribute.
-     * @param  string  $key
+     * @param string $key
      * @return bool
      */
     public function hasGetMutator($key)
     {
-        return $this->methodExists('get'.Str::studly($key).'Attribute');
+        return $this->methodExists('get' . Str::studly($key) . 'Attribute');
     }
 
     /**
      * mutateAttribute gets the value of an attribute using its mutator.
-     * @param  string  $key
-     * @param  mixed  $value
+     * @param string $key
+     * @param mixed $value
      * @return mixed
      */
     protected function mutateAttribute($key, $value)
     {
-        return $this->{'get'.Str::studly($key).'Attribute'}($value);
+        return $this->{'get' . Str::studly($key) . 'Attribute'}($value);
     }
 
     /**
      * mutateAttributeForArray gets the value of an attribute using its mutator for array conversion.
-     * @param  string  $key
-     * @param  mixed  $value
+     * @param string $key
+     * @param mixed $value
      * @return mixed
      */
     protected function mutateAttributeForArray($key, $value)
@@ -715,8 +715,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * setAttribute sets a given attribute on the model.
-     * @param  string  $key
-     * @param  mixed  $value
+     * @param string $key
+     * @param mixed $value
      * @return $this
      */
     public function setAttribute($key, $value)
@@ -730,14 +730,13 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         // which simply lets the developers tweak the attribute as it is set on
         // the model, such as "json_encoding" an listing of data for storage.
         if ($this->hasSetMutator($key)) {
-            $method = 'set'.Str::studly($key).'Attribute';
+            $method = 'set' . Str::studly($key) . 'Attribute';
             // If we return the returned value of the mutator call straight away, that will disable the firing of
             // 'model.setAttribute' event, and then no third party plugins will be able to implement any kind of
             // post processing logic when an attribute is set with explicit mutators. Returning from the mutator
             // call will also break method chaining as intended by returning `$this` at the end of this method.
             $this->{$method}($value);
-        }
-        else {
+        } else {
             $this->attributes[$key] = $value;
         }
 
@@ -749,12 +748,12 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * hasSetMutator determines if a set mutator exists for an attribute.
-     * @param  string  $key
+     * @param string $key
      * @return bool
      */
     public function hasSetMutator($key)
     {
-        return $this->methodExists('set'.Str::studly($key).'Attribute');
+        return $this->methodExists('set' . Str::studly($key) . 'Attribute');
     }
 
     /**
@@ -768,8 +767,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * setRawAttributes sets the array of model attributes. No checking is done.
-     * @param  array  $attributes
-     * @param  bool  $sync
+     * @param array $attributes
+     * @param bool $sync
      * @return $this
      */
     public function setRawAttributes(array $attributes, $sync = false)
@@ -785,8 +784,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * getOriginal gets the model's original attribute values.
-     * @param  string|null  $key
-     * @param  mixed  $default
+     * @param string|null $key
+     * @param mixed $default
      * @return array
      */
     public function getOriginal($key = null, $default = null)
@@ -807,7 +806,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * syncOriginalAttribute syncs a single original attribute with its current value.
-     * @param  string  $attribute
+     * @param string $attribute
      * @return $this
      */
     public function syncOriginalAttribute($attribute)
@@ -819,7 +818,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
     /**
      * isDirty determines if the model or given attribute(s) have been modified.
-     * @param  array|string|null  $attributes
+     * @param array|string|null $attributes
      * @return bool
      */
     public function isDirty($attributes = null)
@@ -854,8 +853,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         foreach ($this->attributes as $key => $value) {
             if (!array_key_exists($key, $this->original)) {
                 $dirty[$key] = $value;
-            }
-            elseif (
+            } elseif (
                 $value !== $this->original[$key] &&
                 !$this->originalIsNumericallyEquivalent($key)
             ) {
@@ -875,7 +873,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * originalIsNumericallyEquivalent determine if the new and old values for a given key are
      * numerically equivalent.
-     * @param  string  $key
+     * @param string $key
      * @return bool
      */
     protected function originalIsNumericallyEquivalent($key)
@@ -947,8 +945,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Register a saving model event with the dispatcher.
      *
-     * @param  \Closure|string  $callback
-     * @param  int  $priority
+     * @param \Closure|string $callback
+     * @param int $priority
      * @return void
      */
     public static function saving($callback, $priority = 0)
@@ -959,8 +957,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Register a saved model event with the dispatcher.
      *
-     * @param  \Closure|string  $callback
-     * @param  int  $priority
+     * @param \Closure|string $callback
+     * @param int $priority
      * @return void
      */
     public static function saved($callback, $priority = 0)
@@ -971,8 +969,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Register an updating model event with the dispatcher.
      *
-     * @param  \Closure|string  $callback
-     * @param  int  $priority
+     * @param \Closure|string $callback
+     * @param int $priority
      * @return void
      */
     public static function updating($callback, $priority = 0)
@@ -983,8 +981,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Register an updated model event with the dispatcher.
      *
-     * @param  \Closure|string  $callback
-     * @param  int  $priority
+     * @param \Closure|string $callback
+     * @param int $priority
      * @return void
      */
     public static function updated($callback, $priority = 0)
@@ -995,8 +993,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Register a creating model event with the dispatcher.
      *
-     * @param  \Closure|string  $callback
-     * @param  int  $priority
+     * @param \Closure|string $callback
+     * @param int $priority
      * @return void
      */
     public static function creating($callback, $priority = 0)
@@ -1007,8 +1005,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Register a created model event with the dispatcher.
      *
-     * @param  \Closure|string  $callback
-     * @param  int  $priority
+     * @param \Closure|string $callback
+     * @param int $priority
      * @return void
      */
     public static function created($callback, $priority = 0)
@@ -1019,8 +1017,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Register a deleting model event with the dispatcher.
      *
-     * @param  \Closure|string  $callback
-     * @param  int  $priority
+     * @param \Closure|string $callback
+     * @param int $priority
      * @return void
      */
     public static function deleting($callback, $priority = 0)
@@ -1031,8 +1029,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Register a deleted model event with the dispatcher.
      *
-     * @param  \Closure|string  $callback
-     * @param  int  $priority
+     * @param \Closure|string $callback
+     * @param int $priority
      * @return void
      */
     public static function deleted($callback, $priority = 0)
@@ -1054,7 +1052,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         $instance = new static;
 
         foreach ($instance->getObservableEvents() as $event) {
-            static::$dispatcher->forget("halcyon.{$event}: ".get_called_class());
+            static::$dispatcher->forget("halcyon.{$event}: " . get_called_class());
         }
 
         static::$eventsBooted = [];
@@ -1063,9 +1061,9 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Register a model event with the dispatcher.
      *
-     * @param  string  $event
-     * @param  \Closure|string  $callback
-     * @param  int  $priority
+     * @param string $event
+     * @param \Closure|string $callback
+     * @param int $priority
      * @return void
      */
     protected static function registerModelEvent($event, $callback, $priority = 0)
@@ -1097,7 +1095,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Set the observable event names.
      *
-     * @param  array  $observables
+     * @param array $observables
      * @return $this
      */
     public function setObservableEvents(array $observables)
@@ -1110,7 +1108,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Add an observable event name.
      *
-     * @param  array|mixed  $observables
+     * @param array|mixed $observables
      * @return void
      */
     public function addObservableEvents($observables)
@@ -1123,7 +1121,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Remove an observable event name.
      *
-     * @param  array|mixed  $observables
+     * @param array|mixed $observables
      * @return void
      */
     public function removeObservableEvents($observables)
@@ -1136,7 +1134,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Update the model in the database.
      *
-     * @param  array  $attributes
+     * @param array $attributes
      * @return bool|int
      */
     public function update(array $attributes = [])
@@ -1151,7 +1149,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Save the model to the datasource.
      *
-     * @param  array  $options
+     * @param array $options
      * @return bool
      */
     public function save(array $options = null)
@@ -1182,8 +1180,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
 
         if ($this->exists) {
             $saved = $this->performUpdate($query, $options);
-        }
-        else {
+        } else {
             $saved = $this->performInsert($query, $options);
         }
 
@@ -1197,7 +1194,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Finish processing on a successful save operation.
      *
-     * @param  array  $options
+     * @param array $options
      * @return void
      */
     protected function finishSave(array $options)
@@ -1212,8 +1209,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Perform a model update operation.
      *
-     * @param  October\Rain\Halcyon\Builder  $query
-     * @param  array  $options
+     * @param October\Rain\Halcyon\Builder $query
+     * @param array $options
      * @return bool
      */
     protected function performUpdate(Builder $query, array $options = [])
@@ -1244,8 +1241,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Perform a model insert operation.
      *
-     * @param  October\Rain\Halcyon\Builder  $query
-     * @param  array  $options
+     * @param October\Rain\Halcyon\Builder $query
+     * @param array $options
      * @return bool
      */
     protected function performInsert(Builder $query, array $options = [])
@@ -1273,8 +1270,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Fire the given event for the model.
      *
-     * @param  string  $event
-     * @param  bool  $halt
+     * @param string $event
+     * @param bool $halt
      * @return mixed
      */
     protected function fireModelEvent($event, $halt = true)
@@ -1286,7 +1283,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         // We will append the names of the class to the event to distinguish it from
         // other model events that are fired, allowing us to listen on each model
         // event set individually instead of catching event for all the models.
-        $event = "halcyon.{$event}: ".get_class($this);
+        $event = "halcyon.{$event}: " . get_class($this);
 
         $method = $halt ? 'until' : 'dispatch';
 
@@ -1309,7 +1306,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Create a new Halcyon Collection instance.
      *
-     * @param  array  $models
+     * @param array $models
      * @return \October\Rain\Halcyon\Collection
      */
     public function newCollection(array $models = [])
@@ -1331,8 +1328,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         if (!strlen($extension)) {
             $extension = $this->defaultExtension;
             $baseFile = (string) $fileName;
-        }
-        else {
+        } else {
             $pos = strrpos($fileName, '.');
             $baseFile = substr($fileName, 0, $pos);
         }
@@ -1363,7 +1359,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Set the datasource associated with the model.
      *
-     * @param  string  $name
+     * @param string $name
      * @return $this
      */
     public function setDatasource($name)
@@ -1376,7 +1372,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Resolve a datasource instance.
      *
-     * @param  string|null  $datasource
+     * @param string|null $datasource
      * @return \October\Rain\Halcyon\Datasource
      */
     public static function resolveDatasource($datasource = null)
@@ -1397,7 +1393,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Set the datasource resolver instance.
      *
-     * @param  \October\Rain\Halcyon\Datasource\ResolverInterface  $resolver
+     * @param \October\Rain\Halcyon\Datasource\ResolverInterface $resolver
      * @return void
      */
     public static function setDatasourceResolver(Resolver $resolver)
@@ -1428,7 +1424,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Set the event dispatcher instance.
      *
-     * @param  \Illuminate\Contracts\Events\Dispatcher  $dispatcher
+     * @param \Illuminate\Contracts\Events\Dispatcher $dispatcher
      * @return void
      */
     public static function setEventDispatcher(Dispatcher $dispatcher)
@@ -1459,7 +1455,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Set the cache manager instance.
      *
-     * @param  \Illuminate\Cache\CacheManager  $cache
+     * @param \Illuminate\Cache\CacheManager $cache
      * @return void
      */
     public static function setCacheManager($cache)
@@ -1505,7 +1501,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Extract and cache all the mutated attributes of a class.
      *
-     * @param  string  $class
+     * @param string $class
      * @return void
      */
     public static function cacheMutatedAttributes($class)
@@ -1527,7 +1523,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Dynamically retrieve attributes on the model.
      *
-     * @param  string  $key
+     * @param string $key
      * @return mixed
      */
     public function __get($key)
@@ -1538,16 +1534,15 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Dynamically set attributes on the model.
      *
-     * @param  string  $key
-     * @param  mixed  $value
+     * @param string $key
+     * @param mixed $value
      * @return void
      */
     public function __set($key, $value)
     {
         if ($this->extendableIsSettingDynamicProperty()) {
             $this->{$key} = $value;
-        }
-        else {
+        } else {
             $this->setAttribute($key, $value);
         }
     }
@@ -1555,7 +1550,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Determine if the given attribute exists.
      *
-     * @param  mixed  $offset
+     * @param mixed $offset
      * @return bool
      */
     public function offsetExists($offset): bool
@@ -1566,7 +1561,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Get the value for a given offset.
      *
-     * @param  mixed  $offset
+     * @param mixed $offset
      * @return mixed
      */
     public function offsetGet($offset): mixed
@@ -1577,8 +1572,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Set the value for a given offset.
      *
-     * @param  mixed  $offset
-     * @param  mixed  $value
+     * @param mixed $offset
+     * @param mixed $value
      * @return void
      */
     public function offsetSet($offset, $value): void
@@ -1589,7 +1584,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Unset the value for a given offset.
      *
-     * @param  mixed  $offset
+     * @param mixed $offset
      * @return void
      */
     public function offsetUnset($offset): void
@@ -1600,7 +1595,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Determine if an attribute exists on the model.
      *
-     * @param  string  $key
+     * @param string $key
      * @return bool
      */
     public function __isset($key)
@@ -1615,7 +1610,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Unset an attribute on the model.
      *
-     * @param  string  $key
+     * @param string $key
      * @return void
      */
     public function __unset($key)
@@ -1626,16 +1621,15 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Handle dynamic method calls into the model.
      *
-     * @param  string  $method
-     * @param  array  $parameters
+     * @param string $method
+     * @param array $parameters
      * @return mixed
      */
     public function __call($method, $parameters)
     {
         try {
             return parent::__call($method, $parameters);
-        }
-        catch (BadMethodCallException $ex) {
+        } catch (BadMethodCallException $ex) {
             $query = $this->newQuery();
             return call_user_func_array([$query, $method], $parameters);
         }
@@ -1644,8 +1638,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     /**
      * Handle dynamic static method calls into the method.
      *
-     * @param  string  $method
-     * @param  array  $parameters
+     * @param string $method
+     * @param array $parameters
      * @return mixed
      */
     public static function __callStatic($method, $parameters)

@@ -121,7 +121,7 @@ trait HasAutoloader
     protected function preloadIncludeFilesPool()
     {
         $result = [];
-        $vendorPath = base_path() .'/vendor';
+        $vendorPath = base_path() . '/vendor';
 
         if (file_exists($file = $vendorPath . '/composer/autoload_files.php')) {
             $includeFiles = require $file;

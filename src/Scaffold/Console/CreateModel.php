@@ -39,9 +39,9 @@ class CreateModel extends GeneratorCommandBase
 
         if (!$this->option('no-migration')) {
             $this->call('create:migration', array_filter([
-                'name' => 'Create'.$this->vars['studly_plural_name'].'Table',
+                'name' => 'Create' . $this->vars['studly_plural_name'] . 'Table',
                 'namespace' => $this->argument('namespace'),
-                '--create' => $this->vars['namespace_table'].'_'.$this->vars['snake_plural_name'],
+                '--create' => $this->vars['namespace_table'] . '_' . $this->vars['snake_plural_name'],
                 '--soft-deletes' => $this->option('soft-deletes'),
                 '--no-timestamps' => $this->option('no-timestamps'),
                 '--overwrite' => $this->option('overwrite')

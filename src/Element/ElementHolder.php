@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Element;
 
-use October\Rain\Support\Collection;
 use IteratorAggregate;
+use October\Rain\Support\Collection;
 use Traversable;
 
 /**
@@ -28,8 +28,8 @@ class ElementHolder extends ElementBase implements IteratorAggregate
 
     /**
      * get an element from the holder instance.
-     * @param  string  $key
-     * @param  mixed  $default
+     * @param string $key
+     * @param mixed $default
      * @return mixed
      */
     public function get($key, $default = null)
