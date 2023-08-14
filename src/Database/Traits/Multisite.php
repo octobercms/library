@@ -49,8 +49,7 @@ trait Multisite
 
         $this->bindEvent('model.afterCreate', [$this, 'multisiteAfterCreate']);
 
-        // Process propagation last so relations are all set up correctly
-        $this->bindEvent('model.saveComplete', [$this, 'multisiteSaveComplete'], -1);
+        $this->bindEvent('model.saveComplete', [$this, 'multisiteSaveComplete']);
 
         $this->defineMultisiteRelations();
     }
