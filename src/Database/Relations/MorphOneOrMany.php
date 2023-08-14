@@ -188,6 +188,24 @@ trait MorphOneOrMany
     }
 
     /**
+     * ensureRelationIsEmpty ensures the relation is empty, either deleted or nulled.
+     */
+    protected function ensureRelationIsEmpty()
+    {
+        $options = $this->parent->getRelationDefinition($this->relationName);
+
+        if (array_get($options, 'delete', false)) {
+            $this->delete();
+        }
+        else {
+            $this->update([
+                $this->getForeignKeyName() => null,
+                $this->getMorphType() => null
+            ]);
+        }
+    }
+
+    /**
      * getRelatedKeyName
      * @return string
      */

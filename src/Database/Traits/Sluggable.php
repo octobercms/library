@@ -5,7 +5,7 @@ use October\Rain\Support\Str;
 use Exception;
 
 /**
- * Sluggable trait
+ * Sluggable trait performs automatic slug generation for new models
  *
  * @package october\database
  * @author Alexey Bobkov, Samuel Georges

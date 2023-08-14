@@ -110,9 +110,8 @@ trait AttachOneOrMany
      */
     public function save(Model $model, $sessionKey = null)
     {
-        // Delete siblings for single attachments
-        if ($sessionKey === null && $this instanceof AttachOne) {
-            $this->delete();
+        if ($sessionKey === null) {
+            $this->ensureAttachOneIsSingular();
         }
 
         if (!array_key_exists('is_public', $model->attributes)) {
@@ -134,9 +133,8 @@ trait AttachOneOrMany
      */
     public function create(array $attributes = [], $sessionKey = null)
     {
-        // Delete siblings for single attachments
-        if ($sessionKey === null && $this instanceof AttachOne) {
-            $this->delete();
+        if ($sessionKey === null) {
+            $this->ensureAttachOneIsSingular();
         }
 
         if (!array_key_exists('is_public', $attributes)) {
@@ -181,10 +179,7 @@ trait AttachOneOrMany
                 return;
             }
 
-            // Delete siblings for single attachments
-            if ($this instanceof AttachOne) {
-                $this->delete();
-            }
+            $this->ensureAttachOneIsSingular();
 
             // Associate the model
             if ($this->parent->exists) {
@@ -318,6 +313,17 @@ trait AttachOneOrMany
             ((string) $model->getAttribute($this->getForeignKeyName()) === (string) $this->getParentKey()) &&
             $model->getAttribute($this->getMorphType()) === $this->morphClass &&
             $model->getAttribute('field') === $this->relationName;
+    }
+
+    /**
+     * ensureAttachOneIsSingular ensures AttachOne only has one attachment,
+     * by deleting siblings for singular relations.
+     */
+    protected function ensureAttachOneIsSingular()
+    {
+        if ($this instanceof AttachOne && $this->parent->exists) {
+            $this->delete();
+        }
     }
 
     /**

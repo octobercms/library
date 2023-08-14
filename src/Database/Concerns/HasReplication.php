@@ -19,11 +19,41 @@ trait HasReplication
      */
     public function replicateWithRelations(array $except = null)
     {
+        return $this->replicateRelationsInternal($except);
+    }
+
+    /**
+     * duplicateWithRelations replicates a model with special multisite duplication logic.
+     * To avoid duplication of has many relations, the logic only propagates relations on
+     * the parent model since they are shared via site_root_id beyond this point.
+     *
+     * @param  array|null  $except
+     * @return static
+     */
+    public function duplicateWithRelations(array $except = null)
+    {
+        return $this->replicateRelationsInternal($except, ['isDuplicate' => true]);
+    }
+
+    /**
+     * replicateRelationsInternal
+     */
+    protected function replicateRelationsInternal(array $except = null, array $options = [])
+    {
+        extract(array_merge([
+            'isDuplicate' => false
+        ], $options));
+
         $defaults = [
             $this->getKeyName(),
             $this->getCreatedAtColumn(),
             $this->getUpdatedAtColumn(),
         ];
+
+        $isMultisite = $this->isClassInstanceOf(\October\Contracts\Database\MultisiteInterface::class);
+        if ($isMultisite) {
+            $defaults[] = 'site_root_id';
+        }
 
         $attributes = Arr::except(
             $this->attributes, $except ? array_unique(array_merge($except, $defaults)) : $defaults
@@ -39,7 +69,7 @@ trait HasReplication
 
         foreach ($definitions as $type => $relations) {
             foreach ($relations as $name => $options) {
-                if ($this->isRelationReplicable($name)) {
+                if ($this->isRelationReplicable($name, $isMultisite, $isDuplicate)) {
                     $this->replicateRelationInternal($instance->$name(), $this->$name);
                 }
             }
@@ -77,10 +107,15 @@ trait HasReplication
      * isRelationReplicable determines whether the specified relation should be replicated
      * when replicateWithRelations() is called instead of save() on the model. Default: true.
      */
-    protected function isRelationReplicable(string $name): bool
+    protected function isRelationReplicable(string $name, bool $isMultisite, bool $isDuplicate): bool
     {
         $relationType = $this->getRelationType($name);
         if ($relationType === 'morphTo') {
+            return false;
+        }
+
+        // Relation is shared via propagation
+        if (!$isDuplicate && $isMultisite && $this->isAttributePropagatable($name)) {
             return false;
         }
 

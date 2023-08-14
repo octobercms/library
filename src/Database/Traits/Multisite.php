@@ -47,15 +47,15 @@ trait Multisite
 
         $this->bindEvent('model.beforeSave', [$this, 'multisiteBeforeSave']);
 
-        $this->bindEvent('model.afterSave', [$this, 'multisiteAfterSave']);
-
         $this->bindEvent('model.afterCreate', [$this, 'multisiteAfterCreate']);
+
+        $this->bindEvent('model.saveComplete', [$this, 'multisiteSaveComplete']);
 
         $this->defineMultisiteRelations();
     }
 
     /**
-     * multisiteBeforeSave constructor event
+     * multisiteBeforeSave constructor event used internally
      */
     public function multisiteBeforeSave()
     {
@@ -67,9 +67,9 @@ trait Multisite
     }
 
     /**
-     * multisiteAfterSave constructor event
+     * multisiteSaveComplete constructor event used internally
      */
-    public function multisiteAfterSave()
+    public function multisiteSaveComplete()
     {
         if ($this->getSaveOption('propagate') !== true) {
             return;
@@ -101,7 +101,7 @@ trait Multisite
     }
 
     /**
-     * multisiteAfterCreate constructor event
+     * multisiteAfterCreate constructor event used internally
      */
     public function multisiteAfterCreate()
     {
