@@ -421,6 +421,9 @@ class Model extends EloquentModel
             $this->commitDeferredAfter($this->sessionKey);
         }
 
+        // After save deferred binding
+        $this->fireEvent('model.saveComplete');
+
         return $result;
     }
 
