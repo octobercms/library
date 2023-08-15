@@ -12,23 +12,20 @@ class TreeCollection extends Collection
 {
     /**
      * toNested converts a flat collection of nested set models to an set where
-     * children is eager loaded
-     * @param bool $removeOrphans Remove nodes that exist without their parents.
+     * children is eager loaded. removeOrphans removes nodes that exist without
+     * their parents.
+     * @param bool $removeOrphans
      * @return \October\Rain\Database\Collection
      */
     public function toNested($removeOrphans = true)
     {
-        /*
-         * Set new collection for "children" relations
-         */
+        // Set new collection for "children" relations
         $collection = $this->getDictionary();
         foreach ($collection as $key => $model) {
             $model->setRelation('children', new Collection);
         }
 
-        /*
-         * Assign all child nodes to their parents
-         */
+        // Assign all child nodes to their parents
         $nestedKeys = [];
         foreach ($collection as $key => $model) {
             if (!$parentKey = $model->getParentId()) {
@@ -44,9 +41,7 @@ class TreeCollection extends Collection
             }
         }
 
-        /*
-         * Remove processed nodes
-         */
+        // Remove processed nodes
         foreach ($nestedKeys as $key) {
             unset($collection[$key]);
         }
@@ -64,9 +59,7 @@ class TreeCollection extends Collection
      */
     public function listsNested($value, $key = null, $indent = '&nbsp;&nbsp;&nbsp;')
     {
-        /*
-         * Recursive helper function
-         */
+        // Recursive helper function
         $buildCollection = function ($items, $depth = 0) use (&$buildCollection, $value, $key, $indent) {
             $result = [];
 
@@ -92,9 +85,7 @@ class TreeCollection extends Collection
             return $result;
         };
 
-        /*
-         * Build a nested collection
-         */
+        // Build a nested collection
         $rootItems = $this->toNested();
         return $buildCollection($rootItems);
     }
