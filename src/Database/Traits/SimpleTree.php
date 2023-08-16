@@ -114,6 +114,24 @@ trait SimpleTree
         return count($this->getAllChildren());
     }
 
+    /**
+     * getParents returns an array of parents, this is a heavy query and can produce
+     * in multiple queries.
+     */
+    public function getParents()
+    {
+        $result = [];
+
+        $parent = $this;
+        $result[] = $parent;
+
+        while ($parent = $parent->parent) {
+            $result[] = $parent;
+        }
+
+        return array_reverse($result);
+    }
+
     //
     // Scopes
     //
