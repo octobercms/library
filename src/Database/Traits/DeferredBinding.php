@@ -196,7 +196,7 @@ trait DeferredBinding
             $relationObj = $this->$relationName();
             if ($binding->is_bind) {
                 if (in_array($relationType, ['belongsToMany', 'morphToMany', 'morphedByMany'])) {
-                    $relationObj->add($slaveModel, null, (array) $binding->pivot_data);
+                    $relationObj->add($slaveModel, null, $binding->getPivotDataForBind());
                 }
                 else {
                     $relationObj->add($slaveModel);

@@ -56,6 +56,24 @@ class DeferredBinding extends Model
     }
 
     /**
+     * getPivotDataForBind strips attributes beginning with an underscore, allowing
+     * meta data to be stored using the column alongside the data.
+     */
+    public function getPivotDataForBind(): array
+    {
+        $data = [];
+
+        foreach ((array) $this->pivot_data as $key => $value) {
+            if (str_starts_with($key, '_')) {
+                continue;
+            }
+
+            $data[$key] = $value;
+        }
+        return $data;
+    }
+
+    /**
      * findBindingRecord finds a duplicate binding record
      */
     protected function findBindingRecord()
