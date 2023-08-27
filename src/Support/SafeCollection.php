@@ -5,7 +5,7 @@ use October\Contracts\Twig\CallsAnyMethod;
 
 /**
  * SafeCollection is a collection proxy class that is safe for use in Twig
- * without exposing callable classes, which are unusable in Twig anyway.
+ * without exposing callable functions, which are unusable in Twig anyway.
  *
  * @package october\support
  * @author Alexey Bobkov, Samuel Georges
@@ -20,8 +20,8 @@ class SafeCollection implements CallsAnyMethod
     protected $collection;
 
     /**
-     * @var array hybridCallableArgs are methods that can take a string value or a callable array,
-     * this would allow callable strings that might be used as attributes , e.g. 'passthru'
+     * @var array hybridCallableArgs are methods that can take a string value or a callable array.
+     * This allows callable strings that might be used as attributes, e.g. 'passthru'
      */
     protected $hybridCallableArgs = [
         'contains',
