@@ -50,13 +50,14 @@ class SectionParser
         $trim($settings);
 
         // Build content
-        //
         $content = [];
 
+        // Settings section
         if ($settings) {
-            $content[] = $iniParser->render($settings);
+            $content[] = self::cleanContentSections($iniParser->render($settings));
         }
 
+        // Code section
         if ($code) {
             if ($wrapCodeInPhpTags) {
                 $code = preg_replace('/^\<\?php/', '', $code);
@@ -71,9 +72,10 @@ class SectionParser
             }
         }
 
-        // Strip content separator from content as a method of escape
-        $content[] = implode('', self::splitContentSections($markup));
+        // Content section
+        $content[] = self::cleanContentSections($markup);
 
+        // Assemble template content
         $content = trim(implode(PHP_EOL.self::SECTION_SEPARATOR.PHP_EOL, $content));
 
         return $content;
@@ -180,6 +182,15 @@ class SectionParser
         }
 
         return $result;
+    }
+
+    /**
+     * cleanContentSections ensures the content does not attempt to escape its section
+     * by using the separator sequence. The content separator is simply removed.
+     */
+    protected static function cleanContentSections($content)
+    {
+        return implode('', self::splitContentSections($content));
     }
 
     /**
