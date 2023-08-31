@@ -54,7 +54,7 @@ class SectionParser
 
         // Settings section
         if ($settings) {
-            $content[] = self::cleanContentSections($iniParser->render($settings));
+            $content[] = self::cleanTemplateSection($iniParser->render($settings));
         }
 
         // Code section
@@ -73,7 +73,7 @@ class SectionParser
         }
 
         // Content section
-        $content[] = self::cleanContentSections($markup);
+        $content[] = self::cleanTemplateSection($markup);
 
         // Assemble template content
         $content = trim(implode(PHP_EOL.self::SECTION_SEPARATOR.PHP_EOL, $content));
@@ -185,10 +185,10 @@ class SectionParser
     }
 
     /**
-     * cleanContentSections ensures the content does not attempt to escape its section
+     * cleanTemplateSection ensures the content does not attempt to escape its section
      * by using the separator sequence. The content separator is simply removed.
      */
-    protected static function cleanContentSections($content)
+    protected static function cleanTemplateSection($content)
     {
         return implode('', self::splitContentSections($content));
     }
