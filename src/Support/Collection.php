@@ -3,7 +3,7 @@
 use Illuminate\Support\Collection as CollectionBase;
 
 /**
- * Collection is an umbrealla class for Laravel's Collection
+ * Collection is an umbrella class for Laravel's Collection
  *
  * @package october\support
  * @author Alexey Bobkov, Samuel Georges

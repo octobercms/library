@@ -10,7 +10,8 @@
         data-request="onDelete"
         data-list-checked-trigger
         data-list-checked-request
-        data-stripe-load-indicator>
+        data-stripe-load-indicator
+        disabled>
         <?= e(trans('backend::lang.list.delete_selected')) ?>
     </button>
 </div>
