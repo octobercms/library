@@ -261,6 +261,22 @@ class Manager
     }
 
     /**
+     * getAuthCredentials returns auth credentials added to the config file
+     */
+    public function getAuthCredentials($hostname, $type = null): ?array
+    {
+        if ($type === null) {
+            $type = 'http-basic';
+        }
+
+        $authFile = $this->getAuthPath();
+
+        $config = json_decode(file_get_contents($authFile), true);
+
+        return $config[$type][$hostname] ?? null;
+    }
+
+    /**
      * makeComposer returns a new instance of composer
      */
     protected function makeComposer(): Composer
