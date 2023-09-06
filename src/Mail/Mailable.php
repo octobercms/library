@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Mail;
 
 use App;
+use Site;
 use Illuminate\Mail\Mailable as MailableBase;
 
 /**
@@ -13,6 +14,11 @@ class Mailable extends MailableBase
 {
     use \Illuminate\Bus\Queueable;
     use \Illuminate\Queue\SerializesModels;
+
+    /**
+     * @var string siteContext is the active site for this mail message.
+     */
+    public $siteContext;
 
     /**
      * Build the message.
@@ -50,6 +56,8 @@ class Mailable extends MailableBase
     {
         $this->viewData['_current_locale'] = $this->locale ?: App::getLocale();
 
+        $this->viewData['_current_site'] = Site::getSiteIdFromContext();
+
         foreach ($data as $param => $value) {
             $this->viewData[$param] = $this->getSerializedPropertyValue($value);
         }
@@ -70,5 +78,34 @@ class Mailable extends MailableBase
         }
 
         return $this;
+    }
+
+    /**
+     * siteContext sets the site context of the message.
+     *
+     * @param  string  $siteId
+     * @return $this
+     */
+    public function siteContext($siteId)
+    {
+        $this->siteContext = $siteId;
+
+        return $this;
+    }
+
+    /**
+     * withSiteContext runs the callback with the given site context.
+     *
+     * @param  string  $siteId
+     * @param  \Closure  $callback
+     * @return mixed
+     */
+    public function withSiteContext($siteId, $callback)
+    {
+        if (!$siteId) {
+            return $callback();
+        }
+
+        return Site::withContext($siteId, $callback);
     }
 }
