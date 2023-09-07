@@ -1,5 +1,7 @@
 <?php namespace October\Rain\Mail;
 
+use App;
+use Site;
 use Event;
 use Config;
 use Illuminate\Mail\Mailer as MailerBase;
@@ -283,6 +285,10 @@ class Mailer extends MailerBase
     protected function buildQueueMailable($view, $data, $callback, $queue)
     {
         $mailable = new Mailable;
+
+        $mailable->locale(App::getLocale());
+
+        $mailable->siteContext(Site::getSiteIdFromContext());
 
         $mailable->view($view)->withSerializedData($data);
 

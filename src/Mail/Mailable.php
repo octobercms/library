@@ -94,18 +94,20 @@ class Mailable extends MailableBase
     }
 
     /**
-     * withSiteContext runs the callback with the given site context.
+     * withLocale acts as a hook to also apply the site context
      *
-     * @param  string  $siteId
+     * @param  string  $locale
      * @param  \Closure  $callback
      * @return mixed
      */
-    public function withSiteContext($siteId, $callback)
+    public function withLocale($locale, $callback)
     {
-        if (!$siteId) {
-            return $callback();
+        if (!$this->siteContext) {
+            return parent::withLocale($locale, $callback);
         }
 
-        return Site::withContext($siteId, $callback);
+        return Site::withContext($this->siteContext, function() use ($locale, $callback) {
+            return parent::withLocale($locale, $callback);
+        });
     }
 }
