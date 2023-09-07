@@ -67,7 +67,7 @@ trait DeferOneOrMany
             }
 
             // Bind (Add)
-            $query = $query->orWhereIn($this->getWithDeferredQualifiedKeyName(), function ($query) use ($sessionKey) {
+            $query = $query->orWhereIn($this->related->getQualifiedKeyName(), function ($query) use ($sessionKey) {
                 $query
                     ->select('slave_id')
                     ->from('deferred_bindings')
@@ -79,7 +79,7 @@ trait DeferOneOrMany
         });
 
         // Unbind (Remove)
-        $newQuery->whereNotIn($this->getWithDeferredQualifiedKeyName(), function ($query) use ($sessionKey) {
+        $newQuery->whereNotIn($this->related->getQualifiedKeyName(), function ($query) use ($sessionKey) {
             $query
                 ->select('slave_id')
                 ->from('deferred_bindings')
