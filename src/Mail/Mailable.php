@@ -56,7 +56,7 @@ class Mailable extends MailableBase
     {
         $this->viewData['_current_locale'] = $this->locale ?: App::getLocale();
 
-        $this->viewData['_current_site'] = Site::getSiteIdFromContext();
+        $this->viewData['_current_site'] = $this->siteContext ?: Site::getSiteIdFromContext();
 
         foreach ($data as $param => $value) {
             $this->viewData[$param] = $this->getSerializedPropertyValue($value);
