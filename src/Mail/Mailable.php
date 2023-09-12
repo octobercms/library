@@ -21,6 +21,11 @@ class Mailable extends MailableBase
     public $siteContext;
 
     /**
+     * @var string forceMailer forces the mailer to use.
+     */
+    public $forceMailer;
+
+    /**
      * Build the message.
      *
      * @return $this
@@ -109,5 +114,30 @@ class Mailable extends MailableBase
         return Site::withContext($this->siteContext, function() use ($locale, $callback) {
             return parent::withLocale($locale, $callback);
         });
+    }
+
+    /**
+     * forceMailer forces sending using a different mail driver, useful if lazy loading
+     * the mail driver configuration for multisite.
+     * @param  string  $mailer
+     * @return $this
+     */
+    public function forceMailer($mailer)
+    {
+        $this->forceMailer = $mailer;
+
+        return $this;
+    }
+
+    /**
+     * mailer sets the name of the mailer that should send the message.
+     * @param  string  $mailer
+     * @return $this
+     */
+    public function mailer($mailer)
+    {
+        $this->mailer = $this->forceMailer ?: $mailer;
+
+        return $this;
     }
 }
