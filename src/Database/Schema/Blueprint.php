@@ -14,6 +14,7 @@ class Blueprint extends BaseBlueprint
      * multisite adds columns used by the Multisite trait
      *
      * @param  string  $column
+     * @param  string|null  $indexName
      * @return void
      */
     public function multisite($column = 'site_id', $indexName = null)
