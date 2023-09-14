@@ -10,4 +10,18 @@ use Illuminate\Database\Schema\Blueprint as BaseBlueprint;
  */
 class Blueprint extends BaseBlueprint
 {
+    /**
+     * multisite adds columns used by the Multisite trait
+     *
+     * @param  string  $column
+     * @return void
+     */
+    public function multisite($column = 'site_id', $indexName = null)
+    {
+        $this->unsignedBigInteger($column)->nullable();
+
+        $this->unsignedBigInteger('site_root_id')->nullable();
+
+        $this->index([$column, 'site_root_id'], $indexName);
+    }
 }
