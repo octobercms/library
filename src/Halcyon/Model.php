@@ -130,6 +130,11 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     protected static $booted = [];
 
     /**
+     * @var array traitInitializers that will be called on each new instance.
+     */
+    protected static $traitInitializers = [];
+
+    /**
      * __construct a new Halcyon model instance.
      * @param  array  $attributes
      * @return void
@@ -137,6 +142,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     public function __construct(array $attributes = [])
     {
         $this->bootIfNotBooted();
+
+        $this->initializeTraits();
 
         $this->bootNicerEvents();
 
@@ -152,17 +159,25 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     protected function bootIfNotBooted()
     {
-        $class = get_class($this);
-
-        if (!isset(static::$booted[$class])) {
-            static::$booted[$class] = true;
+        if (!isset(static::$booted[static::class])) {
+            static::$booted[static::class] = true;
 
             $this->fireModelEvent('booting', false);
 
+            static::booting();
             static::boot();
+            static::booted();
 
             $this->fireModelEvent('booted', false);
         }
+    }
+
+    /**
+     * booting performs any actions required before the model boots.
+     */
+    protected static function booting()
+    {
+        //
     }
 
     /**
@@ -178,11 +193,47 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     protected static function bootTraits()
     {
-        foreach (class_uses_recursive(get_called_class()) as $trait) {
-            if (method_exists(get_called_class(), $method = 'boot'.class_basename($trait))) {
-                forward_static_call([get_called_class(), $method]);
+        $class = static::class;
+
+        $booted = [];
+
+        static::$traitInitializers[$class] = [];
+
+        foreach (class_uses_recursive($class) as $trait) {
+            $method = 'boot'.class_basename($trait);
+
+            if (method_exists($class, $method) && ! in_array($method, $booted)) {
+                forward_static_call([$class, $method]);
+
+                $booted[] = $method;
+            }
+
+            if (method_exists($class, $method = 'initialize'.class_basename($trait))) {
+                static::$traitInitializers[$class][] = $method;
+
+                static::$traitInitializers[$class] = array_unique(
+                    static::$traitInitializers[$class]
+                );
             }
         }
+    }
+
+    /**
+     * initializeTraits on the model.
+     */
+    protected function initializeTraits()
+    {
+        foreach (static::$traitInitializers[static::class] as $method) {
+            $this->{$method}();
+        }
+    }
+
+    /**
+     * booted performs any actions required after the model boots.
+     */
+    protected static function booted()
+    {
+        //
     }
 
     /**
@@ -1341,7 +1392,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Get the datasource for the model.
+     * getDatasource for the model.
      *
      * @return \October\Rain\Halcyon\Datasource\DatasourceInterface
      */
@@ -1351,7 +1402,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Get the current datasource name for the model.
+     * getDatasourceName for the model.
      *
      * @return string
      */
@@ -1361,7 +1412,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Set the datasource associated with the model.
+     * setDatasource associated with the model.
      *
      * @param  string  $name
      * @return $this
@@ -1374,7 +1425,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Resolve a datasource instance.
+     * resolveDatasource instance.
      *
      * @param  string|null  $datasource
      * @return \October\Rain\Halcyon\Datasource
@@ -1385,7 +1436,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Get the datasource resolver instance.
+     * getDatasourceResolver instance.
      *
      * @return \October\Rain\Halcyon\DatasourceResolverInterface
      */
@@ -1395,7 +1446,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Set the datasource resolver instance.
+     * setDatasourceResolver instance.
      *
      * @param  \October\Rain\Halcyon\Datasource\ResolverInterface  $resolver
      * @return void
@@ -1406,7 +1457,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Unset the datasource resolver for models.
+     * unsetDatasourceResolver for models.
      *
      * @return void
      */
@@ -1416,7 +1467,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Get the event dispatcher instance.
+     * getEventDispatcher instance.
      *
      * @return \Illuminate\Contracts\Events\Dispatcher
      */
@@ -1426,7 +1477,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Set the event dispatcher instance.
+     * setEventDispatcher instance.
      *
      * @param  \Illuminate\Contracts\Events\Dispatcher  $dispatcher
      * @return void
@@ -1437,7 +1488,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Unset the event dispatcher for models.
+     * unsetEventDispatcher for models.
      *
      * @return void
      */
@@ -1447,7 +1498,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Get the cache manager instance.
+     * getCacheManager instance.
      *
      * @return \Illuminate\Cache\CacheManager
      */
@@ -1457,7 +1508,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Set the cache manager instance.
+     * setCacheManager instance.
      *
      * @param  \Illuminate\Cache\CacheManager  $cache
      * @return void
@@ -1468,7 +1519,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Unset the cache manager for models.
+     * unsetCacheManager for models.
      *
      * @return void
      */
@@ -1478,7 +1529,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Initializes the object properties from the cached data. The extra data
+     * initCacheItem initializes the object properties from the cached data. The extra data
      * set here becomes available as attributes set on the model after fetch.
      * @param array $cached The cached data array.
      */
@@ -1487,7 +1538,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Get the mutated attributes for a given instance.
+     * getMutatedAttributes gets the mutated attributes for a given instance.
      *
      * @return array
      */
@@ -1503,7 +1554,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Extract and cache all the mutated attributes of a class.
+     * cacheMutatedAttributes extracts and cache all the mutated attributes of a class.
      *
      * @param  string  $class
      * @return void
@@ -1525,7 +1576,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Dynamically retrieve attributes on the model.
+     * __get dynamically retrieve attributes on the model.
      *
      * @param  string  $key
      * @return mixed
@@ -1536,7 +1587,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Dynamically set attributes on the model.
+     * __set dynamically set attributes on the model.
      *
      * @param  string  $key
      * @param  mixed  $value
@@ -1553,7 +1604,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Determine if the given attribute exists.
+     * offsetExists determines if the given attribute exists.
      *
      * @param  mixed  $offset
      * @return bool
@@ -1564,7 +1615,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Get the value for a given offset.
+     * offsetGet the value for a given offset.
      *
      * @param  mixed  $offset
      * @return mixed
@@ -1575,7 +1626,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Set the value for a given offset.
+     * offsetSet the value for a given offset.
      *
      * @param  mixed  $offset
      * @param  mixed  $value
@@ -1587,7 +1638,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Unset the value for a given offset.
+     * offsetUnset the value for a given offset.
      *
      * @param  mixed  $offset
      * @return void
@@ -1598,7 +1649,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Determine if an attribute exists on the model.
+     * __isset determines if an attribute exists on the model.
      *
      * @param  string  $key
      * @return bool
@@ -1613,7 +1664,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Unset an attribute on the model.
+     * __unset an attribute on the model.
      *
      * @param  string  $key
      * @return void
@@ -1624,7 +1675,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Handle dynamic method calls into the model.
+     * __call handles dynamic method calls into the model.
      *
      * @param  string  $method
      * @param  array  $parameters
@@ -1642,7 +1693,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Handle dynamic static method calls into the method.
+     * __callStatic handles dynamic static method calls into the method.
      *
      * @param  string  $method
      * @param  array  $parameters
@@ -1656,12 +1707,38 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Convert the model to its string representation.
+     * __toString converts the model to its string representation.
      *
      * @return string
      */
     public function __toString()
     {
         return $this->toJson();
+    }
+
+    /**
+     * __sleep prepare the object for serialization.
+     */
+    public function __sleep()
+    {
+        $this->unbindEvent();
+
+        $this->extendableDestruct();
+
+        return parent::__sleep();
+    }
+
+    /**
+     * __wakeup when a model is being unserialized, check if it needs to be booted.
+     */
+    public function __wakeup()
+    {
+        parent::__wakeup();
+
+        $this->bootIfNotBooted();
+
+        $this->initializeTraits();
+
+        $this->bootNicerEvents();
     }
 }
