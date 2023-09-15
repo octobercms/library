@@ -141,6 +141,40 @@ class Manager
     }
 
     /**
+     * getPackageVersions returns version numbers for the specified packages
+     */
+    public function getPackageVersions(array $packageNames): array
+    {
+        $result = [];
+        $packages = $this->listAllPackages();
+
+        foreach ($packageNames as $wantPackage) {
+            $wantPackageLower = mb_strtolower($wantPackage);
+
+            foreach ($packages as $package) {
+                if (!isset($package['name'])) {
+                    continue;
+                }
+                if (mb_strtolower($package['name']) === $wantPackageLower) {
+                    $result[$wantPackage] = $package['version'] ?? null;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * hasPackage returns true if the specified package is installed
+     */
+    public function hasPackage($name): bool
+    {
+        $name = mb_strtolower($name);
+
+        return array_key_exists($name, $this->getPackageVersions([$name]));
+    }
+
+    /**
      * listPackages returns a list of directly installed packages
      */
     public function listPackages()
@@ -224,6 +258,22 @@ class Manager
             'username' => $username,
             'password' => $password
         ]);
+    }
+
+    /**
+     * getAuthCredentials returns auth credentials added to the config file
+     */
+    public function getAuthCredentials($hostname, $type = null): ?array
+    {
+        if ($type === null) {
+            $type = 'http-basic';
+        }
+
+        $authFile = $this->getAuthPath();
+
+        $config = json_decode(file_get_contents($authFile), true);
+
+        return $config[$type][$hostname] ?? null;
     }
 
     /**

@@ -1,9 +1,11 @@
 <?php namespace October\Rain\Database;
 
+use Date;
 use October\Rain\Support\Arr;
-use October\Rain\Argon\Argon;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Collection as CollectionBase;
+use Carbon\CarbonInterface;
+use InvalidArgumentException;
 use DateTimeInterface;
 use Exception;
 
@@ -60,6 +62,8 @@ class Model extends EloquentModel
         $this->bootNicerEvents();
 
         $this->extendableConstruct();
+
+        $this->initializeModelEvent();
 
         $this->fill($attributes);
     }
@@ -185,15 +189,6 @@ class Model extends EloquentModel
     //
 
     /**
-     * freshTimestamp for the model.
-     * @return \October\Rain\Argon\Argon
-     */
-    public function freshTimestamp()
-    {
-        return new Argon;
-    }
-
-    /**
      * asDateTime returns a timestamp as DateTime object.
      *
      * @param  mixed  $value
@@ -201,43 +196,35 @@ class Model extends EloquentModel
      */
     protected function asDateTime($value)
     {
-        if ($value instanceof Argon) {
-            return $value;
+        if ($value instanceof CarbonInterface) {
+            return Date::instance($value);
         }
 
         if ($value instanceof DateTimeInterface) {
-            return new Argon(
+            return Date::parse(
                 $value->format('Y-m-d H:i:s.u'),
                 $value->getTimezone()
             );
         }
 
         if (is_numeric($value)) {
-            return Argon::createFromTimestamp($value);
+            return Date::createFromTimestamp($value);
         }
 
         if ($this->isStandardDateFormat($value)) {
-            return Argon::createFromFormat('Y-m-d', $value)->startOfDay();
+            return Date::createFromFormat('Y-m-d', $value)->startOfDay();
         }
 
-        return Argon::createFromFormat(
-            str_replace('.v', '.u', $this->getDateFormat()),
-            $value
-        );
-    }
+        $format = $this->getDateFormat();
 
-    /**
-     * fromDateTime convert a DateTime to a storable string.
-     * @param  \DateTime|int  $value
-     * @return string
-     */
-    public function fromDateTime($value)
-    {
-        if (is_null($value)) {
-            return $value;
+        try {
+            $date = Date::createFromFormat($format, $value);
+        }
+        catch (InvalidArgumentException $ex) {
+            $date = false;
         }
 
-        return parent::fromDateTime($value);
+        return $date ?: Date::parse($value);
     }
 
     /**
@@ -530,5 +517,7 @@ class Model extends EloquentModel
         $this->bootNicerEvents();
 
         $this->extendableConstruct();
+
+        $this->initializeModelEvent();
     }
 }

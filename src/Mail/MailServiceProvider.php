@@ -16,13 +16,13 @@ class MailServiceProvider extends MailServiceProviderBase
     protected function registerIlluminateMailer()
     {
         $this->app->singleton('mail.manager', function ($app) {
-            // Extensibility
+            // @deprecated use mailer.beforeResolve or callBeforeResolving
             $this->app['events']->dispatch('mailer.beforeRegister', [$this]);
 
             // Inheritance
             $manager = new MailManager($app);
 
-            // Extensibility
+            // @deprecated use mailer.resolve or callAfterResolving
             $this->app['events']->dispatch('mailer.register', [$this, $manager]);
 
             return $manager;

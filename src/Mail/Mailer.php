@@ -1,5 +1,7 @@
 <?php namespace October\Rain\Mail;
 
+use App;
+use Site;
 use Event;
 use Config;
 use Illuminate\Mail\Mailer as MailerBase;
@@ -87,27 +89,27 @@ class Mailer extends MailerBase
             $this->setGlobalToAndRemoveCcAndBcc($message);
         }
 
-         /**
-          * @event mailer.prepareSend
-          * Fires before the mailer processes the sending action
-          *
-          * Parameters:
-          * - $view: View code as a string
-          * - $message: Illuminate\Mail\Message object, check Swift_Mime_SimpleMessage for useful functions.
-          *
-          * Example usage (stops the sending process):
-          *
-          *     Event::listen('mailer.prepareSend', function ((\October\Rain\Mail\Mailer) $mailerInstance, (string) $view, (\Illuminate\Mail\Message) $message) {
-          *         return false;
-          *     });
-          *
-          * Or
-          *
-          *     $mailerInstance->bindEvent('mailer.prepareSend', function ((string) $view, (\Illuminate\Mail\Message) $message) {
-          *         return false;
-          *     });
-          *
-          */
+        /**
+         * @event mailer.prepareSend
+         * Fires before the mailer processes the sending action
+         *
+         * Parameters:
+         * - $view: View code as a string
+         * - $message: Illuminate\Mail\Message object, check Swift_Mime_SimpleMessage for useful functions.
+         *
+         * Example usage (stops the sending process):
+         *
+         *     Event::listen('mailer.prepareSend', function ((\October\Rain\Mail\Mailer) $mailerInstance, (string) $view, (\Illuminate\Mail\Message) $message) {
+         *         return false;
+         *     });
+         *
+         * Or
+         *
+         *     $mailerInstance->bindEvent('mailer.prepareSend', function ((string) $view, (\Illuminate\Mail\Message) $message) {
+         *         return false;
+         *     });
+         *
+         */
         if (
             ($this->fireEvent('mailer.prepareSend', [$view, $message], true) === false) ||
             (Event::fire('mailer.prepareSend', [$this, $view, $message], true) === false)
@@ -284,6 +286,10 @@ class Mailer extends MailerBase
     {
         $mailable = new Mailable;
 
+        $mailable->locale(App::getLocale());
+
+        $mailable->siteContext(Site::getSiteIdFromContext());
+
         $mailable->view($view)->withSerializedData($data);
 
         if ($queue !== null) {
@@ -293,6 +299,20 @@ class Mailer extends MailerBase
         if ($callback !== null) {
             call_user_func($callback, $mailable);
         }
+
+        /**
+         * @event mailer.buildQueueMailable
+         * Process the mailable object used when adding mail to the queue
+         *
+         * Example usage:
+         *
+         *     Event::listen('mailer.buildQueueMailable', function ((\October\Rain\Mail\Mailer) $mailerInstance, (\October\Rain\Mail\Mailable) $mailable) {
+         *         $mailable->mailer('smtp');
+         *     });
+         *
+         */
+        $this->fireEvent('mailer.buildQueueMailable', [$mailable]);
+        Event::fire('mailer.buildQueueMailable', [$this, $mailable]);
 
         return $mailable;
     }

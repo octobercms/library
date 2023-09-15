@@ -41,7 +41,7 @@ trait SyntaxModelTrait
     }
 
     /**
-     * Prepare the syntax field data for saving.
+     * getFormSyntaxData prepares the syntax field data for saving.
      */
     public function getFormSyntaxData()
     {
@@ -57,9 +57,7 @@ trait SyntaxModelTrait
                 continue;
             }
 
-            /*
-             * File upload
-             */
+            // File upload
             if ($params['type'] === 'fileupload' && $this->hasRelation($field)) {
                 if ($this->sessionKey) {
                     if ($image = $this->$field()->withDeferred($this->sessionKey)->first()) {
@@ -79,7 +77,7 @@ trait SyntaxModelTrait
     }
 
     /**
-     * Helper to get the perfect sized image.
+     * getThumbForImage helper to get the perfect sized image.
      */
     protected function getThumbForImage($image, $params = [])
     {

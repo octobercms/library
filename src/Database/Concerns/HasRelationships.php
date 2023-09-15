@@ -19,7 +19,22 @@ use Illuminate\Database\Eloquent\Collection as CollectionBase;
 use InvalidArgumentException;
 
 /**
- * HasRelationships concern for a model
+ * HasRelationships concern for a model, using a cleaner declaration of relationships.
+ *
+ * Uses a similar approach to the relation methods used by Eloquent, but as separate properties
+ * that make the class file less cluttered.
+ *
+ * It should be declared with keys as the relation name, and value being a mixed array.
+ * The relation type $morphTo does not include a class name as the first value.
+ *
+ * Example:
+ *
+ * class Order extends Model
+ * {
+ *     protected $hasMany = [
+ *         'items' => Item::class
+ *     ];
+ * }
  *
  * @package october\database
  * @author Alexey Bobkov, Samuel Georges
@@ -27,126 +42,116 @@ use InvalidArgumentException;
 trait HasRelationships
 {
     /**
-     * Cleaner declaration of relationships.
-     * Uses a similar approach to the relation methods used by Eloquent, but as separate properties
-     * that make the class file less cluttered.
+     * @var array hasOne related record, inverse of belongsTo.
      *
-     * It should be declared with keys as the relation name, and value being a mixed array.
-     * The relation type $morphTo does not include a class name as the first value.
-     *
-     * Example:
-     * class Order extends Model
-     * {
-     *     protected $hasMany = [
-     *         'items' => 'Item'
-     *     ];
-     * }
-     *
-     * @var array
-     */
-    public $hasMany = [];
-
-    /**
      * protected $hasOne = [
-     *     'owner' => ['User', 'key' => 'user_id']
+     *     'owner' => [User::class, 'key' => 'user_id']
      * ];
      *
-     * @var array
      */
     public $hasOne = [];
 
     /**
-     * protected $belongsTo = [
-     *     'parent' => ['Category', 'key' => 'parent_id']
-     * ];
+     * @var array hasMany related records, inverse of belongsTo.
      *
-     * @var array
+     * protected $hasMany = [
+     *     'items' => Item::class
+     * ];
+     */
+    public $hasMany = [];
+
+    /**
+     * @var array belongsTo another record with a local key attribute
+     *
+     * protected $belongsTo = [
+     *     'parent' => [Category::class, 'key' => 'parent_id']
+     * ];
      */
     public $belongsTo = [];
 
     /**
-     * protected $belongsToMany = [
-     *     'groups' => ['Group', 'table'=> 'join_groups_users']
-     * ];
+     * @var array belongsToMany to multiple records using a join table.
      *
-     * @var array
+     * protected $belongsToMany = [
+     *     'groups' => [Group::class, 'table'=> 'join_groups_users']
+     * ];
      */
     public $belongsToMany = [];
 
     /**
+     * @var array morphTo another record using local key and type attributes
+     *
      * protected $morphTo = [
      *     'pictures' => []
      * ];
-     *
-     * @var array
      */
     public $morphTo = [];
 
     /**
-     * protected $morphOne = [
-     *     'log' => ['History', 'name' => 'user']
-     * ];
+     * @var array morphOne related record, inverse of morphTo.
      *
-     * @var array
+     * protected $morphOne = [
+     *     'log' => [History::class, 'name' => 'user']
+     * ];
      */
     public $morphOne = [];
 
     /**
-     * protected $morphMany = [
-     *     'log' => ['History', 'name' => 'user']
-     * ];
+     * @var array morphMany related records, inverse of morphTo.
      *
-     * @var array
+     * protected $morphMany = [
+     *     'log' => [History::class, 'name' => 'user']
+     * ];
      */
     public $morphMany = [];
 
     /**
-     * protected $morphToMany = [
-     *     'tag' => ['Tag', 'table' => 'tagables', 'name' => 'tagable']
-     * ];
+     * @var array morphToMany to multiple records using a join table.
      *
-     * @var array
+     * protected $morphToMany = [
+     *     'tag' => [Tag::class, 'table' => 'tagables', 'name' => 'tagable']
+     * ];
      */
     public $morphToMany = [];
 
     /**
-     * @var array
+     * @var array morphedByMany
      */
     public $morphedByMany = [];
 
     /**
-     * protected $attachOne = [
-     *     'picture' => ['October\Rain\Database\Attach\File', 'public' => false]
-     * ];
+     * @var array attachOne file attachment.
      *
-     * @var array
+     * protected $attachOne = [
+     *     'picture' => [\October\Rain\Database\Attach\File::class, 'public' => false]
+     * ];
      */
     public $attachOne = [];
 
     /**
-     * protected $attachMany = [
-     *     'pictures' => ['October\Rain\Database\Attach\File', 'name'=> 'imageable']
-     * ];
+     * @var array attachMany file attachments.
      *
-     * @var array
+     * protected $attachMany = [
+     *     'pictures' => [\October\Rain\Database\Attach\File::class, 'name'=> 'imageable']
+     * ];
      */
     public $attachMany = [];
 
     /**
-     * protected $hasManyThrough = [
-     *     'posts' => ['Posts', 'through' => 'User']
-     * ];
+     * @var array hasManyThrough is related records through another record.
      *
-     * @var array
+     * protected $hasManyThrough = [
+     *     'posts' => [Post::class, 'through' => User::class]
+     * ];
      */
     public $hasManyThrough = [];
 
     /**
-     * protected $hasOneThrough = [
-     *     'post' => ['Posts', 'through' => 'User']
-     * ];
+     * @var array hasOneThrough is a related record through another record.
      *
-     * @var array
+     * protected $hasOneThrough = [
+     *     'post' => [Post::class, 'through' => User::class]
+     * ];
      */
     public $hasOneThrough = [];
 

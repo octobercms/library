@@ -163,8 +163,7 @@ trait Validation
             !$this->relationLoaded($relationName) &&
             $this->hasDeferred($this->sessionKey, $relationName)
         ) {
-            $fetchMethod = $this->isRelationTypeSingular($relationName) ? 'first' : 'get';
-            $data = $this->$relationName()->withDeferred($this->sessionKey)->$fetchMethod();
+            $data = $this->$relationName()->withDeferred($this->sessionKey)->get();
         }
         else {
             $data = $this->$relationName;
@@ -196,10 +195,14 @@ trait Validation
 
         // Process singular
         if ($this->isRelationTypeSingular($relationName)) {
+            if ($data instanceof \Illuminate\Support\Collection) {
+                $data = $data->last();
+            }
+
             return $processValidationValue($data);
         }
 
-        // Process multi
+        // Cast to primitive type
         if ($data instanceof \Illuminate\Support\Collection) {
             $data = $data->all();
         }
@@ -208,6 +211,7 @@ trait Validation
             return null;
         }
 
+        // Process multi
         $result = [];
 
         foreach ($data as $key => $value) {
