@@ -52,10 +52,7 @@ trait HasEvents
         foreach ($nicerEvents as $eventMethod => $method) {
             self::$eventMethod(function ($model) use ($method) {
                 $model->fireEvent('model.' . $method);
-
-                if ($model->methodExists($method)) {
-                    return $model->$method();
-                }
+                return $model->$method();
             });
         }
 
