@@ -61,6 +61,8 @@ class Model extends EloquentModel
 
         $this->extendableConstruct();
 
+        $this->initializeModelEvent();
+
         $this->fill($attributes);
     }
 
@@ -530,5 +532,7 @@ class Model extends EloquentModel
         $this->bootNicerEvents();
 
         $this->extendableConstruct();
+
+        $this->initializeModelEvent();
     }
 }
