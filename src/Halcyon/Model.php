@@ -1224,7 +1224,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function getMutatedAttributes()
     {
-        $class = get_class($this);
+        $class = static::class;
 
         if (!isset(static::$mutatorCache[$class])) {
             static::cacheMutatedAttributes($class);

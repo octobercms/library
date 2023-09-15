@@ -65,7 +65,7 @@ trait Validation
         if (!is_array($this->rules)) {
             throw new Exception(sprintf(
                 'The $rules property in %s must be an array to use the Validation trait.',
-                get_class($this)
+                static::class
             ));
         }
 

@@ -24,7 +24,7 @@ trait Nullable
         if (!is_array($this->nullable)) {
             throw new Exception(sprintf(
                 'The $nullable property in %s must be an array to use the Nullable trait.',
-                get_class($this)
+                static::class
             ));
         }
 

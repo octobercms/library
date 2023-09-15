@@ -29,7 +29,7 @@ trait Purgeable
         if (!is_array($this->purgeable)) {
             throw new Exception(sprintf(
                 'The $purgeable property in %s must be an array to use the Purgeable trait.',
-                get_class($this)
+                static::class
             ));
         }
 

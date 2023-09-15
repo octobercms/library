@@ -45,7 +45,7 @@ trait ExtendableTrait
     public function extendableConstruct()
     {
         // Apply init callbacks
-        $classes = array_merge([get_class($this)], class_parents($this));
+        $classes = array_merge([static::class], class_parents($this));
         foreach ($classes as $class) {
             if (isset(Container::$classCallbacks[$class]) && is_array(Container::$classCallbacks[$class])) {
                 foreach (Container::$classCallbacks[$class] as $callback) {
@@ -122,7 +122,7 @@ trait ExtendableTrait
             $uses = $this->implement;
         }
         else {
-            throw new Exception(sprintf('Class %s contains an invalid $implement value', get_class($this)));
+            throw new Exception(sprintf('Class %s contains an invalid $implement value', static::class));
         }
 
         foreach ($uses as &$use) {
@@ -225,7 +225,7 @@ trait ExtendableTrait
         if (isset($this->extensionData['extensions'][$extensionName])) {
             throw new Exception(sprintf(
                 'Class %s has already been extended with %s',
-                get_class($this),
+                static::class,
                 $extensionName
             ));
         }
@@ -480,7 +480,7 @@ trait ExtendableTrait
         // if (!$found) {
         //     throw new BadMethodCallException(sprintf(
         //         'Call to undefined property %s::%s',
-        //         get_class($this),
+        //         static::class,
         //         $name
         //     ));
         // }
@@ -511,7 +511,7 @@ trait ExtendableTrait
 
         throw new BadMethodCallException(sprintf(
             'Call to undefined method %s::%s()',
-            get_class($this),
+            static::class,
             $name
         ));
     }

@@ -92,13 +92,13 @@ trait NestedTree
     {
         // Define relationships
         $this->hasMany['children'] = [
-            get_class($this),
+            static::class,
             'key' => $this->getParentColumnName(),
             'replicate' => false
         ];
 
         $this->belongsTo['parent'] = [
-            get_class($this),
+            static::class,
             'key' => $this->getParentColumnName(),
             'replicate' => false
         ];

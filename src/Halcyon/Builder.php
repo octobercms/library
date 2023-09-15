@@ -735,7 +735,7 @@ class Builder
      */
     public function __call($method, $parameters)
     {
-        $className = get_class($this);
+        $className = static::class;
 
         throw new BadMethodCallException("Call to undefined method {$className}::{$method}()");
     }

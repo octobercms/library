@@ -26,7 +26,7 @@ trait Sluggable
         if (!is_array($this->slugs)) {
             throw new Exception(sprintf(
                 'The $slugs property in %s must be an array to use the Sluggable trait.',
-                get_class($this)
+                static::class
             ));
         }
 

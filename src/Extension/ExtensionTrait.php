@@ -27,7 +27,7 @@ trait ExtensionTrait
      */
     public function extensionApplyInitCallbacks()
     {
-        $classes = array_merge([get_class($this)], class_parents($this));
+        $classes = array_merge([static::class], class_parents($this));
         foreach ($classes as $class) {
             if (isset(Container::$extensionCallbacks[$class]) && is_array(Container::$extensionCallbacks[$class])) {
                 foreach (Container::$extensionCallbacks[$class] as $callback) {
