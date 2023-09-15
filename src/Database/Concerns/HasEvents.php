@@ -56,6 +56,15 @@ trait HasEvents
     }
 
     /**
+     * initializeModelEvent is called every time the model is constructed.
+     */
+    protected function initializeModelEvent()
+    {
+        $this->fireEvent('model.afterInit');
+        $this->afterInit();
+    }
+
+    /**
      * flushEventListeners removes all of the event listeners for the model
      * Also flush registry of models that had events booted
      * Allows painless unit testing.
@@ -104,8 +113,7 @@ trait HasEvents
     }
 
     /**
-     * afterBoot is called after the model is constructed, a nicer version
-     * of overriding the __construct method.
+     * afterBoot is called after the model is constructed for the first time.
      */
     protected function afterBoot()
     {
@@ -117,6 +125,25 @@ trait HasEvents
          *
          *     $model->bindEvent('model.afterBoot', function () use (\October\Rain\Database\Model $model) {
          *         \Log::info(get_class($model) . ' has booted');
+         *     });
+         *
+         */
+    }
+
+    /**
+     * afterInit is called after the model is constructed, a nicer version
+     * of overriding the __construct method.
+     */
+    protected function afterInit()
+    {
+        /**
+         * @event model.afterInit
+         * Called after the model is initialized
+         *
+         * Example usage:
+         *
+         *     $model->bindEvent('model.afterInit', function () use (\October\Rain\Database\Model $model) {
+         *         \Log::info(get_class($model) . ' has initialized');
          *     });
          *
          */

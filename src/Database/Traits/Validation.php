@@ -193,6 +193,15 @@ trait Validation
             return $value;
         };
 
+        // Process singular
+        if ($this->isRelationTypeSingular($relationName)) {
+            if ($data instanceof \Illuminate\Support\Collection) {
+                $data = $data->last();
+            }
+
+            return $processValidationValue($data);
+        }
+
         // Cast to primitive type
         if ($data instanceof \Illuminate\Support\Collection) {
             $data = $data->all();
@@ -200,11 +209,6 @@ trait Validation
 
         if (!$data || !is_array($data)) {
             return null;
-        }
-
-        // Process singular (last item)
-        if ($this->isRelationTypeSingular($relationName)) {
-            return $processValidationValue($data[array_key_last($data)]);
         }
 
         // Process multi

@@ -148,7 +148,7 @@ trait Multisite
             if ($type === 'belongsToMany') {
                 $this->$type[$name]['parentKey'] = 'site_root_id';
             }
-            elseif (in_array($type, ['hasOne', 'hasMany'])) {
+            elseif (in_array($type, ['belongsTo', 'hasOne', 'hasMany'])) {
                 $this->$type[$name]['otherKey'] = 'site_root_id';
             }
             elseif (in_array($type, ['attachOne', 'attachMany'])) {

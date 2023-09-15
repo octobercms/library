@@ -32,6 +32,10 @@ trait SortableRelation
      */
     public function initializeSortableRelation()
     {
+        $this->bindEvent('model.afterInit', function() {
+            $this->defineSortableRelations();
+        });
+
         $this->bindEvent('model.relation.attach', function ($relationName, $attached, $data) {
             if (!array_key_exists($relationName, $this->getSortableRelations())) {
                 return;
@@ -45,8 +49,6 @@ trait SortableRelation
                 $this->$relationName()->updateExistingPivot($id, [$column => ++$order]);
             }
         });
-
-        $this->defineSortableRelations();
     }
 
     /**
