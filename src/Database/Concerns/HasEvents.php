@@ -18,9 +18,7 @@ trait HasEvents
      */
     protected function bootNicerEvents()
     {
-        $class = get_called_class();
-
-        if (isset(static::$eventsBooted[$class])) {
+        if (isset(static::$eventsBooted[static::class])) {
             return;
         }
 
@@ -49,7 +47,7 @@ trait HasEvents
         $this->fireEvent('model.afterBoot');
         $this->afterBoot();
 
-        static::$eventsBooted[$class] = true;
+        static::$eventsBooted[static::class] = true;
     }
 
     /**

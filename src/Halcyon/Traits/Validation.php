@@ -48,8 +48,8 @@ trait Validation
      */
     public static function bootValidation()
     {
-        if (!property_exists(get_called_class(), 'rules')) {
-            throw new Exception(sprintf('You must define a $rules property in %s to use the Validation trait.', get_called_class()));
+        if (!property_exists(static::class, 'rules')) {
+            throw new Exception(sprintf('You must define a $rules property in %s to use the Validation trait.', static::class));
         }
 
         static::extend(function ($model) {

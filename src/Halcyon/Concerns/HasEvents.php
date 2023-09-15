@@ -30,9 +30,7 @@ trait HasEvents
      */
     protected function bootNicerEvents()
     {
-        $class = get_called_class();
-
-        if (isset(static::$eventsBooted[$class])) {
+        if (isset(static::$eventsBooted[static::class])) {
             return;
         }
 
@@ -60,7 +58,7 @@ trait HasEvents
         $this->fireEvent('model.afterBoot');
         $this->afterBoot();
 
-        static::$eventsBooted[$class] = true;
+        static::$eventsBooted[static::class] = true;
     }
 
     /**
@@ -84,7 +82,7 @@ trait HasEvents
         $instance = new static;
 
         foreach ($instance->getObservableEvents() as $event) {
-            static::$dispatcher->forget("halcyon.{$event}: ".get_called_class());
+            static::$dispatcher->forget("halcyon.{$event}: ".static::class);
         }
 
         static::$eventsBooted = [];

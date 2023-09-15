@@ -330,7 +330,7 @@ trait HasRelationships
             throw new InvalidArgumentException(sprintf(
                 "Relation '%s' on model '%s' should have at least a classname.",
                 $relationName,
-                get_called_class()
+                static::class
             ));
         }
 
@@ -338,7 +338,7 @@ trait HasRelationships
             throw new InvalidArgumentException(sprintf(
                 "Relation '%s' on model '%s' is a morphTo relation and should not contain additional arguments.",
                 $relationName,
-                get_called_class()
+                static::class
             ));
         }
 
@@ -393,7 +393,7 @@ trait HasRelationships
                 break;
 
             default:
-                throw new InvalidArgumentException(sprintf("There is no such relation type known as '%s' on model '%s'.", $relationType, get_called_class()));
+                throw new InvalidArgumentException(sprintf("There is no such relation type known as '%s' on model '%s'.", $relationType, static::class));
         }
 
         // Relation hook event
@@ -430,7 +430,7 @@ trait HasRelationships
             throw new InvalidArgumentException(sprintf(
                 'Relation "%s" on model "%s" should contain the following key(s): %s',
                 $relationName,
-                get_called_class(),
+                static::class,
                 implode(', ', $missingRequired)
             ));
         }
