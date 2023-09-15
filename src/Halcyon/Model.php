@@ -6,7 +6,6 @@ use October\Rain\Extension\Extendable;
 use October\Rain\Halcyon\Datasource\ResolverInterface as Resolver;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Contracts\Events\Dispatcher;
 use BadMethodCallException;
 use JsonSerializable;
 use ArrayAccess;
@@ -21,6 +20,7 @@ use Exception;
 class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
 {
     use \October\Rain\Support\Traits\Emitter;
+    use \October\Rain\Halcyon\Concerns\HasEvents;
 
     /**
      * @var string datasource is the data source for the model, a directory path.
@@ -90,11 +90,6 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     protected $loadedFromCache = false;
 
     /**
-     * @var array observables are user exposed observable events.
-     */
-    protected $observables = [];
-
-    /**
      * @var bool exists indicates if the model exists.
      */
     public $exists = false;
@@ -110,19 +105,9 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     protected static $resolver;
 
     /**
-     * @var \Illuminate\Contracts\Events\Dispatcher dispatcher instance
-     */
-    protected static $dispatcher;
-
-    /**
      * @var array mutatorCache for each class.
      */
     protected static $mutatorCache = [];
-
-    /**
-     * @var array eventsBooted is the array of models booted events.
-     */
-    protected static $eventsBooted = [];
 
     /**
      * @var array booted models
@@ -148,6 +133,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         $this->bootNicerEvents();
 
         parent::__construct();
+
+        $this->initializeModelEvent();
 
         $this->syncOriginal();
 
@@ -242,50 +229,6 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     public static function clearBootedModels()
     {
         static::$booted = [];
-    }
-
-    /**
-     * bootNicerEvents binds some nicer events to this model, in the format of method overrides.
-     */
-    protected function bootNicerEvents()
-    {
-        $class = get_called_class();
-
-        if (isset(static::$eventsBooted[$class])) {
-            return;
-        }
-
-        $radicals = ['creat', 'sav', 'updat', 'delet', 'fetch'];
-        $hooks = ['before' => 'ing', 'after' => 'ed'];
-
-        foreach ($radicals as $radical) {
-            foreach ($hooks as $hook => $event) {
-                $eventMethod = $radical . $event; // saving / saved
-                $method = $hook . ucfirst($radical); // beforeSave / afterSave
-                if ($radical !== 'fetch') {
-                    $method .= 'e';
-                }
-
-                self::$eventMethod(function ($model) use ($method) {
-                    $model->fireEvent('model.' . $method);
-
-                    if ($model->methodExists($method)) {
-                        return $model->$method();
-                    }
-                });
-            }
-        }
-
-        // Hook to boot events
-        //
-        static::registerModelEvent('booted', function ($model) {
-            $model->fireEvent('model.afterBoot');
-            if ($model->methodExists('afterBoot')) {
-                return $model->afterBoot();
-            }
-        });
-
-        static::$eventsBooted[$class] = true;
     }
 
     /**
@@ -976,215 +919,6 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     }
 
     /**
-     * Create a new native event for handling beforeFetch().
-     * @param Closure|string $callback
-     * @return void
-     */
-    public static function fetching($callback)
-    {
-        static::registerModelEvent('fetching', $callback);
-    }
-
-    /**
-     * Create a new native event for handling afterFetch().
-     * @param Closure|string $callback
-     * @return void
-     */
-    public static function fetched($callback)
-    {
-        static::registerModelEvent('fetched', $callback);
-    }
-
-    /**
-     * Register a saving model event with the dispatcher.
-     *
-     * @param  \Closure|string  $callback
-     * @param  int  $priority
-     * @return void
-     */
-    public static function saving($callback, $priority = 0)
-    {
-        static::registerModelEvent('saving', $callback, $priority);
-    }
-
-    /**
-     * Register a saved model event with the dispatcher.
-     *
-     * @param  \Closure|string  $callback
-     * @param  int  $priority
-     * @return void
-     */
-    public static function saved($callback, $priority = 0)
-    {
-        static::registerModelEvent('saved', $callback, $priority);
-    }
-
-    /**
-     * Register an updating model event with the dispatcher.
-     *
-     * @param  \Closure|string  $callback
-     * @param  int  $priority
-     * @return void
-     */
-    public static function updating($callback, $priority = 0)
-    {
-        static::registerModelEvent('updating', $callback, $priority);
-    }
-
-    /**
-     * Register an updated model event with the dispatcher.
-     *
-     * @param  \Closure|string  $callback
-     * @param  int  $priority
-     * @return void
-     */
-    public static function updated($callback, $priority = 0)
-    {
-        static::registerModelEvent('updated', $callback, $priority);
-    }
-
-    /**
-     * Register a creating model event with the dispatcher.
-     *
-     * @param  \Closure|string  $callback
-     * @param  int  $priority
-     * @return void
-     */
-    public static function creating($callback, $priority = 0)
-    {
-        static::registerModelEvent('creating', $callback, $priority);
-    }
-
-    /**
-     * Register a created model event with the dispatcher.
-     *
-     * @param  \Closure|string  $callback
-     * @param  int  $priority
-     * @return void
-     */
-    public static function created($callback, $priority = 0)
-    {
-        static::registerModelEvent('created', $callback, $priority);
-    }
-
-    /**
-     * Register a deleting model event with the dispatcher.
-     *
-     * @param  \Closure|string  $callback
-     * @param  int  $priority
-     * @return void
-     */
-    public static function deleting($callback, $priority = 0)
-    {
-        static::registerModelEvent('deleting', $callback, $priority);
-    }
-
-    /**
-     * Register a deleted model event with the dispatcher.
-     *
-     * @param  \Closure|string  $callback
-     * @param  int  $priority
-     * @return void
-     */
-    public static function deleted($callback, $priority = 0)
-    {
-        static::registerModelEvent('deleted', $callback, $priority);
-    }
-
-    /**
-     * Remove all of the event listeners for the model.
-     *
-     * @return void
-     */
-    public static function flushEventListeners()
-    {
-        if (!isset(static::$dispatcher)) {
-            return;
-        }
-
-        $instance = new static;
-
-        foreach ($instance->getObservableEvents() as $event) {
-            static::$dispatcher->forget("halcyon.{$event}: ".get_called_class());
-        }
-
-        static::$eventsBooted = [];
-    }
-
-    /**
-     * Register a model event with the dispatcher.
-     *
-     * @param  string  $event
-     * @param  \Closure|string  $callback
-     * @param  int  $priority
-     * @return void
-     */
-    protected static function registerModelEvent($event, $callback, $priority = 0)
-    {
-        if (isset(static::$dispatcher)) {
-            $name = get_called_class();
-
-            static::$dispatcher->listen("halcyon.{$event}: {$name}", $callback, $priority);
-        }
-    }
-
-    /**
-     * Get the observable event names.
-     *
-     * @return array
-     */
-    public function getObservableEvents()
-    {
-        return array_merge(
-            [
-                'creating', 'created', 'updating', 'updated',
-                'deleting', 'deleted', 'saving', 'saved',
-                'fetching', 'fetched'
-            ],
-            $this->observables
-        );
-    }
-
-    /**
-     * Set the observable event names.
-     *
-     * @param  array  $observables
-     * @return $this
-     */
-    public function setObservableEvents(array $observables)
-    {
-        $this->observables = $observables;
-
-        return $this;
-    }
-
-    /**
-     * Add an observable event name.
-     *
-     * @param  array|mixed  $observables
-     * @return void
-     */
-    public function addObservableEvents($observables)
-    {
-        $observables = is_array($observables) ? $observables : func_get_args();
-
-        $this->observables = array_unique(array_merge($this->observables, $observables));
-    }
-
-    /**
-     * Remove an observable event name.
-     *
-     * @param  array|mixed  $observables
-     * @return void
-     */
-    public function removeObservableEvents($observables)
-    {
-        $observables = is_array($observables) ? $observables : func_get_args();
-
-        $this->observables = array_diff($this->observables, $observables);
-    }
-
-    /**
      * Update the model in the database.
      *
      * @param  array  $attributes
@@ -1306,7 +1040,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         }
 
         // Ensure the settings attribute is passed through so this distinction
-        // is recognised, mainly by the processor.
+        // is recognized, mainly by the processor.
         $attributes = $this->attributesToArray();
 
         $query->insert($attributes);
@@ -1319,29 +1053,6 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         $this->fireModelEvent('created', false);
 
         return true;
-    }
-
-    /**
-     * Fire the given event for the model.
-     *
-     * @param  string  $event
-     * @param  bool  $halt
-     * @return mixed
-     */
-    protected function fireModelEvent($event, $halt = true)
-    {
-        if (!isset(static::$dispatcher)) {
-            return true;
-        }
-
-        // We will append the names of the class to the event to distinguish it from
-        // other model events that are fired, allowing us to listen on each model
-        // event set individually instead of catching event for all the models.
-        $event = "halcyon.{$event}: ".get_class($this);
-
-        $method = $halt ? 'until' : 'dispatch';
-
-        return static::$dispatcher->$method($event, $this);
     }
 
     /**
@@ -1464,37 +1175,6 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
     public static function unsetDatasourceResolver()
     {
         static::$resolver = null;
-    }
-
-    /**
-     * getEventDispatcher instance.
-     *
-     * @return \Illuminate\Contracts\Events\Dispatcher
-     */
-    public static function getEventDispatcher()
-    {
-        return static::$dispatcher;
-    }
-
-    /**
-     * setEventDispatcher instance.
-     *
-     * @param  \Illuminate\Contracts\Events\Dispatcher  $dispatcher
-     * @return void
-     */
-    public static function setEventDispatcher(Dispatcher $dispatcher)
-    {
-        static::$dispatcher = $dispatcher;
-    }
-
-    /**
-     * unsetEventDispatcher for models.
-     *
-     * @return void
-     */
-    public static function unsetEventDispatcher()
-    {
-        static::$dispatcher = null;
     }
 
     /**
@@ -1740,5 +1420,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         $this->initializeTraits();
 
         $this->bootNicerEvents();
+
+        $this->initializeModelEvent();
     }
 }
