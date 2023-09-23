@@ -19,6 +19,9 @@ class MailManager extends MailManagerBase
      */
     protected function resolve($name)
     {
+        // Extensibility
+        $this->app['events']->dispatch('mailer.beforeResolve', [$this, $name]);
+
         $config = $this->getConfig($name);
 
         if (is_null($config)) {
@@ -45,6 +48,9 @@ class MailManager extends MailManagerBase
         foreach (['from', 'reply_to', 'to', 'return_path'] as $type) {
             $this->setGlobalAddress($mailer, $config, $type);
         }
+
+        // Extensibility
+        $this->app['events']->dispatch('mailer.resolve', [$this, $name, $mailer]);
 
         return $mailer;
     }

@@ -3,7 +3,7 @@
 use Carbon\Carbon as DateBase;
 
 /**
- * Argon is an umbrella class for Carbon
+ * Argon is an umbrella class for Carbon that automatically applies localizations
  *
  * @package october\argon
  * @author Alexey Bobkov, Samuel Georges
@@ -11,37 +11,17 @@ use Carbon\Carbon as DateBase;
 class Argon extends DateBase
 {
     /**
-     * @var string|callable|null formatFunction function to call instead of format
+     * format
      */
-    protected static $formatFunction = 'translatedFormat';
-
-    /**
-     * @var string|callable|null createFromFormatFunction function to call instead
-     * of createFromFormat
-     */
-    protected static $createFromFormatFunction = 'createFromFormatWithCurrentLocale';
-
-    /**
-     * @var string|callable|null parseFunction function to call instead of parse.
-     */
-    protected static $parseFunction = 'parseWithCurrentLocale';
-
-    /**
-     * parseWithCurrentLocale
-     */
-    public static function parseWithCurrentLocale($time = null, $timezone = null)
+    public function format($format)
     {
-        if (is_string($time)) {
-            $time = static::translateTimeString($time, static::getLocale(), 'en');
-        }
-
-        return parent::rawParse($time, $timezone);
+        return parent::translatedFormat($format);
     }
 
     /**
-     * createFromFormatWithCurrentLocale
+     * createFromFormat
      */
-    public static function createFromFormatWithCurrentLocale($format, $time = null, $timezone = null)
+    public static function createFromFormat($format, $time, $timezone = null)
     {
         if (is_string($time)) {
             $time = static::translateTimeString($time, static::getLocale(), 'en');
@@ -51,14 +31,14 @@ class Argon extends DateBase
     }
 
     /**
-     * getLanguageFromLocale gets the language portion of the locale.
-     * @param string $locale
-     * @return string
+     * parse
      */
-    public static function getLanguageFromLocale($locale)
+    public static function parse($time = null, $timezone = null)
     {
-        $parts = explode('_', str_replace('-', '_', $locale));
+        if (is_string($time)) {
+            $time = static::translateTimeString($time, static::getLocale(), 'en');
+        }
 
-        return $parts[0];
+        return parent::rawParse($time, $timezone);
     }
 }

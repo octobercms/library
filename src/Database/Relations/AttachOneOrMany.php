@@ -110,10 +110,6 @@ trait AttachOneOrMany
      */
     public function save(Model $model, $sessionKey = null)
     {
-        if ($sessionKey === null) {
-            $this->ensureAttachOneIsSingular();
-        }
-
         if (!array_key_exists('is_public', $model->attributes)) {
             $model->setAttribute('is_public', $this->isPublic());
         }
@@ -121,10 +117,12 @@ trait AttachOneOrMany
         $model->setAttribute('field', $this->relationName);
 
         if ($sessionKey === null) {
+            $this->ensureAttachOneIsSingular();
             return parent::save($model);
         }
 
         $this->add($model, $sessionKey);
+
         return $model->save() ? $model : false;
     }
 
@@ -133,15 +131,15 @@ trait AttachOneOrMany
      */
     public function create(array $attributes = [], $sessionKey = null)
     {
-        if ($sessionKey === null) {
-            $this->ensureAttachOneIsSingular();
-        }
-
         if (!array_key_exists('is_public', $attributes)) {
             $attributes = array_merge(['is_public' => $this->isPublic()], $attributes);
         }
 
         $attributes['field'] = $this->relationName;
+
+        if ($sessionKey === null) {
+            $this->ensureAttachOneIsSingular();
+        }
 
         $model = parent::create($attributes);
 
@@ -221,6 +219,7 @@ trait AttachOneOrMany
             $this->parent->fireEvent('model.relation.add', [$this->relationName, $model]);
         }
         else {
+            $this->ensureAttachOneIsSingular($sessionKey);
             $this->parent->bindDeferred($this->relationName, $model, $sessionKey);
         }
     }
@@ -319,9 +318,20 @@ trait AttachOneOrMany
      * ensureAttachOneIsSingular ensures AttachOne only has one attachment,
      * by deleting siblings for singular relations.
      */
-    protected function ensureAttachOneIsSingular()
+    protected function ensureAttachOneIsSingular($sessionKey = null)
     {
-        if ($this instanceof AttachOne && $this->parent->exists) {
+        if (!$this instanceof AttachOne) {
+            return;
+        }
+
+        if ($sessionKey) {
+            foreach ($this->withDeferred($sessionKey)->get() as $record) {
+                $this->parent->unbindDeferred($this->relationName, $record, $sessionKey);
+            }
+            return;
+        }
+
+        if ($this->parent->exists) {
             $this->delete();
         }
     }

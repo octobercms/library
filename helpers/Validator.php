@@ -5,4 +5,4 @@
  *
  * @see \October\Rain\Validation\Factory
  */
-class Validator extends Illuminate\Support\Facades\Validator {}
+class Validator extends October\Rain\Support\Facades\Validator {}

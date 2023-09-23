@@ -24,6 +24,16 @@ class Translator extends TranslatorBase
             return $line;
         }
 
+        // This is debug code to determine if language keys are
+        // migrated to JSON or translated in the first place
+        //
+        // $locale = $locale ?: $this->locale;
+        // $val = parent::get($key, $replace, $locale, $fallback);
+        // if (!isset($this->loaded['*']['*'][$locale][$key])) {
+        //     return is_string($val) ? '→'.$val.'←' : $val;
+        // }
+        // return $val;
+
         return parent::get($key, $replace, $locale, $fallback);
     }
 

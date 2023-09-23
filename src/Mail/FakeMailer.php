@@ -65,6 +65,8 @@ class FakeMailer extends MailFakeBase
 
         $mailable->locale('en');
 
+        $mailable->siteContext(1);
+
         if ($queued) {
             $mailable->view($view)->withSerializedData($data);
         }
