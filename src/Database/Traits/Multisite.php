@@ -250,7 +250,7 @@ trait Multisite
      */
     public function getMultisiteSyncSites()
     {
-        return Site::listSiteIds();
+        return Site::listSiteIdsInContext();
     }
 
     /**

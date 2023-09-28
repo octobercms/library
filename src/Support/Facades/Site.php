@@ -12,6 +12,7 @@ use October\Rain\Support\Facade;
  * @method static bool hasMultiSite()
  * @method static array listEnabled()
  * @method static array listSiteIds()
+ * @method static array listSiteIdsInContext()
  * @method static array listSites()
  * @method static int|null getSiteIdFromContext()
  * @method static mixed getSiteFromContext()
