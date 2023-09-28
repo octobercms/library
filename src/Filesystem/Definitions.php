@@ -31,9 +31,12 @@ class Definitions
             throw new Exception(sprintf('No such definition set exists for "%s"', $type));
         }
 
-        return (array) Config::get(
-            'cms.file_definitions.'.$typeConfig,
-            $this->$typeMethod()
+        // Support dual configuration
+        return (array) Config::get('media.'.$typeConfig,
+            // @deprecated
+            Config::get('cms.file_definitions.'.$typeConfig,
+                $this->$typeMethod()
+            )
         );
     }
 
@@ -63,7 +66,7 @@ class Definitions
     /**
      * ignoreFiles that can be safely ignored.
      * This list can be customized with config:
-     * - cms.file_definitions.ignore_files
+     * - media.ignore_files
      */
     protected function ignoreFiles()
     {
@@ -78,7 +81,7 @@ class Definitions
     /**
      * ignorePatterns that can be safely ignored.
      * This list can be customized with config:
-     * - cms.file_definitions.ignore_patterns
+     * - media.ignore_patterns
      */
     protected function ignorePatterns()
     {
@@ -90,7 +93,7 @@ class Definitions
     /**
      * defaultExtensions that are particularly benign.
      * This list can be customized with config:
-     * - cms.file_definitions.default_extensions
+     * - media.default_extensions
      */
     protected function defaultExtensions()
     {
@@ -143,7 +146,7 @@ class Definitions
     /**
      * assetExtensions seen as public assets.
      * This list can be customized with config:
-     * - cms.file_definitions.asset_extensions
+     * - media.asset_extensions
      */
     protected function assetExtensions()
     {
@@ -173,7 +176,7 @@ class Definitions
     /**
      * imageExtensions typically used as images.
      * This list can be customized with config:
-     * - cms.file_definitions.image_extensions
+     * - media.image_extensions
      */
     protected function imageExtensions()
     {
@@ -190,7 +193,7 @@ class Definitions
     /**
      * videoExtensions typically used as video files.
      * This list can be customized with config:
-     * - cms.file_definitions.video_extensions
+     * - media.video_extensions
      */
     protected function videoExtensions()
     {
@@ -208,7 +211,7 @@ class Definitions
     /**
      * audioExtensions typically used as audio files.
      * This list can be customized with config:
-     * - cms.file_definitions.audio_extensions
+     * - media.audio_extensions
      */
     protected function audioExtensions()
     {
