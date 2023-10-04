@@ -455,4 +455,14 @@ class Application extends ApplicationBase
     {
         return 'App\\';
     }
+
+    /**
+     * extend to allow undecorated extension without returning an object
+     */
+    public function extend($abstract, Closure $callback)
+    {
+        parent::extend($abstract, function(...$args) use ($callback) {
+            return $callback(...$args) ?? $args[0];
+        });
+    }
 }
