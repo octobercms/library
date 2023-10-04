@@ -457,12 +457,14 @@ class Application extends ApplicationBase
     }
 
     /**
-     * extend to allow undecorated extension without returning an object
+     * extendInstance is useful for extending singletons regardless of their execution
      */
-    public function extend($abstract, Closure $callback)
+    public function extendInstance($abstract, Closure $callback)
     {
-        parent::extend($abstract, function(...$args) use ($callback) {
-            return $callback(...$args) ?? $args[0];
-        });
+        $this->afterResolving($abstract, $callback);
+
+        if ($this->resolved($abstract)) {
+            $callback($this->make($abstract), $this);
+        }
     }
 }
