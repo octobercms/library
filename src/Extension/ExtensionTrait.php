@@ -18,8 +18,8 @@ trait ExtensionTrait
      * @var array extensionHidden are properties and methods that cannot be accessed.
      */
     protected $extensionHidden = [
-        'fields' => [],
-        'methods' => ['extensionIsHiddenField', 'extensionIsHiddenMethod']
+        'methods' => ['extensionIsHiddenProperty', 'extensionIsHiddenMethod'],
+        'properties' => []
     ];
 
     /**
@@ -56,14 +56,6 @@ trait ExtensionTrait
     }
 
     /**
-     * extensionHideField
-     */
-    protected function extensionHideField($name)
-    {
-        $this->extensionHidden['fields'][] = $name;
-    }
-
-    /**
      * extensionHideMethod
      */
     protected function extensionHideMethod($name)
@@ -72,11 +64,11 @@ trait ExtensionTrait
     }
 
     /**
-     * extensionIsHiddenField
+     * extensionHideProperty
      */
-    public function extensionIsHiddenField($name)
+    protected function extensionHideProperty($name)
     {
-        return in_array($name, $this->extensionHidden['fields']);
+        $this->extensionHidden['properties'][] = $name;
     }
 
     /**
@@ -85,6 +77,14 @@ trait ExtensionTrait
     public function extensionIsHiddenMethod($name)
     {
         return in_array($name, $this->extensionHidden['methods']);
+    }
+
+    /**
+     * extensionIsHiddenProperty
+     */
+    public function extensionIsHiddenProperty($name)
+    {
+        return in_array($name, $this->extensionHidden['properties']);
     }
 
     /**
