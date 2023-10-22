@@ -545,8 +545,8 @@ class HtmlBuilder
 
     /**
      * clean XML to prevent most XSS attacks in vector files (SVGs). Same as clean except:
-     * - allowed tags: xml, title
-     * - allowed attributes: xmlns
+     * - allowed tags: xml, title, style
+     * - allowed attributes: xmlns, style
      * @todo shift to external library
      */
     public static function cleanVector(string $html): string
@@ -569,14 +569,11 @@ class HtmlBuilder
             $html = preg_replace('#([a-z]*)[\x00-\x20\/]*=[\x00-\x20\/]*([\`\'\"]*)[\x00-\x20\/|(&\#\d+;)]*-moz-binding[\x00-\x20]*:#Uu', '$1=$2nomozbinding...', $html);
             $html = preg_replace('#([a-z]*)[\x00-\x20\/]*=[\x00-\x20\/]*([\`\'\"]*)[\x00-\x20\/|(&\#\d+;)]*data[\x00-\x20]*:#Uu', '$1=$2nodata...', $html);
 
-            // Only works in IE: <span style="width: expression(alert('Ping!'));"></span>
-            $html = preg_replace('#(<[^>]+[\x00-\x20\"\'\/])style[^>]*>#iUu', "$1>", $html);
-
             // Remove namespaced elements (we do not need them)
             $html = preg_replace('#</*\w+:\w[^>]*>#i', "", $html);
 
             // Remove really unwanted tags
-            $html = preg_replace('#</*(applet|meta|blink|link|style|script|embed|object|iframe|frame|frameset|ilayer|layer|bgsound|base)[^>]*>#i', "", $html);
+            $html = preg_replace('#</*(applet|meta|blink|link|script|embed|object|iframe|frame|frameset|ilayer|layer|bgsound|base)[^>]*>#i', "", $html);
         }
         while ($oldHtml !== $html);
 
