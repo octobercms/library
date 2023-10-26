@@ -30,7 +30,8 @@ class ExpandoModel extends Model
 
         $this->bindEvent('model.afterSave', [$this, 'expandoAfterSave']);
 
-        $this->bindEvent('model.beforeSaveDone', [$this, 'expandoBeforeSaveDone']);
+        // Process attributes last for traits with attribute modifiers
+        $this->bindEvent('model.beforeSaveDone', [$this, 'expandoBeforeSaveDone'], -1);
 
         $this->addJsonable($this->expandoColumn);
     }

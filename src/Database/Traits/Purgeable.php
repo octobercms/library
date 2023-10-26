@@ -33,10 +33,7 @@ trait Purgeable
             ));
         }
 
-        // Remove any purge attributes from the data set
-        $this->bindEvent('model.saveInternal', function () {
-            $this->purgeAttributes();
-        });
+        $this->bindEvent('model.beforeSaveDone', [$this, 'purgeAttributes']);
     }
 
     /**
@@ -53,28 +50,29 @@ trait Purgeable
 
     /**
      * purgeAttributes removes purged attributes from the dataset, used before saving.
-     * @param $attributes mixed Attribute(s) to purge, if unspecified, $purgable property is used
-     * @return array Current attribute set
+     * Specify attributesToPurge, if unspecified, $purgeable property is used
+     * @param mixed $attributes
+     * @return array
      */
     public function purgeAttributes($attributesToPurge = null)
     {
-        if ($attributesToPurge !== null) {
-            $purgeable = is_array($attributesToPurge) ? $attributesToPurge : [$attributesToPurge];
+        if ($attributesToPurge === null) {
+            $purgeable = $this->getPurgeableAttributes();
         }
         else {
-            $purgeable = $this->getPurgeableAttributes();
+            $purgeable = (array) $attributesToPurge;
         }
 
         $attributes = $this->getAttributes();
+
         $cleanAttributes = array_diff_key($attributes, array_flip($purgeable));
+
         $originalAttributes = array_diff_key($attributes, $cleanAttributes);
 
-        if (is_array($this->originalPurgeableValues)) {
-            $this->originalPurgeableValues = array_merge($this->originalPurgeableValues, $originalAttributes);
-        }
-        else {
-            $this->originalPurgeableValues = $originalAttributes;
-        }
+        $this->originalPurgeableValues = array_merge(
+            $this->originalPurgeableValues,
+            $originalAttributes
+        );
 
         return $this->attributes = $cleanAttributes;
     }
@@ -100,7 +98,8 @@ trait Purgeable
      */
     public function getOriginalPurgeValue($attribute)
     {
-        return $this->originalPurgeableValues[$attribute] ?? null;
+        return $this->attributes[$attribute]
+            ?? ($this->originalPurgeableValues[$attribute] ?? null);
     }
 
     /**
@@ -108,6 +107,9 @@ trait Purgeable
      */
     public function restorePurgedValues()
     {
-        $this->attributes = array_merge($this->getAttributes(), $this->originalPurgeableValues);
+        $this->attributes = array_merge(
+            $this->getAttributes(),
+            $this->originalPurgeableValues
+        );
     }
 }
