@@ -376,13 +376,6 @@ class Model extends EloquentModel
             return false;
         }
 
-        // Validate attributes before trying to save
-        foreach ($this->attributes as $attribute => $value) {
-            if (is_array($value)) {
-                throw new Exception(sprintf('Unexpected type of array when attempting to save attribute "%s", try adding it to the $jsonable property.', $attribute));
-            }
-        }
-
         // Apply pre deferred bindings
         if ($this->sessionKey !== null) {
             $this->commitDeferredBefore($this->sessionKey);
