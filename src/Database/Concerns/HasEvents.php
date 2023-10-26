@@ -37,13 +37,20 @@ trait HasEvents
         ];
 
         foreach ($nicerEvents as $eventMethod => $method) {
-            self::$eventMethod(function ($model) use ($method) {
+            self::registerModelEvent($eventMethod, function ($model) use ($method) {
                 $model->fireEvent("model.{$method}");
-                $result = $model->$method();
-                $model->fireEvent("model.{$method}Done");
-                return $result;
+                return $model->$method();
             });
         }
+
+        // Hooks for late stage attribute changes
+        self::registerModelEvent('creating', function ($model) {
+            $model->fireEvent('model.beforeSaveDone');
+        });
+
+        self::registerModelEvent('updating', function ($model) {
+            $model->fireEvent('model.beforeSaveDone');
+        });
 
         // Boot event
         $this->fireEvent('model.afterBoot');

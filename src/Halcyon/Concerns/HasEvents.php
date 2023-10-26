@@ -48,11 +48,9 @@ trait HasEvents
         ];
 
         foreach ($nicerEvents as $eventMethod => $method) {
-            self::$eventMethod(function ($model) use ($method) {
+            self::registerModelEvent($eventMethod, function ($model) use ($method) {
                 $model->fireEvent("model.{$method}");
-                $result = $model->$method();
-                $model->fireEvent("model.{$method}Done");
-                return $result;
+                return $model->$method();
             });
         }
 
