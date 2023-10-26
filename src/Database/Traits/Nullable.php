@@ -28,15 +28,11 @@ trait Nullable
             ));
         }
 
-        $this->bindEvent('model.beforeSave', function () {
-            $this->nullableBeforeSave();
-        });
+        $this->bindEvent('model.beforeSaveDone', [$this, 'nullableBeforeSave']);
     }
 
     /**
      * addNullable attribute to the nullable attributes list
-     * @param  array|string|null  $attributes
-     * @return void
      */
     public function addNullable($attributes = null)
     {
@@ -47,10 +43,8 @@ trait Nullable
 
     /**
      * checkNullableValue checks if the supplied value is empty, excluding zero.
-     * @param  string $value Value to check
-     * @return bool
      */
-    public function checkNullableValue($value)
+    public function checkNullableValue($value): bool
     {
         if ($value === 0 || $value === '0' || $value === 0.0 || $value === false) {
             return false;
