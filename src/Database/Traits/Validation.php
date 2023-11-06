@@ -491,14 +491,15 @@ trait Validation
      */
     protected function processValidationUniqueRule($definition, $fieldName)
     {
-        [$table, $column, $key, $keyName, $whereColumn, $whereValue] = array_pad(explode(',', $definition, 6), 6, null);
+        [$ruleName, $ruleDefinition] = array_pad(explode(':', $definition, 2), 2, '');
+        [$tableName, $column, $key, $keyName, $whereColumn, $whereValue] = array_pad(explode(',', $ruleDefinition, 6), 6, null);
 
-        $table = 'unique:' . $this->getTable();
+        $tableName = str_contains($tableName, '.') ? $tableName : $this->getTable();
         $column = $column ?: $fieldName;
         $key = $keyName ? $this->$keyName : $this->getKey();
         $keyName = $keyName ?: $this->getKeyName();
 
-        $params = [$table, $column, $key, $keyName];
+        $params = [$tableName, $column, $key, $keyName];
 
         if ($whereColumn) {
             $params[] = $whereColumn;
@@ -508,7 +509,7 @@ trait Validation
             $params[] = $whereValue;
         }
 
-        return implode(',', $params);
+        return $ruleName . ':' . implode(',', $params);
     }
 
     /**
@@ -526,26 +527,26 @@ trait Validation
             return false;
         }
 
-        $ruleset = $this->rules[$attribute];
+        $ruleSet = $this->rules[$attribute];
 
-        if (is_array($ruleset)) {
-            $ruleset = implode('|', $ruleset);
+        if (is_array($ruleSet)) {
+            $ruleSet = implode('|', $ruleSet);
         }
 
-        if (strpos($ruleset, 'required:create') !== false && $this->exists) {
+        if (strpos($ruleSet, 'required:create') !== false && $this->exists) {
             return false;
         }
 
-        if (strpos($ruleset, 'required:update') !== false && !$this->exists) {
+        if (strpos($ruleSet, 'required:update') !== false && !$this->exists) {
             return false;
         }
 
-        if (strpos($ruleset, 'required_with') !== false) {
+        if (strpos($ruleSet, 'required_with') !== false) {
             if (!$checkDependencies) {
                 return true;
             }
 
-            $requiredWith = substr($ruleset, strpos($ruleset, 'required_with') + 14);
+            $requiredWith = substr($ruleSet, strpos($ruleSet, 'required_with') + 14);
 
             if (strpos($requiredWith, '|') !== false) {
                 $requiredWith = substr($requiredWith, 0, strpos($requiredWith, '|'));
@@ -554,18 +555,18 @@ trait Validation
             return $this->isAttributeRequired($requiredWith, false);
         }
 
-        if (strpos($ruleset, 'required_if') !== false) {
+        if (strpos($ruleSet, 'required_if') !== false) {
             if (!$checkDependencies) {
                 return true;
             }
 
-            $requiredIf = substr($ruleset, strpos($ruleset, 'required_if') + 12);
+            $requiredIf = substr($ruleSet, strpos($ruleSet, 'required_if') + 12);
             $requiredIf = substr($requiredIf, 0, strpos($requiredIf, ','));
 
             return $this->isAttributeRequired($requiredIf, false);
         }
 
-        return strpos($ruleset, 'required') !== false;
+        return strpos($ruleSet, 'required') !== false;
     }
 
     /**
