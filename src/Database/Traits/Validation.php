@@ -441,14 +441,14 @@ trait Validation
                     continue;
                 }
                 // Remove primary key unique validation rule if the model already exists
-                if (starts_with($rulePart, 'unique') && $this->exists) {
+                if (str_starts_with($rulePart, 'unique') && $this->exists) {
                     $ruleParts[$key] = $this->processValidationUniqueRule($rulePart, $field);
                 }
                 // Look for required:create and required:update rules
-                elseif (starts_with($rulePart, 'required:create') && $this->exists) {
+                elseif (str_starts_with($rulePart, 'required:create') && $this->exists) {
                     unset($ruleParts[$key]);
                 }
-                elseif (starts_with($rulePart, 'required:update') && !$this->exists) {
+                elseif (str_starts_with($rulePart, 'required:update') && !$this->exists) {
                     unset($ruleParts[$key]);
                 }
             }
@@ -494,7 +494,7 @@ trait Validation
         [$ruleName, $ruleDefinition] = array_pad(explode(':', $definition, 2), 2, '');
         [$tableName, $column, $key, $keyName, $whereColumn, $whereValue] = array_pad(explode(',', $ruleDefinition, 6), 6, null);
 
-        $tableName = str_contains($tableName, '.') ? $tableName : $this->getTable();
+        $tableName = $tableName ?: $this->getTable();
         $column = $column ?: $fieldName;
         $key = $keyName ? $this->$keyName : $this->getKey();
         $keyName = $keyName ?: $this->getKeyName();
