@@ -110,17 +110,15 @@ class Model extends EloquentModel
     }
 
     /**
-     * reloadRelations for this model.
-     * @param string  $relationName
-     * @return void
+     * @deprecated use unsetRelation or unsetRelations
      */
     public function reloadRelations($relationName = null)
     {
         if (!$relationName) {
-            $this->setRelations([]);
+            $this->unsetRelations();
         }
         else {
-            unset($this->relations[$relationName]);
+            $this->unsetRelation($relationName);
         }
     }
 

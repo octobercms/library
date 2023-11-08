@@ -200,7 +200,7 @@ trait AttachOneOrMany
                 $this->parent->setRelation($this->relationName, $model);
             }
             else {
-                $this->parent->reloadRelations($this->relationName);
+                $this->parent->unsetRelation($this->relationName);
             }
 
             /**
@@ -280,7 +280,7 @@ trait AttachOneOrMany
                 $this->parent->setRelation($this->relationName, null);
             }
             else {
-                $this->parent->reloadRelations($this->relationName);
+                $this->parent->unsetRelation($this->relationName);
             }
 
             /**

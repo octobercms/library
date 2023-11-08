@@ -421,7 +421,7 @@ class User extends Model implements Authenticatable
     {
         if (!$this->inGroup($group)) {
             $this->groups()->attach($group);
-            $this->reloadRelations('groups');
+            $this->unsetRelation('groups');
         }
 
         return true;
@@ -436,7 +436,7 @@ class User extends Model implements Authenticatable
     {
         if ($this->inGroup($group)) {
             $this->groups()->detach($group);
-            $this->reloadRelations('groups');
+            $this->unsetRelation('groups');
         }
 
         return true;
