@@ -147,6 +147,13 @@ trait Validation
             if ($rule === $definition) {
                 unset($rules[$key]);
             }
+            elseif (
+                is_string($definition) &&
+                is_string($rule) &&
+                str_starts_with($rule, "{$definition}:")
+            ) {
+                unset($rules[$key]);
+            }
         }
 
         $this->rules[$name] = $rules;
