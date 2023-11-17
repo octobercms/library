@@ -16,7 +16,9 @@ class Translator extends TranslatorBase
     const CORE_LOCALE = 'en';
 
     /**
-     * get the translation for the given key.
+     * get the translation for the given key. This logic carbon copies the Laravel parent class
+     * with an additional check to proxy 'validation' messages to 'system::validation', and adds
+     * fallback support to JSON messages.
      */
     public function get($key, array $replace = [], $locale = null, $fallback = true)
     {
@@ -34,7 +36,35 @@ class Translator extends TranslatorBase
         // }
         // return $val;
 
-        return parent::get($key, $replace, $locale, $fallback);
+        // Begin CC
+        $locale = $locale ?: $this->locale;
+
+        $this->load('*', '*', $locale);
+
+        $line = $this->loaded['*']['*'][$locale][$key] ?? null;
+
+        // Laravel notes that with JSON translations, there is no usage of a fallback language.
+        // The key is the translation. Here we extend the technology to add fallback support.
+        if ($fallback && $line === null) {
+            $this->load('*', '*', $this->fallback);
+            $line = $this->loaded['*']['*'][$this->fallback][$key] ?? null;
+        }
+
+        if (!isset($line)) {
+            [$namespace, $group, $item] = $this->parseKey($key);
+
+            $locales = $fallback ? $this->localeArray($locale) : [$locale];
+
+            foreach ($locales as $locale) {
+                if (!is_null($line = $this->getLine(
+                    $namespace, $group, $locale, $item, $replace
+                ))) {
+                    return $line;
+                }
+            }
+        }
+
+        return $this->makeReplacements($line ?: $key, $replace);
     }
 
     /**
