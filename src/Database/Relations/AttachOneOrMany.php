@@ -106,6 +106,18 @@ trait AttachOneOrMany
     }
 
     /**
+     * addCommonEagerConstraints adds constraints without the field constraint, used to
+     * eager load multiple relations of a common type.
+     * @see \October\Rain\Database\Concerns\HasEagerLoadAttachRelation
+     * @param  array  $models
+     * @return void
+     */
+    public function addCommonEagerConstraints(array $models)
+    {
+        parent::addEagerConstraints($models);
+    }
+
+    /**
      * save the supplied related model
      */
     public function save(Model $model, $sessionKey = null)

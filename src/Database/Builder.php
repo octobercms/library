@@ -3,6 +3,7 @@
 use Illuminate\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder as BuilderModel;
 use October\Rain\Support\Facades\DbDongle;
+use Closure;
 
 /**
  * Builder class for queries, extends the Eloquent builder class.
@@ -13,6 +14,24 @@ use October\Rain\Support\Facades\DbDongle;
 class Builder extends BuilderModel
 {
     use \October\Rain\Database\Concerns\HasNicerPagination;
+    use \October\Rain\Database\Concerns\HasEagerLoadAttachRelation;
+
+    /**
+     * eagerLoadRelation eagerly load the relationship on a set of models, with support
+     * for attach relations.
+     * @param  array  $models
+     * @param  string  $name
+     * @param  \Closure  $constraints
+     * @return array
+     */
+    protected function eagerLoadRelation(array $models, $name, Closure $constraints)
+    {
+        if ($result = $this->eagerLoadAttachRelation($models, $name, $constraints)) {
+            return $result;
+        }
+
+        return parent::eagerLoadRelation($models, $name, $constraints);
+    }
 
     /**
      * lists gets an array with the values of a given column.
