@@ -848,17 +848,17 @@ trait HasRelationships
     }
 
     /**
-     * getRelationValue returns a relation key value(s), not as an object.
+     * getRelationSimpleValue returns a relation key value(s), not as an object.
      */
-    public function getRelationValue($relationName)
+    public function getRelationSimpleValue($relationName)
     {
         return $this->$relationName()->getSimpleValue();
     }
 
     /**
-     * setRelationValue sets a relation value directly from its attribute.
+     * setRelationSimpleValue sets a relation value directly from its attribute.
      */
-    protected function setRelationValue($relationName, $value)
+    protected function setRelationSimpleValue($relationName, $value)
     {
         $this->$relationName()->setSimpleValue($value);
     }
