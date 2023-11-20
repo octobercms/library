@@ -94,42 +94,4 @@ class AttachMany extends MorphManyBase
 
         return $value;
     }
-
-    /**
-     * @deprecated this method is removed in October CMS v4
-     */
-    public function getValidationValue()
-    {
-        if ($value = $this->getSimpleValueInternal()) {
-            $files = [];
-            foreach ($value as $file) {
-                $files[] = $this->makeValidationFile($file);
-            }
-
-            return $files;
-        }
-
-        return null;
-    }
-
-    /**
-     * @deprecated this method is removed in October CMS v4
-     */
-    protected function getSimpleValueInternal()
-    {
-        $value = null;
-
-        $files = ($sessionKey = $this->parent->sessionKey)
-            ? $this->withDeferred($sessionKey)->get()
-            : $this->parent->{$this->relationName};
-
-        if ($files) {
-            $value = [];
-            $files->each(function ($file) use (&$value) {
-                $value[] = $file;
-            });
-        }
-
-        return $value;
-    }
 }
