@@ -71,10 +71,14 @@ class AttachOne extends MorphOneBase
         $relationName = $this->relationName;
 
         if ($this->parent->relationLoaded($relationName)) {
-            $value = $this->parent->getRelation($relationName);
+            $file = $this->parent->getRelation($relationName);
         }
         else {
-            $value = $this->getResults();
+            $file = $this->getResults();
+        }
+
+        if ($file) {
+            $value = $file->disk_name;
         }
 
         return $value;
