@@ -149,35 +149,6 @@ class File extends Model
     }
 
     /**
-     * fromDiskName clones an existing file object from its disk name
-     * @param string $diskName
-     * @param string $filename
-     * @return $this
-     */
-    public function fromDiskName($diskName, $filename = null)
-    {
-        if ($diskName === null || !$this->hasFile($diskName)) {
-            return;
-        }
-
-        $otherFile = $this
-            ->newQueryWithoutScopes()
-            ->where('disk_name', $diskName)
-            ->first()
-        ;
-
-        if (!$otherFile) {
-            return;
-        }
-
-        $this->file_name = empty($filename) ? $otherFile->file_name : $filename;
-        $this->file_size = $otherFile->file_size;
-        $this->content_type = $otherFile->content_type;
-        $this->disk_name = $otherFile->disk_name;
-        return $this;
-    }
-
-    /**
      * fromData creates a file object from raw data
      * @param string $data
      * @param string $filename
@@ -545,9 +516,6 @@ class File extends Model
         if ($this->data !== null) {
             if ($this->data instanceof UploadedFile) {
                 $this->fromPost($this->data);
-            }
-            else {
-                $this->fromDiskName($this->data);
             }
 
             $this->data = null;

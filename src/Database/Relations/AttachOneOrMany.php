@@ -349,24 +349,6 @@ trait AttachOneOrMany
     }
 
     /**
-     * isValidFileData returns true if the specified value can be used as the data attribute
-     */
-    protected function isValidFileData($value)
-    {
-        // Newly uploaded file
-        if ($value instanceof UploadedFile) {
-            return true;
-        }
-
-        // Disk name
-        if (is_string($value)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * @deprecated this method is removed in October CMS v4
      */
     public function makeValidationFile($value)

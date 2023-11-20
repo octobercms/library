@@ -1,8 +1,11 @@
 <?php namespace October\Rain\Database\Relations;
 
+use October\Rain\Database\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphMany as MorphManyBase;
+use Illuminate\Database\Eloquent\Collection as CollectionBase;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use October\Rain\Database\Attach\File as FileModel;
 
 /**
@@ -39,7 +42,7 @@ class AttachMany extends MorphManyBase
     public function setSimpleValue($value)
     {
         // Newly uploaded file(s)
-        if ($this->isValidFileData($value)) {
+        if ($value instanceof UploadedFile) {
             $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
                 $this->create(['data' => $value]);
             });
@@ -47,7 +50,7 @@ class AttachMany extends MorphManyBase
         elseif (is_array($value)) {
             $files = [];
             foreach ($value as $_value) {
-                if ($this->isValidFileData($_value)) {
+                if ($_value instanceof UploadedFile) {
                     $files[] = $_value;
                 }
             }
@@ -85,7 +88,7 @@ class AttachMany extends MorphManyBase
         if ($files) {
             $value = [];
             foreach ($files as $file) {
-                $value[] = $file->disk_name;
+                $value[] = $file->getKey();
             }
         }
 

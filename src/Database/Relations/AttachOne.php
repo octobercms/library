@@ -3,6 +3,7 @@
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphOne as MorphOneBase;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use October\Rain\Database\Attach\File as FileModel;
 
 /**
@@ -43,7 +44,7 @@ class AttachOne extends MorphOneBase
         }
 
         // Newly uploaded file
-        if ($this->isValidFileData($value)) {
+        if ($value instanceof UploadedFile) {
             $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
                 $file = $this->create(['data' => $value]);
                 $this->parent->setRelation($this->relationName, $file);
@@ -78,7 +79,7 @@ class AttachOne extends MorphOneBase
         }
 
         if ($file) {
-            $value = $file->disk_name;
+            $value = $file->getKey();
         }
 
         return $value;
