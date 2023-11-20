@@ -56,6 +56,14 @@ class AttachOne extends MorphOneBase
                 $this->add($value);
             });
         }
+        // Model key
+        elseif (is_numeric($value)) {
+            $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
+                if ($model = $this->getRelated()->find($value)) {
+                    $this->add($model);
+                }
+            });
+        }
     }
 
     /**
