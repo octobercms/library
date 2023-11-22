@@ -26,7 +26,7 @@ if (!function_exists('input')) {
 
         // Array field name, eg: field[key][key2][key3]
         if (class_exists('October\Rain\Html\Helper')) {
-            $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
+            $name = October\Rain\Html\Helper::nameToDot($name);
         }
 
         return array_get(Request::all(), $name, $default);
@@ -49,7 +49,7 @@ if (!function_exists('post')) {
 
         // Array field name, eg: field[key][key2][key3]
         if (class_exists('October\Rain\Html\Helper')) {
-            $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
+            $name = October\Rain\Html\Helper::nameToDot($name);
         }
 
         return array_get(Request::post(), $name, $default);
@@ -68,7 +68,7 @@ if (!function_exists('get')) {
 
         // Array field name, eg: field[key][key2][key3]
         if (class_exists('October\Rain\Html\Helper')) {
-            $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
+            $name = October\Rain\Html\Helper::nameToDot($name);
         }
 
         return array_get(Request::query(), $name, $default);
@@ -87,7 +87,7 @@ if (!function_exists('files')) {
 
         // Array field name, eg: field[key][key2][key3]
         if (class_exists('October\Rain\Html\Helper')) {
-            $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
+            $name = October\Rain\Html\Helper::nameToDot($name);
         }
 
         return array_get(Request::allFiles(), $name, $default);
