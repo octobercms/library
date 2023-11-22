@@ -254,12 +254,24 @@ trait HasRelationships
     }
 
     /**
-     * makeRelation returns a relation class object
-     * @param string $name Relation name
-     * @return object
+     * makeRelation returns a relation class object, supporting nested relations with
+     * dot notation
+     * @param string $name
+     * @return \Model|null
      */
     public function makeRelation($name)
     {
+        if (str_contains($name, '.')) {
+            $model = $this;
+            $parts = explode('.', $name);
+            while ($relationName = array_shift($parts)) {
+                if (!$model = $model->makeRelation($relationName)) {
+                    return null;
+                }
+            }
+            return $model;
+        }
+
         $relation = $this->getRelationDefinition($name);
         $relationType = $this->getRelationType($name);
 
