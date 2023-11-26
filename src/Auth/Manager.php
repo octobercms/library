@@ -17,6 +17,7 @@ class Manager implements StatefulGuard
     use \October\Rain\Auth\Concerns\HasThrottle;
     use \October\Rain\Auth\Concerns\HasImpersonation;
     use \October\Rain\Auth\Concerns\HasStatefulGuard;
+    use \October\Rain\Auth\Concerns\HasProviderProxy;
     use \October\Rain\Auth\Concerns\HasGuard;
 
     /**
