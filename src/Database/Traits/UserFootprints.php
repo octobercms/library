@@ -49,7 +49,7 @@ trait UserFootprints
         }
 
         $createdColumn = $this->getCreatedUserIdColumn();
-        if (!$this->exists && $createdColumn !== null && $this->isDirty($createdColumn)) {
+        if (!$this->exists && $createdColumn !== null && !$this->isDirty($createdColumn)) {
             $this->{$createdColumn} = $userId;
         }
     }
