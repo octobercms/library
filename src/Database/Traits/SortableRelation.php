@@ -41,12 +41,14 @@ trait SortableRelation
                 return;
             }
 
+            $relation = $this->$relationName();
+
             $column = $this->getRelationSortOrderColumn($relationName);
 
-            $order = $this->$relationName()->max($column);
+            $order = $relation->max($relation->qualifyPivotColumn($column));
 
             foreach ((array) $attached as $id) {
-                $this->$relationName()->updateExistingPivot($id, [$column => ++$order]);
+                $relation->updateExistingPivot($id, [$column => ++$order]);
             }
         });
     }
