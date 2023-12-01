@@ -668,19 +668,6 @@ if (!function_exists('str_before')) {
     }
 }
 
-if (!function_exists('str_contains')) {
-    /**
-     * str_contains determines if a given string contains a given substring
-     * @param  string  $haystack
-     * @param  string|array  $needles
-     * @return bool
-     */
-    function str_contains($haystack, $needles)
-    {
-        return Str::contains($haystack, $needles);
-    }
-}
-
 if (!function_exists('str_finish')) {
     /**
      * str_finish caps a string with a single instance of a given value
