@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\File as FileBase;
 /**
  * File
  *
+ * @method static string anyname(string $anyname) anyname extracts the path and filename without extension
  * @method static bool isDirectoryEmpty(string $directory)
  * @method static string sizeToString(int $bytes)
  * @method static string localToPublic(string $path)
