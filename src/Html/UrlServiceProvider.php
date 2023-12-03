@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Html;
 
 use Str;
+use Config;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -31,22 +32,23 @@ class UrlServiceProvider extends ServiceProvider
      */
     public function registerUrlGeneratorPolicy()
     {
-        $policy = $this->app['config']->get('system.link_policy', 'detect');
+        $provider = $this->app['url'];
+        $policy = Config::get('system.link_policy', 'detect');
 
         switch (strtolower($policy)) {
             case 'force':
-                $appUrl = $this->app['config']->get('app.url');
+                $appUrl = Config::get('app.url');
                 $schema = Str::startsWith($appUrl, 'http://') ? 'http' : 'https';
-                $this->app['url']->forceRootUrl($appUrl);
-                $this->app['url']->forceScheme($schema);
+                $provider->forceRootUrl($appUrl);
+                $provider->forceScheme($schema);
                 break;
 
             case 'insecure':
-                $this->app['url']->forceScheme('http');
+                $provider->forceScheme('http');
                 break;
 
             case 'secure':
-                $this->app['url']->forceScheme('https');
+                $provider->forceScheme('https');
                 break;
         }
     }
@@ -59,7 +61,11 @@ class UrlServiceProvider extends ServiceProvider
         $provider = $this->app['url'];
 
         $provider->macro('toRelative', function(...$args) use ($provider) {
-            return (new \October\Rain\Html\UrlMixin($provider))->toRelative(...$args);
+            if (Config::get('system.relative_links', false)) {
+                return (new \October\Rain\Html\UrlMixin($provider))->toRelative(...$args);
+            }
+
+            return $provider->url(...$args);
         });
 
         $provider->macro('toSigned', function(...$args) use ($provider) {
