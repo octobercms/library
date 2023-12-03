@@ -65,7 +65,7 @@ class UrlServiceProvider extends ServiceProvider
                 return (new \October\Rain\Html\UrlMixin($provider))->toRelative(...$args);
             }
 
-            return $provider->url(...$args);
+            return $provider->to(...$args);
         });
 
         $provider->macro('toSigned', function(...$args) use ($provider) {
