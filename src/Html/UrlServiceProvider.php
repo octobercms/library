@@ -59,12 +59,16 @@ class UrlServiceProvider extends ServiceProvider
     {
         $provider = $this->app['url'];
 
+        $provider->macro('makeRelative', function($url) use ($provider) {
+            $fullUrl = $provider->to($url);
+            return parse_url($fullUrl, PHP_URL_PATH)
+                . (($query = parse_url($fullUrl, PHP_URL_QUERY)) ? '?' . $query : '')
+                . (($fragment = parse_url($fullUrl, PHP_URL_FRAGMENT)) ? '#' . $fragment : '');
+        });
+
         $provider->macro('toRelative', function($url) use ($provider) {
             if (Config::get('system.relative_links', false)) {
-                $fullUrl = $provider->to($url);
-                return parse_url($fullUrl, PHP_URL_PATH)
-                    . (($query = parse_url($fullUrl, PHP_URL_QUERY)) ? '?' . $query : '')
-                    . (($fragment = parse_url($fullUrl, PHP_URL_FRAGMENT)) ? '#' . $fragment : '');
+                return $provider->makeRelative($url);
             }
 
             return $provider->to($url);
