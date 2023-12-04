@@ -60,12 +60,12 @@ class UrlServiceProvider extends ServiceProvider
     {
         $provider = $this->app['url'];
 
-        $provider->macro('toRelative', function(...$args) use ($provider) {
-            if (Config::get('system.relative_links', false)) {
-                return (new \October\Rain\Html\UrlMixin($provider))->toRelative(...$args);
-            }
+        $provider->macro('makeRelative', function(...$args) use ($provider) {
+            return (new \October\Rain\Html\UrlMixin($provider))->makeRelative(...$args);
+        });
 
-            return $provider->to(...$args);
+        $provider->macro('toRelative', function(...$args) use ($provider) {
+            return (new \October\Rain\Html\UrlMixin($provider))->toRelative(...$args);
         });
 
         $provider->macro('toSigned', function(...$args) use ($provider) {

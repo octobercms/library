@@ -26,9 +26,9 @@ class UrlMixin
     }
 
     /**
-     * toRelative converts a full URL to a relative URL
+     * makeRelative converts a full URL to a relative URL
      */
-    public function toRelative($url)
+    public function makeRelative($url)
     {
         $fullUrl = $this->provider->to($url);
         return parse_url($fullUrl, PHP_URL_PATH)
@@ -38,12 +38,22 @@ class UrlMixin
     }
 
     /**
+     * toRelative makes a link relative if configuration asks for it
+     */
+    public function toRelative($url)
+    {
+        return Config::get('system.relative_links', false)
+            ? $this->makeRelative($url)
+            : $this->provider->to($url);
+    }
+
+    /**
      * toSigned signs a bare URL that can be validated with hasValidSignature
      */
     public function toSigned($url, $expiration = null, $absolute = true)
     {
         if (!$absolute) {
-            $url = $this->toRelative($url);
+            $url = $this->makeRelative($url);
         }
 
         $parameters = [];

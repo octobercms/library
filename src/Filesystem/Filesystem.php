@@ -33,7 +33,7 @@ class Filesystem extends FilesystemBase
     protected $symlinkRootCache;
 
     /**
-     * anyname extract the path and filename without extension
+     * anyname extracts the path and filename without extension
      * @param  string  $path
      * @return string
      */
