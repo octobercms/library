@@ -73,9 +73,7 @@ class TreeCollection extends Collection
                     $result[] = $indentString . $item->{$value};
                 }
 
-                /*
-                 * Add the children
-                 */
+                // Add the children
                 $childItems = $item->getChildren();
                 if ($childItems->count() > 0) {
                     $result = $result + $buildCollection($childItems, $depth + 1);
