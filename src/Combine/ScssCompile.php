@@ -16,7 +16,8 @@ class ScssCompile
     public function compile($scss, $options = [])
     {
         extract(array_merge([
-            'vars' => null
+            'vars' => null,
+            'compress' => false, // @todo
         ], $options));
 
         $parser = new Compiler();

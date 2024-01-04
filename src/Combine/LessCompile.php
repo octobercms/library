@@ -16,10 +16,13 @@ class LessCompile
     public function compile($less, $options = [])
     {
         extract(array_merge([
-            'vars' => null
+            'vars' => null,
+            'compress' => false,
         ], $options));
 
-        $parser = new Less_Parser();
+        $parser = new Less_Parser([
+            'compress' => (bool) $compress
+        ]);
 
         $parser->parse($less);
 
