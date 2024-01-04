@@ -11,15 +11,17 @@ class ValidationTest extends TestCase
     public function testUniqueRule()
     {
         // Basic usage of unique rule
-        $rules = ['email' => 'unique:users'];
+        $rules = ['name' => 'unique', 'email' => 'unique:users'];
 
         $this->exists = true;
         $this->assertEquals([
+            'name' => ['unique:users,name,7,the_id'],
             'email' => ['unique:users,email,7,the_id']
         ], $this->processValidationRules($rules));
 
         $this->exists = false;
         $this->assertEquals([
+            'name' => ['unique:users'],
             'email' => ['unique:users']
         ], $this->processValidationRules($rules));
 

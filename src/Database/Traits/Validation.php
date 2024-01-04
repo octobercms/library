@@ -448,7 +448,7 @@ trait Validation
                     continue;
                 }
                 // Remove primary key unique validation rule if the model already exists
-                if (str_starts_with($rulePart, 'unique') && $this->exists) {
+                if (str_starts_with($rulePart, 'unique')) {
                     $ruleParts[$key] = $this->processValidationUniqueRule($rulePart, $field);
                 }
                 // Look for required:create and required:update rules
@@ -491,13 +491,22 @@ trait Validation
     }
 
     /**
-     * processValidationUniqueRule rebuilds the unique validation rule to force for the existing ID
+     * processValidationUniqueRule rebuilds the unique validation rule to force for the existing key
+     * exclusion for existing models. It also checks for unique rules without a table name and includes
+     * the table name, since this is required by Laravel but not October.
      * @param string $definition
      * @param string $fieldName
      * @return string
      */
     protected function processValidationUniqueRule($definition, $fieldName)
     {
+        if (!$this->exists) {
+            if ($definition === 'unique') {
+                return $definition . ':' . $this->getTable();
+            }
+            return $definition;
+        }
+
         [$ruleName, $ruleDefinition] = array_pad(explode(':', $definition, 2), 2, '');
         [$tableName, $column, $key, $keyName, $whereColumn, $whereValue] = array_pad(explode(',', $ruleDefinition, 6), 6, null);
 
