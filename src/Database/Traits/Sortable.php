@@ -50,7 +50,7 @@ trait Sortable
     }
 
     /**
-     * setSortableOrder sets the sort order of records to the specified orders, suppling
+     * setSortableOrder sets the sort order of records to the specified orders, supplying
      * a reference pool of sorted values. If reference pool is true, then an incrementing
      * pool is used.
      * @param  mixed $itemIds
