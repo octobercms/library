@@ -84,7 +84,7 @@ trait Sortable
             }
         }
 
-        Event::fire('model.updateSorting', [$this->parent]);
+        Event::fire('model.updateSorting', [$this]);
     }
 
     /**
