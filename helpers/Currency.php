@@ -3,6 +3,6 @@
 /**
  * Currency
  *
- * @see \Shop\Classes\CurrencyManager
+ * @see \Responsiv\Shop\Classes\CurrencyManager
  */
-class Currency extends Shop\Facades\Currency {}
+class Currency extends October\Rain\Support\Facades\Currency {}
