@@ -83,6 +83,8 @@ trait Sortable
                     ->update([$this->getSortOrderColumn() => $update['sort_order']]);
             }
         }
+
+        Event::fire('model.updateSorting', [$this->parent]);
     }
 
     /**
