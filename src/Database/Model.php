@@ -110,17 +110,15 @@ class Model extends EloquentModel
     }
 
     /**
-     * reloadRelations for this model.
-     * @param string  $relationName
-     * @return void
+     * @deprecated use unsetRelation or unsetRelations
      */
     public function reloadRelations($relationName = null)
     {
         if (!$relationName) {
-            $this->setRelations([]);
+            $this->unsetRelations();
         }
         else {
-            unset($this->relations[$relationName]);
+            $this->unsetRelation($relationName);
         }
     }
 
@@ -374,13 +372,6 @@ class Model extends EloquentModel
          */
         if ($this->fireEvent('model.saveInternal', [$this->attributes, $options], true) === false) {
             return false;
-        }
-
-        // Validate attributes before trying to save
-        foreach ($this->attributes as $attribute => $value) {
-            if (is_array($value)) {
-                throw new Exception(sprintf('Unexpected type of array when attempting to save attribute "%s", try adding it to the $jsonable property.', $attribute));
-            }
         }
 
         // Apply pre deferred bindings

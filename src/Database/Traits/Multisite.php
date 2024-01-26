@@ -41,7 +41,7 @@ trait Multisite
         if (!is_array($this->propagatable)) {
             throw new Exception(sprintf(
                 'The $propagatable property in %s must be an array to use the Multisite trait.',
-                get_class($this)
+                static::class
             ));
         }
 

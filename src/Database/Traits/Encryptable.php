@@ -31,7 +31,7 @@ trait Encryptable
         if (!is_array($this->encryptable)) {
             throw new Exception(sprintf(
                 'The $encryptable property in %s must be an array to use the Encryptable trait.',
-                get_class($this)
+                static::class
             ));
         }
 

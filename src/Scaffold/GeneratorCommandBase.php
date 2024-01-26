@@ -211,8 +211,7 @@ abstract class GeneratorCommandBase extends Command
      */
     protected function getSourcePath(): string
     {
-        $className = get_class($this);
-        $class = new ReflectionClass($className);
+        $class = new ReflectionClass(static::class);
 
         return dirname($class->getFileName());
     }

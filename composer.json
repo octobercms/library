@@ -18,7 +18,7 @@
         "composer/composer": "^2.0.0",
         "doctrine/dbal": "^2.13.3|^3.1.4",
         "linkorb/jsmin-php": "~1.0",
-        "wikimedia/less.php": "~3.0",
+        "wikimedia/less.php": "~4.1",
         "scssphp/scssphp": "~1.0",
         "symfony/yaml": "^6.0",
         "twig/twig": "~3.0",

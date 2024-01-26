@@ -232,7 +232,7 @@ class BelongsToMany extends BelongsToManyBase
                 });
             }
 
-            $this->parent->reloadRelations($this->relationName);
+            $this->parent->unsetRelation($this->relationName);
         }
         else {
             $this->parent->bindDeferred($this->relationName, $model, $sessionKey, $pivotData);
@@ -246,7 +246,7 @@ class BelongsToMany extends BelongsToManyBase
     {
         if ($sessionKey === null) {
             $this->detach($model);
-            $this->parent->reloadRelations($this->relationName);
+            $this->parent->unsetRelation($this->relationName);
         }
         else {
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);

@@ -146,11 +146,11 @@ class MorphTo extends MorphToBase
             [$modelId, $modelClass] = $value;
             $this->parent->setAttribute($this->foreignKey, $modelId);
             $this->parent->setAttribute($this->morphType, $modelClass);
-            $this->parent->reloadRelations($this->relationName);
+            $this->parent->unsetRelation($this->relationName);
         }
         else {
             $this->parent->setAttribute($this->foreignKey, $value);
-            $this->parent->reloadRelations($this->relationName);
+            $this->parent->unsetRelation($this->relationName);
         }
     }
 

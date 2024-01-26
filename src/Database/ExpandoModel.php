@@ -31,13 +31,13 @@ class ExpandoModel extends Model
         $this->bindEvent('model.afterSave', [$this, 'expandoAfterSave']);
 
         // Process attributes last for traits with attribute modifiers
-        $this->bindEvent('model.saveInternal', [$this, 'expandoSaveInternal'], -1);
+        $this->bindEvent('model.beforeSaveDone', [$this, 'expandoBeforeSaveDone'], -1);
 
         $this->addJsonable($this->expandoColumn);
     }
 
     /**
-     * afterModelFetch constructor event
+     * expandoAfterFetch constructor event
      */
     public function expandoAfterFetch()
     {
@@ -47,9 +47,9 @@ class ExpandoModel extends Model
     }
 
     /**
-     * saveModelInternal constructor event
+     * expandoBeforeSaveDone constructor event
      */
-    public function expandoSaveInternal()
+    public function expandoBeforeSaveDone()
     {
         $this->{$this->expandoColumn} = array_diff_key(
             $this->attributes,

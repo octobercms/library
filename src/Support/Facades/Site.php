@@ -13,7 +13,7 @@ use October\Rain\Support\Facade;
  * @method static array listEnabled()
  * @method static array listSiteIds()
  * @method static array listSiteIdsInContext()
- * @method static array listSites()
+ * @method static iterable listSites()
  * @method static int|null getSiteIdFromContext()
  * @method static mixed getSiteFromContext()
  * @method static bool hasGlobalContext()
@@ -29,8 +29,6 @@ class Site extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        // @deprecated use below
-        // return 'system.sites';
-        return 'site.manager';
+        return 'system.sites';
     }
 }

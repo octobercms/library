@@ -18,9 +18,7 @@ trait HasEvents
      */
     protected function bootNicerEvents()
     {
-        $class = get_called_class();
-
-        if (isset(static::$eventsBooted[$class])) {
+        if (isset(static::$eventsBooted[static::class])) {
             return;
         }
 
@@ -39,20 +37,26 @@ trait HasEvents
         ];
 
         foreach ($nicerEvents as $eventMethod => $method) {
-            self::$eventMethod(function ($model) use ($method) {
-                $model->fireEvent('model.' . $method);
-
-                if ($model->methodExists($method)) {
-                    return $model->$method();
-                }
+            self::registerModelEvent($eventMethod, function ($model) use ($method) {
+                $model->fireEvent("model.{$method}");
+                return $model->$method();
             });
         }
+
+        // Hooks for late stage attribute changes
+        self::registerModelEvent('creating', function ($model) {
+            $model->fireEvent('model.beforeSaveDone');
+        });
+
+        self::registerModelEvent('updating', function ($model) {
+            $model->fireEvent('model.beforeSaveDone');
+        });
 
         // Boot event
         $this->fireEvent('model.afterBoot');
         $this->afterBoot();
 
-        static::$eventsBooted[$class] = true;
+        static::$eventsBooted[static::class] = true;
     }
 
     /**

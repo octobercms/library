@@ -517,10 +517,6 @@ class File extends Model
             if ($this->data instanceof UploadedFile) {
                 $this->fromPost($this->data);
             }
-            // @deprecated see AttachOneOrMany::isValidFileData
-            else {
-                $this->fromFile($this->data);
-            }
 
             $this->data = null;
         }

@@ -164,7 +164,7 @@ trait HasAttributes
 
         // Handle direct relation setting
         if ($this->hasRelation($key) && !$this->hasSetMutator($key)) {
-            return $this->setRelationValue($key, $value);
+            return $this->setRelationSimpleValue($key, $value);
         }
 
         /**

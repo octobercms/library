@@ -30,7 +30,7 @@ trait Hashable
         if (!is_array($this->hashable)) {
             throw new Exception(sprintf(
                 'The $hashable property in %s must be an array to use the Hashable trait.',
-                get_class($this)
+                static::class
             ));
         }
 
