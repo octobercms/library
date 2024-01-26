@@ -84,7 +84,7 @@ trait Sortable
             }
         }
 
-        $this->fireEvent('model.setSortableOrderComplete');
+        $this->fireEvent('model.setSortableOrder');
     }
 
     /**
