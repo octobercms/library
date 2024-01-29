@@ -64,6 +64,9 @@ class AttachOne extends MorphOneBase
                 }
             });
         }
+
+        // The relation is set here to satisfy validation
+        $this->parent->setRelation($this->relationName, $value);
     }
 
     /**

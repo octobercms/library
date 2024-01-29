@@ -163,6 +163,32 @@ trait AttachOneOrMany
     }
 
     /**
+     * createFromFile
+     */
+    public function createFromFile(string $filePath, array $attributes = [], $sessionKey = null)
+    {
+        if (!array_key_exists('is_public', $attributes)) {
+            $attributes = array_merge(['is_public' => $this->isPublic()], $attributes);
+        }
+
+        $attributes['field'] = $this->relationName;
+
+        if ($sessionKey === null) {
+            $this->ensureAttachOneIsSingular();
+        }
+
+        $model = parent::make($attributes);
+        $model->fromFile($filePath);
+        $model->save();
+
+        if ($sessionKey !== null) {
+            $this->add($model, $sessionKey);
+        }
+
+        return $model;
+    }
+
+    /**
      * add a model to this relationship type
      */
     public function add(Model $model, $sessionKey = null)
