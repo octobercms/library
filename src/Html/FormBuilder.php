@@ -352,6 +352,18 @@ class FormBuilder
     }
 
     /**
+     * number input field.
+     * @param  string  $name
+     * @param  string  $value
+     * @param  array   $options
+     * @return string
+     */
+    public function number($name, $value = null, $options = [])
+    {
+        return $this->input('number', $name, $value, $options);
+    }
+
+    /**
      * url input field.
      * @param  string  $name
      * @param  string  $value
