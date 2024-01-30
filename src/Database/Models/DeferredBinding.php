@@ -206,7 +206,7 @@ class DeferredBinding extends Model
 
             // Only delete it if the relationship is null
             $foreignKey = array_get($options, 'key', $masterObject->getForeignKey());
-            if (!$relatedObj->$foreignKey) {
+            if ($foreignKey && !$relatedObj->$foreignKey) {
                 $relatedObj->delete();
             }
         }
