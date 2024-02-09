@@ -7,33 +7,38 @@
 
 <?php if (!$this->fatalError): ?>
 
-    <?= Form::open(['class' => 'layout']) ?>
+    <?= Form::open(['class' => 'd-flex flex-column h-100']) ?>
 
-        <div class="layout-row">
+        <div class="flex-grow-1">
             <?= $this->formRender() ?>
         </div>
 
         <div class="form-buttons">
-            <div class="loading-indicator-container">
+            <div data-control="loader-container">
                 <button
                     type="submit"
                     data-request="onSave"
+                    data-request-message="<?= __("Creating :name...", ['name' => $formRecordName]) ?>"
                     data-hotkey="ctrl+s, cmd+s"
-                    data-load-indicator="<?= e(trans('backend::lang.form.creating_name', ['name'=>$formRecordName])) ?>"
                     class="btn btn-primary">
-                    <?= e(trans('backend::lang.form.create')) ?>
+                    <?= __("Create") ?>
                 </button>
                 <button
                     type="button"
                     data-request="onSave"
-                    data-request-data="close:1"
+                    data-request-data="{ close: 1 }"
+                    data-request-message="<?= __("Creating :name...", ['name' => $formRecordName]) ?>"
                     data-hotkey="ctrl+enter, cmd+enter"
-                    data-load-indicator="<?= e(trans('backend::lang.form.creating_name', ['name'=>$formRecordName])) ?>"
                     class="btn btn-default">
-                    <?= e(trans('backend::lang.form.create_and_close')) ?>
+                    <?= __("Create & Close") ?>
                 </button>
                 <span class="btn-text">
-                    <?= e(trans('backend::lang.form.or')) ?> <a href="<?= Backend::url('{{namespace_path}}/{{lower_name}}') ?>"><?= e(trans('backend::lang.form.cancel')) ?></a>
+                    <span class="button-separator"><?= __("or") ?></span>
+                    <a
+                        href="<?= Backend::url('{{namespace_path}}/{{lower_name}}') ?>"
+                        class="btn btn-link p-0">
+                        <?= __("Cancel") ?>
+                    </a>
                 </span>
             </div>
         </div>
@@ -42,7 +47,15 @@
 
 <?php else: ?>
 
-    <p class="flash-message static error"><?= e($this->fatalError) ?></p>
-    <p><a href="<?= Backend::url('{{namespace_path}}/{{lower_name}}') ?>" class="btn btn-default"><?= e(trans('backend::lang.form.return_to_list')) ?></a></p>
+    <p class="flash-message static error">
+        <?= e($this->fatalError) ?>
+    </p>
+    <p>
+        <a
+            href="<?= Backend::url('{{namespace_path}}/{{lower_name}}') ?>"
+            class="btn btn-default">
+            <?= __("Return to List") ?>
+        </a>
+    </p>
 
 <?php endif ?>
