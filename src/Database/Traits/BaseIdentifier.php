@@ -5,6 +5,10 @@
  * lookup key that is immune to enumeration attacks. The model is assumed to have
  * the attribute: baseid.
  *
+ * Add this to your database table with:
+ *
+ *     $table->string('baseid')->nullable()->index();
+ *
  * @package october\database
  * @author Alexey Bobkov, Samuel Georges
  */
