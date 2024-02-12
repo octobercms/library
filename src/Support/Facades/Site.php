@@ -19,6 +19,7 @@ use October\Rain\Support\Facade;
  * @method static bool hasGlobalContext()
  * @method static void withGlobalContext(callable $callback)
  * @method static void withContext($siteId, callable $callback)
+ * @method static hasFeature(string $name): bool
  *
  * @see \System\Classes\SiteManager
  */
