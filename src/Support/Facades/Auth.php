@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Auth as AuthBase;
 /**
  * Auth
  *
- * @see \User\Classes\AuthManager
+ * @see \RainLab\User\Classes\AuthManager
  */
 class Auth extends AuthBase
 {
