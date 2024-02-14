@@ -26,6 +26,11 @@ class Replicator
     protected $isMultisite = false;
 
     /**
+     * @var array associationMap from original record to newly created record
+     */
+    protected $associationMap = [];
+
+    /**
      * __construct
      */
     public function __construct($model)
@@ -113,13 +118,20 @@ class Replicator
             $models = (array) $models;
         }
 
+        $this->associationMap = [];
         foreach (array_filter($models) as $model) {
             if ($relationObject instanceof HasOneOrMany) {
-                $relationObject->add($model->replicateWithRelations());
+                $relationObject->add($newModel = $model->replicateWithRelations());
+                $this->mapAssociation($model, $newModel);
             }
             else {
                 $relationObject->add($model);
             }
+        }
+
+        $relatedModel = $relationObject->getRelated();
+        if ($relatedModel->isClassInstanceOf(\October\Contracts\Database\TreeInterface::class)) {
+            $this->updateTreeAssociations();
         }
     }
 
@@ -149,5 +161,28 @@ class Replicator
         }
 
         return (bool) $definition['replicate'];
+    }
+
+    /**
+     * mapAssociation is an internal method that keeps a record of what records were created
+     * and their associated source, the following format is used:
+     *
+     *     [\Model\Class][1] => [FromModel, ToModel]
+     */
+    protected function mapAssociation($currentModel, $replicatedModel)
+    {
+        $this->associationMap[$currentModel->getKey()] = [$currentModel, $replicatedModel];
+    }
+
+    /**
+     * updateTreeAssociations
+     */
+    protected function updateTreeAssociations()
+    {
+        foreach ($this->associationMap as $tuple) {
+            [$currentModel, $replicatedModel] = $tuple;
+            $newParent = $this->associationMap[$currentModel->getParentId()][1] ?? null;
+            $replicatedModel->parent = $newParent;
+        }
     }
 }
