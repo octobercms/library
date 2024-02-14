@@ -3,7 +3,9 @@
 use Closure;
 
 /**
- * HasNicerPagination for a query builder
+ * HasEagerLoadAttachRelation eagerly loads all attachments on a model in one pass.
+ * Since they share a common type and database table, multiple attachment definitions
+ * can be eagerly loaded as a single query.
  */
 trait HasEagerLoadAttachRelation
 {

@@ -167,7 +167,7 @@ class Replicator
      * mapAssociation is an internal method that keeps a record of what records were created
      * and their associated source, the following format is used:
      *
-     *     [\Model\Class][1] => [FromModel, ToModel]
+     *     [FromModel::id] => [FromModel, ToModel]
      */
     protected function mapAssociation($currentModel, $replicatedModel)
     {
@@ -175,7 +175,7 @@ class Replicator
     }
 
     /**
-     * updateTreeAssociations
+     * updateTreeAssociations sets new parents on the replicated records
      */
     protected function updateTreeAssociations()
     {

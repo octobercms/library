@@ -3,6 +3,6 @@
 /**
  * Auth
  *
- * @see \Responsiv\User\Classes\AuthManager
+ * @see \RainLab\User\Classes\AuthManager
  */
 class Auth extends October\Rain\Support\Facades\Auth {}
