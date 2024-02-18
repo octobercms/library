@@ -16,13 +16,20 @@ trait Multisite
     /**
      * @var array propagatable list of attributes to propagate to other sites.
      *
-     * protected $propagatable = [];
+     *     protected $propagatable = [];
      */
 
     /**
-     * @var bool propagatableSync will enforce model structures between all sites
+     * @var bool|array propagatableSync will enforce model structures between all sites.
+     * When set to `false` will disable sync, set `true` will sync between the site group.
+     * The sync option allow sync to `all` sites, sites in the `group`, and sites the `locale`.
      *
-     * protected $propagatableSync = false;
+     * Set to an array of options for more granular controls:
+     *
+     * - **sync** - logic to sync specific sites, available options: `all`, `group`, `locale`
+     * - **delete** - delete all linked records when any record is deleted, default: `true`
+     *
+     *     protected $propagatableSync = false;
      */
 
     /**
@@ -239,9 +246,27 @@ trait Multisite
      */
     public function isMultisiteSyncEnabled()
     {
-        return property_exists($this, 'propagatableSync')
-            ? (bool) $this->propagatableSync
-            : false;
+        if (!property_exists($this, 'propagatableSync')) {
+            return false;
+        }
+
+        if (!is_array($this->propagatableSync)) {
+            return ($this->propagatableSync['sync'] ?? false) !== false;
+        }
+
+        return (bool) $this->propagatableSync;
+    }
+
+    /**
+     * getMultisiteConfig
+     */
+    public function getMultisiteConfig($key, $default = null)
+    {
+        if (!property_exists($this, 'propagatableSync') || !is_array($this->propagatableSync)) {
+            return $default;
+        }
+
+        return array_get($this->propagatableSync, $key, $default);
     }
 
     /**
@@ -250,7 +275,17 @@ trait Multisite
      */
     public function getMultisiteSyncSites()
     {
-        return Site::listSiteIdsInContext();
+        if ($this->getMultisiteConfig('sync') === 'all') {
+            return Site::listSiteIds();
+        }
+
+        $siteId = $this->{$this->getSiteIdColumn()} ?: null;
+
+        if ($this->getMultisiteConfig('sync') === 'locale') {
+            return Site::listSiteIdsInLocale($siteId);
+        }
+
+        return Site::listSiteIdsInGroup($siteId);
     }
 
     /**
