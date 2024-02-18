@@ -58,6 +58,8 @@ trait Multisite
 
         $this->bindEvent('model.saveComplete', [$this, 'multisiteSaveComplete']);
 
+        $this->bindEvent('model.afterDelete', [$this, 'multisiteAfterDelete']);
+
         $this->defineMultisiteRelations();
     }
 
@@ -121,6 +123,24 @@ trait Multisite
             ->where($this->getKeyName(), $this->id)
             ->update(['site_root_id' => $this->site_root_id])
         ;
+    }
+
+    /**
+     * multisiteAfterDelete
+     */
+    public function multisiteAfterDelete()
+    {
+        if (!$this->isMultisiteSyncEnabled() || !$this->getMultisiteConfig('delete', true)) {
+            return;
+        }
+
+        Site::withGlobalContext(function() {
+            foreach ($this->getMultisiteSyncSites() as $siteId) {
+                if (!$this->isModelUsingSameSite($siteId)) {
+                    $this->deleteForSite($siteId);
+                }
+            }
+        });
     }
 
     /**
@@ -374,6 +394,30 @@ trait Multisite
         }
 
         return $otherModel;
+    }
+
+    /**
+     * deleteForSite runs the delete command on a model for another site, useful for cleaning
+     * up records for other sites when the parent is deleted.
+     */
+    public function deleteForSite($siteId = null)
+    {
+        $otherModel = $this->findForSite($siteId);
+        if (!$otherModel) {
+            return;
+        }
+
+        $useSoftDeletes = $this->isClassInstanceOf(\October\Contracts\Database\SoftDeleteInterface::class);
+        if ($useSoftDeletes && !$this->isSoftDelete()) {
+            static::withoutEvents(function() use ($otherModel) {
+                $otherModel->forceDelete();
+            });
+            return;
+        }
+
+        static::withoutEvents(function() use ($otherModel) {
+            $otherModel->delete();
+        });
     }
 
     /**
