@@ -876,41 +876,50 @@ trait HasRelationships
     }
 
     /**
-     * performDeleteOnRelations locates relations with delete flag and cascades
-     * the delete event.
+     * performDeleteOnRelations locates relations with delete flag and cascades the
+     * delete event. This is called before the parent model is deleted. This method
+     * checks in with the Multisite trait to preserve shared relations.
+     *
+     * @see \October\Rain\Database\Traits\Multisite::canDeleteMultisiteRelation
      */
     protected function performDeleteOnRelations()
     {
         $definitions = $this->getRelationDefinitions();
+        $useMultisite = $this->isClassInstanceOf(\October\Contracts\Database\MultisiteInterface::class) && $this->isMultisiteEnabled();
+
         foreach ($definitions as $type => $relations) {
-            // Hard 'delete' definition
             foreach ($relations as $name => $options) {
-                if (!Arr::get($options, 'delete', false)) {
+                // Detect and preserve shared multisite relationships
+                if ($useMultisite && !$this->canDeleteMultisiteRelation($name, $type)) {
                     continue;
                 }
 
-                if (!$relation = $this->{$name}) {
-                    continue;
-                }
-
-                if ($relation instanceof EloquentModel) {
-                    $relation->forceDelete();
-                }
-                elseif ($relation instanceof CollectionBase) {
-                    $relation->each(function ($model) {
-                        $model->forceDelete();
-                    });
-                }
-            }
-
-            // Belongs-To-Many should clean up after itself by default
-            if ($type === 'belongsToMany') {
-                foreach ($relations as $name => $options) {
+                // Belongs-To-Many should clean up after itself by default
+                if ($type === 'belongsToMany') {
                     if (!Arr::get($options, 'detach', true)) {
                         return;
                     }
 
                     $this->{$name}()->detach();
+                }
+                // Hard 'delete' definition
+                else {
+                    if (!Arr::get($options, 'delete', false)) {
+                        continue;
+                    }
+
+                    if (!$relation = $this->{$name}) {
+                        continue;
+                    }
+
+                    if ($relation instanceof EloquentModel) {
+                        $relation->forceDelete();
+                    }
+                    elseif ($relation instanceof CollectionBase) {
+                        $relation->each(function ($model) {
+                            $model->forceDelete();
+                        });
+                    }
                 }
             }
         }

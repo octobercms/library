@@ -158,7 +158,31 @@ trait Multisite
     }
 
     /**
-     * defineMultisiteRelation
+     * canDeleteMultisiteRelation checks if a relation has the potential to be shared with
+     * the current model. If there are 2 or more records in existence, then this method
+     * will prevent the cascading deletion of relations.
+     *
+     * @see \October\Rain\Database\Concerns\HasRelationships::performDeleteOnRelations
+     */
+    public function canDeleteMultisiteRelation($name, $type = null): bool
+    {
+        if ($type === null) {
+            $type = $this->getRelationType($name);
+        }
+
+        if (!in_array($type, ['belongsToMany', 'belongsTo', 'hasOne', 'hasMany', 'attachOne', 'attachMany'])) {
+            return false;
+        }
+
+        // The current record counts for one so halt if we find more
+        return !($this->newOtherSiteQuery()->count() > 1);
+    }
+
+    /**
+     * defineMultisiteRelation will modify defined relations on this model so they share
+     * their association using the shared identifier (`site_root_id`). Only these relation
+     * types support relation sharing: `belongsToMany`, `belongsTo`, `hasOne`, `hasMany`,
+     * `attachOne`, `attachMany`.
      */
     protected function defineMultisiteRelation($name, $type = null)
     {
