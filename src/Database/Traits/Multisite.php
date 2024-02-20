@@ -166,6 +166,10 @@ trait Multisite
      */
     public function canDeleteMultisiteRelation($name, $type = null): bool
     {
+        if (!$this->isAttributePropagatable($name)) {
+            return false;
+        }
+
         if ($type === null) {
             $type = $this->getRelationType($name);
         }
