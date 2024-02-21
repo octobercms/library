@@ -61,9 +61,8 @@ trait DeferOneOrMany
                     // Trick the relation to add constraints to this nested query
                     $this->query = $query;
                     $this->addConstraints();
+                    $this->addDefinedConstraintsToQuery($this);
                 }
-
-                $this->addDefinedConstraintsToQuery($this);
             }
 
             // Bind (Add)
