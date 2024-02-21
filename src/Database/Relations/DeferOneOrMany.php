@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database\Relations;
 
 use October\Rain\Support\Facades\DbDongle;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany as BelongsToManyBase;
+use October\Rain\Database\Relations\BelongsToMany as BelongsToManyBase;
 
 /**
  * DeferOneOrMany
@@ -29,38 +29,17 @@ trait DeferOneOrMany
             $sessionKey = $this->parent->sessionKey;
         }
 
-        // No join table will be used, strip the selected "pivot_" columns
+        // Swap the standard inner join for a left join
         if ($this instanceof BelongsToManyBase) {
-            $this->orphanMode = true;
+            $this->performLeftJoin($newQuery);
         }
 
         $newQuery->where(function ($query) use ($sessionKey) {
             if ($this->parent->exists) {
-                if ($this instanceof MorphToMany) {
-                    // Custom query for MorphToMany since a "join" cannot be used
-                    $query->whereExists(function ($query) {
-                        $query
-                            ->select($this->parent->getConnection()->raw(1))
-                            ->from($this->table)
-                            ->where($this->getQualifiedRelatedPivotKeyName(), DbDongle::raw(DbDongle::getTablePrefix().$this->related->getQualifiedKeyName()))
-                            ->where($this->getQualifiedForeignPivotKeyName(), $this->parent->getKey())
-                            ->where($this->getMorphType(), $this->getMorphClass());
-                    });
-                }
-                elseif ($this instanceof BelongsToManyBase) {
-                    // Custom query for BelongsToManyBase since a "join" cannot be used
-                    $query->whereExists(function ($query) {
-                        $query
-                            ->select($this->parent->getConnection()->raw(1))
-                            ->from($this->table)
-                            ->where($this->getQualifiedRelatedPivotKeyName(), DbDongle::raw(DbDongle::getTablePrefix().$this->related->getQualifiedKeyName()))
-                            ->where($this->getQualifiedForeignPivotKeyName(), $this->parent->getKey());
-                    });
-                }
-                else {
-                    // Trick the relation to add constraints to this nested query
-                    $this->query = $query;
-                    $this->addConstraints();
+                $this->query = $query;
+                $this->addConstraints();
+
+                if (!$this instanceof BelongsToManyBase) {
                     $this->addDefinedConstraintsToQuery($this);
                 }
             }

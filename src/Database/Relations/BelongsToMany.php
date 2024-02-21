@@ -24,11 +24,6 @@ class BelongsToMany extends BelongsToManyBase
     public $countMode = false;
 
     /**
-     * @var bool orphanMode used when a join is not used, don't select aliased columns
-     */
-    public $orphanMode = false;
-
-    /**
      * __construct a new belongs to many relationship instance.
      *
      * @param  string  $table
@@ -61,21 +56,41 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
+     * performJoin will join the pivot table opportunistically instead of mandatorily
+     * to support deferred bindings that exist in another table.
+     *
+     * This method is based on `performJoin` method logic except it uses a left join.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder|null  $query
+     * @return $this
+     */
+    protected function performLeftJoin($query = null)
+    {
+        $query = $query ?: $this->query;
+
+        $query->leftJoin(
+            $this->table,
+            $this->getQualifiedRelatedKeyName(),
+            '=',
+            $this->getQualifiedRelatedPivotKeyName()
+        );
+
+        return $this;
+    }
+
+    /**
      * shouldSelect gets the select columns for the relation query
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     protected function shouldSelect(array $columns = ['*'])
     {
+        // @deprecated remove this whole method when `countMode` is gone
         if ($this->countMode) {
             return $this->table.'.'.$this->foreignPivotKey.' as pivot_'.$this->foreignPivotKey;
         }
 
         if ($columns === ['*']) {
             $columns = [$this->related->getTable().'.*'];
-        }
-
-        if ($this->orphanMode) {
-            return $columns;
         }
 
         return array_merge($columns, $this->aliasedPivotColumns());
