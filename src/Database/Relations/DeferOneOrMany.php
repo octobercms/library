@@ -12,7 +12,8 @@ use October\Rain\Database\Relations\BelongsToMany as BelongsToManyBase;
 trait DeferOneOrMany
 {
     /**
-     * withDeferred returns the model query with deferred bindings added
+     * withDeferred returns a new model query with deferred bindings added, this
+     * will reset any constraints that come before it
      * @param string|null $sessionKey
      * @return \Illuminate\Database\Query\Builder
      */
@@ -24,21 +25,31 @@ trait DeferOneOrMany
         // Readd the defined constraints
         $this->addDefinedConstraintsToQuery($newQuery);
 
-        return $this->withDeferredQuery($newQuery, $sessionKey);
+        // Apply deferred binding to the new query
+        $newQuery = $this->withDeferredQuery($newQuery, $sessionKey);
+
+        // Bless this query with the deferred query
+        $this->query->setQuery($newQuery);
+
+        // Readd the global scopes
+        foreach ($this->related->getGlobalScopes() as $identifier => $scope) {
+            $this->query->withGlobalScope($identifier, $scope);
+        }
+
+        return $this->query;
     }
 
     /**
-     * withDeferredQuery returns the model query with deferred bindings added
-     * @param \Illuminate\Database\Query\Builder $newQuery
+     * withDeferredQuery returns the supplied model query, or current model query, with
+     * deferred bindings added, this will preserve any constraints that came before it
+     * @param \Illuminate\Database\Query\Builder|null $newQuery
      * @param string|null $sessionKey
      * @return \Illuminate\Database\Query\Builder
      */
     public function withDeferredQuery($newQuery = null, $sessionKey = null)
     {
-        // Use case here is not wanting addDefinedConstraintsToQuery
         if ($newQuery === null) {
-            $newQuery = $this->query->getQuery()->newQuery();
-            $newQuery->from($this->related->getTable());
+            $newQuery = $this->query->getQuery();
         }
 
         // Guess the key from the parent model
@@ -55,8 +66,10 @@ trait DeferOneOrMany
         $newQuery->where(function ($query) use ($sessionKey) {
             // Trick the relation to add constraints to this nested query
             if ($this->parent->exists) {
+                $oldQuery = $this->query;
                 $this->query = $query;
                 $this->addConstraints();
+                $this->query = $oldQuery;
             }
 
             // Bind (Add)
@@ -94,15 +107,7 @@ trait DeferOneOrMany
                 ]);
         });
 
-        // Bless this query with the deferred query
-        $this->query->setQuery($newQuery);
-
-        // Apply global scopes
-        foreach ($this->related->getGlobalScopes() as $identifier => $scope) {
-            $this->query->withGlobalScope($identifier, $scope);
-        }
-
-        return $this->query;
+        return $newQuery;
     }
 
     /**
