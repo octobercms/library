@@ -42,12 +42,15 @@ trait SortableRelation
                 return;
             }
 
-            $relation = $this->$relationName();
-
+            // Order already set in pivot data (assuming singular)
             $column = $this->getRelationSortOrderColumn($relationName);
+            if (is_array($data) && array_key_exists($column, $data)) {
+                return;
+            }
 
+            // Calculate a new order
+            $relation = $this->$relationName();
             $order = $relation->max($relation->qualifyPivotColumn($column));
-
             foreach ((array) $attached as $id) {
                 $relation->updateExistingPivot($id, [$column => ++$order]);
             }

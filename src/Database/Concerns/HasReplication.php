@@ -4,6 +4,9 @@ use App;
 
 /**
  * HasReplication for a model
+ *
+ * @package october\database
+ * @author Alexey Bobkov, Samuel Georges
  */
 trait HasReplication
 {

@@ -459,12 +459,10 @@ class BelongsToMany extends BelongsToManyBase
     {
         $query = $query ?: $this->query;
 
-        $query->leftJoin(
-            $this->table,
-            $this->getQualifiedRelatedKeyName(),
-            '=',
-            $this->getQualifiedRelatedPivotKeyName()
-        );
+        $query->leftJoin($this->table, function($join) {
+            $join->on($this->getQualifiedRelatedKeyName(), '=', $this->getQualifiedRelatedPivotKeyName());
+            $join->where($this->getQualifiedForeignPivotKeyName(), $this->parent->getKey());
+        });
 
         return $this;
     }
@@ -488,8 +486,6 @@ class BelongsToMany extends BelongsToManyBase
         );
 
         $orderDefinitions = $query->getQuery()->orders;
-
-        traceLog($orderDefinitions);
 
         if (!is_array($orderDefinitions)) {
             return;
