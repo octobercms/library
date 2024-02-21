@@ -18,11 +18,28 @@ trait DeferOneOrMany
      */
     public function withDeferred($sessionKey = null)
     {
-        $modelQuery = $this->query;
-
-        $newQuery = $modelQuery->getQuery()->newQuery();
-
+        $newQuery = $this->query->getQuery()->newQuery();
         $newQuery->from($this->related->getTable());
+
+        // Readd the defined constraints
+        $this->addDefinedConstraintsToQuery($newQuery);
+
+        return $this->withDeferredQuery($newQuery, $sessionKey);
+    }
+
+    /**
+     * withDeferredQuery returns the model query with deferred bindings added
+     * @param \Illuminate\Database\Query\Builder $newQuery
+     * @param string|null $sessionKey
+     * @return \Illuminate\Database\Query\Builder
+     */
+    public function withDeferredQuery($newQuery = null, $sessionKey = null)
+    {
+        // Use case here is not wanting addDefinedConstraintsToQuery
+        if ($newQuery === null) {
+            $newQuery = $this->query->getQuery()->newQuery();
+            $newQuery->from($this->related->getTable());
+        }
 
         // Guess the key from the parent model
         if ($sessionKey === null) {
@@ -32,16 +49,14 @@ trait DeferOneOrMany
         // Swap the standard inner join for a left join
         if ($this instanceof BelongsToManyBase) {
             $this->performLeftJoin($newQuery);
+            $this->performSortableColumnJoin($newQuery, $sessionKey);
         }
 
         $newQuery->where(function ($query) use ($sessionKey) {
+            // Trick the relation to add constraints to this nested query
             if ($this->parent->exists) {
                 $this->query = $query;
                 $this->addConstraints();
-
-                if (!$this instanceof BelongsToManyBase) {
-                    $this->addDefinedConstraintsToQuery($this);
-                }
             }
 
             // Bind (Add)
@@ -79,14 +94,15 @@ trait DeferOneOrMany
                 ]);
         });
 
-        $modelQuery->setQuery($newQuery);
+        // Bless this query with the deferred query
+        $this->query->setQuery($newQuery);
 
         // Apply global scopes
         foreach ($this->related->getGlobalScopes() as $identifier => $scope) {
-            $modelQuery->withGlobalScope($identifier, $scope);
+            $this->query->withGlobalScope($identifier, $scope);
         }
 
-        return $this->query = $modelQuery;
+        return $this->query;
     }
 
     /**
