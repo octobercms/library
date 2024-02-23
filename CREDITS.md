@@ -16,3 +16,6 @@ https://github.com/jakeasmith/http_build_url
 
 "Twig extensions", Copyright (c) 2016 Vojta Svoboda
 https://github.com/vojtasvoboda/oc-twigextensions-plugin
+
+"October Code", Copyright (c) 2022 Sergey Kasyanov
+https://github.com/SergeyKasyanov/vscode-october-extension

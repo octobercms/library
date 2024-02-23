@@ -26,7 +26,7 @@ if (!function_exists('input')) {
 
         // Array field name, eg: field[key][key2][key3]
         if (class_exists('October\Rain\Html\Helper')) {
-            $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
+            $name = October\Rain\Html\Helper::nameToDot($name);
         }
 
         return array_get(Request::all(), $name, $default);
@@ -49,7 +49,7 @@ if (!function_exists('post')) {
 
         // Array field name, eg: field[key][key2][key3]
         if (class_exists('October\Rain\Html\Helper')) {
-            $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
+            $name = October\Rain\Html\Helper::nameToDot($name);
         }
 
         return array_get(Request::post(), $name, $default);
@@ -68,7 +68,7 @@ if (!function_exists('get')) {
 
         // Array field name, eg: field[key][key2][key3]
         if (class_exists('October\Rain\Html\Helper')) {
-            $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
+            $name = October\Rain\Html\Helper::nameToDot($name);
         }
 
         return array_get(Request::query(), $name, $default);
@@ -87,7 +87,7 @@ if (!function_exists('files')) {
 
         // Array field name, eg: field[key][key2][key3]
         if (class_exists('October\Rain\Html\Helper')) {
-            $name = implode('.', October\Rain\Html\Helper::nameToArray($name));
+            $name = October\Rain\Html\Helper::nameToDot($name);
         }
 
         return array_get(Request::allFiles(), $name, $default);
@@ -665,19 +665,6 @@ if (!function_exists('str_before')) {
     function str_before($subject, $search)
     {
         return Str::before($subject, $search);
-    }
-}
-
-if (!function_exists('str_contains')) {
-    /**
-     * str_contains determines if a given string contains a given substring
-     * @param  string  $haystack
-     * @param  string|array  $needles
-     * @return bool
-     */
-    function str_contains($haystack, $needles)
-    {
-        return Str::contains($haystack, $needles);
     }
 }
 

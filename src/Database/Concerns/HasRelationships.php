@@ -19,22 +19,24 @@ use Illuminate\Database\Eloquent\Collection as CollectionBase;
 use InvalidArgumentException;
 
 /**
- * HasRelationships concern for a model, using a cleaner declaration of relationships.
+ * HasRelationships is a concern used by the \October\Rain\Database\Model class, employing a
+ * cleaner declaration of model relationships.
  *
- * Uses a similar approach to the relation methods used by Eloquent, but as separate properties
- * that make the class file less cluttered.
+ * The relation definitions uses an almost identical approach to the relation methods defined
+ * by Eloquent, instead using class properties to make the class file less cluttered and keep
+ * the logic separated from the definition.
  *
- * It should be declared with keys as the relation name, and value being a mixed array.
- * The relation type $morphTo does not include a class name as the first value.
+ * Relations should be declared with keys as the relation name and value as a mixed array.
+ * The relation type `$morphTo` does not include a class name as the first value.
  *
  * Example:
  *
- * class Order extends Model
- * {
- *     protected $hasMany = [
- *         'items' => Item::class
- *     ];
- * }
+ *     class Order extends Model
+ *     {
+ *         protected $hasMany = [
+ *             'items' => Item::class
+ *         ];
+ *     }
  *
  * @package october\database
  * @author Alexey Bobkov, Samuel Georges
@@ -44,9 +46,9 @@ trait HasRelationships
     /**
      * @var array hasOne related record, inverse of belongsTo.
      *
-     * protected $hasOne = [
-     *     'owner' => [User::class, 'key' => 'user_id']
-     * ];
+     *     protected $hasOne = [
+     *         'owner' => [User::class, 'key' => 'user_id']
+     *     ];
      *
      */
     public $hasOne = [];
@@ -54,104 +56,108 @@ trait HasRelationships
     /**
      * @var array hasMany related records, inverse of belongsTo.
      *
-     * protected $hasMany = [
-     *     'items' => Item::class
-     * ];
+     *     protected $hasMany = [
+     *         'items' => Item::class
+     *     ];
      */
     public $hasMany = [];
 
     /**
      * @var array belongsTo another record with a local key attribute
      *
-     * protected $belongsTo = [
-     *     'parent' => [Category::class, 'key' => 'parent_id']
-     * ];
+     *     protected $belongsTo = [
+     *         'parent' => [Category::class, 'key' => 'parent_id']
+     *     ];
      */
     public $belongsTo = [];
 
     /**
      * @var array belongsToMany to multiple records using a join table.
      *
-     * protected $belongsToMany = [
-     *     'groups' => [Group::class, 'table'=> 'join_groups_users']
-     * ];
+     *     protected $belongsToMany = [
+     *         'groups' => [Group::class, 'table'=> 'join_groups_users']
+     *     ];
      */
     public $belongsToMany = [];
 
     /**
      * @var array morphTo another record using local key and type attributes
      *
-     * protected $morphTo = [
-     *     'pictures' => []
-     * ];
+     *     protected $morphTo = [
+     *         'pictures' => []
+     *     ];
      */
     public $morphTo = [];
 
     /**
      * @var array morphOne related record, inverse of morphTo.
      *
-     * protected $morphOne = [
-     *     'log' => [History::class, 'name' => 'user']
-     * ];
+     *     protected $morphOne = [
+     *         'log' => [History::class, 'name' => 'user']
+     *     ];
      */
     public $morphOne = [];
 
     /**
      * @var array morphMany related records, inverse of morphTo.
      *
-     * protected $morphMany = [
-     *     'log' => [History::class, 'name' => 'user']
-     * ];
+     *     protected $morphMany = [
+     *         'log' => [History::class, 'name' => 'user']
+     *     ];
      */
     public $morphMany = [];
 
     /**
      * @var array morphToMany to multiple records using a join table.
      *
-     * protected $morphToMany = [
-     *     'tag' => [Tag::class, 'table' => 'tagables', 'name' => 'tagable']
-     * ];
+     *     protected $morphToMany = [
+     *         'tag' => [Tag::class, 'table' => 'tagables', 'name' => 'tagable']
+     *     ];
      */
     public $morphToMany = [];
 
     /**
-     * @var array morphedByMany
+     * @var array morphedByMany to a polymorphic, inverse many-to-many relationship.
+     *
+     *     public $morphedByMany = [
+     *         'tag' => [Tag::class, 'table' => 'tagables', 'name' => 'tagable']
+     *     ];
      */
     public $morphedByMany = [];
 
     /**
      * @var array attachOne file attachment.
      *
-     * protected $attachOne = [
-     *     'picture' => [\October\Rain\Database\Attach\File::class, 'public' => false]
-     * ];
+     *     protected $attachOne = [
+     *         'picture' => [\October\Rain\Database\Attach\File::class, 'public' => false]
+     *     ];
      */
     public $attachOne = [];
 
     /**
      * @var array attachMany file attachments.
      *
-     * protected $attachMany = [
-     *     'pictures' => [\October\Rain\Database\Attach\File::class, 'name'=> 'imageable']
-     * ];
+     *     protected $attachMany = [
+     *         'pictures' => [\October\Rain\Database\Attach\File::class, 'name'=> 'imageable']
+     *     ];
      */
     public $attachMany = [];
 
     /**
      * @var array hasManyThrough is related records through another record.
      *
-     * protected $hasManyThrough = [
-     *     'posts' => [Post::class, 'through' => User::class]
-     * ];
+     *     protected $hasManyThrough = [
+     *         'posts' => [Post::class, 'through' => User::class]
+     *     ];
      */
     public $hasManyThrough = [];
 
     /**
      * @var array hasOneThrough is a related record through another record.
      *
-     * protected $hasOneThrough = [
-     *     'post' => [Post::class, 'through' => User::class]
-     * ];
+     *     protected $hasOneThrough = [
+     *         'post' => [Post::class, 'through' => User::class]
+     *     ];
      */
     public $hasOneThrough = [];
 
@@ -254,12 +260,24 @@ trait HasRelationships
     }
 
     /**
-     * makeRelation returns a relation class object
-     * @param string $name Relation name
-     * @return object
+     * makeRelation returns a relation class object, supporting nested relations with
+     * dot notation
+     * @param string $name
+     * @return \Model|null
      */
     public function makeRelation($name)
     {
+        if (str_contains($name, '.')) {
+            $model = $this;
+            $parts = explode('.', $name);
+            while ($relationName = array_shift($parts)) {
+                if (!$model = $model->makeRelation($relationName)) {
+                    return null;
+                }
+            }
+            return $model;
+        }
+
         $relation = $this->getRelationDefinition($name);
         $relationType = $this->getRelationType($name);
 
@@ -271,7 +289,8 @@ trait HasRelationships
     }
 
     /**
-     * makeRelationInternal
+     * makeRelationInternal is used internally to create a new related instance. It also
+     * fires the `afterRelation` to extend the created instance.
      */
     protected function makeRelationInternal(string $relationName, string $relationClass)
     {
@@ -285,7 +304,7 @@ trait HasRelationships
 
     /**
      * isRelationPushable determines whether the specified relation should be saved
-     * when push() is called instead of save() on the model. Default: true.
+     * when `push()` is called instead of `save()` on the model. Defaults to `true`.
      */
     public function isRelationPushable(string $name): bool
     {
@@ -300,7 +319,7 @@ trait HasRelationships
 
     /**
      * getRelationDefaults returns default relation arguments for a given type.
-     * @param string $type Relation type
+     * @param string $type
      * @return array
      */
     protected function getRelationDefaults($type)
@@ -330,7 +349,7 @@ trait HasRelationships
             throw new InvalidArgumentException(sprintf(
                 "Relation '%s' on model '%s' should have at least a classname.",
                 $relationName,
-                get_called_class()
+                static::class
             ));
         }
 
@@ -338,7 +357,7 @@ trait HasRelationships
             throw new InvalidArgumentException(sprintf(
                 "Relation '%s' on model '%s' is a morphTo relation and should not contain additional arguments.",
                 $relationName,
-                get_called_class()
+                static::class
             ));
         }
 
@@ -393,7 +412,7 @@ trait HasRelationships
                 break;
 
             default:
-                throw new InvalidArgumentException(sprintf("There is no such relation type known as '%s' on model '%s'.", $relationType, get_called_class()));
+                throw new InvalidArgumentException(sprintf("There is no such relation type known as '%s' on model '%s'.", $relationType, static::class));
         }
 
         // Relation hook event
@@ -430,7 +449,7 @@ trait HasRelationships
             throw new InvalidArgumentException(sprintf(
                 'Relation "%s" on model "%s" should contain the following key(s): %s',
                 $relationName,
-                get_called_class(),
+                static::class,
                 implode(', ', $missingRequired)
             ));
         }
@@ -498,9 +517,9 @@ trait HasRelationships
     }
 
     /**
-     * belongsTo defines an inverse one-to-one or many relationship.
-     * Overridden from {@link Eloquent\Model} to allow the usage of the intermediary methods to handle the {@link
-     * $relationsData} array.
+     * belongsTo defines an inverse one-to-one or many relationship. Overridden from
+     * \Eloquent\Model to allow the usage of the intermediary methods to handle the
+     * relationsData array.
      * @return \October\Rain\Database\Relations\BelongsTo
      */
     public function belongsTo($related, $foreignKey = null, $parentKey = null, $relationName = null)
@@ -524,7 +543,8 @@ trait HasRelationships
 
     /**
      * morphTo defines a polymorphic, inverse one-to-one or many relationship.
-     * Overridden from {@link Eloquent\Model} to allow the usage of the intermediary methods to handle the relation.
+     * Overridden from \Eloquent\Model to allow the usage of the intermediary
+     * methods to handle the relation.
      * @return \October\Rain\Database\Relations\BelongsTo
      */
     public function morphTo($name = null, $type = null, $id = null, $ownerKey = null)
@@ -848,57 +868,66 @@ trait HasRelationships
     }
 
     /**
-     * getRelationValue returns a relation key value(s), not as an object.
+     * getRelationSimpleValue returns a relation key value(s), not as an object.
      */
-    public function getRelationValue($relationName)
+    public function getRelationSimpleValue($relationName)
     {
         return $this->$relationName()->getSimpleValue();
     }
 
     /**
-     * setRelationValue sets a relation value directly from its attribute.
+     * setRelationSimpleValue sets a relation value directly from its attribute.
      */
-    protected function setRelationValue($relationName, $value)
+    protected function setRelationSimpleValue($relationName, $value)
     {
         $this->$relationName()->setSimpleValue($value);
     }
 
     /**
-     * performDeleteOnRelations locates relations with delete flag and cascades
-     * the delete event.
+     * performDeleteOnRelations locates relations with delete flag and cascades the
+     * delete event. This is called before the parent model is deleted. This method
+     * checks in with the Multisite trait to preserve shared relations.
+     *
+     * @see \October\Rain\Database\Traits\Multisite::canDeleteMultisiteRelation
      */
     protected function performDeleteOnRelations()
     {
         $definitions = $this->getRelationDefinitions();
+        $useMultisite = $this->isClassInstanceOf(\October\Contracts\Database\MultisiteInterface::class) && $this->isMultisiteEnabled();
+
         foreach ($definitions as $type => $relations) {
-            // Hard 'delete' definition
             foreach ($relations as $name => $options) {
-                if (!Arr::get($options, 'delete', false)) {
+                // Detect and preserve shared multisite relationships
+                if ($useMultisite && !$this->canDeleteMultisiteRelation($name, $type)) {
                     continue;
                 }
 
-                if (!$relation = $this->{$name}) {
-                    continue;
-                }
-
-                if ($relation instanceof EloquentModel) {
-                    $relation->forceDelete();
-                }
-                elseif ($relation instanceof CollectionBase) {
-                    $relation->each(function ($model) {
-                        $model->forceDelete();
-                    });
-                }
-            }
-
-            // Belongs-To-Many should clean up after itself by default
-            if ($type === 'belongsToMany') {
-                foreach ($relations as $name => $options) {
+                // Belongs-To-Many should clean up after itself by default
+                if ($type === 'belongsToMany') {
                     if (!Arr::get($options, 'detach', true)) {
                         return;
                     }
 
                     $this->{$name}()->detach();
+                }
+                // Hard 'delete' definition
+                else {
+                    if (!Arr::get($options, 'delete', false)) {
+                        continue;
+                    }
+
+                    if (!$relation = $this->{$name}) {
+                        continue;
+                    }
+
+                    if ($relation instanceof EloquentModel) {
+                        $relation->forceDelete();
+                    }
+                    elseif ($relation instanceof CollectionBase) {
+                        $relation->each(function ($model) {
+                            $model->forceDelete();
+                        });
+                    }
                 }
             }
         }

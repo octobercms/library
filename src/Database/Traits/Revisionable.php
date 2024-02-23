@@ -44,7 +44,7 @@ trait Revisionable
         if (!is_array($this->revisionable)) {
             throw new Exception(sprintf(
                 'The $revisionable property in %s must be an array to use the Revisionable trait.',
-                get_class($this)
+                static::class
             ));
         }
 
@@ -110,7 +110,7 @@ trait Revisionable
 
         $softDeletes = in_array(
             \October\Rain\Database\Traits\SoftDelete::class,
-            class_uses_recursive(get_class($this))
+            class_uses_recursive(static::class)
         );
 
         if (!$softDeletes) {

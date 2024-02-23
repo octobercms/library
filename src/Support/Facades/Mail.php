@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Mail as MailBase;
 /**
  * Mail
  *
+ * @method static void sendTo(mixed $recipients, string $view, array $data = [], $callback = null, $options = [])
+ *
  * @see \October\Rain\Mails\Dispatcher
  */
 class Mail extends MailBase

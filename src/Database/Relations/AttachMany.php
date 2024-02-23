@@ -3,6 +3,7 @@
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphMany as MorphManyBase;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use October\Rain\Database\Attach\File as FileModel;
 
 /**
@@ -38,29 +39,64 @@ class AttachMany extends MorphManyBase
      */
     public function setSimpleValue($value)
     {
-        // Newly uploaded file(s)
-        if ($this->isValidFileData($value)) {
+        // Append a single newly uploaded file(s)
+        if ($value instanceof UploadedFile) {
             $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
                 $this->create(['data' => $value]);
             });
+            return;
         }
-        elseif (is_array($value)) {
-            $files = [];
+
+        // Append existing File model
+        if ($value instanceof FileModel) {
+            $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
+                $this->add($value);
+            });
+            return;
+        }
+
+        // Process multiple values
+        $files = $models = $keys = [];
+        if (is_array($value)) {
             foreach ($value as $_value) {
-                if ($this->isValidFileData($_value)) {
+                if ($_value instanceof UploadedFile) {
                     $files[] = $_value;
                 }
+                elseif ($_value instanceof FileModel) {
+                    $models[] = $_value;
+                }
+                elseif (is_numeric($_value)){
+                    $keys[] = $_value;
+                }
             }
+        }
+
+        if ($files) {
             $this->parent->bindEventOnce('model.afterSave', function () use ($files) {
                 foreach ($files as $file) {
                     $this->create(['data' => $file]);
                 }
             });
         }
-        // Existing File model
-        elseif ($value instanceof FileModel) {
-            $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
-                $this->add($value);
+
+        if ($keys) {
+            $this->parent->bindEventOnce('model.afterSave', function () use ($keys) {
+                $models = $this->getRelated()
+                    ->whereIn($this->getRelatedKeyName(), (array) $keys)
+                    ->get()
+                ;
+
+                foreach ($models as $model) {
+                    $this->add($model);
+                }
+            });
+        }
+
+        if ($models) {
+            $this->parent->bindEventOnce('model.afterSave', function () use ($models) {
+                foreach ($models as $model) {
+                    $this->add($model);
+                }
             });
         }
     }
@@ -85,46 +121,8 @@ class AttachMany extends MorphManyBase
         if ($files) {
             $value = [];
             foreach ($files as $file) {
-                $value[] = $file->getPath();
+                $value[] = $file->getKey();
             }
-        }
-
-        return $value;
-    }
-
-    /**
-     * @deprecated this method is removed in October CMS v4
-     */
-    public function getValidationValue()
-    {
-        if ($value = $this->getSimpleValueInternal()) {
-            $files = [];
-            foreach ($value as $file) {
-                $files[] = $this->makeValidationFile($file);
-            }
-
-            return $files;
-        }
-
-        return null;
-    }
-
-    /**
-     * @deprecated this method is removed in October CMS v4
-     */
-    protected function getSimpleValueInternal()
-    {
-        $value = null;
-
-        $files = ($sessionKey = $this->parent->sessionKey)
-            ? $this->withDeferred($sessionKey)->get()
-            : $this->parent->{$this->relationName};
-
-        if ($files) {
-            $value = [];
-            $files->each(function ($file) use (&$value) {
-                $value[] = $file;
-            });
         }
 
         return $value;

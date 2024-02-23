@@ -146,14 +146,10 @@ class MorphToMany extends BelongsToMany
      */
     public function newPivot(array $attributes = [], $exists = false)
     {
-        /*
-         * October looks to the relationship parent
-         */
+        // October looks to the relationship parent
         $pivot = $this->parent->newRelationPivot($this->relationName, $this->parent, $attributes, $this->table, $exists);
 
-        /*
-         * Laravel creates new pivot model this way
-         */
+        // Laravel creates new pivot model this way
         if (empty($pivot)) {
             $using = $this->using;
 

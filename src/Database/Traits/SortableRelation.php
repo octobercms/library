@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Traits;
 
+use Db;
 use Exception;
 
 /**
@@ -41,12 +42,15 @@ trait SortableRelation
                 return;
             }
 
-            $relation = $this->$relationName();
-
+            // Order already set in pivot data (assuming singular)
             $column = $this->getRelationSortOrderColumn($relationName);
+            if (is_array($data) && array_key_exists($column, $data)) {
+                return;
+            }
 
+            // Calculate a new order
+            $relation = $this->$relationName();
             $order = $relation->max($relation->qualifyPivotColumn($column));
-
             foreach ((array) $attached as $id) {
                 $relation->updateExistingPivot($id, [$column => ++$order]);
             }
@@ -117,9 +121,19 @@ trait SortableRelation
 
         if ($upsert) {
             foreach ($upsert as $update) {
-                $this->$relationName()->updateExistingPivot($update['id'], [
+                $result = $this->exists ? $this->$relationName()->updateExistingPivot($update['id'], [
                     $this->getRelationSortOrderColumn($relationName) => $update['sort_order']
-                ]);
+                ]) : 0;
+
+                if (!$result && $this->sessionKey) {
+                    Db::table('deferred_bindings')
+                        ->where('master_field', $relationName)
+                        ->where('master_type', get_class($this))
+                        ->where('session_key', $this->sessionKey)
+                        ->where('slave_id', $update['id'])
+                        ->limit(1)
+                        ->update(['sort_order' => $update['sort_order']]);
+                }
             }
         }
     }

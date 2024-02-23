@@ -211,7 +211,8 @@ class Filesystem extends FilesystemBase
     }
 
     /**
-     * nicePath returns a nice path that is suitable for sharing.
+     * nicePath removes the base path from a local path and returns a relatively nice
+     * path that is suitable and safe for sharing.
      * @param  string $path
      * @return string
      */
@@ -307,9 +308,7 @@ class Filesystem extends FilesystemBase
             $mode = $mask;
         }
 
-        /*
-         * Find the green leaves
-         */
+        // Find the green leaves
         if ($recursive && $mask) {
             $chmodPath = $path;
             while (true) {
@@ -327,14 +326,10 @@ class Filesystem extends FilesystemBase
             $chmodPath = $path;
         }
 
-        /*
-         * Make the directory
-         */
+        // Make the directory
         $result = parent::makeDirectory($path, $mode, $recursive, $force);
 
-        /*
-         * Apply the permissions
-         */
+        // Apply the permissions
         if ($mask) {
             $this->chmod($chmodPath, $mask);
 

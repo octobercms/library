@@ -59,7 +59,7 @@ class DeferredBinding extends Model
      * getPivotDataForBind strips attributes beginning with an underscore, allowing
      * meta data to be stored using the column alongside the data.
      */
-    public function getPivotDataForBind(): array
+    public function getPivotDataForBind($model, $relationName): array
     {
         $data = [];
 
@@ -70,6 +70,15 @@ class DeferredBinding extends Model
 
             $data[$key] = $value;
         }
+
+        if (
+            $model->isClassInstanceOf(\October\Contracts\Database\SortableRelationInterface::class) &&
+            $model->isSortableRelation($relationName)
+        ) {
+            $sortColumn = $model->getRelationSortOrderColumn($relationName);
+            $data[$sortColumn] = $this->sort_order;
+        }
+
         return $data;
     }
 
@@ -206,7 +215,7 @@ class DeferredBinding extends Model
 
             // Only delete it if the relationship is null
             $foreignKey = array_get($options, 'key', $masterObject->getForeignKey());
-            if (!$relatedObj->$foreignKey) {
+            if ($foreignKey && !$relatedObj->$foreignKey) {
                 $relatedObj->delete();
             }
         }

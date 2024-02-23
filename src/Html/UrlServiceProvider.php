@@ -32,22 +32,23 @@ class UrlServiceProvider extends ServiceProvider
      */
     public function registerUrlGeneratorPolicy()
     {
-        $policy = $this->app['config']->get('system.link_policy', 'detect');
+        $provider = $this->app['url'];
+        $policy = Config::get('system.link_policy', 'detect');
 
         switch (strtolower($policy)) {
             case 'force':
-                $appUrl = $this->app['config']->get('app.url');
+                $appUrl = Config::get('app.url');
                 $schema = Str::startsWith($appUrl, 'http://') ? 'http' : 'https';
-                $this->app['url']->forceRootUrl($appUrl);
-                $this->app['url']->forceScheme($schema);
+                $provider->forceRootUrl($appUrl);
+                $provider->forceScheme($schema);
                 break;
 
             case 'insecure':
-                $this->app['url']->forceScheme('http');
+                $provider->forceScheme('http');
                 break;
 
             case 'secure':
-                $this->app['url']->forceScheme('https');
+                $provider->forceScheme('https');
                 break;
         }
     }
@@ -59,19 +60,16 @@ class UrlServiceProvider extends ServiceProvider
     {
         $provider = $this->app['url'];
 
-        $provider->macro('makeRelative', function($url) use ($provider) {
-            $fullUrl = $provider->to($url);
-            return parse_url($fullUrl, PHP_URL_PATH)
-                . (($query = parse_url($fullUrl, PHP_URL_QUERY)) ? '?' . $query : '')
-                . (($fragment = parse_url($fullUrl, PHP_URL_FRAGMENT)) ? '#' . $fragment : '');
+        $provider->macro('makeRelative', function(...$args) use ($provider) {
+            return (new \October\Rain\Html\UrlMixin($provider))->makeRelative(...$args);
         });
 
-        $provider->macro('toRelative', function($url) use ($provider) {
-            if (Config::get('system.relative_links', false)) {
-                return $provider->makeRelative($url);
-            }
+        $provider->macro('toRelative', function(...$args) use ($provider) {
+            return (new \October\Rain\Html\UrlMixin($provider))->toRelative(...$args);
+        });
 
-            return $provider->to($url);
+        $provider->macro('toSigned', function(...$args) use ($provider) {
+            return (new \October\Rain\Html\UrlMixin($provider))->toSigned(...$args);
         });
     }
 

@@ -3,7 +3,7 @@
 use October\Rain\Database\Models\DeferredBinding as DeferredBindingModel;
 
 /**
- * DeferredBinding trait
+ * DeferredBinding trait is implemented by all models
  *
  * @package october\database
  * @author Alexey Bobkov, Samuel Georges
@@ -196,7 +196,8 @@ trait DeferredBinding
             $relationObj = $this->$relationName();
             if ($binding->is_bind) {
                 if (in_array($relationType, ['belongsToMany', 'morphToMany', 'morphedByMany'])) {
-                    $relationObj->add($slaveModel, null, $binding->getPivotDataForBind());
+                    $pivotData = $binding->getPivotDataForBind($this, $relationName);
+                    $relationObj->add($slaveModel, null, $pivotData);
                 }
                 else {
                     $relationObj->add($slaveModel);

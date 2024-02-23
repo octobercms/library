@@ -3,6 +3,7 @@
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphOne as MorphOneBase;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use October\Rain\Database\Attach\File as FileModel;
 
 /**
@@ -43,7 +44,7 @@ class AttachOne extends MorphOneBase
         }
 
         // Newly uploaded file
-        if ($this->isValidFileData($value)) {
+        if ($value instanceof UploadedFile) {
             $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
                 $file = $this->create(['data' => $value]);
                 $this->parent->setRelation($this->relationName, $file);
@@ -55,8 +56,16 @@ class AttachOne extends MorphOneBase
                 $this->add($value);
             });
         }
+        // Model key
+        elseif (is_numeric($value)) {
+            $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
+                if ($model = $this->getRelated()->find($value)) {
+                    $this->add($model);
+                }
+            });
+        }
 
-        // The relation is set here to satisfy `getValidationValue`
+        // The relation is set here to satisfy validation
         $this->parent->setRelation($this->relationName, $value);
     }
 
@@ -71,40 +80,14 @@ class AttachOne extends MorphOneBase
         $relationName = $this->relationName;
 
         if ($this->parent->relationLoaded($relationName)) {
-            $value = $this->parent->getRelation($relationName);
+            $file = $this->parent->getRelation($relationName);
         }
         else {
-            $value = $this->getResults();
+            $file = $this->getResults();
         }
-
-        return $value;
-    }
-
-    /**
-     * @deprecated this method is removed in October CMS v4
-     */
-    public function getValidationValue()
-    {
-        if ($value = $this->getSimpleValueInternal()) {
-            return $this->makeValidationFile($value);
-        }
-
-        return null;
-    }
-
-    /**
-     * @deprecated this method is removed in October CMS v4
-     */
-    protected function getSimpleValueInternal()
-    {
-        $value = null;
-
-        $file = ($sessionKey = $this->parent->sessionKey)
-            ? $this->withDeferred($sessionKey)->first()
-            : $this->parent->{$this->relationName};
 
         if ($file) {
-            $value = $file;
+            $value = $file->getKey();
         }
 
         return $value;

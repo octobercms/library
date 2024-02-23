@@ -72,6 +72,8 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
             return new DatabaseTransactionsManager;
         });
 
+        $this->app->bind('db.replicator', Replicator::class);
+
         $this->app->singleton('db.dongle', function ($app) {
             return new Dongle($this->getDefaultDatabaseDriver(), $app['db']);
         });
@@ -84,6 +86,6 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
     {
         $defaultConnection = $this->app['db']->getDefaultConnection();
 
-        return $this->app['config']['database.connections.' . $defaultConnection . '.driver'];
+        return $this->app['config']["database.connections.{$defaultConnection}.driver"];
     }
 }

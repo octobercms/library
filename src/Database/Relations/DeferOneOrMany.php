@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Database\Relations;
 
 use October\Rain\Support\Facades\DbDongle;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany as BelongsToManyBase;
+use October\Rain\Database\Relations\BelongsToMany as BelongsToManyBase;
 
 /**
  * DeferOneOrMany
@@ -12,58 +12,64 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany as BelongsToManyBase;
 trait DeferOneOrMany
 {
     /**
-     * withDeferred returns the model query with deferred bindings added
+     * withDeferred returns a new model query with deferred bindings added, this
+     * will reset any constraints that come before it
      * @param string|null $sessionKey
      * @return \Illuminate\Database\Query\Builder
      */
     public function withDeferred($sessionKey = null)
     {
-        $modelQuery = $this->query;
-
-        $newQuery = $modelQuery->getQuery()->newQuery();
-
+        $newQuery = $this->query->getQuery()->newQuery();
         $newQuery->from($this->related->getTable());
+
+        // Readd the defined constraints
+        $this->addDefinedConstraintsToQuery($newQuery);
+
+        // Apply deferred binding to the new query
+        $newQuery = $this->withDeferredQuery($newQuery, $sessionKey);
+
+        // Bless this query with the deferred query
+        $this->query->setQuery($newQuery);
+
+        // Readd the global scopes
+        foreach ($this->related->getGlobalScopes() as $identifier => $scope) {
+            $this->query->withGlobalScope($identifier, $scope);
+        }
+
+        return $this->query;
+    }
+
+    /**
+     * withDeferredQuery returns the supplied model query, or current model query, with
+     * deferred bindings added, this will preserve any constraints that came before it
+     * @param \Illuminate\Database\Query\Builder|null $newQuery
+     * @param string|null $sessionKey
+     * @return \Illuminate\Database\Query\Builder
+     */
+    public function withDeferredQuery($newQuery = null, $sessionKey = null)
+    {
+        if ($newQuery === null) {
+            $newQuery = $this->query->getQuery();
+        }
 
         // Guess the key from the parent model
         if ($sessionKey === null) {
             $sessionKey = $this->parent->sessionKey;
         }
 
-        // No join table will be used, strip the selected "pivot_" columns
+        // Swap the standard inner join for a left join
         if ($this instanceof BelongsToManyBase) {
-            $this->orphanMode = true;
+            $this->performLeftJoin($newQuery);
+            $this->performSortableColumnJoin($newQuery, $sessionKey);
         }
 
         $newQuery->where(function ($query) use ($sessionKey) {
+            // Trick the relation to add constraints to this nested query
             if ($this->parent->exists) {
-                if ($this instanceof MorphToMany) {
-                    // Custom query for MorphToMany since a "join" cannot be used
-                    $query->whereExists(function ($query) {
-                        $query
-                            ->select($this->parent->getConnection()->raw(1))
-                            ->from($this->table)
-                            ->where($this->getQualifiedRelatedPivotKeyName(), DbDongle::raw(DbDongle::getTablePrefix().$this->related->getQualifiedKeyName()))
-                            ->where($this->getQualifiedForeignPivotKeyName(), $this->parent->getKey())
-                            ->where($this->getMorphType(), $this->getMorphClass());
-                    });
-                }
-                elseif ($this instanceof BelongsToManyBase) {
-                    // Custom query for BelongsToManyBase since a "join" cannot be used
-                    $query->whereExists(function ($query) {
-                        $query
-                            ->select($this->parent->getConnection()->raw(1))
-                            ->from($this->table)
-                            ->where($this->getQualifiedRelatedPivotKeyName(), DbDongle::raw(DbDongle::getTablePrefix().$this->related->getQualifiedKeyName()))
-                            ->where($this->getQualifiedForeignPivotKeyName(), $this->parent->getKey());
-                    });
-                }
-                else {
-                    // Trick the relation to add constraints to this nested query
-                    $this->query = $query;
-                    $this->addConstraints();
-                }
-
-                $this->addDefinedConstraintsToQuery($this);
+                $oldQuery = $this->query;
+                $this->query = $query;
+                $this->addConstraints();
+                $this->query = $oldQuery;
             }
 
             // Bind (Add)
@@ -101,14 +107,7 @@ trait DeferOneOrMany
                 ]);
         });
 
-        $modelQuery->setQuery($newQuery);
-
-        // Apply global scopes
-        foreach ($this->related->getGlobalScopes() as $identifier => $scope) {
-            $modelQuery->withGlobalScope($identifier, $scope);
-        }
-
-        return $this->query = $modelQuery;
+        return $newQuery;
     }
 
     /**

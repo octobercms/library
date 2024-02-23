@@ -16,13 +16,20 @@ trait Multisite
     /**
      * @var array propagatable list of attributes to propagate to other sites.
      *
-     * protected $propagatable = [];
+     *     protected $propagatable = [];
      */
 
     /**
-     * @var bool propagatableSync will enforce model structures between all sites
+     * @var bool|array propagatableSync will enforce model structures between all sites.
+     * When set to `false` will disable sync, set `true` will sync between the site group.
+     * The sync option allow sync to `all` sites, sites in the `group`, and sites the `locale`.
      *
-     * protected $propagatableSync = false;
+     * Set to an array of options for more granular controls:
+     *
+     * - **sync** - logic to sync specific sites, available options: `all`, `group`, `locale`
+     * - **delete** - delete all linked records when any record is deleted, default: `true`
+     *
+     *     protected $propagatableSync = false;
      */
 
     /**
@@ -41,7 +48,7 @@ trait Multisite
         if (!is_array($this->propagatable)) {
             throw new Exception(sprintf(
                 'The $propagatable property in %s must be an array to use the Multisite trait.',
-                get_class($this)
+                static::class
             ));
         }
 
@@ -50,6 +57,8 @@ trait Multisite
         $this->bindEvent('model.afterCreate', [$this, 'multisiteAfterCreate']);
 
         $this->bindEvent('model.saveComplete', [$this, 'multisiteSaveComplete']);
+
+        $this->bindEvent('model.afterDelete', [$this, 'multisiteAfterDelete']);
 
         $this->defineMultisiteRelations();
     }
@@ -117,6 +126,24 @@ trait Multisite
     }
 
     /**
+     * multisiteAfterDelete
+     */
+    public function multisiteAfterDelete()
+    {
+        if (!$this->isMultisiteSyncEnabled() || !$this->getMultisiteConfig('delete', true)) {
+            return;
+        }
+
+        Site::withGlobalContext(function() {
+            foreach ($this->getMultisiteSyncSites() as $siteId) {
+                if (!$this->isModelUsingSameSite($siteId)) {
+                    $this->deleteForSite($siteId);
+                }
+            }
+        });
+    }
+
+    /**
      * defineMultisiteRelations will spin over every relation and apply propagation config
      */
     protected function defineMultisiteRelations()
@@ -131,7 +158,35 @@ trait Multisite
     }
 
     /**
-     * defineMultisiteRelation
+     * canDeleteMultisiteRelation checks if a relation has the potential to be shared with
+     * the current model. If there are 2 or more records in existence, then this method
+     * will prevent the cascading deletion of relations.
+     *
+     * @see \October\Rain\Database\Concerns\HasRelationships::performDeleteOnRelations
+     */
+    public function canDeleteMultisiteRelation($name, $type = null): bool
+    {
+        if (!$this->isAttributePropagatable($name)) {
+            return false;
+        }
+
+        if ($type === null) {
+            $type = $this->getRelationType($name);
+        }
+
+        if (!in_array($type, ['belongsToMany', 'belongsTo', 'hasOne', 'hasMany', 'attachOne', 'attachMany'])) {
+            return false;
+        }
+
+        // The current record counts for one so halt if we find more
+        return !($this->newOtherSiteQuery()->count() > 1);
+    }
+
+    /**
+     * defineMultisiteRelation will modify defined relations on this model so they share
+     * their association using the shared identifier (`site_root_id`). Only these relation
+     * types support relation sharing: `belongsToMany`, `belongsTo`, `hasOne`, `hasMany`,
+     * `attachOne`, `attachMany`.
      */
     protected function defineMultisiteRelation($name, $type = null)
     {
@@ -239,9 +294,27 @@ trait Multisite
      */
     public function isMultisiteSyncEnabled()
     {
-        return property_exists($this, 'propagatableSync')
-            ? (bool) $this->propagatableSync
-            : false;
+        if (!property_exists($this, 'propagatableSync')) {
+            return false;
+        }
+
+        if (!is_array($this->propagatableSync)) {
+            return ($this->propagatableSync['sync'] ?? false) !== false;
+        }
+
+        return (bool) $this->propagatableSync;
+    }
+
+    /**
+     * getMultisiteConfig
+     */
+    public function getMultisiteConfig($key, $default = null)
+    {
+        if (!property_exists($this, 'propagatableSync') || !is_array($this->propagatableSync)) {
+            return $default;
+        }
+
+        return array_get($this->propagatableSync, $key, $default);
     }
 
     /**
@@ -250,7 +323,17 @@ trait Multisite
      */
     public function getMultisiteSyncSites()
     {
-        return Site::listSiteIdsInContext();
+        if ($this->getMultisiteConfig('sync') === 'all') {
+            return Site::listSiteIds();
+        }
+
+        $siteId = $this->{$this->getSiteIdColumn()} ?: null;
+
+        if ($this->getMultisiteConfig('sync') === 'locale') {
+            return Site::listSiteIdsInLocale($siteId);
+        }
+
+        return Site::listSiteIdsInGroup($siteId);
     }
 
     /**
@@ -339,6 +422,30 @@ trait Multisite
         }
 
         return $otherModel;
+    }
+
+    /**
+     * deleteForSite runs the delete command on a model for another site, useful for cleaning
+     * up records for other sites when the parent is deleted.
+     */
+    public function deleteForSite($siteId = null)
+    {
+        $otherModel = $this->findForSite($siteId);
+        if (!$otherModel) {
+            return;
+        }
+
+        $useSoftDeletes = $this->isClassInstanceOf(\October\Contracts\Database\SoftDeleteInterface::class);
+        if ($useSoftDeletes && !$this->isSoftDelete()) {
+            static::withoutEvents(function() use ($otherModel) {
+                $otherModel->forceDelete();
+            });
+            return;
+        }
+
+        static::withoutEvents(function() use ($otherModel) {
+            $otherModel->delete();
+        });
     }
 
     /**

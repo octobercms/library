@@ -187,9 +187,7 @@ class Mailer extends MailerBase
         $recipients = $this->processRecipients($recipients);
 
         return $this->{$method}($view, $data, function ($message) use ($recipients, $callback, $bcc) {
-
             $method = $bcc === true ? 'bcc' : 'to';
-
             foreach ($recipients as $address => $name) {
                 $message->{$method}($address, $name);
             }

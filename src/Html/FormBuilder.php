@@ -352,6 +352,18 @@ class FormBuilder
     }
 
     /**
+     * number input field.
+     * @param  string  $name
+     * @param  string  $value
+     * @param  array   $options
+     * @return string
+     */
+    public function number($name, $value = null, $options = [])
+    {
+        return $this->input('number', $name, $value, $options);
+    }
+
+    /**
      * url input field.
      * @param  string  $name
      * @param  string  $value
@@ -462,6 +474,12 @@ class FormBuilder
             $list = ['' => $options['emptyOption']] + $list;
         }
 
+        $selectOptions = false;
+        if (array_key_exists('selectOptions', $options)) {
+            $selectOptions = $options['selectOptions'] === true;
+            unset($options['selectOptions']);
+        }
+
         // When building a select box the "value" attribute is really the selected one
         // so we will use that when checking the model or session for a value which
         // should provide a convenient method of re-populating the forms on post.
@@ -489,7 +507,20 @@ class FormBuilder
 
         $list = implode('', $html);
 
-        return "<select{$options}>{$list}</select>";
+        return $selectOptions ? $list : "<select{$options}>{$list}</select>";
+    }
+
+    /**
+     * selectOptions only renders the options inside a select.
+     * @param  string  $name
+     * @param  array   $list
+     * @param  string  $selected
+     * @param  array   $options
+     * @return string
+     */
+    public function selectOptions($name, $list = [], $selected = null, $options = [])
+    {
+        return $this->select($name, $list, $selected, ['selectOptions' => true] + $options);
     }
 
     /**

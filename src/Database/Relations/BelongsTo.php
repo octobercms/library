@@ -180,7 +180,7 @@ class BelongsTo extends BelongsToBase
         }
         else {
             $this->child->setAttribute($this->getForeignKeyName(), $value);
-            $this->child->reloadRelations($this->relationName);
+            $this->child->unsetRelation($this->relationName);
         }
     }
 

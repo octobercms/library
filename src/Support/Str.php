@@ -116,4 +116,31 @@ class Str extends StrHelper
     {
         return strlen($string) - strlen(ltrim($string, $symbol));
     }
+
+    /**
+     * limitMiddle limits the length of a string by removing characters from the middle
+     *
+     * @param  string  $value
+     * @param  int  $limit
+     * @param  string  $marker
+     * @return string
+     */
+    public static function limitMiddle($value, $limit = 100, $marker = '...')
+    {
+        if (mb_strwidth($value, 'UTF-8') <= $limit) {
+            return $value;
+        }
+
+        if ($limit > 3) {
+            $limit -= 3;
+        }
+
+        $limitStart = floor($limit / 2);
+        $limitEnd = $limit - $limitStart;
+
+        $valueStart = rtrim(mb_strimwidth($value, 0, $limitStart, '', 'UTF-8'));
+        $valueEnd = ltrim(mb_strimwidth($value, $limitEnd * -1, $limitEnd, '', 'UTF-8'));
+
+        return $valueStart . $marker . $valueEnd;
+    }
 }

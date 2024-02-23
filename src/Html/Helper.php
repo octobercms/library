@@ -24,7 +24,7 @@ class Helper
      * nameToArray converts a HTML named array string to a PHP array. Empty values are removed.
      * HTML: user[location][city]
      * PHP:  ['user', 'location', 'city']
-     * @param $string String to process
+     * @param $string
      * @return array
      */
     public static function nameToArray($string)
@@ -49,6 +49,18 @@ class Helper
         });
 
         return $result;
+    }
+
+    /**
+     * nameToDot converts a HTML named array string to a dot notated string.
+     * HTML: user[location][city]
+     * Dot: user.location.city
+     * @param $string
+     * @return string
+     */
+    public static function nameToDot($string)
+    {
+        return implode('.', static::nameToArray($string));
     }
 
     /**

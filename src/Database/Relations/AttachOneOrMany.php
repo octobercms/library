@@ -106,6 +106,18 @@ trait AttachOneOrMany
     }
 
     /**
+     * addCommonEagerConstraints adds constraints without the field constraint, used to
+     * eager load multiple relations of a common type.
+     * @see \October\Rain\Database\Concerns\HasEagerLoadAttachRelation
+     * @param  array  $models
+     * @return void
+     */
+    public function addCommonEagerConstraints(array $models)
+    {
+        parent::addEagerConstraints($models);
+    }
+
+    /**
      * save the supplied related model
      */
     public function save(Model $model, $sessionKey = null)
@@ -142,6 +154,32 @@ trait AttachOneOrMany
         }
 
         $model = parent::create($attributes);
+
+        if ($sessionKey !== null) {
+            $this->add($model, $sessionKey);
+        }
+
+        return $model;
+    }
+
+    /**
+     * createFromFile
+     */
+    public function createFromFile(string $filePath, array $attributes = [], $sessionKey = null)
+    {
+        if (!array_key_exists('is_public', $attributes)) {
+            $attributes = array_merge(['is_public' => $this->isPublic()], $attributes);
+        }
+
+        $attributes['field'] = $this->relationName;
+
+        if ($sessionKey === null) {
+            $this->ensureAttachOneIsSingular();
+        }
+
+        $model = parent::make($attributes);
+        $model->fromFile($filePath);
+        $model->save();
 
         if ($sessionKey !== null) {
             $this->add($model, $sessionKey);
@@ -200,7 +238,7 @@ trait AttachOneOrMany
                 $this->parent->setRelation($this->relationName, $model);
             }
             else {
-                $this->parent->reloadRelations($this->relationName);
+                $this->parent->unsetRelation($this->relationName);
             }
 
             /**
@@ -280,7 +318,7 @@ trait AttachOneOrMany
                 $this->parent->setRelation($this->relationName, null);
             }
             else {
-                $this->parent->reloadRelations($this->relationName);
+                $this->parent->unsetRelation($this->relationName);
             }
 
             /**
@@ -334,23 +372,6 @@ trait AttachOneOrMany
         if ($this->parent->exists) {
             $this->delete();
         }
-    }
-
-    /**
-     * isValidFileData returns true if the specified value can be used as the data attribute
-     */
-    protected function isValidFileData($value)
-    {
-        if ($value instanceof UploadedFile) {
-            return true;
-        }
-
-        // @deprecated this method should be replaced by an instanceof UploadedFile check
-        if (is_string($value) && file_exists($value)) {
-            return true;
-        }
-
-        return false;
     }
 
     /**

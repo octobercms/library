@@ -4,6 +4,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as CollectionBase;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany as BelongsToManyBase;
+use October\Rain\Support\Facades\DbDongle;
 
 /**
  * BelongsToMany
@@ -22,11 +23,6 @@ class BelongsToMany extends BelongsToManyBase
      * @deprecated use Laravel withCount() method instead
      */
     public $countMode = false;
-
-    /**
-     * @var bool orphanMode used when a join is not used, don't select aliased columns
-     */
-    public $orphanMode = false;
 
     /**
      * __construct a new belongs to many relationship instance.
@@ -58,27 +54,6 @@ class BelongsToMany extends BelongsToManyBase
         );
 
         $this->addDefinedConstraints();
-    }
-
-    /**
-     * shouldSelect gets the select columns for the relation query
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    protected function shouldSelect(array $columns = ['*'])
-    {
-        if ($this->countMode) {
-            return $this->table.'.'.$this->foreignPivotKey.' as pivot_'.$this->foreignPivotKey;
-        }
-
-        if ($columns === ['*']) {
-            $columns = [$this->related->getTable().'.*'];
-        }
-
-        if ($this->orphanMode) {
-            return $columns;
-        }
-
-        return array_merge($columns, $this->aliasedPivotColumns());
     }
 
     /**
@@ -232,7 +207,7 @@ class BelongsToMany extends BelongsToManyBase
                 });
             }
 
-            $this->parent->reloadRelations($this->relationName);
+            $this->parent->unsetRelation($this->relationName);
         }
         else {
             $this->parent->bindDeferred($this->relationName, $model, $sessionKey, $pivotData);
@@ -246,7 +221,7 @@ class BelongsToMany extends BelongsToManyBase
     {
         if ($sessionKey === null) {
             $this->detach($model);
-            $this->parent->reloadRelations($this->relationName);
+            $this->parent->unsetRelation($this->relationName);
         }
         else {
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);
@@ -451,5 +426,108 @@ class BelongsToMany extends BelongsToManyBase
     public function getOtherKey()
     {
         return $this->table.'.'.$this->relatedPivotKey;
+    }
+
+    /**
+     * shouldSelect gets the select columns for the relation query
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    protected function shouldSelect(array $columns = ['*'])
+    {
+        // @deprecated remove this whole method when `countMode` is gone
+        if ($this->countMode) {
+            return $this->table.'.'.$this->foreignPivotKey.' as pivot_'.$this->foreignPivotKey;
+        }
+
+        if ($columns === ['*']) {
+            $columns = [$this->related->getTable().'.*'];
+        }
+
+        return array_merge($columns, $this->aliasedPivotColumns());
+    }
+
+    /**
+     * performJoin will join the pivot table opportunistically instead of mandatorily
+     * to support deferred bindings that exist in another table.
+     *
+     * This method is based on `performJoin` method logic except it uses a left join.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder|null  $query
+     * @return $this
+     */
+    protected function performLeftJoin($query = null)
+    {
+        $query = $query ?: $this->query;
+
+        $query->leftJoin($this->table, function($join) {
+            $join->on($this->getQualifiedRelatedKeyName(), '=', $this->getQualifiedRelatedPivotKeyName());
+            $join->where($this->getQualifiedForeignPivotKeyName(), $this->parent->getKey());
+        });
+
+        return $this;
+    }
+
+    /**
+     * performSortableColumnJoin includes custom logic to replace the sort order column with
+     * a unified column
+     */
+    protected function performSortableColumnJoin($query = null, $sessionKey = null)
+    {
+        if (
+            !$this->parent->isClassInstanceOf(\October\Contracts\Database\SortableRelationInterface::class) ||
+            !$this->parent->isSortableRelation($this->relationName)
+        ) {
+            return;
+        }
+
+        // Check if sorting by the matched sort_order column
+        $sortColumn = $this->qualifyPivotColumn(
+            $this->parent->getRelationSortOrderColumn($this->relationName)
+        );
+
+        $orderDefinitions = $query->getQuery()->orders;
+
+        if (!is_array($orderDefinitions)) {
+            return;
+        }
+
+        $sortableIndex = false;
+        foreach ($orderDefinitions as $index => $order) {
+            if ($order['column'] === $sortColumn) {
+                $sortableIndex = $index;
+            }
+        }
+
+        // Not sorting by the sort column, abort
+        if ($sortableIndex === false) {
+            return;
+        }
+
+        // Join the deferred binding table and select the combo column
+        $tempOrderColumns = 'october_reserved_sort_order';
+        $combinedOrderColumn = "ifnull(deferred_bindings.sort_order, {$sortColumn}) as {$tempOrderColumns}";
+        $this->performDeferredLeftJoin($query, $sessionKey);
+        $this->addSelect(DbDongle::raw($combinedOrderColumn));
+
+        // Overwrite the sortable column with the combined one
+        $query->getQuery()->orders[$sortableIndex]['column'] = $tempOrderColumns;
+    }
+
+    /**
+     * performDeferredLeftJoin left joins the deferred bindings table
+     */
+    protected function performDeferredLeftJoin($query = null, $sessionKey = null)
+    {
+        $query = $query ?: $this->query;
+
+        $query->leftJoin('deferred_bindings', function($join) use ($sessionKey) {
+            $join->on(
+                $this->getQualifiedRelatedKeyName(), '=', 'deferred_bindings.slave_id')
+                    ->where('master_field', $this->relationName)
+                    ->where('master_type', get_class($this->parent))
+                    ->where('session_key', $sessionKey);
+        });
+
+        return $this;
     }
 }
