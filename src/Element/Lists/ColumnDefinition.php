@@ -17,6 +17,8 @@ use October\Rain\Element\ElementBase;
  * @method ColumnDefinition invisible(bool $invisible) invisible is hidden in default list settings
  * @method ColumnDefinition clickable(bool $clickable) clickable disables the default click behavior when the column is clicked
  * @method ColumnDefinition order(int $order) order number when displaying
+ * @method ColumnDefinition after(string $after) after places this column after another existing column name using the display order (+1)
+ * @method ColumnDefinition before(string $before) before places this column before another existing column name using the display order (-1)
  *
  * @package october\element
  * @author Alexey Bobkov, Samuel Georges

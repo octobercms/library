@@ -22,6 +22,9 @@ use October\Rain\Element\ElementBase;
  * @method ScopeDefinition cssClass(string $class) cssClass to attach to the scope container
  * @method ScopeDefinition emptyOption(string $label) emptyOption label for intentionally selecting an empty value (optional)
  * @method ScopeDefinition disabled(bool $value) disabled setting for the scope
+ * @method ScopeDefinition order(int $order) order number when displaying
+ * @method ScopeDefinition after(string $after) after places this scope after another existing scope name using the display order (+1)
+ * @method ScopeDefinition before(string $before) before places this scope before another existing scope name using the display order (-1)
  *
  * @package october\element
  * @author Alexey Bobkov, Samuel Georges
@@ -34,9 +37,10 @@ class ScopeDefinition extends ElementBase
     protected function initDefaultValues()
     {
         $this
+            ->displayAs('group')
             ->nameFrom('name')
             ->disabled(false)
-            ->displayAs('group')
+            ->order(-1)
         ;
     }
 
