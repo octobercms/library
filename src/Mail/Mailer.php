@@ -179,7 +179,7 @@ class Mailer extends MailerBase
         else {
             extract(array_merge([
                 'queue' => false,
-                'bcc'   => false
+                'bcc' => false
             ], $options));
         }
 
