@@ -125,6 +125,10 @@ class Dongle
             return $sql;
         }
 
+        if (!str_contains(strtolower($sql), 'group_concat(')) {
+            return $sql;
+        }
+
         $result = preg_replace_callback('/group_concat\((.+)\)/i', function ($matches) {
             if (!isset($matches[1])) {
                 return $matches[0];
@@ -143,13 +147,12 @@ class Dongle
         }, $sql);
 
         if ($this->driver === 'pgsql' || $this->driver === 'postgis') {
+            // @todo this leaks to other definitions
             $result = preg_replace("/\\(([]a-zA-Z\\-\\_\\.]+)\\,/i", "($1::VARCHAR,", $result);
             $result = str_ireplace('group_concat(', 'string_agg(', $result);
         }
 
-        /*
-         * Requires https://groupconcat.codeplex.com/
-         */
+        // Requires https://groupconcat.codeplex.com/
         if ($this->driver === 'sqlsrv') {
             $result = str_ireplace('group_concat(', 'dbo.GROUP_CONCAT_D(', $result);
         }
@@ -163,6 +166,10 @@ class Dongle
     public function parseConcat(string $sql): string
     {
         if ($this->driver === 'mysql') {
+            return $sql;
+        }
+
+        if (!str_contains(strtolower($sql), 'concat(')) {
             return $sql;
         }
 
@@ -207,6 +214,14 @@ class Dongle
      */
     public function parseIfNull(string $sql): string
     {
+        if ($this->driver === 'mysql') {
+            return $sql;
+        }
+
+        if (!str_contains(strtolower($sql), 'ifnull(')) {
+            return $sql;
+        }
+
         if ($this->driver === 'pgsql' || $this->driver === 'postgis') {
             return str_ireplace('ifnull(', 'coalesce(', $sql);
         }
