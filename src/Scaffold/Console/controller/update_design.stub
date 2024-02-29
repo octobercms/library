@@ -1,0 +1,8 @@
+<?php Block::put('breadcrumb') ?>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="<?= Backend::url('{{namespace_path}}/{{lower_name}}') ?>">{{title_name}}</a></li>
+        <li class="breadcrumb-item active" aria-current="page"><?= e($this->pageTitle) ?></li>
+    </ol>
+<?php Block::endPut() ?>
+
+<?= $this->formRenderDesign() ?>

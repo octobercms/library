@@ -1,11 +1,20 @@
 <div data-control="toolbar loader-container">
+{% if design == 'popup' %}
+    <button
+        type="button"
+        data-control="popup"
+        data-handler="onLoadPopupForm"
+        class="btn btn-primary">
+        <?= __("New :name", ['name' => '{{title_singular_name}}']) ?>
+    </button>
+{% else %}
     <a
         href="<?= Backend::url('{{namespace_path}}/{{lower_name}}/create') ?>"
         class="btn btn-primary">
         <i class="icon-plus"></i>
         <?= __("New :name", ['name' => '{{title_singular_name}}']) ?>
     </a>
-
+{% endif %}
 
     <div class="toolbar-divider"></div>
 

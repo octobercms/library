@@ -15,6 +15,7 @@ class CreateController extends GeneratorCommandBase
         {namespace : App or Plugin Namespace. <info>(eg: Acme.Blog)</info>}
         {name : The name of the controller. Eg: Posts}
         {--model= : Define which model name to use, otherwise the singular controller name is used.}
+        {--design= : Specify a design (basic, sidebar, survey, popup, custom)}
         {--no-form : Do not implement a form for this controller}
         {--no-list : Do not implement a list for this controller}
         {--o|overwrite : Overwrite existing files with generated ones}';
@@ -34,6 +35,8 @@ class CreateController extends GeneratorCommandBase
      */
     public function makeStubs()
     {
+        $design = $this->defineDesignMode();
+
         $this->makeStub('controller/controller.stub', 'controllers/{{studly_name}}.php');
 
         if (!$this->option('no-list')) {
@@ -44,9 +47,16 @@ class CreateController extends GeneratorCommandBase
 
         if (!$this->option('no-form')) {
             $this->makeStub('controller/config_form.stub', 'controllers/{{lower_name}}/config_form.yaml');
-            $this->makeStub('controller/update.stub', 'controllers/{{lower_name}}/update.php');
-            $this->makeStub('controller/preview.stub', 'controllers/{{lower_name}}/preview.php');
-            $this->makeStub('controller/create.stub', 'controllers/{{lower_name}}/create.php');
+            if (in_array($design, ['basic', 'sidebar', 'survey'])) {
+                $this->makeStub('controller/update_design.stub', 'controllers/{{lower_name}}/update.php');
+                $this->makeStub('controller/preview_design.stub', 'controllers/{{lower_name}}/preview.php');
+                $this->makeStub('controller/create_design.stub', 'controllers/{{lower_name}}/create.php');
+            }
+            elseif ($design !== 'popup') {
+                $this->makeStub('controller/update.stub', 'controllers/{{lower_name}}/update.php');
+                $this->makeStub('controller/preview.stub', 'controllers/{{lower_name}}/preview.php');
+                $this->makeStub('controller/create.stub', 'controllers/{{lower_name}}/create.php');
+            }
         }
     }
 
@@ -59,6 +69,7 @@ class CreateController extends GeneratorCommandBase
             'name' => $this->argument('name'),
             'namespace' => $this->argument('namespace'),
             'model' => $this->defineModelName(),
+            'design' => $this->defineDesignMode(),
             'form' => !$this->option('no-form'),
             'list' => !$this->option('no-list'),
         ];
@@ -77,5 +88,17 @@ class CreateController extends GeneratorCommandBase
 
         return $model;
 
+    }
+
+    /**
+     * defineDesignMode
+     */
+    protected function defineDesignMode(): string
+    {
+        if ($design = $this->option('design')) {
+            return trim(strtolower($design));
+        }
+
+        return '';
     }
 }

@@ -11,8 +11,13 @@ modelClass: {{namespace_php}}\Models\{{studly_model}}
 # List Title
 title: Manage {{title_plural_name}}
 
+{% if design == 'popup' %}
+# Link each record to popup form design
+recordOnClick: popup
+{% else %}
 # Link URL for each record
 recordUrl: {{namespace_path}}/{{lower_name}}/update/:id
+{% endif %}
 
 # Message to display if the list is empty
 noRecordsMessage: backend::lang.list.no_records

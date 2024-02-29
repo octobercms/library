@@ -14,6 +14,12 @@ modelClass: {{namespace_php}}\Models\{{studly_model}}
 # Default redirect location
 defaultRedirect: {{namespace_path}}/{{lower_name}}
 
+{% if design %}
+# Form Design
+design:
+    displayMode: {{design}}
+
+{% endif %}
 # Create page
 create:
     title: backend::lang.form.create_title
