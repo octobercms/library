@@ -275,7 +275,7 @@ trait Multisite
             }
         }
 
-        $otherModel->save();
+        $otherModel->save(['force' => true]);
 
         return $otherModel;
     }
