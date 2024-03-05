@@ -383,7 +383,6 @@ class BelongsToMany extends BelongsToManyBase
     {
         $value = [];
         $relationName = $this->relationName;
-        $sessionKey = $this->parent->sessionKey;
 
         if ($this->parent->relationLoaded($relationName)) {
             $value = $this->parent->getRelation($relationName)
@@ -392,24 +391,10 @@ class BelongsToMany extends BelongsToManyBase
             ;
         }
         else {
-            $value = $this->allRelatedIds($sessionKey)->all();
+            $value = $this->allRelatedIds()->all();
         }
 
         return $value;
-    }
-
-    /**
-     * allRelatedIds for the related models, with deferred binding support
-     * @param string $sessionKey
-     * @return \October\Rain\Support\Collection
-     */
-    public function allRelatedIds($sessionKey = null)
-    {
-        $fullKey = $this->getQualifiedRelatedKeyName();
-
-        $query = $sessionKey ? $this->withDeferred($sessionKey) : $this->query;
-
-        return $query->getQuery()->select($fullKey)->pluck($this->getRelatedKeyName());
     }
 
     /**

@@ -16,6 +16,7 @@ use October\Rain\Support\Facade;
  * @method static array listSiteIdsInLocale($siteId)
  * @method static iterable listSites()
  * @method static int|null getSiteIdFromContext()
+ * @method static string|null getSiteCodeFromContext()
  * @method static mixed getSiteFromContext()
  * @method static bool hasGlobalContext()
  * @method static void withGlobalContext(callable $callback)
