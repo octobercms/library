@@ -405,6 +405,15 @@ trait AttachOneOrMany
     }
 
     /**
+     * getRelatedKeyName
+     * @return string
+     */
+    public function getRelatedKeyName()
+    {
+        return $this->related->getKeyName();
+    }
+
+    /**
      * @deprecated use getForeignKeyName
      */
     public function getForeignKey()
