@@ -70,17 +70,23 @@ trait Validation
         }
 
         $this->bindEvent('model.saveInternal', function() {
+            $validationForced = $this->validationForced;
+
+            if (($forceOption = $this->getSaveOption('force')) !== null) {
+                $this->validationForced = $forceOption;
+            }
+
             // If forcing the save event, the beforeValidate/afterValidate
             // events should still fire for consistency. So validate an
             // empty set of rules and messages.
-            $this->validationForced = $this->getSaveOption('force', false);
-
             if ($this->validationForced) {
                 $valid = $this->validate([], []);
             }
             else {
                 $valid = $this->validate();
             }
+
+            $this->validationForced = $validationForced;
 
             if (!$valid) {
                 return false;
