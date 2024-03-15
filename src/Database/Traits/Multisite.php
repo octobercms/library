@@ -200,7 +200,7 @@ trait Multisite
             }
 
             // Override the local key to the shared root identifier
-            if ($type === 'belongsToMany') {
+            if (in_array($type, ['belongsToMany', 'morphedByMany', 'morphToMany'])) {
                 $this->$type[$name]['parentKey'] = 'site_root_id';
             }
             elseif (in_array($type, ['belongsTo', 'hasOne', 'hasMany'])) {
