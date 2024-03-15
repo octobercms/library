@@ -185,8 +185,8 @@ trait Multisite
     /**
      * defineMultisiteRelation will modify defined relations on this model so they share
      * their association using the shared identifier (`site_root_id`). Only these relation
-     * types support relation sharing: `belongsToMany`, `belongsTo`, `hasOne`, `hasMany`,
-     * `attachOne`, `attachMany`.
+     * types support relation sharing: `belongsToMany`, `morphedByMany`, `morphToMany`,
+     * `belongsTo`, `hasOne`, `hasMany`, `attachOne`, `attachMany`.
      */
     protected function defineMultisiteRelation($name, $type = null)
     {
@@ -200,8 +200,11 @@ trait Multisite
             }
 
             // Override the local key to the shared root identifier
-            if (in_array($type, ['belongsToMany', 'morphedByMany', 'morphToMany'])) {
+            if (in_array($type, ['belongsToMany', 'morphedByMany'])) {
                 $this->$type[$name]['parentKey'] = 'site_root_id';
+            }
+            elseif (in_array($type, ['morphToMany'])) {
+                $this->$type[$name]['relatedKey'] = 'site_root_id';
             }
             elseif (in_array($type, ['belongsTo', 'hasOne', 'hasMany'])) {
                 $this->$type[$name]['otherKey'] = 'site_root_id';
