@@ -311,6 +311,7 @@ trait HasRelationships
         $definition = $this->getRelationDefinition($name);
 
         if (!array_key_exists('push', $definition)) {
+            // @deprecated v4 this should default to false
             return true;
         }
 
