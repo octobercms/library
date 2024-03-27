@@ -32,15 +32,12 @@ class HasManyThrough extends HasManyThroughBase
     }
 
     /**
-     * {@inheritDoc}
+     * getRelationDefinitionForDefinedConstraints returns the relation definition for the
+     * relationship context.
      */
-    public function addDefinedConstraints()
+    protected function getRelationDefinitionForDefinedConstraints()
     {
-        $args = $this->farParent->getRelationDefinition($this->relationName);
-
-        $this->addDefinedConstraintsToRelation($this, $args);
-
-        $this->addDefinedConstraintsToQuery($this, $args);
+        return $this->farParent->getRelationDefinition($this->relationName);
     }
 
     /**

@@ -16,7 +16,7 @@ trait DefinedConstraints
      */
     public function addDefinedConstraints(): void
     {
-        $args = $this->parent->getRelationDefinition($this->relationName);
+        $args = $this->getRelationDefinitionForDefinedConstraints();
 
         $this->addDefinedConstraintsToRelation($this, $args);
 
@@ -29,7 +29,7 @@ trait DefinedConstraints
     public function addDefinedConstraintsToRelation($relation, array $args = null)
     {
         if ($args === null) {
-            $args = $this->parent->getRelationDefinition($this->relationName);
+            $args = $this->getRelationDefinitionForDefinedConstraints();
         }
 
         // Default models (belongsTo, hasOne, hasOneThrough, morphOne)
@@ -70,7 +70,7 @@ trait DefinedConstraints
     public function addDefinedConstraintsToQuery($query, array $args = null)
     {
         if ($args === null) {
-            $args = $this->parent->getRelationDefinition($this->relationName);
+            $args = $this->getRelationDefinitionForDefinedConstraints();
         }
 
         // Conditions
@@ -108,5 +108,14 @@ trait DefinedConstraints
                 $scope($query, $this->parent, $this->related);
             }
         }
+    }
+
+    /**
+     * getRelationDefinitionForDefinedConstraints returns the relation definition for the
+     * relationship context.
+     */
+    protected function getRelationDefinitionForDefinedConstraints()
+    {
+        return $this->parent->getRelationDefinition($this->relationName);
     }
 }
