@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Filesystem;
 
+use Event;
 use ReflectionClass;
 use FilesystemIterator;
 use Illuminate\Filesystem\Filesystem as FilesystemBase;
@@ -103,6 +104,20 @@ class Filesystem extends FilesystemBase
      */
     public function localToPublic($path)
     {
+        /**
+         * @event filesystem.localToPublic
+         * Allow custom logic for converting local to public paths on non-standard installations.
+         *
+         * Example usage
+         *
+         *     Event::listen('filesystem.localToPublic', function ($path) {
+         *         return '/custom/public/path';
+         *     });
+         */
+        if (($event = Event::fire('filesystem.localToPublic', [$path], true)) !== null) {
+            return $event;
+        }
+        
         // Check real paths
         $basePath = base_path();
         if (strpos($path, $basePath) === 0) {
