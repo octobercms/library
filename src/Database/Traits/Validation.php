@@ -134,7 +134,12 @@ trait Validation
             $rules = explode('|', $rules);
         }
 
-        $rules[] = $definition;
+        if (is_array($definition)) {
+            $rules = array_merge($rules, $definition);
+        }
+        else {
+            $rules[] = $definition;
+        }
 
         $this->rules[$name] = $rules;
     }
@@ -142,8 +147,13 @@ trait Validation
     /**
      * removeValidationRule removes a validation rule from the stack and resets the value as a processed array
      */
-    public function removeValidationRule(string $name, $definition)
+    public function removeValidationRule(string $name, $definition = '*')
     {
+        if ($definition === '*') {
+            unset($this->rules[$name]);
+            return;
+        }
+
         $rules = $this->rules[$name] ?? [];
         if (!is_array($rules)) {
             $rules = explode('|', $rules);

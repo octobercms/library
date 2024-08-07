@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Assetic\Asset;
 
+use File;
 use October\Rain\Assetic\Filter\FilterInterface;
 use October\Rain\Assetic\Util\VarUtils;
 use InvalidArgumentException;
@@ -36,7 +37,7 @@ class FileAsset extends BaseAsset
                 $sourcePath = basename($source);
             }
         }
-        elseif (null === $sourcePath) {
+        elseif ($sourcePath === null) {
             if (strpos($source, $sourceRoot) !== 0) {
                 throw new InvalidArgumentException(sprintf('The source "%s" is not in the root directory "%s"', $source, $sourceRoot));
             }
@@ -57,7 +58,7 @@ class FileAsset extends BaseAsset
         $source = VarUtils::resolve($this->source, $this->getVars(), $this->getValues());
 
         if (!is_file($source)) {
-            throw new RuntimeException(sprintf('The source file "%s" does not exist.', $source));
+            throw new RuntimeException(sprintf('The source file "%s" does not exist.', File::nicePath($source)));
         }
 
         $this->doLoad(file_get_contents($source), $additionalFilter);
@@ -71,7 +72,7 @@ class FileAsset extends BaseAsset
         $source = VarUtils::resolve($this->source, $this->getVars(), $this->getValues());
 
         if (!is_file($source)) {
-            throw new RuntimeException(sprintf('The source file "%s" does not exist.', $source));
+            throw new RuntimeException(sprintf('The source file "%s" does not exist.', File::nicePath($source)));
         }
 
         return filemtime($source);

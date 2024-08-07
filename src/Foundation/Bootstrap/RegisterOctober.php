@@ -41,11 +41,6 @@ class RegisterOctober
      */
     public function bootstrap(Application $app)
     {
-        // Workaround for CLI and URL based in subdirectory
-        if ($app->runningInConsole()) {
-            $app['url']->forceRootUrl($app['config']->get('app.url'));
-        }
-
         // Register singletons
         $app->singleton('string', function () {
             return new \October\Rain\Support\Str;

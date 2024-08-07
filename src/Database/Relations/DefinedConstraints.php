@@ -42,6 +42,11 @@ trait DefinedConstraints
             $relation->withPivot($pivotData);
         }
 
+        // Pivot incrementing key (belongsToMany, morphToMany, morphByMany)
+        if ($pivotKey = array_get($args, 'pivotKey')) {
+            $relation->withPivot($pivotKey);
+        }
+
         // Pivot timestamps (belongsToMany, morphToMany, morphByMany)
         if (array_get($args, 'timestamps')) {
             $relation->withTimestamps();

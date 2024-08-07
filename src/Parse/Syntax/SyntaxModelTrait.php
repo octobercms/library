@@ -10,6 +10,9 @@ use Request;
  */
 trait SyntaxModelTrait
 {
+    /**
+     * @deprecated replace with initializeSyntaxModelTrait model.afterFetch
+     */
     public static function bootSyntaxModelTrait()
     {
         static::fetched(function ($model) {
@@ -18,9 +21,18 @@ trait SyntaxModelTrait
     }
 
     /**
-     * Defines any relationships (attachments) that this model will need
-     * based on the field definitions.
-     * @return void
+     * initializeSyntaxModelTrait constructor
+     */
+    public function initializeSyntaxModelTrait()
+    {
+        $this->bindEvent('model.beforeReplicate', function() {
+            $this->defineSyntaxRelations();
+        });
+    }
+
+    /**
+     * defineSyntaxRelations defines any relationships (attachments) that this model
+     * will need based on the field definitions.
      */
     public function defineSyntaxRelations()
     {
@@ -98,8 +110,8 @@ trait SyntaxModelTrait
     }
 
     /**
-     * Prepare the syntax fields for use in a Form builder. The array
-     * name is added to each field.
+     * getFormSyntaxFields prepares the syntax fields for use in a Form builder.
+     * The array name is added to each field.
      * @return array
      */
     public function getFormSyntaxFields()
@@ -134,7 +146,7 @@ trait SyntaxModelTrait
     }
 
     /**
-     * Processes supplied content and extracts the field definitions
+     * makeSyntaxFields processes supplied content and extracts the field definitions
      * and default data. It is mixed with the current data and applied
      * to the fields and data attributes.
      * @param string $content
@@ -147,9 +159,7 @@ trait SyntaxModelTrait
 
         $this->setAttribute($this->getSyntaxFieldsColumnName(), $fields);
 
-        /*
-         * Remove fields no longer present and add default values
-         */
+        // Remove fields no longer present and add default values
         $currentFields = array_intersect_key((array) $this->getFormSyntaxData(), $parser->getFieldValues());
         $currentFields = $currentFields + $parser->getFieldValues();
 
@@ -158,13 +168,16 @@ trait SyntaxModelTrait
         return $fields;
     }
 
+    /**
+     * getSyntaxParser
+     */
     public function getSyntaxParser($content)
     {
         return Parser::parse($content);
     }
 
     /**
-     * Get data column name.
+     * getSyntaxDataColumnName returns the data column name.
      * @return string
      */
     public function getSyntaxDataColumnName()
@@ -173,7 +186,7 @@ trait SyntaxModelTrait
     }
 
     /**
-     * Get value of the model syntax_data column.
+     * getSyntaxData returns value of the model syntax_data column.
      * @return int
      */
     public function getSyntaxData()
@@ -182,7 +195,7 @@ trait SyntaxModelTrait
     }
 
     /**
-     * Get fields column name.
+     * getSyntaxFieldsColumnName returns fields column name.
      * @return string
      */
     public function getSyntaxFieldsColumnName()
@@ -191,7 +204,7 @@ trait SyntaxModelTrait
     }
 
     /**
-     * Get value of the model syntax_fields column.
+     * getSyntaxFields returns value of the model syntax_fields column.
      * @return int
      */
     public function getSyntaxFields()

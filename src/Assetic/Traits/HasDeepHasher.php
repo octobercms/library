@@ -29,9 +29,16 @@ trait HasDeepHasher
     {
         $key = '';
 
-        $assetFiles = array_map(function ($file) {
-            return file_exists($file) ? $file : (File::symbolizePath($file, null) ?: $this->localPath . $file);
-        }, $assets);
+        $assetFiles = [];
+        foreach ($assets as $file) {
+            $path = File::symbolizePath($file);
+            if (file_exists($path)) {
+                $assetFiles[] = $path;
+            }
+            elseif (file_exists($this->localPath . $path)) {
+                $assetFiles[] = $this->localPath . $path;
+            }
+        }
 
         foreach ($assetFiles as $file) {
             $filters = $this->getFilters(File::extension($file));

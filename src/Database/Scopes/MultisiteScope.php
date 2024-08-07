@@ -29,6 +29,16 @@ class MultisiteScope implements ScopeInterface
     }
 
     /**
+     * extend the Eloquent query builder.
+     */
+    public function extend(BuilderBase $builder)
+    {
+        foreach ($this->extensions as $extension) {
+            $this->{"add{$extension}"}($builder);
+        }
+    }
+
+    /**
      * addWithSite removes this scope and includes the specified site
      */
     protected function addWithSite(BuilderBase $builder)
@@ -66,15 +76,5 @@ class MultisiteScope implements ScopeInterface
         $builder->macro('withSyncSites', function (BuilderBase $builder) {
             return $builder->withSites($builder->getModel()->getMultisiteSyncSites());
         });
-    }
-
-    /**
-     * extend the Eloquent query builder.
-     */
-    public function extend(BuilderBase $builder)
-    {
-        foreach ($this->extensions as $extension) {
-            $this->{"add{$extension}"}($builder);
-        }
     }
 }

@@ -87,17 +87,13 @@ abstract class GeneratorCommand extends Command
         $destinationFile = $this->getDestinationPath() . '/' . $this->stubs[$stubName];
         $destinationContent = $this->files->get($sourceFile);
 
-        /*
-         * Parse each variable in to the destination content and path
-         */
+        // Parse each variable in to the destination content and path
         $destinationContent = Twig::parse($destinationContent, $this->vars);
         $destinationFile = Twig::parse($destinationFile, $this->vars);
 
         $this->makeDirectory($destinationFile);
 
-        /*
-         * Make sure this file does not already exist
-         */
+        // Make sure this file does not already exist
         if ($this->files->exists($destinationFile) && !$this->option('force')) {
             throw new Exception('Stop everything!!! This file already exists: ' . $destinationFile);
         }
@@ -125,9 +121,7 @@ abstract class GeneratorCommand extends Command
         $modifiers = ['plural', 'singular', 'title'];
 
         foreach ($vars as $key => $var) {
-            /*
-             * Apply cases, and cases with modifiers
-             */
+            // Apply cases, and cases with modifiers
             foreach ($cases as $case) {
                 $primaryKey = $case . '_' . $key;
                 $vars[$primaryKey] = $this->modifyString($case, $var);
@@ -138,9 +132,7 @@ abstract class GeneratorCommand extends Command
                 }
             }
 
-            /*
-             * Apply modifiers
-             */
+            // Apply modifiers
             foreach ($modifiers as $modifier) {
                 $primaryKey = $modifier . '_' . $key;
                 $vars[$primaryKey] = $this->modifyString($modifier, $var);

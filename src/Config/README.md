@@ -9,10 +9,10 @@ Modules and plugins can have config files in the /config directory. Plugin and m
 
 ````
 // Get a configuration string from the CMS module
-echo Config::get('cms::options.allowComments');
+echo Config::get('cms::options.allow_comments');
 
 // Get a configuration string from the october/blog plugin.
-echo Config::get('october.blog::options.allowComments');
+echo Config::get('october.blog::options.allow_comments');
 ````
 
 ## Overriding configuration strings

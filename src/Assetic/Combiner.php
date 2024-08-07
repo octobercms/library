@@ -1,10 +1,10 @@
 <?php namespace October\Rain\Assetic;
 
+use File;
 use October\Rain\Assetic\Asset\FileAsset;
 use October\Rain\Assetic\Asset\AssetCache;
 use October\Rain\Assetic\Asset\AssetCollection;
 use October\Rain\Assetic\Cache\FilesystemCache;
-use File;
 
 /**
  * Combiner helper class
@@ -64,15 +64,17 @@ class Combiner
         $filesSalt = null;
         foreach ($assets as $asset) {
             $filters = $this->getFilters(File::extension($asset), $production);
-            $path = file_exists($asset)
-                ? $asset
-                : (File::symbolizePath($asset, null) ?: $this->localPath . $asset);
+
+            $path = File::symbolizePath($asset);
+            if (!file_exists($path) && file_exists($this->localPath . $asset)) {
+                $path = $this->localPath . $asset;
+            }
 
             $files[] = new FileAsset($path, $filters, base_path());
             $filesSalt .= $this->localPath . $asset;
         }
-        $filesSalt = md5($filesSalt);
 
+        $filesSalt = md5($filesSalt);
         $collection = new AssetCollection($files, [], $filesSalt);
         $collection->setTargetPath($targetPath);
 

@@ -117,7 +117,7 @@ class Filesystem extends FilesystemBase
         if (($event = Event::fire('filesystem.localToPublic', [$path], true)) !== null) {
             return $event;
         }
-        
+
         // Check real paths
         $basePath = base_path();
         if (strpos($path, $basePath) === 0) {

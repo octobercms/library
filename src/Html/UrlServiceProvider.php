@@ -1,7 +1,5 @@
 <?php namespace October\Rain\Html;
 
-use Str;
-use Config;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -20,6 +18,10 @@ class UrlServiceProvider extends ServiceProvider
         $this->registerUrlGeneratorPolicy();
         $this->registerRelativeHelper();
         $this->registerPjaxCached();
+
+        $this->app['events']->listen('site.changed', function() {
+            $this->registerUrlGeneratorPolicy();
+        });
     }
 
     /**
@@ -33,14 +35,13 @@ class UrlServiceProvider extends ServiceProvider
     public function registerUrlGeneratorPolicy()
     {
         $provider = $this->app['url'];
-        $policy = Config::get('system.link_policy', 'detect');
+        $policy = $this->app['config']->get('system.link_policy', 'detect');
+        $appUrl = $this->app['config']->get('app.url');
 
         switch (strtolower($policy)) {
             case 'force':
-                $appUrl = Config::get('app.url');
-                $schema = Str::startsWith($appUrl, 'http://') ? 'http' : 'https';
                 $provider->forceRootUrl($appUrl);
-                $provider->forceScheme($schema);
+                $provider->forceScheme(str_starts_with($appUrl, 'http://') ? 'http' : 'https');
                 break;
 
             case 'insecure':
@@ -50,6 +51,13 @@ class UrlServiceProvider extends ServiceProvider
             case 'secure':
                 $provider->forceScheme('https');
                 break;
+        }
+
+        // Workaround for October CMS installed to a subdirectory since
+        // Laravel won't support this use case, related issue:
+        // https://github.com/laravel/framework/pull/3918
+        if ($this->app->runningInConsole()) {
+            $provider->forceRootUrl($appUrl);
         }
     }
 

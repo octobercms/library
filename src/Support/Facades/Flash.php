@@ -15,7 +15,7 @@ use October\Rain\Support\Facade;
  * @method static \October\Rain\Flash\FlashBag add(string $key, string $message)
  * @method static void store()
  * @method static void forget(string $key = null)
- * @method static void purge();
+ * @method static void purge()
  *
  * @see \October\Rain\Flash\FlashBag
  */

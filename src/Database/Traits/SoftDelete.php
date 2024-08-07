@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Collection as CollectionBase;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use October\Rain\Database\Scopes\SoftDeleteScope;
 
 /**
  * SoftDelete trait for flagging models as deleted instead of actually deleting them.
@@ -22,7 +22,7 @@ trait SoftDelete
      */
     public static function bootSoftDelete()
     {
-        static::addGlobalScope(new SoftDeletingScope);
+        static::addGlobalScope(new SoftDeleteScope);
 
         static::softDeleted(function($model) {
             /**
@@ -106,17 +106,18 @@ trait SoftDelete
      */
     protected function performDeleteOnModel()
     {
-        if ($this->forceDeleting) {
+        if ($this->forceDeleting || !$this->isSoftDeleteEnabled()) {
             $this->performDeleteOnRelations();
 
             $this->setKeysForSaveQuery($this->newQuery()->withTrashed())->forceDelete();
 
             $this->exists = false;
         }
+        else {
+            $this->performSoftDeleteOnRelations();
 
-        $this->performSoftDeleteOnRelations();
-
-        $this->runSoftDelete();
+            $this->runSoftDelete();
+        }
     }
 
     /**
@@ -248,7 +249,7 @@ trait SoftDelete
      */
     public static function withTrashed()
     {
-        return with(new static)->newQueryWithoutScope(new SoftDeletingScope);
+        return with(new static)->newQueryWithoutScope(new SoftDeleteScope);
     }
 
     /**
@@ -261,7 +262,7 @@ trait SoftDelete
 
         $column = $instance->getQualifiedDeletedAtColumn();
 
-        return $instance->newQueryWithoutScope(new SoftDeletingScope)->whereNotNull($column);
+        return $instance->newQueryWithoutScope(new SoftDeleteScope)->whereNotNull($column);
     }
 
     /**
@@ -292,6 +293,15 @@ trait SoftDelete
     public static function restored($callback)
     {
         static::registerModelEvent('restored', $callback);
+    }
+
+    /**
+     * isSoftDeleteEnabled allows for programmatic toggling
+     * @return bool
+     */
+    public function isSoftDeleteEnabled()
+    {
+        return true;
     }
 
     /**

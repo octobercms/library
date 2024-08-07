@@ -301,14 +301,10 @@ class BelongsToMany extends BelongsToManyBase
      */
     public function newPivot(array $attributes = [], $exists = false)
     {
-        /*
-         * October looks to the relationship parent
-         */
+        // October looks to the relationship parent
         $pivot = $this->parent->newRelationPivot($this->relationName, $this->parent, $attributes, $this->table, $exists);
 
-        /*
-         * Laravel looks to the related model
-         */
+        // Laravel looks to the related model
         if (empty($pivot)) {
             $pivot = $this->related->newPivot($this->parent, $attributes, $this->table, $exists, $this->using);
         }

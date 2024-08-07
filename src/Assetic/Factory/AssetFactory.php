@@ -257,7 +257,7 @@ class AssetFactory
     public function getLastModified(AssetInterface $asset)
     {
         $mtime = 0;
-        foreach ($asset instanceof AssetCollectionInterface ? $asset : array($asset) as $leaf) {
+        foreach ($asset instanceof AssetCollectionInterface ? $asset : [$asset] as $leaf) {
             $mtime = max($mtime, $leaf->getLastModified());
 
             if (!$filters = $leaf->getFilters()) {
@@ -272,7 +272,7 @@ class AssetFactory
                     continue;
                 }
 
-                // extract children from leaf after running all preceeding filters
+                // Extract children from leaf after running all preceding filters
                 $clone = clone $leaf;
                 $clone->clearFilters();
                 foreach (array_slice($prevFilters, 0, -1) as $prevFilter) {
@@ -298,7 +298,7 @@ class AssetFactory
      *  * A glob:          If the string contains a "*" it will be interpreted as a glob
      *  * A path:          Otherwise the string is interpreted as a filesystem path
      *
-     * Both globs and paths will be absolutized using the current root directory.
+     * Both globs and paths will be absolute using the current root directory.
      *
      * @param string $input   An input string
      * @param array  $options An array of options
@@ -384,7 +384,7 @@ class AssetFactory
     }
 
     /**
-     * Loops through the root directories and returns the first match.
+     * findRootDir loops through the root directories and returns the first match.
      *
      * @param string $path  An absolute path
      * @param array  $roots An array of root directories
