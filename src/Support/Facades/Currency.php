@@ -5,11 +5,17 @@ use October\Rain\Support\Facade;
 /**
  * Currency facade
  *
+ * @method static mixed getDefault()
+ * @method static string getDefaultCode()
+ * @method static mixed getPrimary()
+ * @method static string getPrimaryCode()
+ * @method static mixed getActive()
+ * @method static string getActiveCode()
  * @method static mixed listConverters(bool $asObject)
  * @method static mixed listConverterObjects()
  * @method static mixed findConverterByAlias()
  *
- * @see \Responsiv\Shop\Classes\CurrencyManager
+ * @see \Responsiv\Currency\Classes\CurrencyManager
  */
 class Currency extends Facade
 {
