@@ -1,9 +1,5 @@
 <?php namespace October\Rain\Element;
 
-use October\Rain\Support\Collection;
-use IteratorAggregate;
-use Traversable;
-
 /**
  * FieldOptionDefinition represents a single option that can be associated to an field field
  *
