@@ -145,6 +145,24 @@ class FieldDefinition extends ElementBase
     }
 
     /**
+     * optionsDefinition
+     */
+    public function optionsDefinition()
+    {
+        $options = $this->options();
+
+        $result = [];
+
+        foreach ($options as $key => $option) {
+            $definition = new FieldOptionDefinition;
+            $definition->useOptionConfig($option);
+            $result[$key] = $definition;
+        }
+
+        return $result;
+    }
+
+    /**
      * matchesContext returns true if the field matches the supplied context
      */
     public function matchesContext($context): bool

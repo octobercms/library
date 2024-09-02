@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Element;
+<?php namespace October\Rain\Element\Form;
 
 /**
  * FieldOptionDefinition represents a single option that can be associated to an field field
@@ -31,5 +31,15 @@ class FieldOptionDefinition extends ElementBase
             ->readOnly(false)
             ->disabled(false)
             ->comment('');
+    }
+
+    /**
+     * useOptionConfig
+     */
+    public function useOptionConfig(array $config): FieldOptionDefinition
+    {
+        // process option as documented
+
+        return $this;
     }
 }
