@@ -14,6 +14,7 @@
  * @method FieldOptionDefinition cssColor(bool $cssColor) cssColor defines a status indicator color for the option (dropdown)
  * @method FieldOptionDefinition icon(bool $icon) icon specifies an icon name for this option
  * @method FieldOptionDefinition image(bool $image) image specifies an image URL for this option
+ * @method FieldOptionDefinition children(array $image) children specifies child options
  *
  * @package october\element
  * @author Alexey Bobkov, Samuel Georges
