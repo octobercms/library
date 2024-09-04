@@ -1,5 +1,9 @@
 <?php namespace October\Rain\Element\Form;
 
+use Arr;
+use Html;
+use October\Rain\Element\ElementBase;
+
 /**
  * FieldOptionDefinition represents a single option that can be associated to an field field
  *
@@ -11,9 +15,9 @@
  * @method FieldOptionDefinition readOnly(bool $readOnly) readOnly specifies if the option is read-only or not.
  * @method FieldOptionDefinition disabled(bool $disabled) disabled specifies if the option is disabled or not.
  * @method FieldOptionDefinition hidden(bool $hidden) hidden defines the option without ever displaying it
- * @method FieldOptionDefinition cssColor(bool $cssColor) cssColor defines a status indicator color for the option (dropdown)
- * @method FieldOptionDefinition icon(bool $icon) icon specifies an icon name for this option
- * @method FieldOptionDefinition image(bool $image) image specifies an image URL for this option
+ * @method FieldOptionDefinition cssColor(string $cssColor) cssColor defines a status indicator color for the option (dropdown)
+ * @method FieldOptionDefinition icon(string $icon) icon specifies an icon name for this option
+ * @method FieldOptionDefinition image(string $image) image specifies an image URL for this option
  * @method FieldOptionDefinition children(array $image) children specifies child options
  *
  * @package october\element
@@ -36,9 +40,33 @@ class FieldOptionDefinition extends ElementBase
     /**
      * useOptionConfig
      */
-    public function useOptionConfig(array $config): FieldOptionDefinition
+    public function useOptionConfig(array $option): FieldOptionDefinition
     {
-        // process option as documented
+        if (!is_array($option)) {
+            $this->label($option);
+            return $this;
+        }
+
+        if (Arr::isAssoc($option)) {
+            $this->useConfig($option);
+            return $this;
+        }
+
+        $firstPart = (string) ($option[0] ?? '');
+        $secondPart = (string) ($option[1] ?? '');
+
+        $this->label($firstPart);
+        $this->comment($secondPart);
+
+        if (Html::isValidColor($secondPart)) {
+            $this->cssColor($secondPart);
+        }
+        elseif (strpos($secondPart, '.')) {
+            $this->image($secondPart);
+        }
+        else {
+            $this->icon($secondPart);
+        }
 
         return $this;
     }
