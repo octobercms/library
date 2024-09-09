@@ -18,7 +18,8 @@ use October\Rain\Element\ElementBase;
  * @method FieldOptionDefinition cssColor(string $cssColor) cssColor defines a status indicator color for the option (dropdown)
  * @method FieldOptionDefinition icon(string $icon) icon specifies an icon name for this option
  * @method FieldOptionDefinition image(string $image) image specifies an image URL for this option
- * @method FieldOptionDefinition children(array $image) children specifies child options
+ * @method FieldOptionDefinition indentLevel(int $indentLevel) indentLevel sets the level that the option sits
+ * @method FieldOptionDefinition children(array $image) children specifies child options as an alternative to indenting
  *
  * @package october\element
  * @author Alexey Bobkov, Samuel Georges

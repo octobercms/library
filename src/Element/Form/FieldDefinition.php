@@ -147,9 +147,11 @@ class FieldDefinition extends ElementBase
     /**
      * optionsDefinition
      */
-    public function optionsDefinition()
+    public function asOptionsDefinition($options = null)
     {
-        $options = $this->options();
+        if ($options === null) {
+            $options = $this->options();
+        }
 
         $result = [];
 
