@@ -48,6 +48,10 @@ class FieldOptionDefinition extends ElementBase
         }
 
         if (Arr::isAssoc($option)) {
+            if (isset($options['children']) && is_array($options['children'])) {
+                $options['children'] = $this->evalChildOptions($options['children']);
+            }
+
             $this->useConfig($option);
             return $this;
         }
@@ -69,5 +73,21 @@ class FieldOptionDefinition extends ElementBase
         }
 
         return $this;
+    }
+
+    /**
+     * evalChildOptions
+     */
+    protected function evalChildOptions(array $children): array
+    {
+        $result = [];
+
+        foreach ($children as $value => $option) {
+            $result[$value] = (new FieldOptionDefinition)
+                ->value($value)
+                ->useOptionConfig($option);
+        }
+
+        return $result;
     }
 }

@@ -154,9 +154,10 @@ class FieldDefinition extends ElementBase
         $result = [];
 
         foreach ($options as $value => $option) {
-            $definition = new FieldOptionDefinition;
-            $definition->value($value);
-            $definition->useOptionConfig($option);
+            $definition = (new FieldOptionDefinition)
+                ->value($value)
+                ->useOptionConfig($option);
+
             $result[$value] = $definition;
         }
 
