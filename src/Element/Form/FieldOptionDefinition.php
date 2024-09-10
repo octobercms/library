@@ -49,8 +49,8 @@ class FieldOptionDefinition extends ElementBase
         }
 
         if (Arr::isAssoc($option)) {
-            if (isset($options['children']) && is_array($options['children'])) {
-                $options['children'] = $this->evalChildOptions($options['children']);
+            if (isset($option['children']) && is_array($option['children'])) {
+                $option['children'] = $this->evalChildOptions($option['children']);
             }
 
             $this->useConfig($option);
