@@ -41,7 +41,7 @@ class FieldOptionDefinition extends ElementBase
     /**
      * useOptionConfig
      */
-    public function useOptionConfig(array $option): FieldOptionDefinition
+    public function useOptionConfig($option): FieldOptionDefinition
     {
         if (!is_array($option)) {
             $this->label($option);
