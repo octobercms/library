@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Element\Form;
 
 use October\Rain\Element\ElementBase;
+use October\Rain\Element\OptionDefinition;
 
 /**
  * FieldDefinition
@@ -156,7 +157,7 @@ class FieldDefinition extends ElementBase
         $result = [];
 
         foreach ($options as $value => $option) {
-            $definition = (new FieldOptionDefinition)
+            $definition = (new OptionDefinition)
                 ->value($value)
                 ->useOptionConfig($option);
 
