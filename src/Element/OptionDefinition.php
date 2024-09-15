@@ -15,7 +15,7 @@ use October\Rain\Element\ElementBase;
  * @method OptionDefinition readOnly(bool $readOnly) readOnly specifies if the option is read-only or not.
  * @method OptionDefinition disabled(bool $disabled) disabled specifies if the option is disabled or not.
  * @method OptionDefinition hidden(bool $hidden) hidden defines the option without ever displaying it
- * @method OptionDefinition cssColor(string $cssColor) cssColor defines a status indicator color for the option (dropdown)
+ * @method OptionDefinition color(string $color) color defines a status indicator color for the option as a hex color (dropdown)
  * @method OptionDefinition icon(string $icon) icon specifies an icon name for this option
  * @method OptionDefinition image(string $image) image specifies an image URL for this option
  * @method OptionDefinition children(array $image) children specifies child options for a nested structure
@@ -63,7 +63,7 @@ class OptionDefinition extends ElementBase
         $this->comment($secondPart);
 
         if (Html::isValidColor($secondPart)) {
-            $this->cssColor($secondPart);
+            $this->color($secondPart);
         }
         elseif (strpos($secondPart, '.')) {
             $this->image($secondPart);
