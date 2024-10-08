@@ -40,8 +40,10 @@ class OptionDefinition extends ElementBase
     /**
      * useOptionConfig
      */
-    public function useOptionConfig($option): OptionDefinition
+    public function useOptionConfig($value, $option = null): OptionDefinition
     {
+        $this->value($value)->label($value);
+
         if (!is_array($option)) {
             $this->label($option);
             return $this;
@@ -83,9 +85,7 @@ class OptionDefinition extends ElementBase
         $result = [];
 
         foreach ($children as $value => $option) {
-            $result[$value] = (new OptionDefinition)
-                ->value($value)
-                ->useOptionConfig($option);
+            $result[$value] = (new OptionDefinition)->useOptionConfig($value, $option);
         }
 
         return $result;

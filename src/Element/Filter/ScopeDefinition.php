@@ -117,11 +117,7 @@ class ScopeDefinition extends ElementBase
         $result = [];
 
         foreach ($options as $value => $option) {
-            $definition = (new OptionDefinition)
-                ->value($value)
-                ->useOptionConfig($option);
-
-            $result[$value] = $definition;
+            $result[$value] = (new OptionDefinition)->useOptionConfig($value, $option);
         }
 
         return $result;
