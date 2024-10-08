@@ -5,6 +5,7 @@ use App;
 /**
  * HasReplication for a model
  *
+ * @see October\Rain\Database\Replicator
  * @package october\database
  * @author Alexey Bobkov, Samuel Georges
  */

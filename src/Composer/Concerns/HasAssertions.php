@@ -29,6 +29,9 @@ trait HasAssertions
         ini_set('max_input_time', 0);
         ini_set('max_execution_time', 0);
 
+        // Fixes function throwing an error
+        require_once __DIR__ . '/../resources/file_get_contents.php';
+
         // Function may be disabled for security reasons
         if (!function_exists('putenv')) {
             require_once __DIR__ . '/../resources/putenv.php';

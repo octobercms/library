@@ -312,7 +312,7 @@ trait Multisite
             return false;
         }
 
-        if (!is_array($this->propagatableSync)) {
+        if (is_array($this->propagatableSync)) {
             return ($this->propagatableSync['sync'] ?? false) !== false;
         }
 
