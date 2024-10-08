@@ -40,15 +40,17 @@ class OptionDefinition extends ElementBase
     /**
      * useOptionConfig
      */
-    public function useOptionConfig($value, $option = null): OptionDefinition
+    public function useOptionConfig($value, $option): OptionDefinition
     {
         $this->value($value)->label($value);
 
+        // Option as string
         if (!is_array($option)) {
             $this->label($option);
             return $this;
         }
 
+        // Option as definition
         if (Arr::isAssoc($option)) {
             if (isset($option['children']) && is_array($option['children'])) {
                 $option['children'] = $this->evalChildOptions($option['children']);
@@ -58,6 +60,7 @@ class OptionDefinition extends ElementBase
             return $this;
         }
 
+        // Option as [label, comment]
         $firstPart = (string) ($option[0] ?? '');
         $secondPart = (string) ($option[1] ?? '');
 
