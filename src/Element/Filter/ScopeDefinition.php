@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Element\Filter;
 
 use October\Rain\Element\ElementBase;
+use October\Rain\Element\OptionDefinition;
 
 /**
  * ScopeDefinition
@@ -102,6 +103,24 @@ class ScopeDefinition extends ElementBase
         $this->config['options'] = $value;
 
         return $this;
+    }
+
+    /**
+     * optionsDefinition
+     */
+    public function asOptionsDefinition($options = null)
+    {
+        if ($options === null) {
+            $options = $this->options();
+        }
+
+        $result = [];
+
+        foreach ($options as $value => $option) {
+            $result[$value] = (new OptionDefinition)->useOptionConfig($value, $option);
+        }
+
+        return $result;
     }
 
     /**

@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Element\Form;
 
 use October\Rain\Element\ElementBase;
+use October\Rain\Element\OptionDefinition;
 
 /**
  * FieldDefinition
@@ -142,6 +143,24 @@ class FieldDefinition extends ElementBase
         }
 
         return $this;
+    }
+
+    /**
+     * optionsDefinition
+     */
+    public function asOptionsDefinition($options = null)
+    {
+        if ($options === null) {
+            $options = $this->options();
+        }
+
+        $result = [];
+
+        foreach ($options as $value => $option) {
+            $result[$value] = (new OptionDefinition)->useOptionConfig($value, $option);
+        }
+
+        return $result;
     }
 
     /**

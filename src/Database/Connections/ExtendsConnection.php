@@ -1,12 +1,13 @@
 <?php namespace October\Rain\Database\Connections;
 
 use October\Rain\Database\QueryBuilder;
-use Illuminate\Database\Connection as ConnectionBase;
 
 /**
- * @deprecated see \October\Rain\Database\Connections\ExtendsConnection
+ * ExtendsConnection replaces the query builder in the connection,
+ * and modifies logging events. This trait must extend a connection
+ * class that extends the `Illuminate\Database\Connection` class.
  */
-class Connection extends ConnectionBase
+trait ExtendsConnection
 {
     /**
      * query builder instance
