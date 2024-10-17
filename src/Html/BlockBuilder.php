@@ -3,7 +3,8 @@
 use Exception;
 
 /**
- * BlockBuilder is used for building placeholders and putting content to them
+ * BlockBuilder is used for building placeholders and putting content to them,
+ * the content is most often a string, however, it can also store objects.
  *
  * @package october\html
  * @author Alexey Bobkov, Samuel Georges
@@ -90,7 +91,7 @@ class BlockBuilder
     /**
      * placeholder returns the layout block contents and deletes the block from memory.
      */
-    public function placeholder(string $name, string $default = null): ?string
+    public function placeholder(string $name, $default = null)
     {
         $result = $this->get($name, $default);
         unset($this->blocks[$name]);
@@ -113,13 +114,13 @@ class BlockBuilder
     /**
      * get returns the layout block contents but not deletes the block from memory
      */
-    public function get(string $name, string $default = null): ?string
+    public function get(string $name, $default = null)
     {
         if (!isset($this->blocks[$name])) {
             return $default;
         }
 
-        return (string) $this->blocks[$name];
+        return $this->blocks[$name];
     }
 
     /**
