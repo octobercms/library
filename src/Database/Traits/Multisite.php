@@ -27,6 +27,7 @@ trait Multisite
      * Set to an array of options for more granular controls:
      *
      * - **sync** - logic to sync specific sites, available options: `all`, `group`, `locale`
+     * - **structure** - enable the sync of tree/sortable structures, default: `false`
      * - **delete** - delete all linked records when any record is deleted, default: `true`
      *
      *     protected $propagatableSync = false;
