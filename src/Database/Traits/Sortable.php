@@ -68,6 +68,16 @@ trait Sortable
             throw new Exception('Invalid setSortableOrder call - count of itemIds do not match count of referencePool');
         }
 
+        // Multisite
+        $keyName = $this->getKeyName();
+        if (
+            $this->isClassInstanceOf(\October\Contracts\Database\MultisiteInterface::class) &&
+            $this->isMultisiteSyncEnabled() &&
+            $this->getMultisiteConfig('structure', true)
+        ) {
+            $keyName = 'site_root_id';
+        }
+
         $upsert = [];
         foreach ($itemIds as $id) {
             $sortOrder = $sortKeyMap[$id] ?? null;
@@ -79,7 +89,7 @@ trait Sortable
         if ($upsert) {
             foreach ($upsert as $update) {
                 $this->newQuery()
-                    ->where($this->getKeyName(), $update['id'])
+                    ->where($keyName, $update['id'])
                     ->update([$this->getSortOrderColumn() => $update['sort_order']]);
             }
         }

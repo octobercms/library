@@ -19,8 +19,24 @@ class TreeCollection extends Collection
      */
     public function toNested($removeOrphans = true)
     {
+        // Multisite
+        $keyMethod = 'getKey';
+        if (
+            ($model = $this->first()) &&
+            $model->isClassInstanceOf(\October\Contracts\Database\MultisiteInterface::class) &&
+            $model->isAttributePropagatable('children') &&
+            $model->isAttributePropagatable('parent')
+        ) {
+            $keyMethod = 'getMultisiteKey';
+        }
+
+        // Get dictionary
+        $collection = [];
+        foreach ($this as $item) {
+            $collection[$item->{$keyMethod}()] = $item;
+        }
+
         // Set new collection for "children" relations
-        $collection = $this->getDictionary();
         foreach ($collection as $key => $model) {
             $model->setRelation('children', new Collection);
         }
@@ -34,10 +50,10 @@ class TreeCollection extends Collection
 
             if (array_key_exists($parentKey, $collection)) {
                 $collection[$parentKey]->children[] = $model;
-                $nestedKeys[] = $model->getKey();
+                $nestedKeys[] = $model->{$keyMethod}();
             }
             elseif ($removeOrphans) {
-                $nestedKeys[] = $model->getKey();
+                $nestedKeys[] = $model->{$keyMethod}();
             }
         }
 
