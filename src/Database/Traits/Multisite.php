@@ -27,7 +27,7 @@ trait Multisite
      * Set to an array of options for more granular controls:
      *
      * - **sync** - logic to sync specific sites, available options: `all`, `group`, `locale`
-     * - **structure** - enable the sync of tree/sortable structures, default: `false`
+     * - **structure** - enable the sync of tree/sortable structures, default: `true`
      * - **delete** - delete all linked records when any record is deleted, default: `true`
      *
      *     protected $propagatableSync = false;
@@ -355,6 +355,9 @@ trait Multisite
      * scopeApplyOtherSiteRoot is used to resolve a model using its ID or its root ID.
      * For example, finding a model using attributes from another site, or finding
      * all connected models for all sites.
+     *
+     * If the value is provided as a string, it must be the ID from the primary record,
+     * in other words: taken from `site_root_id` not from the `id` column.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param string|\Illuminate\Database\Eloquent\Model $idOrModel
