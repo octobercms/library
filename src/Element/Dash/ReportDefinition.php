@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Element\Dashboard;
+<?php namespace October\Rain\Element\Dash;
 
 use October\Rain\Element\ElementBase;
 
