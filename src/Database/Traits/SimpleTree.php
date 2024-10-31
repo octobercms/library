@@ -58,6 +58,15 @@ trait SimpleTree
             'key' => $this->getParentColumnName(),
             'replicate' => false
         ];
+
+        // Multisite
+        if (
+            $this->isClassInstanceOf(\October\Contracts\Database\MultisiteInterface::class) &&
+            $this->isMultisiteSyncEnabled() &&
+            $this->getMultisiteConfig('structure', true)
+        ) {
+            $this->addPropagatable(['children', 'parent']);
+        }
     }
 
     /**
