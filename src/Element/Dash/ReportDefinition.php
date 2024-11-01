@@ -6,7 +6,7 @@ use October\Rain\Element\ElementBase;
  * ReportDefinition
  *
  * @method ReportDefinition reportName(string $name) reportName for this report
- * @method ReportDefinition title(string $title) title for this report
+ * @method ReportDefinition label(string $label) label for this report
  * @method ReportDefinition type(string $type) type for display mode, eg: indicator, static
  * @method ReportDefinition row(int $row) row number where the report should be placed
  * @method ReportDefinition width(int $width) width to display the report
