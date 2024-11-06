@@ -13,7 +13,7 @@ use October\Rain\Element\ElementBase;
  * @method ReportDefinition icon(string $icon) icon specifies an icon name for this report
  * @method ReportDefinition dimension(string $dimension) dimension name
  * @method ReportDefinition dataSource(string $dataSource) dataSource class name for obtaining report data
- * @method ReportDefinition widgetClass(string $widgetClass) widgetClass class name for the report widget
+ * @method ReportDefinition widget(string $widget) widget code or class name for the report widget
  * @method ReportDefinition metrics(array $metrics) metrics to display with the report
  * @method ReportDefinition dateStart(string $dateStart) dateStart
  * @method ReportDefinition dateEnd(string $dateEnd) dateEnd
