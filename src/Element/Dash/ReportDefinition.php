@@ -34,6 +34,7 @@ class ReportDefinition extends ElementBase
         $this
             ->displayAs('static')
             ->metrics([])
+            ->row(1)
         ;
     }
 
