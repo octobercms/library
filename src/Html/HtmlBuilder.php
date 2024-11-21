@@ -404,7 +404,7 @@ class HtmlBuilder
      */
     public static function strip($string, $allow = '')
     {
-        return htmlspecialchars_decode(strip_tags($string, $allow));
+        return strip_tags(htmlspecialchars_decode($string), $allow);
     }
 
     /**
