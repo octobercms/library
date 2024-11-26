@@ -9,7 +9,7 @@ use October\Rain\Element\ElementBase;
  * @method ReportDefinition label(string $label) label for this report
  * @method ReportDefinition type(string $type) type for display mode, eg: indicator, static
  * @method ReportDefinition row(int $row) row number where the report should be placed
- * @method ReportDefinition width(int $width) width to display the report
+ * @method ReportDefinition width(int $width) width to display the report, between 1 - 20 range
  * @method ReportDefinition icon(string $icon) icon specifies an icon name for this report
  * @method ReportDefinition dimension(string $dimension) dimension name
  * @method ReportDefinition dataSource(string $dataSource) dataSource class name for obtaining report data
@@ -34,6 +34,7 @@ class ReportDefinition extends ElementBase
         $this
             ->displayAs('static')
             ->metrics([])
+            ->width(20)
             ->row(1)
         ;
     }
