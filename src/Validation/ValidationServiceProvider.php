@@ -20,6 +20,11 @@ class ValidationServiceProvider extends ValidationServiceProviderBase
                 $validator->setPresenceVerifier($app['validation.presence']);
             }
 
+            // Replacers for custom rules in Validator class
+            $validator->replacer('unique_site', function ($message, $attribute, $rule, $parameters) {
+                return __('validation.unique', ['attribute' => $attribute]);
+            });
+
             return $validator;
         });
     }
