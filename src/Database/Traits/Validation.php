@@ -517,7 +517,7 @@ trait Validation
     protected function processValidationUniqueRule($definition, $fieldName)
     {
         if (!$this->exists) {
-            if ($definition === 'unique') {
+            if ($definition === 'unique' || $definition === 'unique_site') {
                 return $definition . ':' . $this->getTable();
             }
             return $definition;
