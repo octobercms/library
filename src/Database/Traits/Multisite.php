@@ -177,7 +177,7 @@ trait Multisite
             $type = $this->getRelationType($name);
         }
 
-        if (!in_array($type, ['belongsToMany', 'morphedByMany', 'belongsTo', 'hasOne', 'hasMany', 'attachOne', 'attachMany'])) {
+        if (!in_array($type, ['belongsToMany', 'morphToMany', 'morphedByMany', 'belongsTo', 'hasOne', 'hasMany', 'attachOne', 'attachMany'])) {
             return false;
         }
 

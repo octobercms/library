@@ -904,7 +904,7 @@ trait HasRelationships
                 }
 
                 // Belongs-To-Many should clean up after itself by default
-                if ($type === 'belongsToMany') {
+                 if (in_array($type, ['belongsToMany', 'morphToMany', 'morphedByMany'])) {
                     if (!Arr::get($options, 'detach', true)) {
                         return;
                     }
