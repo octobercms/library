@@ -169,16 +169,18 @@ trait Multisite
      */
     public function canDeleteMultisiteRelation($name, $type = null): bool
     {
+        // Attribute is exclusive to parent model without propagation
         if (!$this->isAttributePropagatable($name)) {
-            return false;
+            return true;
         }
 
         if ($type === null) {
             $type = $this->getRelationType($name);
         }
 
-        if (!in_array($type, ['belongsToMany', 'morphedByMany', 'belongsTo', 'hasOne', 'hasMany', 'attachOne', 'attachMany'])) {
-            return false;
+        // Type is not supported by multisite
+        if (!in_array($type, ['belongsToMany', 'morphToMany', 'morphedByMany', 'belongsTo', 'hasOne', 'hasMany', 'attachOne', 'attachMany'])) {
+            return true;
         }
 
         // The current record counts for one so halt if we find more
@@ -188,7 +190,7 @@ trait Multisite
     /**
      * defineMultisiteRelation will modify defined relations on this model so they share
      * their association using the shared identifier (`site_root_id`). Only these relation
-     * types support relation sharing: `belongsToMany`, `morphedByMany`,
+     * types support relation sharing: `belongsToMany`, `morphToMany`, `morphedByMany`,
      * `belongsTo`, `hasOne`, `hasMany`, `attachOne`, `attachMany`.
      */
     protected function defineMultisiteRelation($name, $type = null)
@@ -203,7 +205,7 @@ trait Multisite
             }
 
             // Override the local key to the shared root identifier
-            if (in_array($type, ['belongsToMany', 'morphedByMany'])) {
+            if (in_array($type, ['belongsToMany', 'morphToMany', 'morphedByMany'])) {
                 $this->$type[$name]['parentKey'] = 'site_root_id';
             }
             elseif (in_array($type, ['belongsTo', 'hasOne', 'hasMany'])) {

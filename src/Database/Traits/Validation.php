@@ -250,17 +250,36 @@ trait Validation
      * the validator use a different database connection than the default connection.
      * @return \Illuminate\Validation\Validator
      */
-    protected static function makeValidator($data, $rules, $customMessages, $attributeNames, $connection = null)
+    protected static function makeValidator($data, $rules, $customMessages, $attributeNames, $connection = null, $verifier = null)
     {
-        $validator = Validator::make($data, $rules, $customMessages, $attributeNames);
-
-        if ($connection !== null) {
+        // @deprecated make required arg (v4) desired signature below
+        // makeValidator($data, $rules, $customMessages, $attributeNames, $verifier)
+        //
+        if ($verifier === null) {
             $verifier = App::make('validation.presence');
-            $verifier->setConnection($connection);
-            $validator->setPresenceVerifier($verifier);
         }
 
+        // @deprecated set via getValidationPresenceVerifier (v4)
+        if ($connection !== null) {
+            $verifier->setConnection($connection);
+        }
+
+        $validator = Validator::make($data, $rules, $customMessages, $attributeNames);
+        $validator->setPresenceVerifier($verifier);
+
         return $validator;
+    }
+
+    /**
+     * getValidationPresenceVerifier
+     */
+    protected function getValidationPresenceVerifier()
+    {
+        $verifier = App::make('validation.presence');
+
+        $verifier->setConnection($this->getConnectionName());
+
+        return $verifier;
     }
 
     /**
@@ -394,7 +413,8 @@ trait Validation
                 $rules,
                 $customMessages,
                 $attrNames,
-                $this->getConnectionName()
+                $this->getConnectionName(),
+                $this->getValidationPresenceVerifier()
             );
 
             $success = $validator->passes();
