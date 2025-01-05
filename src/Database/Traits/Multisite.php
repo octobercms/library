@@ -169,16 +169,18 @@ trait Multisite
      */
     public function canDeleteMultisiteRelation($name, $type = null): bool
     {
+        // Attribute is exclusive to parent model without propagation
         if (!$this->isAttributePropagatable($name)) {
-            return false;
+            return true;
         }
 
         if ($type === null) {
             $type = $this->getRelationType($name);
         }
 
+        // Type is not supported by multisite
         if (!in_array($type, ['belongsToMany', 'morphToMany', 'morphedByMany', 'belongsTo', 'hasOne', 'hasMany', 'attachOne', 'attachMany'])) {
-            return false;
+            return true;
         }
 
         // The current record counts for one so halt if we find more
