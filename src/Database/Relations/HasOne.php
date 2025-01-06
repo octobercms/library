@@ -34,7 +34,7 @@ class HasOne extends HasOneBase
     public function setSimpleValue($value)
     {
         if (is_array($value)) {
-            return;
+            $value = current($value);
         }
 
         // Nulling the relationship
