@@ -141,11 +141,6 @@ class Replicator
      */
     protected function isRelationReplicable(string $name): bool
     {
-        $relationType = $this->model->getRelationType($name);
-        if ($relationType === 'morphTo') {
-            return false;
-        }
-
         // Relation is shared via propagation
         if (
             !$this->isDuplicating &&
@@ -155,12 +150,7 @@ class Replicator
             return false;
         }
 
-        $definition = $this->model->getRelationDefinition($name);
-        if (!array_key_exists('replicate', $definition)) {
-            return true;
-        }
-
-        return (bool) $definition['replicate'];
+        return $this->model->isRelationReplicable($name);
     }
 
     /**
