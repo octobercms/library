@@ -40,7 +40,7 @@ class AttachOne extends MorphOneBase
     public function setSimpleValue($value)
     {
         if (is_array($value)) {
-            $value = reset($value);
+            $value = current($value);
         }
 
         // Nulling the relationship

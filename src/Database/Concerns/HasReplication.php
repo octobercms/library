@@ -49,4 +49,22 @@ trait HasReplication
 
         return $instance;
     }
+
+    /**
+     * isRelationReplicable determines whether the specified relation should be replicated
+     */
+    public function isRelationReplicable(string $name): bool
+    {
+        $relationType = $this->getRelationType($name);
+        if ($relationType === 'morphTo') {
+            return false;
+        }
+
+        $definition = $this->getRelationDefinition($name);
+        if (!array_key_exists('replicate', $definition)) {
+            return true;
+        }
+
+        return (bool) $definition['replicate'];
+    }
 }
