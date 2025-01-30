@@ -14,6 +14,7 @@ use October\Rain\Support\Facade;
  * @method static mixed listConverters(bool $asObject)
  * @method static mixed listConverterObjects()
  * @method static mixed findConverterByAlias()
+ * @method static bool isModelMultisite($model, $attribute = null)
  *
  * @see \Responsiv\Currency\Classes\CurrencyManager
  */
