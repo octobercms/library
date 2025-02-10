@@ -119,18 +119,13 @@ trait NestedTree
             $this->deleteDescendants();
         });
 
-        if (
-            static::hasGlobalScope(\October\Rain\Database\Scopes\SoftDeleteScope::class) ||
-            static::hasGlobalScope(\Illuminate\Database\Eloquent\SoftDeletingScope::class)
-        ) {
-            $this->bindEvent('model.beforeRestore', function () {
-                $this->shiftSiblingsForRestore();
-            });
+        $this->bindEvent('model.beforeRestore', function () {
+            $this->shiftSiblingsForRestore();
+        });
 
-            $this->bindEvent('model.afterRestore', function () {
-                $this->restoreDescendants();
-            });
-        }
+        $this->bindEvent('model.afterRestore', function () {
+            $this->restoreDescendants();
+        });
     }
 
     /**
