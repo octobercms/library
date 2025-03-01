@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Foundation\Providers;
 
 use Illuminate\Support\AggregateServiceProvider;
+use October\Rain\Extension\Container as OctoberContainer;
 
 /**
  * AppSupportServiceProvider supplies eager providers
@@ -17,4 +18,12 @@ class AppSupportServiceProvider extends AggregateServiceProvider
         \October\Rain\Html\UrlServiceProvider::class,
         \October\Rain\Argon\ArgonServiceProvider::class
     ];
+
+    /**
+     * register the service provider
+     */
+    public function register()
+    {
+        OctoberContainer::clearExtensions();
+    }
 }

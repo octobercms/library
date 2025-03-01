@@ -99,14 +99,6 @@ trait ExtendableTrait
     }
 
     /**
-     * @deprecated use \October\Rain\Extension\Container::clearExtensions()
-     */
-    public static function clearExtendedClasses()
-    {
-        Container::clearExtensions();
-    }
-
-    /**
      * extensionExtractImplements will return classes to implement.
      */
     protected function extensionExtractImplements(): array
@@ -616,5 +608,13 @@ trait ExtendableTrait
         }
 
         return $dynamicCallable;
+    }
+
+    /**
+     * @deprecated use \October\Rain\Extension\Container::clearExtensions()
+     */
+    public static function clearExtendedClasses()
+    {
+        Container::clearExtensions();
     }
 }

@@ -11,6 +11,7 @@ use Illuminate\Foundation\Application as ApplicationBase;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Foundation\PackageManifest;
 use Illuminate\Foundation\ProviderRepository;
+use Illuminate\Log\Context\ContextServiceProvider;
 use Carbon\Laravel\ServiceProvider as CarbonServiceProvider;
 use Illuminate\Support\Env;
 use Throwable;
@@ -46,11 +47,11 @@ class Application extends ApplicationBase
 
         $this->register(new LogServiceProvider($this));
 
+        $this->register(new ContextServiceProvider($this));
+
         $this->register(new RoutingServiceProvider($this));
 
         $this->register(new ExecutionContextProvider($this));
-
-        $this->register(new CarbonServiceProvider($this));
     }
 
     /**
@@ -193,20 +194,6 @@ class Application extends ApplicationBase
     }
 
     /**
-     * joinPaths together
-     *
-     * @todo Can be removed if Laravel >= 10
-     *
-     * @param  string  $basePath
-     * @param  string  $path
-     * @return string
-     */
-    public function joinPaths($basePath, $path = '')
-    {
-        return $basePath.($path != '' ? DIRECTORY_SEPARATOR.ltrim($path, DIRECTORY_SEPARATOR) : '');
-    }
-
-    /**
      * before logic is called before the router runs.
      * @param  \Closure|string  $callback
      * @return void
@@ -312,6 +299,8 @@ class Application extends ApplicationBase
 
         (new ProviderRepository($this, new Filesystem, $this->getCachedServicesPath()))
             ->load($providers->collapse()->toArray());
+
+        $this->fireAppCallbacks($this->registeredCallbacks);
     }
 
     /**
@@ -332,7 +321,7 @@ class Application extends ApplicationBase
             'db.schema' => [\Illuminate\Database\Schema\Builder::class],
             'encrypter' => [\Illuminate\Encryption\Encrypter::class, \Illuminate\Contracts\Encryption\Encrypter::class],
             'events' => [\October\Rain\Events\Dispatcher::class, \Illuminate\Contracts\Events\Dispatcher::class],
-            'files' => [\Illuminate\Filesystem\Filesystem::class],
+            'files' => [\October\Rain\Filesystem\Filesystem::class, \Illuminate\Filesystem\Filesystem::class],
             'filesystem' => [\Illuminate\Filesystem\FilesystemManager::class, \Illuminate\Contracts\Filesystem\Factory::class],
             'filesystem.disk' => [\Illuminate\Contracts\Filesystem\Filesystem::class],
             'filesystem.cloud' => [\Illuminate\Contracts\Filesystem\Cloud::class],

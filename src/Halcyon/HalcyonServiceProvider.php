@@ -34,8 +34,6 @@ class HalcyonServiceProvider extends ServiceProvider
     {
         Model::clearBootedModels();
 
-        Model::clearExtendedClasses();
-
         Model::flushEventListeners();
 
         $this->app->singleton('halcyon', function ($app) {

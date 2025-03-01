@@ -58,9 +58,6 @@
         ]
     },
     "extra": {
-        "branch-alias": {
-            "dev-develop": "3.x-dev"
-        },
         "laravel": {
             "providers": [
                 "October\\Rain\\Foundation\\Providers\\AppSupportServiceProvider",
