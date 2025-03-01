@@ -20,7 +20,7 @@ class DefaultProviders extends DefaultProvidersBase
             \October\Rain\Halcyon\HalcyonServiceProvider::class,
             \October\Rain\Filesystem\FilesystemServiceProvider::class,
             \October\Rain\Html\UrlServiceProvider::class,
-            \October\Rain\Argon\ArgonServiceProvider::class,
+            \October\Rain\Foundation\Providers\DateServiceProvider::class,
 
             // October Providers (Deferred)
             \October\Rain\Mail\MailServiceProvider::class,

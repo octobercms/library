@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Argon;
+<?php namespace October\Rain\Foundation\Providers;
 
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
@@ -8,19 +8,16 @@ use Illuminate\Support\DateFactory;
 use October\Rain\Support\ServiceProvider;
 
 /**
- * ArgonServiceProvider
- *
- * @package october\argon
- * @author Alexey Bobkov, Samuel Georges
+ * DateServiceProvider
  */
-class ArgonServiceProvider extends ServiceProvider
+class DateServiceProvider extends ServiceProvider
 {
     /**
      * register the service provider.
      */
     public function register()
     {
-        DateFactory::useClass(\October\Rain\Argon\Argon::class);
+        DateFactory::useClass(\October\Rain\Support\Date::class);
     }
 
     /**

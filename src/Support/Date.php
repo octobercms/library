@@ -1,19 +1,19 @@
-<?php namespace October\Rain\Argon;
+<?php namespace October\Rain\Support;
 
 use Carbon\Carbon as DateBase;
 
 /**
- * Argon is an umbrella class for Carbon that automatically applies localizations
+ * Date is an umbrella class for Carbon that automatically applies localizations
  *
- * @package october\argon
+ * @package october\support
  * @author Alexey Bobkov, Samuel Georges
  */
-class Argon extends DateBase
+class Date extends DateBase
 {
     /**
      * format
      */
-    public function format($format)
+    public function format(string $format): string
     {
         return parent::translatedFormat($format);
     }
@@ -21,7 +21,7 @@ class Argon extends DateBase
     /**
      * createFromFormat
      */
-    public static function createFromFormat($format, $time, $timezone = null)
+    public static function createFromFormat($format, $time, $timezone = null): ?DateBase
     {
         if (is_string($time)) {
             $time = static::translateTimeString($time, static::getLocale(), 'en');
@@ -33,7 +33,7 @@ class Argon extends DateBase
     /**
      * parse
      */
-    public static function parse($time = null, $timezone = null)
+    public static function parse($time = null, $timezone = null): static
     {
         if (is_string($time)) {
             $time = static::translateTimeString($time, static::getLocale(), 'en');

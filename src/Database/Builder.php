@@ -164,7 +164,7 @@ class Builder extends BuilderModel
      * @param  int  $page
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
+    public function paginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null, $total = null)
     {
         // Legacy signature support
         // paginate($perPage, $page, $columns, $pageName)
@@ -178,18 +178,17 @@ class Builder extends BuilderModel
             $page = is_array($_currentPage) ? null : $_currentPage;
         }
 
-        if (!$page) {
-            $page = Paginator::resolveCurrentPage($pageName);
-        }
+        $page = $page ?: Paginator::resolveCurrentPage($pageName);
 
-        if (!$perPage) {
-            $perPage = $this->model->getPerPage();
-        }
+        $total = value($total) ?? $this->toBase()->getCountForPagination();
 
-        $total = $this->toBase()->getCountForPagination();
-        $this->forPage((int) $page, (int) $perPage);
+        $perPage = value($perPage, $total) ?: $this->model->getPerPage();
 
-        return $this->paginator($this->get($columns), $total, $perPage, $page, [
+        $results = $total
+            ? $this->forPage($page, $perPage)->get($columns)
+            : $this->model->newCollection();
+
+        return $this->paginator($results, $total, $perPage, $page, [
             'path' => Paginator::resolveCurrentPath(),
             'pageName' => $pageName
         ]);
@@ -204,31 +203,27 @@ class Builder extends BuilderModel
      * @param  int  $currentPage
      * @return \Illuminate\Contracts\Pagination\Paginator
      */
-    public function simplePaginate($perPage = null, $columns = ['*'], $pageName = 'page', $currentPage = null)
+    public function simplePaginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
     {
         // Legacy signature support
         // paginate($perPage, $currentPage, $columns, $pageName)
         if (!is_array($columns)) {
             $_currentPage = $columns;
             $_columns = $pageName;
-            $_pageName = $currentPage;
+            $_pageName = $page;
 
             $columns = is_array($_columns) ? $_columns : ['*'];
             $pageName = $_pageName !== null ? $_pageName : 'page';
-            $currentPage = is_array($_currentPage) ? null : $_currentPage;
+            $page = is_array($_currentPage) ? null : $_currentPage;
         }
 
-        if (!$currentPage) {
-            $currentPage = Paginator::resolveCurrentPage($pageName);
-        }
+        $page = $page ?: Paginator::resolveCurrentPage($pageName);
 
-        if (!$perPage) {
-            $perPage = $this->model->getPerPage();
-        }
+        $perPage = $perPage ?: $this->model->getPerPage();
 
-        $this->skip(($currentPage - 1) * $perPage)->take($perPage + 1);
+        $this->skip(($page - 1) * $perPage)->take($perPage + 1);
 
-        return $this->simplePaginator($this->get($columns), $perPage, $currentPage, [
+        return $this->simplePaginator($this->get($columns), $perPage, $page, [
             'path' => Paginator::resolveCurrentPath(),
             'pageName' => $pageName
         ]);

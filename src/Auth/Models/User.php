@@ -671,6 +671,14 @@ class User extends Model implements Authenticatable
     }
 
     /**
+     * getAuthPasswordName of the password attribute for the user.
+     */
+    public function getAuthPasswordName()
+    {
+        return 'password';
+    }
+
+    /**
      * getAuthIdentifier gets the unique identifier for the user
      * @return mixed
      */

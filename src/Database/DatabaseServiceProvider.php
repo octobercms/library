@@ -20,7 +20,7 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
         Model::flushEventListeners();
 
         $this->registerConnectionServices();
-        $this->registerEloquentFactory();
+        $this->registerFakerGenerator();
         $this->registerQueueableEntityResolver();
     }
 
