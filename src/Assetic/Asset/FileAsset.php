@@ -53,7 +53,7 @@ class FileAsset extends BaseAsset
     /**
      * load
      */
-    public function load(FilterInterface $additionalFilter = null)
+    public function load(?FilterInterface $additionalFilter = null)
     {
         $source = VarUtils::resolve($this->source, $this->getVars(), $this->getValues());
 

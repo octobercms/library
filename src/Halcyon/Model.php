@@ -939,7 +939,7 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      * @param  array  $options
      * @return bool
      */
-    public function save(array $options = null)
+    public function save(?array $options = null)
     {
         return $this->saveInternal(['force' => false] + (array) $options);
     }

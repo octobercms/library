@@ -648,7 +648,7 @@ class Parsedown
     /**
      * blockList
      */
-    protected function blockList($Line, array $CurrentBlock = null)
+    protected function blockList($Line, ?array $CurrentBlock = null)
     {
         list($name, $pattern) = $Line['text'][0] <= '-' ? array('ul', '[*+-]') : array('ol', '[0-9]{1,9}+[.\)]');
 
@@ -870,7 +870,7 @@ class Parsedown
     /**
      * blockSetextHeader
      */
-    protected function blockSetextHeader($Line, array $Block = null)
+    protected function blockSetextHeader($Line, ?array $Block = null)
     {
         if (!isset($Block) || $Block['type'] !== 'Paragraph' || isset($Block['interrupted'])) {
             return;
@@ -953,7 +953,7 @@ class Parsedown
     /**
      * blockTable
      */
-    protected function blockTable($Line, array $Block = null)
+    protected function blockTable($Line, ?array $Block = null)
     {
         if (!isset($Block) || $Block['type'] !== 'Paragraph' || isset($Block['interrupted'])) {
             return;

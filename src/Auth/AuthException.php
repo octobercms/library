@@ -47,7 +47,7 @@ class AuthException extends ApplicationException
      * @param int $code
      * @param Exception $previous
      */
-    public function __construct($message = '', $code = 0, Exception $previous = null)
+    public function __construct($message = '', $code = 0, ?Exception $previous = null)
     {
         if ($this->useSoftErrors()) {
             $message = static::$errorMessage;

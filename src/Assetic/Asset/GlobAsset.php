@@ -52,7 +52,7 @@ class GlobAsset extends AssetCollection
     /**
      * load
      */
-    public function load(FilterInterface $additionalFilter = null)
+    public function load(?FilterInterface $additionalFilter = null)
     {
         if (!$this->initialized) {
             $this->initialize();
@@ -64,7 +64,7 @@ class GlobAsset extends AssetCollection
     /**
      * dump
      */
-    public function dump(FilterInterface $additionalFilter = null)
+    public function dump(?FilterInterface $additionalFilter = null)
     {
         if (!$this->initialized) {
             $this->initialize();

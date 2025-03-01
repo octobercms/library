@@ -46,7 +46,7 @@ class Replicator
      * @param  array|null  $except
      * @return static
      */
-    public function replicate(array $except = null)
+    public function replicate(?array $except = null)
     {
         $this->isDuplicating = false;
 
@@ -61,7 +61,7 @@ class Replicator
      * @param  array|null  $except
      * @return static
      */
-    public function duplicate(array $except = null)
+    public function duplicate(?array $except = null)
     {
         $this->isDuplicating = true;
 
@@ -71,7 +71,7 @@ class Replicator
     /**
      * replicateRelationsInternal
      */
-    protected function replicateRelationsInternal(array $except = null)
+    protected function replicateRelationsInternal(?array $except = null)
     {
         $defaults = [
             $this->model->getKeyName(),

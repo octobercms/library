@@ -29,7 +29,7 @@ class CssImportFilter extends BaseCssFilter implements HashableInterface, Depend
      *
      * @param FilterInterface $importFilter Filter for each imported asset
      */
-    public function __construct(FilterInterface $importFilter = null)
+    public function __construct(?FilterInterface $importFilter = null)
     {
         $this->importFilter = $importFilter ?: new CssRewriteFilter();
     }

@@ -183,7 +183,7 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
     /**
      * load
      */
-    public function load(FilterInterface $additionalFilter = null)
+    public function load(?FilterInterface $additionalFilter = null)
     {
         // loop through leaves and load each asset
         $parts = [];
@@ -198,7 +198,7 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
     /**
      * dump
      */
-    public function dump(FilterInterface $additionalFilter = null)
+    public function dump(?FilterInterface $additionalFilter = null)
     {
         // loop through leaves and dump each asset
         $parts = [];

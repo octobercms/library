@@ -23,7 +23,7 @@ trait HasOutput
     /**
      * setOutput
      */
-    public function setOutput(IOInterface $output = null)
+    public function setOutput(?IOInterface $output = null)
     {
         if ($output === null) {
             $this->output = new NullIO();

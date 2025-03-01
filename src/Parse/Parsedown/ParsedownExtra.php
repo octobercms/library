@@ -343,7 +343,7 @@ class ParsedownExtra extends Parsedown
     /**
      * blockSetextHeader
      */
-    protected function blockSetextHeader($Line, array $Block = null)
+    protected function blockSetextHeader($Line, ?array $Block = null)
     {
         $Block = parent::blockSetextHeader($Line, $Block);
 

@@ -32,7 +32,7 @@ class Dongle
     /**
      * raw transforms and executes a raw SQL statement
      */
-    public function raw(string $sql, array $params = null)
+    public function raw(string $sql, ?array $params = null)
     {
         return $this->db->raw($this->parse($sql, $params));
     }
@@ -56,7 +56,7 @@ class Dongle
      * replaces :column_name with array value without requiring a list of names.
      * Example: custom_country_id = :country_id → custom_country_id = 7
      */
-    public function parse(string $sql, array $params = null): string
+    public function parse(string $sql, ?array $params = null): string
     {
         if (is_array($params) && preg_match_all('/\:([\w]+)/', $sql, $matches)) {
             $sql = $this->parseValues($sql, $params, $matches[1]);

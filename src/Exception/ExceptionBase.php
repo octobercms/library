@@ -53,7 +53,7 @@ class ExceptionBase extends Exception
      * @param int $code Error code.
      * @param Throwable $previous Previous exception.
      */
-    public function __construct($message = "", $code = 0, Throwable $previous = null)
+    public function __construct($message = "", $code = 0, ?Throwable $previous = null)
     {
         if ($this->className === null) {
             $this->className = get_called_class();

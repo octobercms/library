@@ -269,7 +269,7 @@ class Mailer extends MailerBase
      * @param  \Closure|string  $callback
      * @return mixed
      */
-    public function laterOn($queue, $delay, $view, array $data = null, $callback = null)
+    public function laterOn($queue, $delay, $view, ?array $data = null, $callback = null)
     {
         return $this->later($delay, $view, $data, $callback, $queue);
     }

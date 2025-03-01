@@ -18,7 +18,7 @@ trait HasReplication
      * @param  array|null  $except
      * @return static
      */
-    public function replicateWithRelations(array $except = null)
+    public function replicateWithRelations(?array $except = null)
     {
         return App::makeWith('db.replicator', ['model' => $this])->replicate($except);
     }
@@ -31,7 +31,7 @@ trait HasReplication
      * @param  array|null  $except
      * @return static
      */
-    public function duplicateWithRelations(array $except = null)
+    public function duplicateWithRelations(?array $except = null)
     {
         return App::makeWith('db.replicator', ['model' => $this])->duplicate($except);
     }

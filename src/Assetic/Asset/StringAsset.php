@@ -30,7 +30,7 @@ class StringAsset extends BaseAsset
     /**
      * load
      */
-    public function load(FilterInterface $additionalFilter = null)
+    public function load(?FilterInterface $additionalFilter = null)
     {
         $this->doLoad($this->string, $additionalFilter);
     }
