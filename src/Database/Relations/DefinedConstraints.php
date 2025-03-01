@@ -26,7 +26,7 @@ trait DefinedConstraints
     /**
      * addDefinedConstraintsToRelation
      */
-    public function addDefinedConstraintsToRelation($relation, array $args = null)
+    public function addDefinedConstraintsToRelation($relation, ?array $args = null)
     {
         if ($args === null) {
             $args = $this->getRelationDefinitionForDefinedConstraints();
@@ -72,7 +72,7 @@ trait DefinedConstraints
     /**
      * addDefinedConstraintsToQuery
      */
-    public function addDefinedConstraintsToQuery($query, array $args = null)
+    public function addDefinedConstraintsToQuery($query, ?array $args = null)
     {
         if ($args === null) {
             $args = $this->getRelationDefinitionForDefinedConstraints();

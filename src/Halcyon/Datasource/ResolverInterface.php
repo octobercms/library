@@ -11,7 +11,7 @@ interface ResolverInterface
     /**
      * datasource instance
      */
-    public function datasource(string $name = null): DatasourceInterface;
+    public function datasource(?string $name = null): DatasourceInterface;
 
     /**
      * getDefaultDatasource name

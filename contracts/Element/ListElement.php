@@ -13,5 +13,5 @@ interface ListElement
     /**
      * defineColumn adds a column to the list element
      */
-    public function defineColumn(string $columnName = null, string $label = null): ColumnDefinition;
+    public function defineColumn(string $columnName, ?string $label = null): ColumnDefinition;
 }

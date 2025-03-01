@@ -14,7 +14,7 @@ interface FormElement
     /**
      * addFormField adds a field to the fieldset
      */
-    public function addFormField(string $fieldName = null, string $label = null): FieldDefinition;
+    public function addFormField(string $fieldName, ?string $label = null): FieldDefinition;
 
     /**
      * getFormFieldset returns the current fieldset definition

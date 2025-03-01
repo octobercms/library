@@ -190,7 +190,7 @@ class Combiner
     /**
      * getFilters returns all defined filters for a given extension
      */
-    public function getFilters(string $extension = null, $isProduction = false): array
+    public function getFilters(?string $extension = null, bool $isProduction = false): array
     {
         if ($isProduction) {
             if ($extension === null) {

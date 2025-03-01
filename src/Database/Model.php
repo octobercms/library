@@ -420,7 +420,7 @@ class Model extends EloquentModel
      * @param null $sessionKey
      * @return bool
      */
-    public function save(array $options = null, $sessionKey = null)
+    public function save(array $options = [], $sessionKey = null)
     {
         return $this->saveInternal((array) $options + ['sessionKey' => $sessionKey]);
     }
