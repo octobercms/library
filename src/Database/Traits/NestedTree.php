@@ -4,7 +4,6 @@ use DbDongle;
 use October\Rain\Database\Collection;
 use October\Rain\Database\TreeCollection;
 use October\Rain\Database\Scopes\NestedTreeScope;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Exception;
 
 /**
@@ -120,15 +119,13 @@ trait NestedTree
             $this->deleteDescendants();
         });
 
-        if (static::hasGlobalScope(SoftDeletingScope::class)) {
-            $this->bindEvent('model.beforeRestore', function () {
-                $this->shiftSiblingsForRestore();
-            });
+        $this->bindEvent('model.beforeRestore', function () {
+            $this->shiftSiblingsForRestore();
+        });
 
-            $this->bindEvent('model.afterRestore', function () {
-                $this->restoreDescendants();
-            });
-        }
+        $this->bindEvent('model.afterRestore', function () {
+            $this->restoreDescendants();
+        });
     }
 
     /**

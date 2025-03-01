@@ -153,11 +153,11 @@ class Resizer
     public function setOptions(array $options): Resizer
     {
         $this->options = array_merge([
-            'mode'      => 'auto',
-            'offset'    => [0, 0],
-            'sharpen'   => 0,
+            'mode' => 'crop',
+            'offset' => [0, 0],
+            'sharpen' => 0,
             'interlace' => false,
-            'quality'   => 90
+            'quality' => 90
         ], $options);
 
         return $this;

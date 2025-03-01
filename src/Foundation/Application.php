@@ -347,7 +347,7 @@ class Application extends ApplicationBase
             'queue' => [\Illuminate\Queue\QueueManager::class, \Illuminate\Contracts\Queue\Factory::class, \Illuminate\Contracts\Queue\Monitor::class],
             'queue.connection' => [\Illuminate\Contracts\Queue\Queue::class],
             'queue.failer' => [\Illuminate\Queue\Failed\FailedJobProviderInterface::class],
-            'redirect' => [\October\Rain\Router\CoreRedirector::class],
+            'redirect' => [\October\Rain\Router\CoreRedirector::class, \Illuminate\Routing\Redirector::class],
             'redis' => [\Illuminate\Redis\RedisManager::class, \Illuminate\Contracts\Redis\Factory::class],
             'redis.connection' => [\Illuminate\Redis\Connections\Connection::class, \Illuminate\Contracts\Redis\Connection::class],
             'request' => [\Illuminate\Http\Request::class, \Symfony\Component\HttpFoundation\Request::class],
