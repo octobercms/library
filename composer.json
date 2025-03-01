@@ -57,14 +57,6 @@
             "phpbench run tests\\Benchmark\\ --report=default"
         ]
     },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "October\\Rain\\Foundation\\Providers\\AppSupportServiceProvider",
-                "October\\Rain\\Foundation\\Providers\\AppDeferSupportServiceProvider"
-            ]
-        }
-    },
     "minimum-stability": "dev",
     "prefer-stable": true
 }

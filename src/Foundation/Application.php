@@ -39,6 +39,25 @@ class Application extends ApplicationBase
     protected $cachePath;
 
     /**
+     * Begin configuring a new Laravel application instance.
+     *
+     * @param  string|null  $basePath
+     * @return \Illuminate\Foundation\Configuration\ApplicationBuilder
+     */
+    public static function configure($basePath = null)
+    {
+        if (!is_string($basePath)) {
+            $basePath = static::inferBasePath();
+        }
+
+        return (new Configuration\ApplicationBuilder(new static($basePath)))
+            ->withKernels()
+            ->withEvents()
+            ->withCommands()
+            ->withProviders();
+    }
+
+    /**
      * registerBaseServiceProviders registers all of the base service providers
      */
     protected function registerBaseServiceProviders()
@@ -289,7 +308,7 @@ class Application extends ApplicationBase
      */
     public function registerConfiguredProviders()
     {
-        $providers = Collection::make($this->config['app.providers'])
+        $providers = (new Collection($this->make('config')->get('app.providers')))
             ->partition(function ($provider) {
                 return strpos($provider, 'Illuminate\\') === 0 ||
                     strpos($provider, 'October\\Rain\\') === 0;
@@ -310,25 +329,27 @@ class Application extends ApplicationBase
     {
         $aliases = [
             'app' => [\October\Rain\Foundation\Application::class, \Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class],
+            'auth' => [\Illuminate\Auth\AuthManager::class, \Illuminate\Contracts\Auth\Factory::class],
+            'auth.driver' => [\Illuminate\Contracts\Auth\Guard::class],
             'blade.compiler' => [\Illuminate\View\Compilers\BladeCompiler::class],
             'cache' => [\Illuminate\Cache\CacheManager::class, \Illuminate\Contracts\Cache\Factory::class],
-            'cache.store' => [\Illuminate\Cache\Repository::class, \Illuminate\Contracts\Cache\Repository::class],
+            'cache.store' => [\Illuminate\Cache\Repository::class, \Illuminate\Contracts\Cache\Repository::class, \Psr\SimpleCache\CacheInterface::class],
             'cache.psr6' => [\Symfony\Component\Cache\Adapter\Psr16Adapter::class, \Symfony\Component\Cache\Adapter\AdapterInterface::class, \Psr\Cache\CacheItemPoolInterface::class],
             'config' => [\Illuminate\Config\Repository::class, \Illuminate\Contracts\Config\Repository::class],
             'cookie' => [\Illuminate\Cookie\CookieJar::class, \Illuminate\Contracts\Cookie\Factory::class, \Illuminate\Contracts\Cookie\QueueingFactory::class],
-            'db' => [\Illuminate\Database\DatabaseManager::class],
+            'db' => [\Illuminate\Database\DatabaseManager::class, \Illuminate\Database\ConnectionResolverInterface::class],
             'db.connection' => [\Illuminate\Database\Connection::class, \Illuminate\Database\ConnectionInterface::class],
             'db.schema' => [\Illuminate\Database\Schema\Builder::class],
-            'encrypter' => [\Illuminate\Encryption\Encrypter::class, \Illuminate\Contracts\Encryption\Encrypter::class],
-            'events' => [\October\Rain\Events\Dispatcher::class, \Illuminate\Contracts\Events\Dispatcher::class],
+            'encrypter' => [\Illuminate\Encryption\Encrypter::class, \Illuminate\Contracts\Encryption\Encrypter::class, \Illuminate\Contracts\Encryption\StringEncrypter::class],
+            'events' => [\October\Rain\Events\Dispatcher::class, \Illuminate\Events\Dispatcher::class, \Illuminate\Contracts\Events\Dispatcher::class],
             'files' => [\October\Rain\Filesystem\Filesystem::class, \Illuminate\Filesystem\Filesystem::class],
             'filesystem' => [\Illuminate\Filesystem\FilesystemManager::class, \Illuminate\Contracts\Filesystem\Factory::class],
             'filesystem.disk' => [\Illuminate\Contracts\Filesystem\Filesystem::class],
             'filesystem.cloud' => [\Illuminate\Contracts\Filesystem\Cloud::class],
-            'hash' => [\Illuminate\Contracts\Hashing\Hasher::class],
+            'hash' => [\Illuminate\Hashing\HashManager::class],
             'hash.driver' => [\Illuminate\Contracts\Hashing\Hasher::class],
             'translator' => [\Illuminate\Translation\Translator::class, \Illuminate\Contracts\Translation\Translator::class],
-            'log' => [\Illuminate\Log\Logger::class, \Psr\Log\LoggerInterface::class],
+            'log' => [\Illuminate\Log\LogManager::class, \Psr\Log\LoggerInterface::class],
             'mail.manager' => [\Illuminate\Mail\MailManager::class, \Illuminate\Contracts\Mail\Factory::class],
             'mailer' => [\Illuminate\Mail\Mailer::class, \Illuminate\Contracts\Mail\Mailer::class, \Illuminate\Contracts\Mail\MailQueue::class],
             'auth.password' => [\Illuminate\Auth\Passwords\PasswordBrokerManager::class, \Illuminate\Contracts\Auth\PasswordBrokerFactory::class],

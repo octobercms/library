@@ -3,6 +3,7 @@
 use October\Rain\Support\Str;
 use October\Rain\Support\ClassLoader;
 use Illuminate\Contracts\Foundation\Application;
+use October\Rain\Extension\Container as OctoberContainer;
 
 /**
  * RegisterOctober specific features
@@ -77,6 +78,9 @@ class RegisterOctober
         // Initialize class loader cache
         $loader = $app->make(ClassLoader::class);
         $loader->initManifest($app->getCachedClassesPath());
+
+        // Clear service container
+        OctoberContainer::clearExtensions();
     }
 
     /**

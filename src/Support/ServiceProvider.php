@@ -31,4 +31,14 @@ abstract class ServiceProvider extends ServiceProviderBase
             $callback($this->app->make($name), $this->app);
         }
     }
+
+    /**
+     * Get the default providers for a Laravel application.
+     *
+     * @return \October\Rain\Support\DefaultProviders
+     */
+    public static function defaultProviders()
+    {
+        return new DefaultProviders;
+    }
 }
