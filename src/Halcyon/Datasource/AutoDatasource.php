@@ -12,6 +12,16 @@ use October\Rain\Halcyon\Processors\Processor;
 class AutoDatasource extends Datasource implements DatasourceInterface
 {
     /**
+     * @var array datasources
+     */
+    protected $datasources;
+
+    /**
+     * @var Datasource primaryDatasource
+     */
+    protected $primaryDatasource;
+
+    /**
      * __construct create a new datasource instance
      */
     public function __construct(array $datasources)
