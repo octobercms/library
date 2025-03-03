@@ -263,6 +263,10 @@ class Filesystem extends FilesystemBase
      */
     public function isPathSymbol($path)
     {
+        if (!$path || !is_string($path)) {
+            return false;
+        }
+
         $firstChar = substr($path, 0, 1);
         if (isset($this->pathSymbols[$firstChar])) {
             return $firstChar;
