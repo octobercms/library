@@ -35,11 +35,6 @@ trait ExtendableTrait
     protected static $extendableStaticMethods = [];
 
     /**
-     * @var bool extendableGuardProperties indicates if dynamic properties can be created
-     */
-    protected static $extendableGuardProperties = true;
-
-    /**
      * extendableConstruct should be called as part of the constructor
      */
     public function extendableConstruct()
@@ -179,26 +174,14 @@ trait ExtendableTrait
      */
     public function addDynamicProperty($dynamicName, $value = null)
     {
-        if (property_exists($this, $dynamicName)) {
+        if (
+            property_exists($this, $dynamicName) ||
+            array_key_exists($dynamicName, $this->extensionData['dynamicProperties'])
+        ) {
             return;
         }
 
-        self::$extendableGuardProperties = false;
-
-        $this->{$dynamicName} = $value;
-
-        self::$extendableGuardProperties = true;
-
-        $this->extensionData['dynamicProperties'][] = $dynamicName;
-    }
-
-    /**
-     * extendableIsSettingDynamicProperty returns true if a dynamic
-     * property action is taking place
-     */
-    protected function extendableIsSettingDynamicProperty(): bool
-    {
-        return self::$extendableGuardProperties === false;
+        $this->extensionData['dynamicProperties'][$dynamicName] = $value;
     }
 
     /**
@@ -365,13 +348,7 @@ trait ExtendableTrait
      */
     public function getDynamicProperties()
     {
-        $result = [];
-
-        foreach ($this->extensionData['dynamicProperties'] as $propName) {
-            $result[$propName] = $this->{$propName};
-        }
-
-        return $result;
+        return $this->extensionData['dynamicProperties'];
     }
 
     /**
@@ -392,6 +369,10 @@ trait ExtendableTrait
             ) {
                 return true;
             }
+        }
+
+        if (array_key_exists($name, $this->extensionData['dynamicProperties'])) {
+            return true;
         }
 
         return false;
@@ -427,6 +408,11 @@ trait ExtendableTrait
             }
         }
 
+        // Getting a dynamic property
+        if (array_key_exists($name, $this->extensionData['dynamicProperties'])) {
+            return $this->extensionData['dynamicProperties'][$name];
+        }
+
         $parent = get_parent_class(self::class);
         if ($parent !== false && method_exists($parent, '__get')) {
             return parent::__get($name);
@@ -453,9 +439,9 @@ trait ExtendableTrait
             $found = true;
         }
 
-        // Setting an undefined property, magic ends here since the property now exists
-        if (!self::$extendableGuardProperties) {
-            $this->{$name} = $value;
+        // Setting a dynamic property
+        if (array_key_exists($name, $this->extensionData['dynamicProperties'])) {
+            $this->extensionData['dynamicProperties'][$name] = $value;
             return;
         }
 
@@ -466,16 +452,14 @@ trait ExtendableTrait
             $found = true;
         }
 
-        // Undefined property, throw an exception to catch it,
-        // otherwise some PHP versions will segfault
-        // @deprecated Restore if year >= 2024 or v4
-        // if (!$found) {
-        //     throw new BadMethodCallException(sprintf(
-        //         'Call to undefined property %s::%s',
-        //         static::class,
-        //         $name
-        //     ));
-        // }
+        // Undefined property, throw an exception to catch it
+        if (!$found) {
+            throw new BadMethodCallException(sprintf(
+                'Call to undefined property %s::%s',
+                static::class,
+                $name
+            ));
+        }
     }
 
     /**

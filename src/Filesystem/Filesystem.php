@@ -263,7 +263,7 @@ class Filesystem extends FilesystemBase
      */
     public function isPathSymbol($path)
     {
-        if (!$path || !is_string($path)) {
+        if (!$path) {
             return false;
         }
 

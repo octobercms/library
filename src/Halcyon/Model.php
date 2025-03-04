@@ -1263,6 +1263,10 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function __get($key)
     {
+        if ($this->propertyExists($key)) {
+            return $this->extendableGet($key);
+        }
+
         return $this->getAttribute($key);
     }
 
@@ -1275,8 +1279,8 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function __set($key, $value)
     {
-        if ($this->extendableIsSettingDynamicProperty()) {
-            $this->{$key} = $value;
+        if ($this->propertyExists($key)) {
+            $this->extendableSet($key, $value);
         }
         else {
             $this->setAttribute($key, $value);

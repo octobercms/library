@@ -1062,12 +1062,12 @@ class FormBuilder
     }
 
     /**
-     * requestHandler returns a hidden HTML input, supplying the session key value.
+     * requestHandler returns a hidden HTML input, supplying the postback request handler.
      * @return string
      */
     protected function requestHandler($name = null)
     {
-        if (!strlen($name)) {
+        if (!$name) {
             return '';
         }
 

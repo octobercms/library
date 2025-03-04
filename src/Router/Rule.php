@@ -52,6 +52,11 @@ class Rule
     public $segmentCount = 0;
 
     /**
+     * @var array staticSegments are the static segments
+     */
+    public $staticSegments = 0;
+
+    /**
      * @var int staticSegmentCount the number of static segments found in the pattern
      */
     public $staticSegmentCount = 0;

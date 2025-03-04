@@ -622,7 +622,9 @@ class ParsedownExtra extends Parsedown
         $DOMDocument = new DOMDocument;
 
         // http://stackoverflow.com/q/11309194/200145
-        $elementMarkup = mb_convert_encoding($elementMarkup, 'HTML-ENTITIES', 'UTF-8');
+        $elementMarkup = preg_replace_callback('/[\x{80}-\x{10FFFF}]/u', function($match) {
+            return htmlentities($match[0], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        }, $elementMarkup);
 
         // http://stackoverflow.com/q/4879946/200145
         $DOMDocument->loadHTML($elementMarkup);
