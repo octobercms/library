@@ -60,8 +60,8 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
             $builder = $app['db']->connection()->getSchemaBuilder();
 
             // Custom blueprint resolver for schema
-            $builder->blueprintResolver(function ($table, $callback) {
-                return new Blueprint($table, $callback);
+            $builder->blueprintResolver(function ($connection, $table, $callback) {
+                return new Blueprint($connection, $table, $callback);
             });
 
             return $builder;
