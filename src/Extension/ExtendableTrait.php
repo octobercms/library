@@ -329,14 +329,14 @@ trait ExtendableTrait
      */
     public function getClassMethodAsReflector(string $name): ReflectionFunctionAbstract
     {
-        $extandableMethod = $this->getExtendableMethodFromExtensions($name);
-        if ($extandableMethod !== null) {
-            return new ReflectionMethod($extandableMethod[0], $extandableMethod[1]);
+        $extendableMethod = $this->getExtendableMethodFromExtensions($name);
+        if ($extendableMethod !== null) {
+            return new ReflectionMethod($extendableMethod[0], $extendableMethod[1]);
         }
 
-        $extandableDynamicMethod = $this->getExtendableMethodFromDynamicMethods($name);
-        if ($extandableDynamicMethod !== null) {
-            return new ReflectionFunction($extandableDynamicMethod);
+        $extendableDynamicMethod = $this->getExtendableMethodFromDynamicMethods($name);
+        if ($extendableDynamicMethod !== null) {
+            return new ReflectionFunction($extendableDynamicMethod);
         }
 
         return new ReflectionMethod($this, $name);
