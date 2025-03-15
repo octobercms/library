@@ -416,22 +416,18 @@ class Model extends EloquentModel
 
     /**
      * save the model to the database.
-     * @param array $options
-     * @param null $sessionKey
      * @return bool
      */
-    public function save(array $options = [], $sessionKey = null)
+    public function save(?array $options = [], $sessionKey = null)
     {
         return $this->saveInternal((array) $options + ['sessionKey' => $sessionKey]);
     }
 
     /**
      * push saves the model and all of its relationships.
-     * @param array $options
-     * @param null $sessionKey
      * @return bool
      */
-    public function push($options = null, $sessionKey = null)
+    public function push(?array $options = [], $sessionKey = null)
     {
         $always = Arr::get($options, 'always', false);
 
@@ -467,11 +463,9 @@ class Model extends EloquentModel
     /**
      * alwaysPush pushes the first level of relations even if the parent
      * model has no changes.
-     * @param array $options
-     * @param string $sessionKey
      * @return bool
      */
-    public function alwaysPush($options, $sessionKey)
+    public function alwaysPush(?array $options = [], $sessionKey = null)
     {
         return $this->push(['always' => true] + (array) $options, $sessionKey);
     }
