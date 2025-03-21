@@ -88,7 +88,7 @@ class Model extends EloquentModel
     {
         $model = new static($attributes);
 
-        $model->save(null, $sessionKey);
+        $model->save([], $sessionKey);
 
         return $model;
     }
@@ -431,7 +431,7 @@ class Model extends EloquentModel
     {
         $always = Arr::get($options, 'always', false);
 
-        if (!$this->save(null, $sessionKey) && !$always) {
+        if (!$this->save($options, $sessionKey) && !$always) {
             return false;
         }
 
