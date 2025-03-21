@@ -34,20 +34,20 @@ class ApplicationBuilder extends ApplicationBuilderBase
      * @param  callable|null  $using
      * @return $this
      */
-    // public function withExceptions(?callable $using = null)
-    // {
-    //     $this->app->singleton(
-    //         \Illuminate\Contracts\Debug\ExceptionHandler::class,
-    //         \October\Rain\Foundation\Exception\Handler::class
-    //     );
+    public function withExceptions(?callable $using = null)
+    {
+        $this->app->singleton(
+            \Illuminate\Contracts\Debug\ExceptionHandler::class,
+            \October\Rain\Foundation\Exception\Handler::class
+        );
 
-    //     $using ??= fn () => true;
+        $using ??= fn () => true;
 
-    //     $this->app->afterResolving(
-    //         \Illuminate\Foundation\Exceptions\Handler::class,
-    //         fn ($handler) => $using(new Exceptions($handler)),
-    //     );
+        $this->app->afterResolving(
+            \Illuminate\Foundation\Exceptions\Handler::class,
+            fn ($handler) => $using(new Exceptions($handler)),
+        );
 
-    //     return $this;
-    // }
+        return $this;
+    }
 }
