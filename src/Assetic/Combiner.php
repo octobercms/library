@@ -63,7 +63,7 @@ class Combiner
         $files = [];
         $filesSalt = null;
         foreach ($assets as $asset) {
-            $filters = $this->getFilters(File::extension($asset), $production);
+            $filters = $this->getFilters(File::extension($asset), (bool) $production);
 
             $path = File::symbolizePath($asset);
             if (!file_exists($path) && file_exists($this->localPath . $asset)) {
