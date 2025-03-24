@@ -10,9 +10,8 @@ use App;
  */
 class Twig
 {
-
     /**
-     * Parses supplied Twig contents, with supplied variables.
+     * parse supplied Twig contents, with supplied variables.
      * @param string $contents Twig contents to parse.
      * @param array $vars Context variables.
      * @return string
