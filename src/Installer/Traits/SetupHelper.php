@@ -5,7 +5,7 @@ namespace October\Rain\Installer\Traits;
 use App;
 use Str;
 use Config;
-use System\Classes\UpdateManager;
+use October\Rain\Installer\InstallManager;
 use October\Rain\Composer\Manager as ComposerManager;
 use Illuminate\Support\Env;
 use Dotenv\Dotenv;
@@ -380,7 +380,7 @@ trait SetupHelper
      */
     protected function getComposerUrl(bool $withProtocol = true): string
     {
-        return UpdateManager::instance()->getComposerUrl($withProtocol);
+        return InstallManager::instance()->getComposerUrl($withProtocol);
     }
 
     /**

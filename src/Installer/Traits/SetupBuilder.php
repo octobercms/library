@@ -4,7 +4,7 @@ namespace October\Rain\Installer\Traits;
 
 use Lang;
 use Exception;
-use System\Classes\UpdateManager;
+use October\Rain\Installer\InstallManager;
 use October\Rain\Composer\Manager as ComposerManager;
 
 /**
@@ -62,7 +62,7 @@ trait SetupBuilder
      */
     protected function setupSetProject($licenseKey)
     {
-        $result = UpdateManager::instance()->requestProjectDetails($licenseKey);
+        $result = InstallManager::instance()->requestProjectDetails($licenseKey);
 
         // Check status
         $isActive = $result['is_active'] ?? false;

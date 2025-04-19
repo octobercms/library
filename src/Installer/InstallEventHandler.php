@@ -1,12 +1,12 @@
 <?php
 
-namespace October\Rain\Install;
+namespace October\Rain\Installer;
 
 use System;
 use System\Models\Parameter;
 
 /**
- * InstallEventHandler
+ * InstallEventHandler is reversed for later use
  */
 class InstallEventHandler
 {
@@ -24,7 +24,7 @@ class InstallEventHandler
     public function extendPageDisplay($controller, $action, $params)
     {
         if (System::checkProjectValid(1|32)) {
-            // $controller->addJs('/modules/backend/assets/js/onboarding.js');
+            $controller->addJs('/modules/backend/assets/js/onboarding.js');
         }
 
         if (mt_rand(1, 64) === 1) {

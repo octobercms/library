@@ -1,6 +1,6 @@
 <?php
 
-namespace October\Rain\Install;
+namespace October\Rain\Installer;
 
 use Event;
 use System\Installer\Classes\InstallerEventHandler;
