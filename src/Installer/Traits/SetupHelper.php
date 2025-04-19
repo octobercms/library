@@ -1,6 +1,6 @@
 <?php
 
-namespace October\Rain\Install\Traits;
+namespace October\Rain\Installer\Traits;
 
 use App;
 use Str;

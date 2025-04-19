@@ -21,9 +21,9 @@ class InstallProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('core.installer', \System\Installer\Classes\InstallerManager::class);
-        $this->registerConsoleCommand('october.build', \System\Installer\Console\OctoberBuild::class);
-        $this->registerConsoleCommand('october.install', \System\Installer\Console\OctoberInstall::class);
+        $this->app->singleton('core.installer', \October\Rain\Installer\InstallManager::class);
+        $this->registerConsoleCommand('october.build', \October\Rain\Installer\Console\OctoberBuild::class);
+        $this->registerConsoleCommand('october.install', \October\Rain\Installer\Console\OctoberInstall::class);
     }
 
     /**

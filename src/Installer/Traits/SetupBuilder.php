@@ -1,6 +1,6 @@
 <?php
 
-namespace October\Rain\Install\Traits;
+namespace October\Rain\Installer\Traits;
 
 use Lang;
 use Exception;
@@ -17,7 +17,7 @@ trait SetupBuilder
      */
     public function getUpdateWantVersion()
     {
-        return \October\Rain\Install\InstallProvider::WANT_VERSION;
+        return \October\Rain\Installer\InstallProvider::WANT_VERSION;
     }
 
     /**

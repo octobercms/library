@@ -1,6 +1,6 @@
 <?php
 
-namespace October\Rain\Install\Console;
+namespace October\Rain\Installer\Console;
 
 use Lang;
 use Symfony\Component\Console\Input\InputOption;
@@ -14,8 +14,8 @@ use Illuminate\Console\Command;
  */
 class OctoberBuild extends Command
 {
-    use \System\Installer\Traits\SetupHelper;
-    use \System\Installer\Traits\SetupBuilder;
+    use \October\Rain\Installer\Traits\SetupHelper;
+    use \October\Rain\Installer\Traits\SetupBuilder;
 
     /**
      * The console command name.

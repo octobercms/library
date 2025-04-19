@@ -5,12 +5,12 @@ namespace October\Rain\Install;
 use App;
 
 /**
- * InstallerManager
+ * InstallManager
  *
  * @package october\system
  * @author Alexey Bobkov, Samuel Georges
  */
-class InstallerManager
+class InstallManager
 {
     /**
      * instance creates a new instance of this singleton

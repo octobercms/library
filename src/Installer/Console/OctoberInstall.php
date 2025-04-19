@@ -1,6 +1,6 @@
 <?php
 
-namespace October\Rain\Install\Console;
+namespace October\Rain\Installer\Console;
 
 use PDO;
 use Lang;
@@ -21,8 +21,8 @@ use Exception;
  */
 class OctoberInstall extends Command
 {
-    use \October\Rain\Install\Traits\SetupHelper;
-    use \October\Rain\Install\Traits\SetupBuilder;
+    use \October\Rain\Installer\Traits\SetupHelper;
+    use \October\Rain\Installer\Traits\SetupBuilder;
 
     /**
      * @var string name is the console command name
@@ -69,8 +69,8 @@ class OctoberInstall extends Command
         }
 
         // License Key
-        // $this->output->section(Lang::get('system::lang.installer.license_section'));
-        // $this->setupLicenseKey();
+        $this->output->section(Lang::get('system::lang.installer.license_section'));
+        $this->setupLicenseKey();
 
         // Installing Dependencies
         $this->output->section(Lang::get('system::lang.installer.dependencies_section'));

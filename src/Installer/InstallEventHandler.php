@@ -6,9 +6,9 @@ use System;
 use System\Models\Parameter;
 
 /**
- * InstallerEventHandler
+ * InstallEventHandler
  */
-class InstallerEventHandler
+class InstallEventHandler
 {
     /**
      * subscribe
