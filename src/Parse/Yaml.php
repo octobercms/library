@@ -56,7 +56,7 @@ class Yaml
         try {
             $fileCacheKey = 'yaml::' . $fileName . '-' . filemtime($fileName);
 
-            return Cache::remember($fileCacheKey, 43200, function () use ($fileName) {
+            return Cache::memo()->remember($fileCacheKey, 43200, function () use ($fileName) {
                 return $this->parseFile($fileName);
             });
         }
