@@ -320,6 +320,11 @@ class User extends Model implements Authenticatable
         if ($this->checkResetPasswordCode($resetCode)) {
             $this->password = $newPassword;
             $this->reset_password_code = null;
+
+            if ($this->is_password_expired) {
+                $this->is_password_expired = false;
+            }
+
             return $this->forceSave();
         }
 
