@@ -2,14 +2,13 @@
 
 namespace October\Rain\Installer;
 
-use Event;
-use System\Installer\Classes\InstallerEventHandler;
 use October\Rain\Support\ServiceProvider;
+use Illuminate\Contracts\Support\DeferrableProvider;
 
 /**
  * InstallerServiceProvider
  */
-class InstallerServiceProvider extends ServiceProvider
+class InstallerServiceProvider extends ServiceProvider implements DeferrableProvider
 {
     /**
      * register the service provider.
@@ -40,5 +39,18 @@ class InstallerServiceProvider extends ServiceProvider
         });
 
         $this->commands($key);
+    }
+
+    /**
+     * provides the returned services.
+     * @return array
+     */
+    public function provides()
+    {
+        return [
+            'core.installer',
+            'command.october.build',
+            'command.october.install',
+        ];
     }
 }
