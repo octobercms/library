@@ -4,7 +4,7 @@ use Url;
 use Http;
 use Config;
 use Illuminate\Console\Command;
-use October\Rain\Composer\Manager as ComposerManager;
+use October\Rain\Composer\ComposerManager;
 use Exception;
 
 /**

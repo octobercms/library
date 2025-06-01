@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Composer;
 
+use App;
 use Config;
 use Composer\Factory;
 use Composer\Composer;
@@ -12,28 +13,35 @@ use Exception;
 use Throwable;
 
 /**
- * Manager super class for working with Composer
+ * ComposerManager super class for working with Composer
  *
  * @method static Manager instance()
  *
  * @package october\composer
  * @author Alexey Bobkov, Samuel Georges
  */
-class Manager
+class ComposerManager
 {
     use Concerns\HasOutput;
     use Concerns\HasAssertions;
     use Concerns\HasAutoloader;
     use Concerns\HasRequirements;
     use Concerns\HasOctoberCommands;
-    use \October\Rain\Support\Traits\Singleton;
 
     /**
-     * init singleton
+     * __construct composer manager
      */
-    public function init()
+    public function __construct()
     {
         $this->setOutput();
+    }
+
+    /**
+     * instance creates a new instance of this singleton
+     */
+    public static function instance(): static
+    {
+        return App::make('core.composer');
     }
 
     /**

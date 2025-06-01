@@ -6,7 +6,7 @@ use App;
 use Str;
 use Config;
 use October\Rain\Installer\InstallManager;
-use October\Rain\Composer\Manager as ComposerManager;
+use October\Rain\Composer\ComposerManager;
 use Illuminate\Support\Env;
 use Dotenv\Dotenv;
 use Exception;

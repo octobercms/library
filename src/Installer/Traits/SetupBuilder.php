@@ -5,7 +5,7 @@ namespace October\Rain\Installer\Traits;
 use Lang;
 use Exception;
 use October\Rain\Installer\InstallManager;
-use October\Rain\Composer\Manager as ComposerManager;
+use October\Rain\Composer\ComposerManager;
 
 /**
  * SetupBuilder is shared logic for the commands
