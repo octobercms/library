@@ -1,30 +1,27 @@
 <?php
 
-namespace October\Rain\Installer;
+namespace October\Rain\Foundation\Providers;
 
 use October\Rain\Support\ServiceProvider;
 use Illuminate\Contracts\Support\DeferrableProvider;
 
 /**
- * InstallerServiceProvider
+ * CoreServiceProvider
+ *
+ * @package october\foundation
+ * @author Alexey Bobkov, Samuel Georges
  */
-class InstallerServiceProvider extends ServiceProvider implements DeferrableProvider
+class CoreServiceProvider extends ServiceProvider implements DeferrableProvider
 {
     /**
      * register the service provider.
      */
     public function register()
     {
+        $this->app->singleton('core.composer', \October\Rain\Composer\ComposerManager::class);
         $this->app->singleton('core.installer', \October\Rain\Installer\InstallManager::class);
         $this->registerConsoleCommand('october.build', \October\Rain\Installer\Console\OctoberBuild::class);
         $this->registerConsoleCommand('october.install', \October\Rain\Installer\Console\OctoberInstall::class);
-    }
-
-    /**
-     * boot the module events.
-     */
-    public function boot()
-    {
     }
 
     /**
@@ -48,6 +45,7 @@ class InstallerServiceProvider extends ServiceProvider implements DeferrableProv
     public function provides()
     {
         return [
+            'core.composer',
             'core.installer',
             'command.october.build',
             'command.october.install',

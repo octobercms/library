@@ -23,8 +23,6 @@ class DefaultProviders extends DefaultProvidersBase
             \October\Rain\Foundation\Providers\DateServiceProvider::class,
 
             // October Providers (Deferred)
-            \October\Rain\Installer\InstallerServiceProvider::class,
-            \October\Rain\Composer\ComposerServiceProvider::class,
             \October\Rain\Mail\MailServiceProvider::class,
             \October\Rain\Html\HtmlServiceProvider::class,
             \October\Rain\Flash\FlashServiceProvider::class,
