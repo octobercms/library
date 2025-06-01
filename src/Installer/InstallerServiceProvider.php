@@ -9,7 +9,7 @@ use October\Rain\Support\ServiceProvider;
 /**
  * InstallProvider
  */
-class InstallProvider extends ServiceProvider
+class InstallerServiceProvider extends ServiceProvider
 {
     /**
      * @var string WANT_VERSION is the default composer version string to use.
