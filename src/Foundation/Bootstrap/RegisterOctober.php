@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Foundation\Bootstrap;
 
 use October\Rain\Support\Str;
-use October\Rain\Support\ClassLoader;
+use October\Rain\Composer\ClassLoader;
 use Illuminate\Contracts\Foundation\Application;
 use October\Rain\Extension\Container as OctoberContainer;
 
@@ -75,12 +75,25 @@ class RegisterOctober
             $this->makeSystemPaths($app->storagePath(), $this->storagePaths);
         }
 
-        // Initialize class loader cache
-        $loader = $app->make(ClassLoader::class);
-        $loader->initManifest($app->getCachedClassesPath());
+        // Configure the custom class loader
+        $this->configureClassLoader($app);
 
         // Clear service container
         OctoberContainer::clearExtensions();
+    }
+
+    /**
+     * configureClassLoader initializes the class loader cache
+     */
+    protected function configureClassLoader(Application $app)
+    {
+        $loader = ClassLoader::instance();
+
+        $loader->initManifest($app->getCachedClassesPath());
+
+        $app->after(function () use ($loader) {
+            $loader->build();
+        });
     }
 
     /**

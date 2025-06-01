@@ -16,8 +16,6 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $bootstrappers = [
-        \October\Rain\Foundation\Bootstrap\RegisterClassLoader::class,
-        \October\Rain\Foundation\Bootstrap\LoadEnvironmentFromHost::class,
         \Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables::class,
         \October\Rain\Foundation\Bootstrap\LoadConfiguration::class,
         \Illuminate\Foundation\Bootstrap\HandleExceptions::class,
