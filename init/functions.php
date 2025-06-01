@@ -25,7 +25,7 @@ if (!function_exists('input')) {
         }
 
         // Array field name, eg: field[key][key2][key3]
-        if (class_exists('October\Rain\Html\Helper')) {
+        if (class_exists(\October\Rain\Html\Helper::class)) {
             $name = October\Rain\Html\Helper::nameToDot($name);
         }
 
@@ -48,7 +48,7 @@ if (!function_exists('post')) {
         }
 
         // Array field name, eg: field[key][key2][key3]
-        if (class_exists('October\Rain\Html\Helper')) {
+        if (class_exists(\October\Rain\Html\Helper::class)) {
             $name = October\Rain\Html\Helper::nameToDot($name);
         }
 
@@ -67,7 +67,7 @@ if (!function_exists('get')) {
         }
 
         // Array field name, eg: field[key][key2][key3]
-        if (class_exists('October\Rain\Html\Helper')) {
+        if (class_exists(\October\Rain\Html\Helper::class)) {
             $name = October\Rain\Html\Helper::nameToDot($name);
         }
 
@@ -86,7 +86,7 @@ if (!function_exists('files')) {
         }
 
         // Array field name, eg: field[key][key2][key3]
-        if (class_exists('October\Rain\Html\Helper')) {
+        if (class_exists(\October\Rain\Html\Helper::class)) {
             $name = October\Rain\Html\Helper::nameToDot($name);
         }
 
@@ -837,5 +837,69 @@ if (!function_exists('title_case')) {
     function title_case($value)
     {
         return Str::title($value);
+    }
+}
+
+if (!function_exists('link_to')) {
+    /**
+     * Generate a HTML link.
+     *
+     * @param  string  $url
+     * @param  string  $title
+     * @param  array   $attributes
+     * @param  bool    $secure
+     * @return string
+     */
+    function link_to($url, $title = null, $attributes = [], $secure = null)
+    {
+        return app('html')->link($url, $title, $attributes, $secure);
+    }
+}
+
+if (!function_exists('link_to_asset')) {
+    /**
+     * Generate a HTML link to an asset.
+     *
+     * @param  string  $url
+     * @param  string  $title
+     * @param  array   $attributes
+     * @param  bool    $secure
+     * @return string
+     */
+    function link_to_asset($url, $title = null, $attributes = [], $secure = null)
+    {
+        return app('html')->linkAsset($url, $title, $attributes, $secure);
+    }
+}
+
+if (!function_exists('link_to_route')) {
+    /**
+     * Generate a HTML link to a named route.
+     *
+     * @param  string  $name
+     * @param  string  $title
+     * @param  array   $parameters
+     * @param  array   $attributes
+     * @return string
+     */
+    function link_to_route($name, $title = null, $parameters = [], $attributes = [])
+    {
+        return app('html')->linkRoute($name, $title, $parameters, $attributes);
+    }
+}
+
+if (!function_exists('link_to_action')) {
+    /**
+     * Generate a HTML link to a controller action.
+     *
+     * @param  string  $action
+     * @param  string  $title
+     * @param  array   $parameters
+     * @param  array   $attributes
+     * @return string
+     */
+    function link_to_action($action, $title = null, $parameters = [], $attributes = [])
+    {
+        return app('html')->linkAction($action, $title, $parameters, $attributes);
     }
 }

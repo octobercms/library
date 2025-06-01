@@ -33,9 +33,7 @@
     },
     "autoload": {
         "files": [
-            "src/Support/helpers.php",
-            "src/Support/polyfills.php",
-            "src/Html/helpers.php"
+            "init/init.php"
         ],
         "classmap": [
             "helpers/"
