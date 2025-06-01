@@ -17,7 +17,7 @@ trait SetupBuilder
      */
     public function getUpdateWantVersion()
     {
-        return \October\Rain\Installer\InstallProvider::WANT_VERSION;
+        return \October\Rain\Installer\InstallManager::WANT_VERSION;
     }
 
     /**

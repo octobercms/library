@@ -7,15 +7,10 @@ use System\Installer\Classes\InstallerEventHandler;
 use October\Rain\Support\ServiceProvider;
 
 /**
- * InstallProvider
+ * InstallerServiceProvider
  */
 class InstallerServiceProvider extends ServiceProvider
 {
-    /**
-     * @var string WANT_VERSION is the default composer version string to use.
-     */
-    const WANT_VERSION = '^4.0';
-
     /**
      * register the service provider.
      */
