@@ -65,6 +65,29 @@ class Str extends StrHelper
     }
 
     /**
+     * shortNumber converts a large number to its abbreviated form. This
+     * method converts 1000 to 1K, 1500000 to 1.5M, etc.
+     */
+    public static function shortNumber($number, $precision = 1): string
+    {
+        if ($number < 1000) {
+            return (string) $number;
+        }
+
+        $units = ['', 'K', 'M', 'B', 'T'];
+        $power = (int) floor(log($number, 1000));
+        $value = $number / pow(1000, $power);
+
+        // Remove trailing .0 if any
+        $formattedValue = round($value, $precision);
+        if ($precision > 0) {
+            $formattedValue = rtrim(rtrim(number_format($formattedValue, $precision, '.', ''), '0'), '.');
+        }
+
+        return $formattedValue . $units[$power];
+    }
+
+    /**
      * normalizeEol converts line breaks to a standard \r\n pattern
      */
     public static function normalizeEol($string)
