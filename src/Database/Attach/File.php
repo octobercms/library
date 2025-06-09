@@ -862,7 +862,7 @@ class File extends Model
         }
 
         // Cache remote storage results for performance increase
-        $result = Cache::rememberForever($this->getCacheKey($filePath), function() use ($filePath) {
+        $result = Cache::memo()->rememberForever($this->getCacheKey($filePath), function() use ($filePath) {
             return $this->storageCmd('exists', $filePath);
         });
 
