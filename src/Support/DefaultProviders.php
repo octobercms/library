@@ -16,11 +16,12 @@ class DefaultProviders extends DefaultProvidersBase
         $this->providers = $providers ?: [
             // October Providers
             //
+            \October\Rain\Foundation\Providers\AppServiceProvider::class,
+            \October\Rain\Foundation\Providers\DateServiceProvider::class,
             \October\Rain\Database\DatabaseServiceProvider::class,
             \October\Rain\Halcyon\HalcyonServiceProvider::class,
             \October\Rain\Filesystem\FilesystemServiceProvider::class,
             \October\Rain\Html\UrlServiceProvider::class,
-            \October\Rain\Foundation\Providers\DateServiceProvider::class,
 
             // October Providers (Deferred)
             \October\Rain\Mail\MailServiceProvider::class,

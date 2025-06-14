@@ -28,7 +28,7 @@ class InstallManager
      */
     public static function instance(): static
     {
-        return App::make('core.installer');
+        return App::make('october.installer');
     }
 
     /**
