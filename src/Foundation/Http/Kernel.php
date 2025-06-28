@@ -18,7 +18,7 @@ class Kernel extends HttpKernel
     protected $bootstrappers = [
         \Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables::class,
         \October\Rain\Foundation\Bootstrap\LoadConfiguration::class,
-        \Illuminate\Foundation\Bootstrap\HandleExceptions::class,
+        \October\Rain\Foundation\Bootstrap\HandleExceptions::class,
         \Illuminate\Foundation\Bootstrap\RegisterFacades::class,
         \October\Rain\Foundation\Bootstrap\RegisterOctober::class,
         \October\Rain\Foundation\Bootstrap\RegisterProviders::class,
