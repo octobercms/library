@@ -60,6 +60,17 @@ class ApplicationBuilder extends ApplicationBuilderBase
             $middleware
                 ->remove([
                     \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+                    \Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance::class,
+                ])
+                ->append([
+                    \October\Rain\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
+                ])
+                ->removeFromGroup('web', [
+                    \Illuminate\Cookie\Middleware\EncryptCookies::class,
+                    \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
+                ])
+                ->appendToGroup('web', [
+                    \October\Rain\Foundation\Http\Middleware\EncryptCookies::class,
                 ]);
 
             if ($callback !== null) {
