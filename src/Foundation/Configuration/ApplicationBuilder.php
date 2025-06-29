@@ -50,4 +50,23 @@ class ApplicationBuilder extends ApplicationBuilderBase
 
         return $this;
     }
+
+    /**
+     * withMiddleware is a modifier to the parent logic to remove unwanted default middleware
+     */
+    public function withMiddleware(?callable $callback = null)
+    {
+        $nested = function($middleware) use ($callback) {
+            $middleware
+                ->remove([
+                    \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+                ]);
+
+            if ($callback !== null) {
+                $callback($middleware);
+            }
+        };
+
+        return parent::withMiddleware($nested);
+    }
 }
