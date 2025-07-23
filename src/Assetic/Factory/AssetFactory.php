@@ -51,7 +51,7 @@ class AssetFactory
      */
     public function __construct($root, $debug = false)
     {
-        $this->root = rtrim($root, '/');
+        $this->root = $root ? rtrim($root, '/') : '';
         $this->debug = $debug;
         $this->output = 'assetic/*';
     }
