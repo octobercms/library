@@ -35,9 +35,8 @@ class DefaultProviders extends DefaultProvidersBase
             \Illuminate\Auth\Passwords\PasswordResetServiceProvider:: class,
 
             // October Console (Deferred)
-            \October\Rain\Foundation\Providers\ArtisanServiceProvider::class,
             \October\Rain\Scaffold\ScaffoldServiceProvider::class,
-            \Illuminate\Foundation\Providers\ComposerServiceProvider::class,
+            \October\Rain\Foundation\Providers\ConsoleSupportServiceProvider::class,
 
             // Laravel Providers
             //
