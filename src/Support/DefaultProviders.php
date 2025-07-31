@@ -36,7 +36,6 @@ class DefaultProviders extends DefaultProvidersBase
 
             // October Console (Deferred)
             \October\Rain\Foundation\Providers\ArtisanServiceProvider::class,
-            \October\Rain\Database\MigrationServiceProvider::class,
             \October\Rain\Scaffold\ScaffoldServiceProvider::class,
             \Illuminate\Foundation\Providers\ComposerServiceProvider::class,
 
