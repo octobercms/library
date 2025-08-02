@@ -51,6 +51,9 @@ class MailerTest extends TestCase
 
         Mail::assertQueued('queueview', function ($mailer) {
             return $mailer->hasTo('single@address.tld');
+        });
+
+        Mail::assertQueued('queueview', function ($mailer) {
             return $mailer->hasTo('user@domain.tld');
         });
 
@@ -162,12 +165,10 @@ class MailerTest extends TestCase
      */
     protected function mockMailer()
     {
-        $app = new class {
-            public function getLocale() { return 'en'; }
-        };
+        $app = new ArrayAccessApp;
+        Mail::setFacadeApplication($app);
 
         $manager = new \Illuminate\Mail\MailManager($app);
-
         Mail::swap(new FakeMailer($manager));
     }
 
@@ -196,5 +197,52 @@ class DispatcherMailerTest extends \Illuminate\Events\Dispatcher
 {
     public function __construct()
     {
+    }
+}
+
+class ArrayAccessApp implements ArrayAccess
+{
+    public function offsetExists($offset): bool
+    {
+        return $offset === 'config';
+    }
+
+    public function offsetGet($offset): mixed
+    {
+        if ($offset === 'config') {
+            return [
+                'mail' => [
+                    'default' => 'smtp',
+                    'mailers' => [
+                        'smtp' => ['transport' => 'smtp'],
+                    ],
+                ],
+            ];
+        }
+        return null;
+    }
+
+    public function offsetSet($offset, $value): void
+    {
+        // not implemented
+    }
+
+    public function offsetUnset($offset): void
+    {
+        // not implemented
+    }
+
+    public function getLocale()
+    {
+        return 'en';
+    }
+
+    public function instance($abstract, $instance = null)
+    {
+        return $instance ?? $this;
+    }
+    public function make($abstract, array $parameters = [])
+    {
+        return $this;
     }
 }
