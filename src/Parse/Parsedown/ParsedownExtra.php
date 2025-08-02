@@ -616,39 +616,43 @@ class ParsedownExtra extends Parsedown
      */
     protected function processTag($elementMarkup)
     {
-        // http://stackoverflow.com/q/1148928/200145
         libxml_use_internal_errors(true);
 
+        // Steer away from using fragments since they mess up encoding
+        $elementMarkup = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>' . $elementMarkup . '</body></html>';
+
+        // Load it up
         $DOMDocument = new DOMDocument;
+        $DOMDocument->encoding = 'UTF-8';
+        $DOMDocument->loadHTML($elementMarkup, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
-        // http://stackoverflow.com/q/11309194/200145
-        $elementMarkup = preg_replace_callback('/[\x{80}-\x{10FFFF}]/u', function($match) {
-            return htmlentities($match[0], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        }, $elementMarkup);
+        // Something went wrong (missing body node)
+        $bodyNode = $DOMDocument->getElementsByTagName('body')->item(0);
+        if (!$bodyNode || !$bodyNode->firstChild) {
+            return $elementMarkup;
+        }
 
-        // http://stackoverflow.com/q/4879946/200145
-        $elementMarkup = mb_convert_encoding($elementMarkup, 'HTML-ENTITIES', 'UTF-8');
-        $DOMDocument->loadHTML($elementMarkup);
-        $DOMDocument->removeChild($DOMDocument->doctype);
-        $DOMDocument->replaceChild($DOMDocument->firstChild->firstChild->firstChild, $DOMDocument->firstChild);
-
+        // Parse the markdown
         $elementText = '';
-
-        if ($DOMDocument->documentElement->getAttribute('markdown') === '1') {
-            foreach ($DOMDocument->documentElement->childNodes as $Node)
-            {
-                $elementText .= $DOMDocument->saveHTML($Node);
+        if (
+            $bodyNode->firstChild->nodeType === XML_ELEMENT_NODE &&
+            $bodyNode->firstChild->getAttribute('markdown') === '1'
+        ) {
+            foreach ($bodyNode->firstChild->childNodes as $node) {
+                $elementText .= $DOMDocument->saveHTML($node);
             }
 
-            $DOMDocument->documentElement->removeAttribute('markdown');
-
+            $bodyNode->firstChild->removeAttribute('markdown');
             $elementText = "\n".$this->text($elementText)."\n";
         }
         else {
-            foreach ($DOMDocument->documentElement->childNodes as $Node) {
-                $nodeMarkup = $DOMDocument->saveHTML($Node);
+            foreach ($bodyNode->firstChild->childNodes as $node) {
+                $nodeMarkup = $DOMDocument->saveHTML($node);
 
-                if ($Node instanceof DOMElement && !in_array($Node->nodeName, $this->textLevelElements)) {
+                if (
+                    $node instanceof DOMElement &&
+                    !in_array($node->nodeName, $this->textLevelElements)
+                ) {
                     $elementText .= $this->processTag($nodeMarkup);
                 }
                 else {
@@ -657,10 +661,10 @@ class ParsedownExtra extends Parsedown
             }
         }
 
-        // because we don't want for markup to get encoded
-        $DOMDocument->documentElement->nodeValue = 'placeholder\x1A';
+        // Replacement to avoid markup getting encoded
+        $bodyNode->firstChild->nodeValue = 'placeholder\x1A';
 
-        $markup = $DOMDocument->saveHTML($DOMDocument->documentElement);
+        $markup = $DOMDocument->saveHTML($bodyNode->firstChild);
         $markup = str_replace('placeholder\x1A', $elementText, $markup);
 
         return $markup;
