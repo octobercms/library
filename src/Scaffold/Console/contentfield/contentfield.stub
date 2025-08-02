@@ -8,7 +8,7 @@ use October\Contracts\Element\FilterElement;
 /**
  * {{studly_name}} Content Field
  *
- * @link https://docs.octobercms.com/3.x/extend/tailor-fields.html
+ * @link https://docs.octobercms.com/4.x/extend/tailor-fields.html
  */
 class {{studly_name}} extends ContentFieldBase
 {

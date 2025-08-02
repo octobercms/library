@@ -6,7 +6,7 @@ use System\Classes\PluginBase;
 /**
  * Plugin Information File
  *
- * @link https://docs.octobercms.com/3.x/extend/system/plugins.html
+ * @link https://docs.octobercms.com/4.x/extend/system/plugins.html
  */
 class Plugin extends PluginBase
 {

@@ -1,12 +1,12 @@
 <?php namespace {{namespace_php}}\ReportWidgets;
 
-use Backend\Classes\ReportWidgetBase;
+use Dashboard\Classes\ReportWidgetBase;
 use Exception;
 
 /**
  * {{studly_name}} Report Widget
  *
- * @link https://docs.octobercms.com/3.x/extend/backend/report-widgets.html
+ * @link https://docs.octobercms.com/4.x/extend/backend/report-widgets.html
  */
 class {{studly_name}} extends ReportWidgetBase
 {
