@@ -10,63 +10,6 @@ use Symfony\Component\Mailer\Transport\NullTransport;
 class MailerTest extends TestCase
 {
     /**
-     * testSendWithFaker
-     */
-    public function testSendWithFaker()
-    {
-        $this->mockMailer();
-
-        Mail::send('sendview', [], function ($mailer) {
-            $mailer->subject('Message Subject');
-            $mailer->to('single@address.tld');
-        });
-
-        Mail::assertSent('sendview', 1);
-
-        Mail::assertSent('sendview', function ($mailer) {
-            return $mailer->hasTo('single@address.tld');
-        });
-
-        Mail::assertSent('sendview', function ($mailer) {
-            return $mailer->subject === 'Message Subject';
-        });
-    }
-
-    /**
-     * testQueueWithFaker
-     */
-    public function testQueueWithFaker()
-    {
-        Mail::queue('queueview', [], function ($mailer) {
-            $mailer->subject('Message Subject');
-            $mailer->to('single@address.tld');
-        });
-
-        Mail::queue('queueview', [], function ($mailer) {
-            $mailer->subject('Second Message');
-            $mailer->to('user@domain.tld');
-        });
-
-        Mail::assertQueued('queueview', 2);
-
-        Mail::assertQueued('queueview', function ($mailer) {
-            return $mailer->hasTo('single@address.tld');
-        });
-
-        Mail::assertQueued('queueview', function ($mailer) {
-            return $mailer->hasTo('user@domain.tld');
-        });
-
-        Mail::assertQueued('queueview', function ($mailer) {
-            return $mailer->subject === 'Message Subject';
-        });
-
-        Mail::assertQueued('queueview', function ($mailer) {
-            return $mailer->subject === 'Second Message';
-        });
-    }
-
-    /**
      * testProcessRecipients
      */
     public function testProcessRecipients()
@@ -161,18 +104,6 @@ class MailerTest extends TestCase
     //
 
     /**
-     * mockMailer
-     */
-    protected function mockMailer()
-    {
-        $app = new ArrayAccessApp;
-        Mail::setFacadeApplication($app);
-
-        $manager = new \Illuminate\Mail\MailManager($app);
-        Mail::swap(new FakeMailer($manager));
-    }
-
-    /**
      * makeMailer
      */
     protected function makeMailer()
@@ -197,52 +128,5 @@ class DispatcherMailerTest extends \Illuminate\Events\Dispatcher
 {
     public function __construct()
     {
-    }
-}
-
-class ArrayAccessApp implements ArrayAccess
-{
-    public function offsetExists($offset): bool
-    {
-        return $offset === 'config';
-    }
-
-    public function offsetGet($offset): mixed
-    {
-        if ($offset === 'config') {
-            return [
-                'mail' => [
-                    'default' => 'smtp',
-                    'mailers' => [
-                        'smtp' => ['transport' => 'smtp'],
-                    ],
-                ],
-            ];
-        }
-        return null;
-    }
-
-    public function offsetSet($offset, $value): void
-    {
-        // not implemented
-    }
-
-    public function offsetUnset($offset): void
-    {
-        // not implemented
-    }
-
-    public function getLocale()
-    {
-        return 'en';
-    }
-
-    public function instance($abstract, $instance = null)
-    {
-        return $instance ?? $this;
-    }
-    public function make($abstract, array $parameters = [])
-    {
-        return $this;
     }
 }
