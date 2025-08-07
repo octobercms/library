@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database;
 
+use October\Rain\Database\Updater;
 use October\Rain\Database\Schema\Blueprint;
 use October\Rain\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\DatabaseServiceProvider as DatabaseServiceProviderBase;
@@ -75,6 +76,10 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
 
         $this->app->singleton('db.dongle', function ($app) {
             return new Dongle($this->getDefaultDatabaseDriver(), $app['db']);
+        });
+
+        $this->app->singleton('db.updater', function ($app) {
+            return new Updater;
         });
     }
 

@@ -5,6 +5,7 @@ on:
     branches:
       - 2.x
       - 3.x
+      - 4.x
       - develop
   pull_request:
 
@@ -14,7 +15,7 @@ jobs:
     strategy:
       max-parallel: 6
       matrix:
-        phpVersions: ['8.0', '8.1', '8.2', '8.3']
+        phpVersions: ['8.2', '8.3', '8.4']
       fail-fast: false
     name: PHP ${{ matrix.phpVersions }}
     steps:

@@ -5,7 +5,7 @@ use Model;
 /**
  * {{studly_name}} Model
  *
- * @link https://docs.octobercms.com/3.x/extend/system/models.html
+ * @link https://docs.octobercms.com/4.x/extend/system/models.html
  */
 class {{studly_name}} extends Model
 {

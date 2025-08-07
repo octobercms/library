@@ -3,7 +3,7 @@
 use View;
 use Closure;
 use Response;
-use Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode as CheckForMaintenanceModeBase;
+use Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
@@ -12,7 +12,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
  * @package october\foundation
  * @author Alexey Bobkov, Samuel Georges
  */
-class CheckForMaintenanceMode extends CheckForMaintenanceModeBase
+class CheckForMaintenanceMode extends PreventRequestsDuringMaintenance
 {
     /**
      * handle an incoming request.

@@ -22,6 +22,6 @@ class FlashServiceProvider extends ServiceProvider implements DeferrableProvider
      */
     public function provides()
     {
-        return ['flash'];
+        return ['flash', FlashBag::class];
     }
 }

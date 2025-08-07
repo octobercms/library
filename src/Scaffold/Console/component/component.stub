@@ -5,7 +5,7 @@ use Cms\Classes\ComponentBase;
 /**
  * {{studly_name}} Component
  *
- * @link https://docs.octobercms.com/3.x/extend/cms-components.html
+ * @link https://docs.octobercms.com/4.x/extend/cms-components.html
  */
 class {{studly_name}} extends ComponentBase
 {
@@ -18,7 +18,7 @@ class {{studly_name}} extends ComponentBase
     }
 
     /**
-     * @link https://docs.octobercms.com/3.x/element/inspector-types.html
+     * @link https://docs.octobercms.com/4.x/element/inspector-types.html
      */
     public function defineProperties()
     {

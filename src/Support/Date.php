@@ -21,7 +21,7 @@ class Date extends DateBase
     /**
      * createFromFormat
      */
-    public static function createFromFormat($format, $time, $timezone = null): ?DateBase
+    public static function createFromFormat($format, $time, $timezone = null): ?static
     {
         if (is_string($time)) {
             $time = static::translateTimeString($time, static::getLocale(), 'en');

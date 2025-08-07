@@ -328,9 +328,10 @@ class Application extends ApplicationBase
     public function registerCoreContainerAliases()
     {
         $aliases = [
+            // These are introduced externally, for example, RainLab.User plugin
+            // 'auth' => [\Illuminate\Auth\AuthManager::class, \Illuminate\Contracts\Auth\Factory::class],
+            // 'auth.driver' => [\Illuminate\Contracts\Auth\Guard::class],
             'app' => [\October\Rain\Foundation\Application::class, \Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class],
-            'auth' => [\Illuminate\Auth\AuthManager::class, \Illuminate\Contracts\Auth\Factory::class],
-            'auth.driver' => [\Illuminate\Contracts\Auth\Guard::class],
             'blade.compiler' => [\Illuminate\View\Compilers\BladeCompiler::class],
             'cache' => [\Illuminate\Cache\CacheManager::class, \Illuminate\Contracts\Cache\Factory::class],
             'cache.store' => [\Illuminate\Cache\Repository::class, \Illuminate\Contracts\Cache\Repository::class, \Psr\SimpleCache\CacheInterface::class],

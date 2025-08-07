@@ -48,10 +48,10 @@ class ExtendableTest extends TestCase
     public function testDynamicPropertyOnClass()
     {
         $subject = new ExtendableTestExampleExtendableClass;
-        $this->assertFalse(property_exists($subject, 'newAttribute'));
+        $this->assertFalse($subject->propertyExists('newAttribute'));
         $subject->addDynamicProperty('dynamicAttribute', 'Test');
         $this->assertEquals('Test', $subject->dynamicAttribute);
-        $this->assertTrue(property_exists($subject, 'dynamicAttribute'));
+        $this->assertTrue($subject->propertyExists('dynamicAttribute'));
     }
 
     public function testDynamicallyImplementingClass()

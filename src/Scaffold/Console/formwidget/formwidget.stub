@@ -5,7 +5,7 @@ use Backend\Classes\FormWidgetBase;
 /**
  * {{studly_name}} Form Widget
  *
- * @link https://docs.octobercms.com/3.x/extend/forms/form-widgets.html
+ * @link https://docs.octobercms.com/4.x/extend/forms/form-widgets.html
  */
 class {{studly_name}} extends FormWidgetBase
 {

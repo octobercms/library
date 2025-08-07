@@ -400,7 +400,7 @@ ESC;
             $this->assertArrayNotHasKey('myDynamicProperty', $page->attributes);
 
             // Should be a real property
-            $this->assertTrue(property_exists($page, 'myDynamicProperty'));
+            $this->assertTrue($page->propertyExists('myDynamicProperty'));
             $this->assertEquals('myDynamicPropertyValue', $page->myDynamicProperty);
 
             $page->save();
@@ -409,7 +409,7 @@ ESC;
             $page = HalcyonTestPage::find('dynamicproperty');
             $this->assertNotNull($page);
             $this->assertArrayNotHasKey('myDynamicProperty', $page->attributes);
-            $this->assertFalse(property_exists($page, 'myDynamicProperty'));
+            $this->assertFalse($page->propertyExists('myDynamicProperty'));
         }
         finally {
             @unlink($targetFile);

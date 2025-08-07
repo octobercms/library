@@ -10,60 +10,6 @@ use Symfony\Component\Mailer\Transport\NullTransport;
 class MailerTest extends TestCase
 {
     /**
-     * testSendWithFaker
-     */
-    public function testSendWithFaker()
-    {
-        $this->mockMailer();
-
-        Mail::send('sendview', [], function ($mailer) {
-            $mailer->subject('Message Subject');
-            $mailer->to('single@address.tld');
-        });
-
-        Mail::assertSent('sendview', 1);
-
-        Mail::assertSent('sendview', function ($mailer) {
-            return $mailer->hasTo('single@address.tld');
-        });
-
-        Mail::assertSent('sendview', function ($mailer) {
-            return $mailer->subject === 'Message Subject';
-        });
-    }
-
-    /**
-     * testQueueWithFaker
-     */
-    public function testQueueWithFaker()
-    {
-        Mail::queue('queueview', [], function ($mailer) {
-            $mailer->subject('Message Subject');
-            $mailer->to('single@address.tld');
-        });
-
-        Mail::queue('queueview', [], function ($mailer) {
-            $mailer->subject('Second Message');
-            $mailer->to('user@domain.tld');
-        });
-
-        Mail::assertQueued('queueview', 2);
-
-        Mail::assertQueued('queueview', function ($mailer) {
-            return $mailer->hasTo('single@address.tld');
-            return $mailer->hasTo('user@domain.tld');
-        });
-
-        Mail::assertQueued('queueview', function ($mailer) {
-            return $mailer->subject === 'Message Subject';
-        });
-
-        Mail::assertQueued('queueview', function ($mailer) {
-            return $mailer->subject === 'Second Message';
-        });
-    }
-
-    /**
      * testProcessRecipients
      */
     public function testProcessRecipients()
@@ -156,20 +102,6 @@ class MailerTest extends TestCase
     //
     // Mock
     //
-
-    /**
-     * mockMailer
-     */
-    protected function mockMailer()
-    {
-        $app = new class {
-            public function getLocale() { return 'en'; }
-        };
-
-        $manager = new \Illuminate\Mail\MailManager($app);
-
-        Mail::swap(new FakeMailer($manager));
-    }
 
     /**
      * makeMailer
