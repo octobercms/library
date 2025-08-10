@@ -6,7 +6,7 @@ use Exception;
 /**
  * {{studly_name}} Report Widget
  *
- * @link https://docs.octobercms.com/4.x/extend/backend/report-widgets.html
+ * @link https://docs.octobercms.com/4.x/extend/dashboards/report-widgets.html
  */
 class {{studly_name}} extends ReportWidgetBase
 {
