@@ -50,3 +50,14 @@ toolbar:
     # Search widget configuration
     search:
         prompt: backend::lang.list.search_prompt
+
+# List Structure (Optional)
+# structure:
+#     # Allow collapsing of tree items
+#     showTree: false
+#
+#     # Allow items to be reordered
+#     showReorder: true
+#
+#     # Maximum reordering depth
+#     maxDepth: 2
