@@ -62,7 +62,7 @@ trait SortableRelation
      */
     protected function defineSortableRelations()
     {
-        $interactsWithPivot = ['belongsToMany'];
+        $interactsWithPivot = ['belongsToMany', 'morphToMany'];
         $sortableRelations = [];
 
         foreach ($interactsWithPivot as $type) {
