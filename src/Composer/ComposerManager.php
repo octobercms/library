@@ -41,7 +41,12 @@ class ComposerManager
      */
     public static function instance(): static
     {
-        return App::make('core.composer');
+        try {
+            return App::make('core.composer');
+        }
+        catch (Exception $ex) {
+            return new static;
+        }
     }
 
     /**
