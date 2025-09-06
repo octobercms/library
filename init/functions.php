@@ -365,20 +365,6 @@ if (!function_exists('array_except')) {
     }
 }
 
-if (!function_exists('array_first')) {
-    /**
-     * array_first returns the first element in an array passing a given truth test
-     * @param  array  $array
-     * @param  callable|null  $callback
-     * @param  mixed  $default
-     * @return mixed
-     */
-    function array_first($array, $callback = null, $default = null)
-    {
-        return Arr::first($array, $callback, $default);
-    }
-}
-
 if (!function_exists('array_flatten')) {
     /**
      * array_flatten flattens a multi-dimensional array into a single level
@@ -429,20 +415,6 @@ if (!function_exists('array_has')) {
     function array_has($array, $keys)
     {
         return Arr::has($array, $keys);
-    }
-}
-
-if (!function_exists('array_last')) {
-    /**
-     * array_last returns the last element in an array passing a given truth test
-     * @param  array  $array
-     * @param  callable|null  $callback
-     * @param  mixed  $default
-     * @return mixed
-     */
-    function array_last($array, $callback = null, $default = null)
-    {
-        return Arr::last($array, $callback, $default);
     }
 }
 

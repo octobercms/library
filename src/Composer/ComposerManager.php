@@ -43,8 +43,9 @@ class ComposerManager
     {
         try {
             return App::make('core.composer');
-        } catch (\Illuminate\Contracts\Container\BindingResolutionException $e) {
-            return new static();
+        }
+        catch (Exception $ex) {
+            return new static;
         }
     }
 
