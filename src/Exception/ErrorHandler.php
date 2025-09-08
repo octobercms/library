@@ -85,9 +85,12 @@ class ErrorHandler
      */
     protected function isNotFoundException($exception)
     {
-        return array_first($this->notFoundExceptions, function($type) use ($exception) {
-            return $exception instanceof $type;
-        });
+        foreach ($this->notFoundExceptions as $type) {
+            if ($exception instanceof $type) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
