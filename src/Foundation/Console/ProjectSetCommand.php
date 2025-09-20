@@ -69,23 +69,22 @@ class ProjectSetCommand extends Command
     protected function storeProjectDetails($result)
     {
         // Save project locally
-        if (class_exists(\System\Models\Parameter::class)) {
-            \System\Models\Parameter::set([
-                'system::project.id' => $result['id'],
-                'system::project.key' => $result['project_id'],
-                'system::project.name' => $result['name'],
-                'system::project.owner' => $result['owner'],
-                'system::project.is_active' => $result['is_active']
-            ]);
-        }
-        else {
-            if (!is_dir($cmsStorePath = storage_path('cms'))) {
-                mkdir($cmsStorePath);
+        try {
+            if (class_exists(\System\Models\Parameter::class)) {
+                \System\Models\Parameter::set([
+                    'system::project.id' => $result['id'],
+                    'system::project.key' => $result['project_id'],
+                    'system::project.name' => $result['name'],
+                    'system::project.owner' => $result['owner'],
+                    'system::project.is_active' => $result['is_active']
+                ]);
             }
-
-            $this->injectJsonToFile(storage_path('cms/project.json'), [
-                'project' => $result['project_id']
-            ]);
+            else {
+               $this->storeProjectDetailsLocally($result);
+            }
+        }
+        catch (Exception $ex) {
+            $this->storeProjectDetailsLocally($result);
         }
 
         // Save authentication token
@@ -94,6 +93,20 @@ class ProjectSetCommand extends Command
             $result['email'],
             $result['project_id']
         );
+    }
+
+    /**
+     * storeProjectDetailsLocally instead
+     */
+    protected function storeProjectDetailsLocally($result)
+    {
+        if (!is_dir($cmsStorePath = storage_path('cms'))) {
+            mkdir($cmsStorePath);
+        }
+
+        $this->injectJsonToFile(storage_path('cms/project.json'), [
+            'project' => $result['project_id']
+        ]);
     }
 
     /**
