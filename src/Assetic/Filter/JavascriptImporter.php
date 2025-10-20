@@ -7,7 +7,7 @@ use RuntimeException;
 
 /**
  * JavascriptImporter importer JS Filter
- * Class used to import referenced javascript files.
+ * Class used to import referenced javascript files, inside comments.
  *
  * =include library/jquery.js;
  * =require library/jquery.js;
@@ -17,7 +17,6 @@ use RuntimeException;
  */
 class JavascriptImporter implements FilterInterface
 {
-
     /**
      * @var string Location of where the processed JS script resides.
      */

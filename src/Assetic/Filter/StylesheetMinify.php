@@ -12,10 +12,16 @@ use October\Rain\Assetic\Filter\FilterInterface;
  */
 class StylesheetMinify implements FilterInterface
 {
+    /**
+     * filterLoad
+     */
     public function filterLoad(AssetInterface $asset)
     {
     }
 
+    /**
+     * filterDump
+     */
     public function filterDump(AssetInterface $asset)
     {
         $asset->setContent($this->minify($asset->getContent()));

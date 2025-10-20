@@ -7,6 +7,9 @@
  */
 class FileResource implements ResourceInterface
 {
+    /**
+     * @var string path
+     */
     protected $path;
 
     /**
@@ -19,16 +22,25 @@ class FileResource implements ResourceInterface
         $this->path = $path;
     }
 
+    /**
+     * isFresh
+     */
     public function isFresh($timestamp)
     {
         return file_exists($this->path) && filemtime($this->path) <= $timestamp;
     }
 
+    /**
+     * getContent
+     */
     public function getContent()
     {
         return file_exists($this->path) ? file_get_contents($this->path) : '';
     }
 
+    /**
+     * __toString
+     */
     public function __toString()
     {
         return $this->path;

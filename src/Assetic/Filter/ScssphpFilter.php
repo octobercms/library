@@ -20,41 +20,77 @@ use ScssPhp\ScssPhp\Compiler;
  */
 class ScssphpFilter implements DependencyExtractorInterface
 {
-    private $importPaths = [];
-    private $customFunctions = [];
-    private $formatter;
-    private $variables = [];
+    /**
+     * @var array importPaths
+     */
+    protected $importPaths = [];
 
+    /**
+     * @var array customFunctions
+     */
+    protected $customFunctions = [];
+
+    /**
+     * @var mixed formatter
+     */
+    protected $formatter;
+
+    /**
+     * @var array variables
+     */
+    protected $variables = [];
+
+    /**
+     * setFormatter
+     */
     public function setFormatter($formatter)
     {
         $this->formatter = $formatter;
     }
 
+    /**
+     * setVariables
+     */
     public function setVariables(array $variables)
     {
         $this->variables = $variables;
     }
 
+    /**
+     * addVariable
+     */
     public function addVariable($variable)
     {
         $this->variables[] = $variable;
     }
 
+    /**
+     * setImportPaths
+     */
     public function setImportPaths(array $paths)
     {
         $this->importPaths = $paths;
     }
 
+    /**
+     * addImportPath
+     */
     public function addImportPath($path)
     {
         $this->importPaths[] = $path;
     }
 
+    /**
+     * registerFunction
+     */
     public function registerFunction($name, $callable)
     {
         $this->customFunctions[$name] = $callable;
     }
 
+    /**
+     * filterLoad
+     */
     public function filterLoad(AssetInterface $asset)
     {
         $sc = new Compiler();
@@ -101,10 +137,16 @@ class ScssphpFilter implements DependencyExtractorInterface
         $asset->setContent($result->getCss());
     }
 
+    /**
+     * filterDump
+     */
     public function filterDump(AssetInterface $asset)
     {
     }
 
+    /**
+     * getChildren
+     */
     public function getChildren(AssetFactory $factory, $content, $loadPath = null)
     {
         $sc = new Compiler();

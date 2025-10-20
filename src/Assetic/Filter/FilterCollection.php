@@ -10,8 +10,14 @@ use Traversable;
  */
 class FilterCollection implements FilterInterface, \IteratorAggregate, \Countable
 {
-    private $filters = array();
+    /**
+     * @var array filters
+     */
+    protected $filters = [];
 
+    /**
+     * __construct
+     */
     public function __construct($filters = array())
     {
         foreach ($filters as $filter) {
@@ -36,16 +42,25 @@ class FilterCollection implements FilterInterface, \IteratorAggregate, \Countabl
         }
     }
 
+    /**
+     * all
+     */
     public function all()
     {
         return $this->filters;
     }
 
+    /**
+     * clear
+     */
     public function clear()
     {
         $this->filters = array();
     }
 
+    /**
+     * filterLoad
+     */
     public function filterLoad(AssetInterface $asset)
     {
         foreach ($this->filters as $filter) {
@@ -53,6 +68,9 @@ class FilterCollection implements FilterInterface, \IteratorAggregate, \Countabl
         }
     }
 
+    /**
+     * filterDump
+     */
     public function filterDump(AssetInterface $asset)
     {
         foreach ($this->filters as $filter) {
@@ -60,11 +78,17 @@ class FilterCollection implements FilterInterface, \IteratorAggregate, \Countabl
         }
     }
 
+    /**
+     * getIterator
+     */
     public function getIterator(): Traversable
     {
         return new \ArrayIterator($this->filters);
     }
 
+    /**
+     * count
+     */
     public function count(): int
     {
         return count($this->filters);

@@ -15,8 +15,8 @@ class CssMinFilter implements FilterInterface
 
     public function __construct()
     {
-        $this->filters = array();
-        $this->plugins = array();
+        $this->filters = [];
+        $this->plugins = [];
     }
 
     public function setFilters(array $filters)
