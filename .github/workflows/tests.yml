@@ -21,11 +21,16 @@ jobs:
     steps:
       - name: Checkout changes
         uses: actions/checkout@v1
+
       - name: Install PHP
         uses: shivammathur/setup-php@master
         with:
           php-version: ${{ matrix.phpVersions }}
+
       - name: Install Composer dependencies
-        run: composer install --no-interaction --no-progress --no-suggest --no-scripts
+        run: |
+            composer config --no-interaction allow-plugins.composer/installers true
+            composer install --no-interaction --no-progress --no-scripts
+
       - name: Run Tests
         run: ./vendor/bin/phpunit ./tests
