@@ -15,9 +15,10 @@ class UrlServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->registerRelativeHelpers();
+        $this->registerRequestHelpers();
+
         $this->registerUrlGeneratorPolicy();
-        $this->registerRelativeHelper();
-        $this->registerPjaxCached();
 
         $this->app['events']->listen('site.changed', function() {
             $this->registerUrlGeneratorPolicy();
@@ -32,7 +33,7 @@ class UrlServiceProvider extends ServiceProvider
      * insecure - detect hostname and force HTTP schema
      * force    - force hostname and schema using app.url config value
      */
-    public function registerUrlGeneratorPolicy()
+    protected function registerUrlGeneratorPolicy()
     {
         $provider = $this->app['url'];
         $policy = $this->app['config']->get('system.link_policy', 'detect');
@@ -62,9 +63,9 @@ class UrlServiceProvider extends ServiceProvider
     }
 
     /**
-     * registerRelativeHelper
+     * registerRelativeHelpers
      */
-    public function registerRelativeHelper()
+    protected function registerRelativeHelpers()
     {
         $provider = $this->app['url'];
 
@@ -82,14 +83,20 @@ class UrlServiceProvider extends ServiceProvider
     }
 
     /**
-     * registerPjaxCached
+     * registerRequestHelpers
      */
-    public function registerPjaxCached()
+    protected function registerRequestHelpers()
     {
         $provider = $this->app['request'];
 
         $provider->macro('pjaxCached', function() use ($provider) {
             return $provider->headers->get('X-PJAX-CACHED') == true;
+        });
+
+        $provider->macro('isCrawler', function($userAgent = null) use ($provider) {
+            return (new \Jaybizzle\CrawlerDetect\CrawlerDetect($provider->server()))
+                ->isCrawler($userAgent)
+            ;
         });
     }
 }
