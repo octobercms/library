@@ -3,6 +3,7 @@
 use Validator as ValidatorFacade;
 use Illuminate\Validation\ValidationException as ValidationExceptionBase;
 use Illuminate\Validation\Validator;
+use Illuminate\Support\MessageBag;
 use InvalidArgumentException;
 
 /**
@@ -54,6 +55,10 @@ class ValidationException extends ValidationExceptionBase
         elseif (is_array($validation)) {
             $validator = ValidatorFacade::make([], []);
             $validator->errors()->merge($validation);
+        }
+        elseif ($validation instanceof MessageBag) {
+            $validator = ValidatorFacade::make([], []);
+            $validator->errors()->merge($validation->messages());
         }
 
         if (!$validator instanceof Validator) {
