@@ -36,8 +36,6 @@ class ValidationException extends ValidationExceptionBase
     {
         parent::__construct($this->resolveToValidator($validation));
 
-        $this->errors = $this->validator->errors();
-
         $this->evalErrors();
     }
 
@@ -75,12 +73,12 @@ class ValidationException extends ValidationExceptionBase
     {
         $this->fields = [];
 
-        foreach ($this->errors->getMessages() as $field => $messages) {
+        foreach ($this->errors() as $field => $messages) {
             $fieldName = implode('.', array_merge($this->fieldPrefix, [$field]));
             $this->fields[$fieldName] = (array) $messages;
         }
 
-        $this->message = $this->errors->first();
+        $this->message = $this->getErrors()->first();
     }
 
     /**
@@ -89,11 +87,11 @@ class ValidationException extends ValidationExceptionBase
      */
     public function getErrors()
     {
-        return $this->errors;
+        return $this->validator->errors();
     }
 
     /**
-     * getFields returns invalid fields
+     * @deprecated use ->errors()
      */
     public function getFields()
     {
@@ -108,5 +106,7 @@ class ValidationException extends ValidationExceptionBase
         $this->fieldPrefix = array_filter($prefix, 'strlen');
 
         $this->evalErrors();
+
+        $this->validator = $this->resolveToValidator($this->fields);
     }
 }
