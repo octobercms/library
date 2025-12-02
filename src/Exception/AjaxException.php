@@ -1,5 +1,7 @@
 <?php namespace October\Rain\Exception;
 
+use Larajax\Contracts\AjaxExceptionInterface;
+
 /**
  * AjaxException is considered a "smart error" and will send http code 406,
  * so they can pass response contents.
@@ -7,7 +9,7 @@
  * @package october\exception
  * @author Alexey Bobkov, Samuel Georges
  */
-class AjaxException extends ExceptionBase
+class AjaxException extends ExceptionBase implements AjaxExceptionInterface
 {
     /**
      * @var array contents of the response.
@@ -45,5 +47,13 @@ class AjaxException extends ExceptionBase
     public function addContent(string $key, $val)
     {
         $this->contents[$key] = $val;
+    }
+
+    /**
+     * toAjaxData
+     */
+    public function toAjaxData(): array
+    {
+        return (array) $this->contents;
     }
 }
