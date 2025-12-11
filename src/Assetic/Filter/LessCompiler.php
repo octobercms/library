@@ -38,7 +38,7 @@ class LessCompiler implements FilterInterface, HashableInterface, DependencyExtr
     /**
      * filterLoad
      */
-    public function filterLoad(AssetInterface $asset)
+    public function filterLoad(AssetInterface $asset): void
     {
         $parser = new Less_Parser();
 
@@ -56,7 +56,7 @@ class LessCompiler implements FilterInterface, HashableInterface, DependencyExtr
     /**
      * filterDump
      */
-    public function filterDump(AssetInterface $asset)
+    public function filterDump(AssetInterface $asset): void
     {
     }
 

@@ -37,7 +37,7 @@ class CssImportFilter extends BaseCssFilter implements HashableInterface, Depend
     /**
      * filterLoad
      */
-    public function filterLoad(AssetInterface $asset)
+    public function filterLoad(AssetInterface $asset): void
     {
         $importFilter = $this->importFilter;
         $sourceRoot = $asset->getSourceRoot();
@@ -107,7 +107,7 @@ class CssImportFilter extends BaseCssFilter implements HashableInterface, Depend
     /**
      * filterDump
      */
-    public function filterDump(AssetInterface $asset)
+    public function filterDump(AssetInterface $asset): void
     {
     }
 

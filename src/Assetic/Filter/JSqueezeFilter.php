@@ -72,11 +72,11 @@ class JSqueezeFilter implements FilterInterface
         $this->keepImportantComments = (bool) $bool;
     }
 
-    public function filterLoad(AssetInterface $asset)
+    public function filterLoad(AssetInterface $asset): void
     {
     }
 
-    public function filterDump(AssetInterface $asset)
+    public function filterDump(AssetInterface $asset): void
     {
         $parser = new $this->className();
         $asset->setContent($parser->squeeze(

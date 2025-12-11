@@ -49,7 +49,7 @@ class ScssCompiler extends ScssphpFilter implements HashableInterface, Dependenc
         $this->variables[] = $variable;
     }
 
-    public function filterLoad(AssetInterface $asset)
+    public function filterLoad(AssetInterface $asset): void
     {
         parent::setVariables($this->variables);
         parent::filterLoad($asset);

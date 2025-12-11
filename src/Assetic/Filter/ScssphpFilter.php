@@ -91,7 +91,7 @@ class ScssphpFilter implements DependencyExtractorInterface
     /**
      * filterLoad
      */
-    public function filterLoad(AssetInterface $asset)
+    public function filterLoad(AssetInterface $asset): void
     {
         $sc = new Compiler();
 
@@ -140,7 +140,7 @@ class ScssphpFilter implements DependencyExtractorInterface
     /**
      * filterDump
      */
-    public function filterDump(AssetInterface $asset)
+    public function filterDump(AssetInterface $asset): void
     {
     }
 
