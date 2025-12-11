@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Assetic\Util;
 
-
 /**
  * CSS Utils.
  *
@@ -22,7 +21,7 @@ abstract class CssUtils
      *
      * @return string The filtered CSS
      */
-    public static function filterReferences($content, $callback)
+    public static function filterReferences(string $content, callable $callback): string
     {
         $content = static::filterUrls($content, $callback);
         $content = static::filterImports($content, $callback, false);
@@ -39,7 +38,7 @@ abstract class CssUtils
      *
      * @return string The filtered CSS
      */
-    public static function filterUrls($content, $callback)
+    public static function filterUrls(string $content, callable $callback): string
     {
         $pattern = static::REGEX_URLS;
 
@@ -57,7 +56,7 @@ abstract class CssUtils
      *
      * @return string The filtered CSS
      */
-    public static function filterImports($content, $callback, $includeUrl = true)
+    public static function filterImports(string $content, callable $callback, bool $includeUrl = true): string
     {
         $pattern = $includeUrl ? static::REGEX_IMPORTS : static::REGEX_IMPORTS_NO_URLS;
 
@@ -74,7 +73,7 @@ abstract class CssUtils
      *
      * @return string The filtered CSS
      */
-    public static function filterIEFilters($content, $callback)
+    public static function filterIEFilters(string $content, callable $callback): string
     {
         $pattern = static::REGEX_IE_FILTERS;
 
@@ -91,12 +90,12 @@ abstract class CssUtils
      *
      * @return string The filtered CSS
      */
-    public static function filterCommentless($content, $callback)
+    public static function filterCommentless(string $content, callable $callback): string
     {
         $result = '';
         foreach (preg_split(static::REGEX_COMMENTS, $content, -1, PREG_SPLIT_DELIM_CAPTURE) as $part) {
             if (!preg_match(static::REGEX_COMMENTS, $part, $match) || $part != $match[0]) {
-                $part = call_user_func($callback, $part);
+                $part = $callback($part);
             }
 
             $result .= $part;
@@ -112,9 +111,9 @@ abstract class CssUtils
      *
      * @return array An array of unique URLs
      */
-    public static function extractImports($content)
+    public static function extractImports(string $content): array
     {
-        $imports = array();
+        $imports = [];
         static::filterImports($content, function ($matches) use (&$imports) {
             $imports[] = $matches['url'];
         });

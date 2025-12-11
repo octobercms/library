@@ -19,7 +19,7 @@ class FilterManager
     /**
      * set
      */
-    public function set($alias, FilterInterface $filter)
+    public function set(string $alias, FilterInterface $filter): void
     {
         $this->checkName($alias);
 
@@ -29,7 +29,7 @@ class FilterManager
     /**
      * get
      */
-    public function get($alias)
+    public function get(string $alias): FilterInterface
     {
         if (!isset($this->filters[$alias])) {
             throw new InvalidArgumentException(sprintf('There is no "%s" filter.', $alias));
@@ -41,7 +41,7 @@ class FilterManager
     /**
      * has
      */
-    public function has($alias)
+    public function has(string $alias): bool
     {
         return isset($this->filters[$alias]);
     }
@@ -49,7 +49,7 @@ class FilterManager
     /**
      * getNames
      */
-    public function getNames()
+    public function getNames(): array
     {
         return array_keys($this->filters);
     }
@@ -59,7 +59,7 @@ class FilterManager
      * @param string $name An asset name candidate
      * @throws InvalidArgumentException If the asset name is invalid
      */
-    protected function checkName($name)
+    protected function checkName(string $name): void
     {
         if (!ctype_alnum(str_replace('_', '', $name))) {
             throw new InvalidArgumentException(sprintf('The name "%s" is invalid.', $name));

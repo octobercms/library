@@ -18,42 +18,42 @@ use Traversable;
 class AssetCollection implements IteratorAggregate, AssetCollectionInterface
 {
     /**
-     * @var mixed assets
+     * @var array assets
      */
     protected $assets;
 
     /**
-     * @var mixed filters
+     * @var FilterCollection filters
      */
     protected $filters;
 
     /**
-     * @var mixed sourceRoot
+     * @var string|null sourceRoot
      */
     protected $sourceRoot;
 
     /**
-     * @var mixed targetPath
+     * @var string|null targetPath
      */
     protected $targetPath;
 
     /**
-     * @var mixed content
+     * @var string|null content
      */
     protected $content;
 
     /**
-     * @var mixed clones
+     * @var SplObjectStorage clones
      */
     protected $clones;
 
     /**
-     * @var mixed vars
+     * @var array vars
      */
     protected $vars;
 
     /**
-     * @var mixed values
+     * @var array values
      */
     protected $values;
 
@@ -65,7 +65,7 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
      * @param string $sourceRoot The root directory
      * @param array  $vars
      */
-    public function __construct($assets = [], $filters = [], $sourceRoot = null, array $vars = [])
+    public function __construct(array $assets = [], array $filters = [], ?string $sourceRoot = null, array $vars = [])
     {
         $this->assets = [];
         foreach ($assets as $asset) {
@@ -91,7 +91,7 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
     /**
      * all
      */
-    public function all()
+    public function all(): array
     {
         return $this->assets;
     }
@@ -99,7 +99,7 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
     /**
      * add
      */
-    public function add(AssetInterface $asset)
+    public function add(AssetInterface $asset): void
     {
         $this->assets[] = $asset;
     }
@@ -107,7 +107,7 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
     /**
      * removeLeaf
      */
-    public function removeLeaf(AssetInterface $needle, $graceful = false)
+    public function removeLeaf(AssetInterface $needle, bool $graceful = false): bool
     {
         foreach ($this->assets as $i => $asset) {
             $clone = isset($this->clones[$asset]) ? $this->clones[$asset] : null;
@@ -132,11 +132,11 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
     /**
      * replaceLeaf
      */
-    public function replaceLeaf(AssetInterface $needle, AssetInterface $replacement, $graceful = false)
+    public function replaceLeaf(AssetInterface $needle, AssetInterface $replacement, bool $graceful = false): bool
     {
         foreach ($this->assets as $i => $asset) {
             $clone = isset($this->clones[$asset]) ? $this->clones[$asset] : null;
-            if (in_array($needle, array($asset, $clone), true)) {
+            if (in_array($needle, [$asset, $clone], true)) {
                 unset($this->clones[$asset]);
                 $this->assets[$i] = $replacement;
 
@@ -158,7 +158,7 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
     /**
      * ensureFilter
      */
-    public function ensureFilter(FilterInterface $filter)
+    public function ensureFilter(FilterInterface $filter): void
     {
         $this->filters->ensure($filter);
     }
@@ -166,7 +166,7 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
     /**
      * getFilters
      */
-    public function getFilters()
+    public function getFilters(): array
     {
         return $this->filters->all();
     }
@@ -174,7 +174,7 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
     /**
      * clearFilters
      */
-    public function clearFilters()
+    public function clearFilters(): void
     {
         $this->filters->clear();
         $this->clones = new SplObjectStorage();
@@ -183,7 +183,7 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
     /**
      * load
      */
-    public function load(?FilterInterface $additionalFilter = null)
+    public function load(?FilterInterface $additionalFilter = null): void
     {
         // loop through leaves and load each asset
         $parts = [];
@@ -198,7 +198,7 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
     /**
      * dump
      */
-    public function dump(?FilterInterface $additionalFilter = null)
+    public function dump(?FilterInterface $additionalFilter = null): string
     {
         // loop through leaves and dump each asset
         $parts = [];
@@ -212,7 +212,7 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
     /**
      * getContent
      */
-    public function getContent()
+    public function getContent(): ?string
     {
         return $this->content;
     }
@@ -220,7 +220,7 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
     /**
      * setContent
      */
-    public function setContent($content)
+    public function setContent(?string $content): void
     {
         $this->content = $content;
     }
@@ -228,7 +228,7 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
     /**
      * getSourceRoot
      */
-    public function getSourceRoot()
+    public function getSourceRoot(): ?string
     {
         return $this->sourceRoot;
     }
@@ -236,25 +236,28 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
     /**
      * getSourcePath
      */
-    public function getSourcePath()
+    public function getSourcePath(): ?string
     {
+        return null;
     }
 
     /**
      * getSourceDirectory returns the first available source directory, useful
      * when extracting imports and a singular collection is returned
      */
-    public function getSourceDirectory()
+    public function getSourceDirectory(): ?string
     {
         foreach ($this as $asset) {
             return $asset->getSourceDirectory();
         }
+
+        return null;
     }
 
     /**
      * getTargetPath
      */
-    public function getTargetPath()
+    public function getTargetPath(): ?string
     {
         return $this->targetPath;
     }
@@ -262,7 +265,7 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
     /**
      * setTargetPath
      */
-    public function setTargetPath($targetPath)
+    public function setTargetPath(?string $targetPath): void
     {
         $this->targetPath = $targetPath;
     }
@@ -270,12 +273,12 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
     /**
      * getLastModified returns the highest last-modified value of all assets in the current collection.
      *
-     * @return integer|null A UNIX timestamp
+     * @return int|null A UNIX timestamp
      */
-    public function getLastModified()
+    public function getLastModified(): ?int
     {
         if (!count($this->assets)) {
-            return;
+            return null;
         }
 
         $mtime = 0;
@@ -300,7 +303,7 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
     /**
      * getVars
      */
-    public function getVars()
+    public function getVars(): array
     {
         return $this->vars;
     }
@@ -308,7 +311,7 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
     /**
      * setValues
      */
-    public function setValues(array $values)
+    public function setValues(array $values): void
     {
         $this->values = $values;
 
@@ -320,7 +323,7 @@ class AssetCollection implements IteratorAggregate, AssetCollectionInterface
     /**
      * getValues
      */
-    public function getValues()
+    public function getValues(): array
     {
         return $this->values;
     }

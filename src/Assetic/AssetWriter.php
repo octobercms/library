@@ -30,7 +30,7 @@ class AssetWriter
      * @param array  $values
      * @throws InvalidArgumentException
      */
-    public function __construct($dir, array $values = array())
+    public function __construct(string $dir, array $values = [])
     {
         foreach ($values as $var => $vals) {
             foreach ($vals as $value) {
@@ -47,7 +47,7 @@ class AssetWriter
     /**
      * writeManagerAssets
      */
-    public function writeManagerAssets(AssetManager $am)
+    public function writeManagerAssets(AssetManager $am): void
     {
         foreach ($am->getNames() as $name) {
             $this->writeAsset($am->get($name));
@@ -57,7 +57,7 @@ class AssetWriter
     /**
      * writeAsset
      */
-    public function writeAsset(AssetInterface $asset)
+    public function writeAsset(AssetInterface $asset): void
     {
         foreach (VarUtils::getCombinations($asset->getVars(), $this->values) as $combination) {
             $asset->setValues($combination);
@@ -76,7 +76,7 @@ class AssetWriter
     /**
      * write
      */
-    protected static function write($path, $contents)
+    protected static function write(string $path, string $contents): void
     {
         if (!is_dir($dir = dirname($path)) && false === @mkdir($dir, 0755, true)) {
             throw new RuntimeException('Unable to create directory '.$dir);

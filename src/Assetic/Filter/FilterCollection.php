@@ -18,7 +18,7 @@ class FilterCollection implements FilterInterface, \IteratorAggregate, \Countabl
     /**
      * __construct
      */
-    public function __construct($filters = array())
+    public function __construct(array $filters = [])
     {
         foreach ($filters as $filter) {
             $this->ensure($filter);
@@ -31,7 +31,7 @@ class FilterCollection implements FilterInterface, \IteratorAggregate, \Countabl
      * If the supplied filter is another filter collection, each of its
      * filters will be checked.
      */
-    public function ensure(FilterInterface $filter)
+    public function ensure(FilterInterface $filter): void
     {
         if ($filter instanceof \Traversable) {
             foreach ($filter as $f) {
@@ -45,7 +45,7 @@ class FilterCollection implements FilterInterface, \IteratorAggregate, \Countabl
     /**
      * all
      */
-    public function all()
+    public function all(): array
     {
         return $this->filters;
     }
@@ -53,15 +53,15 @@ class FilterCollection implements FilterInterface, \IteratorAggregate, \Countabl
     /**
      * clear
      */
-    public function clear()
+    public function clear(): void
     {
-        $this->filters = array();
+        $this->filters = [];
     }
 
     /**
      * filterLoad
      */
-    public function filterLoad(AssetInterface $asset)
+    public function filterLoad(AssetInterface $asset): void
     {
         foreach ($this->filters as $filter) {
             $filter->filterLoad($asset);
@@ -71,7 +71,7 @@ class FilterCollection implements FilterInterface, \IteratorAggregate, \Countabl
     /**
      * filterDump
      */
-    public function filterDump(AssetInterface $asset)
+    public function filterDump(AssetInterface $asset): void
     {
         foreach ($this->filters as $filter) {
             $filter->filterDump($asset);

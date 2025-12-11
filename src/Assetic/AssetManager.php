@@ -22,7 +22,7 @@ class AssetManager
      * @return AssetInterface The asset
      * @throws InvalidArgumentException If there is no asset by that name
      */
-    public function get($name)
+    public function get(string $name): AssetInterface
     {
         if (!isset($this->assets[$name])) {
             throw new InvalidArgumentException(sprintf('There is no "%s" asset.', $name));
@@ -35,9 +35,9 @@ class AssetManager
      * has checks if the current asset manager has a certain asset.
      *
      * @param string $name an asset name
-     * @return Boolean True if the asset has been set, false if not
+     * @return bool True if the asset has been set, false if not
      */
-    public function has($name)
+    public function has(string $name): bool
     {
         return isset($this->assets[$name]);
     }
@@ -49,7 +49,7 @@ class AssetManager
      * @param AssetInterface $asset The asset
      * @throws InvalidArgumentException If the asset name is invalid
      */
-    public function set($name, AssetInterface $asset)
+    public function set(string $name, AssetInterface $asset): void
     {
         if (!ctype_alnum(str_replace('_', '', $name))) {
             throw new InvalidArgumentException(sprintf('The name "%s" is invalid.', $name));
@@ -63,7 +63,7 @@ class AssetManager
      *
      * @return array An array of asset names
      */
-    public function getNames()
+    public function getNames(): array
     {
         return array_keys($this->assets);
     }
@@ -71,7 +71,7 @@ class AssetManager
     /**
      * clear clears all assets.
      */
-    public function clear()
+    public function clear(): void
     {
         $this->assets = [];
     }

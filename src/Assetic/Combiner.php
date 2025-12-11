@@ -39,7 +39,7 @@ class Combiner
     /**
      * parse
      */
-    public function parse(array $assets, $options = [])
+    public function parse(array $assets, array $options = []): string
     {
         return $this->prepareCombiner($assets, $options)->dump();
     }
@@ -47,14 +47,12 @@ class Combiner
     /**
      * prepareCombiner before dumping
      */
-    public function prepareCombiner(array $assets, $options = [])
+    public function prepareCombiner(array $assets, array $options = []): AssetCollection
     {
-        extract(array_merge([
-            'targetPath' => null,
-            'production' => false,
-            'useCache' => true,
-            'deepHashKey' => null
-        ], $options));
+        $targetPath = $options['targetPath'] ?? null;
+        $production = $options['production'] ?? false;
+        $useCache = $options['useCache'] ?? true;
+        $deepHashKey = $options['deepHashKey'] ?? null;
 
         if ($deepHashKey !== null) {
             $this->setDeepHashKeyOnFilters($deepHashKey);
@@ -102,7 +100,7 @@ class Combiner
     /**
      * registerDefaultFilters
      */
-    public function registerDefaultFilters()
+    public function registerDefaultFilters(): void
     {
         // Default JavaScript filters
         $this->registerFilter('js', new \October\Rain\Assetic\Filter\JavascriptImporter);
@@ -121,7 +119,7 @@ class Combiner
     /**
      * setStoragePath
      */
-    public function setStoragePath($path)
+    public function setStoragePath(?string $path): void
     {
         $this->storagePath = $path;
     }
@@ -129,7 +127,7 @@ class Combiner
     /**
      * setLocalPath
      */
-    public function setLocalPath($path)
+    public function setLocalPath(?string $path): void
     {
         $this->localPath = $path;
     }

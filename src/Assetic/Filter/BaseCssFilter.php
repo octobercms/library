@@ -12,32 +12,32 @@ abstract class BaseCssFilter implements FilterInterface
     /**
      * @see CssUtils::filterReferences()
      */
-    protected function filterReferences($content, $callback, $limit = -1, &$count = 0)
+    protected function filterReferences(string $content, callable $callback): string
     {
-        return CssUtils::filterReferences($content, $callback, $limit, $count);
+        return CssUtils::filterReferences($content, $callback);
     }
 
     /**
      * @see CssUtils::filterUrls()
      */
-    protected function filterUrls($content, $callback, $limit = -1, &$count = 0)
+    protected function filterUrls(string $content, callable $callback): string
     {
-        return CssUtils::filterUrls($content, $callback, $limit, $count);
+        return CssUtils::filterUrls($content, $callback);
     }
 
     /**
      * @see CssUtils::filterImports()
      */
-    protected function filterImports($content, $callback, $limit = -1, &$count = 0, $includeUrl = true)
+    protected function filterImports(string $content, callable $callback, bool $includeUrl = true): string
     {
-        return CssUtils::filterImports($content, $callback, $limit, $count, $includeUrl);
+        return CssUtils::filterImports($content, $callback, $includeUrl);
     }
 
     /**
      * @see CssUtils::filterIEFilters()
      */
-    protected function filterIEFilters($content, $callback, $limit = -1, &$count = 0)
+    protected function filterIEFilters(string $content, callable $callback): string
     {
-        return CssUtils::filterIEFilters($content, $callback, $limit, $count);
+        return CssUtils::filterIEFilters($content, $callback);
     }
 }

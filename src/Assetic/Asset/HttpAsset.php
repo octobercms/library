@@ -13,12 +13,12 @@ use RuntimeException;
 class HttpAsset extends BaseAsset
 {
     /**
-     * @var mixed sourceUrl
+     * @var string sourceUrl
      */
     protected $sourceUrl;
 
     /**
-     * @var mixed ignoreErrors
+     * @var bool ignoreErrors
      */
     protected $ignoreErrors;
 
@@ -32,7 +32,7 @@ class HttpAsset extends BaseAsset
      *
      * @throws InvalidArgumentException If the first argument is not an URL
      */
-    public function __construct($sourceUrl, $filters = [], $ignoreErrors = false, array $vars = array())
+    public function __construct(string $sourceUrl, array $filters = [], bool $ignoreErrors = false, array $vars = [])
     {
         if (strpos($sourceUrl, '//') === 0) {
             $sourceUrl = 'http:'.$sourceUrl;
@@ -44,8 +44,8 @@ class HttpAsset extends BaseAsset
         $this->sourceUrl = $sourceUrl;
         $this->ignoreErrors = $ignoreErrors;
 
-        list($scheme, $url) = explode('://', $sourceUrl, 2);
-        list($host, $path) = explode('/', $url, 2);
+        [$scheme, $url] = explode('://', $sourceUrl, 2);
+        [$host, $path] = explode('/', $url, 2);
 
         parent::__construct($filters, $scheme.'://'.$host, $path, $vars);
     }
@@ -69,16 +69,18 @@ class HttpAsset extends BaseAsset
     /**
      * getLastModified
      */
-    public function getLastModified()
+    public function getLastModified(): ?int
     {
-        if (false !== @file_get_contents($this->sourceUrl, false, stream_context_create(array('http' => array('method' => 'HEAD'))))) {
+        if (false !== @file_get_contents($this->sourceUrl, false, stream_context_create(['http' => ['method' => 'HEAD']]))) {
             foreach ($http_response_header as $header) {
                 if (stripos($header, 'Last-Modified: ') === 0) {
-                    list(, $mtime) = explode(':', $header, 2);
+                    [, $mtime] = explode(':', $header, 2);
 
                     return strtotime(trim($mtime));
                 }
             }
         }
+
+        return null;
     }
 }

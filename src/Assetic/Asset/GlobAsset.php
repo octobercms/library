@@ -12,12 +12,12 @@ use Traversable;
 class GlobAsset extends AssetCollection
 {
     /**
-     * @var mixed globs
+     * @var array globs
      */
     protected $globs;
 
     /**
-     * @var mixed initialized
+     * @var bool initialized
      */
     protected $initialized;
 
@@ -29,7 +29,7 @@ class GlobAsset extends AssetCollection
      * @param string       $root    The root directory
      * @param array        $vars
      */
-    public function __construct($globs, $filters = [], $root = null, array $vars = [])
+    public function __construct($globs, array $filters = [], ?string $root = null, array $vars = [])
     {
         $this->globs = (array) $globs;
         $this->initialized = false;
@@ -40,7 +40,7 @@ class GlobAsset extends AssetCollection
     /**
      * all
      */
-    public function all()
+    public function all(): array
     {
         if (!$this->initialized) {
             $this->initialize();
@@ -52,7 +52,7 @@ class GlobAsset extends AssetCollection
     /**
      * load
      */
-    public function load(?FilterInterface $additionalFilter = null)
+    public function load(?FilterInterface $additionalFilter = null): void
     {
         if (!$this->initialized) {
             $this->initialize();
@@ -64,7 +64,7 @@ class GlobAsset extends AssetCollection
     /**
      * dump
      */
-    public function dump(?FilterInterface $additionalFilter = null)
+    public function dump(?FilterInterface $additionalFilter = null): string
     {
         if (!$this->initialized) {
             $this->initialize();
@@ -76,7 +76,7 @@ class GlobAsset extends AssetCollection
     /**
      * getLastModified
      */
-    public function getLastModified()
+    public function getLastModified(): ?int
     {
         if (!$this->initialized) {
             $this->initialize();
@@ -100,7 +100,7 @@ class GlobAsset extends AssetCollection
     /**
      * setValues
      */
-    public function setValues(array $values)
+    public function setValues(array $values): void
     {
         parent::setValues($values);
         $this->initialized = false;

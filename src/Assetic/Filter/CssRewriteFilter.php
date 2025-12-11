@@ -12,14 +12,14 @@ class CssRewriteFilter extends BaseCssFilter
     /**
      * filterLoad
      */
-    public function filterLoad(AssetInterface $asset)
+    public function filterLoad(AssetInterface $asset): void
     {
     }
 
     /**
      * filterDump
      */
-    public function filterDump(AssetInterface $asset)
+    public function filterDump(AssetInterface $asset): void
     {
         $sourceBase = $asset->getSourceRoot();
         $sourcePath = $asset->getSourcePath();
@@ -31,8 +31,8 @@ class CssRewriteFilter extends BaseCssFilter
 
         // Learn how to get from the target back to the source
         if (strpos($sourceBase, '://') !== false) {
-            list($scheme, $url) = explode('://', $sourceBase.'/'.$sourcePath, 2);
-            list($host, $path) = explode('/', $url, 2);
+            [$scheme, $url] = explode('://', $sourceBase.'/'.$sourcePath, 2);
+            [$host, $path] = explode('/', $url, 2);
 
             $host = $scheme.'://'.$host.'/';
             $path = false === strpos($path, '/') ? '' : dirname($path);

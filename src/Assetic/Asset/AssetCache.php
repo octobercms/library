@@ -12,12 +12,12 @@ use October\Rain\Assetic\Filter\HashableInterface;
 class AssetCache implements AssetInterface
 {
     /**
-     * @var mixed asset
+     * @var AssetInterface asset
      */
     protected $asset;
 
     /**
-     * @var mixed cache
+     * @var CacheInterface cache
      */
     protected $cache;
 
@@ -33,7 +33,7 @@ class AssetCache implements AssetInterface
     /**
      * ensureFilter
      */
-    public function ensureFilter(FilterInterface $filter)
+    public function ensureFilter(FilterInterface $filter): void
     {
         $this->asset->ensureFilter($filter);
     }
@@ -41,7 +41,7 @@ class AssetCache implements AssetInterface
     /**
      * getFilters
      */
-    public function getFilters()
+    public function getFilters(): array
     {
         return $this->asset->getFilters();
     }
@@ -49,7 +49,7 @@ class AssetCache implements AssetInterface
     /**
      * clearFilters
      */
-    public function clearFilters()
+    public function clearFilters(): void
     {
         $this->asset->clearFilters();
     }
@@ -57,7 +57,7 @@ class AssetCache implements AssetInterface
     /**
      * load
      */
-    public function load(?FilterInterface $additionalFilter = null)
+    public function load(?FilterInterface $additionalFilter = null): void
     {
         $cacheKey = self::getCacheKey($this->asset, $additionalFilter, 'load');
         if ($this->cache->has($cacheKey)) {
@@ -73,7 +73,7 @@ class AssetCache implements AssetInterface
     /**
      * dump
      */
-    public function dump(?FilterInterface $additionalFilter = null)
+    public function dump(?FilterInterface $additionalFilter = null): string
     {
         $cacheKey = self::getCacheKey($this->asset, $additionalFilter, 'dump');
         if ($this->cache->has($cacheKey)) {
@@ -89,7 +89,7 @@ class AssetCache implements AssetInterface
     /**
      * getContent
      */
-    public function getContent()
+    public function getContent(): ?string
     {
         return $this->asset->getContent();
     }
@@ -97,7 +97,7 @@ class AssetCache implements AssetInterface
     /**
      * setContent
      */
-    public function setContent($content)
+    public function setContent(?string $content): void
     {
         $this->asset->setContent($content);
     }
@@ -105,7 +105,7 @@ class AssetCache implements AssetInterface
     /**
      * getSourceRoot
      */
-    public function getSourceRoot()
+    public function getSourceRoot(): ?string
     {
         return $this->asset->getSourceRoot();
     }
@@ -113,7 +113,7 @@ class AssetCache implements AssetInterface
     /**
      * getSourcePath
      */
-    public function getSourcePath()
+    public function getSourcePath(): ?string
     {
         return $this->asset->getSourcePath();
     }
@@ -121,7 +121,7 @@ class AssetCache implements AssetInterface
     /**
      * getSourceDirectory
      */
-    public function getSourceDirectory()
+    public function getSourceDirectory(): ?string
     {
         return $this->asset->getSourceDirectory();
     }
@@ -129,7 +129,7 @@ class AssetCache implements AssetInterface
     /**
      * getTargetPath
      */
-    public function getTargetPath()
+    public function getTargetPath(): ?string
     {
         return $this->asset->getTargetPath();
     }
@@ -137,7 +137,7 @@ class AssetCache implements AssetInterface
     /**
      * setTargetPath
      */
-    public function setTargetPath($targetPath)
+    public function setTargetPath(?string $targetPath): void
     {
         $this->asset->setTargetPath($targetPath);
     }
@@ -145,7 +145,7 @@ class AssetCache implements AssetInterface
     /**
      * getLastModified
      */
-    public function getLastModified()
+    public function getLastModified(): ?int
     {
         return $this->asset->getLastModified();
     }
@@ -153,7 +153,7 @@ class AssetCache implements AssetInterface
     /**
      * getVars
      */
-    public function getVars()
+    public function getVars(): array
     {
         return $this->asset->getVars();
     }
@@ -161,7 +161,7 @@ class AssetCache implements AssetInterface
     /**
      * setValues
      */
-    public function setValues(array $values)
+    public function setValues(array $values): void
     {
         $this->asset->setValues($values);
     }
@@ -169,7 +169,7 @@ class AssetCache implements AssetInterface
     /**
      * getValues
      */
-    public function getValues()
+    public function getValues(): array
     {
         return $this->asset->getValues();
     }
@@ -190,7 +190,7 @@ class AssetCache implements AssetInterface
      *
      * @return string A key for identifying the current asset
      */
-    protected static function getCacheKey(AssetInterface $asset, ?FilterInterface $additionalFilter = null, $salt = '')
+    protected static function getCacheKey(AssetInterface $asset, ?FilterInterface $additionalFilter = null, string $salt = ''): string
     {
         if ($additionalFilter) {
             $asset = clone $asset;
