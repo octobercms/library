@@ -18,69 +18,78 @@ class MockAsset implements AssetInterface
         $this->content = $content;
     }
 
-    public function ensureFilter(FilterInterface $filter)
+    public function ensureFilter(FilterInterface $filter): void
     {
     }
 
-    public function getFilters()
+    public function getFilters(): array
+    {
+        return [];
+    }
+
+    public function clearFilters(): void
     {
     }
 
-    public function clearFilters()
+    public function load(?FilterInterface $additionalFilter = null): void
     {
     }
 
-    public function load(?FilterInterface $additionalFilter = null)
+    public function dump(?FilterInterface $additionalFilter = null): string
     {
+        return $this->content ?? '';
     }
 
-    public function dump(?FilterInterface $additionalFilter = null)
-    {
-    }
-
-    public function getContent()
+    public function getContent(): ?string
     {
         return $this->content;
     }
 
-    public function setContent($content)
+    public function setContent(?string $content): void
     {
         $this->content = $content;
     }
 
-    public function getSourceRoot()
+    public function getSourceRoot(): ?string
+    {
+        return null;
+    }
+
+    public function getSourcePath(): ?string
+    {
+        return null;
+    }
+
+    public function getSourceDirectory(): ?string
+    {
+        return null;
+    }
+
+    public function getTargetPath(): ?string
+    {
+        return null;
+    }
+
+    public function setTargetPath(?string $targetPath): void
     {
     }
 
-    public function getSourcePath()
+    public function getLastModified(): ?int
+    {
+        return null;
+    }
+
+    public function getVars(): array
+    {
+        return [];
+    }
+
+    public function setValues(array $values): void
     {
     }
 
-    public function getSourceDirectory()
+    public function getValues(): array
     {
-    }
-
-    public function getTargetPath()
-    {
-    }
-
-    public function setTargetPath($targetPath)
-    {
-    }
-
-    public function getLastModified()
-    {
-    }
-
-    public function getVars()
-    {
-    }
-
-    public function setValues(array $values)
-    {
-    }
-
-    public function getValues()
-    {
+        return [];
     }
 }
