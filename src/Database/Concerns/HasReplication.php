@@ -56,7 +56,9 @@ trait HasReplication
     public function isRelationReplicable(string $name): bool
     {
         $relationType = $this->getRelationType($name);
-        if ($relationType === 'morphTo') {
+
+        // Skip read-only relations
+        if (in_array($relationType, ['morphTo', 'hasManyThrough', 'hasOneThrough'])) {
             return false;
         }
 
