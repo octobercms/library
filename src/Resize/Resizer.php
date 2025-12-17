@@ -182,12 +182,18 @@ class Resizer
             $this->image->resize($width, $height);
         }
         elseif ($mode === 'crop') {
-            $this->image->crop(
-                $width,
-                $height,
-                $this->options['offset'][0] ?? 0,
-                $this->options['offset'][1] ?? 0
-            );
+            // Backward compatibility
+            if (!array_key_exists('offset', $options)) {
+                $this->image->cover($width, $height);
+            }
+            else {
+                $this->image->crop(
+                    $width,
+                    $height,
+                    $this->options['offset'][0] ?? 0,
+                    $this->options['offset'][1] ?? 0
+                );
+            }
         }
         elseif ($mode === 'cover' || $mode === 'fit') {
             $this->image->cover($width, $height);
