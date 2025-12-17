@@ -123,11 +123,11 @@ class ClassLoader
             return false;
         }
 
-        [$lowerClass, $upperClass] = $this->normalizeClass($class);
-
         // Load namespaces
         foreach ($this->namespaces as $namespace => $directory) {
             if (substr($class, 0, strlen($namespace)) === $namespace) {
+                $classWithoutNamespace = substr($class, strlen($namespace));
+                [$lowerClass, $upperClass] = $this->normalizeClass($classWithoutNamespace);
                 if ($this->loadUpperOrLower($class, $directory, $upperClass, $lowerClass) === true) {
                     return true;
                 }
@@ -135,6 +135,7 @@ class ClassLoader
         }
 
         // Load directories
+        [$lowerClass, $upperClass] = $this->normalizeClass($class);
         foreach ($this->directories as $directory) {
             if ($this->loadUpperOrLower($class, $directory, $upperClass, $lowerClass) === true) {
                 return true;

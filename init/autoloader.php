@@ -3,7 +3,7 @@
 use October\Rain\Composer\ClassLoader;
 
 ClassLoader::configure(dirname(__DIR__, 4))
-    ->withNamespace('App\\', '')
+    ->withNamespace('App\\', 'app')
     ->withDirectories([
         'modules',
         'plugins'
