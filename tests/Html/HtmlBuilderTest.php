@@ -21,15 +21,17 @@ class HtmlBuilderTest extends TestCase
         $result = with(new HtmlBuilder)->limit("<p>The quick brown fox jumped over the lazy dog</p><p>The quick brown fox jumped over the lazy dog</p>", 50);
         $this->assertEquals('<p>The quick brown fox jumped over the lazy dog</p><p>The qu...</p>', $result);
 
-        $result = with(new HtmlBuilder)->limit(trim("
+        $input = str_replace("\r\n", "\n", trim("
             <p>The quick brown fox jumped over the lazy dog</p>
             <p>The quick brown fox jumped over the lazy dog</p>
-        "), 60);
+        "));
+        $result = with(new HtmlBuilder)->limit($input, 60);
 
-        $this->assertEquals(trim('
+        $expected = str_replace("\r\n", "\n", trim('
             <p>The quick brown fox jumped over the lazy dog</p>
             <p>The...</p>
-        '), $result);
+        '));
+        $this->assertEquals($expected, $result);
     }
 
     public function testClean()

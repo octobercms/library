@@ -15,7 +15,7 @@ jobs:
     strategy:
       max-parallel: 6
       matrix:
-        phpVersions: ['8.2', '8.3', '8.4']
+        phpVersions: ['8.2', '8.3', '8.4', '8.5']
       fail-fast: false
     name: PHP ${{ matrix.phpVersions }}
     steps:

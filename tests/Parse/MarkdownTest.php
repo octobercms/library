@@ -97,7 +97,7 @@ $expected = '<p>&lt;table</p>
         $normal = $parser->parse($text);
 
         // Only accepting one node per line
-        $this->assertEquals($expected, $normal);
+        $this->assertEquals(str_replace("\r\n", "\n", $expected), $normal);
     }
 
     public function testParseMultilineHtml()
@@ -149,6 +149,6 @@ HTML;
 
         $normal = $parser->parse($text);
 
-        $this->assertEquals($expected, $normal);
+        $this->assertEquals(str_replace("\r\n", "\n", $expected), $normal);
     }
 }

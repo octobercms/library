@@ -45,7 +45,7 @@ class Translator extends TranslatorBase
 
         // Laravel notes that with JSON translations, there is no usage of a fallback language.
         // The key is the translation. Here we extend the technology to add fallback support.
-        if ($fallback && $line === null) {
+        if ($fallback && $line === null && $this->fallback !== null) {
             $this->load('*', '*', $this->fallback);
             $line = $this->loaded['*']['*'][$this->fallback][$key] ?? null;
         }
