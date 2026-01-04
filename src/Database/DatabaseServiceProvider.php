@@ -33,35 +33,25 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
         Model::setConnectionResolver($this->app['db']);
         Model::setEventDispatcher($this->app['events']);
 
-        // Configure N+1 query prevention in development environments
-        // This helps detect lazy loading issues (Laravel 12 performance optimization)
         $this->configureStrictLoading();
     }
 
     /**
-     * configureStrictLoading sets up N+1 query prevention based on environment.
-     * When enabled, lazy loading will throw an exception in development,
-     * helping developers identify and fix N+1 query issues early.
-     * (Laravel 12 performance optimization)
+     * configureStrictLoading sets up lazy loading prevention based on environment.
+     * @see \Illuminate\Database\Eloquent\Model::preventLazyLoading()
      */
     protected function configureStrictLoading(): void
     {
-        // Only apply in development unless explicitly configured
         $strictMode = $this->app['config']->get('database.strict_loading');
 
         if ($strictMode === null) {
-            // Default: enable in development, disable in production
             $strictMode = !$this->app->isProduction();
         }
 
-        // Only prevent lazy loading if strict mode is enabled
-        // and the feature is available in the base Eloquent model
         if ($strictMode && method_exists(Model::class, 'preventLazyLoading')) {
             Model::preventLazyLoading();
         }
 
-        // Optionally log silently instead of throwing exceptions in production
-        // This allows monitoring for N+1 queries without breaking the application
         if (
             $this->app->isProduction() &&
             $this->app['config']->get('database.log_lazy_loading', false) &&

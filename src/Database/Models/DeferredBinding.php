@@ -36,12 +36,6 @@ class DeferredBinding extends Model
     protected static $hasDeferredCache = [];
 
     /**
-     * @var int maxCacheSize limits static cache size to prevent memory issues
-     * in long-running processes (Laravel 12 performance optimization)
-     */
-    protected static $maxCacheSize = 100;
-
-    /**
      * beforeCreate prevents duplicates and conflicting binds
      */
     public function beforeCreate()
@@ -103,27 +97,13 @@ class DeferredBinding extends Model
     }
 
     /**
-     * hasDeferredActions allows efficient and informed checks used by validation.
-     * Implements LRU-like cache eviction to prevent unbounded memory growth
-     * in long-running processes (Laravel 12 performance optimization).
+     * hasDeferredActions allows efficient and informed checks used by validation
      */
     public static function hasDeferredActions($masterType, $sessionKey, $fieldName = null): bool
     {
         $cacheKey = "{$masterType}.{$sessionKey}";
 
         if (!array_key_exists($cacheKey, self::$hasDeferredCache)) {
-            // Evict oldest entries if cache exceeds max size (LRU-like eviction)
-            if (count(self::$hasDeferredCache) >= self::$maxCacheSize) {
-                // Remove oldest 20% of entries to reduce eviction frequency
-                $removeCount = max(1, (int) (self::$maxCacheSize * 0.2));
-                self::$hasDeferredCache = array_slice(
-                    self::$hasDeferredCache,
-                    $removeCount,
-                    null,
-                    true
-                );
-            }
-
             self::$hasDeferredCache[$cacheKey] = self::where('master_type', $masterType)
                 ->where('session_key', $sessionKey)
                 ->pluck('master_field')
@@ -139,53 +119,32 @@ class DeferredBinding extends Model
     }
 
     /**
-     * setMaxCacheSize allows configuring the maximum cache size.
-     */
-    public static function setMaxCacheSize(int $size): void
-    {
-        self::$maxCacheSize = max(1, $size);
-    }
-
-    /**
-     * clearCache clears the deferred actions cache.
-     */
-    public static function clearCache(): void
-    {
-        self::$hasDeferredCache = [];
-    }
-
-    /**
-     * cancelDeferredActions cancels all deferred bindings to this model.
-     * Uses chunking for memory efficiency (Laravel 12 performance optimization).
+     * cancelDeferredActions cancels all deferred bindings to this model
      */
     public static function cancelDeferredActions($masterType, $sessionKey)
     {
-        self::where('master_type', $masterType)
+        $records = self::where('master_type', $masterType)
             ->where('session_key', $sessionKey)
-            ->chunkById(100, function ($records) {
-                foreach ($records as $record) {
-                    $record->deleteCancel();
-                }
-            })
+            ->get()
         ;
+
+        foreach ($records as $record) {
+            $record->deleteCancel();
+        }
     }
 
     /**
-     * cleanUp orphan bindings.
-     * Uses chunking and lazy collection for memory efficiency
-     * when processing large datasets (Laravel 12 performance optimization).
+     * cleanUp orphan bindings
      */
     public static function cleanUp($days = 5)
     {
         $timestamp = Carbon::now()->subDays($days)->toDateTimeString();
 
-        self::where('created_at', '<', $timestamp)
-            ->chunkById(100, function ($records) {
-                foreach ($records as $record) {
-                    $record->deleteCancel();
-                }
-            })
-        ;
+        $records = self::where('created_at', '<', $timestamp)->get();
+
+        foreach ($records as $record) {
+            $record->deleteCancel();
+        }
     }
 
     /**
