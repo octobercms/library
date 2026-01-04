@@ -6,6 +6,10 @@ use October\Rain\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\DatabaseServiceProvider as DatabaseServiceProviderBase;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\DatabaseTransactionsManager;
+use Illuminate\Database\ConcurrencyErrorDetector;
+use Illuminate\Database\LostConnectionDetector;
+use Illuminate\Contracts\Database\ConcurrencyErrorDetector as ConcurrencyErrorDetectorContract;
+use Illuminate\Contracts\Database\LostConnectionDetector as LostConnectionDetectorContract;
 
 /**
  * DatabaseServiceProvider
@@ -70,6 +74,14 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
 
         $this->app->singleton('db.transactions', function ($app) {
             return new DatabaseTransactionsManager;
+        });
+
+        $this->app->singleton(ConcurrencyErrorDetectorContract::class, function () {
+            return new ConcurrencyErrorDetector;
+        });
+
+        $this->app->singleton(LostConnectionDetectorContract::class, function () {
+            return new LostConnectionDetector;
         });
 
         $this->app->bind('db.replicator', Replicator::class);
