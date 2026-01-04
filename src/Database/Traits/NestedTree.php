@@ -748,6 +748,69 @@ trait NestedTree
     }
 
     /**
+     * updateDescendantDepths efficiently updates all descendant depths in batch.
+     * Uses a single query with CASE statement instead of N individual updates
+     * (Laravel 12 performance optimization).
+     * @return void
+     */
+    protected function updateDescendantDepths()
+    {
+        $descendants = $this->newNestedTreeQuery()->allChildren()->get([
+            $this->getKeyName(),
+            $this->getParentColumnName(),
+            $this->getDepthColumnName()
+        ]);
+
+        if ($descendants->isEmpty()) {
+            return;
+        }
+
+        // Calculate depths based on parent-child relationships
+        $depthMap = [];
+        $parentDepths = [$this->getKey() => $this->getDepth()];
+
+        // Build depth map by traversing the tree
+        foreach ($descendants as $descendant) {
+            $parentId = $descendant->{$this->getParentColumnName()};
+            $parentDepth = $parentDepths[$parentId] ?? $this->getDepth();
+            $newDepth = $parentDepth + 1;
+            $depthMap[$descendant->getKey()] = $newDepth;
+            $parentDepths[$descendant->getKey()] = $newDepth;
+        }
+
+        if (empty($depthMap)) {
+            return;
+        }
+
+        // Build batch update using CASE statement
+        $connection = $this->getConnection();
+        $grammar = $connection->getQueryGrammar();
+        $pdo = $connection->getPdo();
+
+        $keyColumn = $this->getKeyName();
+        $depthColumn = $this->getDepthColumnName();
+        $wrappedKey = $grammar->wrap($keyColumn);
+        $wrappedDepth = $grammar->wrap($depthColumn);
+
+        $cases = [];
+        $ids = [];
+        foreach ($depthMap as $id => $depth) {
+            $quotedId = $pdo->quote($id);
+            $cases[] = "WHEN {$quotedId} THEN " . (int) $depth;
+            $ids[] = $id;
+        }
+
+        $caseSql = implode(' ', $cases);
+        $this->newNestedTreeQuery()
+            ->whereIn($keyColumn, $ids)
+            ->update([
+                $depthColumn => $connection->raw(
+                    "CASE {$wrappedKey} {$caseSql} ELSE {$wrappedDepth} END"
+                )
+            ]);
+    }
+
+    /**
      * setDefaultLeftAndRight columns
      * @return void
      */
@@ -861,9 +924,9 @@ trait NestedTree
         $target->reload();
         $this->setDepth();
 
-        foreach ($this->newNestedTreeQuery()->allChildren()->get() as $descendant) {
-            $descendant->setDepth();
-        }
+        // Batch update descendant depths for better performance (Laravel 12 optimization)
+        // Instead of N individual queries, calculate and update all depths at once
+        $this->updateDescendantDepths();
 
         $this->reload();
         return $this;

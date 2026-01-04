@@ -77,7 +77,9 @@ trait Multisite
     }
 
     /**
-     * multisiteSaveComplete constructor event used internally
+     * multisiteSaveComplete constructor event used internally.
+     * Optimized with keyed collection for O(1) lookups instead of O(n)
+     * collection filtering (Laravel 12 performance optimization).
      */
     public function multisiteSaveComplete()
     {
@@ -90,13 +92,20 @@ trait Multisite
         }
 
         Site::withGlobalContext(function() {
-            $otherModels = $this->newOtherSiteQuery()->get();
             $otherSites = $this->getMultisiteSyncSites();
+
+            // Early return if no sites to sync
+            if (empty($otherSites)) {
+                return;
+            }
+
+            // Key the collection by site_id for O(1) lookups instead of O(n) filtering
+            $otherModels = $this->newOtherSiteQuery()->get()->keyBy('site_id');
 
             // Propagate attributes to known records
             if ($this->propagatable) {
                 foreach ($otherSites as $siteId) {
-                    if ($model = $otherModels->where('site_id', $siteId)->first()) {
+                    if ($model = $otherModels->get($siteId)) {
                         $this->propagateToSite($siteId, $model);
                     }
                 }
@@ -104,7 +113,8 @@ trait Multisite
 
             // Sync non-existent records
             if ($this->isMultisiteSyncEnabled()) {
-                $missingSites = array_diff($otherSites, $otherModels->pluck('site_id')->all());
+                $existingSiteIds = $otherModels->keys()->all();
+                $missingSites = array_diff($otherSites, $existingSiteIds);
                 foreach ($missingSites as $missingSite) {
                     $this->propagateToSite($missingSite);
                 }

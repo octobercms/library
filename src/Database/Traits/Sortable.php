@@ -87,11 +87,9 @@ trait Sortable
         }
 
         if ($upsert) {
-            foreach ($upsert as $update) {
-                $this->newQuery()
-                    ->where($keyName, $update['id'])
-                    ->update([$this->getSortOrderColumn() => $update['sort_order']]);
-            }
+            // Use batch update for better performance (Laravel 12 optimization)
+            // Instead of N individual UPDATE queries, use a single CASE statement
+            $this->performBatchSortOrderUpdate($upsert, $keyName);
         }
 
         $this->fireEvent('model.setSortableOrder');
@@ -135,15 +133,61 @@ trait Sortable
     }
 
     /**
+     * performBatchSortOrderUpdate uses a single query with CASE statement
+     * for batch updating sort orders (Laravel 12 performance optimization).
+     */
+    protected function performBatchSortOrderUpdate(array $updates, string $keyName): void
+    {
+        if (empty($updates)) {
+            return;
+        }
+
+        $sortOrderColumn = $this->getSortOrderColumn();
+        $connection = $this->getConnection();
+        $grammar = $connection->getQueryGrammar();
+        $pdo = $connection->getPdo();
+
+        $wrappedKey = $grammar->wrap($keyName);
+        $wrappedSortOrder = $grammar->wrap($sortOrderColumn);
+
+        // Build CASE statement with properly quoted values
+        $cases = [];
+        $ids = [];
+        foreach ($updates as $update) {
+            $quotedId = $pdo->quote($update['id']);
+            $cases[] = "WHEN {$quotedId} THEN " . (int) $update['sort_order'];
+            $ids[] = $update['id'];
+        }
+
+        $caseSql = implode(' ', $cases);
+        $this->newQuery()
+            ->whereIn($keyName, $ids)
+            ->update([
+                $sortOrderColumn => $connection->raw(
+                    "CASE {$wrappedKey} {$caseSql} ELSE {$wrappedSortOrder} END"
+                )
+            ]);
+    }
+
+    /**
      * resetSortableOrdering can be used to repair corrupt or missing sortable definitions.
      */
     public function resetSortableOrdering()
     {
-        $ids = $this->newQuery()->pluck($this->getKeyName());
+        $keyName = $this->getKeyName();
+        $ids = $this->newQuery()->pluck($keyName)->all();
 
-        foreach ($ids as $id) {
-            $this->newQuery()->where($this->getKeyName(), $id)->update([$this->getSortOrderColumn() => $id]);
+        if (empty($ids)) {
+            return;
         }
+
+        // Use batch update instead of N individual queries
+        $upsert = [];
+        foreach ($ids as $id) {
+            $upsert[] = ['id' => $id, 'sort_order' => $id];
+        }
+
+        $this->performBatchSortOrderUpdate($upsert, $keyName);
     }
 
     /**
