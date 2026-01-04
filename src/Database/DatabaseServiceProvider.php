@@ -33,33 +33,9 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
         Model::setConnectionResolver($this->app['db']);
         Model::setEventDispatcher($this->app['events']);
 
-        $this->configureStrictLoading();
-    }
-
-    /**
-     * configureStrictLoading sets up lazy loading prevention based on environment.
-     * @see \Illuminate\Database\Eloquent\Model::preventLazyLoading()
-     */
-    protected function configureStrictLoading(): void
-    {
-        $strictMode = $this->app['config']->get('database.strict_loading');
-
-        if ($strictMode === null) {
-            $strictMode = !$this->app->isProduction();
-        }
-
-        if ($strictMode && method_exists(Model::class, 'preventLazyLoading')) {
-            Model::preventLazyLoading();
-        }
-
-        if (
-            $this->app->isProduction() &&
-            $this->app['config']->get('database.log_lazy_loading', false) &&
-            method_exists(Model::class, 'handleLazyLoadingViolationUsing')
-        ) {
-            Model::handleLazyLoadingViolationUsing(function ($model, $relation) {
-                $this->app['log']->warning("Lazy loading violation: {$relation} on " . get_class($model));
-            });
+        // Prevent lazy loading in non-production environments
+        if (method_exists(Model::class, 'preventLazyLoading')) {
+            Model::preventLazyLoading(!$this->app->isProduction());
         }
     }
 
