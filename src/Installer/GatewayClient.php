@@ -19,9 +19,6 @@ use Exception;
  *   $client = (new GatewayClient)->setProjectHash('your-license-key-or-hash');
  *   $updates = $client->checkForUpdates(['plugins' => [...], 'themes' => [...]]);
  *
- *   // Open operations (no auth)
- *   $client = new GatewayClient;
- *   $result = $client->validateLicense('XXXX-XXXX-XXXX-XXXX');
  *
  */
 class GatewayClient
@@ -248,35 +245,6 @@ class GatewayClient
             'package' => $packageCode,
             'type' => $type,
         ]);
-    }
-
-    // =========================================================================
-    // OPEN ENDPOINTS (No Auth Required)
-    // =========================================================================
-
-    /**
-     * validateLicense validates a license key (no authentication required)
-     *
-     * @param string $licenseKey License key to validate
-     * @return array License information
-     * @throws Exception
-     */
-    public function validateLicense(string $licenseKey): array
-    {
-        return $this->request('licenses/validate', [
-            'license_key' => $licenseKey,
-        ]);
-    }
-
-    /**
-     * ping performs a health check
-     *
-     * @return array Server status
-     * @throws Exception
-     */
-    public function ping(): array
-    {
-        return $this->request('ping', [], 'GET');
     }
 
     // =========================================================================
