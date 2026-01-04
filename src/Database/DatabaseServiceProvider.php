@@ -22,7 +22,6 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
     public function register()
     {
         Model::clearBootedModels();
-        Model::flushEventListeners();
 
         $this->registerConnectionServices();
         $this->registerFakerGenerator();
