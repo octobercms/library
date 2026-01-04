@@ -4,6 +4,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Database\Connectors\ConnectionFactory as ConnectionFactoryBase;
 use October\Rain\Database\Connections\Connection;
 use October\Rain\Database\Connections\MySqlConnection;
+use October\Rain\Database\Connections\MariaDbConnection;
 use October\Rain\Database\Connections\SQLiteConnection;
 use October\Rain\Database\Connections\PostgresConnection;
 use October\Rain\Database\Connections\SqlServerConnection;
@@ -57,6 +58,8 @@ class ConnectionFactory extends ConnectionFactoryBase
         switch ($driver) {
             case 'mysql':
                 return new MySqlConnection($connection, $database, $prefix, $config);
+            case 'mariadb':
+                return new MariaDbConnection($connection, $database, $prefix, $config);
             case 'pgsql':
                 return new PostgresConnection($connection, $database, $prefix, $config);
             case 'sqlite':
