@@ -91,7 +91,8 @@ trait HasAttributes
             return $this->relations[$key];
         }
 
-        if (!$this->hasRelation($key)) {
+        // Check both October and Laravel
+        if (!$this->hasRelation($key) && !$this->isRelation($key)) {
             return;
         }
 
