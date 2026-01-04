@@ -32,11 +32,6 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
     {
         Model::setConnectionResolver($this->app['db']);
         Model::setEventDispatcher($this->app['events']);
-
-        // Prevent lazy loading in non-production environments
-        if (method_exists(Model::class, 'preventLazyLoading')) {
-            Model::preventLazyLoading(!$this->app->isProduction());
-        }
     }
 
     /**
