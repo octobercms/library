@@ -168,13 +168,28 @@ class Resizer
     /**
      * resize and/or crop an image, specifying the new width and height of the
      * destination image.
-     * @param int $width
-     * @param int $height
+     * @param int|null $width
+     * @param int|null $height
      * @param array $options
      */
     public function resize($width, $height, $options = []): static
     {
         $this->setOptions($options);
+
+        // Support null for proportional resizing
+        $width = (int) $width;
+        $height = (int) $height;
+
+        if (!$width && !$height) {
+            $width = $this->width;
+            $height = $this->height;
+        }
+        elseif (!$width) {
+            $width = (int) round($height * ($this->width / $this->height));
+        }
+        elseif (!$height) {
+            $height = (int) round($width * ($this->height / $this->width));
+        }
 
         $mode = $this->options['mode'] ?? 'auto';
 
