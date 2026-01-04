@@ -20,42 +20,78 @@ use ScssPhp\ScssPhp\Compiler;
  */
 class ScssphpFilter implements DependencyExtractorInterface
 {
-    private $importPaths = [];
-    private $customFunctions = [];
-    private $formatter;
-    private $variables = [];
+    /**
+     * @var array importPaths
+     */
+    protected $importPaths = [];
 
+    /**
+     * @var array customFunctions
+     */
+    protected $customFunctions = [];
+
+    /**
+     * @var mixed formatter
+     */
+    protected $formatter;
+
+    /**
+     * @var array variables
+     */
+    protected $variables = [];
+
+    /**
+     * setFormatter
+     */
     public function setFormatter($formatter)
     {
         $this->formatter = $formatter;
     }
 
+    /**
+     * setVariables
+     */
     public function setVariables(array $variables)
     {
         $this->variables = $variables;
     }
 
+    /**
+     * addVariable
+     */
     public function addVariable($variable)
     {
         $this->variables[] = $variable;
     }
 
+    /**
+     * setImportPaths
+     */
     public function setImportPaths(array $paths)
     {
         $this->importPaths = $paths;
     }
 
+    /**
+     * addImportPath
+     */
     public function addImportPath($path)
     {
         $this->importPaths[] = $path;
     }
 
+    /**
+     * registerFunction
+     */
     public function registerFunction($name, $callable)
     {
         $this->customFunctions[$name] = $callable;
     }
 
-    public function filterLoad(AssetInterface $asset)
+    /**
+     * filterLoad
+     */
+    public function filterLoad(AssetInterface $asset): void
     {
         $sc = new Compiler();
 
@@ -101,10 +137,16 @@ class ScssphpFilter implements DependencyExtractorInterface
         $asset->setContent($result->getCss());
     }
 
-    public function filterDump(AssetInterface $asset)
+    /**
+     * filterDump
+     */
+    public function filterDump(AssetInterface $asset): void
     {
     }
 
+    /**
+     * getChildren
+     */
     public function getChildren(AssetFactory $factory, $content, $loadPath = null)
     {
         $sc = new Compiler();

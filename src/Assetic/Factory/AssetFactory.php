@@ -148,11 +148,11 @@ class AssetFactory
     public function createAsset($inputs = [], $filters = [], array $options = [])
     {
         if (!is_array($inputs)) {
-            $inputs = array($inputs);
+            $inputs = [$inputs];
         }
 
         if (!is_array($filters)) {
-            $filters = array($filters);
+            $filters = [$filters];
         }
 
         if (!isset($options['output'])) {
@@ -168,11 +168,11 @@ class AssetFactory
         }
 
         if (!isset($options['root'])) {
-            $options['root'] = array($this->root);
+            $options['root'] = [$this->root];
         }
         else {
             if (!is_array($options['root'])) {
-                $options['root'] = array($options['root']);
+                $options['root'] = [$options['root']];
             }
 
             $options['root'][] = $this->root;
@@ -189,7 +189,7 @@ class AssetFactory
         foreach ($inputs as $input) {
             if (is_array($input)) {
                 // nested formula
-                $asset->add(call_user_func_array(array($this, 'createAsset'), $input));
+                $asset->add($this->createAsset(...$input));
             }
             else {
                 $asset->add($this->parseInput($input, $options));
@@ -240,9 +240,9 @@ class AssetFactory
     /**
      * generateAssetName
      */
-    public function generateAssetName($inputs, $filters, $options = [])
+    public function generateAssetName($inputs, $filters, $options = []): string
     {
-        foreach (array_diff(array_keys($options), array('output', 'debug', 'root')) as $key) {
+        foreach (array_diff(array_keys($options), ['output', 'debug', 'root']) as $key) {
             unset($options[$key]);
         }
 

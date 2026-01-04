@@ -11,12 +11,34 @@ use October\Rain\Assetic\Asset\AssetInterface;
  */
 class JSqueezeFilter implements FilterInterface
 {
-    private $singleLine = true;
-    private $keepImportantComments = true;
-    private $className;
-    private $specialVarRx = false;
-    private $defaultRx;
+    /**
+     * @var mixed singleLine
+     */
+    protected $singleLine = true;
 
+    /**
+     * @var bool keepImportantComments
+     */
+    protected $keepImportantComments = true;
+
+    /**
+     * @var mixed className
+     */
+    protected $className;
+
+    /**
+     * @var bool specialVarRx
+     */
+    protected $specialVarRx = false;
+
+    /**
+     * @var mixed defaultRx
+     */
+    protected $defaultRx;
+
+    /**
+     * __construct
+     */
     public function __construct()
     {
         // JSqueeze is namespaced since 2.x, this works with both 1.x and 2.x
@@ -50,11 +72,11 @@ class JSqueezeFilter implements FilterInterface
         $this->keepImportantComments = (bool) $bool;
     }
 
-    public function filterLoad(AssetInterface $asset)
+    public function filterLoad(AssetInterface $asset): void
     {
     }
 
-    public function filterDump(AssetInterface $asset)
+    public function filterDump(AssetInterface $asset): void
     {
         $parser = new $this->className();
         $asset->setContent($parser->squeeze(

@@ -444,7 +444,7 @@ class HtmlBuilder
                 break;
             }
 
-            if ($tag[0] === '&' || ord($tag) >= 0x80) {
+            if ($tag[0] === '&' || ord($tag[0]) >= 0x80) {
                 $result .= $tag;
                 $printedLength++;
             }

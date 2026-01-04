@@ -12,21 +12,27 @@ use October\Rain\Assetic\Filter\FilterInterface;
  */
 class StylesheetMinify implements FilterInterface
 {
-    public function filterLoad(AssetInterface $asset)
+    /**
+     * filterLoad
+     */
+    public function filterLoad(AssetInterface $asset): void
     {
     }
 
-    public function filterDump(AssetInterface $asset)
+    /**
+     * filterDump
+     */
+    public function filterDump(AssetInterface $asset): void
     {
         $asset->setContent($this->minify($asset->getContent()));
     }
 
     /**
-     * minify CSS
-     * @var $css string CSS code to minify.
+     * Minify CSS
+     * @param string $css CSS code to minify.
      * @return string Minified CSS.
      */
-    protected function minify($css)
+    protected function minify(string $css): string
     {
         // Normalize whitespace in a smart way
         $css = preg_replace('/\s{2,}/', ' ', $css);

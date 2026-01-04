@@ -3,6 +3,7 @@
 use Validator as ValidatorFacade;
 use Illuminate\Validation\ValidationException as ValidationExceptionBase;
 use Illuminate\Validation\Validator;
+use Illuminate\Support\MessageBag;
 use InvalidArgumentException;
 
 /**
@@ -35,8 +36,6 @@ class ValidationException extends ValidationExceptionBase
     {
         parent::__construct($this->resolveToValidator($validation));
 
-        $this->errors = $this->validator->errors();
-
         $this->evalErrors();
     }
 
@@ -55,6 +54,10 @@ class ValidationException extends ValidationExceptionBase
             $validator = ValidatorFacade::make([], []);
             $validator->errors()->merge($validation);
         }
+        elseif ($validation instanceof MessageBag) {
+            $validator = ValidatorFacade::make([], []);
+            $validator->errors()->merge($validation->messages());
+        }
 
         if (!$validator instanceof Validator) {
             throw new InvalidArgumentException('ValidationException constructor requires instance of Validator or array');
@@ -70,12 +73,12 @@ class ValidationException extends ValidationExceptionBase
     {
         $this->fields = [];
 
-        foreach ($this->errors->getMessages() as $field => $messages) {
+        foreach ($this->errors() as $field => $messages) {
             $fieldName = implode('.', array_merge($this->fieldPrefix, [$field]));
             $this->fields[$fieldName] = (array) $messages;
         }
 
-        $this->message = $this->errors->first();
+        $this->message = $this->getErrors()->first();
     }
 
     /**
@@ -84,11 +87,11 @@ class ValidationException extends ValidationExceptionBase
      */
     public function getErrors()
     {
-        return $this->errors;
+        return $this->validator->errors();
     }
 
     /**
-     * getFields returns invalid fields
+     * @deprecated use ->errors()
      */
     public function getFields()
     {
@@ -103,5 +106,7 @@ class ValidationException extends ValidationExceptionBase
         $this->fieldPrefix = array_filter($prefix, 'strlen');
 
         $this->evalErrors();
+
+        $this->validator = $this->resolveToValidator($this->fields);
     }
 }

@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Assetic\Asset;
 
-
 use October\Rain\Assetic\Filter\FilterCollection;
 use October\Rain\Assetic\Filter\FilterInterface;
 
@@ -15,47 +14,47 @@ use October\Rain\Assetic\Filter\FilterInterface;
 abstract class BaseAsset implements AssetInterface
 {
     /**
-     * @var mixed filters
+     * @var FilterCollection filters
      */
     protected $filters;
 
     /**
-     * @var mixed sourceRoot
+     * @var string|null sourceRoot
      */
     protected $sourceRoot;
 
     /**
-     * @var mixed sourcePath
+     * @var string|null sourcePath
      */
     protected $sourcePath;
 
     /**
-     * @var mixed sourceDir
+     * @var string|null sourceDir
      */
     protected $sourceDir;
 
     /**
-     * @var mixed targetPath
+     * @var string|null targetPath
      */
     protected $targetPath;
 
     /**
-     * @var mixed content
+     * @var string|null content
      */
     protected $content;
 
     /**
-     * @var mixed loaded
+     * @var bool loaded
      */
     protected $loaded;
 
     /**
-     * @var mixed vars
+     * @var array vars
      */
     protected $vars;
 
     /**
-     * @var mixed values
+     * @var array values
      */
     protected $values;
 
@@ -67,7 +66,7 @@ abstract class BaseAsset implements AssetInterface
      * @param string $sourcePath The asset path
      * @param array  $vars
      */
-    public function __construct($filters = array(), $sourceRoot = null, $sourcePath = null, array $vars = array())
+    public function __construct(array $filters = [], ?string $sourceRoot = null, ?string $sourcePath = null, array $vars = [])
     {
         $this->filters = new FilterCollection($filters);
         $this->sourceRoot = $sourceRoot;
@@ -76,7 +75,7 @@ abstract class BaseAsset implements AssetInterface
             $this->sourceDir = dirname("$sourceRoot/$sourcePath");
         }
         $this->vars = $vars;
-        $this->values = array();
+        $this->values = [];
         $this->loaded = false;
     }
 
@@ -85,17 +84,17 @@ abstract class BaseAsset implements AssetInterface
         $this->filters = clone $this->filters;
     }
 
-    public function ensureFilter(FilterInterface $filter)
+    public function ensureFilter(FilterInterface $filter): void
     {
         $this->filters->ensure($filter);
     }
 
-    public function getFilters()
+    public function getFilters(): array
     {
         return $this->filters->all();
     }
 
-    public function clearFilters()
+    public function clearFilters(): void
     {
         $this->filters->clear();
     }
@@ -106,7 +105,7 @@ abstract class BaseAsset implements AssetInterface
      * @param string          $content          The asset content
      * @param FilterInterface $additionalFilter An additional filter
      */
-    protected function doLoad($content, ?FilterInterface $additionalFilter = null)
+    protected function doLoad(?string $content, ?FilterInterface $additionalFilter = null): void
     {
         $filter = clone $this->filters;
         if ($additionalFilter) {
@@ -122,7 +121,7 @@ abstract class BaseAsset implements AssetInterface
         $this->loaded = true;
     }
 
-    public function dump(?FilterInterface $additionalFilter = null)
+    public function dump(?FilterInterface $additionalFilter = null): string
     {
         if (!$this->loaded) {
             $this->load();
@@ -136,40 +135,40 @@ abstract class BaseAsset implements AssetInterface
         $asset = clone $this;
         $filter->filterDump($asset);
 
-        return $asset->getContent();
+        return $asset->getContent() ?? '';
     }
 
-    public function getContent()
+    public function getContent(): ?string
     {
         return $this->content;
     }
 
-    public function setContent($content)
+    public function setContent(?string $content): void
     {
         $this->content = $content;
     }
 
-    public function getSourceRoot()
+    public function getSourceRoot(): ?string
     {
         return $this->sourceRoot;
     }
 
-    public function getSourcePath()
+    public function getSourcePath(): ?string
     {
         return $this->sourcePath;
     }
 
-    public function getSourceDirectory()
+    public function getSourceDirectory(): ?string
     {
         return $this->sourceDir;
     }
 
-    public function getTargetPath()
+    public function getTargetPath(): ?string
     {
         return $this->targetPath;
     }
 
-    public function setTargetPath($targetPath)
+    public function setTargetPath(?string $targetPath): void
     {
         if ($this->vars) {
             foreach ($this->vars as $var) {
@@ -182,12 +181,12 @@ abstract class BaseAsset implements AssetInterface
         $this->targetPath = $targetPath;
     }
 
-    public function getVars()
+    public function getVars(): array
     {
         return $this->vars;
     }
 
-    public function setValues(array $values)
+    public function setValues(array $values): void
     {
         foreach ($values as $var => $v) {
             if (!in_array($var, $this->vars, true)) {
@@ -199,7 +198,7 @@ abstract class BaseAsset implements AssetInterface
         $this->loaded = false;
     }
 
-    public function getValues()
+    public function getValues(): array
     {
         return $this->values;
     }

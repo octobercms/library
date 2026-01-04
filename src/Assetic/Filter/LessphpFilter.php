@@ -76,7 +76,7 @@ class LessphpFilter implements DependencyExtractorInterface
         $this->preserveComments = $preserveComments;
     }
 
-    public function filterLoad(AssetInterface $asset)
+    public function filterLoad(AssetInterface $asset): void
     {
         $lc = new \lessc();
         if ($dir = $asset->getSourceDirectory()) {
@@ -111,7 +111,7 @@ class LessphpFilter implements DependencyExtractorInterface
         $this->customFunctions[$name] = $callable;
     }
 
-    public function filterDump(AssetInterface $asset)
+    public function filterDump(AssetInterface $asset): void
     {
     }
 

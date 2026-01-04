@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Assetic\Util;
 
-
 /**
  * Variable utilities.
  *
@@ -19,9 +18,9 @@ abstract class VarUtils
      *
      * @throws \InvalidArgumentException If there is a variable with no value
      */
-    public static function resolve($template, array $vars, array $values)
+    public static function resolve(string $template, array $vars, array $values): string
     {
-        $map = array();
+        $map = [];
         foreach ($vars as $var) {
             if (false === strpos($template, '{'.$var.'}')) {
                 continue;
@@ -37,14 +36,14 @@ abstract class VarUtils
         return strtr($template, $map);
     }
 
-    public static function getCombinations(array $vars, array $values)
+    public static function getCombinations(array $vars, array $values): array
     {
         if (!$vars) {
-            return array(array());
+            return [[]];
         }
 
-        $combinations = array();
-        $nbValues = array();
+        $combinations = [];
+        $nbValues = [];
         foreach ($values as $var => $vals) {
             if (!in_array($var, $vars, true)) {
                 continue;
@@ -55,7 +54,7 @@ abstract class VarUtils
 
         for ($i = array_product($nbValues), $c = $i * 2; $i < $c; $i++) {
             $k = $i;
-            $combination = array();
+            $combination = [];
 
             foreach ($vars as $var) {
                 $combination[$var] = $values[$var][$k % $nbValues[$var]];

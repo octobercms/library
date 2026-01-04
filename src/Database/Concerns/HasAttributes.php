@@ -75,13 +75,36 @@ trait HasAttributes
             return $this->getAttributeValue($key);
         }
 
+        return $this->getRelationValue($key);
+    }
+
+    /**
+     * getRelationValue gets a relationship value from a method.
+     * Overridden from {@link Eloquent} to implement recognition of the relation
+     * using October Rain's property-based relation definitions.
+     * @param string $key
+     * @return mixed
+     */
+    public function getRelationValue($key)
+    {
         if ($this->relationLoaded($key)) {
             return $this->relations[$key];
         }
 
-        if ($this->hasRelation($key)) {
-            return $this->getRelationshipFromMethod($key);
+        // Check both October and Laravel
+        if (!$this->hasRelation($key) && !$this->isRelation($key)) {
+            return;
         }
+
+        if ($this->attemptToAutoloadRelation($key)) {
+            return $this->relations[$key];
+        }
+
+        if ($this->preventsLazyLoading) {
+            $this->handleLazyLoadingViolation($key);
+        }
+
+        return $this->getRelationshipFromMethod($key);
     }
 
     /**

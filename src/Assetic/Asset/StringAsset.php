@@ -9,7 +9,14 @@ use October\Rain\Assetic\Filter\FilterInterface;
  */
 class StringAsset extends BaseAsset
 {
+    /**
+     * @var string string
+     */
     private $string;
+
+    /**
+     * @var int|null lastModified
+     */
     private $lastModified;
 
     /**
@@ -20,7 +27,7 @@ class StringAsset extends BaseAsset
      * @param string $sourceRoot The source asset root directory
      * @param string $sourcePath The source asset path
      */
-    public function __construct($content, $filters = [], $sourceRoot = null, $sourcePath = null)
+    public function __construct(string $content, array $filters = [], ?string $sourceRoot = null, ?string $sourcePath = null)
     {
         $this->string = $content;
 
@@ -30,7 +37,7 @@ class StringAsset extends BaseAsset
     /**
      * load
      */
-    public function load(?FilterInterface $additionalFilter = null)
+    public function load(?FilterInterface $additionalFilter = null): void
     {
         $this->doLoad($this->string, $additionalFilter);
     }
@@ -38,7 +45,7 @@ class StringAsset extends BaseAsset
     /**
      * setLastModified
      */
-    public function setLastModified($lastModified)
+    public function setLastModified(?int $lastModified): void
     {
         $this->lastModified = $lastModified;
     }
@@ -46,7 +53,7 @@ class StringAsset extends BaseAsset
     /**
      * getLastModified
      */
-    public function getLastModified()
+    public function getLastModified(): ?int
     {
         return $this->lastModified;
     }

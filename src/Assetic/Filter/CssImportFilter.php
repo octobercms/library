@@ -15,12 +15,12 @@ use October\Rain\Assetic\Util\CssUtils;
 class CssImportFilter extends BaseCssFilter implements HashableInterface, DependencyExtractorInterface
 {
     /**
-     * @var mixed importFilter
+     * @var FilterInterface|null importFilter
      */
     protected $importFilter;
 
     /**
-     * @var string lastHash
+     * @var string|null lastHash
      */
     protected $lastHash;
 
@@ -37,7 +37,7 @@ class CssImportFilter extends BaseCssFilter implements HashableInterface, Depend
     /**
      * filterLoad
      */
-    public function filterLoad(AssetInterface $asset)
+    public function filterLoad(AssetInterface $asset): void
     {
         $importFilter = $this->importFilter;
         $sourceRoot = $asset->getSourceRoot();
@@ -52,13 +52,13 @@ class CssImportFilter extends BaseCssFilter implements HashableInterface, Depend
 
             // Absolute
             if (strpos($matches['url'], '://') !== false) {
-                list($importScheme, $tmp) = explode('://', $matches['url'], 2);
-                list($importHost, $importPath) = explode('/', $tmp, 2);
+                [$importScheme, $tmp] = explode('://', $matches['url'], 2);
+                [$importHost, $importPath] = explode('/', $tmp, 2);
                 $importRoot = $importScheme.'://'.$importHost;
             }
             // Protocol-relative
             elseif (strpos($matches['url'], '//') === 0) {
-                list($importHost, $importPath) = explode('/', substr($matches['url'], 2), 2);
+                [$importHost, $importPath] = explode('/', substr($matches['url'], 2), 2);
                 $importRoot = '//'.$importHost;
             }
             // Root-relative
@@ -107,7 +107,7 @@ class CssImportFilter extends BaseCssFilter implements HashableInterface, Depend
     /**
      * filterDump
      */
-    public function filterDump(AssetInterface $asset)
+    public function filterDump(AssetInterface $asset): void
     {
     }
 

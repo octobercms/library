@@ -29,7 +29,7 @@ class FileAsset extends BaseAsset
      *
      * @throws InvalidArgumentException If the supplied root doesn't match the source when guessing the path
      */
-    public function __construct($source, $filters = [], $sourceRoot = null, $sourcePath = null, array $vars = [])
+    public function __construct(string $source, array $filters = [], ?string $sourceRoot = null, ?string $sourcePath = null, array $vars = [])
     {
         if ($sourceRoot === null) {
             $sourceRoot = dirname($source);
@@ -53,7 +53,7 @@ class FileAsset extends BaseAsset
     /**
      * load
      */
-    public function load(?FilterInterface $additionalFilter = null)
+    public function load(?FilterInterface $additionalFilter = null): void
     {
         $source = VarUtils::resolve($this->source, $this->getVars(), $this->getValues());
 
@@ -67,7 +67,7 @@ class FileAsset extends BaseAsset
     /**
      * getLastModified
      */
-    public function getLastModified()
+    public function getLastModified(): ?int
     {
         $source = VarUtils::resolve($this->source, $this->getVars(), $this->getValues());
 

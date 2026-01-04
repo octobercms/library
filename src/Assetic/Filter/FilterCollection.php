@@ -10,9 +10,15 @@ use Traversable;
  */
 class FilterCollection implements FilterInterface, \IteratorAggregate, \Countable
 {
-    private $filters = array();
+    /**
+     * @var array filters
+     */
+    protected $filters = [];
 
-    public function __construct($filters = array())
+    /**
+     * __construct
+     */
+    public function __construct(array $filters = [])
     {
         foreach ($filters as $filter) {
             $this->ensure($filter);
@@ -25,7 +31,7 @@ class FilterCollection implements FilterInterface, \IteratorAggregate, \Countabl
      * If the supplied filter is another filter collection, each of its
      * filters will be checked.
      */
-    public function ensure(FilterInterface $filter)
+    public function ensure(FilterInterface $filter): void
     {
         if ($filter instanceof \Traversable) {
             foreach ($filter as $f) {
@@ -36,35 +42,53 @@ class FilterCollection implements FilterInterface, \IteratorAggregate, \Countabl
         }
     }
 
-    public function all()
+    /**
+     * all
+     */
+    public function all(): array
     {
         return $this->filters;
     }
 
-    public function clear()
+    /**
+     * clear
+     */
+    public function clear(): void
     {
-        $this->filters = array();
+        $this->filters = [];
     }
 
-    public function filterLoad(AssetInterface $asset)
+    /**
+     * filterLoad
+     */
+    public function filterLoad(AssetInterface $asset): void
     {
         foreach ($this->filters as $filter) {
             $filter->filterLoad($asset);
         }
     }
 
-    public function filterDump(AssetInterface $asset)
+    /**
+     * filterDump
+     */
+    public function filterDump(AssetInterface $asset): void
     {
         foreach ($this->filters as $filter) {
             $filter->filterDump($asset);
         }
     }
 
+    /**
+     * getIterator
+     */
     public function getIterator(): Traversable
     {
         return new \ArrayIterator($this->filters);
     }
 
+    /**
+     * count
+     */
     public function count(): int
     {
         return count($this->filters);

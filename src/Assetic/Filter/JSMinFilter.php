@@ -17,7 +17,7 @@ class JSMinFilter implements FilterInterface
     /**
      * filterLoad
      */
-    public function filterLoad(AssetInterface $asset)
+    public function filterLoad(AssetInterface $asset): void
     {
     }
 
@@ -25,7 +25,7 @@ class JSMinFilter implements FilterInterface
      * filterDump will use JSMin to minify the asset and checks the filename
      * for "min.js" to issues arising from double minification.
      */
-    public function filterDump(AssetInterface $asset)
+    public function filterDump(AssetInterface $asset): void
     {
         $contents = $asset->getContent();
 

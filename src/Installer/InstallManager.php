@@ -21,7 +21,7 @@ class InstallManager
     /**
      * @var string WANT_VERSION is the default composer version string to use.
      */
-    const WANT_VERSION = '^4.0';
+    const WANT_VERSION = '^4.1';
 
     /**
      * instance creates a new instance of this singleton

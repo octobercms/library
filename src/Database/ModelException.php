@@ -16,13 +16,13 @@ class ModelException extends ValidationException
     protected $model;
 
     /**
-     * __construct recevies the troublesome model
+     * __construct receives the troublesome model
      */
     public function __construct(Model $model)
     {
+        parent::__construct($model->errors());
+
         $this->model = $model;
-        $this->errors = $model->errors();
-        $this->evalErrors();
     }
 
     /**

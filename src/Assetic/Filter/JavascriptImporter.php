@@ -7,7 +7,7 @@ use RuntimeException;
 
 /**
  * JavascriptImporter importer JS Filter
- * Class used to import referenced javascript files.
+ * Class used to import referenced javascript files, inside comments.
  *
  * =include library/jquery.js;
  * =require library/jquery.js;
@@ -17,7 +17,6 @@ use RuntimeException;
  */
 class JavascriptImporter implements FilterInterface
 {
-
     /**
      * @var string Location of where the processed JS script resides.
      */
@@ -41,14 +40,14 @@ class JavascriptImporter implements FilterInterface
     /**
      * filterLoad
      */
-    public function filterLoad(AssetInterface $asset)
+    public function filterLoad(AssetInterface $asset): void
     {
     }
 
     /**
      * filterDump
      */
-    public function filterDump(AssetInterface $asset)
+    public function filterDump(AssetInterface $asset): void
     {
         $this->scriptPath = dirname($asset->getSourceRoot() . '/' . $asset->getSourcePath());
         $this->scriptFile = basename($asset->getSourcePath());
@@ -58,10 +57,10 @@ class JavascriptImporter implements FilterInterface
 
     /**
      * Process JS imports inside a string of javascript
-     * @param $content string JS code to process.
+     * @param string $content JS code to process.
      * @return string Processed JS.
      */
-    protected function parse($content)
+    protected function parse(string $content): string
     {
         $macros = [];
         $imported = '';
@@ -92,7 +91,7 @@ class JavascriptImporter implements FilterInterface
     /**
      * Directive to process script includes
      */
-    protected function directiveInclude($data, $required = false)
+    protected function directiveInclude(string $data, bool $required = false): string
     {
         $require = explode(',', $data);
         $result = "";
@@ -157,7 +156,7 @@ class JavascriptImporter implements FilterInterface
     /**
      * Directive to process mandatory script includes
      */
-    protected function directiveRequire($data)
+    protected function directiveRequire(string $data): string
     {
         return $this->directiveInclude($data, true);
     }
@@ -165,7 +164,7 @@ class JavascriptImporter implements FilterInterface
     /**
      * Directive to define and replace variables
      */
-    protected function directiveDefine($data)
+    protected function directiveDefine(string $data): string
     {
         if (preg_match('@([^\\s]*)\\s+(.*)@', $data, $matches)) {
             // str_replace($matches[1], $matches[2], $context);

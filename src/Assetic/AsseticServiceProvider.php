@@ -5,13 +5,16 @@ use Illuminate\Contracts\Support\DeferrableProvider;
 
 /**
  * AsseticServiceProvider
+ *
+ * @package october/assetic
+ * @author Alexey Bobkov, Samuel Georges
  */
 class AsseticServiceProvider extends ServiceProvider implements DeferrableProvider
 {
     /**
-     * register the service provider.
+     * Register the service provider.
      */
-    public function register()
+    public function register(): void
     {
         $this->app->singleton('assetic', function ($app) {
             $combiner = new Combiner;
@@ -22,10 +25,9 @@ class AsseticServiceProvider extends ServiceProvider implements DeferrableProvid
     }
 
     /**
-     * provides the returned services.
-     * @return array
+     * Provides the returned services.
      */
-    public function provides()
+    public function provides(): array
     {
         return [
             'assetic',
