@@ -558,15 +558,16 @@ class FormBuilder
      * @param  string  $name
      * @param  string  $selected
      * @param  array   $options
-     * @param  string  $format
+     * @param  string  $format DateTime format string (default: 'F' for full month name)
      * @return string
      */
-    public function selectMonth($name, $selected = null, $options = [], $format = '%B')
+    public function selectMonth($name, $selected = null, $options = [], $format = 'F')
     {
         $months = [];
 
         foreach (range(1, 12) as $month) {
-            $months[$month] = strftime($format, mktime(0, 0, 0, $month, 1));
+            $date = new \DateTime("2024-{$month}-01");
+            $months[$month] = $date->format($format);
         }
 
         return $this->select($name, $months, $selected, $options);
