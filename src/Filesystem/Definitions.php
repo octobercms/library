@@ -103,6 +103,7 @@ class Definitions
             'bmp',
             'png',
             'webp',
+            'avif',
             'gif',
             'svg',
             'js',
@@ -156,6 +157,7 @@ class Definitions
             'bmp',
             'png',
             'webp',
+            'avif',
             'gif',
             'ico',
             'css',
@@ -186,6 +188,7 @@ class Definitions
             'bmp',
             'png',
             'webp',
+            'avif',
             'gif'
         ];
     }
