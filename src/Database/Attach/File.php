@@ -57,7 +57,7 @@ class File extends Model
     /**
      * @var array imageExtensions known
      */
-    public static $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    public static $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif'];
 
     /**
      * @var array hidden fields from array/json access
@@ -86,6 +86,7 @@ class File extends Model
         'jpg'  => 'image/jpeg',
         'jpeg' => 'image/jpeg',
         'webp' => 'image/webp',
+        'avif' => 'image/avif',
         'pdf'  => 'application/pdf',
         'svg'  => 'image/svg+xml',
     ];
