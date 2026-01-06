@@ -53,7 +53,7 @@ class HttpAsset extends BaseAsset
     /**
      * load
      */
-    public function load(?FilterInterface $additionalFilter = null)
+    public function load(?FilterInterface $additionalFilter = null): void
     {
         $content = @file_get_contents(
             VarUtils::resolve($this->sourceUrl, $this->getVars(), $this->getValues())
