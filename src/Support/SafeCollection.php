@@ -32,6 +32,16 @@ class SafeCollection implements CallsAnyMethod
     ];
 
     /**
+     * @var array blockedMethods that could be used to instantiate arbitrary classes
+     * or call static methods on arbitrary classes
+     */
+    protected $blockedMethods = [
+        'mapInto',
+        'pipeInto',
+        'toResourceCollection'
+    ];
+
+    /**
      * @inheritdoc
      */
     public function __construct(Collection $collection)
@@ -47,6 +57,11 @@ class SafeCollection implements CallsAnyMethod
      */
     public function __call($method, $parameters)
     {
+        // Block methods that can instantiate arbitrary classes
+        if (in_array($method, $this->blockedMethods)) {
+            return $this;
+        }
+
         // Remove args that are callable, or hybrid methods only get removed
         // if they are non-strings based on Collection::useAsCallable method
         foreach ($parameters as &$param) {
