@@ -198,15 +198,15 @@ class Resizer
         }
         elseif ($mode === 'crop') {
             // Backward compatibility
-            if (!array_key_exists('offset', $options)) {
+            if (!is_array($options['offset'] ?? null)) {
                 $this->image->cover($width, $height);
             }
             else {
                 $this->image->crop(
                     $width,
                     $height,
-                    $this->options['offset'][0] ?? 0,
-                    $this->options['offset'][1] ?? 0
+                    $this->options['offset'][0] ?? ($this->options['offset']['x'] ?? 0),
+                    $this->options['offset'][1] ?? ($this->options['offset']['y'] ?? 0)
                 );
             }
         }

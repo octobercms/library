@@ -623,7 +623,17 @@ class File extends Model
     public function getThumbFilename($width, $height, $options)
     {
         $options = $this->getDefaultThumbOptions($options);
-        return 'thumb_' . $this->id . '_' . $width . '_' . $height . '_' . $options['offset'][0] . '_' . $options['offset'][1] . '_' . $options['mode'] . '.' . $options['extension'];
+        $mode = $options['mode'];
+        $extension = $options['extension'];
+
+        if (is_array($options['offset'] ?? null)) {
+            $offsetX = $options['offset'][0] ?? ($options['offset']['x'] ?? 0);
+            $offsetY = $options['offset'][1] ?? ($options['offset']['y'] ?? 0);
+            return "thumb_{$this->id}_{$width}_{$height}_{$offsetX}_{$offsetY}_{$mode}.{$extension}";
+        }
+        else {
+            return "thumb_{$this->id}_{$width}_{$height}_{$mode}.{$extension}";
+        }
     }
 
     /**
@@ -634,7 +644,7 @@ class File extends Model
     {
         $defaultOptions = [
             'mode' => 'auto',
-            'offset' => [0, 0],
+            'offset' => null,
             'quality' => 90,
             'sharpen' => 0,
             'interlace' => false,
