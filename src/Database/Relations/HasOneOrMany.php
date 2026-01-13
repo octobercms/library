@@ -31,6 +31,17 @@ trait HasOneOrMany
     }
 
     /**
+     * saveQuietly saves the supplied related model without raising any events,
+     * with deferred binding support.
+     */
+    public function saveQuietly(Model $model, $sessionKey = null)
+    {
+        return Model::withoutEvents(function () use ($model, $sessionKey) {
+            return $this->save($model, $sessionKey);
+        });
+    }
+
+    /**
      * saveMany is an alias for the addMany() method
      * @param  array  $models
      * @return array
@@ -43,11 +54,92 @@ trait HasOneOrMany
     }
 
     /**
+     * saveManyQuietly saves multiple models without raising any events,
+     * with deferred binding support.
+     */
+    public function saveManyQuietly($models, $sessionKey = null)
+    {
+        return Model::withoutEvents(function () use ($models, $sessionKey) {
+            return $this->saveMany($models, $sessionKey);
+        });
+    }
+
+    /**
      * create a new instance of this related model with deferred binding support
      */
     public function create(array $attributes = [], $sessionKey = null)
     {
         $model = parent::create($attributes);
+
+        if ($sessionKey !== null) {
+            $this->add($model, $sessionKey);
+        }
+
+        return $model;
+    }
+
+    /**
+     * createQuietly creates a new instance without raising any events,
+     * with deferred binding support.
+     */
+    public function createQuietly(array $attributes = [], $sessionKey = null)
+    {
+        return Model::withoutEvents(function () use ($attributes, $sessionKey) {
+            return $this->create($attributes, $sessionKey);
+        });
+    }
+
+    /**
+     * forceCreateQuietly creates a new instance bypassing mass assignment
+     * without raising any events, with deferred binding support.
+     */
+    public function forceCreateQuietly(array $attributes = [], $sessionKey = null)
+    {
+        return Model::withoutEvents(function () use ($attributes, $sessionKey) {
+            $model = parent::forceCreate($attributes);
+
+            if ($sessionKey !== null) {
+                $this->add($model, $sessionKey);
+            }
+
+            return $model;
+        });
+    }
+
+    /**
+     * createMany creates multiple related models with deferred binding support.
+     */
+    public function createMany(iterable $records, $sessionKey = null)
+    {
+        $instances = parent::createMany($records);
+
+        if ($sessionKey !== null) {
+            foreach ($instances as $model) {
+                $this->add($model, $sessionKey);
+            }
+        }
+
+        return $instances;
+    }
+
+    /**
+     * createManyQuietly creates multiple models without raising any events,
+     * with deferred binding support.
+     */
+    public function createManyQuietly(iterable $records, $sessionKey = null)
+    {
+        return Model::withoutEvents(function () use ($records, $sessionKey) {
+            return $this->createMany($records, $sessionKey);
+        });
+    }
+
+    /**
+     * createOrFirst attempts to create the record, or if a unique constraint
+     * violation occurs, finds the existing record.
+     */
+    public function createOrFirst(array $attributes = [], array $values = [], $sessionKey = null)
+    {
+        $model = parent::createOrFirst($attributes, $values);
 
         if ($sessionKey !== null) {
             $this->add($model, $sessionKey);

@@ -52,4 +52,28 @@ trait HasNicerPagination
     {
         return $this->simplePaginate($perPage, ['*'], $pageName);
     }
+
+    /**
+     * cursorPaginateAtPage paginates using a cursor by passing the cursor directly.
+     *
+     * @param  int  $perPage
+     * @param  \Illuminate\Pagination\Cursor|string|null  $cursor
+     * @return \Illuminate\Contracts\Pagination\CursorPaginator
+     */
+    public function cursorPaginateAtPage($perPage, $cursor)
+    {
+        return $this->cursorPaginate($perPage, ['*'], 'cursor', $cursor);
+    }
+
+    /**
+     * cursorPaginateCustom paginates using a cursor with a custom cursor name.
+     *
+     * @param  int  $perPage
+     * @param  string $cursorName
+     * @return \Illuminate\Contracts\Pagination\CursorPaginator
+     */
+    public function cursorPaginateCustom($perPage, $cursorName)
+    {
+        return $this->cursorPaginate($perPage, ['*'], $cursorName);
+    }
 }

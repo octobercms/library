@@ -139,6 +139,38 @@ trait AttachOneOrMany
     }
 
     /**
+     * saveQuietly saves the supplied related model without raising any events.
+     */
+    public function saveQuietly(Model $model, $sessionKey = null)
+    {
+        return Model::withoutEvents(function () use ($model, $sessionKey) {
+            return $this->save($model, $sessionKey);
+        });
+    }
+
+    /**
+     * saveMany saves multiple models with deferred binding support.
+     */
+    public function saveMany($models, $sessionKey = null)
+    {
+        foreach ($models as $model) {
+            $this->save($model, $sessionKey);
+        }
+
+        return $models;
+    }
+
+    /**
+     * saveManyQuietly saves multiple models without raising any events.
+     */
+    public function saveManyQuietly($models, $sessionKey = null)
+    {
+        return Model::withoutEvents(function () use ($models, $sessionKey) {
+            return $this->saveMany($models, $sessionKey);
+        });
+    }
+
+    /**
      * create a new instance of this related model
      */
     public function create(array $attributes = [], $sessionKey = null)
@@ -160,6 +192,40 @@ trait AttachOneOrMany
         }
 
         return $model;
+    }
+
+    /**
+     * createQuietly creates a new instance without raising any events.
+     */
+    public function createQuietly(array $attributes = [], $sessionKey = null)
+    {
+        return Model::withoutEvents(function () use ($attributes, $sessionKey) {
+            return $this->create($attributes, $sessionKey);
+        });
+    }
+
+    /**
+     * createMany creates multiple instances of related models.
+     */
+    public function createMany(iterable $records, $sessionKey = null)
+    {
+        $instances = [];
+
+        foreach ($records as $record) {
+            $instances[] = $this->create($record, $sessionKey);
+        }
+
+        return $instances;
+    }
+
+    /**
+     * createManyQuietly creates multiple instances without raising any events.
+     */
+    public function createManyQuietly(iterable $records, $sessionKey = null)
+    {
+        return Model::withoutEvents(function () use ($records, $sessionKey) {
+            return $this->createMany($records, $sessionKey);
+        });
     }
 
     /**
