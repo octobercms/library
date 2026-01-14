@@ -271,6 +271,15 @@ class Application extends ApplicationBase
     }
 
     /**
+     * runningInOctane determines if the application is running under Laravel Octane.
+     * @return bool
+     */
+    public function runningInOctane()
+    {
+        return isset($_ENV['OCTANE_SERVER']) && $_ENV['OCTANE_SERVER'];
+    }
+
+    /**
      * hasDatabase returns true if a database connection is present.
      * @return boolean
      */
