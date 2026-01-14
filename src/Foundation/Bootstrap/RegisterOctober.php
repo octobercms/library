@@ -2,6 +2,7 @@
 
 use October\Rain\Support\Str;
 use October\Rain\Composer\ClassLoader;
+use October\Rain\Support\ServiceProvider;
 use Illuminate\Contracts\Foundation\Application;
 use October\Rain\Extension\Container as OctoberContainer;
 
@@ -42,6 +43,13 @@ class RegisterOctober
      */
     public function bootstrap(Application $app)
     {
+        // Swap out for October's default providers
+        // This must happen before RegisterProviders runs
+        $app->make('config')->set(
+            'app.providers',
+            $app->make('config')->get('app.providers') ?? ServiceProvider::defaultProviders()->toArray(),
+        );
+
         // Register singletons
         $app->singleton('string', function () {
             return new \October\Rain\Support\Str;

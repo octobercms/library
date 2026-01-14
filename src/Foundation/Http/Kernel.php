@@ -21,7 +21,7 @@ class Kernel extends HttpKernel
         \October\Rain\Foundation\Bootstrap\HandleExceptions::class,
         \Illuminate\Foundation\Bootstrap\RegisterFacades::class,
         \October\Rain\Foundation\Bootstrap\RegisterOctober::class,
-        \October\Rain\Foundation\Bootstrap\RegisterProviders::class,
+        \Illuminate\Foundation\Bootstrap\RegisterProviders::class,
         \Illuminate\Foundation\Bootstrap\BootProviders::class,
     ];
 
