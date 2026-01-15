@@ -19,13 +19,6 @@ trait HasAttributes
     {
         $attributes = $this->getArrayableAttributes();
 
-        // Before Event
-        foreach ($attributes as $key => $value) {
-            if (($eventValue = $this->fireEvent('model.beforeGetAttribute', [$key], true)) !== null) {
-                $attributes[$key] = $eventValue;
-            }
-        }
-
         // Dates
         $attributes = $this->addDateAttributesToArray($attributes);
 
@@ -48,13 +41,6 @@ trait HasAttributes
         $attributes = $this->addJsonableAttributesToArray(
             $attributes, $mutatedAttributes
         );
-
-        // After Event
-        foreach ($attributes as $key => $value) {
-            if (($eventValue = $this->fireEvent('model.getAttribute', [$key, $value], true)) !== null) {
-                $attributes[$key] = $eventValue;
-            }
-        }
 
         return $attributes;
     }
@@ -114,23 +100,6 @@ trait HasAttributes
      */
     public function getAttributeValue($key)
     {
-        /**
-         * @event model.beforeGetAttribute
-         * Called before the model attribute is retrieved
-         *
-         * Example usage:
-         *
-         *     $model->bindEvent('model.beforeGetAttribute', function ((string) $key) use (\October\Rain\Database\Model $model) {
-         *         if ($key === 'not-for-you-to-look-at') {
-         *             return 'you are not allowed here';
-         *         }
-         *     });
-         *
-         */
-        if (($attr = $this->fireEvent('model.beforeGetAttribute', [$key], true)) !== null) {
-            return $attr;
-        }
-
         $attr = parent::getAttributeValue($key);
 
         // Return valid json (boolean, array) if valid, otherwise
@@ -140,23 +109,6 @@ trait HasAttributes
             if (json_last_error() === JSON_ERROR_NONE) {
                 $attr = $_attr;
             }
-        }
-
-        /**
-         * @event model.getAttribute
-         * Called after the model attribute is retrieved
-         *
-         * Example usage:
-         *
-         *     $model->bindEvent('model.getAttribute', function ((string) $key, $value) use (\October\Rain\Database\Model $model) {
-         *         if ($key === 'not-for-you-to-look-at') {
-         *             return "Totally not $value";
-         *         }
-         *     });
-         *
-         */
-        if (($_attr = $this->fireEvent('model.getAttribute', [$key, $attr], true)) !== null) {
-            return $_attr;
         }
 
         return $attr;
@@ -190,23 +142,6 @@ trait HasAttributes
             return $this->setRelationSimpleValue($key, $value);
         }
 
-        /**
-         * @event model.beforeSetAttribute
-         * Called before the model attribute is set
-         *
-         * Example usage:
-         *
-         *     $model->bindEvent('model.beforeSetAttribute', function ((string) $key, $value) use (\October\Rain\Database\Model $model) {
-         *         if ($key === 'do-not-touch') {
-         *             return "$value has been touched";
-         *         }
-         *     });
-         *
-         */
-        if (($_value = $this->fireEvent('model.beforeSetAttribute', [$key, $value], true)) !== null) {
-            $value = $_value;
-        }
-
         // Jsonable
         if ($this->isJsonable($key) && (!empty($value) || is_array($value))) {
             $value = json_encode($value, JSON_UNESCAPED_UNICODE);
@@ -217,24 +152,7 @@ trait HasAttributes
             $value = trim($value);
         }
 
-        $result = parent::setAttribute($key, $value);
-
-        /**
-         * @event model.setAttribute
-         * Called after the model attribute is set
-         *
-         * Example usage:
-         *
-         *     $model->bindEvent('model.setAttribute', function ((string) $key, $value) use (\October\Rain\Database\Model $model) {
-         *         if ($key === 'do-not-touch') {
-         *             \Log::info("{$key} has been touched and set to {$value}!")
-         *         }
-         *     });
-         *
-         */
-        $this->fireEvent('model.setAttribute', [$key, $value]);
-
-        return $result;
+        return parent::setAttribute($key, $value);
     }
 
     /**
