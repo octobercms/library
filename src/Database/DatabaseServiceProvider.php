@@ -6,6 +6,10 @@ use October\Rain\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\DatabaseServiceProvider as DatabaseServiceProviderBase;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\DatabaseTransactionsManager;
+use Illuminate\Database\ConcurrencyErrorDetector;
+use Illuminate\Database\LostConnectionDetector;
+use Illuminate\Contracts\Database\ConcurrencyErrorDetector as ConcurrencyErrorDetectorContract;
+use Illuminate\Contracts\Database\LostConnectionDetector as LostConnectionDetectorContract;
 
 /**
  * DatabaseServiceProvider
@@ -18,7 +22,6 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
     public function register()
     {
         Model::clearBootedModels();
-        Model::flushEventListeners();
 
         $this->registerConnectionServices();
         $this->registerFakerGenerator();
@@ -81,6 +84,10 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
         $this->app->singleton('db.updater', function ($app) {
             return new Updater;
         });
+
+        $this->app->singleton(ConcurrencyErrorDetectorContract::class, ConcurrencyErrorDetector::class);
+
+        $this->app->singleton(LostConnectionDetectorContract::class, LostConnectionDetector::class);
     }
 
     /**
