@@ -52,6 +52,10 @@ trait HasAttributes
      */
     public function getAttribute($key)
     {
+        if (!$key) {
+            return;
+        }
+
         if (
             array_key_exists($key, $this->attributes) ||
             $this->hasGetMutator($key) ||
