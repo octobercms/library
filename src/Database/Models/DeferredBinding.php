@@ -21,9 +21,11 @@ class DeferredBinding extends Model
     public $table = 'deferred_bindings';
 
     /**
-     * @var array jsonable attribute names that are json encoded and decoded from the database
+     * @var array casts attribute types to convert automatically
      */
-    protected $jsonable = ['pivot_data'];
+    protected $casts = [
+        'pivot_data' => 'array'
+    ];
 
     /**
      * @var array nullable attribute names which should be set to null when empty

@@ -41,7 +41,7 @@ class {{studly_name}} extends ContentFieldBase
      */
     public function extendModelObject($model)
     {
-        $model->addJsonable($this->fieldName);
+        $model->addCasts([$this->fieldName => 'array']);
     }
 
     /**

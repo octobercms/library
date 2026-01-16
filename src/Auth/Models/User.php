@@ -87,9 +87,11 @@ class User extends Model implements Authenticatable
     public $customMessages = [];
 
     /**
-     * @var array jsonable attribute names that are json encoded and decoded from the database
+     * @var array casts attribute types to convert automatically
      */
-    protected $jsonable = ['permissions'];
+    protected $casts = [
+        'permissions' => 'array'
+    ];
 
     /**
      * allowedPermissionsValues

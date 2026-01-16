@@ -27,9 +27,11 @@ class Preferences extends Model
     protected static $cache = [];
 
     /**
-     * @var array jsonable attribute names that are json encoded and decoded from the database
+     * @var array casts attribute types to convert automatically
      */
-    protected $jsonable = ['value'];
+    protected $casts = [
+        'value' => 'array'
+    ];
 
     /**
      * @var \October\Rain\Auth\Models\User userContext is the user that owns the preferences

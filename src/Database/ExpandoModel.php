@@ -33,7 +33,7 @@ class ExpandoModel extends Model
         // Process attributes last for traits with attribute modifiers
         $this->bindEvent('model.beforeSaveDone', [$this, 'expandoBeforeSaveDone'], -1);
 
-        $this->addJsonable($this->expandoColumn);
+        $this->addCasts([$this->expandoColumn => 'array']);
     }
 
     /**

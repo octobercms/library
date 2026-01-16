@@ -19,7 +19,6 @@ use Exception;
 class Model extends EloquentModel
 {
     use Concerns\HasEvents;
-    use Concerns\HasJsonable;
     use Concerns\HasAttributes;
     use Concerns\HasReplication;
     use Concerns\HasRelationships;
