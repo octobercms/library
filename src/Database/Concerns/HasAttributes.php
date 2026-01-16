@@ -12,6 +12,40 @@ use Exception;
 trait HasAttributes
 {
     /**
+     * attributesToArray converts the model's attributes to an array.
+     * @return array
+     */
+    public function attributesToArray()
+    {
+        $attributes = $this->getArrayableAttributes();
+
+        // Dates
+        $attributes = $this->addDateAttributesToArray($attributes);
+
+        // Mutate
+        $attributes = $this->addMutatedAttributesToArray(
+            $attributes, $mutatedAttributes = $this->getMutatedAttributes()
+        );
+
+        // Casts
+        $attributes = $this->addCastAttributesToArray(
+            $attributes, $mutatedAttributes
+        );
+
+        // Appends
+        foreach ($this->getArrayableAppends() as $key) {
+            $attributes[$key] = $this->mutateAttributeForArray($key, null);
+        }
+
+        // Jsonable
+        $attributes = $this->addJsonableAttributesToArray(
+            $attributes, $mutatedAttributes
+        );
+
+        return $attributes;
+    }
+
+    /**
      * getAttribute from the model.
      * Overridden from {@link Eloquent} to implement recognition of the relation.
      * @return mixed
@@ -64,6 +98,27 @@ trait HasAttributes
     }
 
     /**
+     * getAttributeValue gets a plain attribute (not a relationship).
+     * @param  string  $key
+     * @return mixed
+     */
+    public function getAttributeValue($key)
+    {
+        $attr = parent::getAttributeValue($key);
+
+        // Return valid json (boolean, array) if valid, otherwise
+        // jsonable fields will return a string for invalid data.
+        if ($this->isJsonable($key) && !empty($attr)) {
+            $_attr = json_decode($attr, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $attr = $_attr;
+            }
+        }
+
+        return $attr;
+    }
+
+    /**
      * hasGetMutator determines if a get mutator exists for an attribute.
      * @param  string  $key
      * @return bool
@@ -89,6 +144,11 @@ trait HasAttributes
         // Handle direct relation setting
         if ($this->hasRelation($key) && !$this->hasSetMutator($key)) {
             return $this->setRelationSimpleValue($key, $value);
+        }
+
+        // Jsonable
+        if ($this->isJsonable($key) && (!empty($value) || is_array($value))) {
+            $value = json_encode($value, JSON_UNESCAPED_UNICODE);
         }
 
         // Trim strings
