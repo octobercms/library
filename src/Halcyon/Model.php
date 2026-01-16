@@ -639,11 +639,6 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function getAttribute($key)
     {
-        // Before Event
-        if (($attr = $this->fireEvent('model.beforeGetAttribute', [$key], true)) !== null) {
-            return $attr;
-        }
-
         $value = $this->getAttributeFromArray($key);
 
         // If the attribute has a get mutator, we will call that then return what
@@ -651,11 +646,6 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
         // retrieval from the model to a form that is more useful for usage.
         if ($this->hasGetMutator($key)) {
             return $this->mutateAttribute($key, $value);
-        }
-
-        // After Event
-        if (($_attr = $this->fireEvent('model.getAttribute', [$key, $value], true)) !== null) {
-            return $_attr;
         }
 
         return $value;
@@ -715,28 +705,16 @@ class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, Json
      */
     public function setAttribute($key, $value)
     {
-        // Before Event
-        if (($_value = $this->fireEvent('model.beforeSetAttribute', [$key, $value], true)) !== null) {
-            $value = $_value;
-        }
-
         // First we will check for the presence of a mutator for the set operation
         // which simply lets the developers tweak the attribute as it is set on
         // the model, such as "json_encoding" an listing of data for storage.
         if ($this->hasSetMutator($key)) {
             $method = 'set'.Str::studly($key).'Attribute';
-            // If we return the returned value of the mutator call straight away, that will disable the firing of
-            // 'model.setAttribute' event, and then no third party plugins will be able to implement any kind of
-            // post processing logic when an attribute is set with explicit mutators. Returning from the mutator
-            // call will also break method chaining as intended by returning `$this` at the end of this method.
             $this->{$method}($value);
         }
         else {
             $this->attributes[$key] = $value;
         }
-
-        // After Event
-        $this->fireEvent('model.setAttribute', [$key, $value]);
 
         return $this;
     }

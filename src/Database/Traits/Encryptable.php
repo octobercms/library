@@ -6,6 +6,9 @@ use Exception;
 /**
  * Encryptable database trait
  *
+ * @deprecated Use Laravel's built-in 'encrypted' cast instead:
+ *             protected $casts = ['secret' => 'encrypted'];
+ *
  * @package october\database
  * @author Alexey Bobkov, Samuel Georges
  */
@@ -34,27 +37,43 @@ trait Encryptable
                 static::class
             ));
         }
+    }
 
-        // Encrypt required fields when necessary
-        $this->bindEvent('model.beforeSetAttribute', function ($key, $value) {
-            if (
-                in_array($key, $this->getEncryptableAttributes()) &&
-                $value !== null &&
-                $value !== ''
-            ) {
-                return $this->makeEncryptableValue($key, $value);
-            }
-        });
+    /**
+     * setAttribute overrides the base method to encrypt encryptable attributes.
+     * @param string $key
+     * @param mixed $value
+     * @return mixed
+     */
+    public function setAttribute($key, $value)
+    {
+        if (
+            in_array($key, $this->getEncryptableAttributes()) &&
+            $value !== null &&
+            $value !== ''
+        ) {
+            $value = $this->makeEncryptableValue($key, $value);
+        }
 
-        $this->bindEvent('model.beforeGetAttribute', function ($key) {
-            if (
-                in_array($key, $this->getEncryptableAttributes()) &&
-                array_get($this->attributes, $key) !== null &&
-                array_get($this->attributes, $key) !== ''
-            ) {
-                return $this->getEncryptableValue($key);
-            }
-        });
+        return parent::setAttribute($key, $value);
+    }
+
+    /**
+     * getAttributeValue overrides the base method to decrypt encryptable attributes.
+     * @param string $key
+     * @return mixed
+     */
+    public function getAttributeValue($key)
+    {
+        if (
+            in_array($key, $this->getEncryptableAttributes()) &&
+            array_get($this->attributes, $key) !== null &&
+            array_get($this->attributes, $key) !== ''
+        ) {
+            return $this->getEncryptableValue($key);
+        }
+
+        return parent::getAttributeValue($key);
     }
 
     /**
