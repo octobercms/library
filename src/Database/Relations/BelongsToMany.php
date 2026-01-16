@@ -69,11 +69,94 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
+     * saveQuietly saves the model without raising any events,
+     * with deferred binding support.
+     */
+    public function saveQuietly(Model $model, array $pivotData = [], $sessionKey = null)
+    {
+        return Model::withoutEvents(function () use ($model, $pivotData, $sessionKey) {
+            return $this->save($model, $pivotData, $sessionKey);
+        });
+    }
+
+    /**
+     * saveMany saves multiple models with deferred binding support.
+     */
+    public function saveMany($models, array $pivotData = [], $sessionKey = null)
+    {
+        foreach ($models as $model) {
+            $this->save($model, $pivotData, $sessionKey);
+        }
+
+        return $models;
+    }
+
+    /**
+     * saveManyQuietly saves multiple models without raising any events,
+     * with deferred binding support.
+     */
+    public function saveManyQuietly($models, array $pivotData = [], $sessionKey = null)
+    {
+        return Model::withoutEvents(function () use ($models, $pivotData, $sessionKey) {
+            return $this->saveMany($models, $pivotData, $sessionKey);
+        });
+    }
+
+    /**
      * create a new instance of this related model with deferred binding support.
      */
     public function create(array $attributes = [], array $pivotData = [], $sessionKey = null)
     {
         $model = $this->related->create($attributes);
+
+        $this->add($model, $sessionKey, $pivotData);
+
+        return $model;
+    }
+
+    /**
+     * createQuietly creates a new instance without raising any events,
+     * with deferred binding support.
+     */
+    public function createQuietly(array $attributes = [], array $pivotData = [], $sessionKey = null)
+    {
+        return Model::withoutEvents(function () use ($attributes, $pivotData, $sessionKey) {
+            return $this->create($attributes, $pivotData, $sessionKey);
+        });
+    }
+
+    /**
+     * createMany creates multiple related models with deferred binding support.
+     */
+    public function createMany(iterable $records, array $pivotData = [], $sessionKey = null)
+    {
+        $instances = $this->related->newCollection();
+
+        foreach ($records as $record) {
+            $instances->push($this->create($record, $pivotData, $sessionKey));
+        }
+
+        return $instances;
+    }
+
+    /**
+     * createManyQuietly creates multiple models without raising any events,
+     * with deferred binding support.
+     */
+    public function createManyQuietly(iterable $records, array $pivotData = [], $sessionKey = null)
+    {
+        return Model::withoutEvents(function () use ($records, $pivotData, $sessionKey) {
+            return $this->createMany($records, $pivotData, $sessionKey);
+        });
+    }
+
+    /**
+     * createOrFirst attempts to create the record, or if a unique constraint
+     * violation occurs, finds the existing record.
+     */
+    public function createOrFirst(array $attributes = [], array $values = [], array $pivotData = [], $sessionKey = null)
+    {
+        $model = $this->related->createOrFirst($attributes, $values);
 
         $this->add($model, $sessionKey, $pivotData);
 
@@ -286,6 +369,26 @@ class BelongsToMany extends BelongsToManyBase
         $this->query->addSelect($this->shouldSelect($columns));
 
         $paginator = $this->query->simplePaginate($perPage, $currentPage, $columns);
+
+        $this->hydratePivotRelation($paginator->items());
+
+        return $paginator;
+    }
+
+    /**
+     * cursorPaginate using a cursor paginator.
+     *
+     * @param  int|null  $perPage
+     * @param  array  $columns
+     * @param  string  $cursorName
+     * @param  \Illuminate\Pagination\Cursor|string|null  $cursor
+     * @return \Illuminate\Contracts\Pagination\CursorPaginator
+     */
+    public function cursorPaginate($perPage = null, $columns = ['*'], $cursorName = 'cursor', $cursor = null)
+    {
+        $this->query->addSelect($this->shouldSelect($columns));
+
+        $paginator = $this->query->cursorPaginate($perPage, $columns, $cursorName, $cursor);
 
         $this->hydratePivotRelation($paginator->items());
 
