@@ -77,7 +77,7 @@ class Role extends Model
             // Now, let's check if the permission ends in a wildcard "*" symbol.
             // If it does, we'll check through all the merged permissions to see
             // if a permission exists which matches the wildcard.
-            if ((strlen($permission) > 1) && ends_with($permission, '*')) {
+            if ((strlen($permission) > 1) && str_ends_with($permission, '*')) {
                 $matched = false;
 
                 foreach ($rolePermissions as $rolePermission => $value) {
@@ -88,7 +88,7 @@ class Role extends Model
                     // exactly match our permission, but starts with it.
                     if (
                         $checkPermission !== $rolePermission &&
-                        starts_with($rolePermission, $checkPermission) &&
+                        str_starts_with($rolePermission, $checkPermission) &&
                         (int) $value === 1
                     ) {
                         $matched = true;
@@ -99,7 +99,7 @@ class Role extends Model
             // Now, let's check if the permission starts in a wildcard "*" symbol.
             // If it does, we'll check through all the merged permissions to see
             // if a permission exists which matches the wildcard.
-            elseif ((strlen($permission) > 1) && starts_with($permission, '*')) {
+            elseif ((strlen($permission) > 1) && str_starts_with($permission, '*')) {
                 $matched = false;
 
                 foreach ($rolePermissions as $rolePermission => $value) {
@@ -110,7 +110,7 @@ class Role extends Model
                     // exactly match our permission, but ends with it.
                     if (
                         $checkPermission !== $rolePermission &&
-                        ends_with($rolePermission, $checkPermission) &&
+                        str_ends_with($rolePermission, $checkPermission) &&
                         (int) $value === 1
                     ) {
                         $matched = true;
@@ -123,7 +123,7 @@ class Role extends Model
 
                 foreach ($rolePermissions as $rolePermission => $value) {
                     // This time check if the rolePermission ends in wildcard "*" symbol.
-                    if ((strlen($rolePermission) > 1) && ends_with($rolePermission, '*')) {
+                    if ((strlen($rolePermission) > 1) && str_ends_with($rolePermission, '*')) {
                         $matched = false;
 
                         // Strip the '*' off the end of the permission.
@@ -133,7 +133,7 @@ class Role extends Model
                         // exactly match our permission, but starts with it.
                         if (
                             $checkGroupPermission !== $permission &&
-                            starts_with($permission, $checkGroupPermission) &&
+                            str_starts_with($permission, $checkGroupPermission) &&
                             (int) $value === 1
                         ) {
                             $matched = true;
