@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Network;
 
+use Illuminate\Support\Arr;
 use October\Rain\Exception\ApplicationException;
 
 /**
@@ -351,7 +352,7 @@ class Http
                 $this->redirectCount = $this->maxRedirects;
             }
             if (in_array($this->code, [301, 302])) {
-                $this->url = array_get($this->info, 'redirect_url');
+                $this->url = Arr::get($this->info, 'redirect_url');
                 if (!empty($this->url) && $this->redirectCount > 0) {
                     $this->redirectCount -= 1;
                     return $this->send();

@@ -1,9 +1,10 @@
 <?php namespace October\Rain\Halcyon\Traits;
 
-use Validator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\MessageBag;
-use October\Rain\Support\Facades\Input;
 use October\Rain\Halcyon\Exception\ModelException;
+use October\Rain\Support\Facades\Input;
+use Validator;
 use Exception;
 
 trait Validation
@@ -57,7 +58,7 @@ trait Validation
                 // If forcing the save event, the beforeValidate/afterValidate
                 // events should still fire for consistency. So validate an
                 // empty set of rules and messages.
-                $force = array_get($options, 'force', false);
+                $force = Arr::get($options, 'force', false);
                 if ($force) {
                     $valid = $model->validate([], []);
                 }

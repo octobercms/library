@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Halcyon;
 
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 use October\Rain\Halcyon\Exception\InvalidDirectoryNameException;
 use October\Rain\Halcyon\Exception\InvalidExtensionException;
 use October\Rain\Halcyon\Exception\MissingFileNameException;
@@ -645,7 +646,7 @@ class Builder
             return false;
         }
 
-        $mtime = $result ? array_get(reset($result), 'mtime') : null;
+        $mtime = $result ? Arr::get(reset($result), 'mtime') : null;
 
         list($name, $extension) = $this->selectSingle;
 

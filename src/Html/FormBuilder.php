@@ -2,6 +2,7 @@
 
 use Illuminate\Session\Store as Session;
 use Illuminate\Routing\UrlGenerator as UrlGeneratorBase;
+use Illuminate\Support\Arr;
 
 /**
  * FormBuilder
@@ -114,9 +115,9 @@ class FormBuilder
      */
     public function open(array $options = [])
     {
-        $method = strtoupper(array_get($options, 'method', 'post'));
-        $request = array_get($options, 'request');
-        $model = array_get($options, 'model');
+        $method = strtoupper(Arr::get($options, 'method', 'post'));
+        $request = Arr::get($options, 'request');
+        $model = Arr::get($options, 'model');
 
         if ($model) {
             $this->model = $model;
@@ -125,7 +126,7 @@ class FormBuilder
         $append = $this->requestHandler($request);
 
         if ($method !== 'GET') {
-            $append .= $this->sessionKey(array_get($options, 'sessionKey'));
+            $append .= $this->sessionKey(Arr::get($options, 'sessionKey'));
         }
 
         $attributes = [];
@@ -153,7 +154,7 @@ class FormBuilder
         // is used to spoof requests for this PUT, PATCH, etc. methods on forms.
         $attributes = array_merge(
             $attributes,
-            array_except($options, $this->reserved)
+            Arr::except($options, $this->reserved)
         );
 
         // Finally, we will concatenate all of the attributes into a single string so
@@ -178,7 +179,7 @@ class FormBuilder
 
         $attributes = array_merge([
             'data-request' => $handler
-        ], array_except($options, $this->reservedAjax));
+        ], Arr::except($options, $this->reservedAjax));
 
         $ajaxAttributes = array_diff_key($options, $attributes);
         foreach ($ajaxAttributes as $property => $value) {
@@ -436,9 +437,9 @@ class FormBuilder
         // If the "size" attribute was not specified, we will just look for the regular
         // columns and rows attributes, using sane defaults if these do not exist on
         // the attributes array. We'll then return this entire options array back.
-        $cols = array_get($options, 'cols', 50);
+        $cols = Arr::get($options, 'cols', 50);
 
-        $rows = array_get($options, 'rows', 10);
+        $rows = Arr::get($options, 'rows', 10);
 
         return array_merge($options, compact('cols', 'rows'));
     }
@@ -978,7 +979,7 @@ class FormBuilder
             return object_get($this->model, $this->transformKey($name));
         }
         elseif (is_array($this->model)) {
-            return array_get($this->model, $this->transformKey($name));
+            return Arr::get($this->model, $this->transformKey($name));
         }
     }
 

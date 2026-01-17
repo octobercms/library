@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use October\Rain\Database\Attach\File as FileModel;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -368,7 +369,7 @@ trait AttachOneOrMany
 
             $options = $this->parent->getRelationDefinition($this->relationName);
 
-            if (array_get($options, 'delete', false)) {
+            if (Arr::get($options, 'delete', false)) {
                 $model->delete();
             }
             else {
@@ -477,7 +478,7 @@ trait AttachOneOrMany
     {
         $options = $this->parent->getRelationDefinition($this->relationName);
 
-        if (array_get($options, 'delete', false)) {
+        if (Arr::get($options, 'delete', false)) {
             $this->delete();
         }
         else {

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Collection as CollectionBase;
+use Illuminate\Support\Arr;
 use October\Rain\Database\Scopes\SoftDeleteScope;
 
 /**
@@ -129,7 +130,7 @@ trait SoftDelete
         $definitions = $this->getRelationDefinitions();
         foreach ($definitions as $type => $relations) {
             foreach ($relations as $name => $options) {
-                if (!array_get($options, 'softDelete', false)) {
+                if (!Arr::get($options, 'softDelete', false)) {
                     continue;
                 }
 
@@ -213,7 +214,7 @@ trait SoftDelete
         $definitions = $this->getRelationDefinitions();
         foreach ($definitions as $type => $relations) {
             foreach ($relations as $name => $options) {
-                if (!array_get($options, 'softDelete', false)) {
+                if (!Arr::get($options, 'softDelete', false)) {
                     continue;
                 }
 

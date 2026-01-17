@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Parse\Syntax;
 
+use Illuminate\Support\Arr;
 use Request;
 
 /**
@@ -93,8 +94,8 @@ trait SyntaxModelTrait
      */
     protected function getThumbForImage($image, $params = [])
     {
-        $imageWidth = array_get($params, 'imageWidth');
-        $imageHeight = array_get($params, 'imageHeight');
+        $imageWidth = Arr::get($params, 'imageWidth');
+        $imageHeight = Arr::get($params, 'imageHeight');
         if ($imageWidth && $imageHeight) {
             $path = $image->getThumb($imageWidth, $imageHeight, ['mode' => 'crop']);
         }
@@ -135,7 +136,7 @@ trait SyntaxModelTrait
             }
 
             if ($params['type'] === 'repeater') {
-                $params['form']['fields'] = array_get($params, 'fields', []);
+                $params['form']['fields'] = Arr::get($params, 'fields', []);
                 unset($params['fields']);
             }
 
