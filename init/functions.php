@@ -849,3 +849,23 @@ if (!function_exists('link_to_action')) {
         return app('html')->linkAction($action, $title, $parameters, $attributes);
     }
 }
+
+if (!function_exists('starts_with')) {
+    /**
+     * @deprecated use str_starts_with
+     */
+    function starts_with($haystack, $needles)
+    {
+        return Str::startsWith($haystack, $needles);
+    }
+}
+
+if (!function_exists('ends_with')) {
+    /**
+     * @deprecated use str_ends_with
+     */
+    function ends_with($haystack, $needles)
+    {
+        return Str::endsWith($haystack, $needles);
+    }
+}
