@@ -563,19 +563,6 @@ if (!function_exists('camel_case')) {
     }
 }
 
-if (!function_exists('ends_with')) {
-    /**
-     * ends_with determines if a given string ends with a given substring
-     * @param  string  $haystack
-     * @param  string|array  $needles
-     * @return bool
-     */
-    function ends_with($haystack, $needles)
-    {
-        return Str::endsWith($haystack, $needles);
-    }
-}
-
 if (!function_exists('kebab_case')) {
     /**
      * kebab_case converts a string to kebab case
@@ -598,19 +585,6 @@ if (!function_exists('snake_case')) {
     function snake_case($value, $delimiter = '_')
     {
         return Str::snake($value, $delimiter);
-    }
-}
-
-if (!function_exists('starts_with')) {
-    /**
-     * starts_with determines if a given string starts with a given substring
-     * @param  string  $haystack
-     * @param  string|array  $needles
-     * @return bool
-     */
-    function starts_with($haystack, $needles)
-    {
-        return Str::startsWith($haystack, $needles);
     }
 }
 
@@ -873,5 +847,25 @@ if (!function_exists('link_to_action')) {
     function link_to_action($action, $title = null, $parameters = [], $attributes = [])
     {
         return app('html')->linkAction($action, $title, $parameters, $attributes);
+    }
+}
+
+if (!function_exists('starts_with')) {
+    /**
+     * @deprecated use str_starts_with
+     */
+    function starts_with($haystack, $needles)
+    {
+        return Str::startsWith($haystack, $needles);
+    }
+}
+
+if (!function_exists('ends_with')) {
+    /**
+     * @deprecated use str_ends_with
+     */
+    function ends_with($haystack, $needles)
+    {
+        return Str::endsWith($haystack, $needles);
     }
 }

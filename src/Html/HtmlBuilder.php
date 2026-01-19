@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Html;
 
+use October\Rain\Support\Str;
 use Illuminate\Routing\UrlGenerator;
 
 /**
@@ -585,7 +586,7 @@ class HtmlBuilder
      */
     public function isValidColor(string $value): bool
     {
-        return starts_with($value, [
+        return Str::startsWith($value, [
             '#',
             'var(',
             'rgb(',

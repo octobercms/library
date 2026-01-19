@@ -542,7 +542,7 @@ class User extends Model implements Authenticatable
             // Now, let's check if the permission ends in a wildcard "*" symbol.
             // If it does, we'll check through all the merged permissions to see
             // if a permission exists which matches the wildcard.
-            if ((strlen($permission) > 1) && ends_with($permission, '*')) {
+            if ((strlen($permission) > 1) && str_ends_with($permission, '*')) {
                 $matched = false;
 
                 foreach ($mergedPermissions as $mergedPermission => $value) {
@@ -553,7 +553,7 @@ class User extends Model implements Authenticatable
                     // exactly match our permission, but starts with it.
                     if (
                         $checkPermission !== $mergedPermission &&
-                        starts_with($mergedPermission, $checkPermission) &&
+                        str_starts_with($mergedPermission, $checkPermission) &&
                         (int) $value === 1
                     ) {
                         $matched = true;
@@ -561,7 +561,7 @@ class User extends Model implements Authenticatable
                     }
                 }
             }
-            elseif ((strlen($permission) > 1) && starts_with($permission, '*')) {
+            elseif ((strlen($permission) > 1) && str_starts_with($permission, '*')) {
                 $matched = false;
 
                 foreach ($mergedPermissions as $mergedPermission => $value) {
@@ -572,7 +572,7 @@ class User extends Model implements Authenticatable
                     // exactly match our permission, but ends with it.
                     if (
                         $checkPermission !== $mergedPermission &&
-                        ends_with($mergedPermission, $checkPermission) &&
+                        str_ends_with($mergedPermission, $checkPermission) &&
                         (int) $value === 1
                     ) {
                         $matched = true;
@@ -585,7 +585,7 @@ class User extends Model implements Authenticatable
 
                 foreach ($mergedPermissions as $mergedPermission => $value) {
                     // This time check if the mergedPermission ends in wildcard "*" symbol.
-                    if ((strlen($mergedPermission) > 1) && ends_with($mergedPermission, '*')) {
+                    if ((strlen($mergedPermission) > 1) && str_ends_with($mergedPermission, '*')) {
                         $matched = false;
 
                         // Strip the '*' off the end of the permission.
@@ -595,7 +595,7 @@ class User extends Model implements Authenticatable
                         // exactly match our permission, but starts with it.
                         if (
                             $checkMergedPermission !== $permission &&
-                            starts_with($permission, $checkMergedPermission) &&
+                            str_starts_with($permission, $checkMergedPermission) &&
                             (int) $value === 1
                         ) {
                             $matched = true;

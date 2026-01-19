@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Parse\Syntax;
 
 use Illuminate\Support\Arr;
+use October\Rain\Support\Str;
 use Request;
 
 /**
@@ -103,7 +104,7 @@ trait SyntaxModelTrait
             $path = $image->getPath();
         }
 
-        if (!starts_with($path, ['//', 'http://', 'https://'])) {
+        if (!Str::startsWith($path, ['//', 'http://', 'https://'])) {
             $path = Request::getSchemeAndHttpHost() . $path;
         }
 

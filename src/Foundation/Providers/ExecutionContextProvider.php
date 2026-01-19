@@ -39,7 +39,7 @@ class ExecutionContextProvider extends ServiceProvider
 
         $backendUri = $this->normalizeUrl($app['config']->get('backend.uri', 'backend'));
 
-        if (starts_with($requestPath, $backendUri)) {
+        if (str_starts_with($requestPath, $backendUri)) {
             return 'backend';
         }
 

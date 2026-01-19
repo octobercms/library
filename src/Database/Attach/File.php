@@ -731,7 +731,7 @@ class File extends Model
         $allFiles = $this->storageCmd('files', $directory);
         $collection = [];
         foreach ($allFiles as $file) {
-            if (starts_with(basename($file), $pattern)) {
+            if (str_starts_with(basename($file), $pattern)) {
                 $collection[] = $file;
             }
         }

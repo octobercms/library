@@ -236,10 +236,10 @@ trait Validation
             // Analyse each rule individually
             foreach ($ruleParts as $key => $rulePart) {
                 // Look for required:create and required:update rules
-                if (starts_with($rulePart, 'required:create') && $this->exists) {
+                if (str_starts_with($rulePart, 'required:create') && $this->exists) {
                     unset($ruleParts[$key]);
                 }
-                elseif (starts_with($rulePart, 'required:update') && !$this->exists) {
+                elseif (str_starts_with($rulePart, 'required:update') && !$this->exists) {
                     unset($ruleParts[$key]);
                 }
             }
