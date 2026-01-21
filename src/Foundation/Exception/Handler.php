@@ -1,20 +1,30 @@
 <?php namespace October\Rain\Foundation\Exception;
 
-use Log;
 use Event;
 use Response;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\RecordNotFoundException;
+use Illuminate\Database\RecordsNotFoundException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Contracts\Support\Responsable;
-use Illuminate\Support\Reflector;
+use Illuminate\Routing\Exceptions\BackedEnumCaseNotFoundException;
+use Illuminate\Routing\Router;
+use Illuminate\Session\TokenMismatchException;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Exception\RequestExceptionInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use October\Rain\Exception\ForbiddenException;
 use October\Rain\Exception\NotFoundException;
 use October\Rain\Exception\AjaxException;
 use Throwable;
-use Exception;
-use Closure;
 
 /**
  * Handler is the core exception handler
@@ -67,26 +77,7 @@ class Handler extends ExceptionHandler
             return;
         }
 
-        $exception = $this->mapException($exception);
-
-        if ($this->shouldntReport($exception)) {
-            return;
-        }
-
-        if (Reflector::isCallable($reportCallable = [$exception, 'report']) &&
-            $this->container->call($reportCallable) !== false) {
-            return;
-        }
-
-        foreach ($this->reportCallbacks as $reportCallback) {
-            if ($reportCallback->handles($exception) && $reportCallback($exception) === false) {
-                return;
-            }
-        }
-
-        if (class_exists('Log')) {
-            Log::error($exception);
-        }
+        parent::report($exception);
 
         /**
          * @event exception.report
@@ -106,7 +97,7 @@ class Handler extends ExceptionHandler
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Throwable  $exception
-     * @return \Illuminate\Http\Response
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function render($request, Throwable $exception)
     {
@@ -115,22 +106,33 @@ class Handler extends ExceptionHandler
             return parent::render($request, $exception);
         }
 
+        $exception = $this->mapException($exception);
+
+        // Exception has a render method (Laravel 12)
+        if (method_exists($exception, 'render') && $response = $exception->render($request)) {
+            return $this->finalizeRenderedResponse(
+                $request,
+                Router::toResponse($request, $response),
+                $exception
+            );
+        }
+
         // Exception wants to return its own response
         if ($exception instanceof Responsable) {
-            return $exception->toResponse($request);
+            return $this->finalizeRenderedResponse($request, $exception->toResponse($request), $exception);
         }
 
         // Convert to public-friendly exception
-        $exception = $this->prepareException($this->mapException($exception));
+        $exception = $this->prepareException($exception);
 
         // Custom handlers
         if ($response = $this->renderViaCallbacks($request, $exception)) {
-            return $response;
+            return $this->finalizeRenderedResponse($request, $response, $exception);
         }
 
         // Exception is a response
         if ($exception instanceof HttpResponseException) {
-            return $exception->getResponse();
+            return $this->finalizeRenderedResponse($request, $exception->getResponse(), $exception);
         }
 
         /**
@@ -145,24 +147,46 @@ class Handler extends ExceptionHandler
          */
         $statusCode = $this->getStatusCode($exception);
         if (($event = Event::fire('exception.beforeRender', [$exception, $statusCode, $request], true)) !== null) {
-            return Response::make($event, $statusCode);
+            return $this->finalizeRenderedResponse(
+                $request,
+                Response::make($event, $statusCode),
+                $exception
+            );
         }
 
-        return parent::render($request, $exception);
+        // Standard Laravel 12 rendering
+        return $this->finalizeRenderedResponse($request, match (true) {
+            $exception instanceof AuthenticationException => $this->unauthenticated($request, $exception),
+            $exception instanceof ValidationException => $this->convertValidationExceptionToResponse($exception, $request),
+            default => $this->renderExceptionResponse($request, $exception),
+        }, $exception);
     }
 
     /**
      * prepareException for rendering.
+     *
+     * @param  \Throwable  $e
+     * @return \Throwable
      */
-    protected function prepareException(Throwable $e)
+    protected function prepareException(Throwable $e): Throwable
     {
-        $e = parent::prepareException($e);
+        return match (true) {
+            // October-specific: NotFoundException → NotFoundHttpException
+            $e instanceof NotFoundException => new NotFoundHttpException($e->getMessage(), $e),
 
-        if ($e instanceof NotFoundException) {
-            $e = new NotFoundHttpException($e->getMessage(), $e);
-        }
-
-        return $e;
+            // Laravel 12 standard conversions
+            $e instanceof BackedEnumCaseNotFoundException => new NotFoundHttpException($e->getMessage(), $e),
+            $e instanceof ModelNotFoundException => new NotFoundHttpException($e->getMessage(), $e),
+            $e instanceof AuthorizationException && $e->hasStatus() => new HttpException(
+                $e->status(), $e->response()?->message() ?: (HttpResponse::$statusTexts[$e->status()] ?? 'Whoops, looks like something went wrong.'), $e
+            ),
+            $e instanceof AuthorizationException && ! $e->hasStatus() => new AccessDeniedHttpException($e->getMessage(), $e),
+            $e instanceof TokenMismatchException => new HttpException(419, $e->getMessage(), $e),
+            $e instanceof RequestExceptionInterface => new BadRequestHttpException('Bad request.', $e),
+            $e instanceof RecordNotFoundException => new NotFoundHttpException('Not found.', $e),
+            $e instanceof RecordsNotFoundException => new NotFoundHttpException('Not found.', $e),
+            default => $e,
+        };
     }
 
     /**
@@ -212,33 +236,6 @@ class Handler extends ExceptionHandler
     public function error(callable $callback)
     {
         $this->renderable($callback);
-    }
-
-    /**
-     * renderViaCallbacks tries to render a response from request and exception via render callbacks.
-     * @param  \Illuminate\Http\Request  $request
-     * @return mixed
-     */
-    protected function renderViaCallbacks($request, Throwable $e)
-    {
-        foreach ($this->renderCallbacks as $renderCallback) {
-            foreach ($this->firstClosureParameterTypes($renderCallback) as $type) {
-                if (!is_a($e, $type)) {
-                    continue;
-                }
-
-                $response = $renderCallback($e, $request);
-                if (!$response) {
-                    continue;
-                }
-
-                if (is_string($response)) {
-                    return Response::make($response);
-                }
-
-                return $response;
-            }
-        }
     }
 
     /**
