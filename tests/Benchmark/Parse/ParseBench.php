@@ -2,7 +2,7 @@
 
 use October\Rain\Parse\Ini;
 use October\Rain\Parse\Bracket;
-use October\Rain\Parse\Markdown;
+use October\Rain\Parse\Parsedown\ParsedownExtra;
 
 /**
  * @BeforeMethods({"init"})
@@ -22,9 +22,9 @@ class ParseBench
     protected $bracket;
 
     /**
-     * @var Markdown
+     * @var ParsedownExtra
      */
-    protected $markdown;
+    protected $parsedown;
 
     /**
      * @var string
@@ -63,7 +63,7 @@ class ParseBench
     {
         $this->ini = new Ini;
         $this->bracket = new Bracket;
-        $this->markdown = new Markdown;
+        $this->parsedown = new ParsedownExtra;
 
         // INI content for parsing
         $this->iniContent = <<<INI
@@ -191,7 +191,7 @@ MD;
     }
 
     //
-    // Markdown Benchmarks
+    // Markdown Benchmarks (using ParsedownExtra directly to avoid facade dependency)
     //
 
     /**
@@ -199,7 +199,7 @@ MD;
      */
     public function benchMarkdownParseSimple()
     {
-        (new Markdown)->parse($this->markdownSimple);
+        $this->parsedown->text($this->markdownSimple);
     }
 
     /**
@@ -207,7 +207,7 @@ MD;
      */
     public function benchMarkdownParseComplex()
     {
-        (new Markdown)->parse($this->markdownComplex);
+        $this->parsedown->text($this->markdownComplex);
     }
 
     /**
@@ -215,6 +215,6 @@ MD;
      */
     public function benchMarkdownParseLine()
     {
-        (new Markdown)->parseLine($this->markdownSimple);
+        $this->parsedown->line($this->markdownSimple);
     }
 }
