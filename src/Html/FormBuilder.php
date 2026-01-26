@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Html;
 
+use Illuminate\Support\Facades\Request;
 use Illuminate\Session\Store as Session;
 use Illuminate\Routing\UrlGenerator as UrlGeneratorBase;
 use Illuminate\Support\Arr;
@@ -1052,8 +1053,9 @@ class FormBuilder
             return $this->old($name);
         }
 
-        if (!is_null(input($name, null))) {
-            return input($name);
+        $inputValue = Request::input(Helper::nameToDot($name));
+        if (!is_null($inputValue)) {
+            return $inputValue;
         }
 
         if (isset($this->model)) {
@@ -1083,7 +1085,9 @@ class FormBuilder
     public function sessionKey($sessionKey = null)
     {
         if (!$sessionKey) {
-            $sessionKey = post('_session_key', $this->sessionKey);
+            $sessionKey = Request::getRealMethod() === 'POST'
+                ? Request::post('_session_key', $this->sessionKey)
+                : $this->sessionKey;
         }
 
         return $this->hidden('_session_key', $sessionKey);
