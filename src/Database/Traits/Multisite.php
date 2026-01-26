@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Traits;
 
+use Illuminate\Support\Arr;
 use Site;
 use October\Rain\Database\Scopes\MultisiteScope;
 use Exception;
@@ -331,7 +332,7 @@ trait Multisite
             return $default;
         }
 
-        return array_get($this->propagatableSync, $key, $default);
+        return Arr::get($this->propagatableSync, $key, $default);
     }
 
     /**

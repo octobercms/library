@@ -7,6 +7,7 @@ use Config;
 use Illuminate\Mail\Mailer as MailerBase;
 use Illuminate\Mail\SentMessage;
 use Illuminate\Contracts\Mail\Mailable as MailableContract;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 /**
@@ -386,11 +387,11 @@ class Mailer extends MailerBase
                     $result[$address] = $name;
                 }
                 elseif (is_array($person)) {
-                    if (!$address = array_get($person, 'email', array_get($person, 'address'))) {
+                    if (!$address = Arr::get($person, 'email', Arr::get($person, 'address'))) {
                         continue;
                     }
 
-                    $result[$address] = array_get($person, 'name');
+                    $result[$address] = Arr::get($person, 'name');
                 }
             }
         }
@@ -457,7 +458,7 @@ class Mailer extends MailerBase
             $customSubject = $message->getSymfonyMessage()->getSubject();
             if (
                 empty($customSubject) &&
-                ($subject = array_get($result['settings'], 'subject'))
+                ($subject = Arr::get($result['settings'], 'subject'))
             ) {
                 $message->subject($subject);
             }

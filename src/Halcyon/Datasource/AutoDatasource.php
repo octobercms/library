@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Halcyon\Datasource;
 
+use Illuminate\Support\Arr;
 use October\Rain\Halcyon\Model;
 use October\Rain\Halcyon\Processors\Processor;
 
@@ -28,7 +29,7 @@ class AutoDatasource extends Datasource implements DatasourceInterface
     {
         $this->datasources = $datasources;
 
-        $this->primaryDatasource = array_first($datasources);
+        $this->primaryDatasource = Arr::first($datasources);
 
         $this->postProcessor = new Processor;
     }

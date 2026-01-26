@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Database\Relations;
 
 use Illuminate\Database\Eloquent\Relations\BelongsToMany as BelongsToManyBase;
+use Illuminate\Support\Arr;
 
 /**
  * DefinedConstraints handles the constraints and filters defined by a relation
@@ -33,28 +34,28 @@ trait DefinedConstraints
         }
 
         // Default models (belongsTo, hasOne, hasOneThrough, morphOne)
-        if ($defaultData = array_get($args, 'default')) {
+        if ($defaultData = Arr::get($args, 'default')) {
             $relation->withDefault($defaultData);
         }
 
         // Pivot data (belongsToMany, morphToMany, morphByMany)
-        if ($pivotData = array_get($args, 'pivot')) {
+        if ($pivotData = Arr::get($args, 'pivot')) {
             $relation->withPivot($pivotData);
         }
 
         // Pivot incrementing key (belongsToMany, morphToMany, morphByMany)
-        if ($pivotKey = array_get($args, 'pivotKey')) {
+        if ($pivotKey = Arr::get($args, 'pivotKey')) {
             $relation->withPivot($pivotKey);
         }
 
         // Pivot timestamps (belongsToMany, morphToMany, morphByMany)
-        if (array_get($args, 'timestamps')) {
+        if (Arr::get($args, 'timestamps')) {
             $relation->withTimestamps();
         }
 
         // Count "helper" relation
         // @deprecated use Laravel withCount() method instead
-        if (array_get($args, 'count')) {
+        if (Arr::get($args, 'count')) {
             if ($relation instanceof BelongsToManyBase) {
                 $relation->countMode = true;
                 $keyName = $relation->getQualifiedForeignPivotKeyName();
@@ -79,14 +80,14 @@ trait DefinedConstraints
         }
 
         // Conditions
-        if ($conditions = array_get($args, 'conditions')) {
+        if ($conditions = Arr::get($args, 'conditions')) {
             $query->whereRaw($conditions);
         }
 
         // Sort order
         // @deprecated count is deprecated
-        $hasCountArg = array_get($args, 'count') !== null;
-        if (($orderBy = array_get($args, 'order')) && !$hasCountArg) {
+        $hasCountArg = Arr::get($args, 'count') !== null;
+        if (($orderBy = Arr::get($args, 'order')) && !$hasCountArg) {
             if (!is_array($orderBy)) {
                 $orderBy = [$orderBy];
             }
@@ -105,7 +106,7 @@ trait DefinedConstraints
         }
 
         // Scope
-        if ($scope = array_get($args, 'scope')) {
+        if ($scope = Arr::get($args, 'scope')) {
             if (is_string($scope)) {
                 $query->$scope($this->parent);
             }

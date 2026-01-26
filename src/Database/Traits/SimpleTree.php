@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Traits;
 
+use Illuminate\Support\Arr;
 use October\Rain\Database\Collection;
 use October\Rain\Database\TreeCollection;
 use Exception;
@@ -228,7 +229,7 @@ trait SimpleTree
                 }
 
                 // Add the children
-                $childItems = array_get($map, $item->{$idName}, []);
+                $childItems = Arr::get($map, $item->{$idName}, []);
                 if (count($childItems) > 0) {
                     $result = $result + $buildCollection($childItems, $map, $depth + 1);
                 }

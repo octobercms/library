@@ -2,6 +2,7 @@
 
 use Crypt;
 use Exception;
+use Illuminate\Support\Arr;
 
 /**
  * Encryptable database trait
@@ -49,8 +50,8 @@ trait Encryptable
         $this->bindEvent('model.beforeGetAttribute', function ($key) {
             if (
                 in_array($key, $this->getEncryptableAttributes()) &&
-                array_get($this->attributes, $key) !== null &&
-                array_get($this->attributes, $key) !== ''
+                Arr::get($this->attributes, $key) !== null &&
+                Arr::get($this->attributes, $key) !== ''
             ) {
                 return $this->getEncryptableValue($key);
             }

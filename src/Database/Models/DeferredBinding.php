@@ -2,6 +2,7 @@
 
 use Event;
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 use October\Rain\Database\Model;
 use Throwable;
 
@@ -209,12 +210,12 @@ class DeferredBinding extends Model
             }
 
             $options = $masterObject->getRelationDefinition($this->master_field);
-            if (!array_get($options, 'delete', false)) {
+            if (!Arr::get($options, 'delete', false)) {
                 return;
             }
 
             // Only delete it if the relationship is null
-            $foreignKey = array_get($options, 'key', $masterObject->getForeignKey());
+            $foreignKey = Arr::get($options, 'key', $masterObject->getForeignKey());
             if ($foreignKey && !$relatedObj->$foreignKey) {
                 $relatedObj->delete();
             }

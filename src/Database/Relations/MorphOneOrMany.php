@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Database\Relations;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 
 /**
  * MorphOneOrMany
@@ -244,7 +245,7 @@ trait MorphOneOrMany
             $options = $this->parent->getRelationDefinition($this->relationName);
 
             // Delete or orphan the model
-            if (array_get($options, 'delete', false)) {
+            if (Arr::get($options, 'delete', false)) {
                 $model->delete();
             }
             else {
@@ -298,7 +299,7 @@ trait MorphOneOrMany
     {
         $options = $this->parent->getRelationDefinition($this->relationName);
 
-        if (array_get($options, 'delete', false)) {
+        if (Arr::get($options, 'delete', false)) {
             $this->delete();
         }
         else {

@@ -6,6 +6,7 @@ use Cache;
 use Storage;
 use Response;
 use File as FileHelper;
+use Illuminate\Support\Arr;
 use October\Rain\Database\Model;
 use October\Rain\Resize\Resizer;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -327,7 +328,7 @@ class File extends Model
      */
     public function outputThumb($width, $height, $options = [], $returnResponse = true)
     {
-        $disposition = array_get($options, 'disposition', 'inline');
+        $disposition = Arr::get($options, 'disposition', 'inline');
         $options = $this->getDefaultThumbOptions($options);
 
         // Generate thumb if not existing already

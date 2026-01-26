@@ -4,6 +4,7 @@ use Db;
 use Exception;
 use DateTime;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
+use Illuminate\Support\Arr;
 
 /**
  * Revisionable trait tracks changes to specific attributes
@@ -79,7 +80,7 @@ trait Revisionable
 
             $toSave[] = [
                 'field' => $attribute,
-                'old_value' => array_get($this->original, $attribute),
+                'old_value' => Arr::get($this->original, $attribute),
                 'new_value' => $value,
                 'revisionable_type' => $relationObject->getMorphClass(),
                 'revisionable_id' => $this->getKey(),

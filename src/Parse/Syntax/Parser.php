@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Parse\Syntax;
 
+use Illuminate\Support\Arr;
 use October\Rain\Parse\Bracket as TextParser;
 
 /**
@@ -45,7 +46,7 @@ class Parser
     {
         if ($template) {
             $this->template = $template;
-            $this->varPrefix = array_get($options, 'varPrefix', '');
+            $this->varPrefix = Arr::get($options, 'varPrefix', '');
             $this->fieldParser = new FieldParser($template, $options);
 
             $textFilters = [
@@ -145,7 +146,7 @@ class Parser
     {
         $prefixField = $this->varPrefix.$field;
         $params = $this->fieldParser->getFieldParams($field);
-        $innerFields = array_get($params, 'fields', []);
+        $innerFields = Arr::get($params, 'fields', []);
         $innerTags = $tagDetails['tags'];
         $innerTemplate = $tagDetails['template'];
 
@@ -153,7 +154,7 @@ class Parser
          * Replace all the inner tags
          */
         foreach ($innerTags as $innerField => $tagString) {
-            $innerParams = array_get($innerFields, $innerField, []);
+            $innerParams = Arr::get($innerFields, $innerField, []);
             $tagReplacement = $this->{'eval'.$engine.'ViewField'}($innerField, $innerParams, 'fields');
             $innerTemplate = str_replace($tagString, $tagReplacement, $innerTemplate);
         }
@@ -161,7 +162,7 @@ class Parser
         /*
          * Replace the opening tag
          */
-        $openTag = array_get($tagDetails, 'open', '{repeater}');
+        $openTag = Arr::get($tagDetails, 'open', '{repeater}');
         $openReplacement = $engine === 'Twig' ? '{% for fields in '.$prefixField.' %}' : '{'.$prefixField.'}';
         $openReplacement = $openReplacement . PHP_EOL;
         $innerTemplate = str_replace($openTag, $openReplacement, $innerTemplate);
@@ -169,7 +170,7 @@ class Parser
         /*
          * Replace the closing tag
          */
-        $closeTag = array_get($tagDetails, 'close', '{/repeater}');
+        $closeTag = Arr::get($tagDetails, 'close', '{/repeater}');
         $closeReplacement = $engine === 'Twig' ? '{% endfor %}' : '{/'.$prefixField.'}';
         $closeReplacement = PHP_EOL . $closeReplacement;
         $innerTemplate = str_replace($closeTag, $closeReplacement, $innerTemplate);
