@@ -1085,9 +1085,7 @@ class FormBuilder
     public function sessionKey($sessionKey = null)
     {
         if (!$sessionKey) {
-            $sessionKey = Request::getRealMethod() === 'POST'
-                ? Request::post('_session_key', $this->sessionKey)
-                : $this->sessionKey;
+            $sessionKey = Request::post('_session_key', $this->sessionKey);
         }
 
         return $this->hidden('_session_key', $sessionKey);
