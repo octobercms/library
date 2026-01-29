@@ -20,7 +20,7 @@ class Ini
     public function parse($contents)
     {
         $contents = $this->parsePreProcess($contents);
-        $contents = parse_ini_string($contents, true);
+        $contents = parse_ini_string($contents, true, INI_SCANNER_RAW);
         $contents = $this->parsePostProcess($contents);
         return $contents;
     }

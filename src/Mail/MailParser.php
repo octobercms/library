@@ -1,5 +1,7 @@
 <?php namespace October\Rain\Mail;
 
+use October\Rain\Support\Facades\Ini;
+
 /**
  * This class parses Mail templates.
  * Returns the structured file information.
@@ -47,18 +49,18 @@ class MailParser
         ];
 
         if ($count >= 4) {
-            $result['settings'] = parse_ini_string($sections[0], true);
+            $result['settings'] = Ini::parse($sections[0]);
             $result['text'] = $sections[1];
             $result['html'] = $sections[2];
             $result['css'] = $sections[3];
         }
         elseif ($count >= 3) {
-            $result['settings'] = parse_ini_string($sections[0], true);
+            $result['settings'] = Ini::parse($sections[0]);
             $result['text'] = $sections[1];
             $result['html'] = $sections[2];
         }
         elseif ($count === 2) {
-            $result['settings'] = parse_ini_string($sections[0], true);
+            $result['settings'] = Ini::parse($sections[0]);
             $result['html'] = $sections[1];
         }
         elseif ($count === 1) {
