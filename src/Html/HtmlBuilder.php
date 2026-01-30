@@ -561,8 +561,13 @@ class HtmlBuilder
             $html = preg_replace('#(&\#x*)([0-9A-F]+);*#iu', "$1$2;", $html);
             $html = html_entity_decode($html, ENT_COMPAT, 'UTF-8');
 
-            // Remove any attribute starting with "on" or xmlns
-            $html = preg_replace('#(<[^>]+[\x00-\x20\"\'\/])(on)[^>]*>#iUu', "$1>", $html);
+            // Remove any attribute starting with "on" (event handlers)
+            // Handle quoted attribute values: onload="...", onclick='...'
+            $html = preg_replace('#\s+on\w+\s*=\s*"[^"]*"#iu', '', $html);
+            $html = preg_replace('#\s+on\w+\s*=\s*\'[^\']*\'#iu', '', $html);
+
+            // Handle unquoted attribute values: onload=alert(1)
+            $html = preg_replace('#\s+on\w+\s*=\s*[^\s>]+#iu', '', $html);
 
             // Remove javascript: and vbscript: protocols
             $html = preg_replace('#([a-z]*)[\x00-\x20\/]*=[\x00-\x20\/]*([\`\'\"]*)[\x00-\x20\/|(&\#\d+;)]*j[\x00-\x20]*a[\x00-\x20]*v[\x00-\x20]*a[\x00-\x20]*s[\x00-\x20]*c[\x00-\x20]*r[\x00-\x20]*i[\x00-\x20]*p[\x00-\x20]*t[\x00-\x20]*:#iUu', '$1=$2nojavascript...', $html);
