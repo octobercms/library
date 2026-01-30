@@ -2,6 +2,9 @@
 
 use October\Rain\Support\Str;
 use Illuminate\Routing\UrlGenerator;
+use Symfony\Component\HtmlSanitizer\HtmlSanitizer;
+use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
+use enshrined\svgSanitize\Sanitizer as SvgSanitizer;
 
 /**
  * HtmlBuilder builds HTML elements
@@ -505,80 +508,34 @@ class HtmlBuilder
     }
 
     /**
-     * clean HTML to prevent most XSS attacks.
-     * @todo shift to external library
-     * @param  string $html
-     * @return string
+     * clean HTML to prevent XSS attacks using DOM-based sanitization.
      */
-    public static function clean($html)
+    public static function clean(string $html): string
     {
-        do {
-            $oldHtml = $html;
+        $config = (new HtmlSanitizerConfig())
+            ->allowSafeElements()
+            ->allowRelativeLinks()
+            ->allowRelativeMedias();
 
-            // Fix &entity\n;
-            $html = str_replace(['&amp;','&lt;','&gt;'], ['&amp;amp;','&amp;lt;','&amp;gt;'], $html);
-            $html = preg_replace('#(&\#*\w+)[\x00-\x20]+;#u', "$1;", $html);
-            $html = preg_replace('#(&\#x*)([0-9A-F]+);*#iu', "$1$2;", $html);
-            $html = html_entity_decode($html, ENT_COMPAT, 'UTF-8');
+        $sanitizer = new HtmlSanitizer($config);
 
-            // Remove any attribute starting with "on" or xmlns
-            $html = preg_replace('#(<[^>]+[\x00-\x20\"\'\/])(on|xmlns)[^>]*>#iUu', "$1>", $html);
-
-            // Remove javascript: and vbscript: protocols
-            $html = preg_replace('#([a-z]*)[\x00-\x20\/]*=[\x00-\x20\/]*([\`\'\"]*)[\x00-\x20\/|(&\#\d+;)]*j[\x00-\x20]*a[\x00-\x20]*v[\x00-\x20]*a[\x00-\x20]*s[\x00-\x20]*c[\x00-\x20]*r[\x00-\x20]*i[\x00-\x20]*p[\x00-\x20]*t[\x00-\x20]*:#iUu', '$1=$2nojavascript...', $html);
-            $html = preg_replace('#([a-z]*)[\x00-\x20\/]*=[\x00-\x20\/]*([\`\'\"]*)[\x00-\x20\/|(&\#\d+;)]*v[\x00-\x20]*b[\x00-\x20]*s[\x00-\x20]*c[\x00-\x20]*r[\x00-\x20]*i[\x00-\x20]*p[\x00-\x20]*t[\x00-\x20]*:#iUu', '$1=$2novbscript...', $html);
-            $html = preg_replace('#([a-z]*)[\x00-\x20\/]*=[\x00-\x20\/]*([\`\'\"]*)[\x00-\x20\/|(&\#\d+;)]*-moz-binding[\x00-\x20]*:#Uu', '$1=$2nomozbinding...', $html);
-            $html = preg_replace('#([a-z]*)[\x00-\x20\/]*=[\x00-\x20\/]*([\`\'\"]*)[\x00-\x20\/|(&\#\d+;)]*data[\x00-\x20]*:#Uu', '$1=$2nodata...', $html);
-
-            // Only works in IE: <span style="width: expression(alert('Ping!'));"></span>
-            $html = preg_replace('#(<[^>]+[\x00-\x20\"\'\/])style[^>]*>#iUu', "$1>", $html);
-
-            // Remove namespaced elements (we do not need them)
-            $html = preg_replace('#</*\w+:\w[^>]*>#i', "", $html);
-
-            // Remove really unwanted tags
-            $html = preg_replace('#</*(applet|meta|xml|blink|link|style|script|embed|object|iframe|frame|frameset|ilayer|layer|bgsound|title|base)[^>]*>#i', "", $html);
-        }
-        while ($oldHtml !== $html);
-
-        return $html;
+        return $sanitizer->sanitize($html);
     }
 
     /**
-     * clean XML to prevent most XSS attacks in vector files (SVGs). Same as clean except:
-     * - allowed tags: xml, title, style
-     * - allowed attributes: xmlns, style
-     * @todo shift to external library
+     * cleanVector sanitizes XML/SVG content to prevent XSS attacks using DOM-based sanitization.
+     * Uses enshrined/svg-sanitize library which is ported from DOMPurify.
      */
     public static function cleanVector(string $html): string
     {
-        do {
-            $oldHtml = $html;
+        $sanitizer = new SvgSanitizer();
+        $sanitizer->minify(false);
+        $sanitizer->removeRemoteReferences(true);
+        $sanitizer->removeXMLTag(true);
 
-            // Fix &entity\n;
-            $html = str_replace(['&amp;','&lt;','&gt;'], ['&amp;amp;','&amp;lt;','&amp;gt;'], $html);
-            $html = preg_replace('#(&\#*\w+)[\x00-\x20]+;#u', "$1;", $html);
-            $html = preg_replace('#(&\#x*)([0-9A-F]+);*#iu', "$1$2;", $html);
-            $html = html_entity_decode($html, ENT_COMPAT, 'UTF-8');
+        $clean = $sanitizer->sanitize($html);
 
-            // Remove any attribute starting with "on" or xmlns
-            $html = preg_replace('#(<[^>]+[\x00-\x20\"\'\/])(on)[^>]*>#iUu', "$1>", $html);
-
-            // Remove javascript: and vbscript: protocols
-            $html = preg_replace('#([a-z]*)[\x00-\x20\/]*=[\x00-\x20\/]*([\`\'\"]*)[\x00-\x20\/|(&\#\d+;)]*j[\x00-\x20]*a[\x00-\x20]*v[\x00-\x20]*a[\x00-\x20]*s[\x00-\x20]*c[\x00-\x20]*r[\x00-\x20]*i[\x00-\x20]*p[\x00-\x20]*t[\x00-\x20]*:#iUu', '$1=$2nojavascript...', $html);
-            $html = preg_replace('#([a-z]*)[\x00-\x20\/]*=[\x00-\x20\/]*([\`\'\"]*)[\x00-\x20\/|(&\#\d+;)]*v[\x00-\x20]*b[\x00-\x20]*s[\x00-\x20]*c[\x00-\x20]*r[\x00-\x20]*i[\x00-\x20]*p[\x00-\x20]*t[\x00-\x20]*:#iUu', '$1=$2novbscript...', $html);
-            $html = preg_replace('#([a-z]*)[\x00-\x20\/]*=[\x00-\x20\/]*([\`\'\"]*)[\x00-\x20\/|(&\#\d+;)]*-moz-binding[\x00-\x20]*:#Uu', '$1=$2nomozbinding...', $html);
-            $html = preg_replace('#([a-z]*)[\x00-\x20\/]*=[\x00-\x20\/]*([\`\'\"]*)[\x00-\x20\/|(&\#\d+;)]*data[\x00-\x20]*:#Uu', '$1=$2nodata...', $html);
-
-            // Remove namespaced elements (we do not need them)
-            $html = preg_replace('#</*\w+:\w[^>]*>#i', "", $html);
-
-            // Remove really unwanted tags
-            $html = preg_replace('#</*(applet|meta|blink|link|script|embed|object|iframe|frame|frameset|ilayer|layer|bgsound|base)[^>]*>#i', "", $html);
-        }
-        while ($oldHtml !== $html);
-
-        return $html;
+        return $clean !== false ? $clean : '';
     }
 
     /**
