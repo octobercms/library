@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Relations;
 
+use Site;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany as BelongsToManyBase;
 use Illuminate\Support\Arr;
 
@@ -12,6 +13,12 @@ use Illuminate\Support\Arr;
  */
 trait DefinedConstraints
 {
+    /**
+     * @var bool pivotSiteScope indicates if pivot queries should be scoped by site_id.
+     * This is used for dual-multisite scenarios where both parent and related models use multisite.
+     */
+    protected $pivotSiteScope = false;
+
     /**
      * addDefinedConstraints to the relation query
      */
@@ -68,6 +75,53 @@ trait DefinedConstraints
 
             $relation->select($keyName, $countSql)->groupBy($keyName)->orderBy($keyName);
         }
+
+        // Pivot site scope (dual-multisite: both parent and related models use multisite)
+        // This enables site_id scoping on pivot table queries
+        if (Arr::get($args, 'pivotSiteScope')) {
+            $this->pivotSiteScope = true;
+            $relation->withPivot(['site_id']);
+        }
+    }
+
+    /**
+     * isPivotSiteScoped returns true if pivot queries should be scoped by site_id.
+     */
+    public function isPivotSiteScoped(): bool
+    {
+        return $this->pivotSiteScope;
+    }
+
+    /**
+     * addPivotSiteScopeConstraints adds site_id constraint to pivot queries if enabled.
+     */
+    protected function addPivotSiteScopeConstraints(): void
+    {
+        if ($this->pivotSiteScope && !Site::hasGlobalContext()) {
+            $this->where($this->qualifyPivotColumn('site_id'), Site::getSiteIdFromContext());
+        }
+    }
+
+    /**
+     * getPivotSiteScopeValue returns the current site_id value for pivot records.
+     * Returns null if pivotSiteScope is disabled, otherwise returns the site ID.
+     */
+    protected function getPivotSiteScopeValue(): ?int
+    {
+        if (!$this->pivotSiteScope) {
+            return null;
+        }
+
+        $siteId = Site::getSiteIdFromContext();
+
+        // In dual-multisite, we always need a site_id for pivot records
+        // If there's no site context, it likely means we're in global context
+        // during propagation - the sync should happen inside Site::withContext()
+        if ($siteId === null) {
+            return null;
+        }
+
+        return $siteId;
     }
 
     /**
