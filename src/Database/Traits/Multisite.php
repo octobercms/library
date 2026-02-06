@@ -371,7 +371,7 @@ trait Multisite
 
     /**
      * isRelatedClassMultisite checks if a related model class uses multisite.
-     * This checks for the Multisite trait being used by the class.
+     * This checks that multisite is enabled via the MultisiteInterface.
      */
     protected function isRelatedClassMultisite($relatedClass): bool
     {
@@ -379,11 +379,10 @@ trait Multisite
             return false;
         }
 
-        // Check if the class uses the Multisite trait (recursively checks parent classes)
-        return in_array(
-            \October\Rain\Database\Traits\Multisite::class,
-            class_uses_recursive($relatedClass)
-        );
+        $relatedModel = new $relatedClass;
+
+        return $relatedModel->isClassInstanceOf(\October\Contracts\Database\MultisiteInterface::class)
+            && $relatedModel->isMultisiteEnabled();
     }
 
     /**
