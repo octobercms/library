@@ -162,7 +162,10 @@ class Resizer
      */
     public function save($savePath)
     {
-        $this->image->save($savePath);
+        $this->image->save(
+            $savePath,
+            ...$this->buildEncoderOptions($savePath)
+        );
     }
 
     /**
@@ -223,6 +226,39 @@ class Resizer
             $this->image->scale($width, null);
         }
 
+        $sharpen = $this->getOption('sharpen');
+        if ($sharpen > 0) {
+            $this->image->sharpen($sharpen);
+        }
+
         return $this;
+    }
+
+    /**
+     * buildEncoderOptions builds encoder options (quality, interlace/progressive) for saving.
+     * @param string $savePath
+     */
+    protected function buildEncoderOptions(string $savePath): array
+    {
+        $encoderOptions = [];
+
+        $quality = $this->getOption('quality');
+        if ($quality !== null) {
+            $encoderOptions['quality'] = (int) $quality;
+        }
+
+        // Interlace option maps to 'interlaced' for PNG/GIF and 'progressive' for JPEG
+        $interlace = $this->getOption('interlace');
+        if ($interlace) {
+            $extension = strtolower(pathinfo($savePath, PATHINFO_EXTENSION));
+            if ($extension === 'jpg' || $extension === 'jpeg') {
+                $encoderOptions['progressive'] = true;
+            }
+            elseif ($extension === 'png' || $extension === 'gif') {
+                $encoderOptions['interlaced'] = true;
+            }
+        }
+
+        return $encoderOptions;
     }
 }
