@@ -213,9 +213,7 @@ trait Multisite
             if (in_array($type, ['belongsToMany', 'morphToMany', 'morphedByMany'])) {
                 // Check if related model also uses multisite (dual-multisite scenario)
                 // In dual-multisite, keys stay as default 'id' and pivotSiteScope handles filtering
-                $relatedClass = $this->$type[$name][0] ?? null;
-                $relatedIsMultisite = $relatedClass && $this->isRelatedClassMultisite($relatedClass);
-
+                $relatedIsMultisite = $this->isRelatedMultisite($name);
                 if ($relatedIsMultisite) {
                     // Dual-multisite: pivot queries should be scoped by site_id
                     $this->$type[$name]['pivotSiteScope'] = true;
@@ -370,16 +368,15 @@ trait Multisite
     }
 
     /**
-     * isRelatedClassMultisite checks if a related model class uses multisite.
+     * isRelatedMultisite checks if a related model class uses multisite.
      * This checks that multisite is enabled via the MultisiteInterface.
      */
-    protected function isRelatedClassMultisite($relatedClass): bool
+    protected function isRelatedMultisite($name): bool
     {
-        if (!class_exists($relatedClass)) {
+        $relatedModel = $this->makeRelation($name);
+        if (!$relatedModel) {
             return false;
         }
-
-        $relatedModel = new $relatedClass;
 
         return $relatedModel->isClassInstanceOf(\October\Contracts\Database\MultisiteInterface::class)
             && $relatedModel->isMultisiteEnabled();
