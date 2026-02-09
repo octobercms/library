@@ -347,6 +347,72 @@ class IniTest extends TestCase
         $this->assertEquals($this->getContents($path), $str);
     }
 
+    public function testEnvironmentVariablesNotInterpolated()
+    {
+        putenv('OC_TEST_SECRET=should_not_leak');
+
+        $parser = new IniParser;
+
+        // Quoted value with ${VAR} syntax
+        $result = $parser->parse('key = "${OC_TEST_SECRET}"');
+        $this->assertEquals('${OC_TEST_SECRET}', $result['key']);
+
+        // Unquoted value with ${VAR} syntax
+        $result = $parser->parse('key = ${OC_TEST_SECRET}');
+        $this->assertEquals('${OC_TEST_SECRET}', $result['key']);
+
+        // Multiple env vars in a single value
+        $result = $parser->parse('key = "${OC_TEST_SECRET} and ${OC_TEST_SECRET}"');
+        $this->assertEquals('${OC_TEST_SECRET} and ${OC_TEST_SECRET}', $result['key']);
+
+        // Env var mixed with regular text
+        $result = $parser->parse('key = "prefix_${OC_TEST_SECRET}_suffix"');
+        $this->assertEquals('prefix_${OC_TEST_SECRET}_suffix', $result['key']);
+
+        // Env var in section values
+        $result = $parser->parse("[section]\nkey = \"\${OC_TEST_SECRET}\"");
+        $this->assertArrayHasKey('section', $result);
+        $this->assertEquals('${OC_TEST_SECRET}', $result['section']['key']);
+
+        putenv('OC_TEST_SECRET');
+    }
+
+    public function testEnvironmentVariablesRoundTrip()
+    {
+        putenv('OC_TEST_SECRET=should_not_leak');
+
+        $parser = new IniParser;
+
+        $vars = [
+            'key' => '${OC_TEST_SECRET}',
+        ];
+
+        // Render and re-parse should preserve the ${VAR} syntax
+        $rendered = $parser->render($vars);
+        $result = $parser->parse($rendered);
+        $this->assertEquals($vars, $result);
+
+        putenv('OC_TEST_SECRET');
+    }
+
+    public function testEnvironmentVariablesCannotBeBypassed()
+    {
+        putenv('OC_TEST_SECRET=should_not_leak');
+
+        $parser = new IniParser;
+
+        // Double dollar should not leak
+        $result = $parser->parse('key = "$${OC_TEST_SECRET}"');
+        $this->assertStringNotContainsString('should_not_leak', $result['key']);
+
+        // Literal placeholder text in content should decode safely
+        $result = $parser->parse('key = "oc_env_open{OC_TEST_SECRET}"');
+        $this->assertEquals('${OC_TEST_SECRET}', $result['key']);
+        $this->assertStringNotContainsString('should_not_leak', $result['key']);
+
+        putenv('OC_TEST_SECRET');
+    }
+
    //
    // Helpers
    //
