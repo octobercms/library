@@ -229,7 +229,7 @@ class BelongsToMany extends BelongsToManyBase
      * createOrFirst attempts to create the record, or if a unique constraint
      * violation occurs, finds the existing record.
      */
-    public function createOrFirst(array $attributes = [], array $values = [], array $pivotData = [], $sessionKey = null)
+    public function createOrFirst(array $attributes = [], \Closure|array $values = [], array $pivotData = [], $sessionKey = null)
     {
         $model = $this->related->createOrFirst($attributes, $values);
 
