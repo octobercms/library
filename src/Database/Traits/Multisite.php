@@ -288,10 +288,6 @@ trait Multisite
                     $fkName = $this->$name()->getForeignKeyName();
                     $otherModel->$fkName = $this->$fkName;
                 }
-                // Propagate many-to-many relation (dual-multisite)
-                elseif (in_array($relationType, ['belongsToMany', 'morphToMany', 'morphedByMany'])) {
-                    $this->propagateManyToManyRelation($name, $siteId, $otherModel);
-                }
                 // Propagate local attribute (not a relation)
                 elseif (!$relationType) {
                     $otherModel->$name = $this->$name;
@@ -300,6 +296,15 @@ trait Multisite
         }
 
         $otherModel->save(['force' => true]);
+
+        // Propagate many-to-many relations after save since pivot
+        // records require the model to have an ID
+        foreach ($this->propagatable as $name) {
+            $relationType = $this->getRelationType($name);
+            if (in_array($relationType, ['belongsToMany', 'morphToMany', 'morphedByMany'])) {
+                $this->propagateManyToManyRelation($name, $siteId, $otherModel);
+            }
+        }
 
         return $otherModel;
     }
