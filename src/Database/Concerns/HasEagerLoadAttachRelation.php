@@ -61,7 +61,7 @@ trait HasEagerLoadAttachRelation
 
         return $relation->match(
             $relation->initRelation($models, $name),
-            $results->where('field', $name),
+            $results->where('field', $name)->values(),
             $name
         );
     }
