@@ -139,7 +139,7 @@ trait MorphOneOrMany
      * createOrFirst attempts to create the record, or if a unique constraint
      * violation occurs, finds the existing record.
      */
-    public function createOrFirst(array $attributes = [], array $values = [], $sessionKey = null)
+    public function createOrFirst(array $attributes = [], \Closure|array $values = [], $sessionKey = null)
     {
         $model = parent::createOrFirst($attributes, $values);
 

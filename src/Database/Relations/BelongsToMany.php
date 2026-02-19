@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Relations;
 
+use Site;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as CollectionBase;
@@ -54,6 +55,80 @@ class BelongsToMany extends BelongsToManyBase
         );
 
         $this->addDefinedConstraints();
+    }
+
+    /**
+     * addWhereConstraints sets the where clause for the relation query.
+     * @return $this
+     */
+    protected function addWhereConstraints()
+    {
+        parent::addWhereConstraints();
+
+        $this->addPivotSiteScopeConstraints();
+
+        return $this;
+    }
+
+    /**
+     * addEagerConstraints sets the constraints for an eager load of the relation.
+     * @param  array  $models
+     * @return void
+     */
+    public function addEagerConstraints(array $models)
+    {
+        parent::addEagerConstraints($models);
+
+        $this->addPivotSiteScopeConstraints();
+    }
+
+    /**
+     * baseAttachRecord creates a new pivot attachment record.
+     * @param  int   $id
+     * @param  bool  $timed
+     * @return array
+     */
+    protected function baseAttachRecord($id, $timed)
+    {
+        $record = parent::baseAttachRecord($id, $timed);
+
+        if ($siteId = $this->getPivotSiteScopeValue()) {
+            $record['site_id'] = $siteId;
+        }
+
+        return $record;
+    }
+
+    /**
+     * getRelationExistenceQuery adds the constraints for a relationship count query.
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $parentQuery
+     * @param  array|mixed  $columns
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function getRelationExistenceQuery(Builder $query, Builder $parentQuery, $columns = ['*'])
+    {
+        $query = parent::getRelationExistenceQuery($query, $parentQuery, $columns);
+
+        if ($this->pivotSiteScope) {
+            $query->where($this->qualifyPivotColumn('site_id'), Site::getSiteIdFromContext());
+        }
+
+        return $query;
+    }
+
+    /**
+     * newPivotQuery creates a new query builder for the pivot table.
+     */
+    public function newPivotQuery()
+    {
+        $query = parent::newPivotQuery();
+
+        if ($this->pivotSiteScope) {
+            $query->where($this->table.'.site_id', Site::getSiteIdFromContext());
+        }
+
+        return $query;
     }
 
     /**
@@ -154,7 +229,7 @@ class BelongsToMany extends BelongsToManyBase
      * createOrFirst attempts to create the record, or if a unique constraint
      * violation occurs, finds the existing record.
      */
-    public function createOrFirst(array $attributes = [], array $values = [], array $pivotData = [], $sessionKey = null)
+    public function createOrFirst(array $attributes = [], \Closure|array $values = [], array $pivotData = [], $sessionKey = null)
     {
         $model = $this->related->createOrFirst($attributes, $values);
 

@@ -99,6 +99,10 @@ class Ini
      */
     protected function parsePreProcess($contents)
     {
+        // Sanitize environment variable interpolation syntax to prevent
+        // parse_ini_string from resolving ${VAR} to environment values
+        $contents = str_replace('${', 'oc_env_open{', $contents);
+
         // Normalize EOL
         $contents = preg_replace('~\R~u', PHP_EOL, $contents);
         $contents = explode(PHP_EOL, $contents);
@@ -150,7 +154,11 @@ class Ini
     {
         $result = [];
 
-        foreach ($array as $key => $value) {
+        foreach ($array as $key => &$value) {
+            if (is_string($value)) {
+                $value = str_replace('oc_env_open{', '${', $value);
+            }
+
             $this->expandProperty($result, $key, $value);
 
             if (is_array($value)) {
