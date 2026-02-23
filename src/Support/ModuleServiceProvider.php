@@ -186,6 +186,42 @@ abstract class ModuleServiceProvider extends ServiceProviderBase implements Octo
     }
 
     /**
+     * discoverConsoleCommands automatically finds and registers console
+     * commands from the module's console directory
+     */
+    protected function discoverConsoleCommands(string $module): void
+    {
+        if (!$this->app->runningInConsole()) {
+            return;
+        }
+
+        $consolePath = base_path('modules/' . $module . '/console');
+
+        if (!is_dir($consolePath)) {
+            return;
+        }
+
+        $namespace = ucfirst($module) . '\\Console\\';
+
+        foreach (glob($consolePath . '/*.php') as $file) {
+            $className = $namespace . basename($file, '.php');
+
+            if (!class_exists($className)) {
+                continue;
+            }
+
+            $reflection = new \ReflectionClass($className);
+
+            if (
+                $reflection->isSubclassOf(\Illuminate\Console\Command::class) &&
+                !$reflection->isAbstract()
+            ) {
+                $this->commands($className);
+            }
+        }
+    }
+
+    /**
      * registerConsoleCommand registers a new console (artisan) command
      */
     protected function registerConsoleCommand(string $key, string $class)
