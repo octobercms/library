@@ -33,6 +33,7 @@ use October\Rain\Support\Facade;
  * @method static void setActiveSite(mixed $site)
  * @method static void applyActiveSite(mixed $site)
  * @method static int|null getSiteIdFromContext()
+ * @method static int getSiteGroupIdFromContext()
  * @method static string|null getSiteCodeFromContext()
  * @method static mixed getSiteFromContext()
  * @method static bool hasGlobalContext()
