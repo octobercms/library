@@ -24,7 +24,7 @@
         "linkorb/jsmin-php": "~1.0",
         "wikimedia/less.php": "~5.2",
         "scssphp/scssphp": "~1.0",
-        "symfony/yaml": "^6.0",
+        "symfony/yaml": "^6.4|^7.0",
         "twig/twig": "^3.21",
         "league/csv": "~9.1",
         "laravel/tinker": "~2.0"
