@@ -124,12 +124,24 @@ trait Translatable
     //
 
     /**
+     * isTranslatableEnabled returns true to indicate the trait is active
+     */
+    public function isTranslatableEnabled()
+    {
+        return true;
+    }
+
+    /**
      * shouldTranslate returns true when the active locale differs from the default.
      * This is the hot-path guard — called on every getAttribute/setAttribute.
      * Returns false for single-locale installs so the trait is invisible.
      */
     public function shouldTranslate()
     {
+        if (!$this->isTranslatableEnabled()) {
+            return false;
+        }
+
         return $this->getTranslatableContext() !== $this->getTranslatableDefault();
     }
 

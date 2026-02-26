@@ -19,4 +19,10 @@ interface TranslatableInterface
      * @return bool
      */
     public function isTranslatableAttribute($key);
+
+    /**
+     * isTranslatableEnabled
+     * @return bool
+     */
+    public function isTranslatableEnabled();
 }
