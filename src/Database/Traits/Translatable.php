@@ -205,7 +205,7 @@ trait Translatable
     {
         // Default locale reads from model attributes
         if ($locale === $this->getTranslatableDefault()) {
-            $result = $this->getAttributeFromData($this->attributes, $key);
+            $result = $this->attributes[$key] ?? null;
         }
         else {
             if (!array_key_exists($locale, $this->translatableAttributes)) {
@@ -213,10 +213,10 @@ trait Translatable
             }
 
             if ($this->hasTranslation($key, $locale)) {
-                $result = $this->getAttributeFromData($this->translatableAttributes[$locale], $key);
+                $result = $this->translatableAttributes[$locale][$key] ?? null;
             }
             elseif ($useFallback) {
-                $result = $this->getAttributeFromData($this->attributes, $key);
+                $result = $this->attributes[$key] ?? null;
             }
             else {
                 $result = null;
@@ -244,27 +244,15 @@ trait Translatable
 
         // Default locale from model attributes
         $defaultLocale = $this->getTranslatableDefault();
-        $defaultValue = $this->getAttributeFromData($this->attributes, $key);
+        $defaultValue = $this->attributes[$key] ?? null;
         if ($defaultValue !== null) {
             $translations[$defaultLocale] = $defaultValue;
         }
 
         // Other locales from translation table
-        if ($this->relationLoaded('translations')) {
-            $rows = $this->translations->where('attribute', $key);
-            foreach ($rows as $row) {
-                $translations[$row->locale] = $row->value;
-            }
-        }
-        else {
-            $rows = Db::table($this->getTranslateAttributeTable())
-                ->where('model_type', $this->getMorphClass())
-                ->where('model_id', $this->getKey())
-                ->where('attribute', $key)
-                ->pluck('value', 'locale')
-                ->toArray();
-
-            $translations = array_merge($translations, $rows);
+        $rows = $this->translations->where('attribute', $key);
+        foreach ($rows as $row) {
+            $translations[$row->locale] = $row->value;
         }
 
         // Handle jsonable attributes
@@ -290,7 +278,7 @@ trait Translatable
 
         // Default locale always has the value in model attributes
         if ($locale === $this->getTranslatableDefault()) {
-            $value = $this->getAttributeFromData($this->attributes, $key);
+            $value = $this->attributes[$key] ?? null;
             return $value !== null && $value !== '';
         }
 
@@ -298,7 +286,7 @@ trait Translatable
             $this->loadTranslatableData($locale);
         }
 
-        $value = $this->getAttributeFromData($this->translatableAttributes[$locale] ?? [], $key);
+        $value = $this->translatableAttributes[$locale][$key] ?? null;
 
         return $value !== null && $value !== '';
     }
@@ -361,14 +349,20 @@ trait Translatable
     public function setTranslation($key, $locale, $value)
     {
         if ($locale === $this->getTranslatableDefault()) {
-            return $this->setAttributeFromData($this->attributes, $key, $value);
+            $this->attributes[$key] = $value;
+            return $value;
+        }
+
+        // For new records ensure the base attributes are populated
+        if (!$this->exists && !array_key_exists($key, $this->attributes)) {
+            $this->attributes[$key] = $value;
         }
 
         if (!array_key_exists($locale, $this->translatableAttributes)) {
             $this->loadTranslatableData($locale);
         }
 
-        $this->setAttributeFromData($this->translatableAttributes[$locale], $key, $value);
+        $this->translatableAttributes[$locale][$key] = $value;
 
         return $value;
     }
@@ -535,16 +529,15 @@ trait Translatable
      */
     protected function syncTranslatableAttributes()
     {
-        // Store translations for each known locale
-        $knownLocales = array_keys($this->translatableAttributes);
-        foreach ($knownLocales as $locale) {
-            if (!$this->isTranslateDirty(null, $locale)) {
-                continue;
-            }
-
-            $this->fireEvent('model.translate.beforeSave', [$locale]);
-            $this->storeTranslatableData($locale);
-            $this->fireEvent('model.translate.afterSave', [$locale]);
+        // Store translations for each known locale. When the model has no key
+        // yet (new record), defer until after insert assigns the primary key
+        if ($this->getKey()) {
+            $this->storeTranslatableBasicData();
+        }
+        else {
+            $this->bindEventOnce('model.saveComplete', function() {
+                $this->storeTranslatableBasicData();
+            });
         }
 
         // Saving the default locale, no need to restore anything
@@ -559,6 +552,23 @@ trait Translatable
         $translatable = $this->getTranslatableAttributes();
         $originalValues = array_intersect_key($original, array_flip($translatable));
         $this->attributes = array_merge($attributes, $originalValues);
+    }
+
+    /**
+     * storeTranslatableBasicData stores translations for each known dirty locale
+     */
+    protected function storeTranslatableBasicData()
+    {
+        $knownLocales = array_keys($this->translatableAttributes);
+        foreach ($knownLocales as $locale) {
+            if (!$this->isTranslateDirty(null, $locale)) {
+                continue;
+            }
+
+            $this->fireEvent('model.translate.beforeSave', [$locale]);
+            $this->storeTranslatableData($locale);
+            $this->fireEvent('model.translate.afterSave', [$locale]);
+        }
     }
 
     /**
@@ -580,7 +590,7 @@ trait Translatable
             // model's local attribute (the default locale value). No row = inherits
             // from default, so changes to the default automatically propagate.
             if (!$isDefaultLocale) {
-                $defaultValue = $this->getAttributeFromData($this->attributes, $key);
+                $defaultValue = $this->attributes[$key] ?? null;
                 if ($value === $defaultValue) {
                     continue;
                 }
@@ -718,28 +728,10 @@ trait Translatable
     /**
      * getTranslateAttributeTable returns the table name for translation storage
      */
-    protected function getTranslateAttributeTable()
+    public function getTranslateAttributeTable()
     {
         $modelClass = $this->getTranslateAttributeModelClass();
 
         return (new $modelClass)->getTable();
-    }
-
-    /**
-     * getAttributeFromData extracts an attribute value from a data array
-     */
-    protected function getAttributeFromData($data, $attribute)
-    {
-        return $data[$attribute] ?? null;
-    }
-
-    /**
-     * setAttributeFromData sets an attribute value in a data array
-     */
-    protected function setAttributeFromData(&$data, $attribute, $value)
-    {
-        $data[$attribute] = $value;
-
-        return $value;
     }
 }
