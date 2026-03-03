@@ -31,11 +31,6 @@ trait Translatable
     protected $translatableDefault;
 
     /**
-     * @var bool translatableUseFallback determines if empty translations fall back to default
-     */
-    protected $translatableUseFallback = true;
-
-    /**
      * @var array translatableAttributes stores loaded translation data keyed by locale
      */
     protected $translatableAttributes = [];
@@ -44,6 +39,12 @@ trait Translatable
      * @var array translatableOriginals stores original translation data for dirty checking
      */
     protected $translatableOriginals = [];
+
+    /**
+     * @var array translatableBaseValues stashes default-locale values when a non-default
+     * locale has been promoted into $attributes
+     */
+    protected $translatableBaseValues = [];
 
     /**
      * initializeTranslatable trait for a model
@@ -63,6 +64,12 @@ trait Translatable
             'delete' => true
         ];
 
+        // Promote translated values into $attributes after fetch
+        $this->bindEvent('model.afterFetch', function() {
+            $this->promoteTranslatableValues();
+        });
+
+        // Demote + persist translations before save
         $this->bindEvent('model.saveInternal', function() {
             $this->syncTranslatableAttributes();
         });
@@ -133,7 +140,6 @@ trait Translatable
 
     /**
      * shouldTranslate returns true when the active locale differs from the default.
-     * This is the hot-path guard — called on every getAttribute/setAttribute.
      * Returns false for single-locale installs so the trait is invisible.
      */
     public function shouldTranslate()
@@ -167,31 +173,101 @@ trait Translatable
     }
 
     //
-    // Attribute interception
+    // Promote & demote
     //
 
     /**
-     * getAttribute overrides the parent to return translated values when active
+     * promoteTranslatableValues swaps translated values into $attributes
+     * and stashes the base (default-locale) values for later restoration.
+     * Called after fetch and when setLocale() changes context.
      */
-    public function getAttribute($key)
+    protected function promoteTranslatableValues()
     {
-        if ($this->isTranslatableAttribute($key)) {
-            return $this->getTranslation($key, $this->getTranslatableContext());
+        if (!$this->shouldTranslate()) {
+            // Default locale active: restore base values if previously promoted
+            if (!empty($this->translatableBaseValues)) {
+                $this->restoreTranslatableBaseValues();
+            }
+            return;
         }
 
-        return parent::getAttribute($key);
+        $locale = $this->getTranslatableContext();
+        $translatable = $this->getTranslatableAttributes();
+
+        // Stash current base values
+        foreach ($translatable as $key) {
+            if (array_key_exists($key, $this->attributes)) {
+                $this->translatableBaseValues[$key] = $this->attributes[$key];
+            }
+        }
+
+        // Load translations for this locale if not already loaded
+        if (!array_key_exists($locale, $this->translatableAttributes)) {
+            $this->loadTranslatableData($locale);
+        }
+
+        // Promote: overwrite $attributes with translated values
+        $translated = $this->translatableAttributes[$locale] ?? [];
+        foreach ($translatable as $key) {
+            if (array_key_exists($key, $translated)) {
+                $this->attributes[$key] = $translated[$key];
+            }
+        }
     }
 
     /**
-     * setAttribute overrides the parent to store translated values when active
+     * demoteTranslatableValues reads current $attributes back into the
+     * translation cache and restores base (default-locale) values for the DB write
      */
-    public function setAttribute($key, $value)
+    protected function demoteTranslatableValues()
     {
-        if ($this->isTranslatableAttribute($key)) {
-            return $this->setTranslation($key, $this->getTranslatableContext(), $value);
+        if (!$this->shouldTranslate() || empty($this->translatableBaseValues)) {
+            return;
         }
 
-        return parent::setAttribute($key, $value);
+        $locale = $this->getTranslatableContext();
+        $translatable = $this->getTranslatableAttributes();
+
+        // Read current (possibly modified) translated values back from $attributes
+        foreach ($translatable as $key) {
+            if (array_key_exists($key, $this->attributes)) {
+                $this->translatableAttributes[$locale][$key] = $this->attributes[$key];
+            }
+        }
+
+        // Restore base values to $attributes for the DB write
+        $this->restoreTranslatableBaseValues();
+    }
+
+    /**
+     * restoreTranslatableBaseValues restores the stashed default-locale values
+     * back into $attributes
+     */
+    protected function restoreTranslatableBaseValues()
+    {
+        foreach ($this->translatableBaseValues as $key => $value) {
+            $this->attributes[$key] = $value;
+        }
+
+        $this->translatableBaseValues = [];
+    }
+
+    //
+    // Base value access
+    //
+
+    /**
+     * getTranslatableBaseValue returns the default-locale value for a translatable
+     * attribute. When a non-default locale is promoted, reads from the stash.
+     * When the default locale is active, reads from $attributes directly.
+     */
+    public function getTranslatableBaseValue(string $key)
+    {
+        if (!empty($this->translatableBaseValues) && array_key_exists($key, $this->translatableBaseValues)) {
+            return $this->translatableBaseValues[$key];
+        }
+
+        return $this->attributes[$key] ?? null;
     }
 
     //
@@ -203,10 +279,15 @@ trait Translatable
      */
     public function getTranslation($key, $locale, $useFallback = true)
     {
-        // Default locale reads from model attributes
-        if ($locale === $this->getTranslatableDefault()) {
+        // Active promoted locale: read from $attributes
+        if ($locale === $this->getTranslatableContext() && $this->shouldTranslate()) {
             $result = $this->attributes[$key] ?? null;
         }
+        // Default locale: read from base values
+        elseif ($locale === $this->getTranslatableDefault()) {
+            $result = $this->getTranslatableBaseValue($key);
+        }
+        // Other locale: read from sidecar cache
         else {
             if (!array_key_exists($locale, $this->translatableAttributes)) {
                 $this->loadTranslatableData($locale);
@@ -216,7 +297,7 @@ trait Translatable
                 $result = $this->translatableAttributes[$locale][$key] ?? null;
             }
             elseif ($useFallback) {
-                $result = $this->attributes[$key] ?? null;
+                $result = $this->getTranslatableBaseValue($key);
             }
             else {
                 $result = null;
@@ -242,9 +323,9 @@ trait Translatable
     {
         $translations = [];
 
-        // Default locale from model attributes
+        // Default locale from base values
         $defaultLocale = $this->getTranslatableDefault();
-        $defaultValue = $this->attributes[$key] ?? null;
+        $defaultValue = $this->getTranslatableBaseValue($key);
         if ($defaultValue !== null) {
             $translations[$defaultLocale] = $defaultValue;
         }
@@ -276,12 +357,19 @@ trait Translatable
             $locale = $this->getTranslatableContext();
         }
 
-        // Default locale always has the value in model attributes
-        if ($locale === $this->getTranslatableDefault()) {
+        // Active promoted locale: check $attributes
+        if ($locale === $this->getTranslatableContext() && $this->shouldTranslate()) {
             $value = $this->attributes[$key] ?? null;
             return $value !== null && $value !== '';
         }
 
+        // Default locale: check base values
+        if ($locale === $this->getTranslatableDefault()) {
+            $value = $this->getTranslatableBaseValue($key);
+            return $value !== null && $value !== '';
+        }
+
+        // Other locale: check sidecar
         if (!array_key_exists($locale, $this->translatableAttributes)) {
             $this->loadTranslatableData($locale);
         }
@@ -348,16 +436,24 @@ trait Translatable
      */
     public function setTranslation($key, $locale, $value)
     {
-        if ($locale === $this->getTranslatableDefault()) {
+        // Writing to the active promoted locale: write to $attributes directly
+        if ($locale === $this->getTranslatableContext() && $this->shouldTranslate()) {
             $this->attributes[$key] = $value;
             return $value;
         }
 
-        // For new records ensure the base attributes are populated
-        if (!$this->exists && !array_key_exists($key, $this->attributes)) {
-            $this->attributes[$key] = $value;
+        // Writing to the default locale: write to base values
+        if ($locale === $this->getTranslatableDefault()) {
+            if (!empty($this->translatableBaseValues)) {
+                $this->translatableBaseValues[$key] = $value;
+            }
+            else {
+                $this->attributes[$key] = $value;
+            }
+            return $value;
         }
 
+        // Writing to a different non-active locale: write to sidecar cache
         if (!array_key_exists($locale, $this->translatableAttributes)) {
             $this->loadTranslatableData($locale);
         }
@@ -441,7 +537,17 @@ trait Translatable
      */
     public function setLocale($locale)
     {
+        // Demote current promoted values back to sidecar
+        if ($this->shouldTranslate() && !empty($this->translatableBaseValues)) {
+            $this->demoteTranslatableValues();
+        }
+
         $this->translatableContext = $locale;
+
+        // Re-promote with new locale
+        if ($this->exists) {
+            $this->promoteTranslatableValues();
+        }
 
         $this->fireEvent('model.translate.contextChange', [$locale]);
 
@@ -524,11 +630,14 @@ trait Translatable
     //
 
     /**
-     * syncTranslatableAttributes restores the default language values on the model
-     * and stores the translated values in the attributes table
+     * syncTranslatableAttributes demotes translated values and stores them
+     * in the translation table before the base model save
      */
     protected function syncTranslatableAttributes()
     {
+        // Demote: restore base values before save
+        $this->demoteTranslatableValues();
+
         // Store translations for each known locale. When the model has no key
         // yet (new record), defer until after insert assigns the primary key
         if ($this->getKey()) {
@@ -539,19 +648,6 @@ trait Translatable
                 $this->storeTranslatableBasicData();
             });
         }
-
-        // Saving the default locale, no need to restore anything
-        if (!$this->shouldTranslate()) {
-            return;
-        }
-
-        // Restore translatable values to model originals so the base model
-        // saves its own attributes correctly (not the translated values)
-        $original = $this->getOriginal();
-        $attributes = $this->getAttributes();
-        $translatable = $this->getTranslatableAttributes();
-        $originalValues = array_intersect_key($original, array_flip($translatable));
-        $this->attributes = array_merge($attributes, $originalValues);
     }
 
     /**
@@ -570,6 +666,7 @@ trait Translatable
             $this->fireEvent('model.translate.afterSave', [$locale]);
         }
     }
+
 
     /**
      * storeTranslatableData saves translation data for a single locale using upsert
@@ -590,7 +687,7 @@ trait Translatable
             // model's local attribute (the default locale value). No row = inherits
             // from default, so changes to the default automatically propagate.
             if (!$isDefaultLocale) {
-                $defaultValue = $this->attributes[$key] ?? null;
+                $defaultValue = $this->getTranslatableBaseValue($key);
                 if ($value === $defaultValue) {
                     continue;
                 }
