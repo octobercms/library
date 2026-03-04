@@ -869,3 +869,22 @@ if (!function_exists('ends_with')) {
         return Str::endsWith($haystack, $needles);
     }
 }
+
+if (!function_exists('asset_version')) {
+    /**
+     * asset_version takes a disk path, resolves it to a public URL, and appends
+     * a cache-busting version query string based on the file's modification time.
+     *
+     * Supports path symbols: ~ (base), $ (plugins), # (themes)
+     *
+     *     asset_version('~/themes/demo/assets/js/app.js')
+     *     // → http://localhost/themes/demo/assets/js/app.js?v1a2b3c4d
+     *
+     * @param string $path
+     * @return string
+     */
+    function asset_version(string $path): string
+    {
+        return Url::assetVersion($path);
+    }
+}
