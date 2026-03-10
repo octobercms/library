@@ -154,6 +154,28 @@ class ComposerManager
     }
 
     /**
+     * getRootVersion returns the version of the root composer package
+     */
+    public function getRootVersion(): ?string
+    {
+        $installedPhp = base_path('vendor/composer/installed.php');
+
+        if (!file_exists($installedPhp)) {
+            return null;
+        }
+
+        $installed = require $installedPhp;
+
+        $version = $installed['root']['pretty_version'] ?? null;
+
+        if ($version === null) {
+            return null;
+        }
+
+        return $this->normalizeVersion($version);
+    }
+
+    /**
      * getPackageVersions returns version numbers for the specified packages
      */
     public function getPackageVersions(array $packageNames): array
