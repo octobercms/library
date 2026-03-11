@@ -30,7 +30,10 @@ abstract class ModuleServiceProvider extends ServiceProviderBase implements Octo
         }
 
         // Register view path
-        $this->loadViewsFrom($modulePath . '/views', $module);
+        $viewsPath = $modulePath . '/views';
+        if (is_dir($viewsPath)) {
+            $this->loadViewsFrom($viewsPath, $module);
+        }
 
         // Load translator
         $this->loadTranslationsFrom($modulePath . '/lang', $module);
