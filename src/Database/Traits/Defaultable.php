@@ -41,9 +41,9 @@ trait Defaultable
     }
 
     /**
-     * clearInternalCache clears the default record cache
+     * clearDefaultableCache clears the default record cache
      */
-    public static function clearInternalCache()
+    public static function clearDefaultableCache()
     {
         static::$defaultableCache = null;
     }
