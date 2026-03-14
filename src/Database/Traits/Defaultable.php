@@ -41,6 +41,14 @@ trait Defaultable
     }
 
     /**
+     * clearInternalCache clears the default record cache
+     */
+    public static function clearInternalCache()
+    {
+        static::$defaultableCache = null;
+    }
+
+    /**
      * getDefault returns the default product type.
      */
     public static function getDefault()
