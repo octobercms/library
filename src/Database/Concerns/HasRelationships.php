@@ -914,6 +914,15 @@ trait HasRelationships
                 // Hard 'delete' definition
                 else {
                     if (!Arr::get($options, 'delete', false)) {
+                        // Attachment relations should be orphaned when delete is false
+                        if (in_array($type, ['attachOne', 'attachMany'])) {
+                            $this->{$name}()->update([
+                                'attachment_id' => null,
+                                'attachment_type' => null,
+                                'field' => null,
+                            ]);
+                        }
+
                         continue;
                     }
 
