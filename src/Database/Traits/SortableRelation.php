@@ -79,8 +79,9 @@ trait SortableRelation
                 }
 
                 // Apply sort by the pivot table column name
-                if (!isset($definition['order']) && isset($definition['table'])) {
-                    $this->$type[$name]['order'][] = $definition['table'].'.'.$attrName;
+                if (!isset($definition['order'])) {
+                    $tableName = $definition['table'] ?? $this->$name()->getTable();
+                    $this->$type[$name]['order'][] = $tableName.'.'.$attrName;
                 }
             }
         }
