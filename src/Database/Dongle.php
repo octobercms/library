@@ -68,6 +68,8 @@ class Dongle
 
         $sql = $this->parseIfNull($sql);
 
+        $sql = $this->parseGreatest($sql);
+
         $sql = $this->parseBooleanExpression($sql);
 
         return $sql;
@@ -231,6 +233,23 @@ class Dongle
         }
 
         return $sql;
+    }
+
+    /**
+     * parseGreatest transforms GREATEST statement for SQLite which does not
+     * support this function natively. Uses MAX() as a scalar replacement.
+     */
+    public function parseGreatest(string $sql): string
+    {
+        if ($this->driver !== 'sqlite') {
+            return $sql;
+        }
+
+        if (!str_contains(strtolower($sql), 'greatest(')) {
+            return $sql;
+        }
+
+        return str_ireplace('greatest(', 'max(', $sql);
     }
 
     /**

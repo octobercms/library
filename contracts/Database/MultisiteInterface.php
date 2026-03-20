@@ -18,4 +18,10 @@ interface MultisiteInterface
      * @return bool
      */
     public function isMultisiteEnabled();
+
+    /**
+     * isMultisiteSyncEnabled
+     * @return bool
+     */
+    public function isMultisiteSyncEnabled();
 }

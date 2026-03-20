@@ -467,6 +467,16 @@ class Application extends ApplicationBase
     }
 
     /**
+     * Get the path to the events cache file.
+     *
+     * @return string
+     */
+    public function getCachedEventsPath()
+    {
+        return $this->normalizeCachePath('APP_EVENTS_CACHE', 'framework/events.php');
+    }
+
+    /**
      * getNamespace returns the application namespace.
      * @return string
      * @throws \RuntimeException

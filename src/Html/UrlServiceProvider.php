@@ -80,6 +80,10 @@ class UrlServiceProvider extends ServiceProvider
         $provider->macro('toSigned', function(...$args) use ($provider) {
             return (new \October\Rain\Html\UrlMixin($provider))->toSigned(...$args);
         });
+
+        $provider->macro('assetVersion', function(...$args) use ($provider) {
+            return (new \October\Rain\Html\UrlMixin($provider))->assetVersion(...$args);
+        });
     }
 
     /**

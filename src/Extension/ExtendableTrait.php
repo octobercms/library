@@ -49,13 +49,15 @@ trait ExtendableTrait
             }
         }
 
-        // Apply extensions, soft implement behaviors with @
+        // Apply extensions
         foreach ($this->extensionExtractImplements() as $useClass) {
+            // Previously soft implemented behaviors started with @ (backward compatibility)
             if (substr($useClass, 0, 1) === '@') {
                 $useClass = substr($useClass, 1);
-                if (!class_exists($useClass)) {
-                    continue;
-                }
+            }
+
+            if (!class_exists($useClass)) {
+                continue;
             }
 
             $this->extendClassWith($useClass);

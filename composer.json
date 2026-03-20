@@ -27,13 +27,15 @@
         "symfony/yaml": "^6.4|^7.0",
         "twig/twig": "^3.21",
         "league/csv": "~9.1",
-        "laravel/tinker": "~2.0"
+        "laravel/tinker": "~2.0|~3.0",
+        "symfony/html-sanitizer": "^6.1|^7.0",
+        "enshrined/svg-sanitize": "^0.15|^0.16|^0.17|^0.18|^0.19|^0.20|^0.21|^0.22"
     },
     "require-dev": {
         "laravel/framework": "^12.0",
         "phpunit/phpunit": "^8.0|^9.0|^10.0",
         "meyfa/phpunit-assert-gd": "^2.0.0|^3.0.0",
-        "phpbench/phpbench": "^1.2"
+        "phpbench/phpbench": "^1.4"
     },
     "autoload": {
         "files": [

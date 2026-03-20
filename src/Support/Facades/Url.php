@@ -5,7 +5,10 @@ use Illuminate\Support\Facades\URL as UrlBase;
 /**
  * Url
  *
+ * @method static string assetVersion(string $path)
+ *
  * @see \Illuminate\Routing\UrlGenerator
+ * @see \October\Rain\Html\UrlMixin
  */
 class Url extends UrlBase
 {

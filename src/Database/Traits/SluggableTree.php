@@ -11,7 +11,7 @@
 trait SluggableTree
 {
     /**
-     * fullSlugAttributes calculates full slugs for this model and all other related ones
+     * fullSlugAttributes calculates full slugs for this model and all descendants
      * @return void
      */
     public function fullSlugAttributes()
@@ -20,18 +20,18 @@ trait SluggableTree
     }
 
     /**
-     * setFullSluggedValue will set the fullslug value on a model
+     * setFullSluggedValue will set the fullslug value on a model and recurse
+     * into children. For translatable models, the Translatable trait intercepts
+     * attribute access for the active locale automatically.
      */
     protected function setFullSluggedValue($model)
     {
         $fullslugAttr = $this->getFullSluggableFullSlugColumnName();
         $proposedSlug = $this->getFullSluggableAttributeValue($model);
 
-        if ($model->{$fullslugAttr} != $proposedSlug) {
-            $model
-                ->newQuery()
-                ->where($model->getKeyName(), $model->getKey())
-                ->update([$fullslugAttr => $proposedSlug]);
+        if ($model->{$fullslugAttr} !== $proposedSlug) {
+            $model->{$fullslugAttr} = $proposedSlug;
+            $model->saveQuietly(['force' => true]);
         }
 
         if ($children = $model->children) {
@@ -42,7 +42,8 @@ trait SluggableTree
     }
 
     /**
-     * getFullSluggableAttributeValue
+     * getFullSluggableAttributeValue builds the fullslug by walking up the
+     * parent chain using the model's slug attribute
      */
     protected function getFullSluggableAttributeValue($model, $fullslug = '')
     {
