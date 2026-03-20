@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Support;
 
+use Illuminate\Console\Application as Artisan;
 use October\Contracts\Support\OctoberPackage;
 use October\Rain\Support\ServiceProvider as ServiceProviderBase;
 
@@ -194,34 +195,35 @@ abstract class ModuleServiceProvider extends ServiceProviderBase implements Octo
      */
     protected function discoverConsoleCommands(string $module): void
     {
-        if (!$this->app->runningInConsole()) {
-            return;
-        }
+        Artisan::starting(function ($artisan) use ($module) {
+            $consolePath = base_path('modules/' . $module . '/console');
 
-        $consolePath = base_path('modules/' . $module . '/console');
-
-        if (!is_dir($consolePath)) {
-            return;
-        }
-
-        $namespace = ucfirst($module) . '\\Console\\';
-
-        foreach (glob($consolePath . '/*.php') as $file) {
-            $className = $namespace . basename($file, '.php');
-
-            if (!class_exists($className)) {
-                continue;
+            if (!is_dir($consolePath)) {
+                return;
             }
 
-            $reflection = new \ReflectionClass($className);
+            $namespace = ucfirst($module) . '\\Console\\';
+            $commands = [];
 
-            if (
-                $reflection->isSubclassOf(\Illuminate\Console\Command::class) &&
-                !$reflection->isAbstract()
-            ) {
-                $this->commands($className);
+            foreach (glob($consolePath . '/*.php') as $file) {
+                $className = $namespace . basename($file, '.php');
+
+                if (!class_exists($className)) {
+                    continue;
+                }
+
+                $reflection = new \ReflectionClass($className);
+
+                if (
+                    $reflection->isSubclassOf(\Illuminate\Console\Command::class) &&
+                    !$reflection->isAbstract()
+                ) {
+                    $commands[] = $className;
+                }
             }
-        }
+
+            $artisan->resolveCommands($commands);
+        });
     }
 
     /**
