@@ -46,6 +46,26 @@ class ElementHolder extends ElementBase implements IteratorAggregate
     }
 
     /**
+     * __get dynamically retrieves the value of an attribute, a safe object
+     * is returned for missing keys to avoid indirect modification errors.
+     * @param  string  $key
+     * @return mixed
+     */
+    public function __get($key)
+    {
+        $result = $this->get($key);
+
+        if ($result === null) {
+            return new class {
+                public function __get($k) { return $this; }
+                public function __set($k, $v) {}
+            };
+        }
+
+        return $result;
+    }
+
+    /**
      * getIterator for the elements.
      */
     public function getIterator(): Traversable
