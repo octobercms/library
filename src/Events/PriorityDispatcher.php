@@ -56,6 +56,34 @@ class PriorityDispatcher
     }
 
     /**
+     * subscribe registers an event subscriber with the dispatcher, passing
+     * the PriorityDispatcher instance so priority arguments are respected.
+     * @param object|string $subscriber
+     * @return void
+     */
+    public function subscribe($subscriber)
+    {
+        if (is_string($subscriber)) {
+            $subscriber = $this->container->make($subscriber);
+        }
+
+        $events = $subscriber->subscribe($this);
+
+        if (is_array($events)) {
+            foreach ($events as $event => $listeners) {
+                foreach ((array) $listeners as $listener) {
+                    if (is_string($listener) && method_exists($subscriber, $listener)) {
+                        $this->listen($event, [get_class($subscriber), $listener]);
+                        continue;
+                    }
+
+                    $this->listen($event, $listener);
+                }
+            }
+        }
+    }
+
+    /**
      * listenOnce registers an event that only fires once.
      * @param string|array $events
      * @param callable $listener
