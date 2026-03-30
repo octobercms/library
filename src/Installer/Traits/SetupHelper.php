@@ -87,10 +87,10 @@ trait SetupHelper
         $toIgnore = '/modules';
         $contents = file_get_contents($gitignore);
 
-        if (strpos($contents, $toIgnore) === false) {
+        if (!preg_match('/^\/modules$/m', $contents)) {
             file_put_contents(
                 $gitignore,
-                trim(file_get_contents($gitignore), PHP_EOL) .
+                trim($contents, PHP_EOL) .
                 PHP_EOL .
                 $toIgnore .
                 PHP_EOL

@@ -164,7 +164,7 @@ class OctoberInstall extends Command
         $backendUri = $this->ask(
             // Backend URI
             Lang::get('system::lang.installer.backend_uri_label'),
-            env('BACKEND_URI', '/backend')
+            env('BACKEND_URI', '/admin')
         );
 
         if ($backendUri[0] !== '/') {
