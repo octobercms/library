@@ -43,6 +43,12 @@ trait Multisite
     }
 
     /**
+     * @var bool multisiteRelationsDefined prevents redundant processing during
+     * unserialization (__wakeup) since relation definitions persist through serialization.
+     */
+    protected $multisiteRelationsDefined = false;
+
+    /**
      * initializeMultisite
      */
     public function initializeMultisite()
@@ -62,7 +68,10 @@ trait Multisite
 
         $this->bindEvent('model.afterDelete', [$this, 'multisiteAfterDelete']);
 
-        $this->defineMultisiteRelations();
+        if (!$this->multisiteRelationsDefined) {
+            $this->defineMultisiteRelations();
+            $this->multisiteRelationsDefined = true;
+        }
     }
 
     /**
