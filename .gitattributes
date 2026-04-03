@@ -2,3 +2,4 @@
 /.github        export-ignore
 /phpcs.xml      export-ignore
 /phpunit.xml    export-ignore
+/phpbench.json  export-ignore
