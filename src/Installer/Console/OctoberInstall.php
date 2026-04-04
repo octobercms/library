@@ -121,6 +121,14 @@ class OctoberInstall extends Command
         }
         $this->line('');
 
+        $this->comment('Setting build number...');
+        passthru('php artisan october:util set build', $errCode);
+        if ($errCode !== 0) {
+            $this->output->error('october:util set build failed.');
+            return 1;
+        }
+        $this->line('');
+
         $this->output->success('October CMS installed successfully.');
     }
 
