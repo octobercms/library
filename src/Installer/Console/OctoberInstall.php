@@ -44,6 +44,10 @@ class OctoberInstall extends Command
      */
     public function handle()
     {
+        if (!$this->input->isInteractive()) {
+            return $this->handleNonInteractive();
+        }
+
         if (!$this->checkEnvWritable()) {
             $this->output->error('Cannot write to .env file. Check file permissions and try again.');
             return 1;
@@ -54,6 +58,11 @@ class OctoberInstall extends Command
         $this->outputLanguageTable();
         $this->setupLanguage();
 
+        if ($this->nonInteractiveCheck()) {
+            $this->outputNonInteractive();
+            return 1;
+        }
+
         // Application Configuration
         $this->output->section(Lang::get('system::lang.installer.app_config_section'));
         $this->setupApplicationUrls();
@@ -62,11 +71,6 @@ class OctoberInstall extends Command
         // Demo Theme
         $this->output->section(Lang::get('system::lang.installer.demo_section'));
         $this->setupDemoTheme();
-
-        if ($this->nonInteractiveCheck()) {
-            $this->outputNonInteractive();
-            return 1;
-        }
 
         // License Key
         $this->output->section(Lang::get('system::lang.installer.license_section'));
@@ -81,6 +85,43 @@ class OctoberInstall extends Command
         // $this->setupMigrateDatabase();
 
         $this->outputOutro();
+    }
+
+    /**
+     * handleNonInteractive processes the install without any prompts
+     */
+    protected function handleNonInteractive()
+    {
+        $this->line('Installing October CMS (non-interactive)...');
+        $this->line('');
+
+        $errCode = null;
+
+        $this->comment('Migrating database...');
+        passthru('php artisan october:migrate', $errCode);
+        if ($errCode !== 0) {
+            $this->output->error('october:migrate failed.');
+            return 1;
+        }
+        $this->line('');
+
+        $this->comment('Migrating tailor...');
+        passthru('php artisan tailor:migrate', $errCode);
+        if ($errCode !== 0) {
+            $this->output->error('tailor:migrate failed.');
+            return 1;
+        }
+        $this->line('');
+
+        $this->comment('Seeding demo theme...');
+        passthru('php artisan theme:seed demo', $errCode);
+        if ($errCode !== 0) {
+            $this->output->error('theme:seed failed.');
+            return 1;
+        }
+        $this->line('');
+
+        $this->output->success('October CMS installed successfully.');
     }
 
     /**
