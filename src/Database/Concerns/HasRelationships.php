@@ -906,7 +906,7 @@ trait HasRelationships
                 // Belongs-To-Many should clean up after itself by default
                  if (in_array($type, ['belongsToMany', 'morphToMany', 'morphedByMany'])) {
                     if (!Arr::get($options, 'detach', true)) {
-                        return;
+                        continue;
                     }
 
                     $this->{$name}()->detach();
