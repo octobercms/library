@@ -244,6 +244,55 @@ class ExtendableTest extends TestCase
         $this->assertFalse($subject2->isClassInstanceOf(ExampleExtendableInterface::class));
         $this->assertTrue($subject3->isClassInstanceOf(ExampleExtendableInterface::class));
     }
+
+    public function testDynamicExtendOverridesMethod()
+    {
+        $subject = new ExtendableTestExampleExtendableClass;
+        $this->assertEquals('foo', $subject->getFoo());
+
+        $subject->extendClassWith('ExtendableTestExampleBehaviorClass2');
+        $this->assertEquals('bar', $subject->getFoo());
+    }
+
+    public function testDynamicExtendOverrideAsExtension()
+    {
+        $subject = new ExtendableTestExampleExtendableClass;
+        $subject->extendClassWith('ExtendableTestExampleBehaviorClass2');
+
+        // Default call resolves to the last registered behavior
+        $this->assertEquals('bar', $subject->getFoo());
+
+        // asExtension can still reach the original behavior
+        $this->assertEquals('foo', $subject->asExtension('ExtendableTestExampleBehaviorClass1')->getFoo());
+        $this->assertEquals('bar', $subject->asExtension('ExtendableTestExampleBehaviorClass2')->getFoo());
+    }
+
+    public function testMultipleBehaviorsMethodPriority()
+    {
+        $subject = new ExtendableTestExampleExtendableMultiBehaviorClass;
+
+        // BehaviorClass2 is last in $implement, so it wins
+        $this->assertEquals('bar', $subject->getFoo());
+
+        // Both behaviors are still accessible directly
+        $this->assertEquals('foo', $subject->asExtension('ExtendableTestExampleBehaviorClass1')->getFoo());
+        $this->assertEquals('bar', $subject->asExtension('ExtendableTestExampleBehaviorClass2')->getFoo());
+    }
+
+    public function testDynamicExtendOverridesImplementMethod()
+    {
+        $subject = new ExtendableTestExampleExtendableMultiBehaviorClass;
+        $this->assertEquals('bar', $subject->getFoo());
+
+        // Dynamic extension overrides both implemented behaviors
+        $subject->extendClassWith('ExtendableTestExampleBehaviorClass3');
+        $this->assertEquals('baz', $subject->getFoo());
+
+        // All three behaviors remain accessible via asExtension
+        $this->assertEquals('foo', $subject->asExtension('ExtendableTestExampleBehaviorClass1')->getFoo());
+        $this->assertEquals('bar', $subject->asExtension('ExtendableTestExampleBehaviorClass2')->getFoo());
+        $this->assertEquals('baz', $subject->asExtension('ExtendableTestExampleBehaviorClass3')->getFoo());
+    }
 }
 
 //
@@ -417,6 +466,25 @@ class ExtendableTestExampleExtendableClassDotNotation extends Extendable
     {
         return $this->protectedFoo;
     }
+}
+
+class ExtendableTestExampleBehaviorClass3 extends ExtensionBase
+{
+    public function getFoo()
+    {
+        return 'baz';
+    }
+}
+
+/*
+ * Example class with multiple behaviors that define the same method
+ */
+class ExtendableTestExampleExtendableMultiBehaviorClass extends Extendable
+{
+    public $implement = [
+        'ExtendableTestExampleBehaviorClass1',
+        'ExtendableTestExampleBehaviorClass2',
+    ];
 }
 
 /*
