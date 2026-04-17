@@ -77,6 +77,7 @@ class HalcyonModelTest extends TestCase
         $this->assertFileExists($targetFile);
 
         $content = <<<ESC
+##
 title = "Test page"
 
 [viewBag]
@@ -116,6 +117,7 @@ ESC;
         $this->assertFileExists($targetFile);
 
         $content = <<<ESC
+##
 title = "Test page"
 ==
 function onStart() { }
