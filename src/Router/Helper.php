@@ -259,20 +259,23 @@ class Helper
      */
     public static function getSegmentDefaultValue($segment)
     {
+        $regexMarkerPos = mb_strpos($segment, '|');
+
+        // Find the '?' that acts as the optional marker, not one inside a regex
         $optMarkerPos = mb_strpos($segment, '?');
         if ($optMarkerPos === false) {
             return false;
         }
 
-        $regexMarkerPos = mb_strpos($segment, '|');
-        $wildMarkerPos = mb_strpos($segment, '*');
+        // If '|' comes before '?', the '?' is part of the regex, not an optional marker
+        if ($regexMarkerPos !== false && $regexMarkerPos < $optMarkerPos) {
+            return false;
+        }
+
         $value = false;
 
         if ($regexMarkerPos !== false) {
             $value = mb_substr($segment, $optMarkerPos+1, $regexMarkerPos-$optMarkerPos-1);
-        }
-        elseif ($wildMarkerPos !== false) {
-            $value = mb_substr($segment, $optMarkerPos+1, $wildMarkerPos-$optMarkerPos-1);
         }
         else {
             $value = mb_substr($segment, $optMarkerPos+1);

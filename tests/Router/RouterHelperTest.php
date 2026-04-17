@@ -194,6 +194,22 @@ class RouterHelperTest extends TestCase
 
         $value = Helper::getSegmentDefaultValue(':my_param_name?default value|^[a-z]+[0-9]?$');
         $this->assertEquals('default value', $value);
+
+        // Wildcard with default value
+        $value = Helper::getSegmentDefaultValue(':my_param_name*?default value');
+        $this->assertEquals('default value', $value);
+
+        // Wildcard without default value
+        $value = Helper::getSegmentDefaultValue(':my_param_name*');
+        $this->assertFalse($value);
+
+        // Wildcard with empty default value
+        $value = Helper::getSegmentDefaultValue(':my_param_name*?');
+        $this->assertFalse($value);
+
+        // Wildcard after default value should not truncate
+        $value = Helper::getSegmentDefaultValue(':my_param_name?default*');
+        $this->assertEquals('default*', $value);
     }
 
     /**

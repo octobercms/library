@@ -340,7 +340,7 @@ class Application extends ApplicationBase
             // These are introduced externally, for example, RainLab.User plugin
             // 'auth' => [\Illuminate\Auth\AuthManager::class, \Illuminate\Contracts\Auth\Factory::class],
             // 'auth.driver' => [\Illuminate\Contracts\Auth\Guard::class],
-            'app' => [\October\Rain\Foundation\Application::class, \Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class],
+            'app' => [\October\Rain\Foundation\Application::class, \Illuminate\Foundation\Application::class, \Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class, \Psr\Container\ContainerInterface::class],
             'blade.compiler' => [\Illuminate\View\Compilers\BladeCompiler::class],
             'cache' => [\Illuminate\Cache\CacheManager::class, \Illuminate\Contracts\Cache\Factory::class],
             'cache.store' => [\Illuminate\Cache\Repository::class, \Illuminate\Contracts\Cache\Repository::class, \Psr\SimpleCache\CacheInterface::class],

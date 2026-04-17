@@ -246,7 +246,7 @@ class Zip extends ZipArchive
             $source = substr($source, 1);
         }
 
-        for ($i = 0; $i < $this->numFiles; $i++) {
+        for ($i = $this->numFiles - 1; $i >= 0; $i--) {
             if (($stats = $this->statIndex($i)) === false) {
                 continue;
             }

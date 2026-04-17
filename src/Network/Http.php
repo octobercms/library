@@ -447,7 +447,7 @@ class Http
             $this->setOption(CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
         }
         elseif ($type === 'socks4') {
-            $this->setOption(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
+            $this->setOption(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS4);
         }
         elseif ($type === 'socks5') {
             $this->setOption(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
