@@ -33,7 +33,7 @@
     },
     "require-dev": {
         "laravel/framework": "^12.0",
-        "phpunit/phpunit": "^8.0|^9.0|^10.0",
+        "phpunit/phpunit": "^8.0|^9.0|^10.0|^11.0|^12.5.22",
         "meyfa/phpunit-assert-gd": "^2.0.0|^3.0.0",
         "phpbench/phpbench": "^1.4"
     },
