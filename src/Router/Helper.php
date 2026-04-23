@@ -281,6 +281,11 @@ class Helper
             $value = mb_substr($segment, $optMarkerPos+1);
         }
 
+        // Filter out wildcard marker (it's a modifier, not a default value)
+        if ($value === '*') {
+            return false;
+        }
+
         return strlen($value) ? $value : false;
     }
 }
