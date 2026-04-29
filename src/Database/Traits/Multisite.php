@@ -233,7 +233,9 @@ trait Multisite
                 }
             }
             elseif (in_array($type, ['belongsTo', 'hasOne', 'hasMany'])) {
-                $this->$type[$name]['otherKey'] = 'site_root_id';
+                if (!Arr::get($this->$type[$name], 'multisiteSync', false)) {
+                    $this->$type[$name]['otherKey'] = 'site_root_id';
+                }
             }
             elseif (in_array($type, ['attachOne', 'attachMany'])) {
                 $this->$type[$name]['key'] = 'site_root_id';
@@ -315,6 +317,14 @@ trait Multisite
             }
         }
 
+        // Propagate hasMany relations with multisiteSync
+        foreach ($this->propagatable as $name) {
+            $relationType = $this->getRelationType($name);
+            if ($relationType === 'hasMany' && Arr::get($this->hasMany[$name], 'multisiteSync', false)) {
+                $this->propagateHasManyRelation($name, $siteId, $otherModel);
+            }
+        }
+
         return $otherModel;
     }
 
@@ -358,6 +368,68 @@ trait Multisite
         Site::withContext($siteId, function() use ($otherModel, $name, $targetIds) {
             $otherModel->$name()->sync($targetIds);
         });
+    }
+
+    /**
+     * propagateHasManyRelation syncs a hasMany relation with multisiteSync
+     * to another site. Each child model must use the Multisite trait.
+     * The child's own $propagatable controls which attributes are copied.
+     */
+    protected function propagateHasManyRelation($name, $siteId, $otherModel)
+    {
+        // Load source items filtered to the current site only.
+        // This runs inside withGlobalContext where MultisiteScope is disabled,
+        // so we must explicitly filter by site_id to avoid loading all sites.
+        $sourceItems = $this->$name()
+            ->where('site_id', $this->site_id)
+            ->get();
+
+        // Load all target items for the target site via the target parent
+        $targetItems = $otherModel->$name()
+            ->withoutGlobalScopes()
+            ->where('site_id', $siteId)
+            ->get()
+            ->keyBy('site_root_id');
+
+        // Get the relation's foreign key info for setting host_id on new items
+        $relation = $otherModel->$name();
+        $foreignKeyName = $relation->getForeignKeyName();
+        $parentKey = $relation->getParentKey();
+
+        $processedRootIds = [];
+
+        foreach ($sourceItems as $sourceItem) {
+            $rootId = $sourceItem->site_root_id ?: $sourceItem->id;
+            $processedRootIds[] = $rootId;
+
+            $targetItem = $targetItems->get($rootId);
+
+            if ($targetItem) {
+                // Copy sort order before delegating to child's propagateToSite
+                if ($sourceItem->isClassInstanceOf(\October\Contracts\Database\SortableInterface::class)) {
+                    $orderColumn = $sourceItem->getSortOrderColumn();
+                    $targetItem->$orderColumn = $sourceItem->$orderColumn;
+                }
+
+                // Existing: delegate to child's propagation
+                $sourceItem->propagateToSite($siteId, $targetItem);
+            }
+            else {
+                // New: replicate via child's findOtherSiteModel, then fix
+                // the foreign key to point to the target parent
+                $newItem = $sourceItem->findOtherSiteModel($siteId);
+                $newItem->{$foreignKeyName} = $parentKey;
+                $newItem->save(['force' => true]);
+            }
+        }
+
+        // Delete orphaned items in target
+        foreach ($targetItems as $targetItem) {
+            $targetRootId = $targetItem->site_root_id ?: $targetItem->id;
+            if (!in_array($targetRootId, $processedRootIds)) {
+                $targetItem->delete();
+            }
+        }
     }
 
     /**
@@ -512,7 +584,7 @@ trait Multisite
     /**
      * findOtherSiteModel
      */
-    protected function findOtherSiteModel($siteId = null)
+    public function findOtherSiteModel($siteId = null)
     {
         if ($siteId === null) {
             $siteId = Site::getSiteIdFromContext();
