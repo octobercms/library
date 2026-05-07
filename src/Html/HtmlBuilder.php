@@ -523,6 +523,27 @@ class HtmlBuilder
     }
 
     /**
+     * cleanCss sanitizes CSS content to prevent injection attacks while preserving
+     * valid CSS syntax. Unlike clean() which is designed for HTML, this method handles
+     * CSS-specific threats: closing style tags, javascript: URLs, and legacy IE expressions.
+     */
+    public static function cleanCss(string $css): string
+    {
+        // Strip any HTML tags (prevents </style><script>...</script> injection)
+        $css = strip_tags($css);
+
+        // Remove CSS expressions and legacy IE behaviors
+        $css = preg_replace('/expression\s*\(/i', '(', $css);
+        $css = preg_replace('/behavior\s*:/i', '', $css);
+        $css = preg_replace('/-moz-binding\s*:/i', '', $css);
+
+        // Remove javascript: and vbscript: from url() values
+        $css = preg_replace('/url\s*\(\s*[\'"]?\s*(?:javascript|vbscript)\s*:/i', 'url(invalid:', $css);
+
+        return $css;
+    }
+
+    /**
      * cleanVector sanitizes XML/SVG content to prevent XSS attacks using DOM-based sanitization.
      * Uses enshrined/svg-sanitize library which is ported from DOMPurify.
      */
