@@ -210,6 +210,14 @@ class RouterHelperTest extends TestCase
         // Wildcard after default value should not truncate
         $value = Helper::getSegmentDefaultValue(':my_param_name?default*');
         $this->assertEquals('default*', $value);
+
+        // Optional wildcard with no default (?* suffix)
+        $value = Helper::getSegmentDefaultValue(':query?*');
+        $this->assertFalse($value);
+
+        // Optional wildcard with regex and no default
+        $value = Helper::getSegmentDefaultValue(':page?*|^[0-9\/]+$');
+        $this->assertFalse($value);
     }
 
     /**

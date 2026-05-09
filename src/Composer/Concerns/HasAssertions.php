@@ -26,6 +26,7 @@ trait HasAssertions
     {
         // Address resource limits
         @set_time_limit(3600);
+        @ini_set('memory_limit', '-1');
         ini_set('max_input_time', 0);
         ini_set('max_execution_time', 0);
 

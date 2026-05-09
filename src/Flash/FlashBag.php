@@ -6,7 +6,7 @@ use Illuminate\Support\MessageBag;
 /**
  * FlashBag for simple session based messages
  *
- * @package october\support
+ * @package october\flash
  * @author Alexey Bobkov, Samuel Georges
  */
 class FlashBag extends MessageBag
