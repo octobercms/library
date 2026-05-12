@@ -8,7 +8,7 @@ use Exception;
  * Resizer for images
  *
  * Available options are:
- *  - mode: Either exact, portrait, landscape, auto, cover or crop.
+ *  - mode: Either exact, portrait, landscape, auto, fit, cover or crop.
  *  - offset: The offset of the crop = [ left, top ]
  *  - sharpen: Sharpen image, from 0 - 100 (default: 0)
  *  - interlace: Interlace image,  Boolean: false (disabled: default), true (enabled)
@@ -213,8 +213,11 @@ class Resizer
                 );
             }
         }
-        elseif ($mode === 'cover' || $mode === 'fit') {
+        elseif ($mode === 'cover') {
             $this->image->cover($width, $height);
+        }
+        elseif ($mode === 'fit') {
+            $this->image->scale($width, $height);
         }
         elseif ($mode === 'auto') {
             $this->image->scale($width, $height);
