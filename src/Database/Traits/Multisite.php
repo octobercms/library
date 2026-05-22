@@ -459,14 +459,15 @@ trait Multisite
      */
     protected function isRelatedMultisite($name): bool
     {
-        $relation = $this->getRelationDefinition($name);
-        $relatedClass = $relation[0] ?? null;
-
-        if (!$relatedClass || !class_exists($relatedClass)) {
-            return false;
+        $def = $this->getRelationDefinition($name);
+        if (array_key_exists('relatedMultisite', $def)) {
+            return (bool) $def['relatedMultisite'];
         }
 
-        $relatedModel = new $relatedClass;
+        $relatedModel = $this->makeRelation($name);
+        if (!$relatedModel) {
+            return false;
+        }
 
         return $relatedModel->isClassInstanceOf(\October\Contracts\Database\MultisiteInterface::class)
             && $relatedModel->isMultisiteEnabled();
