@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Foundation\Providers;
 
 use Illuminate\Log\LogServiceProvider as LogServiceProviderBase;
+use October\Rain\Log\LogManager;
 
 /**
  * LogServiceProvider
@@ -12,7 +13,9 @@ class LogServiceProvider extends LogServiceProviderBase
      */
     public function register()
     {
-        parent::register();
+        // Override the framework log manager so MessageLogged listeners can
+        // identify which channel emitted a record (see October\Rain\Log\LogManager).
+        $this->app->singleton('log', fn ($app) => new LogManager($app));
 
         // After registration
         $this->app->booting(function () {
