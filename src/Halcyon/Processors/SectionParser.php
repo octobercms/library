@@ -54,7 +54,7 @@ class SectionParser
 
         // Settings section
         if ($settings) {
-            $content[] = self::cleanTemplateSection($iniParser->render($settings));
+            $content[] = '##' . PHP_EOL . self::cleanTemplateSection($iniParser->render($settings));
         }
 
         // Code section
@@ -125,7 +125,7 @@ class SectionParser
         }
 
         if ($count >= 3) {
-            $result['settings'] = @$iniParser->parse($sections[0], true)
+            $result['settings'] = @$iniParser->parse(self::stripSectionHashPrefix($sections[0]), true)
                 ?: [self::ERROR_INI => $sections[0]];
 
             $result['code'] = $sections[1];
@@ -137,7 +137,7 @@ class SectionParser
             $result['markup'] = $sections[2];
         }
         elseif ($count === 2) {
-            $result['settings'] = @$iniParser->parse($sections[0], true)
+            $result['settings'] = @$iniParser->parse(self::stripSectionHashPrefix($sections[0]), true)
                 ?: [self::ERROR_INI => $sections[0]];
 
             $result['markup'] = $sections[1];
@@ -182,6 +182,15 @@ class SectionParser
         }
 
         return $result;
+    }
+
+    /**
+     * stripSectionHashPrefix removes the ## prefix from the settings section,
+     * which is used as a hint for syntax editors.
+     */
+    protected static function stripSectionHashPrefix($content)
+    {
+        return preg_replace('/^##\s*$/m', '', $content, 1);
     }
 
     /**
@@ -246,8 +255,8 @@ class SectionParser
         foreach ($lines as $line) {
             $line = trim($line);
 
-            // Empty line
-            if ($line === '') {
+            // Empty line or hash prefix
+            if ($line === '' || $line === '##') {
                 $startLine++;
                 continue;
             }
