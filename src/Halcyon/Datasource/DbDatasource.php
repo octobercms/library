@@ -103,34 +103,15 @@ class DbDatasource extends Datasource implements DatasourceInterface
             $columns = null;
         }
 
-        // Apply the dirName query
-        $query = $this->getQuery()->where('path', 'like', $dirName . '%');
-
-        // Apply the extensions filter
-        if (is_array($extensions) && !empty($extensions)) {
-            $query->where(function ($query) use ($extensions) {
-                // Get the first extension to query for
-                $query->where('path', 'like', '%' . '.' . array_pop($extensions));
-
-                if (count($extensions)) {
-                    foreach ($extensions as $ext) {
-                        $query->orWhere('path', 'like', '%' . '.' . $ext);
-                    }
-                }
-            });
-        }
-
-        // Retrieve the results
-        $results = $query->get();
+        $results = $this->buildDirectoryQuery($dirName, $extensions, false)->get();
 
         foreach ($results as $item) {
             self::$pathCache[$this->source][$item->path] = $item;
 
             $resultItem = [];
-            $fileName = ltrim(str_replace($dirName, '', $item->path), '/');
+            $fileName = $this->pathToFileName($dirName, $item->path);
 
-            // Apply the fileMatch filter
-            if (!empty($fileMatch) && !fnmatch($fileMatch, $fileName)) {
+            if (!$this->matchesFileMatch($fileMatch, $fileName)) {
                 continue;
             }
 
@@ -349,28 +330,12 @@ class DbDatasource extends Datasource implements DatasourceInterface
             'fileMatch' => null,
         ], $options));
 
-        $query = $this->getQuery(false)
-            ->whereNotNull('deleted_at')
-            ->where('path', 'like', $dirName . '%');
-
-        if (is_array($extensions) && !empty($extensions)) {
-            $query->where(function ($query) use ($extensions) {
-                $query->where('path', 'like', '%' . '.' . array_pop($extensions));
-
-                if (count($extensions)) {
-                    foreach ($extensions as $ext) {
-                        $query->orWhere('path', 'like', '%' . '.' . $ext);
-                    }
-                }
-            });
-        }
-
         $fileNames = [];
 
-        foreach ($query->get() as $item) {
-            $fileName = ltrim(str_replace($dirName, '', $item->path), '/');
+        foreach ($this->buildDirectoryQuery($dirName, $extensions, true)->get() as $item) {
+            $fileName = $this->pathToFileName($dirName, $item->path);
 
-            if (!empty($fileMatch) && !fnmatch($fileMatch, $fileName)) {
+            if (!$this->matchesFileMatch($fileMatch, $fileName)) {
                 continue;
             }
 
@@ -378,6 +343,56 @@ class DbDatasource extends Datasource implements DatasourceInterface
         }
 
         return $fileNames;
+    }
+
+    /**
+     * buildDirectoryQuery for templates in a directory
+     */
+    protected function buildDirectoryQuery(string $dirName, ?array $extensions, bool $trashedOnly)
+    {
+        $query = $trashedOnly
+            ? $this->getQuery(false)->whereNotNull('deleted_at')
+            : $this->getQuery();
+
+        $query->where('path', 'like', $dirName . '%');
+
+        if (is_array($extensions) && !empty($extensions)) {
+            $this->applyExtensionsFilter($query, $extensions);
+        }
+
+        return $query;
+    }
+
+    /**
+     * applyExtensionsFilter to a directory query
+     */
+    protected function applyExtensionsFilter($query, array $extensions)
+    {
+        $query->where(function ($query) use ($extensions) {
+            $query->where('path', 'like', '%' . '.' . array_pop($extensions));
+
+            if (count($extensions)) {
+                foreach ($extensions as $ext) {
+                    $query->orWhere('path', 'like', '%' . '.' . $ext);
+                }
+            }
+        });
+    }
+
+    /**
+     * pathToFileName converts a stored path to a file name within a directory
+     */
+    protected function pathToFileName(string $dirName, string $path): string
+    {
+        return ltrim(str_replace($dirName, '', $path), '/');
+    }
+
+    /**
+     * matchesFileMatch checks a file name against an optional fnmatch pattern
+     */
+    protected function matchesFileMatch(?string $fileMatch, string $fileName): bool
+    {
+        return empty($fileMatch) || fnmatch($fileMatch, $fileName);
     }
 
     /**
