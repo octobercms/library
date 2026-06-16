@@ -328,6 +328,59 @@ class DbDatasource extends Datasource implements DatasourceInterface
     }
 
     /**
+     * isTemplateTrashed returns true when a soft-deleted record exists at the path
+     */
+    public function isTemplateTrashed(string $dirName, string $fileName, string $extension): bool
+    {
+        $path = $this->makeFilePath($dirName, $fileName, $extension);
+
+        $record = $this->getQuery(false)->where('path', $path)->first();
+
+        return $record && $record->deleted_at !== null;
+    }
+
+    /**
+     * selectTrashedFileNames returns file names for soft-deleted templates in a directory
+     */
+    public function selectTrashedFileNames(string $dirName, array $options = []): array
+    {
+        extract(array_merge([
+            'extensions' => null,
+            'fileMatch' => null,
+        ], $options));
+
+        $query = $this->getQuery(false)
+            ->whereNotNull('deleted_at')
+            ->where('path', 'like', $dirName . '%');
+
+        if (is_array($extensions) && !empty($extensions)) {
+            $query->where(function ($query) use ($extensions) {
+                $query->where('path', 'like', '%' . '.' . array_pop($extensions));
+
+                if (count($extensions)) {
+                    foreach ($extensions as $ext) {
+                        $query->orWhere('path', 'like', '%' . '.' . $ext);
+                    }
+                }
+            });
+        }
+
+        $fileNames = [];
+
+        foreach ($query->get() as $item) {
+            $fileName = ltrim(str_replace($dirName, '', $item->path), '/');
+
+            if (!empty($fileMatch) && !fnmatch($fileMatch, $fileName)) {
+                continue;
+            }
+
+            $fileNames[] = $fileName;
+        }
+
+        return $fileNames;
+    }
+
+    /**
      * getBaseQuery builder object
      */
     protected function getBaseQuery()

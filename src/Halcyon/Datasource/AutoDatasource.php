@@ -39,6 +39,10 @@ class AutoDatasource extends Datasource implements DatasourceInterface
      */
     public function hasTemplate(string $dirName, string $fileName, string $extension): bool
     {
+        if ($this->isTemplateTrashed($dirName, $fileName, $extension)) {
+            return false;
+        }
+
         foreach ($this->datasources as $datasource) {
             if ($datasource->hasTemplate($dirName, $fileName, $extension)) {
                 return true;
@@ -53,6 +57,10 @@ class AutoDatasource extends Datasource implements DatasourceInterface
      */
     public function selectOne(string $dirName, string $fileName, string $extension)
     {
+        if ($this->isTemplateTrashed($dirName, $fileName, $extension)) {
+            return null;
+        }
+
         foreach ($this->datasources as $source) {
             if (!$source->hasTemplate($dirName, $fileName, $extension)) {
                 continue;
@@ -76,7 +84,13 @@ class AutoDatasource extends Datasource implements DatasourceInterface
             $result = array_merge($result, $datasource->select($dirName, $options));
         }
 
-        return collect($result)->keyBy('fileName')->all();
+        $result = collect($result)->keyBy('fileName')->all();
+
+        foreach ($this->getTrashedFileNames($dirName, $options) as $fileName) {
+            unset($result[$fileName]);
+        }
+
+        return $result;
     }
 
     /**
@@ -134,6 +148,10 @@ class AutoDatasource extends Datasource implements DatasourceInterface
      */
     public function lastModified(string $dirName, string $fileName, string $extension): ?int
     {
+        if ($this->isTemplateTrashed($dirName, $fileName, $extension)) {
+            return null;
+        }
+
         foreach ($this->datasources as $source) {
             if (!$source->hasTemplate($dirName, $fileName, $extension)) {
                 continue;
@@ -229,5 +247,45 @@ class AutoDatasource extends Datasource implements DatasourceInterface
         list($fileName, $extension) = $model->getFileNameParts();
 
         return $this->datasources[$index]->forceDelete($dirName, $fileName, $extension);
+    }
+
+    /**
+     * getDbDatasource returns the primary datasource when it is a DbDatasource
+     */
+    protected function getDbDatasource(): ?DbDatasource
+    {
+        if ($this->primaryDatasource instanceof DbDatasource) {
+            return $this->primaryDatasource;
+        }
+
+        return null;
+    }
+
+    /**
+     * isTemplateTrashed checks if the primary DbDatasource has a tombstoned record
+     */
+    protected function isTemplateTrashed(string $dirName, string $fileName, string $extension): bool
+    {
+        $dbDatasource = $this->getDbDatasource();
+
+        if (!$dbDatasource) {
+            return false;
+        }
+
+        return $dbDatasource->isTemplateTrashed($dirName, $fileName, $extension);
+    }
+
+    /**
+     * getTrashedFileNames returns tombstoned file names from the primary DbDatasource
+     */
+    protected function getTrashedFileNames(string $dirName, array $options = []): array
+    {
+        $dbDatasource = $this->getDbDatasource();
+
+        if (!$dbDatasource) {
+            return [];
+        }
+
+        return $dbDatasource->selectTrashedFileNames($dirName, $options);
     }
 }
