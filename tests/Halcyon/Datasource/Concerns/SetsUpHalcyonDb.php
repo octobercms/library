@@ -13,6 +13,12 @@ trait SetsUpHalcyonDb
         $this->dbDatasource = HalcyonDbTestHarness::boot($this->dbTable);
     }
 
+    protected function tearDownHalcyonDatabase(): void
+    {
+        $this->clearDbDatasourceCache();
+        HalcyonDbTestHarness::teardown();
+    }
+
     protected function clearDbDatasourceCache(): void
     {
         HalcyonDbTestHarness::clearDbDatasourceCache();

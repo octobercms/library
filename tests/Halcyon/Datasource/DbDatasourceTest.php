@@ -22,7 +22,7 @@ class DbDatasourceTest extends TestCase
 
     public function tearDown(): void
     {
-        $this->clearDbDatasourceCache();
+        $this->tearDownHalcyonDatabase();
     }
 
     public function testIsTemplateTrashedReturnsFalseForActiveRecord()

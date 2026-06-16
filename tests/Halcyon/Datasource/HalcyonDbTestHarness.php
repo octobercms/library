@@ -6,6 +6,10 @@ class HalcyonDbTestHarness
 {
     protected static ?Illuminate\Database\Capsule\Manager $capsule = null;
 
+    protected static bool $facadeAppSaved = false;
+
+    protected static $savedFacadeApp;
+
     public static function boot(string $table): DbDatasource
     {
         if (!self::$capsule) {
@@ -17,11 +21,16 @@ class HalcyonDbTestHarness
             ]);
             self::$capsule->setAsGlobal();
             self::$capsule->bootEloquent();
-
-            $app = new Illuminate\Container\Container;
-            $app->singleton('db', fn () => self::$capsule->getDatabaseManager());
-            Illuminate\Support\Facades\Facade::setFacadeApplication($app);
         }
+
+        if (!self::$facadeAppSaved) {
+            self::$savedFacadeApp = Illuminate\Support\Facades\Facade::getFacadeApplication();
+            self::$facadeAppSaved = true;
+        }
+
+        $app = new Illuminate\Container\Container;
+        $app->singleton('db', fn () => self::$capsule->getDatabaseManager());
+        Illuminate\Support\Facades\Facade::setFacadeApplication($app);
 
         $schema = self::$capsule->schema();
         $schema->dropIfExists($table);
@@ -37,6 +46,13 @@ class HalcyonDbTestHarness
         self::clearDbDatasourceCache();
 
         return new DbDatasource('test-theme', $table);
+    }
+
+    public static function teardown(): void
+    {
+        if (self::$facadeAppSaved) {
+            Illuminate\Support\Facades\Facade::setFacadeApplication(self::$savedFacadeApp);
+        }
     }
 
     public static function clearDbDatasourceCache(): void

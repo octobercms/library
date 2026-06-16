@@ -39,7 +39,7 @@ class AutoDatasourceTest extends TestCase
 
     public function tearDown(): void
     {
-        $this->clearDbDatasourceCache();
+        $this->tearDownHalcyonDatabase();
 
         $files = new Filesystem;
         $files->deleteDirectory($this->themePath);
