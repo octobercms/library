@@ -124,7 +124,25 @@ class AutoDatasource extends Datasource implements DatasourceInterface
      */
     public function delete(string $dirName, string $fileName, string $extension): bool
     {
-        return $this->primaryDatasource->delete($dirName, $fileName, $extension);
+        $result = $this->primaryDatasource->delete($dirName, $fileName, $extension);
+
+        if ($this->isTemplateTrashed($dirName, $fileName, $extension)) {
+            return (bool) $result ?: true;
+        }
+
+        $dbDatasource = $this->getDbDatasource();
+
+        if (!$dbDatasource) {
+            return (bool) $result;
+        }
+
+        foreach (array_slice($this->datasources, 1) as $datasource) {
+            if ($datasource->hasTemplate($dirName, $fileName, $extension)) {
+                return $dbDatasource->tombstone($dirName, $fileName, $extension);
+            }
+        }
+
+        return (bool) $result;
     }
 
     /**

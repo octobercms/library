@@ -258,6 +258,46 @@ class DbDatasource extends Datasource implements DatasourceInterface
     }
 
     /**
+     * tombstone creates a soft-deleted record for a path with no active DB template
+     */
+    public function tombstone(string $dirName, string $fileName, string $extension): bool
+    {
+        $path = $this->makeFilePath($dirName, $fileName, $extension);
+
+        if ($this->getQuery()->where('path', $path)->exists()) {
+            return $this->delete($dirName, $fileName, $extension);
+        }
+
+        if ($this->isTemplateTrashed($dirName, $fileName, $extension)) {
+            return true;
+        }
+
+        try {
+            $now = Carbon::now()->toDateTimeString();
+
+            $record = [
+                'source' => $this->source,
+                'path' => $path,
+                'content' => '',
+                'file_size' => 0,
+                'updated_at' => $now,
+                'deleted_at' => $now,
+            ];
+
+            $this->fireEvent('halcyon.datasource.db.beforeInsert', [&$record]);
+
+            $this->getBaseQuery()->insert($record);
+
+            $this->flushCache();
+
+            return true;
+        }
+        catch (Exception $ex) {
+            throw (new DeleteFileException)->setInvalidPath($path);
+        }
+    }
+
+    /**
      * delete against the datasource
      */
     public function delete(string $dirName, string $fileName, string $extension): bool

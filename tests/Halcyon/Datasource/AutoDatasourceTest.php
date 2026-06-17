@@ -45,6 +45,18 @@ class AutoDatasourceTest extends TestCase
         $files->deleteDirectory($this->themePath);
     }
 
+    public function testSoftDeletedFilesystemOnlyTemplateIsHidden()
+    {
+        $this->assertTrue($this->autoDatasource->hasTemplate($this->dirName, $this->fileName, $this->extension));
+
+        $this->autoDatasource->delete($this->dirName, $this->fileName, $this->extension);
+
+        $this->assertFalse($this->autoDatasource->hasTemplate($this->dirName, $this->fileName, $this->extension));
+        $this->assertNull($this->autoDatasource->selectOne($this->dirName, $this->fileName, $this->extension));
+        $this->assertTrue($this->dbDatasource->isTemplateTrashed($this->dirName, $this->fileName, $this->extension));
+        $this->assertFileExists($this->themePath . '/pages/home.htm');
+    }
+
     public function testSoftDeletedTemplateDoesNotFallbackToFilesystem()
     {
         $fileContent = $this->fileDatasource->selectOne($this->dirName, $this->fileName, $this->extension);
