@@ -37,6 +37,11 @@ class DbDatasource extends Datasource implements DatasourceInterface
     protected static $mtimeCache = [];
 
     /**
+     * @var array trashedPathCache
+     */
+    protected static $trashedPathCache = [];
+
+    /**
      * __construct a new datasource instance
      */
     public function __construct(string $source, string $table)
@@ -103,7 +108,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
             $columns = null;
         }
 
-        $results = $this->buildDirectoryQuery($dirName, $extensions, false)->get();
+        $results = $this->buildDirectoryQuery($dirName, $extensions)->get();
 
         foreach ($results as $item) {
             self::$pathCache[$this->source][$item->path] = $item;
@@ -315,9 +320,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
     {
         $path = $this->makeFilePath($dirName, $fileName, $extension);
 
-        $record = $this->getQuery(false)->where('path', $path)->first();
-
-        return $record && $record->deleted_at !== null;
+        return isset($this->getTrashedPaths()[$path]);
     }
 
     /**
@@ -332,8 +335,16 @@ class DbDatasource extends Datasource implements DatasourceInterface
 
         $fileNames = [];
 
-        foreach ($this->buildDirectoryQuery($dirName, $extensions, true)->get() as $item) {
-            $fileName = $this->pathToFileName($dirName, $item->path);
+        foreach (array_keys($this->getTrashedPaths()) as $path) {
+            if (!str_starts_with($path, $dirName)) {
+                continue;
+            }
+
+            if (!$this->matchesExtensionFilter($path, $extensions)) {
+                continue;
+            }
+
+            $fileName = $this->pathToFileName($dirName, $path);
 
             if (!$this->matchesFileMatch($fileMatch, $fileName)) {
                 continue;
@@ -346,15 +357,26 @@ class DbDatasource extends Datasource implements DatasourceInterface
     }
 
     /**
-     * buildDirectoryQuery for templates in a directory
+     * getTrashedPaths returns cached tombstoned paths for this datasource source
      */
-    protected function buildDirectoryQuery(string $dirName, ?array $extensions, bool $trashedOnly)
+    protected function getTrashedPaths(): array
     {
-        $query = $trashedOnly
-            ? $this->getQuery(false)->whereNotNull('deleted_at')
-            : $this->getQuery();
+        if (!isset(self::$trashedPathCache[$this->source])) {
+            self::$trashedPathCache[$this->source] = array_fill_keys(
+                $this->getQuery(false)->whereNotNull('deleted_at')->pluck('path')->all(),
+                true
+            );
+        }
 
-        $query->where('path', 'like', $dirName . '%');
+        return self::$trashedPathCache[$this->source];
+    }
+
+    /**
+     * buildDirectoryQuery for active templates in a directory
+     */
+    protected function buildDirectoryQuery(string $dirName, ?array $extensions)
+    {
+        $query = $this->getQuery()->where('path', 'like', $dirName . '%');
 
         if (is_array($extensions) && !empty($extensions)) {
             $this->applyExtensionsFilter($query, $extensions);
@@ -393,6 +415,24 @@ class DbDatasource extends Datasource implements DatasourceInterface
     protected function matchesFileMatch(?string $fileMatch, string $fileName): bool
     {
         return empty($fileMatch) || fnmatch($fileMatch, $fileName);
+    }
+
+    /**
+     * matchesExtensionFilter checks a stored path against optional extensions
+     */
+    protected function matchesExtensionFilter(string $path, ?array $extensions): bool
+    {
+        if (!is_array($extensions) || empty($extensions)) {
+            return true;
+        }
+
+        foreach ($extensions as $ext) {
+            if (str_ends_with($path, '.' . $ext)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -447,5 +487,6 @@ class DbDatasource extends Datasource implements DatasourceInterface
     {
         unset(self::$pathCache[$this->source]);
         unset(self::$mtimeCache[$this->source]);
+        unset(self::$trashedPathCache[$this->source]);
     }
 }

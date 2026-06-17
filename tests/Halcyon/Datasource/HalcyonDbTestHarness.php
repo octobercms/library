@@ -59,7 +59,7 @@ class HalcyonDbTestHarness
     {
         $reflection = new ReflectionClass(DbDatasource::class);
 
-        foreach (['pathCache', 'mtimeCache'] as $propertyName) {
+        foreach (['pathCache', 'mtimeCache', 'trashedPathCache'] as $propertyName) {
             $property = $reflection->getProperty($propertyName);
             $property->setValue(null, []);
         }
