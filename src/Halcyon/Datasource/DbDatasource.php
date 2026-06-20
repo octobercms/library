@@ -37,6 +37,11 @@ class DbDatasource extends Datasource implements DatasourceInterface
     protected static $mtimeCache = [];
 
     /**
+     * @var array trashedPathCache
+     */
+    protected static $trashedPathCache = [];
+
+    /**
      * __construct a new datasource instance
      */
     public function __construct(string $source, string $table)
@@ -103,34 +108,15 @@ class DbDatasource extends Datasource implements DatasourceInterface
             $columns = null;
         }
 
-        // Apply the dirName query
-        $query = $this->getQuery()->where('path', 'like', $dirName . '%');
-
-        // Apply the extensions filter
-        if (is_array($extensions) && !empty($extensions)) {
-            $query->where(function ($query) use ($extensions) {
-                // Get the first extension to query for
-                $query->where('path', 'like', '%' . '.' . array_pop($extensions));
-
-                if (count($extensions)) {
-                    foreach ($extensions as $ext) {
-                        $query->orWhere('path', 'like', '%' . '.' . $ext);
-                    }
-                }
-            });
-        }
-
-        // Retrieve the results
-        $results = $query->get();
+        $results = $this->buildDirectoryQuery($dirName, $extensions)->get();
 
         foreach ($results as $item) {
             self::$pathCache[$this->source][$item->path] = $item;
 
             $resultItem = [];
-            $fileName = ltrim(str_replace($dirName, '', $item->path), '/');
+            $fileName = $this->pathToFileName($dirName, $item->path);
 
-            // Apply the fileMatch filter
-            if (!empty($fileMatch) && !fnmatch($fileMatch, $fileName)) {
+            if (!$this->matchesFileMatch($fileMatch, $fileName)) {
                 continue;
             }
 
@@ -272,6 +258,46 @@ class DbDatasource extends Datasource implements DatasourceInterface
     }
 
     /**
+     * tombstone creates a soft-deleted record for a path with no active DB template
+     */
+    public function tombstone(string $dirName, string $fileName, string $extension): bool
+    {
+        $path = $this->makeFilePath($dirName, $fileName, $extension);
+
+        if ($this->getQuery()->where('path', $path)->exists()) {
+            return $this->delete($dirName, $fileName, $extension);
+        }
+
+        if ($this->isTemplateTrashed($dirName, $fileName, $extension)) {
+            return true;
+        }
+
+        try {
+            $now = Carbon::now()->toDateTimeString();
+
+            $record = [
+                'source' => $this->source,
+                'path' => $path,
+                'content' => '',
+                'file_size' => 0,
+                'updated_at' => $now,
+                'deleted_at' => $now,
+            ];
+
+            $this->fireEvent('halcyon.datasource.db.beforeInsert', [&$record]);
+
+            $this->getBaseQuery()->insert($record);
+
+            $this->flushCache();
+
+            return true;
+        }
+        catch (Exception $ex) {
+            throw (new DeleteFileException)->setInvalidPath($path);
+        }
+    }
+
+    /**
      * delete against the datasource
      */
     public function delete(string $dirName, string $fileName, string $extension): bool
@@ -328,6 +354,128 @@ class DbDatasource extends Datasource implements DatasourceInterface
     }
 
     /**
+     * isTemplateTrashed returns true when a soft-deleted record exists at the path
+     */
+    public function isTemplateTrashed(string $dirName, string $fileName, string $extension): bool
+    {
+        $path = $this->makeFilePath($dirName, $fileName, $extension);
+
+        return isset($this->getTrashedPaths()[$path]);
+    }
+
+    /**
+     * selectTrashedFileNames returns file names for soft-deleted templates in a directory
+     */
+    public function selectTrashedFileNames(string $dirName, array $options = []): array
+    {
+        extract(array_merge([
+            'extensions' => null,
+            'fileMatch' => null,
+        ], $options));
+
+        $fileNames = [];
+
+        foreach (array_keys($this->getTrashedPaths()) as $path) {
+            if (!str_starts_with($path, $dirName)) {
+                continue;
+            }
+
+            if (!$this->matchesExtensionFilter($path, $extensions)) {
+                continue;
+            }
+
+            $fileName = $this->pathToFileName($dirName, $path);
+
+            if (!$this->matchesFileMatch($fileMatch, $fileName)) {
+                continue;
+            }
+
+            $fileNames[] = $fileName;
+        }
+
+        return $fileNames;
+    }
+
+    /**
+     * getTrashedPaths returns cached tombstoned paths for this datasource source
+     */
+    protected function getTrashedPaths(): array
+    {
+        if (!isset(self::$trashedPathCache[$this->source])) {
+            self::$trashedPathCache[$this->source] = array_fill_keys(
+                $this->getQuery(false)->whereNotNull('deleted_at')->pluck('path')->all(),
+                true
+            );
+        }
+
+        return self::$trashedPathCache[$this->source];
+    }
+
+    /**
+     * buildDirectoryQuery for active templates in a directory
+     */
+    protected function buildDirectoryQuery(string $dirName, ?array $extensions)
+    {
+        $query = $this->getQuery()->where('path', 'like', $dirName . '%');
+
+        if (is_array($extensions) && !empty($extensions)) {
+            $this->applyExtensionsFilter($query, $extensions);
+        }
+
+        return $query;
+    }
+
+    /**
+     * applyExtensionsFilter to a directory query
+     */
+    protected function applyExtensionsFilter($query, array $extensions)
+    {
+        $query->where(function ($query) use ($extensions) {
+            $query->where('path', 'like', '%' . '.' . array_pop($extensions));
+
+            if (count($extensions)) {
+                foreach ($extensions as $ext) {
+                    $query->orWhere('path', 'like', '%' . '.' . $ext);
+                }
+            }
+        });
+    }
+
+    /**
+     * pathToFileName converts a stored path to a file name within a directory
+     */
+    protected function pathToFileName(string $dirName, string $path): string
+    {
+        return ltrim(str_replace($dirName, '', $path), '/');
+    }
+
+    /**
+     * matchesFileMatch checks a file name against an optional fnmatch pattern
+     */
+    protected function matchesFileMatch(?string $fileMatch, string $fileName): bool
+    {
+        return empty($fileMatch) || fnmatch($fileMatch, $fileName);
+    }
+
+    /**
+     * matchesExtensionFilter checks a stored path against optional extensions
+     */
+    protected function matchesExtensionFilter(string $path, ?array $extensions): bool
+    {
+        if (!is_array($extensions) || empty($extensions)) {
+            return true;
+        }
+
+        foreach ($extensions as $ext) {
+            if (str_ends_with($path, '.' . $ext)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * getBaseQuery builder object
      */
     protected function getBaseQuery()
@@ -379,5 +527,6 @@ class DbDatasource extends Datasource implements DatasourceInterface
     {
         unset(self::$pathCache[$this->source]);
         unset(self::$mtimeCache[$this->source]);
+        unset(self::$trashedPathCache[$this->source]);
     }
 }
