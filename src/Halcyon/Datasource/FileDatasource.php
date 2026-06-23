@@ -16,7 +16,7 @@ use Exception;
  * @package october\halcyon
  * @author Alexey Bobkov, Samuel Georges
  */
-class FileDatasource extends Datasource implements DatasourceInterface
+class FileDatasource extends Datasource implements DatasourceInterface, ResolvableDatasourceInterface
 {
     /**
      * @var string basePath is a local path to find the datasource
@@ -287,5 +287,23 @@ class FileDatasource extends Datasource implements DatasourceInterface
     public function makeCacheKey(string $name = ''): string
     {
         return crc32($this->basePath . $name);
+    }
+
+    /**
+     * resolveLocalPath returns the absolute local path for a template, if available
+     */
+    public function resolveLocalPath(string $dirName, string $fileName, string $extension): ?string
+    {
+        $path = $this->makeFilePath($dirName, $fileName, $extension);
+
+        return $this->files->isFile($path) ? $path : null;
+    }
+
+    /**
+     * resolvePublicUrl returns a public URL for a template, if available
+     */
+    public function resolvePublicUrl(string $dirName, string $fileName, string $extension, array $context = []): ?string
+    {
+        return null;
     }
 }

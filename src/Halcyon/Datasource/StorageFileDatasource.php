@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Halcyon\Datasource;
 
 use Db;
+use October\Rain\Filesystem\Filesystem;
 use October\Rain\Halcyon\Processors\Processor;
 use October\Rain\Halcyon\Exception\CreateFileException;
 use October\Rain\Halcyon\Exception\DeleteFileException;
@@ -9,12 +10,12 @@ use Carbon\Carbon;
 use Exception;
 
 /**
- * DbDatasource looks at the database for templates
+ * StorageFileDatasource stores file content on disk and metadata in the database
  *
  * @package october\halcyon
  * @author Alexey Bobkov, Samuel Georges
  */
-class DbDatasource extends Datasource implements SoftDeleteDatasourceInterface
+class StorageFileDatasource extends Datasource implements SoftDeleteDatasourceInterface, ResolvableDatasourceInterface
 {
     /**
      * @var string source identifier for this datasource instance
@@ -25,6 +26,16 @@ class DbDatasource extends Datasource implements SoftDeleteDatasourceInterface
      * @var string table name of the datasource
      */
     protected $table;
+
+    /**
+     * @var string storagePath is the local root path for stored files
+     */
+    protected $storagePath;
+
+    /**
+     * @var Filesystem files
+     */
+    protected $files;
 
     /**
      * @var array pathCache
@@ -44,12 +55,12 @@ class DbDatasource extends Datasource implements SoftDeleteDatasourceInterface
     /**
      * __construct a new datasource instance
      */
-    public function __construct(string $source, string $table)
+    public function __construct(string $source, string $table, string $storagePath, Filesystem $files)
     {
         $this->source = $source;
-
         $this->table = $table;
-
+        $this->storagePath = rtrim($storagePath, '/\\');
+        $this->files = $files;
         $this->postProcessor = new Processor;
     }
 
@@ -76,22 +87,28 @@ class DbDatasource extends Datasource implements SoftDeleteDatasourceInterface
         }
 
         if (!$result) {
-            return $result;
+            return null;
+        }
+
+        $diskPath = $this->makeDiskPath($dirName, $fileName, $extension);
+
+        if (!$this->files->isFile($diskPath)) {
+            return null;
         }
 
         return [
             'fileName' => $fileName . '.' . $extension,
-            'content' => $result->content,
+            'content' => $this->files->get($diskPath),
             'mtime' => Carbon::parse($result->updated_at)->timestamp,
             'record' => $result
         ];
     }
 
     /**
-     * select returns all templates, with availableoptions:
+     * select returns all templates, with available options:
      *
      * - columns: only return specific columns, eg: ['fileName', 'mtime', 'content']
-     * - extensions: extensions to search for, eg: ['htm', 'md', 'twig']
+     * - extensions: extensions to search for, eg: ['css', 'png']
      * - fileMatch: pattern to match the filename against using the fnmatch function, eg: *gr[ae]y
      */
     public function select(string $dirName, array $options = []): array
@@ -120,11 +137,12 @@ class DbDatasource extends Datasource implements SoftDeleteDatasourceInterface
                 continue;
             }
 
-            // Apply the columns filter on the data returned
+            $diskPath = $this->storagePath . '/' . $item->path;
+
             if ($columns === null) {
                 $resultItem = [
                     'fileName' => $fileName,
-                    'content' => $item->content,
+                    'content' => $this->files->isFile($diskPath) ? $this->files->get($diskPath) : '',
                     'mtime' => Carbon::parse($item->updated_at)->timestamp,
                     'record' => $item,
                 ];
@@ -134,8 +152,8 @@ class DbDatasource extends Datasource implements SoftDeleteDatasourceInterface
                     $resultItem['fileName'] = $fileName;
                 }
 
-                if (in_array('content', $columns)) {
-                    $resultItem['content'] = $item->content;
+                if (in_array('content', $columns) && $this->files->isFile($diskPath)) {
+                    $resultItem['content'] = $this->files->get($diskPath);
                 }
 
                 if (in_array('mtime', $columns)) {
@@ -164,40 +182,32 @@ class DbDatasource extends Datasource implements SoftDeleteDatasourceInterface
             throw (new FileExistsException())->setInvalidPath($path);
         }
 
-        // Update a trashed record
         if ($this->getQuery(false)->where('path', $path)->first()) {
             return $this->update($dirName, $fileName, $extension, $content);
         }
 
         try {
+            $diskPath = $this->makeDiskPath($dirName, $fileName, $extension);
+            $this->ensureDirectoryExists(dirname($diskPath));
+            $this->files->put($diskPath, $content);
+
+            $fileSize = strlen($content);
             $record = [
                 'source' => $this->source,
                 'path' => $path,
-                'content' => $content,
-                'file_size' => mb_strlen($content, '8bit'),
+                'content' => null,
+                'file_size' => $fileSize,
                 'updated_at' => Carbon::now()->toDateTimeString(),
                 'deleted_at' => null,
             ];
 
-            /**
-             * @event halcyon.datasource.db.beforeInsert
-             * Provides an opportunity to modify records before being inserted into the DB
-             *
-             * Example usage:
-             *
-             *     $datasource->bindEvent('halcyon.datasource.db.beforeInsert', function ((array) &$record) {
-             *         // Attach a site id to every record in a multi-tenant application
-             *         $record['site_id'] = SiteManager::getSite()->id;
-             *     });
-             *
-             */
-            $this->fireEvent('halcyon.datasource.db.beforeInsert', [&$record]);
+            $this->fireEvent('halcyon.datasource.storage.beforeInsert', [&$record]);
 
             $this->getBaseQuery()->insert($record);
 
             $this->flushCache();
 
-            return $record['file_size'];
+            return $fileSize;
         }
         catch (Exception $ex) {
             throw (new CreateFileException)->setInvalidPath($path);
@@ -211,7 +221,6 @@ class DbDatasource extends Datasource implements SoftDeleteDatasourceInterface
     {
         $path = $this->makeFilePath($dirName, $fileName, $extension);
 
-        // Check if this file has been renamed
         if ($oldFileName !== null) {
             $fileName = $oldFileName;
         }
@@ -222,29 +231,25 @@ class DbDatasource extends Datasource implements SoftDeleteDatasourceInterface
         $oldPath = $this->makeFilePath($dirName, $fileName, $extension);
 
         try {
-            $fileSize = mb_strlen($content, '8bit');
+            $diskPath = $this->makeDiskPathFromPath($path);
+            $this->ensureDirectoryExists(dirname($diskPath));
+            $this->files->put($diskPath, $content);
+
+            if ($oldPath !== $path && $this->files->isFile($oldDiskPath = $this->makeDiskPathFromPath($oldPath))) {
+                $this->files->delete($oldDiskPath);
+            }
+
+            $fileSize = strlen($content);
 
             $data = [
                 'path' => $path,
-                'content' => $content,
+                'content' => null,
                 'file_size' => $fileSize,
                 'updated_at' => Carbon::now()->toDateTimeString(),
                 'deleted_at' => null
             ];
 
-            /**
-             * @event halcyon.datasource.db.beforeUpdate
-             * Provides an opportunity to modify records before being updated into the DB
-             *
-             * Example usage:
-             *
-             *     $datasource->bindEvent('halcyon.datasource.db.beforeUpdate', function ((array) &$data) {
-             *         // Attach a site id to every record in a multi-tenant application
-             *         $data['site_id'] = SiteManager::getSite()->id;
-             *     });
-             *
-             */
-            $this->fireEvent('halcyon.datasource.db.beforeUpdate', [&$data]);
+            $this->fireEvent('halcyon.datasource.storage.beforeUpdate', [&$data]);
 
             $this->getQuery(false)->where('path', $oldPath)->update($data);
 
@@ -258,7 +263,7 @@ class DbDatasource extends Datasource implements SoftDeleteDatasourceInterface
     }
 
     /**
-     * tombstone creates a soft-deleted record for a path with no active DB template
+     * tombstone creates a soft-deleted record for a path with no active record
      */
     public function tombstone(string $dirName, string $fileName, string $extension): bool
     {
@@ -278,13 +283,13 @@ class DbDatasource extends Datasource implements SoftDeleteDatasourceInterface
             $record = [
                 'source' => $this->source,
                 'path' => $path,
-                'content' => '',
+                'content' => null,
                 'file_size' => 0,
                 'updated_at' => $now,
                 'deleted_at' => $now,
             ];
 
-            $this->fireEvent('halcyon.datasource.db.beforeInsert', [&$record]);
+            $this->fireEvent('halcyon.datasource.storage.beforeInsert', [&$record]);
 
             $this->getBaseQuery()->insert($record);
 
@@ -307,10 +312,20 @@ class DbDatasource extends Datasource implements SoftDeleteDatasourceInterface
             $recordQuery = $this->getQuery()->where('path', $path);
 
             if ($this->forceDeleting) {
+                $diskPath = $this->makeDiskPathFromPath($path);
+                if ($this->files->isFile($diskPath)) {
+                    $this->files->delete($diskPath);
+                }
+
                 $result = $recordQuery->delete();
             }
             else {
                 $result = $recordQuery->update(['deleted_at' => Carbon::now()->toDateTimeString()]);
+
+                $diskPath = $this->makeDiskPathFromPath($path);
+                if ($this->files->isFile($diskPath)) {
+                    $this->files->delete($diskPath);
+                }
             }
 
             $this->flushCache();
@@ -397,6 +412,36 @@ class DbDatasource extends Datasource implements SoftDeleteDatasourceInterface
     }
 
     /**
+     * resolveLocalPath returns the absolute local path for a template, if available
+     */
+    public function resolveLocalPath(string $dirName, string $fileName, string $extension): ?string
+    {
+        if (!$this->hasTemplate($dirName, $fileName, $extension)) {
+            return null;
+        }
+
+        return $this->makeDiskPath($dirName, $fileName, $extension);
+    }
+
+    /**
+     * resolvePublicUrl returns a public URL for a template, if available
+     */
+    public function resolvePublicUrl(string $dirName, string $fileName, string $extension, array $context = []): ?string
+    {
+        if (!$this->hasTemplate($dirName, $fileName, $extension)) {
+            return null;
+        }
+
+        $publicUrl = $context['publicUrl'] ?? null;
+        if ($publicUrl) {
+            $path = $this->makeFilePath($dirName, $fileName, $extension);
+            return rtrim($publicUrl, '/') . '/' . ltrim($path, '/');
+        }
+
+        return null;
+    }
+
+    /**
      * getTrashedPaths returns cached tombstoned paths for this datasource source
      */
     protected function getTrashedPaths(): array
@@ -466,13 +511,9 @@ class DbDatasource extends Datasource implements SoftDeleteDatasourceInterface
             return true;
         }
 
-        foreach ($extensions as $ext) {
-            if (str_ends_with($path, '.' . $ext)) {
-                return true;
-            }
-        }
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
 
-        return false;
+        return in_array($extension, $extensions);
     }
 
     /**
@@ -490,35 +531,49 @@ class DbDatasource extends Datasource implements SoftDeleteDatasourceInterface
     {
         $query = $this->getBaseQuery();
         $query->where('source', $this->source);
-        $query->whereNotNull('content');
+        $query->whereNull('content');
 
         if ($withTrashed) {
             $query->whereNull('deleted_at');
         }
 
-        /**
-         * @event halcyon.datasource.db.extendQuery
-         * Provides an opportunity to modify the query object used by the Halycon DbDatasource
-         *
-         * Example usage:
-         *
-         *     $datasource->bindEvent('halcyon.datasource.db.extendQuery', function ((QueryBuilder) $query, (bool) $withTrashed) {
-         *         // Apply a site filter in a multi-tenant application
-         *         $query->where('site_id', SiteManager::getSite()->id);
-         *     });
-         *
-         */
-        $this->fireEvent('halcyon.datasource.db.extendQuery', [$query, $withTrashed]);
+        $this->fireEvent('halcyon.datasource.storage.extendQuery', [$query, $withTrashed]);
 
         return $query;
     }
 
     /**
-     * makeFilePath helper to make file path
+     * makeFilePath helper to make file path relative to the theme root
      */
     protected function makeFilePath(string $dirName, string $fileName, string $extension): string
     {
         return $dirName . '/' . $fileName . '.' . $extension;
+    }
+
+    /**
+     * makeDiskPath returns the absolute disk path for a template
+     */
+    protected function makeDiskPath(string $dirName, string $fileName, string $extension): string
+    {
+        return $this->makeDiskPathFromPath($this->makeFilePath($dirName, $fileName, $extension));
+    }
+
+    /**
+     * makeDiskPathFromPath returns the absolute disk path from a relative path
+     */
+    protected function makeDiskPathFromPath(string $path): string
+    {
+        return $this->storagePath . '/' . $path;
+    }
+
+    /**
+     * ensureDirectoryExists for a given path
+     */
+    protected function ensureDirectoryExists(string $path): void
+    {
+        if (!$this->files->isDirectory($path)) {
+            $this->files->makeDirectory($path, 0755, true, true);
+        }
     }
 
     /**

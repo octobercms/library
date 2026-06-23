@@ -130,7 +130,7 @@ class AutoDatasource extends Datasource implements DatasourceInterface
             return (bool) $result ?: true;
         }
 
-        $dbDatasource = $this->getDbDatasource();
+        $dbDatasource = $this->getSoftDeleteDatasource();
 
         if (!$dbDatasource) {
             return (bool) $result;
@@ -268,6 +268,80 @@ class AutoDatasource extends Datasource implements DatasourceInterface
     }
 
     /**
+     * hasTemplateAtIndex checks if a template exists at a specific datasource index
+     */
+    public function hasTemplateAtIndex(int $index, string $dirName, string $fileName, string $extension): bool
+    {
+        if (!$this->hasIndex($index)) {
+            return false;
+        }
+
+        return $this->datasources[$index]->hasTemplate($dirName, $fileName, $extension);
+    }
+
+    /**
+     * resolveLocalPath returns the first matching local path from datasources
+     */
+    public function resolveLocalPath(string $dirName, string $fileName, string $extension): ?string
+    {
+        if ($this->isTemplateTrashed($dirName, $fileName, $extension)) {
+            return null;
+        }
+
+        foreach ($this->datasources as $source) {
+            if (!$source->hasTemplate($dirName, $fileName, $extension)) {
+                continue;
+            }
+
+            if ($source instanceof ResolvableDatasourceInterface) {
+                $localPath = $source->resolveLocalPath($dirName, $fileName, $extension);
+                if ($localPath) {
+                    return $localPath;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * resolvePublicUrl returns the first matching public URL from datasources
+     */
+    public function resolvePublicUrl(string $dirName, string $fileName, string $extension, array $context = []): ?string
+    {
+        if ($this->isTemplateTrashed($dirName, $fileName, $extension)) {
+            return null;
+        }
+
+        foreach ($this->datasources as $source) {
+            if (!$source->hasTemplate($dirName, $fileName, $extension)) {
+                continue;
+            }
+
+            if ($source instanceof ResolvableDatasourceInterface) {
+                $publicUrl = $source->resolvePublicUrl($dirName, $fileName, $extension, $context);
+                if ($publicUrl) {
+                    return $publicUrl;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * getSoftDeleteDatasource returns the primary datasource when it supports soft deletes
+     */
+    protected function getSoftDeleteDatasource(): ?SoftDeleteDatasourceInterface
+    {
+        if ($this->primaryDatasource instanceof SoftDeleteDatasourceInterface) {
+            return $this->primaryDatasource;
+        }
+
+        return null;
+    }
+
+    /**
      * getDbDatasource returns the primary datasource when it is a DbDatasource
      */
     protected function getDbDatasource(): ?DbDatasource
@@ -284,7 +358,7 @@ class AutoDatasource extends Datasource implements DatasourceInterface
      */
     protected function isTemplateTrashed(string $dirName, string $fileName, string $extension): bool
     {
-        $dbDatasource = $this->getDbDatasource();
+        $dbDatasource = $this->getSoftDeleteDatasource();
 
         if (!$dbDatasource) {
             return false;
@@ -294,11 +368,11 @@ class AutoDatasource extends Datasource implements DatasourceInterface
     }
 
     /**
-     * getTrashedFileNames returns tombstoned file names from the primary DbDatasource
+     * getTrashedFileNames returns tombstoned file names from the primary datasource
      */
     protected function getTrashedFileNames(string $dirName, array $options = []): array
     {
-        $dbDatasource = $this->getDbDatasource();
+        $dbDatasource = $this->getSoftDeleteDatasource();
 
         if (!$dbDatasource) {
             return [];
