@@ -66,7 +66,10 @@ class AutoDatasource extends Datasource implements DatasourceInterface
                 continue;
             }
 
-            return $source->selectOne($dirName, $fileName, $extension);
+            $result = $source->selectOne($dirName, $fileName, $extension);
+            if ($result !== null) {
+                return $result;
+            }
         }
 
         return null;
@@ -175,7 +178,10 @@ class AutoDatasource extends Datasource implements DatasourceInterface
                 continue;
             }
 
-            return $source->lastModified($dirName, $fileName, $extension);
+            $mtime = $source->lastModified($dirName, $fileName, $extension);
+            if ($mtime !== null) {
+                return $mtime;
+            }
         }
 
         return null;

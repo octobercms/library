@@ -69,7 +69,13 @@ class StorageFileDatasource extends Datasource implements SoftDeleteDatasourceIn
      */
     public function hasTemplate(string $dirName, string $fileName, string $extension): bool
     {
-        return (bool) $this->lastModified($dirName, $fileName, $extension);
+        $path = $this->makeFilePath($dirName, $fileName, $extension);
+
+        if (!$this->hasActiveRecord($path)) {
+            return false;
+        }
+
+        return $this->files->isFile($this->makeDiskPathFromPath($path));
     }
 
     /**
@@ -90,7 +96,7 @@ class StorageFileDatasource extends Datasource implements SoftDeleteDatasourceIn
             return null;
         }
 
-        $diskPath = $this->makeDiskPath($dirName, $fileName, $extension);
+        $diskPath = $this->makeDiskPathFromPath($path);
 
         if (!$this->files->isFile($diskPath)) {
             return null;
@@ -137,7 +143,11 @@ class StorageFileDatasource extends Datasource implements SoftDeleteDatasourceIn
                 continue;
             }
 
-            $diskPath = $this->storagePath . '/' . $item->path;
+            $diskPath = $this->makeDiskPathFromPath($item->path);
+
+            if (!$this->files->isFile($diskPath)) {
+                continue;
+            }
 
             if ($columns === null) {
                 $resultItem = [
@@ -391,7 +401,7 @@ class StorageFileDatasource extends Datasource implements SoftDeleteDatasourceIn
         $fileNames = [];
 
         foreach (array_keys($this->getTrashedPaths()) as $path) {
-            if (!str_starts_with($path, $dirName)) {
+            if (!$this->pathInDirectory($dirName, $path)) {
                 continue;
             }
 
@@ -461,7 +471,11 @@ class StorageFileDatasource extends Datasource implements SoftDeleteDatasourceIn
      */
     protected function buildDirectoryQuery(string $dirName, ?array $extensions)
     {
-        $query = $this->getQuery()->where('path', 'like', $dirName . '%');
+        $query = $this->getQuery();
+
+        if ($dirName !== '') {
+            $query->where('path', 'like', $dirName . '/%');
+        }
 
         if (is_array($extensions) && !empty($extensions)) {
             $this->applyExtensionsFilter($query, $extensions);
@@ -484,6 +498,34 @@ class StorageFileDatasource extends Datasource implements SoftDeleteDatasourceIn
                 }
             }
         });
+    }
+
+    /**
+     * hasActiveRecord checks if an active metadata record exists for a path
+     */
+    protected function hasActiveRecord(string $path): bool
+    {
+        if (isset(self::$pathCache[$this->source][$path])) {
+            return true;
+        }
+
+        if (!isset(self::$mtimeCache[$this->source])) {
+            self::$mtimeCache[$this->source] = $this->getQuery()->pluck('updated_at', 'path')->all();
+        }
+
+        return isset(self::$mtimeCache[$this->source][$path]);
+    }
+
+    /**
+     * pathInDirectory checks if a stored path belongs to a directory
+     */
+    protected function pathInDirectory(string $dirName, string $path): bool
+    {
+        if ($dirName === '') {
+            return true;
+        }
+
+        return $path === $dirName || str_starts_with($path, $dirName . '/');
     }
 
     /**

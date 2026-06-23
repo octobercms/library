@@ -113,4 +113,39 @@ class StorageFileDatasourceTest extends TestCase
         $localPath = $this->autoDatasource->resolveLocalPath($this->dirName, $this->fileName, $this->extension);
         $this->assertSame($this->storagePath . '/assets/images/logo.png', $localPath);
     }
+
+    public function testOrphanMetadataFallsBackToFilesystem()
+    {
+        $this->storageDatasource->insert($this->dirName, $this->fileName, $this->extension, 'storage-content');
+        unlink($this->storagePath . '/assets/images/logo.png');
+
+        $filesystemContent = 'filesystem-content';
+        file_put_contents($this->themePath . '/assets/images/logo.png', $filesystemContent);
+
+        $this->assertFalse($this->storageDatasource->hasTemplate($this->dirName, $this->fileName, $this->extension));
+
+        $result = $this->autoDatasource->selectOne($this->dirName, $this->fileName, $this->extension);
+        $this->assertNotNull($result);
+        $this->assertSame($filesystemContent, $result['content']);
+    }
+
+    public function testSelectExcludesOrphanMetadata()
+    {
+        $this->storageDatasource->insert($this->dirName, $this->fileName, $this->extension, 'storage-content');
+        unlink($this->storagePath . '/assets/images/logo.png');
+
+        $results = $this->storageDatasource->select($this->dirName);
+        $this->assertSame([], $results);
+    }
+
+    public function testDirectoryListingDoesNotMatchPrefixCollision()
+    {
+        $this->storageDatasource->insert('assets', 'logo', 'png', 'logo-content');
+        $this->storageDatasource->insert('assets-backup', 'secret', 'png', 'secret-content');
+
+        $results = $this->storageDatasource->select('assets');
+        $fileNames = array_column($results, 'fileName');
+
+        $this->assertSame(['logo.png'], $fileNames);
+    }
 }
