@@ -619,12 +619,30 @@ class StorageFileDatasource extends Datasource implements SoftDeleteDatasourceIn
     }
 
     /**
-     * flushCache
+     * flushStorageCache clears cached paths, mtimes, and trashed paths for this source
      */
-    protected function flushCache()
+    public function flushStorageCache(): void
     {
         unset(self::$pathCache[$this->source]);
         unset(self::$mtimeCache[$this->source]);
         unset(self::$trashedPathCache[$this->source]);
+    }
+
+    /**
+     * flushAllStorageCaches clears all cached paths across every source
+     */
+    public static function flushAllStorageCaches(): void
+    {
+        self::$pathCache = [];
+        self::$mtimeCache = [];
+        self::$trashedPathCache = [];
+    }
+
+    /**
+     * flushCache
+     */
+    protected function flushCache()
+    {
+        $this->flushStorageCache();
     }
 }
