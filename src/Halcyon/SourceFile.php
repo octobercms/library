@@ -102,6 +102,58 @@ class SourceFile extends Model
         return static::query()->bySource($source)->byPath($path)->exists();
     }
 
+    /**
+     * upsertAt writes inline content to the row matching the source and path,
+     * creating one if missing. If a soft-deleted row exists at that key it is
+     * restored rather than producing a duplicate.
+     */
+    public static function upsertAt(string $source, string $path, string $content): static
+    {
+        $row = static::withTrashed()->bySource($source)->byPath($path)->first();
+
+        if ($row === null) {
+            $row = new static([
+                'source' => $source,
+                'path' => $path,
+            ]);
+        }
+        elseif ($row->trashed()) {
+            $row->restore();
+        }
+
+        $row->setContents($content);
+        $row->save();
+
+        return $row;
+    }
+
+    /**
+     * tombstoneAt creates a soft-deleted row at the given source and path so
+     * that find/list calls report the file as not existing. Used to suppress
+     * a filesystem fallback when there is no DB content to override it. If a
+     * row already exists it is soft-deleted (or left soft-deleted).
+     */
+    public static function tombstoneAt(string $source, string $path): void
+    {
+        $row = static::withTrashed()->bySource($source)->byPath($path)->first();
+
+        if ($row === null) {
+            $row = new static([
+                'source' => $source,
+                'path' => $path,
+                'content' => '',
+                'file_size' => 0,
+            ]);
+            $row->save();
+            $row->delete();
+            return;
+        }
+
+        if (!$row->trashed()) {
+            $row->delete();
+        }
+    }
+
     //
     // Content access (mode-aware)
     //
