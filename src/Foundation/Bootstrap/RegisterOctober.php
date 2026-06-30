@@ -97,6 +97,8 @@ class RegisterOctober
     {
         $loader = ClassLoader::instance();
 
+        $loader->basePath = $app->basePath();
+
         $loader->initManifest($app->getCachedClassesPath());
 
         $app->after(function () use ($loader) {
