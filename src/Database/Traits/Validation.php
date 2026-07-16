@@ -553,11 +553,11 @@ trait Validation
 
         $params = [$tableName, $column, $key, $keyName];
 
-        if ($whereColumn) {
+        if ($whereColumn !== null) {
             $params[] = $whereColumn;
         }
 
-        if ($whereValue) {
+        if ($whereValue !== null) {
             $params[] = $whereValue;
         }
 
