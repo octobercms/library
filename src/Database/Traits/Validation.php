@@ -159,8 +159,13 @@ trait Validation
             $rules = explode('|', $rules);
         }
 
+        $isClassName = is_string($definition) && class_exists($definition);
+
         foreach ($rules as $key => $rule) {
             if ($rule === $definition) {
+                unset($rules[$key]);
+            }
+            elseif ($isClassName && $rule instanceof $definition) {
                 unset($rules[$key]);
             }
             elseif (
@@ -172,7 +177,7 @@ trait Validation
             }
         }
 
-        $this->rules[$name] = $rules;
+        $this->rules[$name] = array_values($rules);
     }
 
     /**
@@ -553,11 +558,11 @@ trait Validation
 
         $params = [$tableName, $column, $key, $keyName];
 
-        if ($whereColumn) {
+        if ($whereColumn !== null) {
             $params[] = $whereColumn;
         }
 
-        if ($whereValue) {
+        if ($whereValue !== null) {
             $params[] = $whereValue;
         }
 

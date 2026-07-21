@@ -8,6 +8,8 @@ class ValidationTest extends TestCase
 
     public $id = 20;
 
+    public $rules = [];
+
     public function testUniqueRule()
     {
         // Basic usage of unique rule
@@ -109,6 +111,79 @@ class ValidationTest extends TestCase
     protected function getKeyName()
     {
         return 'the_id';
+    }
+
+    public function testRemoveValidationRuleByString()
+    {
+        $this->rules = [
+            'name' => ['required', 'string'],
+            'email' => ['required', 'unique:users', 'email'],
+        ];
+
+        $this->removeValidationRule('name', 'required');
+        $this->assertEquals(['string'], $this->rules['name']);
+
+        // Prefix match should strip parameterized rule
+        $this->removeValidationRule('email', 'unique');
+        $this->assertEquals(['required', 'email'], $this->rules['email']);
+    }
+
+    public function testRemoveValidationRuleWildcard()
+    {
+        $this->rules = [
+            'name' => ['required'],
+            'email' => ['required', 'email'],
+        ];
+
+        $this->removeValidationRule('email');
+        $this->assertArrayNotHasKey('email', $this->rules);
+        $this->assertEquals(['required'], $this->rules['name']);
+    }
+
+    public function testRemoveValidationRuleFromPipeString()
+    {
+        $this->rules = [
+            'email' => 'required|unique:users|email',
+        ];
+
+        $this->removeValidationRule('email', 'unique');
+        $this->assertEquals(['required', 'email'], $this->rules['email']);
+    }
+
+    public function testRemoveValidationRuleByObjectInstance()
+    {
+        $unique = new \Illuminate\Validation\Rules\Unique('users');
+
+        $this->rules = [
+            'email' => ['required', $unique, 'email'],
+        ];
+
+        $this->removeValidationRule('email', $unique);
+        $this->assertEquals(['required', 'email'], $this->rules['email']);
+    }
+
+    public function testRemoveValidationRuleByClassName()
+    {
+        $this->rules = [
+            'email' => [
+                'required',
+                new \Illuminate\Validation\Rules\Unique('users'),
+                'email',
+            ],
+        ];
+
+        $this->removeValidationRule('email', \Illuminate\Validation\Rules\Unique::class);
+        $this->assertEquals(['required', 'email'], $this->rules['email']);
+    }
+
+    public function testRemoveValidationRuleReindexesArray()
+    {
+        $this->rules = [
+            'email' => ['required', 'unique:users', 'email'],
+        ];
+
+        $this->removeValidationRule('email', 'unique');
+        $this->assertEquals([0, 1], array_keys($this->rules['email']));
     }
 
     public function testArrayFieldNames()
