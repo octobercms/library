@@ -68,4 +68,53 @@ class DbDatasourceTest extends TestCase
 
         $this->assertEquals(['readme.md'], $trashed);
     }
+
+    public function testSelectDoesNotLeakAcrossSiblingDirectoriesWithSharedPrefix()
+    {
+        $this->dbDatasource->insert('content/static-pages', 'about', 'htm', '<p>About</p>');
+        $this->dbDatasource->insert('content/static-pages-fr', 'about', 'htm', '<p>A propos</p>');
+
+        $results = $this->dbDatasource->select('content/static-pages');
+
+        $fileNames = array_column($results, 'fileName');
+        sort($fileNames);
+
+        $this->assertEquals(['about.htm'], $fileNames);
+    }
+
+    public function testSelectReturnsOnlyDirectoryEntriesWhenSiblingPrefixExists()
+    {
+        $this->dbDatasource->insert('content/static-pages-fr', 'about', 'htm', '<p>A propos</p>');
+
+        $results = $this->dbDatasource->select('content/static-pages');
+
+        $this->assertEquals([], $results);
+    }
+
+    public function testSelectTrashedFileNamesDoesNotLeakAcrossSiblingDirectoriesWithSharedPrefix()
+    {
+        $this->dbDatasource->insert('content/static-pages', 'about', 'htm', '<p>About</p>');
+        $this->dbDatasource->insert('content/static-pages-fr', 'about', 'htm', '<p>A propos</p>');
+        $this->dbDatasource->delete('content/static-pages', 'about', 'htm');
+        $this->dbDatasource->delete('content/static-pages-fr', 'about', 'htm');
+
+        $trashed = $this->dbDatasource->selectTrashedFileNames('content/static-pages');
+
+        $this->assertEquals(['about.htm'], $trashed);
+    }
+
+    public function testSelectReturnsFileNameWithoutLeadingDashWhenSiblingDirectoryExists()
+    {
+        // Regression: a bare LIKE '{dirName}%' matched sibling paths and
+        // pathToFileName() stripped only the dirName, leaving fragments
+        // like "-fr/about.htm" that downstream loaders could not resolve,
+        // producing null CmsObjects (see RainLab\Pages\Classes\PageList::getPageTree).
+        $this->dbDatasource->insert('content/static-pages-fr', 'about', 'htm', '<p>A propos</p>');
+
+        $results = $this->dbDatasource->select('content/static-pages');
+
+        foreach ($results as $item) {
+            $this->assertStringStartsNotWith('-', $item['fileName']);
+        }
+    }
 }
