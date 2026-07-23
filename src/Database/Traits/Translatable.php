@@ -746,6 +746,28 @@ trait Translatable
     //
 
     /**
+     * scopeTransWhere adds a where clause matching the base value or the translated
+     * value for the locale, defaulting to the active locale, since a missing
+     * translation row means the attribute inherits the default locale value.
+     */
+    public function scopeTransWhere($query, $key, $value, $locale = null, $operator = '=')
+    {
+        if ($locale === null) {
+            $locale = $this->getTranslatableContext();
+        }
+
+        if ($locale === $this->getTranslatableDefault()) {
+            return $query->where($key, $operator, $value);
+        }
+
+        return $query->where(function($q) use ($key, $value, $locale, $operator) {
+            $q->where($key, $operator, $value)->orWhere(function($q) use ($key, $value, $locale, $operator) {
+                $q->whereTranslation($key, $locale, $value, $operator);
+            });
+        });
+    }
+
+    /**
      * scopeWhereTranslation adds a where clause for a translated attribute
      */
     public function scopeWhereTranslation($query, $key, $locale, $value, $operator = '=')
