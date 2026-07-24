@@ -19,7 +19,9 @@ class AppServiceProvider extends ServiceProvider implements DeferrableProvider
     public function register()
     {
         $this->app->singleton('october.installer', \October\Rain\Installer\InstallManager::class);
+
         $this->registerConsoleCommand('october.build', \October\Rain\Installer\Console\OctoberBuild::class);
+
         $this->registerConsoleCommand('october.install', \October\Rain\Installer\Console\OctoberInstall::class);
     }
 

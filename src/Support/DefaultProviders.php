@@ -27,7 +27,6 @@ class DefaultProviders extends DefaultProvidersBase
             \October\Rain\Mail\MailServiceProvider::class,
             \October\Rain\Html\HtmlServiceProvider::class,
             \October\Rain\Flash\FlashServiceProvider::class,
-            \October\Rain\Parse\ParseServiceProvider::class,
             \October\Rain\Assetic\AsseticServiceProvider::class,
             \October\Rain\Resize\ResizeServiceProvider::class,
             \October\Rain\Validation\ValidationServiceProvider::class,

@@ -3,7 +3,7 @@
 use October\Rain\Support\Str;
 use October\Rain\Support\Collection;
 use October\Rain\Filesystem\Filesystem;
-use October\Rain\Events\EventServiceProvider;
+use October\Rain\Foundation\Providers\CoreServiceProvider;
 use October\Rain\Router\RoutingServiceProvider;
 use October\Rain\Foundation\Providers\LogServiceProvider;
 use October\Rain\Foundation\Providers\ExecutionContextProvider;
@@ -62,7 +62,7 @@ class Application extends ApplicationBase
      */
     protected function registerBaseServiceProviders()
     {
-        $this->register(new EventServiceProvider($this));
+        $this->register(new CoreServiceProvider($this));
 
         $this->register(new LogServiceProvider($this));
 
