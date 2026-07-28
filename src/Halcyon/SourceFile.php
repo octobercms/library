@@ -128,6 +128,39 @@ class SourceFile extends Model
     }
 
     /**
+     * upsertOnDiskAt writes disk-backed content to the row matching the source
+     * and path, creating one if missing. Mirrors upsertAt() including the
+     * restore-over-tombstone semantics, but the bytes land on the given
+     * Storage disk instead of the content column.
+     */
+    public static function upsertOnDiskAt(string $source, string $path, string $disk, string $diskPath, string $bytes, ?string $mimeType = null): static
+    {
+        $row = static::withTrashed()->bySource($source)->byPath($path)->first();
+
+        if ($row === null) {
+            $row = new static([
+                'source' => $source,
+                'path' => $path,
+            ]);
+        }
+        elseif ($row->trashed()) {
+            $row->restore();
+        }
+
+        $row->disk = $disk;
+        $row->disk_path = $diskPath;
+
+        if ($mimeType !== null) {
+            $row->mime_type = $mimeType;
+        }
+
+        $row->setContents($bytes);
+        $row->save();
+
+        return $row;
+    }
+
+    /**
      * tombstoneAt creates a soft-deleted row at the given source and path so
      * that find/list calls report the file as not existing. Used to suppress
      * a filesystem fallback when there is no DB content to override it. If a
