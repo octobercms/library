@@ -1,0 +1,28 @@
+<?php namespace {{namespace_php}}\VueComponents;
+
+use System\Classes\VueComponentBase;
+
+/**
+ * {{studly_name}} Vue Component
+ *
+ * @link https://docs.octobercms.com/4.x/extend/system/vue-components.html
+ */
+class {{studly_name}} extends VueComponentBase
+{
+    /**
+     * @var string componentName is the Vue component tag name (kebab-case).
+     */
+    protected $componentName = '{{lower_author}}-{{lower_plugin}}-{{lower_name}}';
+
+    /**
+     * @var array require lists dependent Vue component classes.
+     */
+    protected $require = [];
+
+    /**
+     * prepareVars passes data from PHP to the template partial.
+     */
+    protected function prepareVars()
+    {
+    }
+}

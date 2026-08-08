@@ -1,0 +1,13 @@
+/*
+ * {{studly_name}} Vue component definition
+ *
+ * On the frontend, read the Vue global instead of a bare import,
+ * eg: const { ref } = Vue;
+ */
+export default {
+    data() {
+        return {
+            message: 'Hello from {{studly_name}}'
+        };
+    }
+};
