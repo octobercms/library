@@ -752,7 +752,7 @@ class File extends Model
             return $this->disk_name;
         }
 
-        $ext = strtolower($this->getExtension());
+        $ext = preg_replace('/[^a-z0-9]/', '', strtolower($this->getExtension()));
         $name = str_replace('.', '', uniqid('', true));
 
         return $this->disk_name = !empty($ext) ? $name.'.'.$ext : $name;
