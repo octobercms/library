@@ -1,0 +1,8 @@
+{
+    "name": "author/{{slug}}-theme",
+    "type": "october-theme",
+    "description": "No description provided yet...",
+    "require": {
+        "composer/installers": "~1.0"
+    }
+}

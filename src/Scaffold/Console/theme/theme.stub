@@ -1,0 +1,5 @@
+name: {{title_name}}
+description: No description provided yet...
+author: {{title_name}}
+homepage: 'https://octobercms.com'
+code: {{studly_name}}
