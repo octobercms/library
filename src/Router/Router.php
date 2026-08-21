@@ -29,15 +29,41 @@ class Router
     protected $parameters = [];
 
     /**
+     * @var bool isCompiled indicates if routes have been compiled for optimized matching
+     */
+    protected $isCompiled = false;
+
+    /**
+     * @var array staticRoutes hash map for O(1) static route lookup
+     */
+    protected $staticRoutes = [];
+
+    /**
+     * @var string|null dynamicRegex combined regex for dynamic routes
+     */
+    protected $dynamicRegex = null;
+
+    /**
+     * @var array dynamicRouteMap maps regex group index to route info
+     */
+    protected $dynamicRouteMap = [];
+
+    /**
+     * @var array wildcardRules ordered list of wildcard route rule names
+     */
+    protected $wildcardRules = [];
+
+    /**
      * route registers a new route rule
      */
     public function route($name, $route)
     {
+        $this->invalidate();
         return $this->routeMap[$name] = Rule::fromPattern($name, $route);
     }
 
     /**
-     * match given URL string
+     * match given URL string using compiled route matching for performance
      * @param string $url Request URL to match for
      * @return bool
      */
@@ -45,43 +71,198 @@ class Router
     {
         // Reset any previous matches
         $this->matchedRouteRule = null;
+        $this->parameters = [];
 
-        $segments = Helper::segmentizeUrl($url, false);
+        // Compile routes on first match if not already compiled
+        if (!$this->isCompiled) {
+            $this->compile();
+        }
 
+        $normalizedUrl = Helper::normalizeUrl($url);
+
+        // Tier 1: Try static route lookup (O(1))
+        if ($this->matchStatic($normalizedUrl)) {
+            return true;
+        }
+
+        // Tier 2: Try combined regex for dynamic routes (O(1))
+        if ($this->matchDynamic($normalizedUrl)) {
+            return true;
+        }
+
+        // Tier 3: Try wildcard routes sequentially (O(w))
+        if ($this->matchWildcard($url)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * matchStatic attempts O(1) static route lookup
+     * @param string $normalizedUrl
+     * @return bool
+     */
+    protected function matchStatic($normalizedUrl)
+    {
+        $urlLower = mb_strtolower($normalizedUrl);
+
+        if (!isset($this->staticRoutes[$urlLower])) {
+            return false;
+        }
+
+        $ruleName = $this->staticRoutes[$urlLower];
+        if (!isset($this->routeMap[$ruleName])) {
+            return false;
+        }
+
+        $routeRule = $this->routeMap[$ruleName];
         $parameters = [];
-        foreach ($this->routeMap as $routeRule) {
-            if ($routeRule->resolveUrlSegments($segments, $parameters)) {
-                $this->matchedRouteRule = $routeRule;
 
-                // If this route has a condition, run it
+        // Check condition callback
+        $callback = $routeRule->condition();
+        if ($callback !== null) {
+            $callbackResult = call_user_func($callback, $parameters, $normalizedUrl);
+            if ($callbackResult === false) {
+                return false;
+            }
+        }
+
+        $this->matchedRouteRule = $routeRule;
+
+        // Run afterMatch callback
+        $matchCallback = $routeRule->afterMatch();
+        if ($matchCallback !== null) {
+            $parameters = call_user_func($matchCallback, $parameters, $normalizedUrl);
+        }
+
+        $this->parameters = $parameters;
+        return true;
+    }
+
+    /**
+     * matchDynamic attempts combined regex match for dynamic routes
+     * @param string $normalizedUrl
+     * @return bool
+     */
+    protected function matchDynamic($normalizedUrl)
+    {
+        if ($this->dynamicRegex === null) {
+            return false;
+        }
+
+        if (!preg_match($this->dynamicRegex, $normalizedUrl, $matches)) {
+            return false;
+        }
+
+        // Extract matched route and parameters
+        $result = RouteCompiler::extractMatchedRoute($matches, $this->dynamicRouteMap);
+        if ($result === null) {
+            return false;
+        }
+
+        [$routeIndex, $parameters] = $result;
+        $ruleName = $this->dynamicRouteMap[$routeIndex]['ruleName'];
+
+        if (!isset($this->routeMap[$ruleName])) {
+            return false;
+        }
+
+        $routeRule = $this->routeMap[$ruleName];
+
+        // Check condition callback
+        $callback = $routeRule->condition();
+        if ($callback !== null) {
+            $callbackResult = call_user_func($callback, $parameters, $normalizedUrl);
+            if ($callbackResult === false) {
+                return false;
+            }
+        }
+
+        $this->matchedRouteRule = $routeRule;
+
+        // Run afterMatch callback
+        $matchCallback = $routeRule->afterMatch();
+        if ($matchCallback !== null) {
+            $parameters = call_user_func($matchCallback, $parameters, $normalizedUrl);
+        }
+
+        $this->parameters = $parameters;
+        return true;
+    }
+
+    /**
+     * matchWildcard attempts sequential wildcard route matching
+     * @param string $url
+     * @return bool
+     */
+    protected function matchWildcard($url)
+    {
+        $segments = Helper::segmentizeUrl($url, false);
+        $normalizedUrl = Helper::normalizeUrl($url);
+
+        foreach ($this->wildcardRules as $ruleName) {
+            if (!isset($this->routeMap[$ruleName])) {
+                continue;
+            }
+
+            $routeRule = $this->routeMap[$ruleName];
+            $parameters = [];
+
+            if ($routeRule->resolveUrlSegments($segments, $parameters)) {
+                // Check condition callback
                 $callback = $routeRule->condition();
                 if ($callback !== null) {
-                    $callbackResult = call_user_func($callback, $parameters, Helper::normalizeUrl($url));
-
-                    // Callback responded to abort
+                    $callbackResult = call_user_func($callback, $parameters, $normalizedUrl);
                     if ($callbackResult === false) {
-                        $parameters = [];
-                        $this->matchedRouteRule = null;
                         continue;
                     }
                 }
 
-                break;
+                $this->matchedRouteRule = $routeRule;
+
+                // Run afterMatch callback
+                $matchCallback = $routeRule->afterMatch();
+                if ($matchCallback !== null) {
+                    $parameters = call_user_func($matchCallback, $parameters, $url);
+                }
+
+                $this->parameters = $parameters;
+                return true;
             }
         }
 
-        // Success
-        if ($this->matchedRouteRule) {
-            // If this route has a match callback, run it
-            $matchCallback = $routeRule->afterMatch();
-            if ($matchCallback !== null) {
-                $parameters = call_user_func($matchCallback, $parameters, $url);
-            }
-        }
+        return false;
+    }
 
-        $this->parameters = $parameters;
+    /**
+     * compile builds optimized lookup structures for all registered routes
+     * @return $this
+     */
+    public function compile()
+    {
+        $compiled = RouteCompiler::compile($this->routeMap);
 
-        return $this->matchedRouteRule ? true : false;
+        $this->staticRoutes = $compiled['staticRoutes'];
+        $this->dynamicRegex = $compiled['dynamicRegex'];
+        $this->dynamicRouteMap = $compiled['dynamicRouteMap'];
+        $this->wildcardRules = $compiled['wildcardRules'];
+        $this->isCompiled = true;
+
+        return $this;
+    }
+
+    /**
+     * invalidate clears compiled state when routes change
+     * @return void
+     */
+    protected function invalidate()
+    {
+        $this->isCompiled = false;
+        $this->staticRoutes = [];
+        $this->dynamicRegex = null;
+        $this->dynamicRouteMap = [];
+        $this->wildcardRules = [];
     }
 
     /**
@@ -188,6 +369,35 @@ class Router
     }
 
     /**
+     * hasRoute checks if a named route exists (like Laravel's hasNamedRoute)
+     * @param string $name
+     * @return bool
+     */
+    public function hasRoute($name)
+    {
+        return isset($this->routeMap[$name]);
+    }
+
+    /**
+     * getRoute returns a route rule by name (like Laravel's getByName)
+     * @param string $name
+     * @return Rule|null
+     */
+    public function getRoute($name)
+    {
+        return $this->routeMap[$name] ?? null;
+    }
+
+    /**
+     * isCompiled returns whether routes have been compiled
+     * @return bool
+     */
+    public function isCompiled()
+    {
+        return $this->isCompiled;
+    }
+
+    /**
      * getParameters returns a list of parameters specified in the requested page URL.
      * For example, if the URL pattern was /blog/post/:id and the actual URL
      * was /blog/post/10, the $parameters['id'] element would be 10.
@@ -219,6 +429,7 @@ class Router
     public function reset()
     {
         $this->routeMap = [];
+        $this->invalidate();
         return $this;
     }
 
@@ -272,16 +483,25 @@ class Router
 
     /**
      * fromArray loads routes from an array.
+     * @deprecated Use setCompiledRoutes() for better performance
      */
-    public function fromArray($routes)
+    public function fromArray($data)
     {
-        foreach ($routes as $route) {
+        // Support both old format (array of rules) and new format (with compiled state)
+        $rules = isset($data['rules']) ? $data['rules'] : $data;
+
+        foreach ($rules as $route) {
             $this->routeMap[$route['ruleName']] = new Rule($route);
+        }
+
+        // Load compiled state if present and version matches
+        if (isset($data['compiled']) && $data['compiled']['version'] === RouteCompiler::COMPILED_VERSION) {
+            $this->setCompiledRoutes($data['compiled']);
         }
     }
 
     /**
-     * toArray converts the rules to an array.
+     * toArray converts the rules to an array including compiled state.
      * @return array
      */
     public function toArray()
@@ -289,11 +509,103 @@ class Router
         $this->sortRules();
 
         $rules = [];
-
         foreach ($this->routeMap as $rule) {
             $rules[] = $rule->toArray();
         }
 
-        return $rules;
+        return [
+            'rules' => $rules,
+            'compiled' => $this->getCompiledRoutes(),
+        ];
+    }
+
+    /**
+     * setCompiledRoutes sets the compiled route data directly (like Laravel)
+     * This bypasses compilation and uses pre-compiled data for maximum performance.
+     * @param array $compiled The compiled route data
+     * @return $this
+     */
+    public function setCompiledRoutes(array $compiled)
+    {
+        if (!isset($compiled['version']) || $compiled['version'] !== RouteCompiler::COMPILED_VERSION) {
+            // Version mismatch, need to recompile
+            return $this;
+        }
+
+        $this->staticRoutes = $compiled['staticRoutes'] ?? [];
+        $this->dynamicRegex = $compiled['dynamicRegex'] ?? null;
+        $this->dynamicRouteMap = $compiled['dynamicRouteMap'] ?? [];
+        $this->wildcardRules = $compiled['wildcardRules'] ?? [];
+        $this->isCompiled = true;
+
+        return $this;
+    }
+
+    /**
+     * getCompiledRoutes returns the compiled route data
+     * @return array
+     */
+    public function getCompiledRoutes()
+    {
+        if (!$this->isCompiled) {
+            $this->compile();
+        }
+
+        return [
+            'version' => RouteCompiler::COMPILED_VERSION,
+            'staticRoutes' => $this->staticRoutes,
+            'dynamicRegex' => $this->dynamicRegex,
+            'dynamicRouteMap' => $this->dynamicRouteMap,
+            'wildcardRules' => $this->wildcardRules,
+        ];
+    }
+
+    /**
+     * saveCompiledRoutes saves compiled routes to a PHP file (like Laravel's route:cache)
+     * The file can be loaded later with loadCompiledRoutes() for instant route matching.
+     * @param string $path File path to save to
+     * @return bool
+     */
+    public function saveCompiledRoutes($path)
+    {
+        $this->sortRules();
+
+        $rules = [];
+        foreach ($this->routeMap as $rule) {
+            $rules[] = $rule->toArray();
+        }
+
+        $data = [
+            'rules' => $rules,
+            'compiled' => $this->getCompiledRoutes(),
+        ];
+
+        $content = '<?php return ' . var_export($data, true) . ';' . PHP_EOL;
+
+        return file_put_contents($path, $content) !== false;
+    }
+
+    /**
+     * loadCompiledRoutes loads compiled routes from a PHP file
+     * This is the fastest way to initialize routes - just include the cached file.
+     * @param string $path File path to load from
+     * @return static|null Returns router instance or null if file doesn't exist
+     */
+    public static function loadCompiledRoutes($path)
+    {
+        if (!file_exists($path)) {
+            return null;
+        }
+
+        $data = include $path;
+
+        if (!is_array($data)) {
+            return null;
+        }
+
+        $router = new static;
+        $router->fromArray($data);
+
+        return $router;
     }
 }
