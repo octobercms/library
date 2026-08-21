@@ -204,6 +204,25 @@ class RouteCompilerTest extends TestCase
         $this->assertEquals('vehiclesWild', $router->matchedRoute());
     }
 
+    public function testBucketOrderingAcrossFirstSegments()
+    {
+        // Routes land in different regex buckets ('blog' and the catch-all),
+        // the more specific rule must still win by sort order
+        $router = new Router;
+        $router->route('cmsPage', '/:page');
+        $router->route('blogPost', '/blog/:slug?');
+
+        $this->assertTrue($router->match('/blog/hello'));
+        $this->assertEquals('blogPost', $router->matchedRoute());
+
+        $this->assertTrue($router->match('/blog'));
+        $this->assertEquals('blogPost', $router->matchedRoute());
+
+        $this->assertTrue($router->match('/about'));
+        $this->assertEquals('cmsPage', $router->matchedRoute());
+        $this->assertEquals(['page' => 'about'], $router->getParameters());
+    }
+
     public function testCompiledStateRoundTrip()
     {
         $router = new Router;

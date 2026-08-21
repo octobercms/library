@@ -49,9 +49,10 @@ class Router
     protected $staticRoutes = [];
 
     /**
-     * @var string|null dynamicRegex combined regex for dynamic routes
+     * @var array dynamicRegexes combined regexes for dynamic routes, keyed
+     * by the first static URL segment
      */
-    protected $dynamicRegex = null;
+    protected $dynamicRegexes = [];
 
     /**
      * @var array dynamicRouteMap maps a combined regex mark to route info
@@ -105,20 +106,33 @@ class Router
             return $this->matchFromPosition($segments, $url, $static['position'] + 1);
         }
 
-        // Dynamic route lookup, a single combined regex identifies the
-        // matched route using the (*MARK) verb
+        // Dynamic route lookup, a combined regex identifies the matched
+        // route using the (*MARK) verb. Routes bucketed by the URL's first
+        // segment and routes starting with a dynamic segment ('' bucket)
+        // are both checked, the earliest sorted match wins.
         $candidate = null;
-        if ($this->dynamicRegex !== null) {
-            $result = @preg_match($this->dynamicRegex, $plainUrl, $matches);
+        if ($this->dynamicRegexes) {
+            $buckets = isset($segments[0]) ? [mb_strtolower($segments[0]), ''] : [''];
 
-            // Regex engine failure (e.g. backtrack limit), fall back to
-            // sequential matching
-            if ($result === false) {
-                return $this->matchFromPosition($segments, $url, 0);
-            }
+            foreach ($buckets as $bucket) {
+                if (!isset($this->dynamicRegexes[$bucket])) {
+                    continue;
+                }
 
-            if ($result === 1) {
-                $candidate = $this->extractDynamicCandidate($matches);
+                $result = @preg_match($this->dynamicRegexes[$bucket], $plainUrl, $matches);
+
+                // Regex engine failure (e.g. backtrack limit), fall back to
+                // sequential matching
+                if ($result === false) {
+                    return $this->matchFromPosition($segments, $url, 0);
+                }
+
+                if ($result === 1) {
+                    $found = $this->extractDynamicCandidate($matches);
+                    if ($found !== null && ($candidate === null || $found['position'] < $candidate['position'])) {
+                        $candidate = $found;
+                    }
+                }
             }
         }
 
@@ -561,7 +575,7 @@ class Router
     {
         $this->isCompiled = false;
         $this->staticRoutes = [];
-        $this->dynamicRegex = null;
+        $this->dynamicRegexes = [];
         $this->dynamicRouteMap = [];
         $this->fallbackRules = [];
     }
@@ -580,7 +594,7 @@ class Router
         }
 
         $this->staticRoutes = $compiled['staticRoutes'] ?? [];
-        $this->dynamicRegex = $compiled['dynamicRegex'] ?? null;
+        $this->dynamicRegexes = $compiled['dynamicRegexes'] ?? [];
         $this->dynamicRouteMap = $compiled['dynamicRouteMap'] ?? [];
         $this->fallbackRules = $compiled['fallbackRules'] ?? [];
         $this->isCompiled = true;
@@ -602,7 +616,7 @@ class Router
         return [
             'version' => RouteCompiler::COMPILED_VERSION,
             'staticRoutes' => $this->staticRoutes,
-            'dynamicRegex' => $this->dynamicRegex,
+            'dynamicRegexes' => $this->dynamicRegexes,
             'dynamicRouteMap' => $this->dynamicRouteMap,
             'fallbackRules' => $this->fallbackRules,
         ];

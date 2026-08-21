@@ -5,8 +5,9 @@
  * similar to Laravel's cached routes and Symfony's compiled URL matcher.
  *
  * - Fully static routes are collected in a hash map for O(1) lookup.
- * - Dynamic routes are combined into a single regular expression using the
- *   PCRE (*MARK) verb, so one preg_match call identifies the matched route.
+ * - Dynamic routes are combined into regexes bucketed by their first static
+ *   segment, using the PCRE (*MARK) verb so one preg_match call identifies
+ *   the matched route.
  * - Wildcard routes use capture logic that cannot be expressed in the
  *   combined regex, they are matched sequentially by the router.
  *
@@ -69,10 +70,18 @@ class RouteCompiler
                     $staticRoutes[$url] = ['name' => $name, 'position' => $position];
                 }
             }
-            // Dynamic rule, becomes a branch in the combined regex
+            // Dynamic rule, becomes a branch in a combined regex. Rules are
+            // bucketed by their first static segment so matching only scans
+            // routes that share the URL's first segment.
             else {
                 $compiled = static::compileRulePattern($rule);
-                $patterns[] = $compiled['pattern'] . '(*MARK:' . $index . ')';
+
+                $firstSegment = $rule->segments[0] ?? '';
+                $bucket = strpos($firstSegment, ':') !== 0
+                    ? mb_strtolower($firstSegment)
+                    : '';
+
+                $patterns[$bucket][] = $compiled['pattern'] . '(*MARK:' . $index . ')';
                 $dynamicRouteMap[$index] = [
                     'name' => $name,
                     'position' => $position,
@@ -84,12 +93,15 @@ class RouteCompiler
             $position++;
         }
 
+        $dynamicRegexes = [];
+        foreach ($patterns as $bucket => $branches) {
+            $dynamicRegexes[$bucket] = '#^(?|' . implode('|', $branches) . ')$#i';
+        }
+
         return [
             'version' => static::COMPILED_VERSION,
             'staticRoutes' => $staticRoutes,
-            'dynamicRegex' => $patterns
-                ? '#^(?|' . implode('|', $patterns) . ')$#i'
-                : null,
+            'dynamicRegexes' => $dynamicRegexes,
             'dynamicRouteMap' => $dynamicRouteMap,
             'fallbackRules' => $fallbackRules,
         ];
