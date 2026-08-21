@@ -95,7 +95,11 @@ class RouteCompiler
 
         $dynamicRegexes = [];
         foreach ($patterns as $bucket => $branches) {
-            $dynamicRegexes[$bucket] = '#^(?|' . implode('|', $branches) . ')$#i';
+            // The u modifier keeps case-insensitive matching correct for
+            // multibyte (translated) static segments. URLs with invalid
+            // UTF-8 make preg_match fail, the router falls back to
+            // sequential matching for those.
+            $dynamicRegexes[$bucket] = '#^(?|' . implode('|', $branches) . ')$#iu';
         }
 
         return [

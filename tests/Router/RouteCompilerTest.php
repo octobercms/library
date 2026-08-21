@@ -357,6 +357,45 @@ class RouteCompilerTest extends TestCase
         $this->assertNull($router->getRoute('missing'));
     }
 
+    public function testTranslatedUnicodeRoutes()
+    {
+        $router = new Router;
+        $router->route('categoryIndex', '/kategória');
+        $router->route('categoryPage', '/kategória/:slug');
+        $router->route('collectionWild', '/kolekcia/:path*');
+
+        // Static routes fold case with full unicode support
+        $this->assertTrue($router->match('/KATEGÓRIA'));
+        $this->assertEquals('categoryIndex', $router->matchedRoute());
+
+        // Multibyte static segments inside dynamic routes fold too
+        $this->assertTrue($router->match('/kategória/kožené-tašky'));
+        $this->assertEquals('categoryPage', $router->matchedRoute());
+        $this->assertEquals(['slug' => 'kožené-tašky'], $router->getParameters());
+
+        $this->assertTrue($router->match('/KATEGÓRIA/tašky'));
+        $this->assertEquals('categoryPage', $router->matchedRoute());
+        $this->assertEquals(['slug' => 'tašky'], $router->getParameters());
+
+        // Multibyte parameter values pass through wildcards unchanged
+        $this->assertTrue($router->match('/kolekcia/jar/kožená-kabelka'));
+        $this->assertEquals(['path' => 'jar/kožená-kabelka'], $router->getParameters());
+    }
+
+    public function testInvalidUtf8UrlFallsBackToSequential()
+    {
+        $router = new Router;
+        $router->route('blogPost', '/blog/:slug');
+
+        // Invalid UTF-8 fails the combined regex, sequential matching
+        // still resolves the route without errors
+        $this->assertTrue($router->match("/blog/\xC3\x28"));
+        $this->assertEquals('blogPost', $router->matchedRoute());
+        $this->assertEquals(['slug' => "\xC3\x28"], $router->getParameters());
+
+        $this->assertFalse($router->match("/\xFF\xFE/nothing/here"));
+    }
+
     public function testParityWithSequentialMatching()
     {
         // The full fixture set from the benchmark suite, every URL must
@@ -374,6 +413,12 @@ class RouteCompilerTest extends TestCase
             'portfolioPage' => '/portfolio/:year?noYear/:category?noCategory/:budget?noBudget',
             'authorDetails' => '/authors/:author_id|^[a-z\-]+$/details/:record_type?|^[0-9]+$',
             'largeCode' => '/color/:color/largecode/:largecode*/edit',
+            'middleOptional' => '/m/:a?/end',
+            'optionalWildcard' => '/files/:path?*',
+            'wildcardRegex' => '/code/:code*|^[a-z]+\/[a-z]+$',
+            'defaultRegex' => '/pf/:year?2020|^[0-9]+$/:tag?',
+            'unicodeCategory' => '/kategória/:slug?všetko',
+            'catchAll' => '/:page?',
         ];
 
         $urls = [
@@ -396,6 +441,21 @@ class RouteCompilerTest extends TestCase
             '/authors/my-author/details/441',
             '/authors/MY-AUTHOR/details',
             '/color/brown/largecode/code/with/slashes/edit',
+            '/m/end',
+            '/m/x/end',
+            '/m/end/x',
+            '/files',
+            '/files/a/b/c',
+            '/code/ab/cd',
+            '/code/ab/99',
+            '/code/ab/cd/ef',
+            '/pf',
+            '/pf/1999',
+            '/pf/xx',
+            '/pf/1999/sale',
+            '/kategória',
+            '/KATEGÓRIA/tašky',
+            '/lonely',
             '/does/not/exist',
             'XXXXXXXXGARBAGE',
         ];
