@@ -92,9 +92,11 @@ class Router
 
         $segments = Helper::segmentizeUrl($url, false);
         $plainUrl = '/' . implode('/', $segments);
+        $lowerUrl = mb_strtolower($plainUrl);
+        $lowerSegments = $segments ? explode('/', substr($lowerUrl, 1)) : [];
 
         // Static route lookup
-        $static = $this->staticRoutes[mb_strtolower($plainUrl)] ?? null;
+        $static = $this->staticRoutes[$lowerUrl] ?? null;
         if ($static !== null) {
             $routeRule = $this->ruleObject($static['name']);
             if ($routeRule && $this->acceptRuleMatch($routeRule, [], $url)) {
@@ -112,7 +114,7 @@ class Router
         // are both checked, the earliest sorted match wins.
         $candidate = null;
         if ($this->dynamicRegexes) {
-            $buckets = isset($segments[0]) ? [mb_strtolower($segments[0]), ''] : [''];
+            $buckets = $lowerSegments ? [$lowerSegments[0], ''] : [''];
 
             foreach ($buckets as $bucket) {
                 if (!isset($this->dynamicRegexes[$bucket])) {
@@ -138,35 +140,29 @@ class Router
 
         // Wildcard rules are matched sequentially. Only those that outrank
         // the dynamic candidate in the sorted route map are considered first.
-        if ($this->fallbackRules) {
-            $lowerSegments = $segments
-                ? explode('/', substr(mb_strtolower($plainUrl), 1))
-                : [];
+        foreach ($this->fallbackRules as $fallback) {
+            if ($candidate !== null && $fallback['position'] > $candidate['position']) {
+                break;
+            }
 
-            foreach ($this->fallbackRules as $fallback) {
-                if ($candidate !== null && $fallback['position'] > $candidate['position']) {
-                    break;
+            // The leading static segments must match for the rule to apply
+            foreach ($fallback['prefix'] as $index => $staticSegment) {
+                if (($lowerSegments[$index] ?? null) !== $staticSegment) {
+                    continue 2;
                 }
+            }
 
-                // The leading static segments must match for the rule to apply
-                foreach ($fallback['prefix'] as $index => $staticSegment) {
-                    if (($lowerSegments[$index] ?? null) !== $staticSegment) {
-                        continue 2;
-                    }
-                }
+            $routeRule = $this->ruleObject($fallback['name']);
+            if (!$routeRule) {
+                continue;
+            }
 
-                $routeRule = $this->ruleObject($fallback['name']);
-                if (!$routeRule) {
-                    continue;
-                }
-
-                $parameters = [];
-                if (
-                    $routeRule->resolveUrlSegments($segments, $parameters) &&
-                    $this->acceptRuleMatch($routeRule, $parameters, $url)
-                ) {
-                    return true;
-                }
+            $parameters = [];
+            if (
+                $routeRule->resolveUrlSegments($segments, $parameters) &&
+                $this->acceptRuleMatch($routeRule, $parameters, $url)
+            ) {
+                return true;
             }
         }
 
@@ -649,6 +645,8 @@ class Router
      */
     public function toArray()
     {
+        // Compiling sorts the route map, it must happen before the rules
+        // are exported so their order matches the compiled positions
         $compiled = $this->getCompiledRoutes();
 
         $rules = [];
