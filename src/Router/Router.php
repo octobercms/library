@@ -22,7 +22,9 @@ class Router
     public static $defaultValue = 'default';
 
     /**
-     * @var array routeMap is a list of specified routes
+     * @var array routeMap is a list of specified routes. Rules restored from
+     * cached data are stored as raw config arrays and hydrated to Rule
+     * objects on demand.
      */
     protected $routeMap = [];
 
@@ -93,7 +95,7 @@ class Router
         // Static route lookup
         $static = $this->staticRoutes[mb_strtolower($plainUrl)] ?? null;
         if ($static !== null) {
-            $routeRule = $this->routeMap[$static['name']] ?? null;
+            $routeRule = $this->ruleObject($static['name']);
             if ($routeRule && $this->acceptRuleMatch($routeRule, [], $url)) {
                 return true;
             }
@@ -139,7 +141,7 @@ class Router
                     }
                 }
 
-                $routeRule = $this->routeMap[$fallback['name']] ?? null;
+                $routeRule = $this->ruleObject($fallback['name']);
                 if (!$routeRule) {
                     continue;
                 }
@@ -156,7 +158,7 @@ class Router
 
         if ($candidate !== null) {
             if ($candidate['valid']) {
-                $routeRule = $this->routeMap[$candidate['name']] ?? null;
+                $routeRule = $this->ruleObject($candidate['name']);
                 if ($routeRule && $this->acceptRuleMatch($routeRule, $candidate['parameters'], $url)) {
                     return true;
                 }
@@ -181,10 +183,14 @@ class Router
     protected function matchFromPosition($segments, $url, $position)
     {
         $rules = $position > 0
-            ? array_slice($this->routeMap, $position)
+            ? array_slice($this->routeMap, $position, null, true)
             : $this->routeMap;
 
-        foreach ($rules as $routeRule) {
+        foreach ($rules as $name => $routeRule) {
+            if (is_array($routeRule)) {
+                $routeRule = $this->ruleObject($name);
+            }
+
             $parameters = [];
             if (
                 $routeRule->resolveUrlSegments($segments, $parameters) &&
@@ -293,11 +299,10 @@ class Router
      */
     public function url($name, $parameters = [])
     {
-        if (!isset($this->routeMap[$name])) {
+        $routeRule = $this->ruleObject($name);
+        if (!$routeRule) {
             return null;
         }
-
-        $routeRule = $this->routeMap[$name];
 
         $pattern = $routeRule->pattern();
 
@@ -384,6 +389,8 @@ class Router
      */
     public function getRouteMap()
     {
+        $this->hydrateRules();
+
         return $this->routeMap;
     }
 
@@ -404,7 +411,7 @@ class Router
      */
     public function getRoute($name)
     {
-        return $this->routeMap[$name] ?? null;
+        return $this->ruleObject($name);
     }
 
     /**
@@ -450,6 +457,8 @@ class Router
      */
     public function sortRules()
     {
+        $this->hydrateRules();
+
         uasort($this->routeMap, function ($a, $b) {
             // When comparing static, longer tails go to the start
             $lengthA = $a->staticSegmentCount;
@@ -503,6 +512,36 @@ class Router
         $this->setCompiledRoutes(RouteCompiler::compile($this->routeMap));
 
         return $this;
+    }
+
+    /**
+     * ruleObject returns a rule by name, hydrating it from raw config
+     * if needed
+     * @param string $name
+     * @return Rule|null
+     */
+    protected function ruleObject($name)
+    {
+        $rule = $this->routeMap[$name] ?? null;
+
+        if (is_array($rule)) {
+            $rule = $this->routeMap[$name] = new Rule($rule);
+        }
+
+        return $rule;
+    }
+
+    /**
+     * hydrateRules converts any raw rule configs to Rule objects
+     * @return void
+     */
+    protected function hydrateRules()
+    {
+        foreach ($this->routeMap as $name => $rule) {
+            if (is_array($rule)) {
+                $this->routeMap[$name] = new Rule($rule);
+            }
+        }
     }
 
     /**
@@ -580,7 +619,8 @@ class Router
             : $data;
 
         foreach ($rules as $route) {
-            $this->routeMap[$route['ruleName']] = new Rule($route);
+            // Store the raw config, rules are hydrated to objects on demand
+            $this->routeMap[$route['ruleName']] = $route;
         }
 
         if (isset($data['compiled']) && is_array($data['compiled'])) {
@@ -599,7 +639,7 @@ class Router
 
         $rules = [];
         foreach ($this->routeMap as $rule) {
-            $rules[] = $rule->toArray();
+            $rules[] = is_array($rule) ? $rule : $rule->toArray();
         }
 
         return [

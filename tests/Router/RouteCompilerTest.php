@@ -236,6 +236,12 @@ class RouteCompilerTest extends TestCase
         $this->assertTrue($restored->match('/docs/a/b/c'));
         $this->assertEquals('docsWild', $restored->matchedRoute());
         $this->assertEquals(['path' => 'a/b/c'], $restored->getParameters());
+
+        // Rules restored from cache hydrate lazily, the public API always
+        // exposes Rule objects
+        $this->assertContainsOnlyInstancesOf(October\Rain\Router\Rule::class, $restored->getRouteMap());
+        $this->assertInstanceOf(October\Rain\Router\Rule::class, $restored->getRoute('blogIndex'));
+        $this->assertEquals('/blog/post/10', $restored->url('blogPost', ['post_id' => '10']));
     }
 
     public function testFromArrayLegacyFormat()
