@@ -111,4 +111,16 @@ class RouterBench
 
         $router->match('authors/test/details');
     }
+
+    /**
+     * @Subject
+     */
+    public function benchRouteCachedMiss()
+    {
+        $router = new Router;
+
+        $router->fromArray($this->routesCached);
+
+        $router->match('/this/url/matches/nothing/at/all');
+    }
 }

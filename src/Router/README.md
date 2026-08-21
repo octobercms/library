@@ -39,3 +39,20 @@ You can also reverse match a route by it's identifier:
 // Returns: /post/2
 $url = $router->url('myRouteId', ['id' => 2]);
 ```
+
+## Compiled route caching
+
+Routes compile automatically on the first match into optimized lookup structures (a hash map for static routes and a combined regex for dynamic routes). The compiled state can be stored and restored to skip compilation entirely, similar to Laravel's route caching:
+
+```php
+// Store the routes with their compiled state
+$cached = $router->toArray();
+
+// Restore later, no recompilation needed
+$router = new Router;
+$router->fromArray($cached);
+
+// Alternatively, save to and load from a PHP file
+$router->saveCompiledRoutes('/path/to/routes.php');
+$router = Router::loadCompiledRoutes('/path/to/routes.php');
+```
