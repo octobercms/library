@@ -396,6 +396,57 @@ class RouteCompilerTest extends TestCase
         $this->assertFalse($router->match("/\xFF\xFE/nothing/here"));
     }
 
+    public function testSharedCachePayloadAcrossInstances()
+    {
+        // Multiple server instances restore the same cached payload, each
+        // router must work independently with no shared mutable state
+        $source = new Router;
+        $source->route('blogPost', '/blog/post/:post_id');
+        $source->route('blogIndex', '/blog');
+        $payload = unserialize(serialize($source->toArray()));
+
+        $instanceA = new Router;
+        $instanceA->fromArray($payload);
+        $instanceB = new Router;
+        $instanceB->fromArray($payload);
+
+        $this->assertTrue($instanceA->match('/blog/post/10'));
+
+        // Instance A registers an extra route locally, instance B must be
+        // unaffected and keep serving from its compiled state
+        $instanceA->route('extraPage', '/extra');
+        $this->assertFalse($instanceA->isCompiled());
+        $this->assertTrue($instanceB->isCompiled());
+
+        $this->assertTrue($instanceA->match('/extra'));
+        $this->assertFalse($instanceB->match('/extra'));
+        $this->assertTrue($instanceB->match('/blog/post/10'));
+        $this->assertEquals(['post_id' => '10'], $instanceB->getParameters());
+    }
+
+    public function testCorruptedCompiledStateRecompiles()
+    {
+        // A torn or corrupted cache write from another instance must never
+        // break matching, invalid compiled data is ignored and rebuilt
+        $source = new Router;
+        $source->route('blogPost', '/blog/post/:post_id');
+        $data = $source->toArray();
+
+        foreach ([
+            'not-an-array',
+            [],
+            ['version' => RouteCompiler::COMPILED_VERSION],
+            ['version' => RouteCompiler::COMPILED_VERSION, 'staticRoutes' => 'garbage', 'dynamicRegexes' => ['' => '#broken('], 'dynamicRouteMap' => [], 'fallbackRules' => []],
+        ] as $corrupted) {
+            $restored = new Router;
+            $restored->fromArray(['rules' => $data['rules'], 'compiled' => is_array($corrupted) ? $corrupted : []]);
+
+            $this->assertTrue($restored->match('/blog/post/10'), 'Failed for corrupted payload: ' . json_encode($corrupted));
+            $this->assertEquals('blogPost', $restored->matchedRoute());
+            $this->assertEquals(['post_id' => '10'], $restored->getParameters());
+        }
+    }
+
     public function testParityWithSequentialMatching()
     {
         // The full fixture set from the benchmark suite, every URL must

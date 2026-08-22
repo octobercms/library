@@ -589,10 +589,21 @@ class Router
             return $this;
         }
 
-        $this->staticRoutes = $compiled['staticRoutes'] ?? [];
-        $this->dynamicRegexes = $compiled['dynamicRegexes'] ?? [];
-        $this->dynamicRouteMap = $compiled['dynamicRouteMap'] ?? [];
-        $this->fallbackRules = $compiled['fallbackRules'] ?? [];
+        // Reject torn or corrupted payloads, e.g. from a concurrent cache
+        // write, the routes recompile on the next match instead
+        if (
+            !is_array($compiled['staticRoutes'] ?? null) ||
+            !is_array($compiled['dynamicRegexes'] ?? null) ||
+            !is_array($compiled['dynamicRouteMap'] ?? null) ||
+            !is_array($compiled['fallbackRules'] ?? null)
+        ) {
+            return $this;
+        }
+
+        $this->staticRoutes = $compiled['staticRoutes'];
+        $this->dynamicRegexes = $compiled['dynamicRegexes'];
+        $this->dynamicRouteMap = $compiled['dynamicRouteMap'];
+        $this->fallbackRules = $compiled['fallbackRules'];
         $this->isCompiled = true;
 
         return $this;
