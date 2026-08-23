@@ -1,0 +1,8 @@
+##
+title = "Home"
+url = "/"
+layout = "default"
+==
+<h1>
+    Welcome to {{title_name}}
+</h1>

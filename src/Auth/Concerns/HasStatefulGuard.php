@@ -61,6 +61,7 @@ trait HasStatefulGuard
         // Create session/cookie data to persist the session
         if ($this->useSession) {
             $this->setPersistCodeToSession($user, $remember);
+            Session::regenerate(true);
         }
 
         // Fire the 'afterLogin' event

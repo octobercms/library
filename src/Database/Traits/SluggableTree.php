@@ -34,6 +34,8 @@ trait SluggableTree
             $model->saveQuietly(['force' => true]);
         }
 
+        $this->setFullSluggedTranslatedValues($model);
+
         if ($children = $model->children) {
             foreach ($children as $child) {
                 $this->setFullSluggedValue($child);
@@ -73,5 +75,82 @@ trait SluggableTree
     public function getFullSluggableSlugColumnName()
     {
         return defined('static::SLUG') ? static::SLUG : 'slug';
+    }
+
+    //
+    // Translatable compatibility
+    //
+
+    /**
+     * setFullSluggedTranslatedValues recomputes the fullslug for every locale with
+     * slug translations on the model or its ancestor chain
+     */
+    protected function setFullSluggedTranslatedValues($model)
+    {
+        if (!method_exists($model, 'getTranslatedLocales')) {
+            return;
+        }
+
+        $fullslugAttr = $this->getFullSluggableFullSlugColumnName();
+        $defaultValue = $model->getTranslation($fullslugAttr, $model->getTranslatableDefault());
+        $excludeLocales = [$model->getTranslatableDefault(), $model->getTranslatableContext()];
+        $wantSave = false;
+
+        foreach ($this->getFullSluggableTranslatedLocales($model) as $locale) {
+            if (in_array($locale, $excludeLocales)) {
+                continue;
+            }
+
+            $proposedSlug = $this->getFullSluggableTranslatedAttributeValue($model, $locale);
+
+            if ($model->getTranslation($fullslugAttr, $locale) === $proposedSlug) {
+                continue;
+            }
+
+            // A value matching the default locale inherits by omission
+            if ($proposedSlug === $defaultValue) {
+                $model->forgetTranslation($fullslugAttr, $locale);
+            }
+            else {
+                $model->setTranslation($fullslugAttr, $locale, $proposedSlug);
+                $wantSave = true;
+            }
+        }
+
+        if ($wantSave) {
+            $model->saveQuietly(['force' => true]);
+        }
+    }
+
+    /**
+     * getFullSluggableTranslatedAttributeValue builds the fullslug for a locale by
+     * walking up the parent chain, falling back to default slugs when untranslated
+     */
+    protected function getFullSluggableTranslatedAttributeValue($model, $locale, $fullslug = '')
+    {
+        $slugAttr = $this->getFullSluggableSlugColumnName();
+        $fullslug = $model->getTranslation($slugAttr, $locale) . '/' . $fullslug;
+
+        if ($parent = $model->parent()->withoutGlobalScopes()->first()) {
+            $fullslug = $this->getFullSluggableTranslatedAttributeValue($parent, $locale, $fullslug);
+        }
+
+        return rtrim($fullslug, '/');
+    }
+
+    /**
+     * getFullSluggableTranslatedLocales returns locales with slug translations on
+     * the model or any of its ancestors
+     */
+    protected function getFullSluggableTranslatedLocales($model)
+    {
+        $slugAttr = $this->getFullSluggableSlugColumnName();
+        $locales = $model->getTranslatedLocales($slugAttr);
+
+        if ($parent = $model->parent()->withoutGlobalScopes()->first()) {
+            $locales = array_merge($locales, $this->getFullSluggableTranslatedLocales($parent));
+        }
+
+        return array_unique($locales);
     }
 }
