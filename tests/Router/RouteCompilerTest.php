@@ -282,6 +282,63 @@ class RouteCompilerTest extends TestCase
         $this->assertTrue($restored->isCompiled());
     }
 
+    public function testFromArrayIgnoresUnrecognizedDataSilently()
+    {
+        // Cached data written by another version of this library must never
+        // throw, unrecognized entries are skipped silently
+        $router = new Router;
+        $router->route('blogIndex', '/blog');
+        $valid = $router->toArray()['rules'][0];
+
+        $restored = new Router;
+        $restored->fromArray('not-an-array');
+        $restored->fromArray(null);
+        $restored->fromArray([
+            'garbage-string',
+            123,
+            ['noRuleNameKey' => true],
+            ['rules' => 'nested-garbage'],
+            $valid,
+        ]);
+
+        $this->assertTrue($restored->hasRoute('blogIndex'));
+        $this->assertCount(1, $restored->getRouteMap());
+        $this->assertTrue($restored->match('/blog'));
+        $this->assertEquals('blogIndex', $restored->matchedRoute());
+    }
+
+    public function testFromArrayIntoExistingRoutesInvalidatesCompiled()
+    {
+        $source = new Router;
+        $source->route('blogPost', '/blog/:slug');
+        $cached = $source->toArray();
+
+        // Routes registered before the cached payload is loaded merge and
+        // stay matchable, the stale compiled state is discarded
+        $router = new Router;
+        $router->route('extraPage', '/extra');
+        $router->fromArray($cached);
+
+        $this->assertFalse($router->isCompiled());
+        $this->assertTrue($router->match('/extra'));
+        $this->assertEquals('extraPage', $router->matchedRoute());
+        $this->assertTrue($router->match('/blog/hello'));
+        $this->assertEquals('blogPost', $router->matchedRoute());
+
+        // Merging two cached payloads keeps all rules matchable
+        $sourceB = new Router;
+        $sourceB->route('docsPage', '/docs/:page');
+        $router = new Router;
+        $router->fromArray($cached);
+        $router->fromArray($sourceB->toArray());
+
+        $this->assertFalse($router->isCompiled());
+        $this->assertTrue($router->match('/blog/hello'));
+        $this->assertEquals('blogPost', $router->matchedRoute());
+        $this->assertTrue($router->match('/docs/install'));
+        $this->assertEquals('docsPage', $router->matchedRoute());
+    }
+
     public function testVersionMismatchRecompiles()
     {
         $router = new Router;

@@ -635,16 +635,33 @@ class Router
      */
     public function fromArray($data)
     {
+        if (!is_array($data)) {
+            return;
+        }
+
         $rules = isset($data['rules']) && is_array($data['rules'])
             ? $data['rules']
             : $data;
 
+        $isMerging = !empty($this->routeMap);
+
         foreach ($rules as $route) {
+            if (!is_array($route) || !isset($route['ruleName'])) {
+                continue;
+            }
+
             // Store the raw config, rules are hydrated to objects on demand
             $this->routeMap[$route['ruleName']] = $route;
         }
 
-        if (isset($data['compiled']) && is_array($data['compiled'])) {
+        // Compiled state records positions in the restored route map, it can
+        // only be used when the map contains exactly the restored rules.
+        // Loading into existing routes invalidates any compiled state and
+        // routes recompile on the next match.
+        if ($isMerging) {
+            $this->invalidateCompiled();
+        }
+        elseif (isset($data['compiled']) && is_array($data['compiled'])) {
             $this->setCompiledRoutes($data['compiled']);
         }
     }
