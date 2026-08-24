@@ -627,6 +627,27 @@ class ParsedownExtra extends Parsedown
         // http://stackoverflow.com/q/4879946/200145
         $DOMDocument->loadHTML($elementMarkup);
         $DOMDocument->removeChild($DOMDocument->doctype);
+
+        // Multiple root nodes, e.g. <p>...</p><p>...</p> on a single line,
+        // are processed individually since the logic below only considers
+        // the first node
+        $bodyNode = $DOMDocument->firstChild->firstChild;
+        if ($bodyNode && $bodyNode->childNodes->length > 1) {
+            $markup = '';
+            foreach ($bodyNode->childNodes as $Node) {
+                $nodeMarkup = $DOMDocument->saveHTML($Node);
+
+                if ($Node instanceof DOMElement && !in_array($Node->nodeName, $this->textLevelElements)) {
+                    $markup .= $this->processTag($nodeMarkup);
+                }
+                else {
+                    $markup .= $nodeMarkup;
+                }
+            }
+
+            return $markup;
+        }
+
         $DOMDocument->replaceChild($DOMDocument->firstChild->firstChild->firstChild, $DOMDocument->firstChild);
 
         $elementText = '';
