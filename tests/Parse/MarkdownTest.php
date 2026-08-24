@@ -66,15 +66,90 @@ HTML;
 
         $this->assertEquals(nl2br($text), nl2br($normal));
 
-        // Only accepting one node per line
+        // Multiple nodes per line are preserved
         $text = '<p>Foo</p><p>Bar</p>';
         $normal = $parser->parse($text);
-        $this->assertEquals("<p>Foo</p>", $normal);
+        $this->assertEquals("<p>Foo</p><p>Bar</p>", $normal);
 
         // Wrapped as per docs
         $text = '<div><p>Foo</p><p>Bar</p></div>';
         $normal = $parser->parse($text);
         $this->assertEquals("<div><p>Foo</p><p>Bar</p></div>", $normal);
+    }
+
+    /**
+     * testParseHtmlSiblingNodes checks consecutive block elements on a single
+     * line, as saved by the rich editor (Froala), are all preserved
+     */
+    public function testParseHtmlSiblingNodes()
+    {
+        $parser = new Markdown;
+
+        // Two paragraphs with no whitespace between them
+        $text = '<p>First paragraph.</p><p>Second paragraph.</p>';
+        $normal = $parser->parse($text);
+        $this->assertEquals('<p>First paragraph.</p><p>Second paragraph.</p>', $normal);
+
+        // Three mixed block elements
+        $text = '<p>One</p><div>Two</div><p>Three</p>';
+        $normal = $parser->parse($text);
+        $this->assertEquals('<p>One</p><div>Two</div><p>Three</p>', $normal);
+
+        // Text nodes between elements are kept
+        $text = '<p>Foo</p>between<p>Bar</p>';
+        $normal = $parser->parse($text);
+        $this->assertEquals('<p>Foo</p>between<p>Bar</p>', $normal);
+
+        // Void elements among siblings
+        $text = '<p>Foo</p><hr><p>Bar</p>';
+        $normal = $parser->parse($text);
+        $this->assertEquals('<p>Foo</p><hr><p>Bar</p>', $normal);
+
+        // Attributes are preserved on every sibling
+        $text = '<p class="intro" style="color: red">Foo</p><p data-x="1">Bar</p>';
+        $normal = $parser->parse($text);
+        $this->assertEquals('<p class="intro" style="color: red">Foo</p><p data-x="1">Bar</p>', $normal);
+
+        // Multibyte content survives DOM processing
+        $text = '<p>Zażółć gęślą jaźń</p><p>Второй абзац 段落</p>';
+        $normal = $parser->parse($text);
+        $this->assertEquals('<p>Zażółć gęślą jaźń</p><p>Второй абзац 段落</p>', $normal);
+    }
+
+    /**
+     * testParseHtmlNestedSiblings checks sibling handling inside wrappers
+     * and alongside markdown processing
+     */
+    public function testParseHtmlNestedSiblings()
+    {
+        $parser = new Markdown;
+
+        // Nested wrapper followed by a sibling
+        $text = '<div><p>Inner one</p><p>Inner two</p></div><p>Outer</p>';
+        $normal = $parser->parse($text);
+        $this->assertEquals('<div><p>Inner one</p><p>Inner two</p></div><p>Outer</p>', $normal);
+
+        // markdown="1" attribute is processed, sibling is kept
+        $text = '<div markdown="1">**bold**</div><p>After</p>';
+        $normal = $parser->parse($text);
+        $this->assertEquals("<div>\n<p><strong>bold</strong></p>\n</div><p>After</p>", $normal);
+
+        // Markdown content after a multi-node HTML line
+        $text = "<p>Foo</p><p>Bar</p>\n\n**Baz**";
+        $normal = $parser->parse($text);
+        $this->assertEquals("<p>Foo</p><p>Bar</p>\n<p><strong>Baz</strong></p>", $normal);
+    }
+
+    /**
+     * testParseSafeHtml checks HTML is escaped when using safe mode
+     */
+    public function testParseSafeHtml()
+    {
+        $parser = new Markdown;
+
+        $text = '<p>First</p><p>Second</p>';
+        $safe = $parser->parseSafe($text);
+        $this->assertEquals('<p>&lt;p&gt;First&lt;/p&gt;&lt;p&gt;Second&lt;/p&gt;</p>', $safe);
     }
 
     public function testParseNonHtml()

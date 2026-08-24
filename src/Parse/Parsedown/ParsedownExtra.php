@@ -632,6 +632,27 @@ class ParsedownExtra extends Parsedown
             return $elementMarkup;
         }
 
+        // Multiple root nodes, e.g. <p>...</p><p>...</p> on a single line, are processed
+        // individually since the logic below only considers the first child node
+        if ($bodyNode->childNodes->length > 1) {
+            $markup = '';
+            foreach ($bodyNode->childNodes as $node) {
+                $nodeMarkup = $DOMDocument->saveHTML($node);
+
+                if (
+                    $node instanceof DOMElement &&
+                    !in_array($node->nodeName, $this->textLevelElements)
+                ) {
+                    $markup .= $this->processTag($nodeMarkup);
+                }
+                else {
+                    $markup .= $nodeMarkup;
+                }
+            }
+
+            return $markup;
+        }
+
         // Parse the markdown
         $elementText = '';
         if (
