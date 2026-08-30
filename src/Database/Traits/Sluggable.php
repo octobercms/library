@@ -94,16 +94,54 @@ trait Sluggable
      */
     protected function getSluggableUniqueAttributeValue($name, $value)
     {
-        $counter = 1;
         $separator = $this->getSluggableSeparator();
-        $_value = $value;
+        $prefix = $value . $separator;
 
-        while ($this->newSluggableQuery()->where($name, $_value)->count() > 0) {
-            $counter++;
-            $_value = $value . $separator . $counter;
+        // One query for the value and every suffixed variant in use, the lowest
+        // free slot is then picked here rather than asking once per attempt
+        $existing = $this->newSluggableQuery()
+            ->where(function ($query) use ($name, $value, $prefix) {
+                $query->where($name, $value)->orWhere($name, 'like', $prefix . '%');
+            })
+            ->pluck($name)
+            ->all();
+
+        // Compared case insensitively so a case insensitive collation never
+        // produces a value the database considers a duplicate
+        $valueLower = mb_strtolower($value);
+        $prefixLower = mb_strtolower($prefix);
+        $prefixLength = mb_strlen($prefixLower);
+        $baseTaken = false;
+        $countersTaken = [];
+
+        foreach ($existing as $slug) {
+            $slug = mb_strtolower((string) $slug);
+
+            if ($slug === $valueLower) {
+                $baseTaken = true;
+                continue;
+            }
+
+            if (mb_substr($slug, 0, $prefixLength) !== $prefixLower) {
+                continue;
+            }
+
+            $suffix = mb_substr($slug, $prefixLength);
+            if ($suffix !== '' && ctype_digit($suffix)) {
+                $countersTaken[(int) $suffix] = true;
+            }
         }
 
-        return $_value;
+        if (!$baseTaken) {
+            return $value;
+        }
+
+        $counter = 2;
+        while (isset($countersTaken[$counter])) {
+            $counter++;
+        }
+
+        return $prefix . $counter;
     }
 
     /**
