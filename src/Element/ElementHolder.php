@@ -34,15 +34,22 @@ class ElementHolder extends ElementBase implements IteratorAggregate
      */
     public function get($key, $default = null)
     {
-        if (isset($this->touchedElements[$key])) {
-            return $this->touchedElements[$key];
-        }
-
         if (isset($this->config[$key])) {
             return $this->touchedElements[$key] = $this->config[$key];
         }
 
         return parent::get($key, $default);
+    }
+
+    /**
+     * offsetUnset removes the value and forgets that it was touched
+     * @param  string  $offset
+     */
+    public function offsetUnset($offset): void
+    {
+        unset($this->touchedElements[$offset]);
+
+        parent::offsetUnset($offset);
     }
 
     /**

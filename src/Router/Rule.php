@@ -219,6 +219,8 @@ class Rule
                         }
                     }
                     catch (Exception $ex) {
+                        // An expression that cannot run cannot have matched
+                        return false;
                     }
                 }
 
