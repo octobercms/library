@@ -45,7 +45,12 @@ class FileDatasource extends Datasource implements DatasourceInterface
      */
     public function hasTemplate(string $dirName, string $fileName, string $extension): bool
     {
-        return (bool) $this->selectOne($dirName, $fileName, $extension);
+        try {
+            return $this->files->isFile($this->makeFilePath($dirName, $fileName, $extension));
+        }
+        catch (Exception $ex) {
+            return false;
+        }
     }
 
     /**

@@ -7,6 +7,18 @@ use October\Rain\Filesystem\Filesystem;
 use October\Rain\Halcyon\Datasource\AutoDatasource;
 use October\Rain\Halcyon\Datasource\FileDatasource;
 
+class CountingFilesystem extends Filesystem
+{
+    public array $reads = [];
+
+    public function get($path, $lock = false)
+    {
+        $this->reads[] = $path;
+
+        return parent::get($path, $lock);
+    }
+}
+
 class AutoDatasourceTest extends TestCase
 {
     use SetsUpHalcyonDb;
@@ -115,5 +127,48 @@ class AutoDatasourceTest extends TestCase
 
         $content = $this->autoDatasource->selectOne($this->dirName, $this->fileName, $this->extension);
         $this->assertStringContainsString('Restored content', $content['content']);
+    }
+
+    public function testSelectOneReadsTemplateContentOnce()
+    {
+        $files = new CountingFilesystem;
+        $auto = new AutoDatasource([new FileDatasource($this->themePath, $files)]);
+
+        $result = $auto->selectOne($this->dirName, $this->fileName, $this->extension);
+
+        $this->assertNotNull($result);
+        $this->assertCount(1, $files->reads);
+    }
+
+    public function testSelectOneSkipsDatasourcesWithoutTheTemplate()
+    {
+        $files = new CountingFilesystem;
+        $auto = new AutoDatasource([$this->dbDatasource, new FileDatasource($this->themePath, $files)]);
+
+        $result = $auto->selectOne($this->dirName, $this->fileName, $this->extension);
+
+        $this->assertNotNull($result);
+        $this->assertCount(1, $files->reads);
+        $this->assertNull($auto->selectOne($this->dirName, 'missing', $this->extension));
+    }
+
+    public function testLastModifiedDoesNotReadTemplateContent()
+    {
+        $files = new CountingFilesystem;
+        $auto = new AutoDatasource([new FileDatasource($this->themePath, $files)]);
+
+        $this->assertIsInt($auto->lastModified($this->dirName, $this->fileName, $this->extension));
+        $this->assertNull($auto->lastModified($this->dirName, 'missing', $this->extension));
+        $this->assertCount(0, $files->reads);
+    }
+
+    public function testHasTemplateDoesNotReadTemplateContent()
+    {
+        $files = new CountingFilesystem;
+        $fileDatasource = new FileDatasource($this->themePath, $files);
+
+        $this->assertTrue($fileDatasource->hasTemplate($this->dirName, $this->fileName, $this->extension));
+        $this->assertFalse($fileDatasource->hasTemplate($this->dirName, 'missing', $this->extension));
+        $this->assertCount(0, $files->reads);
     }
 }
