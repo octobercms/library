@@ -3,7 +3,6 @@
 namespace October\Rain\Foundation\Providers;
 
 use October\Rain\Support\ServiceProvider;
-use Illuminate\Contracts\Support\DeferrableProvider;
 
 /**
  * CoreServiceProvider contains providers for running October Rain
@@ -11,24 +10,19 @@ use Illuminate\Contracts\Support\DeferrableProvider;
  * @package october\foundation
  * @author Alexey Bobkov, Samuel Georges
  */
-class CoreServiceProvider extends ServiceProvider implements DeferrableProvider
+class CoreServiceProvider extends ServiceProvider
 {
     /**
      * register the service provider.
      */
     public function register()
     {
-        $this->app->singleton('core.composer', \October\Rain\Composer\ComposerManager::class);
-    }
+        $this->app->register(\October\Rain\Events\EventServiceProvider::class);
 
-    /**
-     * provides the returned services.
-     * @return array
-     */
-    public function provides()
-    {
-        return [
-            'core.composer',
-        ];
+        $this->app->register(\October\Rain\Parse\ParseServiceProvider::class);
+
+        $this->app->singleton('files', \October\Rain\Filesystem\Filesystem::class);
+
+        $this->app->singleton('core.composer', \October\Rain\Composer\ComposerManager::class);
     }
 }

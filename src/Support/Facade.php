@@ -51,7 +51,7 @@ class Facade extends FacadeParent
             'Config' => \October\Rain\Support\Facades\Config::class,
             'Seeder' => \October\Rain\Database\Updates\Seeder::class,
             'Input' => \October\Rain\Support\Facades\Input::class,
-            'Str' => \October\Rain\Support\Facades\Str::class,
+            'Str' => \October\Rain\Support\Str::class,
         ]);
     }
 }

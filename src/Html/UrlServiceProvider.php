@@ -84,6 +84,10 @@ class UrlServiceProvider extends ServiceProvider
         $provider->macro('assetVersion', function(...$args) use ($provider) {
             return (new \October\Rain\Html\UrlMixin($provider))->assetVersion(...$args);
         });
+
+        $provider->macro('assetRelative', function(...$args) use ($provider) {
+            return (new \October\Rain\Html\UrlMixin($provider))->assetRelative(...$args);
+        });
     }
 
     /**

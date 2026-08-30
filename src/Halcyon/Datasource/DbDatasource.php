@@ -375,8 +375,10 @@ class DbDatasource extends Datasource implements DatasourceInterface
 
         $fileNames = [];
 
+        $prefix = rtrim($dirName, '/') . '/';
+
         foreach (array_keys($this->getTrashedPaths()) as $path) {
-            if (!str_starts_with($path, $dirName)) {
+            if (!str_starts_with($path, $prefix)) {
                 continue;
             }
 
@@ -416,7 +418,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     protected function buildDirectoryQuery(string $dirName, ?array $extensions)
     {
-        $query = $this->getQuery()->where('path', 'like', $dirName . '%');
+        $query = $this->getQuery()->where('path', 'like', rtrim($dirName, '/') . '/%');
 
         if (is_array($extensions) && !empty($extensions)) {
             $this->applyExtensionsFilter($query, $extensions);

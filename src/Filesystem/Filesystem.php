@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Filesystem;
 
 use Event;
+use Config;
 use ReflectionClass;
 use FilesystemIterator;
 use Illuminate\Filesystem\Filesystem as FilesystemBase;
@@ -173,6 +174,25 @@ class Filesystem extends FilesystemBase
         }
 
         return !($path === false || strncmp($path, $base, strlen($base)) !== 0);
+    }
+
+    /**
+     * checkBaseDir returns true if a file path is inside the base directory, checking
+     * that the path exists when the system.restrict_base_dir config item is disabled
+     */
+    public function checkBaseDir($filePath): bool
+    {
+        $restrictBaseDir = Config::get('system.restrict_base_dir', true);
+
+        if ($restrictBaseDir && !$this->isLocalPath($filePath)) {
+            return false;
+        }
+
+        if (!$restrictBaseDir && realpath($filePath) === false) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

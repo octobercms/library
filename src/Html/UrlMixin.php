@@ -82,6 +82,20 @@ class UrlMixin
     }
 
     /**
+     * assetRelative generates an asset URL, returning a full URL when
+     * app.asset_url is configured, otherwise a relative URL prefixed
+     * with the request base path.
+     */
+    public function assetRelative(string $path): string
+    {
+        if (Config::get('app.asset_url')) {
+            return $this->provider->asset($path);
+        }
+
+        return request()->getBasePath() . '/' . ltrim($path, '/');
+    }
+
+    /**
      * assetVersion takes a disk path, resolves it to a public URL, and appends
      * a cache-busting version query string based on the file's modification time.
      *

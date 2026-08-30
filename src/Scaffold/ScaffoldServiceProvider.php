@@ -8,6 +8,7 @@ use October\Rain\Scaffold\Console\CreateModel;
 use October\Rain\Scaffold\Console\CreateMigration;
 use October\Rain\Scaffold\Console\CreateController;
 use October\Rain\Scaffold\Console\CreateComponent;
+use October\Rain\Scaffold\Console\CreateVueComponent;
 use October\Rain\Scaffold\Console\CreateFormWidget;
 use October\Rain\Scaffold\Console\CreateReportWidget;
 use October\Rain\Scaffold\Console\CreateFilterWidget;
@@ -38,6 +39,7 @@ class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvi
         $this->app->singleton('command.create.migration', CreateMigration::class);
         $this->app->singleton('command.create.controller', CreateController::class);
         $this->app->singleton('command.create.component', CreateComponent::class);
+        $this->app->singleton('command.create.vuecomponent', CreateVueComponent::class);
         $this->app->singleton('command.create.formwidget', CreateFormWidget::class);
         $this->app->singleton('command.create.reportwidget', CreateReportWidget::class);
         $this->app->singleton('command.create.filterwidget', CreateFilterWidget::class);
@@ -54,6 +56,7 @@ class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvi
         $this->commands('command.create.migration');
         $this->commands('command.create.controller');
         $this->commands('command.create.component');
+        $this->commands('command.create.vuecomponent');
         $this->commands('command.create.formwidget');
         $this->commands('command.create.reportwidget');
         $this->commands('command.create.filterwidget');
@@ -78,6 +81,7 @@ class ScaffoldServiceProvider extends ServiceProvider implements DeferrableProvi
             'command.create.migration',
             'command.create.controller',
             'command.create.component',
+            'command.create.vuecomponent',
             'command.create.formwidget',
             'command.create.reportwidget',
             'command.create.filterwidget',

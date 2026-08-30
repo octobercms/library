@@ -50,11 +50,6 @@ class RegisterOctober
             $app->make('config')->get('app.providers') ?? ServiceProvider::defaultProviders()->toArray(),
         );
 
-        // Register singletons
-        $app->singleton('string', function () {
-            return new \October\Rain\Support\Str;
-        });
-
         // Change paths based on config
         if ($storagePath = $app['config']->get('system.storage_path')) {
             $app->useStoragePath($this->parseConfiguredPath($app, $storagePath));

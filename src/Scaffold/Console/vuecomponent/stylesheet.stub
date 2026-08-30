@@ -1,0 +1,3 @@
+.{{lower_author}}-{{lower_plugin}}-{{lower_name}} {
+    /* Component styles */
+}

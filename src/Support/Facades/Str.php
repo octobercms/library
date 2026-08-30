@@ -5,6 +5,10 @@ use October\Rain\Support\Facade;
 /**
  * Str
  *
+ * @deprecated use \October\Rain\Support\Str directly. The `Str` global alias
+ * now resolves to the underlying helper class (matching Laravel), so this
+ * facade is retained only for backwards compatibility.
+ *
  * @method static string after(string $subject, string $search)
  * @method static string ascii(string $value, string $language = 'en')
  * @method static string before(string $subject, string $search)
@@ -51,6 +55,6 @@ class Str extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'string';
+        return \October\Rain\Support\Str::class;
     }
 }

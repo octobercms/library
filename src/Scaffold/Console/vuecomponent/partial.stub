@@ -1,0 +1,3 @@
+<div class="{{lower_author}}-{{lower_plugin}}-{{lower_name}}">
+    <p v-text="message"></p>
+</div>
