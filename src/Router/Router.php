@@ -286,6 +286,9 @@ class Router
                     }
                 }
                 catch (Exception $ex) {
+                    // An expression that cannot run cannot have matched
+                    $valid = false;
+                    break;
                 }
             }
 
