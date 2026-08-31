@@ -163,13 +163,4 @@ trait SetupBuilder
             $this->line("* php artisan october:build");
         }
     }
-
-    /**
-     * nonInteractiveCheck will make a calculated guess if the command is running
-     * in non interactive mode by how long it takes to execute
-     */
-    protected function nonInteractiveCheck(): bool
-    {
-        return (microtime(true) - LARAVEL_START) < 1;
-    }
 }

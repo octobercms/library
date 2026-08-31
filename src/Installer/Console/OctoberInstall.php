@@ -58,11 +58,6 @@ class OctoberInstall extends Command
         $this->outputLanguageTable();
         $this->setupLanguage();
 
-        if ($this->nonInteractiveCheck()) {
-            $this->outputNonInteractive();
-            return 1;
-        }
-
         // Application Configuration
         $this->output->section(Lang::get('system::lang.installer.app_config_section'));
         $this->setupApplicationUrls();
@@ -450,6 +445,9 @@ class OctoberInstall extends Command
         }
     }
 
+    /**
+     * outputNonInteractive displays fallback commands for non-interactive environments
+     */
     protected function outputNonInteractive()
     {
         // Too many failed attempts
