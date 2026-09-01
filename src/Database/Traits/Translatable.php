@@ -853,4 +853,72 @@ trait Translatable
 
         return (new $modelClass)->getTable();
     }
+
+    //
+    // Deprecated aliases
+    //
+
+    /**
+     * getAttributeTranslated is a deprecated alias for getTranslation.
+     * @deprecated use getTranslation($key, $locale, $useFallback)
+     */
+    public function getAttributeTranslated($key, $locale = null, $useFallback = true)
+    {
+        return $this->getTranslation($key, $locale ?? $this->getLocale(), $useFallback);
+    }
+
+    /**
+     * setAttributeTranslated is a deprecated alias for setTranslation with the old argument order.
+     * @deprecated use setTranslation($key, $locale, $value)
+     */
+    public function setAttributeTranslated($key, $value, $locale = null)
+    {
+        return $this->setTranslation($key, $locale ?? $this->getLocale(), $value);
+    }
+
+    /**
+     * getTranslateAttributes is a deprecated helper returning every translatable attribute for a locale.
+     * @deprecated iterate getTranslatableAttributes() with getTranslation($key, $locale)
+     */
+    public function getTranslateAttributes($locale)
+    {
+        $data = [];
+
+        foreach ($this->getTranslatableAttributes() as $key) {
+            $data[$key] = $this->getTranslation($key, $locale);
+        }
+
+        return $data;
+    }
+
+    /**
+     * translateContext is a deprecated combined getter/setter for the locale context.
+     * @deprecated use getLocale() or setLocale($locale)
+     */
+    public function translateContext($locale = null)
+    {
+        if ($locale === null) {
+            return $this->getLocale();
+        }
+
+        return $this->setLocale($locale);
+    }
+
+    /**
+     * lang is a deprecated alias for setLocale.
+     * @deprecated use setLocale($locale)
+     */
+    public function lang($locale)
+    {
+        return $this->setLocale($locale);
+    }
+
+    /**
+     * isTranslatable is a deprecated alias for isTranslatableAttribute.
+     * @deprecated use isTranslatableAttribute($key)
+     */
+    public function isTranslatable($key)
+    {
+        return $this->isTranslatableAttribute($key);
+    }
 }
