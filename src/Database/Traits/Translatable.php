@@ -768,6 +768,36 @@ trait Translatable
     }
 
     /**
+     * scopeTransOrderBy sorts by the translated value for the locale, defaulting to
+     * the active locale, falling back to the base column value when a translation is
+     * missing so untranslated records still sort against their default-locale value.
+     */
+    public function scopeTransOrderBy($query, $key, $direction = 'asc', $locale = null)
+    {
+        if ($locale === null) {
+            $locale = $this->getTranslatableContext();
+        }
+
+        if ($locale === $this->getTranslatableDefault()) {
+            return $query->orderBy($key, $direction);
+        }
+
+        $table = $this->getTranslateAttributeTable();
+        $alias = 'translate_order_' . $key;
+        $direction = strtolower($direction) === 'desc' ? 'desc' : 'asc';
+
+        return $query
+            ->select($this->getTable() . '.*')
+            ->leftJoin($table . ' as ' . $alias, function ($join) use ($alias, $key, $locale) {
+                $join->on($alias . '.model_id', '=', $this->getQualifiedKeyName())
+                    ->where($alias . '.model_type', '=', $this->getMorphClass())
+                    ->where($alias . '.locale', '=', $locale)
+                    ->where($alias . '.attribute', '=', $key);
+            })
+            ->orderByRaw('COALESCE(' . $alias . '.value, ' . $this->getTable() . '.' . $key . ') ' . $direction);
+    }
+
+    /**
      * scopeWhereTranslation adds a where clause for a translated attribute
      */
     public function scopeWhereTranslation($query, $key, $locale, $value, $operator = '=')

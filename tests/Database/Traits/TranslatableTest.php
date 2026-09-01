@@ -151,6 +151,50 @@ class TranslatableTest extends TestCase
     }
 
     //
+    // Query scopes
+    //
+
+    /**
+     * testTransOrderBySortsByTranslatedValue confirms transOrderBy sorts on the locale value
+     */
+    public function testTransOrderBySortsByTranslatedValue()
+    {
+        $alpha = TestModelTranslatable::create(['name' => 'Alpha']);
+        $alpha->setTranslation('name', 'fr', 'Zulu');
+        $alpha->save();
+
+        $zeta = TestModelTranslatable::create(['name' => 'Zeta']);
+        $zeta->setTranslation('name', 'fr', 'Alpha');
+        $zeta->save();
+
+        // Default locale sorts by the base column
+        $enOrder = TestModelTranslatable::transOrderBy('name', 'asc', 'en')->pluck('name')->all();
+        $this->assertEquals(['Alpha', 'Zeta'], $enOrder);
+
+        // French locale sorts by the translated value, reversing the order
+        $frOrder = TestModelTranslatable::transOrderBy('name', 'asc', 'fr')->pluck('name')->all();
+        $this->assertEquals(['Zeta', 'Alpha'], $frOrder);
+    }
+
+    /**
+     * testTransOrderByFallsBackToBaseValue confirms untranslated rows sort by their base value
+     */
+    public function testTransOrderByFallsBackToBaseValue()
+    {
+        $translated = TestModelTranslatable::create(['name' => 'Bravo']);
+        $translated->setTranslation('name', 'fr', 'Mike');
+        $translated->save();
+
+        // No French translation, so it should sort using the base value "Alpha"
+        $untranslated = TestModelTranslatable::create(['name' => 'Alpha']);
+        $untranslated->save();
+
+        $frOrder = TestModelTranslatable::transOrderBy('name', 'asc', 'fr')->pluck('name')->all();
+
+        $this->assertEquals(['Alpha', 'Bravo'], $frOrder);
+    }
+
+    //
     // Deprecated aliases
     //
 
