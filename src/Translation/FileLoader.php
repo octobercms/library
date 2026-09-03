@@ -11,20 +11,6 @@ use Illuminate\Translation\FileLoader as FileLoaderBase;
 class FileLoader extends FileLoaderBase
 {
     /**
-     * @var string path is a single path for the loader.
-     *
-     * @todo Can be removed if Laravel >= 10
-     */
-    protected $path;
-
-    /**
-     * @var array paths are used by default for the loader.
-     *
-     * @todo Can be removed if Laravel >= 10
-     */
-    protected $paths;
-
-    /**
      * @var array jsonLines maps a locale to programmatically-registered JSON
      * translation lines
      */
@@ -35,9 +21,7 @@ class FileLoader extends FileLoaderBase
      */
     protected function loadNamespaceOverrides(array $lines, $locale, $group, $namespace)
     {
-        $paths = (array) $this->path ?: $this->paths;
-
-        return collect($paths)
+        return collect($this->paths)
             ->reduce(function ($output, $path) use ($lines, $locale, $group, $namespace) {
                 $namespace = str_replace('.', '/', $namespace);
                 $file = "{$path}/{$namespace}/{$locale}/{$group}.php";
