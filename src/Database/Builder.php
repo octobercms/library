@@ -17,6 +17,32 @@ class Builder extends BuilderModel
     use \October\Rain\Database\Concerns\HasEagerLoadAttachRelation;
 
     /**
+     * hydrate creates models with batch-local translations available to fetched events.
+     */
+    public function hydrate(array $items)
+    {
+        if (!method_exists($this->model, 'withTranslatableBatch')) {
+            return parent::hydrate($items);
+        }
+
+        $instance = $this->newModelInstance();
+
+        $hydrate = function () use ($items, $instance) {
+            return $instance->newCollection(array_map(function ($item) use ($items, $instance) {
+                $model = $instance->newFromBuilder($item);
+
+                if (count($items) > 1) {
+                    $model->preventsLazyLoading = Model::preventsLazyLoading();
+                }
+
+                return $model;
+            }, $items));
+        };
+
+        return $instance->withTranslatableBatch($items, $hydrate);
+    }
+
+    /**
      * eagerLoadRelation eagerly load the relationship on a set of models, with support
      * for attach relations.
      * @param  array  $models

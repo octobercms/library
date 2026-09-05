@@ -47,6 +47,11 @@ trait Translatable
     protected $translatableBaseValues = [];
 
     /**
+     * @var callable|null translatableBatch loads translations only during hydration
+     */
+    protected $translatableBatch;
+
+    /**
      * initializeTranslatable trait for a model
      */
     public function initializeTranslatable()
@@ -630,6 +635,84 @@ trait Translatable
     //
 
     /**
+     * withTranslatableBatch shares translation lookups for a single hydration batch.
+     * The loader is lazy so each fetched instance supplies its own locale, table
+     * and morph type, including overrides applied by model.newInstance. Translation
+     * storage uses the default connection, matching individual translation lookups.
+     * @internal Called by the database builder.
+     */
+    public function withTranslatableBatch(array $items, callable $callback)
+    {
+        $previous = $this->translatableBatch;
+        $batches = [];
+        $batchIds = [];
+        $this->translatableBatch = function ($model, $locale) use ($items, &$batches, &$batchIds) {
+            $connection = Db::connection();
+            $table = $model->getTranslateAttributeTable();
+            $morphType = $model->getMorphClass();
+            $keyName = $model->getKeyName();
+            $batchKey = serialize([spl_object_id($connection), $table, $morphType, $keyName, $locale]);
+
+            if (!array_key_exists($batchKey, $batches)) {
+                $ids = [];
+                foreach ($items as $item) {
+                    $attributes = (array) $item;
+                    if (isset($attributes[$keyName])) {
+                        $ids[$attributes[$keyName]] = $attributes[$keyName];
+                    }
+                }
+
+                $batchIds[$batchKey] = $ids;
+                $batches[$batchKey] = [];
+                // Leave room for the type and locale bindings on supported databases.
+                foreach (array_chunk($ids, 500) as $chunk) {
+                    $rows = $connection->table($table)
+                        ->where('model_type', $morphType)
+                        ->whereIn('model_id', $chunk)
+                        ->where('locale', $locale)
+                        ->get(['model_id', 'attribute', 'value']);
+
+                    foreach ($rows as $row) {
+                        $batches[$batchKey][$row->model_id][$row->attribute] = $row->value;
+                    }
+                }
+            }
+
+            // A key accessor or nested newFromBuilder call can address a record
+            // outside the selected IDs. Keep the individual lookup in that case.
+            if (!array_key_exists($model->getKey(), $batchIds[$batchKey])) {
+                return null;
+            }
+
+            return $batches[$batchKey][$model->getKey()] ?? [];
+        };
+
+        try {
+            return $callback();
+        }
+        finally {
+            $this->translatableBatch = $previous;
+        }
+    }
+
+    /**
+     * withTranslatableBatchInstance lends the loader only for this instance's fetched
+     * callbacks. Later locale changes and nested queries cannot retain batch state.
+     */
+    protected function withTranslatableBatchInstance($instance, callable $callback)
+    {
+        $previous = $instance->translatableBatch;
+        $instance->translatableBatch = $this->translatableBatch;
+
+        try {
+            return $callback();
+        }
+        finally {
+            $instance->translatableBatch = $previous;
+        }
+    }
+
+    /**
      * syncTranslatableAttributes demotes translated values and stores them
      * in the translation table before the base model save
      */
@@ -728,13 +811,22 @@ trait Translatable
                 ->pluck('value', 'attribute')
                 ->toArray();
         }
+        elseif ($this->getKey() === null) {
+            $rows = [];
+        }
         else {
-            $rows = Db::table($this->getTranslateAttributeTable())
-                ->where('model_type', $this->getMorphClass())
-                ->where('model_id', $this->getKey())
-                ->where('locale', $locale)
-                ->pluck('value', 'attribute')
-                ->toArray();
+            $rows = $this->translatableBatch
+                ? ($this->translatableBatch)($this, $locale)
+                : null;
+
+            if ($rows === null) {
+                $rows = Db::table($this->getTranslateAttributeTable())
+                    ->where('model_type', $this->getMorphClass())
+                    ->where('model_id', $this->getKey())
+                    ->where('locale', $locale)
+                    ->pluck('value', 'attribute')
+                    ->toArray();
+            }
         }
 
         $this->translatableAttributes[$locale] = $rows;
