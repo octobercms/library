@@ -17,7 +17,7 @@
         "php": "^8.2",
         "composer/composer": "^2.0.0",
         "composer/installers": "^1 || ^2",
-        "larajax/larajax": "^2.0",
+        "larajax/larajax": "^3.0",
         "doctrine/dbal": "^2.13.3|^3.1.4",
         "intervention/image": "^3.10",
         "jaybizzle/crawler-detect": "^1.3",
