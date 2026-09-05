@@ -15,8 +15,12 @@ trait HasEagerLoadAttachRelation
     protected $eagerLoadAttachResultCache = [];
 
     /**
+     * @var array eagerLoadAttachRelationCache reuses relations inspected for grouping.
+     */
+    protected $eagerLoadAttachRelationCache = [];
+
+    /**
      * eagerLoadAttachRelation eagerly loads an attachment relationship on a set of models.
-     * @param  string  $relatedModel
      * @param  array  $models
      * @param  string  $name
      * @param  \Closure  $constraints
@@ -24,30 +28,36 @@ trait HasEagerLoadAttachRelation
      */
     protected function eagerLoadAttachRelation(array $models, $name, Closure $constraints)
     {
-        // Look up relation type
-        $relationType = $this->getModel()->getRelationType($name);
-        if (!$relationType || !in_array($relationType, ['attachOne', 'attachMany'])) {
+        if (!$this->canCombineEagerLoadAttachRelation($name)) {
             return null;
         }
 
-        // Only vanilla attachments are supported, pass complex lookups back to Laravel
-        $definition = $this->getModel()->getRelationDefinition($name);
-        if (isset($definition['conditions']) || isset($definition['scope'])) {
-            return null;
+        $names = array_values(array_filter(array_keys($this->getEagerLoads()), function ($name) {
+            return !str_contains($name, '.') && $this->canCombineEagerLoadAttachRelation($name);
+        }));
+
+        // A builder can be reused with different models or eager loads. Start a fresh
+        // combined cache at the first eligible attachment in each eager-load pass.
+        if ($name === ($names[0] ?? null)) {
+            $this->eagerLoadAttachResultCache = [];
+            $this->eagerLoadAttachRelationCache = [];
         }
 
-        // Opt-out of the combined eager loading logic
-        if (isset($definition['combineEager']) && $definition['combineEager'] === false) {
-            return null;
-        }
-
-        $relation = $this->getRelation($name);
+        $relation = $this->eagerLoadAttachRelationCache[$name] ??= $this->getRelation($name);
         $relatedModel = get_class($relation->getRelated());
 
-        // Perform a global look up attachment without the 'field' constraint
-        // to produce a combined subset of all possible attachment relations.
+        // Combine only requested attachment fields that use the same related model.
         if (!isset($this->eagerLoadAttachResultCache[$relatedModel])) {
+            $fields = [];
+            foreach ($names as $field) {
+                $fieldRelation = $this->eagerLoadAttachRelationCache[$field] ??= $this->getRelation($field);
+                if (get_class($fieldRelation->getRelated()) === $relatedModel) {
+                    $fields[] = $field;
+                }
+            }
+
             $relation->addCommonEagerConstraints($models);
+            $relation->whereIn('field', $fields);
 
             // Note this takes first constraint only. If it becomes a problem one solution
             // could be to compare the md5 of toSql() to ensure uniqueness. The workaround
@@ -64,5 +74,22 @@ trait HasEagerLoadAttachRelation
             $results->where('field', $name)->values(),
             $name
         );
+    }
+
+    /**
+     * canCombineEagerLoadAttachRelation checks whether an attachment can share a query.
+     * Complex lookups and explicit opt-outs use Laravel's normal eager loading path.
+     */
+    protected function canCombineEagerLoadAttachRelation(string $name): bool
+    {
+        if (!in_array($this->getModel()->getRelationType($name), ['attachOne', 'attachMany'])) {
+            return false;
+        }
+
+        $definition = $this->getModel()->getRelationDefinition($name);
+
+        return !isset($definition['conditions'])
+            && !isset($definition['scope'])
+            && ($definition['combineEager'] ?? true) !== false;
     }
 }
