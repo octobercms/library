@@ -716,7 +716,7 @@ class File extends Model
 
         // Eagerly cache remote exists call
         if ($success) {
-            Cache::forever($this->getCacheKey($thumbPath), true);
+            Cache::memo()->forever($this->getCacheKey($thumbPath), true);
         }
     }
 
@@ -745,7 +745,7 @@ class File extends Model
                 $this->getDisk()->delete($collection);
 
                 foreach ($collection as $filePath) {
-                    Cache::forget($this->getCacheKey($filePath));
+                    Cache::memo()->forget($this->getCacheKey($filePath));
                 }
             }
         }
@@ -856,7 +856,7 @@ class File extends Model
 
         // Clear remote storage cache
         if (!$this->isLocalStorage()) {
-            Cache::forget($this->getCacheKey($filePath));
+            Cache::memo()->forget($this->getCacheKey($filePath));
         }
 
         $this->deleteEmptyDirectory($directory);
