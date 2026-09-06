@@ -644,25 +644,22 @@ trait Translatable
     public function hydrateWithTranslatableBatch(array $items, callable $hydrate)
     {
         $keyName = $this->getKeyName();
-        $ids = array_column(array_map(fn($item) => (array) $item, $items), $keyName);
+        $ids = array_column($items, $keyName);
 
         if (!$ids || !$this->shouldTranslate()) {
             return $hydrate();
         }
 
         $locale = $this->getTranslatableContext();
-        $rows = [];
-        foreach (array_chunk($ids, 500) as $chunk) {
-            $found = Db::table($this->getTranslateAttributeTable())
+        $rows = collect(array_chunk($ids, 500))
+            ->flatMap(fn($chunk) => Db::table($this->getTranslateAttributeTable())
                 ->where('model_type', $this->getMorphClass())
                 ->whereIn('model_id', $chunk)
                 ->where('locale', $locale)
-                ->get(['model_id', 'attribute', 'value']);
-
-            foreach ($found as $row) {
-                $rows[$row->model_id][$row->attribute] = $row->value;
-            }
-        }
+                ->get(['model_id', 'attribute', 'value']))
+            ->groupBy('model_id')
+            ->map(fn($group) => $group->pluck('value', 'attribute')->all())
+            ->all();
 
         $previous = static::$translatableBatch;
         static::$translatableBatch = [
