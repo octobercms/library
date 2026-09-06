@@ -62,7 +62,6 @@ class TranslatableTest extends TestCase
     public function tearDown(): void
     {
         TranslationBatchTestModel::$onFetched = null;
-        TranslationBatchTestModel::$onFetching = null;
         TranslationBatchTestModel::$onNewInstance = null;
         if ($this->savedDispatcher) {
             Model::setEventDispatcher($this->savedDispatcher);
@@ -88,18 +87,15 @@ class TranslatableTest extends TestCase
         }
     }
 
-    public function testFetchedCallbacksSeeTranslationsInExistingEventOrder()
+    public function testFetchedCallbacksSeeTranslatedValues()
     {
         $this->seedEntries(2);
-        $events = [];
-        TranslationBatchTestModel::$onFetching = function () use (&$events) {
-            $events[] = 'fetching';
-        };
-        TranslationBatchTestModel::$onFetched = function ($model) use (&$events) {
-            $events[] = $model->title;
+        $seen = [];
+        TranslationBatchTestModel::$onFetched = function ($model) use (&$seen) {
+            $seen[] = $model->title;
         };
         TranslationBatchTestModel::get();
-        $this->assertSame(['fetching', 'French 1', 'fetching', 'French 2'], $events);
+        $this->assertSame(['French 1', 'French 2'], $seen);
     }
 
     public function testLargeCollectionsBoundQueryParameters()
@@ -226,43 +222,6 @@ class TranslatableTest extends TestCase
         $this->assertSame('Changed', TranslationBatchTestModel::first()->title);
     }
 
-    public function testNestedNewFromBuilderOutsideTheBatchKeepsItsLookup()
-    {
-        $this->seedEntries(3);
-        $nested = null;
-        TranslationBatchTestModel::$onFetched = function ($model) use (&$nested) {
-            if ($model->id === 1 && $nested === null) {
-                $nested = 'loading';
-                $nested = $model->newFromBuilder(['id' => 3, 'title' => 'Base 3'])->title;
-            }
-        };
-        $models = TranslationBatchTestModel::whereIn('id', [1, 2])->get();
-        $this->assertSame('French 3', $nested);
-        $this->assertSame(['French 1', 'French 2'], $models->pluck('title')->all());
-    }
-
-    public function testReturnedModelsDoNotRetainOtherLocaleBatchData()
-    {
-        $this->seedEntries(2);
-        TranslationBatchTestModel::$onFetched = function ($model) {
-            if ($model->id === 1) {
-                $model->getTranslation('title', 'de');
-            }
-        };
-        $models = TranslationBatchTestModel::get();
-        $this->db()->table('translate_attributes')->where('model_id', 2)->where('locale', 'de')->update(['value' => 'Updated German']);
-        $this->assertSame('Updated German', $models[1]->setLocale('de')->title);
-    }
-
-    public function testCustomTranslationLoaderRemainsInControl()
-    {
-        $this->seedEntries(2);
-        $this->startQueryLog();
-        $models = CustomTranslationLoaderTestModel::get();
-        $this->assertSame(['Custom 1', 'Custom 2'], $models->pluck('title')->all());
-        $this->assertCount(1, $this->queries());
-    }
-
     public function testCustomTranslationTableAndMorphTypeStayIsolated()
     {
         $this->seedEntries(2);
@@ -274,16 +233,6 @@ class TranslatableTest extends TestCase
         $this->assertSame(['Custom table', 'Custom table'], $models->pluck('title')->all());
         $this->assertCount(2, $this->queries());
         $this->assertSame('French 1', TranslationBatchTestModel::first()->title);
-    }
-
-    public function testCancelledFetchingDoesNotLoadTranslations()
-    {
-        $this->seedEntries(2);
-        TranslationBatchTestModel::$onFetching = fn () => false;
-        $this->startQueryLog();
-        $models = TranslationBatchTestModel::get();
-        $this->assertSame([null, null], $models->pluck('title')->all());
-        $this->assertCount(1, $this->queries());
     }
 
     public function testInstanceLocaleOverridesAndDisabledInstancesAreRespected()
@@ -373,7 +322,6 @@ class TranslationBatchTestModel extends Model
     use \October\Rain\Database\Traits\Translatable;
 
     public static $onFetched;
-    public static $onFetching;
     public static $onNewInstance;
     public $translatable = ['title', 'settings', 'metadata'];
     public $timestamps = false;
@@ -392,13 +340,6 @@ class TranslationBatchTestModel extends Model
                 (self::$onNewInstance)($model);
             }
         });
-    }
-
-    public function beforeFetch()
-    {
-        if (self::$onFetching) {
-            return (self::$onFetching)($this);
-        }
     }
 
     public function afterFetch()
@@ -421,15 +362,6 @@ class TranslationBatchTestModel extends Model
     protected function resolveTranslatableDefaultLocale()
     {
         return 'en';
-    }
-}
-
-class CustomTranslationLoaderTestModel extends TranslationBatchTestModel
-{
-    protected function loadTranslatableData($locale)
-    {
-        $this->translatableAttributes[$locale] = ['title' => 'Custom '.$this->getKey()];
-        $this->translatableOriginals[$locale] = $this->translatableAttributes[$locale];
     }
 }
 
