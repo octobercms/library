@@ -47,6 +47,12 @@ trait Translatable
     protected $translatableBaseValues = [];
 
     /**
+     * @var array|null translatableBatch holds translations preloaded for the hydration
+     * batch in progress, keyed by model_id then attribute
+     */
+    protected static $translatableBatch;
+
+    /**
      * initializeTranslatable trait for a model
      */
     public function initializeTranslatable()
@@ -630,6 +636,70 @@ trait Translatable
     //
 
     /**
+     * hydrateWithTranslatableBatch loads the active locale translations for all rows
+     * in one query before hydration, so each fetched event can promote translated values
+     * without its own lookup. Rows or locales outside the batch fall back to a lookup.
+     * @internal Called by the database builder.
+     */
+    public function hydrateWithTranslatableBatch(array $items, callable $hydrate)
+    {
+        $keyName = $this->getKeyName();
+        $ids = array_column($items, $keyName);
+
+        if (!$ids || !$this->shouldTranslate()) {
+            return $hydrate();
+        }
+
+        $locale = $this->getTranslatableContext();
+        $rows = collect(array_chunk($ids, 500))
+            ->flatMap(fn($chunk) => Db::table($this->getTranslateAttributeTable())
+                ->where('model_type', $this->getMorphClass())
+                ->whereIn('model_id', $chunk)
+                ->where('locale', $locale)
+                ->get(['model_id', 'attribute', 'value']))
+            ->groupBy('model_id')
+            ->map(fn($group) => $group->pluck('value', 'attribute')->all())
+            ->all();
+
+        $previous = static::$translatableBatch;
+        static::$translatableBatch = [
+            'table' => $this->getTranslateAttributeTable(),
+            'morph' => $this->getMorphClass(),
+            'locale' => $locale,
+            'ids' => array_fill_keys($ids, true),
+            'rows' => $rows,
+        ];
+
+        try {
+            return $hydrate();
+        }
+        finally {
+            static::$translatableBatch = $previous;
+        }
+    }
+
+    /**
+     * getTranslatableBatchRows returns preloaded translations for this model, or null
+     * when the model is not part of the batch in progress.
+     */
+    protected function getTranslatableBatchRows($locale)
+    {
+        $batch = static::$translatableBatch;
+
+        if (
+            !$batch ||
+            $batch['locale'] !== $locale ||
+            $batch['morph'] !== $this->getMorphClass() ||
+            $batch['table'] !== $this->getTranslateAttributeTable() ||
+            !isset($batch['ids'][$this->getKey()])
+        ) {
+            return null;
+        }
+
+        return $batch['rows'][$this->getKey()] ?? [];
+    }
+
+    /**
      * syncTranslatableAttributes demotes translated values and stores them
      * in the translation table before the base model save
      */
@@ -728,8 +798,11 @@ trait Translatable
                 ->pluck('value', 'attribute')
                 ->toArray();
         }
+        elseif ($this->getKey() === null) {
+            $rows = [];
+        }
         else {
-            $rows = Db::table($this->getTranslateAttributeTable())
+            $rows = $this->getTranslatableBatchRows($locale) ?? Db::table($this->getTranslateAttributeTable())
                 ->where('model_type', $this->getMorphClass())
                 ->where('model_id', $this->getKey())
                 ->where('locale', $locale)
