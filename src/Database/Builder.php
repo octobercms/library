@@ -17,6 +17,19 @@ class Builder extends BuilderModel
     use \October\Rain\Database\Concerns\HasEagerLoadAttachRelation;
 
     /**
+     * eagerLoadRelations eagerly load the relationships for the models, combining
+     * attachments freshly for each set of models.
+     * @param  array  $models
+     * @return array
+     */
+    public function eagerLoadRelations(array $models)
+    {
+        $this->eagerLoadAttachResultCache = [];
+
+        return parent::eagerLoadRelations($models);
+    }
+
+    /**
      * eagerLoadRelation eagerly load the relationship on a set of models, with support
      * for attach relations.
      * @param  array  $models

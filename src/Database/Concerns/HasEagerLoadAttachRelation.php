@@ -15,11 +15,6 @@ trait HasEagerLoadAttachRelation
     protected $eagerLoadAttachResultCache = [];
 
     /**
-     * @var array eagerLoadAttachRelationCache reuses relations inspected for grouping.
-     */
-    protected $eagerLoadAttachRelationCache = [];
-
-    /**
      * eagerLoadAttachRelation eagerly loads an attachment relationship on a set of models.
      * @param  array  $models
      * @param  string  $name
@@ -32,32 +27,20 @@ trait HasEagerLoadAttachRelation
             return null;
         }
 
-        $names = array_values(array_filter(array_keys($this->getEagerLoads()), function ($name) {
-            return !str_contains($name, '.') && $this->canCombineEagerLoadAttachRelation($name);
-        }));
+        $relation = $this->getRelation($name);
+        $relatedModel = $this->getAttachRelatedClass($name);
 
-        // A builder can be reused with different models or eager loads. Start a fresh
-        // combined cache at the first eligible attachment in each eager-load pass.
-        if ($name === ($names[0] ?? null)) {
-            $this->eagerLoadAttachResultCache = [];
-            $this->eagerLoadAttachRelationCache = [];
-        }
-
-        $relation = $this->eagerLoadAttachRelationCache[$name] ??= $this->getRelation($name);
-        $relatedModel = get_class($relation->getRelated());
-
-        // Combine only requested attachment fields that use the same related model.
+        // Combine the requested attachments that share this related model in one query,
+        // constrained to their field names so unrequested attachments are not hydrated.
         if (!isset($this->eagerLoadAttachResultCache[$relatedModel])) {
-            $fields = [];
-            foreach ($names as $field) {
-                $fieldRelation = $this->eagerLoadAttachRelationCache[$field] ??= $this->getRelation($field);
-                if (get_class($fieldRelation->getRelated()) === $relatedModel) {
-                    $fields[] = $field;
-                }
-            }
+            $fields = array_filter(array_keys($this->getEagerLoads()), function ($field) use ($relatedModel) {
+                return !str_contains($field, '.')
+                    && $this->canCombineEagerLoadAttachRelation($field)
+                    && $this->getAttachRelatedClass($field) === $relatedModel;
+            });
 
             $relation->addCommonEagerConstraints($models);
-            $relation->whereIn('field', $fields);
+            $relation->whereIn('field', array_values($fields));
 
             // Note this takes first constraint only. If it becomes a problem one solution
             // could be to compare the md5 of toSql() to ensure uniqueness. The workaround
@@ -91,5 +74,13 @@ trait HasEagerLoadAttachRelation
         return !isset($definition['conditions'])
             && !isset($definition['scope'])
             && ($definition['combineEager'] ?? true) !== false;
+    }
+
+    /**
+     * getAttachRelatedClass returns the related model class from an attachment definition.
+     */
+    protected function getAttachRelatedClass(string $name): string
+    {
+        return $this->getModel()->getRelationDefinition($name)[0];
     }
 }
