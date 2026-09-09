@@ -336,4 +336,77 @@ class HtmlBuilderTest extends TestCase
         $result = HtmlBuilder::cleanVector('<svg><a href="data:text/html,<script>alert(1)</script>">click</a></svg>');
         $this->assertStringNotContainsString('data:', $result);
     }
+
+    //
+    // link() / image() tests - href/src escaping
+    //
+
+    protected function makeHtmlBuilderWithPassthroughUrl(): HtmlBuilder
+    {
+        $url = $this->createMock(\Illuminate\Routing\UrlGenerator::class);
+        $url->method('to')->willReturnCallback(fn($path) => $path);
+        $url->method('asset')->willReturnCallback(fn($path) => $path);
+
+        return new HtmlBuilder($url);
+    }
+
+    public function testLinkEscapesDoubleQuoteInUrl()
+    {
+        $html = $this->makeHtmlBuilderWithPassthroughUrl();
+        $result = $html->link('x"onmouseover="alert(1)');
+
+        $this->assertStringNotContainsString('"onmouseover="', $result);
+        $this->assertStringContainsString('&quot;onmouseover=&quot;', $result);
+    }
+
+    public function testLinkEscapesAngleBracketsInUrl()
+    {
+        $html = $this->makeHtmlBuilderWithPassthroughUrl();
+        $result = $html->link('/path"><script>alert(1)</script>');
+
+        $this->assertStringNotContainsString('<script', $result);
+    }
+
+    public function testLinkEscapesAmpersandInUrl()
+    {
+        $html = $this->makeHtmlBuilderWithPassthroughUrl();
+        $result = $html->link('/path?a=1&b=2');
+
+        $this->assertStringContainsString('href="/path?a=1&amp;b=2"', $result);
+    }
+
+    public function testImageEscapesDoubleQuoteInUrl()
+    {
+        $html = $this->makeHtmlBuilderWithPassthroughUrl();
+        $result = $html->image('x"onerror="alert(1)');
+
+        $this->assertStringNotContainsString('"onerror="', $result);
+        $this->assertStringContainsString('&quot;onerror=&quot;', $result);
+    }
+
+    public function testImageEscapesAngleBracketsInUrl()
+    {
+        $html = $this->makeHtmlBuilderWithPassthroughUrl();
+        $result = $html->image('x"><script>alert(1)</script>');
+
+        $this->assertStringNotContainsString('<script', $result);
+    }
+
+    public function testLinkRendersValidUrlUntouched()
+    {
+        $html = $this->makeHtmlBuilderWithPassthroughUrl();
+        $result = $html->link('https://example.com/path', 'Click');
+
+        $this->assertStringContainsString('href="https://example.com/path"', $result);
+        $this->assertStringContainsString('>Click</a>', $result);
+    }
+
+    public function testImageRendersValidUrlWithAlt()
+    {
+        $html = $this->makeHtmlBuilderWithPassthroughUrl();
+        $result = $html->image('https://example.com/img.png', 'Description');
+
+        $this->assertStringContainsString('src="https://example.com/img.png"', $result);
+        $this->assertStringContainsString('alt="Description"', $result);
+    }
 }
