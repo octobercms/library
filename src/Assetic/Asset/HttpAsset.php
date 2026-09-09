@@ -41,10 +41,18 @@ class HttpAsset extends BaseAsset
             throw new InvalidArgumentException(sprintf('"%s" is not a valid URL.', $sourceUrl));
         }
 
+        [$scheme, $url] = explode('://', $sourceUrl, 2);
+
+        // Restrict fetches to http(s); file://, phar://, ftp:// and other PHP stream
+        // wrappers reach file_get_contents and would let a user-controlled @import
+        // read arbitrary local files or fetch internal-network URLs
+        if (!in_array(strtolower($scheme), ['http', 'https'], true)) {
+            throw new InvalidArgumentException(sprintf('"%s" is not an http(s) URL.', $sourceUrl));
+        }
+
         $this->sourceUrl = $sourceUrl;
         $this->ignoreErrors = $ignoreErrors;
 
-        [$scheme, $url] = explode('://', $sourceUrl, 2);
         [$host, $path] = explode('/', $url, 2);
 
         parent::__construct($filters, $scheme.'://'.$host, $path, $vars);
