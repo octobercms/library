@@ -92,6 +92,12 @@ class OctoberInstall extends Command
 
         $errCode = null;
 
+        // Add modules to .gitignore
+        $gitignore = base_path('.gitignore');
+        if (file_exists($gitignore) && is_writable($gitignore)) {
+            $this->addModulesToGitignore($gitignore);
+        }
+
         $this->comment('Migrating database...');
         passthru('php artisan october:migrate', $errCode);
         if ($errCode !== 0) {
