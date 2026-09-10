@@ -37,6 +37,10 @@ class Resolver implements ResolverInterface
             $name = $this->getDefaultDatasource();
         }
 
+        if (!isset($this->datasources[$name])) {
+            throw new \InvalidArgumentException("Halcyon datasource [{$name}] is not registered.");
+        }
+
         return $this->datasources[$name];
     }
 
