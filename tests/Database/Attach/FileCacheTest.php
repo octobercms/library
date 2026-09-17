@@ -11,6 +11,7 @@ use October\Rain\Database\Attach\File as Attachment;
 class FileCacheTest extends TestCase
 {
     protected $savedFacadeApp;
+    protected $savedFacadeInstances;
     protected $savedResolver;
     protected $savedDispatcher;
     protected $cache;
@@ -22,6 +23,7 @@ class FileCacheTest extends TestCase
         parent::setUp();
 
         $this->savedFacadeApp = Facade::getFacadeApplication();
+        $this->savedFacadeInstances = (new ReflectionProperty(Facade::class, 'resolvedInstance'))->getValue();
         $this->savedResolver = Attachment::getConnectionResolver();
         $this->savedDispatcher = Attachment::getEventDispatcher();
 
@@ -77,6 +79,7 @@ class FileCacheTest extends TestCase
 
         Facade::clearResolvedInstances();
         Facade::setFacadeApplication($this->savedFacadeApp);
+        (new ReflectionProperty(Facade::class, 'resolvedInstance'))->setValue(null, $this->savedFacadeInstances);
 
         parent::tearDown();
     }
