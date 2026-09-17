@@ -34,7 +34,7 @@ class ElementHolder extends ElementBase implements IteratorAggregate
      */
     public function get($key, $default = null)
     {
-        if (isset($this->config[$key])) {
+        if (array_key_exists($key, $this->config)) {
             return $this->touchedElements[$key] = $this->config[$key];
         }
 

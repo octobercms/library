@@ -22,15 +22,21 @@ class ElementBaseTest extends TestCase
 {
     public function testExtendCallbackIsAppliedOnConstruction()
     {
-        $seen = null;
-        ElementBaseTestElement::extend(function ($element) use (&$seen) {
-            $seen = $element;
-        });
+        $callbacks = \October\Rain\Extension\Container::$classCallbacks;
+        try {
+            $seen = null;
+            ElementBaseTestElement::extend(function ($element) use (&$seen) {
+                $seen = $element;
+            });
 
-        $element = new ElementBaseTestElement(['label' => 'Name']);
+            $element = new ElementBaseTestElement(['label' => 'Name']);
 
-        $this->assertSame($element, $seen);
-        $this->assertSame('Name', $element->label);
+            $this->assertSame($element, $seen);
+            $this->assertSame('Name', $element->label);
+        }
+        finally {
+            \October\Rain\Extension\Container::$classCallbacks = $callbacks;
+        }
     }
 
     public function testImplementedBehaviorIsApplied()
@@ -50,6 +56,10 @@ class ElementBaseTest extends TestCase
         $holder['name'] = 'new';
         $this->assertSame('new', $holder->get('name'));
         $this->assertSame(['name' => 'new'], $holder->getTouchedElements());
+
+        $holder['name'] = null;
+        $this->assertNull($holder->get('name'));
+        $this->assertSame(['name' => null], $holder->getTouchedElements());
 
         unset($holder['name']);
         $this->assertNull($holder->get('name'));
