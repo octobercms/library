@@ -20,6 +20,11 @@ class RouterBench
     protected $routesCached;
 
     /**
+     * @var Router largeBucket for same-prefix matching benchmarks
+     */
+    protected $largeBucket;
+
+    /**
      * @var array fixtures
      */
     protected $fixtures = [
@@ -123,4 +128,34 @@ class RouterBench
 
         $router->match('/this/url/matches/nothing/at/all');
     }
+    /**
+     * initLargeBucket prepares a large same-prefix fixture outside the measured match
+     */
+    public function initLargeBucket()
+    {
+        $this->largeBucket = new Router;
+        for ($i = 0; $i < 5000; $i++) {
+            $this->largeBucket->route('item'.$i, '/catalog/item'.$i.'/:id');
+        }
+        $this->largeBucket->toArray();
+    }
+
+    /**
+     * @Subject
+     * @BeforeMethods({"initLargeBucket"})
+     */
+    public function benchLargeBucketLateHit()
+    {
+        $this->largeBucket->match('/catalog/item4999/42');
+    }
+
+    /**
+     * @Subject
+     * @BeforeMethods({"initLargeBucket"})
+     */
+    public function benchLargeBucketMiss()
+    {
+        $this->largeBucket->match('/catalog/missing/42');
+    }
+
 }
