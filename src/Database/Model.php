@@ -175,7 +175,12 @@ class Model extends EloquentModel
 
         $instance->setRawAttributes((array) $attributes, true);
 
-        $instance->fireModelEvent('fetched', false);
+        if (method_exists($instance, 'fireFetchedEventWithTranslatableBatch')) {
+            $instance->fireFetchedEventWithTranslatableBatch();
+        }
+        else {
+            $instance->fireModelEvent('fetched', false);
+        }
 
         $instance->setConnection($connection ?: $this->connection);
 

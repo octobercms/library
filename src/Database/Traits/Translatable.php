@@ -681,6 +681,32 @@ trait Translatable
     }
 
     /**
+     * fireFetchedEventWithTranslatableBatch seeds this instance before suspending
+     * the batch, so independent reads in fetched callbacks use fresh translations.
+     * @internal Called by the database model during hydration.
+     */
+    public function fireFetchedEventWithTranslatableBatch()
+    {
+        $previous = static::$translatableBatch;
+        if ($previous && $this->shouldTranslate() && !$this->relationLoaded('translations')) {
+            $locale = $this->getTranslatableContext();
+            $rows = $this->getTranslatableBatchRows($locale);
+            if ($rows !== null) {
+                $this->translatableAttributes[$locale] = $rows;
+                $this->translatableOriginals[$locale] = $rows;
+            }
+        }
+
+        static::$translatableBatch = null;
+        try {
+            $this->fireModelEvent('fetched', false);
+        }
+        finally {
+            static::$translatableBatch = $previous;
+        }
+    }
+
+    /**
      * getTranslatableBatchRows returns preloaded translations for this model, or null
      * when the model is not part of the batch in progress.
      */

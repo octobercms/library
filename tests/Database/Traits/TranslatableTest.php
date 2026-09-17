@@ -295,6 +295,27 @@ class TranslatableTest extends TestCase
         $this->assertSame(['French 1', 'French 2'], $models->pluck('title')->all());
     }
 
+    public function testIndependentReadsInsideFetchedCallbacksDoNotUseOuterSnapshot()
+    {
+        $this->seedEntries(2);
+        $nested = null;
+        TranslationBatchTestModel::$onFetched = function () use (&$nested) {
+            if ($nested !== null) {
+                return;
+            }
+            $nested = [];
+            $this->db()->table('translate_attributes')->where('locale', 'fr')
+                ->where('attribute', 'title')->update(['value' => 'Updated']);
+            $nested[] = (new TranslationBatchTestModel)->newFromBuilder((object) [
+                'id' => 1, 'title' => 'Base 1'
+            ])->title;
+            $nested[] = TranslationBatchTestModel::where('id', 2)->cursor()->first()->title;
+        };
+
+        TranslationBatchTestModel::get();
+        $this->assertSame(['Updated', 'Updated'], $nested);
+    }
+
     public function testMissingSelectedKeyDoesNotTranslateAnUnrelatedRow()
     {
         $this->seedEntries(2);
