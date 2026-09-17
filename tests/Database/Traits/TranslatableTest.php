@@ -268,6 +268,33 @@ class TranslatableTest extends TestCase
         $this->assertSame('French 1', $model->title);
     }
 
+    public function testNestedHydrationUsesTheCurrentTranslationConnection()
+    {
+        $this->seedEntries(2);
+        $this->seedEntries(2, 'other', 'Other French ');
+        $nested = null;
+        TranslationBatchTestModel::$onFetched = function () use (&$nested) {
+            if ($nested !== null) {
+                return;
+            }
+            $nested = 'loading';
+            $manager = $this->capsule->getDatabaseManager();
+            $manager->setDefaultConnection('other');
+            try {
+                $nested = (new TranslationBatchTestModel)->newFromBuilder((object) [
+                    'id' => 1, 'title' => 'Base 1'
+                ])->title;
+            }
+            finally {
+                $manager->setDefaultConnection('default');
+            }
+        };
+
+        $models = TranslationBatchTestModel::get();
+        $this->assertSame('Other French 1', $nested);
+        $this->assertSame(['French 1', 'French 2'], $models->pluck('title')->all());
+    }
+
     public function testMissingSelectedKeyDoesNotTranslateAnUnrelatedRow()
     {
         $this->seedEntries(2);

@@ -651,8 +651,9 @@ trait Translatable
         }
 
         $locale = $this->getTranslatableContext();
+        $connection = Db::connection();
         $rows = collect(array_chunk($ids, 500))
-            ->flatMap(fn($chunk) => Db::table($this->getTranslateAttributeTable())
+            ->flatMap(fn($chunk) => $connection->table($this->getTranslateAttributeTable())
                 ->where('model_type', $this->getMorphClass())
                 ->whereIn('model_id', $chunk)
                 ->where('locale', $locale)
@@ -663,6 +664,7 @@ trait Translatable
 
         $previous = static::$translatableBatch;
         static::$translatableBatch = [
+            'connection' => $connection,
             'table' => $this->getTranslateAttributeTable(),
             'morph' => $this->getMorphClass(),
             'locale' => $locale,
@@ -688,6 +690,7 @@ trait Translatable
 
         if (
             !$batch ||
+            $batch['connection'] !== Db::connection() ||
             $batch['locale'] !== $locale ||
             $batch['morph'] !== $this->getMorphClass() ||
             $batch['table'] !== $this->getTranslateAttributeTable() ||
