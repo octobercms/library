@@ -316,6 +316,24 @@ class TranslatableTest extends TestCase
         $this->assertSame(['Updated', 'Updated'], $nested);
     }
 
+    public function testIndependentReadsDuringInstanceCreationDoNotUseOuterSnapshot()
+    {
+        $this->seedEntries(2);
+        $nested = null;
+        TranslationBatchTestModel::$onNewInstance = function ($model) use (&$nested) {
+            if (!$model->exists || $nested !== null) {
+                return;
+            }
+            $nested = 'loading';
+            $this->db()->table('translate_attributes')->where('locale', 'fr')
+                ->where('attribute', 'title')->update(['value' => 'Updated']);
+            $nested = TranslationBatchTestModel::where('id', 2)->cursor()->first()->title;
+        };
+
+        TranslationBatchTestModel::get();
+        $this->assertSame('Updated', $nested);
+    }
+
     public function testMissingSelectedKeyDoesNotTranslateAnUnrelatedRow()
     {
         $this->seedEntries(2);

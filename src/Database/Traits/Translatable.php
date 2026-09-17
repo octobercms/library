@@ -681,28 +681,29 @@ trait Translatable
     }
 
     /**
-     * fireFetchedEventWithTranslatableBatch seeds this instance before suspending
-     * the batch, so independent reads in fetched callbacks use fresh translations.
+     * newFromBuilderWithTranslatableBatch keeps the snapshot local to one model
+     * while lifecycle callbacks may independently hydrate other models.
      * @internal Called by the database model during hydration.
      */
-    public function fireFetchedEventWithTranslatableBatch()
+    public function newFromBuilderWithTranslatableBatch($attributes, $connection)
     {
-        $previous = static::$translatableBatch;
-        if ($previous && $this->shouldTranslate() && !$this->relationLoaded('translations')) {
-            $locale = $this->getTranslatableContext();
-            $rows = $this->getTranslatableBatchRows($locale);
-            if ($rows !== null) {
-                $this->translatableAttributes[$locale] = $rows;
-                $this->translatableOriginals[$locale] = $rows;
-            }
-        }
-
+        $batch = static::$translatableBatch;
         static::$translatableBatch = null;
         try {
-            $this->fireModelEvent('fetched', false);
+            return $this->newFromBuilderInstance($attributes, $connection, function ($instance) use ($batch) {
+                if (!$batch || !$instance->shouldTranslate() || $instance->relationLoaded('translations')) {
+                    return;
+                }
+                $locale = $instance->getTranslatableContext();
+                $rows = $instance->getTranslatableBatchRows($locale, $batch);
+                if ($rows !== null) {
+                    $instance->translatableAttributes[$locale] = $rows;
+                    $instance->translatableOriginals[$locale] = $rows;
+                }
+            });
         }
         finally {
-            static::$translatableBatch = $previous;
+            static::$translatableBatch = $batch;
         }
     }
 
@@ -710,10 +711,8 @@ trait Translatable
      * getTranslatableBatchRows returns preloaded translations for this model, or null
      * when the model is not part of the batch in progress.
      */
-    protected function getTranslatableBatchRows($locale)
+    protected function getTranslatableBatchRows($locale, array $batch)
     {
-        $batch = static::$translatableBatch;
-
         if (
             !$batch ||
             $batch['connection'] !== Db::connection() ||
@@ -831,7 +830,7 @@ trait Translatable
             $rows = [];
         }
         else {
-            $rows = $this->getTranslatableBatchRows($locale) ?? Db::table($this->getTranslateAttributeTable())
+            $rows = Db::table($this->getTranslateAttributeTable())
                 ->where('model_type', $this->getMorphClass())
                 ->where('model_id', $this->getKey())
                 ->where('locale', $locale)
