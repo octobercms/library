@@ -379,4 +379,43 @@ class RouteTest extends TestCase
         $result = $router->url('portfolioPage', ['year' => 'default', 'category' => 'noCategory', 'budget' => '200-500']);
         $this->assertEquals('/portfolio/default/noCategory/200-500', $result);
     }
+
+    public function testInvalidParameterExpressionFailsClosed()
+    {
+        $router = new Router;
+        $router->route('bad', '/blog/:id|[unclosed');
+
+        // Laravel converts the preg_match warning into an exception
+        set_error_handler(function ($no, $str, $file, $line) {
+            throw new ErrorException($str, 0, $no, $file, $line);
+        });
+
+        try {
+            $matched = $router->match('/blog/abc');
+        }
+        finally {
+            restore_error_handler();
+        }
+
+        $this->assertFalse($matched);
+    }
+
+    public function testInvalidParameterExpressionFailsClosedOnRule()
+    {
+        $params = [];
+        $rule = (new Router)->reset()->route('bad', '/blog/:id|[unclosed');
+
+        set_error_handler(function ($no, $str, $file, $line) {
+            throw new ErrorException($str, 0, $no, $file, $line);
+        });
+
+        try {
+            $result = $rule->resolveUrl('/blog/abc', $params);
+        }
+        finally {
+            restore_error_handler();
+        }
+
+        $this->assertFalse($result);
+    }
 }

@@ -448,7 +448,13 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     protected function pathToFileName(string $dirName, string $path): string
     {
-        return ltrim(str_replace($dirName, '', $path), '/');
+        $prefix = $dirName . '/';
+
+        if (str_starts_with($path, $prefix)) {
+            $path = substr($path, strlen($prefix));
+        }
+
+        return ltrim($path, '/');
     }
 
     /**

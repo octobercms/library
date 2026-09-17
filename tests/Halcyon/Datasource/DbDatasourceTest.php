@@ -117,4 +117,11 @@ class DbDatasourceTest extends TestCase
             $this->assertStringStartsNotWith('-', $item['fileName']);
         }
     }
+
+    public function testPathToFileNameStripsOnlyTheDirectoryPrefix()
+    {
+        $this->assertSame('about.htm', self::callProtectedMethod($this->dbDatasource, 'pathToFileName', ['pages', 'pages/about.htm']));
+        $this->assertSame('pages/about.htm', self::callProtectedMethod($this->dbDatasource, 'pathToFileName', ['pages', 'pages/pages/about.htm']));
+        $this->assertSame('blog/pages.htm', self::callProtectedMethod($this->dbDatasource, 'pathToFileName', ['pages', 'pages/blog/pages.htm']));
+    }
 }
