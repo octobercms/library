@@ -586,10 +586,6 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     protected function flushCache()
     {
-        unset(self::$pathCache[$this->source]);
-        unset(self::$mtimeCache[$this->source]);
-        unset(self::$trashedPathCache[$this->source]);
-
-        Cache::memo()->forget(self::makeIndexCacheKey($this->source, $this->table));
+        self::clearCache($this->source, $this->table);
     }
 }
