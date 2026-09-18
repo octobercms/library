@@ -87,6 +87,52 @@ class TranslatableTest extends TestCase
         }
     }
 
+    public function testCustomTranslationLoaderRunsForBatchesAndIndividualReads()
+    {
+        $this->seedEntries(2);
+        $this->startQueryLog();
+
+        $models = CustomTranslationLoaderTestModel::orderBy('id')->get();
+
+        $this->assertSame(['Decoded: French 1', 'Decoded: French 2'], $models->pluck('title')->all());
+        $this->assertSame(2, count($this->queries()));
+        $this->assertSame('Decoded: French 1', CustomTranslationLoaderTestModel::first()->title);
+        $this->assertSame('Decoded: French 1', CustomTranslationLoaderTestModel::cursor()->first()->title);
+        $this->assertFalse($models->first()->isTranslateDirty('title'));
+    }
+
+    public function testHydrationDataIsReleasedAfterSuccessAndCallbackFailure()
+    {
+        $this->seedEntries(1);
+        foreach ([false, true] as $throw) {
+            $captured = null;
+            TranslationBatchTestModel::$onFetched = function ($model) use (&$captured, $throw) {
+                $captured = $model;
+                if ($throw) {
+                    throw new RuntimeException('Fetched callback failed');
+                }
+            };
+            try {
+                CustomTranslationLoaderTestModel::first();
+                $this->assertFalse($throw);
+            }
+            catch (RuntimeException $ex) {
+                $this->assertTrue($throw);
+                $this->assertSame('Fetched callback failed', $ex->getMessage());
+            }
+            finally {
+                TranslationBatchTestModel::$onFetched = null;
+            }
+
+            $updated = $throw ? 'Updated after failure' : 'Updated after success';
+            $this->db()->table('translate_attributes')
+                ->where('model_id', 1)->where('locale', 'fr')->where('attribute', 'title')
+                ->update(['value' => $updated]);
+            (new ReflectionMethod($captured, 'loadTranslatableData'))->invoke($captured, 'fr');
+            $this->assertSame('Decoded: '.$updated, $captured->getTranslatableOriginals('fr')['title']);
+        }
+    }
+
     public function testFetchedCallbacksSeeTranslatedValues()
     {
         $this->seedEntries(2);
@@ -477,5 +523,23 @@ class CustomTranslationTableTestModel extends TranslationBatchTestModel
     public function getMorphClass()
     {
         return 'custom-entry';
+    }
+}
+
+class CustomTranslationLoaderTestModel extends TranslationBatchTestModel
+{
+    public function getMorphClass()
+    {
+        return TranslationBatchTestModel::class;
+    }
+
+    protected function loadTranslatableData($locale)
+    {
+        parent::loadTranslatableData($locale);
+
+        if (isset($this->translatableAttributes[$locale]['title'])) {
+            $this->translatableAttributes[$locale]['title'] = 'Decoded: '.$this->translatableAttributes[$locale]['title'];
+            $this->translatableOriginals[$locale]['title'] = $this->translatableAttributes[$locale]['title'];
+        }
     }
 }

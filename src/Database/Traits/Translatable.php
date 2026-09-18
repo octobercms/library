@@ -53,6 +53,12 @@ trait Translatable
     protected $translatableBatch;
 
     /**
+     * @var array|null translatableHydrationData supplies raw translations only while
+     * this instance runs its fetched lifecycle, without bypassing its loader
+     */
+    protected $translatableHydrationData;
+
+    /**
      * initializeTranslatable trait for a model
      */
     public function initializeTranslatable()
@@ -696,20 +702,17 @@ trait Translatable
         }
 
         $this->translatableBatch = null;
+        $hydrated = null;
         try {
-            return $this->newFromBuilderInstance($attributes, $connection, function ($instance) use ($batch) {
-                if (!$instance->shouldTranslate() || $instance->relationLoaded('translations')) {
-                    return;
-                }
-                $locale = $instance->getTranslatableContext();
-                $rows = $instance->getTranslatableBatchRows($locale, $batch);
-                if ($rows !== null) {
-                    $instance->translatableAttributes[$locale] = $rows;
-                    $instance->translatableOriginals[$locale] = $rows;
-                }
+            return $this->newFromBuilderInstance($attributes, $connection, function ($instance) use ($batch, &$hydrated) {
+                $hydrated = $instance;
+                $instance->translatableHydrationData = $batch;
             });
         }
         finally {
+            if ($hydrated !== null) {
+                $hydrated->translatableHydrationData = null;
+            }
             $this->translatableBatch = $batch;
         }
     }
@@ -836,7 +839,12 @@ trait Translatable
             $rows = [];
         }
         else {
-            $rows = Db::table($this->getTranslateAttributeTable())
+            // Model overrides still run through this loader when rows are preloaded.
+            $rows = $this->translatableHydrationData !== null
+                ? $this->getTranslatableBatchRows($locale, $this->translatableHydrationData)
+                : null;
+
+            $rows ??= Db::table($this->getTranslateAttributeTable())
                 ->where('model_type', $this->getMorphClass())
                 ->where('model_id', $this->getKey())
                 ->where('locale', $locale)
