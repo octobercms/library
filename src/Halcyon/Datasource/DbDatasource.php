@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Halcyon\Datasource;
 
+use Cache;
 use Db;
 use October\Rain\Halcyon\Processors\Processor;
 use October\Rain\Halcyon\Exception\CreateFileException;
@@ -328,9 +329,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
     public function lastModified(string $dirName, string $fileName, string $extension): ?int
     {
         try {
-            if (!isset(self::$mtimeCache[$this->source])) {
-                self::$mtimeCache[$this->source] = $this->getQuery()->pluck('updated_at', 'path')->all();
-            }
+            $this->fillIndexCaches();
 
             $path = $this->makeFilePath($dirName, $fileName, $extension);
             if (!isset(self::$mtimeCache[$this->source][$path])) {
@@ -343,6 +342,18 @@ class DbDatasource extends Datasource implements DatasourceInterface
         catch (Exception $ex) {
             return null;
         }
+    }
+
+    /**
+     * clearCache drops in-memory indexes and the application cache entry for a source
+     */
+    public static function clearCache(string $source, string $table): void
+    {
+        unset(self::$pathCache[$source]);
+        unset(self::$mtimeCache[$source]);
+        unset(self::$trashedPathCache[$source]);
+
+        Cache::memo()->forget(self::makeIndexCacheKey($source, $table));
     }
 
     /**
@@ -403,6 +414,8 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     protected function getTrashedPaths(): array
     {
+        $this->fillIndexCaches();
+
         if (!isset(self::$trashedPathCache[$this->source])) {
             self::$trashedPathCache[$this->source] = array_fill_keys(
                 $this->getQuery(false)->whereNotNull('deleted_at')->pluck('path')->all(),
@@ -411,6 +424,52 @@ class DbDatasource extends Datasource implements DatasourceInterface
         }
 
         return self::$trashedPathCache[$this->source];
+    }
+
+    /**
+     * fillIndexCaches loads mtime and trashed path indexes from cache or the database
+     */
+    protected function fillIndexCaches(): void
+    {
+        if (isset(self::$mtimeCache[$this->source]) && isset(self::$trashedPathCache[$this->source])) {
+            return;
+        }
+
+        $cached = Cache::memo()->get(self::makeIndexCacheKey($this->source, $this->table));
+
+        if (
+            is_array($cached) &&
+            isset($cached['mtime']) &&
+            is_array($cached['mtime']) &&
+            isset($cached['trashed']) &&
+            is_array($cached['trashed'])
+        ) {
+            self::$mtimeCache[$this->source] = $cached['mtime'];
+            self::$trashedPathCache[$this->source] = $cached['trashed'];
+            return;
+        }
+
+        $mtime = self::$mtimeCache[$this->source] ?? $this->getQuery()->pluck('updated_at', 'path')->all();
+        $trashed = self::$trashedPathCache[$this->source] ?? array_fill_keys(
+            $this->getQuery(false)->whereNotNull('deleted_at')->pluck('path')->all(),
+            true
+        );
+
+        self::$mtimeCache[$this->source] = $mtime;
+        self::$trashedPathCache[$this->source] = $trashed;
+
+        Cache::memo()->forever(self::makeIndexCacheKey($this->source, $this->table), [
+            'mtime' => $mtime,
+            'trashed' => $trashed,
+        ]);
+    }
+
+    /**
+     * makeIndexCacheKey unique to a datasource table and source
+     */
+    protected static function makeIndexCacheKey(string $source, string $table): string
+    {
+        return 'halcyon.db.' . $table . '.' . $source;
     }
 
     /**
@@ -530,5 +589,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
         unset(self::$pathCache[$this->source]);
         unset(self::$mtimeCache[$this->source]);
         unset(self::$trashedPathCache[$this->source]);
+
+        Cache::memo()->forget(self::makeIndexCacheKey($this->source, $this->table));
     }
 }
