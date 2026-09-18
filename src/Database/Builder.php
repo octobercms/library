@@ -25,6 +25,7 @@ class Builder extends BuilderModel
     public function eagerLoadRelations(array $models)
     {
         $this->eagerLoadAttachResultCache = [];
+        $this->eagerLoadAttachRelations = [];
 
         return parent::eagerLoadRelations($models);
     }

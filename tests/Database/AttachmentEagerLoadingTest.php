@@ -113,6 +113,21 @@ class AttachmentEagerLoadingTest extends TestCase
         $this->assertSame(['cover', 'document'], AttachmentEagerLoadingFile::$hydrated);
     }
 
+    public function testRuntimeRelatedClassesUseSeparateQueries()
+    {
+        $this->seedOwner(1, 2);
+        $this->seedFile(1, 'document');
+        $this->connection->flushQueryLog();
+
+        $owner = AttachmentEagerLoadingRuntimeOwner::with(['cover', 'document'])->first();
+
+        $this->assertSame(AttachmentEagerLoadingFile::class, get_class($owner->cover));
+        $this->assertSame(AttachmentEagerLoadingDocument::class, get_class($owner->document));
+        $this->assertCount(2, $this->attachmentQueries());
+        $this->assertSame(['cover', 'document'], AttachmentEagerLoadingFile::$hydrated);
+        $this->assertSame(['cover', 'document'], AttachmentEagerLoadingOwner::$relationsCreated);
+    }
+
     public function testGroupingConstructsEachRequestedRelationOnlyOnce()
     {
         $this->seedOwner(1, 2);
@@ -298,4 +313,25 @@ class AttachmentEagerLoadingFile extends File
 
 class AttachmentEagerLoadingDocument extends AttachmentEagerLoadingFile
 {
+}
+
+class AttachmentEagerLoadingRuntimeOwner extends AttachmentEagerLoadingOwner
+{
+    public $attachOne = [
+        'cover' => AttachmentEagerLoadingFile::class,
+        'document' => AttachmentEagerLoadingFile::class,
+    ];
+
+    protected function makeRelationInternal(string $relationName, string $relationClass)
+    {
+        return parent::makeRelationInternal(
+            $relationName,
+            $relationName === 'document' ? AttachmentEagerLoadingDocument::class : $relationClass
+        );
+    }
+
+    public function getMorphClass()
+    {
+        return AttachmentEagerLoadingOwner::class;
+    }
 }

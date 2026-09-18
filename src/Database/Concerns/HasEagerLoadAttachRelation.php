@@ -15,6 +15,11 @@ trait HasEagerLoadAttachRelation
     protected $eagerLoadAttachResultCache = [];
 
     /**
+     * @var array eagerLoadAttachRelations retains constructed relations for this pass
+     */
+    protected $eagerLoadAttachRelations = [];
+
+    /**
      * eagerLoadAttachRelation eagerly loads an attachment relationship on a set of models.
      * @param  array  $models
      * @param  string  $name
@@ -27,17 +32,25 @@ trait HasEagerLoadAttachRelation
             return null;
         }
 
-        $relation = $this->getRelation($name);
-        $relatedModel = $this->getAttachRelatedClass($name);
+        // Construct each requested relation once. Runtime hooks may choose a
+        // different related class than the one declared in the definition.
+        if (!$this->eagerLoadAttachRelations) {
+            foreach (array_keys($this->getEagerLoads()) as $field) {
+                if (!str_contains($field, '.') && $this->canCombineEagerLoadAttachRelation($field)) {
+                    $this->eagerLoadAttachRelations[$field] = $this->getRelation($field);
+                }
+            }
+        }
+
+        $relation = $this->eagerLoadAttachRelations[$name];
+        $relatedModel = get_class($relation->getRelated());
 
         // Combine the requested attachments that share this related model in one query,
         // constrained to their field names so unrequested attachments are not hydrated.
         if (!isset($this->eagerLoadAttachResultCache[$relatedModel])) {
-            $fields = array_filter(array_keys($this->getEagerLoads()), function ($field) use ($relatedModel) {
-                return !str_contains($field, '.')
-                    && $this->canCombineEagerLoadAttachRelation($field)
-                    && $this->getAttachRelatedClass($field) === $relatedModel;
-            });
+            $fields = array_keys(array_filter($this->eagerLoadAttachRelations, function ($relation) use ($relatedModel) {
+                return get_class($relation->getRelated()) === $relatedModel;
+            }));
 
             $relation->addCommonEagerConstraints($models);
             $relation->whereIn('field', array_values($fields));
@@ -76,11 +89,4 @@ trait HasEagerLoadAttachRelation
             && ($definition['combineEager'] ?? true) !== false;
     }
 
-    /**
-     * getAttachRelatedClass returns the related model class from an attachment definition.
-     */
-    protected function getAttachRelatedClass(string $name): string
-    {
-        return $this->getModel()->getRelationDefinition($name)[0];
-    }
 }
