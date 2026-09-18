@@ -24,11 +24,27 @@ class Builder extends BuilderModel
      */
     public function hydrate(array $items)
     {
-        if (method_exists($this->model, 'hydrateWithTranslatableBatch')) {
-            return $this->model->hydrateWithTranslatableBatch($items, fn() => parent::hydrate($items));
+        if (!method_exists($this->model, 'hydrateWithTranslatableBatch')) {
+            return parent::hydrate($items);
         }
 
-        return parent::hydrate($items);
+        // Create the prototype before preloading. Its construction callbacks may
+        // run independent queries and must not inherit a hydration snapshot.
+        $instance = $this->newModelInstance();
+
+        return $instance->hydrateWithTranslatableBatch($items, function () use ($items, $instance) {
+            // Match Laravel's hydration and lazy-loading behavior, keeping the
+            // snapshot on this prototype instead of sharing it across models.
+            return $instance->newCollection(array_map(function ($item) use ($items, $instance) {
+                $model = $instance->newFromBuilder($item);
+
+                if (count($items) > 1) {
+                    $model->preventsLazyLoading = Model::preventsLazyLoading();
+                }
+
+                return $model;
+            }, $items));
+        });
     }
 
     /**

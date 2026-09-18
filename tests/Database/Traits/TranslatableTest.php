@@ -334,6 +334,42 @@ class TranslatableTest extends TestCase
         $this->assertSame('Updated', $nested);
     }
 
+    public function testPrototypeCallbacksDoNotExposeTheOuterBatch()
+    {
+        $this->seedEntries(2);
+        $query = TranslationBatchTestModel::query();
+        $rows = $this->db()->table('translated_entries')->orderBy('id')->get()->all();
+        $nested = null;
+        TranslationBatchTestModel::$onNewInstance = function ($model) use (&$nested) {
+            if ($model->exists || $nested !== null) {
+                return;
+            }
+            $nested = 'loading';
+            $this->db()->table('translate_attributes')->where('locale', 'fr')
+                ->where('attribute', 'title')->update(['value' => 'Updated']);
+            $nested = TranslationBatchTestModel::where('id', 2)->cursor()->first()->title;
+        };
+
+        $query->hydrate($rows);
+        $this->assertSame('Updated', $nested);
+    }
+
+    public function testBatchHydrationPreservesLazyLoadingPrevention()
+    {
+        $this->seedEntries(2);
+        $previous = Model::preventsLazyLoading();
+        Model::preventLazyLoading();
+        try {
+            $models = TranslationBatchTestModel::get();
+            $this->assertTrue($models[0]->preventsLazyLoading);
+            $this->assertTrue($models[1]->preventsLazyLoading);
+            $this->assertFalse(TranslationBatchTestModel::first()->preventsLazyLoading);
+        }
+        finally {
+            Model::preventLazyLoading($previous);
+        }
+    }
+
     public function testMissingSelectedKeyDoesNotTranslateAnUnrelatedRow()
     {
         $this->seedEntries(2);

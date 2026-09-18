@@ -48,9 +48,9 @@ trait Translatable
 
     /**
      * @var array|null translatableBatch holds translations preloaded for the hydration
-     * batch in progress, keyed by model_id then attribute
+     * batch on this hydration prototype, keyed by model_id then attribute
      */
-    protected static $translatableBatch;
+    protected $translatableBatch;
 
     /**
      * initializeTranslatable trait for a model
@@ -652,18 +652,21 @@ trait Translatable
 
         $locale = $this->getTranslatableContext();
         $connection = Db::connection();
-        $rows = collect(array_chunk($ids, 500))
-            ->flatMap(fn($chunk) => $connection->table($this->getTranslateAttributeTable())
+        $rows = [];
+        foreach (array_chunk($ids, 500) as $chunk) {
+            $translations = $connection->table($this->getTranslateAttributeTable())
                 ->where('model_type', $this->getMorphClass())
                 ->whereIn('model_id', $chunk)
                 ->where('locale', $locale)
-                ->get(['model_id', 'attribute', 'value']))
-            ->groupBy('model_id')
-            ->map(fn($group) => $group->pluck('value', 'attribute')->all())
-            ->all();
+                ->get(['model_id', 'attribute', 'value']);
 
-        $previous = static::$translatableBatch;
-        static::$translatableBatch = [
+            foreach ($translations as $row) {
+                $rows[$row->model_id][$row->attribute] = $row->value;
+            }
+        }
+
+        $previous = $this->translatableBatch;
+        $this->translatableBatch = [
             'connection' => $connection,
             'table' => $this->getTranslateAttributeTable(),
             'morph' => $this->getMorphClass(),
@@ -676,7 +679,7 @@ trait Translatable
             return $hydrate();
         }
         finally {
-            static::$translatableBatch = $previous;
+            $this->translatableBatch = $previous;
         }
     }
 
@@ -687,11 +690,15 @@ trait Translatable
      */
     public function newFromBuilderWithTranslatableBatch($attributes, $connection)
     {
-        $batch = static::$translatableBatch;
-        static::$translatableBatch = null;
+        $batch = $this->translatableBatch;
+        if ($batch === null) {
+            return $this->newFromBuilderInstance($attributes, $connection);
+        }
+
+        $this->translatableBatch = null;
         try {
             return $this->newFromBuilderInstance($attributes, $connection, function ($instance) use ($batch) {
-                if (!$batch || !$instance->shouldTranslate() || $instance->relationLoaded('translations')) {
+                if (!$instance->shouldTranslate() || $instance->relationLoaded('translations')) {
                     return;
                 }
                 $locale = $instance->getTranslatableContext();
@@ -703,7 +710,7 @@ trait Translatable
             });
         }
         finally {
-            static::$translatableBatch = $batch;
+            $this->translatableBatch = $batch;
         }
     }
 
@@ -714,7 +721,6 @@ trait Translatable
     protected function getTranslatableBatchRows($locale, array $batch)
     {
         if (
-            !$batch ||
             $batch['connection'] !== Db::connection() ||
             $batch['locale'] !== $locale ||
             $batch['morph'] !== $this->getMorphClass() ||
