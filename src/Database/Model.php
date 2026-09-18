@@ -167,6 +167,19 @@ class Model extends EloquentModel
      */
     public function newFromBuilder($attributes = [], $connection = null)
     {
+        if (method_exists($this, 'newFromBuilderWithTranslatableBatch')) {
+            return $this->newFromBuilderWithTranslatableBatch($attributes, $connection);
+        }
+
+        return $this->newFromBuilderInstance($attributes, $connection);
+    }
+
+    /**
+     * newFromBuilderInstance runs the hydration lifecycle, optionally preparing
+     * instance data before fetched callbacks observe its attributes.
+     */
+    protected function newFromBuilderInstance($attributes, $connection, ?callable $prepare = null)
+    {
         $instance = $this->newInstance([], true);
 
         if ($instance->fireModelEvent('fetching') === false) {
@@ -174,6 +187,10 @@ class Model extends EloquentModel
         }
 
         $instance->setRawAttributes((array) $attributes, true);
+
+        if ($prepare !== null) {
+            $prepare($instance);
+        }
 
         $instance->fireModelEvent('fetched', false);
 
