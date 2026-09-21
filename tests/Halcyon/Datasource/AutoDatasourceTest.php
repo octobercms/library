@@ -185,6 +185,42 @@ class AutoDatasourceTest extends TestCase
         $this->assertCount(0, $files->reads);
     }
 
+    public function testUnreadableTemplateDoesNotShadowReadableFallback()
+    {
+        $files = new CountingFilesystem;
+        $firstPath = $this->themePath . '/first';
+        mkdir($firstPath . '/pages', 0755, true);
+        $unreadablePath = $firstPath . '/pages/home.htm';
+        file_put_contents($unreadablePath, 'Unreadable template');
+        touch($unreadablePath, 1000000000);
+        chmod($unreadablePath, 0000);
+        $templatePath = $this->themePath . '/pages/home.htm';
+        touch($templatePath, 1500000000);
+        clearstatcache();
+
+        try {
+            if ($files->isReadable($unreadablePath)) {
+                $this->markTestSkipped('The current user can read files without read permissions.');
+            }
+
+            $first = new FileDatasource($firstPath, $files);
+            $auto = new AutoDatasource([$first, new FileDatasource($this->themePath, $files)]);
+            $this->assertSame(1500000000, $auto->selectOne('pages', 'home', 'htm')['mtime']);
+            $files->reads = [];
+
+            $this->assertFalse($first->hasTemplate('pages', 'home', 'htm'));
+            $this->assertNull($first->lastModified('pages', 'home', 'htm'));
+            $this->assertSame(1500000000, $auto->lastModified('pages', 'home', 'htm'));
+            touch($templatePath, 1600000000);
+            clearstatcache(true, $templatePath);
+            $this->assertSame(1600000000, $auto->lastModified('pages', 'home', 'htm'));
+            $this->assertCount(0, $files->reads);
+        }
+        finally {
+            chmod($unreadablePath, 0600);
+        }
+    }
+
     public function testHasTemplateDoesNotReadTemplateContent()
     {
         $files = new CountingFilesystem;
