@@ -656,12 +656,14 @@ trait Translatable
             return $hydrate();
         }
 
-        // Replacement loaders may use external storage without a translation table.
-        // Only preload when hydration uses this trait's default storage loader.
-        $loader = new \ReflectionMethod($this, 'loadTranslatableData');
-        $defaultLoader = new \ReflectionMethod(__TRAIT__, 'loadTranslatableData');
-        if ($loader->getFileName() !== __FILE__ || $loader->getStartLine() !== $defaultLoader->getStartLine()) {
-            return $hydrate();
+        // Custom loaders or table getters may depend on hydrated attributes or
+        // external storage. Only preload this trait's default storage behavior.
+        foreach (['loadTranslatableData', 'getTranslateAttributeTable'] as $method) {
+            $implementation = new \ReflectionMethod($this, $method);
+            $default = new \ReflectionMethod(__TRAIT__, $method);
+            if ($implementation->getFileName() !== __FILE__ || $implementation->getStartLine() !== $default->getStartLine()) {
+                return $hydrate();
+            }
         }
 
         $locale = $this->getTranslatableContext();

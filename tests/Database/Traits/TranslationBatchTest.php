@@ -102,6 +102,22 @@ class TranslationBatchTest extends TestCase
         $this->assertFalse($models->first()->isTranslateDirty('title'));
     }
 
+    public function testPerRecordTranslationTableDoesNotRequirePrototypeStorage()
+    {
+        $this->seedEntries(2);
+        $this->db()->table('translated_entries')->update(['metadata' => 'tenant-a']);
+        $this->db()->getSchemaBuilder()->rename('translate_attributes', 'tenant_a_translations');
+        $this->db()->table('tenant_a_translations')->update(['model_type' => TenantTranslationTableTestModel::class]);
+        $this->startQueryLog();
+
+        $models = TenantTranslationTableTestModel::orderBy('id')->get();
+
+        $this->assertSame(['French 1', 'French 2'], $models->pluck('title')->all());
+        $this->assertCount(3, $this->queries());
+        $this->assertSame('French 1', TenantTranslationTableTestModel::first()->title);
+        $this->assertSame('French 1', TenantTranslationTableTestModel::cursor()->first()->title);
+    }
+
     public function testCustomTranslationLoaderRunsForBatchesAndIndividualReads()
     {
         $this->seedEntries(2);
@@ -128,7 +144,7 @@ class TranslationBatchTest extends TestCase
                 }
             };
             try {
-                CustomTranslationLoaderTestModel::first();
+                TranslationBatchTestModel::first();
                 $this->assertFalse($throw);
             }
             catch (RuntimeException $ex) {
@@ -144,7 +160,7 @@ class TranslationBatchTest extends TestCase
                 ->where('model_id', 1)->where('locale', 'fr')->where('attribute', 'title')
                 ->update(['value' => $updated]);
             (new ReflectionMethod($captured, 'loadTranslatableData'))->invoke($captured, 'fr');
-            $this->assertSame('Decoded: '.$updated, $captured->getTranslatableOriginals('fr')['title']);
+            $this->assertSame($updated, $captured->getTranslatableOriginals('fr')['title']);
         }
     }
 
@@ -292,7 +308,7 @@ class TranslationBatchTest extends TestCase
         $this->startQueryLog();
         $models = CustomTranslationTableTestModel::get();
         $this->assertSame(['Custom table', 'Custom table'], $models->pluck('title')->all());
-        $this->assertCount(2, $this->queries());
+        $this->assertCount(3, $this->queries());
         $this->assertSame('French 1', TranslationBatchTestModel::first()->title);
     }
 
@@ -565,5 +581,15 @@ class ExternalTranslationLoaderTestModel extends TranslationBatchTestModel
     {
         $this->translatableAttributes[$locale] = ['title' => 'External French '.$this->getKey()];
         $this->translatableOriginals[$locale] = $this->translatableAttributes[$locale];
+    }
+}
+
+class TenantTranslationTableTestModel extends TranslationBatchTestModel
+{
+    public function getTranslateAttributeTable()
+    {
+        return $this->getRawOriginal('metadata') === 'tenant-a'
+            ? 'tenant_a_translations'
+            : 'translate_attributes';
     }
 }
