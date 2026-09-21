@@ -53,7 +53,7 @@ trait HasEagerLoadAttachRelation
             }));
 
             $relation->addCommonEagerConstraints($models);
-            $relation->whereIn('field', array_values($fields));
+            $relation->whereIn($relation->getRelated()->qualifyColumn('field'), array_values($fields));
 
             // Note this takes first constraint only. If it becomes a problem one solution
             // could be to compare the md5 of toSql() to ensure uniqueness. The workaround

@@ -79,6 +79,26 @@ class AttachmentEagerLoadingTest extends TestCase
         $this->assertSame(['cover'], AttachmentEagerLoadingFile::$hydrated);
     }
 
+    public function testJoinedConstraintCanUseAnotherFieldColumn()
+    {
+        $this->seedOwner(1, 2);
+        $this->connection->getSchemaBuilder()->create('attachment_tags', function ($table) {
+            $table->integer('file_id');
+            $table->string('field');
+        });
+        $this->connection->table('attachment_tags')->insert(['file_id' => 1, 'field' => 'tag']);
+        $this->connection->flushQueryLog();
+
+        $owner = AttachmentEagerLoadingOwner::with(['cover' => function ($relation) {
+            $relation->join('attachment_tags', 'attachment_files.id', '=', 'attachment_tags.file_id')
+                ->select('attachment_files.*');
+        }])->first();
+
+        $this->assertSame('cover', $owner->cover->field);
+        $this->assertCount(1, $this->attachmentQueries());
+        $this->assertSame(['cover'], AttachmentEagerLoadingFile::$hydrated);
+    }
+
     public function testCompatibleFieldsShareOneQueryAndMatchMultipleOwners()
     {
         $this->seedOwner(1, 2);
