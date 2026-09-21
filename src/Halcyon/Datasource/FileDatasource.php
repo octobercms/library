@@ -233,7 +233,7 @@ class FileDatasource extends Datasource implements DatasourceInterface
         try {
             $path = $this->makeFilePath($dirName, $fileName, $extension);
 
-            return $this->files->lastModified($path);
+            return $this->files->isFile($path) ? $this->files->lastModified($path) : null;
         }
         catch (Exception $ex) {
             return null;

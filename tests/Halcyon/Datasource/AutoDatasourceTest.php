@@ -162,6 +162,29 @@ class AutoDatasourceTest extends TestCase
         $this->assertCount(0, $files->reads);
     }
 
+    public function testLastModifiedSkipsDirectoriesAndTracksTheSelectedFile()
+    {
+        $files = new CountingFilesystem;
+        $firstPath = $this->themePath . '/first';
+        mkdir($firstPath . '/pages/home.htm', 0755, true);
+        touch($firstPath . '/pages/home.htm', 1000000000);
+        $templatePath = $this->themePath . '/pages/home.htm';
+        touch($templatePath, 1500000000);
+        $first = new FileDatasource($firstPath, $files);
+        $auto = new AutoDatasource([$first, new FileDatasource($this->themePath, $files)]);
+
+        $selected = $auto->selectOne('pages', 'home', 'htm');
+        $this->assertSame(1500000000, $selected['mtime']);
+        $files->reads = [];
+
+        $this->assertNull($first->lastModified('pages', 'home', 'htm'));
+        $this->assertSame($selected['mtime'], $auto->lastModified('pages', 'home', 'htm'));
+        touch($templatePath, 1600000000);
+        clearstatcache(true, $templatePath);
+        $this->assertSame(1600000000, $auto->lastModified('pages', 'home', 'htm'));
+        $this->assertCount(0, $files->reads);
+    }
+
     public function testHasTemplateDoesNotReadTemplateContent()
     {
         $files = new CountingFilesystem;
