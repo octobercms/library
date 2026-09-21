@@ -9,4 +9,11 @@
  */
 class NotFoundException extends ExceptionBase
 {
+    /**
+     * getSafeMessage returns a message that is safe to show to users.
+     */
+    public function getSafeMessage()
+    {
+        return $this->getMessage() ?: __("Not Found");
+    }
 }

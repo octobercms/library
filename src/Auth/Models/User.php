@@ -216,7 +216,7 @@ class User extends Model implements Authenticatable
             return false;
         }
 
-        return $persistCode === $this->persist_code;
+        return hash_equals((string) $this->persist_code, (string) $persistCode);
     }
 
     //

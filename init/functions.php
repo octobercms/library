@@ -272,7 +272,7 @@ if (!function_exists('trans')) {
      */
     function trans($id = null, $parameters = [], $locale = null)
     {
-        return app('translator')->trans($id, $parameters, $locale);
+        return app('translator')->get($id, $parameters, $locale);
     }
 }
 

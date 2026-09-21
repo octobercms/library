@@ -39,16 +39,10 @@ class Dongle
 
     /**
      * rawValue converts a raw expression to a string
-     *
-     * @todo Can be refactored if Laravel >= 10
      */
     public function rawValue($sql): string
     {
-        if (interface_exists(\Illuminate\Contracts\Database\Query\Expression::class)) {
-            return $this->db->raw($sql)->getValue($this->db->connection()->getQueryGrammar());
-        }
-
-        return (string) $this->db->raw($sql);
+        return $this->db->raw($sql)->getValue($this->db->connection()->getQueryGrammar());
     }
 
     /**

@@ -58,11 +58,6 @@ class OctoberInstall extends Command
         $this->outputLanguageTable();
         $this->setupLanguage();
 
-        if ($this->nonInteractiveCheck()) {
-            $this->outputNonInteractive();
-            return 1;
-        }
-
         // Application Configuration
         $this->output->section(Lang::get('system::lang.installer.app_config_section'));
         $this->setupApplicationUrls();
@@ -96,6 +91,12 @@ class OctoberInstall extends Command
         $this->line('');
 
         $errCode = null;
+
+        // Add modules to .gitignore
+        $gitignore = base_path('.gitignore');
+        if (file_exists($gitignore) && is_writable($gitignore)) {
+            $this->addModulesToGitignore($gitignore);
+        }
 
         $this->comment('Migrating database...');
         passthru('php artisan october:migrate', $errCode);
@@ -450,6 +451,9 @@ class OctoberInstall extends Command
         }
     }
 
+    /**
+     * outputNonInteractive displays fallback commands for non-interactive environments
+     */
     protected function outputNonInteractive()
     {
         // Too many failed attempts

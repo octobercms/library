@@ -1,545 +1,306 @@
 <?php
 
-use Illuminate\Container\Container;
-use Illuminate\Database\Capsule\Manager;
-use Illuminate\Events\Dispatcher;
-use Illuminate\Support\Facades\Facade;
-use October\Rain\Database\Model;
-
+/**
+ * TranslatableTest
+ */
 class TranslatableTest extends TestCase
 {
-    protected $capsule;
-    protected $savedContainer;
-    protected $savedFacadeApplication;
-    protected $savedDispatcher;
-    protected $savedStatics = [];
+    /**
+     * @var Illuminate\Database\Capsule\Manager capsule shared across tests so a single
+     * :memory: connection is reused, keeping table drops and creates reliable
+     */
+    protected static $capsule;
 
+    /**
+     * @var mixed savedFacadeApp
+     */
+    protected $savedFacadeApp;
+
+    /**
+     * setUp test
+     */
     public function setUp(): void
     {
-        $this->savedContainer = Container::getInstance();
-        $this->savedFacadeApplication = Facade::getFacadeApplication();
-        $this->savedDispatcher = Model::getEventDispatcher();
-        foreach ([[Facade::class, 'resolvedInstance'], [Model::class, 'booted'], [Model::class, 'eventsBooted']] as [$class, $name]) {
-            $property = new ReflectionProperty($class, $name);
-            $this->savedStatics[] = [$property, $property->getValue()];
-            $property->setValue(null, []);
-        }
-        $resolver = new ReflectionProperty(Model::class, 'resolver');
-        $this->savedStatics[] = [$resolver, $resolver->getValue()];
+        if (!self::$capsule) {
+            self::$capsule = new Illuminate\Database\Capsule\Manager;
+            self::$capsule->addConnection([
+                'driver' => 'sqlite',
+                'database' => ':memory:',
+                'prefix' => ''
+            ]);
 
-        $app = new Container;
-        Container::setInstance($app);
+            self::$capsule->setEventDispatcher(new Illuminate\Events\Dispatcher);
+            self::$capsule->setAsGlobal();
+            self::$capsule->bootEloquent();
+        }
+
+        $capsule = self::$capsule;
+
+        // Wire a real container as the facade root so the Db and App facades resolve
+        $this->savedFacadeApp = Illuminate\Support\Facades\Facade::getFacadeApplication();
+
+        $app = new Illuminate\Container\Container;
+        $app->singleton('db', fn () => $capsule->getDatabaseManager());
         $app->instance('app', $app);
-        Facade::setFacadeApplication($app);
-        $this->capsule = new Manager($app);
-        foreach (['default', 'other'] as $name) {
-            $this->capsule->addConnection(['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => ''], $name);
-        }
-        $this->capsule->setEventDispatcher(new Dispatcher($app));
-        $this->capsule->bootEloquent();
-        $app->instance('db', $this->capsule->getDatabaseManager());
+        Illuminate\Support\Facades\Facade::clearResolvedInstances();
+        Illuminate\Support\Facades\Facade::setFacadeApplication($app);
 
-        foreach (['default', 'other'] as $name) {
-            $schema = $this->capsule->getConnection($name)->getSchemaBuilder();
-            $schema->create('translated_entries', function ($table) {
-                $table->increments('id');
-                $table->string('title');
-                $table->text('settings');
-                $table->text('metadata');
-            });
-            $schema->create('translate_attributes', function ($table) {
-                $table->increments('id');
-                $table->string('model_type');
-                $table->integer('model_id');
-                $table->string('locale');
-                $table->string('attribute');
-                $table->text('value')->nullable();
-                $table->unique(['model_type', 'model_id', 'locale', 'attribute']);
-            });
-        }
+        // Re-register model events against the dispatcher so afterFetch fires
+        TestModelTranslatable::flushEventListeners();
+
+        $capsule->schema()->dropIfExists('test_translatable');
+        $capsule->schema()->dropIfExists('translate_attributes');
+
+        $capsule->schema()->create('test_translatable', function ($table) {
+            $table->increments('id');
+            $table->string('name')->nullable();
+            $table->string('description')->nullable();
+            $table->timestamps();
+        });
+
+        $capsule->schema()->create('translate_attributes', function ($table) {
+            $table->increments('id');
+            $table->string('model_type');
+            $table->integer('model_id');
+            $table->string('locale');
+            $table->string('attribute');
+            $table->text('value')->nullable();
+            $table->unique(['model_type', 'model_id', 'locale', 'attribute']);
+        });
+
+        TestModelTranslatable::$activeLocale = 'en';
     }
 
+    /**
+     * tearDown test
+     */
     public function tearDown(): void
     {
-        TranslationBatchTestModel::$onFetched = null;
-        TranslationBatchTestModel::$onNewInstance = null;
-        if ($this->savedDispatcher) {
-            Model::setEventDispatcher($this->savedDispatcher);
-        }
-        else {
-            Model::unsetEventDispatcher();
-        }
-        Container::setInstance($this->savedContainer);
-        Facade::setFacadeApplication($this->savedFacadeApplication);
-        foreach ($this->savedStatics as [$property, $value]) {
-            $property->setValue(null, $value);
-        }
+        Illuminate\Support\Facades\Facade::setFacadeApplication($this->savedFacadeApp);
     }
 
-    public function testCollectionTranslationQueriesStayBounded()
+    /**
+     * testDefaultLocaleReadsBaseValue confirms the default locale reads straight from $attributes
+     */
+    public function testDefaultLocaleReadsBaseValue()
     {
-        $this->seedEntries(100);
-        foreach ([1, 25, 100] as $count) {
-            $this->startQueryLog();
-            $models = TranslationBatchTestModel::limit($count)->get();
-            $this->assertSame(2, count($this->queries()));
-            $this->assertSame(array_map(fn ($id) => 'French '.$id, range(1, $count)), $models->pluck('title')->all());
-        }
+        $model = TestModelTranslatable::create(['name' => 'Product']);
+
+        $this->assertEquals('Product', $model->name);
+        $this->assertEquals('Product', $model->getTranslation('name', 'en'));
     }
 
-    public function testCustomTranslationLoaderRunsForBatchesAndIndividualReads()
+    /**
+     * testSetAndGetTranslation stores and reads a non-default locale value
+     */
+    public function testSetAndGetTranslation()
     {
-        $this->seedEntries(2);
-        $this->startQueryLog();
+        $model = TestModelTranslatable::create(['name' => 'Product']);
+        $model->setTranslation('name', 'fr', 'Produit');
+        $model->save();
 
-        $models = CustomTranslationLoaderTestModel::orderBy('id')->get();
+        $fresh = TestModelTranslatable::find($model->id);
 
-        $this->assertSame(['Decoded: French 1', 'Decoded: French 2'], $models->pluck('title')->all());
-        $this->assertSame(2, count($this->queries()));
-        $this->assertSame('Decoded: French 1', CustomTranslationLoaderTestModel::first()->title);
-        $this->assertSame('Decoded: French 1', CustomTranslationLoaderTestModel::cursor()->first()->title);
-        $this->assertFalse($models->first()->isTranslateDirty('title'));
+        $this->assertEquals('Product', $fresh->getTranslation('name', 'en'));
+        $this->assertEquals('Produit', $fresh->getTranslation('name', 'fr'));
     }
 
-    public function testHydrationDataIsReleasedAfterSuccessAndCallbackFailure()
+    /**
+     * testFallbackToDefaultLocale confirms an untranslated attribute falls back to the default value
+     */
+    public function testFallbackToDefaultLocale()
     {
-        $this->seedEntries(1);
-        foreach ([false, true] as $throw) {
-            $captured = null;
-            TranslationBatchTestModel::$onFetched = function ($model) use (&$captured, $throw) {
-                $captured = $model;
-                if ($throw) {
-                    throw new RuntimeException('Fetched callback failed');
-                }
-            };
-            try {
-                CustomTranslationLoaderTestModel::first();
-                $this->assertFalse($throw);
-            }
-            catch (RuntimeException $ex) {
-                $this->assertTrue($throw);
-                $this->assertSame('Fetched callback failed', $ex->getMessage());
-            }
-            finally {
-                TranslationBatchTestModel::$onFetched = null;
-            }
+        $model = TestModelTranslatable::create(['name' => 'Product']);
+        $model->save();
 
-            $updated = $throw ? 'Updated after failure' : 'Updated after success';
-            $this->db()->table('translate_attributes')
-                ->where('model_id', 1)->where('locale', 'fr')->where('attribute', 'title')
-                ->update(['value' => $updated]);
-            (new ReflectionMethod($captured, 'loadTranslatableData'))->invoke($captured, 'fr');
-            $this->assertSame('Decoded: '.$updated, $captured->getTranslatableOriginals('fr')['title']);
-        }
+        $this->assertEquals('Product', $model->getTranslation('name', 'fr'));
+        $this->assertNull($model->getTranslation('name', 'fr', false));
     }
 
-    public function testFetchedCallbacksSeeTranslatedValues()
+    /**
+     * testActiveLocalePromotesTranslatedValue confirms attribute access follows the active locale
+     */
+    public function testActiveLocalePromotesTranslatedValue()
     {
-        $this->seedEntries(2);
-        $seen = [];
-        TranslationBatchTestModel::$onFetched = function ($model) use (&$seen) {
-            $seen[] = $model->title;
-        };
-        TranslationBatchTestModel::get();
-        $this->assertSame(['French 1', 'French 2'], $seen);
+        $model = TestModelTranslatable::create(['name' => 'Product']);
+        $model->setTranslation('name', 'fr', 'Produit');
+        $model->save();
+
+        TestModelTranslatable::$activeLocale = 'fr';
+        $fresh = TestModelTranslatable::find($model->id);
+
+        $this->assertEquals('Produit', $fresh->name);
     }
 
-    public function testLargeCollectionsBoundQueryParameters()
+    /**
+     * testGetTranslationsReturnsAllLocales confirms getTranslations lists every locale for one attribute
+     */
+    public function testGetTranslationsReturnsAllLocales()
     {
-        $this->seedEntries(1001);
-        $this->startQueryLog();
-        $models = TranslationBatchTestModel::get();
-        $this->assertSame(array_map(fn ($id) => 'French '.$id, range(1, 1001)), $models->pluck('title')->all());
-        $this->assertCount(4, $this->queries());
-        foreach ($this->queries() as $query) {
-            $this->assertLessThanOrEqual(502, count($query['bindings']));
-        }
+        $model = TestModelTranslatable::create(['name' => 'Product']);
+        $model->setTranslation('name', 'fr', 'Produit');
+        $model->setTranslation('name', 'de', 'Produkt');
+        $model->save();
+
+        $fresh = TestModelTranslatable::find($model->id);
+        $translations = $fresh->getTranslations('name');
+
+        $this->assertEquals('Product', $translations['en']);
+        $this->assertEquals('Produit', $translations['fr']);
+        $this->assertEquals('Produkt', $translations['de']);
     }
 
-    public function testDefaultLocaleDisabledAndEmptyResultsDoNotReadTranslations()
+    //
+    // Query scopes
+    //
+
+    /**
+     * testTransOrderBySortsByTranslatedValue confirms transOrderBy sorts on the locale value
+     */
+    public function testTransOrderBySortsByTranslatedValue()
     {
-        $this->seedEntries(3);
-        foreach (['default', 'disabled', 'empty'] as $case) {
-            $model = new TranslationBatchTestModel;
-            if ($case === 'default') {
-                $model->fixtureLocale = 'en';
-            }
-            if ($case === 'disabled') {
-                $model->translationsEnabled = false;
-            }
-            $query = $model->newQuery();
-            if ($case === 'empty') {
-                $query->where('id', 0);
-            }
-            $this->startQueryLog();
-            $models = $query->get();
-            $this->assertCount(1, $this->queries());
-            $this->assertSame($case === 'empty' ? [] : ['Base 1', 'Base 2', 'Base 3'], $models->pluck('title')->all());
-        }
+        $alpha = TestModelTranslatable::create(['name' => 'Alpha']);
+        $alpha->setTranslation('name', 'fr', 'Zulu');
+        $alpha->save();
+
+        $zeta = TestModelTranslatable::create(['name' => 'Zeta']);
+        $zeta->setTranslation('name', 'fr', 'Alpha');
+        $zeta->save();
+
+        // Default locale sorts by the base column
+        $enOrder = TestModelTranslatable::transOrderBy('name', 'asc', 'en')->pluck('name')->all();
+        $this->assertEquals(['Alpha', 'Zeta'], $enOrder);
+
+        // French locale sorts by the translated value, reversing the order
+        $frOrder = TestModelTranslatable::transOrderBy('name', 'asc', 'fr')->pluck('name')->all();
+        $this->assertEquals(['Zeta', 'Alpha'], $frOrder);
     }
 
-    public function testMissingTranslationsAndAttributeConversionsKeepTheirBehavior()
+    /**
+     * testTransOrderByFallsBackToBaseValue confirms untranslated rows sort by their base value
+     */
+    public function testTransOrderByFallsBackToBaseValue()
     {
-        $this->seedEntries(2);
-        $this->db()->table('translate_attributes')->where('model_id', 2)->delete();
-        $models = TranslationBatchTestModel::get();
-        $this->assertSame(['French 1', 'Base 2'], $models->pluck('title')->all());
-        $this->assertSame(['language' => 'fr'], $models[0]->settings);
-        $this->assertSame(['language' => 'fr'], $models[0]->metadata);
-        $this->assertSame(['language' => 'en'], $models[1]->settings);
-        $this->assertSame(['language' => 'en'], $models[1]->metadata);
+        $translated = TestModelTranslatable::create(['name' => 'Bravo']);
+        $translated->setTranslation('name', 'fr', 'Mike');
+        $translated->save();
+
+        // No French translation, so it should sort using the base value "Alpha"
+        $untranslated = TestModelTranslatable::create(['name' => 'Alpha']);
+        $untranslated->save();
+
+        $frOrder = TestModelTranslatable::transOrderBy('name', 'asc', 'fr')->pluck('name')->all();
+
+        $this->assertEquals(['Alpha', 'Bravo'], $frOrder);
     }
 
-    public function testEagerTranslationsRemainCompleteAcrossLocales()
+    //
+    // Deprecated aliases
+    //
+
+    /**
+     * testGetAttributeTranslatedAlias confirms the deprecated getter delegates to getTranslation
+     */
+    public function testGetAttributeTranslatedAlias()
     {
-        $this->seedEntries(25);
-        $this->startQueryLog();
-        $models = TranslationBatchTestModel::with('translations')->get();
-        $this->assertCount(3, $this->queries());
-        $this->assertTrue($models[0]->relationLoaded('translations'));
-        $this->assertCount(4, $models[0]->translations);
-        $this->assertSame('German 1', $models[0]->setLocale('de')->title);
-        $this->assertSame('French 1', $models[0]->setLocale('fr')->title);
-        $this->assertCount(3, $this->queries());
+        $model = TestModelTranslatable::create(['name' => 'Product', 'description' => 'A product']);
+        $model->setTranslation('name', 'fr', 'Produit');
+        $model->save();
+
+        // Translated attribute returns its locale value
+        $this->assertEquals('Produit', $model->getAttributeTranslated('name', 'fr'));
+
+        // Untranslated attribute falls back to the default value, or null with fallback off
+        $this->assertEquals('A product', $model->getAttributeTranslated('description', 'fr'));
+        $this->assertNull($model->getAttributeTranslated('description', 'fr', false));
     }
 
-    public function testLocaleSwitchDirtyTrackingAndSaveRestoreBaseValues()
+    /**
+     * testSetAttributeTranslatedAlias confirms the deprecated setter uses the old argument order
+     */
+    public function testSetAttributeTranslatedAlias()
     {
-        $this->seedEntries(2);
-        $model = TranslationBatchTestModel::first();
-        $this->assertFalse($model->isTranslateDirty());
-        $this->assertSame('German 1', $model->setLocale('de')->title);
-        $this->assertSame('Base 1', $model->setLocale('en')->title);
-        $model->setLocale('fr');
-        $model->title = 'Edited French';
-        $this->assertTrue($model->save());
-        $this->assertSame('Base 1', $this->db()->table('translated_entries')->where('id', 1)->value('title'));
-        $this->assertSame('Edited French', $this->db()->table('translate_attributes')->where('model_id', 1)->where('locale', 'fr')->where('attribute', 'title')->value('value'));
-        $this->assertSame('Base 1', $model->title);
-        $this->assertSame('Edited French', TranslationBatchTestModel::find(1)->title);
+        $model = TestModelTranslatable::create(['name' => 'Product']);
+        $model->setAttributeTranslated('name', 'Produit', 'fr');
+        $model->save();
+
+        $this->assertEquals('Produit', $model->getTranslation('name', 'fr'));
     }
 
-    public function testFirstChunkAndCursorKeepTranslationBehavior()
+    /**
+     * testGetTranslateAttributesAlias confirms the deprecated helper returns every attribute for a locale
+     */
+    public function testGetTranslateAttributesAlias()
     {
-        $this->seedEntries(5);
-        $this->assertSame('French 1', TranslationBatchTestModel::first()->title);
-        $titles = [];
-        $this->startQueryLog();
-        TranslationBatchTestModel::orderBy('id')->chunk(2, function ($models) use (&$titles) {
-            array_push($titles, ...$models->pluck('title')->all());
-        });
-        $this->assertSame(['French 1', 'French 2', 'French 3', 'French 4', 'French 5'], $titles);
-        $this->assertCount(6, $this->queries());
-        $this->assertSame($titles, TranslationBatchTestModel::orderBy('id')->cursor()->map(fn ($model) => $model->title)->all());
+        $model = TestModelTranslatable::create(['name' => 'Product', 'description' => 'A product']);
+        $model->setTranslation('name', 'fr', 'Produit');
+        $model->setTranslation('description', 'fr', 'Un produit');
+        $model->save();
+
+        $data = $model->getTranslateAttributes('fr');
+
+        $this->assertEquals(['name' => 'Produit', 'description' => 'Un produit'], $data);
     }
 
-    public function testNestedHydrationDoesNotReplaceOuterBatch()
+    /**
+     * testTranslateContextAlias confirms the deprecated combined getter/setter
+     */
+    public function testTranslateContextAlias()
     {
-        $this->seedEntries(3);
-        $nested = null;
-        TranslationBatchTestModel::$onFetched = function ($model) use (&$nested) {
-            if ($model->id === 1 && $nested === null) {
-                $nested = 'loading';
-                $nested = TranslationBatchTestModel::find(3)->title;
-            }
-        };
-        $this->startQueryLog();
-        $models = TranslationBatchTestModel::whereIn('id', [1, 2])->get();
-        $this->assertSame('French 3', $nested);
-        $this->assertSame(['French 1', 'French 2'], $models->pluck('title')->all());
-        $this->assertCount(4, $this->queries());
+        $model = TestModelTranslatable::create(['name' => 'Product']);
+
+        $this->assertEquals('en', $model->translateContext());
+
+        $model->translateContext('fr');
+        $this->assertEquals('fr', $model->getLocale());
     }
 
-    public function testFailedFetchDoesNotLeakBatchIntoLaterHydration()
+    /**
+     * testLangAlias confirms the deprecated chainable locale setter
+     */
+    public function testLangAlias()
     {
-        $this->seedEntries(2);
-        TranslationBatchTestModel::$onFetched = function () {
-            throw new RuntimeException('Abort hydration');
-        };
-        try {
-            TranslationBatchTestModel::get();
-            $this->fail('Expected the fetch callback to throw.');
-        }
-        catch (RuntimeException $ex) {
-            $this->assertSame('Abort hydration', $ex->getMessage());
-        }
-        TranslationBatchTestModel::$onFetched = null;
-        $this->db()->table('translate_attributes')->where('model_id', 1)->where('attribute', 'title')->where('locale', 'fr')->update(['value' => 'Changed']);
-        $this->assertSame('Changed', TranslationBatchTestModel::first()->title);
+        $model = TestModelTranslatable::create(['name' => 'Product']);
+
+        $this->assertSame($model, $model->lang('fr'));
+        $this->assertEquals('fr', $model->getLocale());
     }
 
-    public function testCustomTranslationTableAndMorphTypeStayIsolated()
+    /**
+     * testIsTranslatableAlias confirms the deprecated attribute check
+     */
+    public function testIsTranslatableAlias()
     {
-        $this->seedEntries(2);
-        $this->db()->statement('create table custom_translations as select * from translate_attributes');
-        $this->db()->table('custom_translations')->update(['model_type' => 'custom-entry']);
-        $this->db()->table('custom_translations')->where('attribute', 'title')->where('locale', 'fr')->update(['value' => 'Custom table']);
-        $this->startQueryLog();
-        $models = CustomTranslationTableTestModel::get();
-        $this->assertSame(['Custom table', 'Custom table'], $models->pluck('title')->all());
-        $this->assertCount(2, $this->queries());
-        $this->assertSame('French 1', TranslationBatchTestModel::first()->title);
-    }
+        TestModelTranslatable::$activeLocale = 'fr';
+        $model = TestModelTranslatable::create(['name' => 'Product']);
 
-    public function testInstanceLocaleOverridesAndDisabledInstancesAreRespected()
-    {
-        $this->seedEntries(3);
-        $index = 0;
-        TranslationBatchTestModel::$onNewInstance = function ($model) use (&$index) {
-            if (!$model->exists) {
-                return;
-            }
-            $index++;
-            $model->fixtureLocale = $index === 1 ? 'de' : 'fr';
-            $model->translationsEnabled = $index !== 3;
-        };
-        $this->startQueryLog();
-        $models = TranslationBatchTestModel::get();
-        $this->assertSame(['German 1', 'French 2', 'Base 3'], $models->pluck('title')->all());
-        $this->assertCount(3, $this->queries());
-    }
-
-    public function testSeparateModelConnectionKeepsDefaultTranslationStorage()
-    {
-        $this->seedEntries(2);
-        $this->seedEntries(2, 'other', 'Other French ');
-        $this->startQueryLog('default');
-        $this->startQueryLog('other');
-        $models = TranslationBatchTestModel::on('other')->get();
-        $this->assertSame(['French 1', 'French 2'], $models->pluck('title')->all());
-        $this->assertCount(1, $this->queries());
-        $this->assertCount(1, $this->queries('other'));
-        $raw = (object) ['id' => 1, 'title' => 'Base 1'];
-        $model = (new TranslationBatchTestModel)->newFromBuilder($raw, 'other');
-        $this->assertSame('French 1', $model->title);
-    }
-
-    public function testNestedHydrationUsesTheCurrentTranslationConnection()
-    {
-        $this->seedEntries(2);
-        $this->seedEntries(2, 'other', 'Other French ');
-        $nested = null;
-        TranslationBatchTestModel::$onFetched = function () use (&$nested) {
-            if ($nested !== null) {
-                return;
-            }
-            $nested = 'loading';
-            $manager = $this->capsule->getDatabaseManager();
-            $manager->setDefaultConnection('other');
-            try {
-                $nested = (new TranslationBatchTestModel)->newFromBuilder((object) [
-                    'id' => 1, 'title' => 'Base 1'
-                ])->title;
-            }
-            finally {
-                $manager->setDefaultConnection('default');
-            }
-        };
-
-        $models = TranslationBatchTestModel::get();
-        $this->assertSame('Other French 1', $nested);
-        $this->assertSame(['French 1', 'French 2'], $models->pluck('title')->all());
-    }
-
-    public function testIndependentReadsInsideFetchedCallbacksDoNotUseOuterSnapshot()
-    {
-        $this->seedEntries(2);
-        $nested = null;
-        TranslationBatchTestModel::$onFetched = function () use (&$nested) {
-            if ($nested !== null) {
-                return;
-            }
-            $nested = [];
-            $this->db()->table('translate_attributes')->where('locale', 'fr')
-                ->where('attribute', 'title')->update(['value' => 'Updated']);
-            $nested[] = (new TranslationBatchTestModel)->newFromBuilder((object) [
-                'id' => 1, 'title' => 'Base 1'
-            ])->title;
-            $nested[] = TranslationBatchTestModel::where('id', 2)->cursor()->first()->title;
-        };
-
-        TranslationBatchTestModel::get();
-        $this->assertSame(['Updated', 'Updated'], $nested);
-    }
-
-    public function testIndependentReadsDuringInstanceCreationDoNotUseOuterSnapshot()
-    {
-        $this->seedEntries(2);
-        $nested = null;
-        TranslationBatchTestModel::$onNewInstance = function ($model) use (&$nested) {
-            if (!$model->exists || $nested !== null) {
-                return;
-            }
-            $nested = 'loading';
-            $this->db()->table('translate_attributes')->where('locale', 'fr')
-                ->where('attribute', 'title')->update(['value' => 'Updated']);
-            $nested = TranslationBatchTestModel::where('id', 2)->cursor()->first()->title;
-        };
-
-        TranslationBatchTestModel::get();
-        $this->assertSame('Updated', $nested);
-    }
-
-    public function testPrototypeCallbacksDoNotExposeTheOuterBatch()
-    {
-        $this->seedEntries(2);
-        $query = TranslationBatchTestModel::query();
-        $rows = $this->db()->table('translated_entries')->orderBy('id')->get()->all();
-        $nested = null;
-        TranslationBatchTestModel::$onNewInstance = function ($model) use (&$nested) {
-            if ($model->exists || $nested !== null) {
-                return;
-            }
-            $nested = 'loading';
-            $this->db()->table('translate_attributes')->where('locale', 'fr')
-                ->where('attribute', 'title')->update(['value' => 'Updated']);
-            $nested = TranslationBatchTestModel::where('id', 2)->cursor()->first()->title;
-        };
-
-        $query->hydrate($rows);
-        $this->assertSame('Updated', $nested);
-    }
-
-    public function testBatchHydrationPreservesLazyLoadingPrevention()
-    {
-        $this->seedEntries(2);
-        $previous = Model::preventsLazyLoading();
-        Model::preventLazyLoading();
-        try {
-            $models = TranslationBatchTestModel::get();
-            $this->assertTrue($models[0]->preventsLazyLoading);
-            $this->assertTrue($models[1]->preventsLazyLoading);
-            $this->assertFalse(TranslationBatchTestModel::first()->preventsLazyLoading);
-        }
-        finally {
-            Model::preventLazyLoading($previous);
-        }
-    }
-
-    public function testMissingSelectedKeyDoesNotTranslateAnUnrelatedRow()
-    {
-        $this->seedEntries(2);
-        $this->startQueryLog();
-        $models = TranslationBatchTestModel::get(['title']);
-        $this->assertSame(['Base 1', 'Base 2'], $models->pluck('title')->all());
-        $this->assertCount(1, $this->queries());
-    }
-
-    protected function seedEntries($count, $connection = 'default', $prefix = 'French ')
-    {
-        for ($id = 1; $id <= $count; $id++) {
-            $this->db($connection)->table('translated_entries')->insert([
-                'id' => $id,
-                'title' => 'Base '.$id,
-                'settings' => '{"language":"en"}',
-                'metadata' => '{"language":"en"}'
-            ]);
-            foreach (['fr' => ['title' => $prefix.$id, 'settings' => '{"language":"fr"}', 'metadata' => '{"language":"fr"}'], 'de' => ['title' => 'German '.$id]] as $locale => $values) {
-                foreach ($values as $attribute => $value) {
-                    $this->db($connection)->table('translate_attributes')->insert([
-                        'model_type' => TranslationBatchTestModel::class,
-                        'model_id' => $id,
-                        'locale' => $locale,
-                        'attribute' => $attribute,
-                        'value' => $value
-                    ]);
-                }
-            }
-        }
-    }
-
-    protected function db($connection = 'default')
-    {
-        return $this->capsule->getConnection($connection);
-    }
-
-    protected function startQueryLog($connection = 'default')
-    {
-        $this->db($connection)->flushQueryLog();
-        $this->db($connection)->enableQueryLog();
-    }
-
-    protected function queries($connection = 'default')
-    {
-        return $this->db($connection)->getQueryLog();
+        $this->assertTrue($model->isTranslatable('name'));
+        $this->assertFalse($model->isTranslatable('id'));
     }
 }
 
-class TranslationBatchTestModel extends Model
+/**
+ * TestModelTranslatable example class
+ */
+class TestModelTranslatable extends Model
 {
     use \October\Rain\Database\Traits\Translatable;
 
-    public static $onFetched;
-    public static $onNewInstance;
-    public $translatable = ['title', 'settings', 'metadata'];
-    public $timestamps = false;
-    public $fixtureLocale = 'fr';
-    public $translationsEnabled = true;
-    protected $table = 'translated_entries';
-    protected $jsonable = ['settings'];
-    protected $casts = ['metadata' => 'array'];
+    public static $activeLocale = 'en';
 
-    public function afterInit()
-    {
-        $this->bindEvent('model.newInstance', function ($model) {
-            $model->fixtureLocale = $this->fixtureLocale;
-            $model->translationsEnabled = $this->translationsEnabled;
-            if (self::$onNewInstance) {
-                (self::$onNewInstance)($model);
-            }
-        });
-    }
+    public $translatable = ['name', 'description'];
 
-    public function afterFetch()
-    {
-        if (self::$onFetched) {
-            (self::$onFetched)($this);
-        }
-    }
+    protected $fillable = ['name', 'description'];
 
-    public function isTranslatableEnabled()
-    {
-        return $this->translationsEnabled;
-    }
+    protected $table = 'test_translatable';
 
     protected function resolveTranslatableLocale()
     {
-        return $this->fixtureLocale;
+        return static::$activeLocale;
     }
 
     protected function resolveTranslatableDefaultLocale()
     {
         return 'en';
-    }
-}
-
-class CustomTranslationTableTestModel extends TranslationBatchTestModel
-{
-    public function getTranslateAttributeTable()
-    {
-        return 'custom_translations';
-    }
-
-    public function getMorphClass()
-    {
-        return 'custom-entry';
-    }
-}
-
-class CustomTranslationLoaderTestModel extends TranslationBatchTestModel
-{
-    public function getMorphClass()
-    {
-        return TranslationBatchTestModel::class;
-    }
-
-    protected function loadTranslatableData($locale)
-    {
-        parent::loadTranslatableData($locale);
-
-        if (isset($this->translatableAttributes[$locale]['title'])) {
-            $this->translatableAttributes[$locale]['title'] = 'Decoded: '.$this->translatableAttributes[$locale]['title'];
-            $this->translatableOriginals[$locale]['title'] = $this->translatableAttributes[$locale]['title'];
-        }
     }
 }

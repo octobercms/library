@@ -1,5 +1,7 @@
 <?php namespace October\Rain\Foundation\Console;
 
+use Illuminate\Container\Container;
+use Illuminate\Support\Facades\Facade;
 use Illuminate\Foundation\Console\RouteCacheCommand as RouteCacheCommandBase;
 
 class RouteCacheCommand extends RouteCacheCommandBase
@@ -11,9 +13,25 @@ class RouteCacheCommand extends RouteCacheCommandBase
      */
     protected function getFreshApplicationRoutes()
     {
-        $routes = $this->getFreshApplication()['router']->registerLateRoutes();
+        $app = $this->getFreshApplication();
 
-        return tap($routes->getRoutes(), function ($routes) {
+        // Late routes resolve the router via facades so point them at the fresh app
+        Facade::clearResolvedInstances();
+        Facade::setFacadeApplication($app);
+        Container::setInstance($app);
+
+        try {
+            // Register the late routes
+            $routes = $app->make('router')->registerLateRoutes()->getRoutes();
+        }
+        finally {
+            // Restore the original app to preserve the Laravel post-bootstrap flow
+            Facade::clearResolvedInstances();
+            Facade::setFacadeApplication($this->laravel);
+            Container::setInstance($this->laravel);
+        }
+
+        return tap($routes, function ($routes) {
             $routes->refreshNameLookups();
             $routes->refreshActionLookups();
         });
