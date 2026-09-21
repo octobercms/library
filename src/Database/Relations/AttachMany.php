@@ -51,11 +51,25 @@ class AttachMany extends MorphManyBase
             return;
         }
 
+        // The relation is set here to satisfy validation, merging existing files when appending
+        $setValidationValue = function(array $value, bool $append = false) {
+            if ($append) {
+                $value = array_merge($this->getResults()->all(), $value);
+            }
+
+            $this->parent->setRelation($this->relationName, $value);
+
+            $this->parent->bindEventOnce('model.afterValidate', function() {
+                $this->parent->unsetRelation($this->relationName);
+            });
+        };
+
         // Append a single newly uploaded file(s)
         if ($value instanceof UploadedFile) {
             $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
                 $this->create(['data' => $value]);
             });
+            $setValidationValue([$value], true);
             return;
         }
 
@@ -64,6 +78,7 @@ class AttachMany extends MorphManyBase
             $this->parent->bindEventOnce('model.afterSave', function () use ($value) {
                 $this->add($value);
             });
+            $setValidationValue([$value], true);
             return;
         }
 
@@ -110,6 +125,10 @@ class AttachMany extends MorphManyBase
                     $this->add($model);
                 }
             });
+        }
+
+        if (is_array($value)) {
+            $setValidationValue($value);
         }
     }
 

@@ -101,9 +101,9 @@ class HtmlBuilder
      */
     public function image($url, $alt = null, $attributes = [], $secure = null)
     {
-        $attributes['alt'] = $alt;
+        $attributes = ['src' => $this->url->asset($url, $secure), 'alt' => $alt] + $attributes;
 
-        return '<img src="'.$this->url->asset($url, $secure).'"'.$this->attributes($attributes).'>';
+        return '<img'.$this->attributes($attributes).'>';
     }
 
     /**
@@ -123,7 +123,7 @@ class HtmlBuilder
             $title = $url;
         }
 
-        return '<a href="'.$url.'"'.$this->attributes($attributes).'>'.$this->entities($title).'</a>';
+        return '<a'.$this->attributes(['href' => $url] + $attributes).'>'.$this->entities($title).'</a>';
     }
 
     /**

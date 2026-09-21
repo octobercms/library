@@ -768,6 +768,36 @@ trait Translatable
     }
 
     /**
+     * scopeTransOrderBy sorts by the translated value for the locale, defaulting to
+     * the active locale, falling back to the base column value when a translation is
+     * missing so untranslated records still sort against their default-locale value.
+     */
+    public function scopeTransOrderBy($query, $key, $direction = 'asc', $locale = null)
+    {
+        if ($locale === null) {
+            $locale = $this->getTranslatableContext();
+        }
+
+        if ($locale === $this->getTranslatableDefault()) {
+            return $query->orderBy($key, $direction);
+        }
+
+        $table = $this->getTranslateAttributeTable();
+        $alias = 'translate_order_' . $key;
+        $direction = strtolower($direction) === 'desc' ? 'desc' : 'asc';
+
+        return $query
+            ->select($this->getTable() . '.*')
+            ->leftJoin($table . ' as ' . $alias, function ($join) use ($alias, $key, $locale) {
+                $join->on($alias . '.model_id', '=', $this->getQualifiedKeyName())
+                    ->where($alias . '.model_type', '=', $this->getMorphClass())
+                    ->where($alias . '.locale', '=', $locale)
+                    ->where($alias . '.attribute', '=', $key);
+            })
+            ->orderByRaw('COALESCE(' . $alias . '.value, ' . $this->getTable() . '.' . $key . ') ' . $direction);
+    }
+
+    /**
      * scopeWhereTranslation adds a where clause for a translated attribute
      */
     public function scopeWhereTranslation($query, $key, $locale, $value, $operator = '=')
@@ -852,5 +882,73 @@ trait Translatable
         $modelClass = $this->getTranslateAttributeModelClass();
 
         return (new $modelClass)->getTable();
+    }
+
+    //
+    // Deprecated aliases
+    //
+
+    /**
+     * getAttributeTranslated is a deprecated alias for getTranslation.
+     * @deprecated use getTranslation($key, $locale, $useFallback)
+     */
+    public function getAttributeTranslated($key, $locale = null, $useFallback = true)
+    {
+        return $this->getTranslation($key, $locale ?? $this->getLocale(), $useFallback);
+    }
+
+    /**
+     * setAttributeTranslated is a deprecated alias for setTranslation with the old argument order.
+     * @deprecated use setTranslation($key, $locale, $value)
+     */
+    public function setAttributeTranslated($key, $value, $locale = null)
+    {
+        return $this->setTranslation($key, $locale ?? $this->getLocale(), $value);
+    }
+
+    /**
+     * getTranslateAttributes is a deprecated helper returning every translatable attribute for a locale.
+     * @deprecated iterate getTranslatableAttributes() with getTranslation($key, $locale)
+     */
+    public function getTranslateAttributes($locale)
+    {
+        $data = [];
+
+        foreach ($this->getTranslatableAttributes() as $key) {
+            $data[$key] = $this->getTranslation($key, $locale);
+        }
+
+        return $data;
+    }
+
+    /**
+     * translateContext is a deprecated combined getter/setter for the locale context.
+     * @deprecated use getLocale() or setLocale($locale)
+     */
+    public function translateContext($locale = null)
+    {
+        if ($locale === null) {
+            return $this->getLocale();
+        }
+
+        return $this->setLocale($locale);
+    }
+
+    /**
+     * lang is a deprecated alias for setLocale.
+     * @deprecated use setLocale($locale)
+     */
+    public function lang($locale)
+    {
+        return $this->setLocale($locale);
+    }
+
+    /**
+     * isTranslatable is a deprecated alias for isTranslatableAttribute.
+     * @deprecated use isTranslatableAttribute($key)
+     */
+    public function isTranslatable($key)
+    {
+        return $this->isTranslatableAttribute($key);
     }
 }
