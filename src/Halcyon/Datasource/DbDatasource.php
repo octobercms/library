@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Halcyon\Datasource;
 
-use Cache;
 use Db;
+use Cache;
 use October\Rain\Halcyon\Processors\Processor;
 use October\Rain\Halcyon\Exception\CreateFileException;
 use October\Rain\Halcyon\Exception\DeleteFileException;
