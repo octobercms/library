@@ -329,6 +329,14 @@ class DbDatasource extends Datasource implements DatasourceInterface
     public function lastModified(string $dirName, string $fileName, string $extension): ?int
     {
         try {
+            if (!$this->canShareIndexCache()) {
+                $result = $this->getQuery()
+                    ->where('path', $this->makeFilePath($dirName, $fileName, $extension))
+                    ->value('updated_at');
+
+                return $result !== null ? Carbon::parse($result)->timestamp : null;
+            }
+
             $this->fillIndexCaches();
 
             $path = $this->makeFilePath($dirName, $fileName, $extension);
@@ -414,6 +422,13 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     protected function getTrashedPaths(): array
     {
+        if (!$this->canShareIndexCache()) {
+            return array_fill_keys(
+                $this->getQuery(false)->whereNotNull('deleted_at')->pluck('path')->all(),
+                true
+            );
+        }
+
         $this->fillIndexCaches();
 
         if (!isset(self::$trashedPathCache[$this->source])) {
@@ -424,6 +439,26 @@ class DbDatasource extends Datasource implements DatasourceInterface
         }
 
         return self::$trashedPathCache[$this->source];
+    }
+
+    /**
+     * canShareIndexCache excludes custom query scopes from source-wide indexes.
+     * Query callbacks may select a tenant that is not represented in the cache key.
+     */
+    protected function canShareIndexCache(): bool
+    {
+        $event = 'halcyon.datasource.db.extendQuery';
+        if (isset($this->emitterEventCollection[$event]) || isset($this->emitterSingleEventCollection[$event])) {
+            return false;
+        }
+
+        foreach (['getQuery', 'getBaseQuery'] as $method) {
+            if ((new \ReflectionMethod($this, $method))->getDeclaringClass()->getName() !== self::class) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

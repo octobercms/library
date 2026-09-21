@@ -118,6 +118,58 @@ class DbDatasourceTest extends TestCase
         }
     }
 
+    public function testScopedIndexesDoNotLeakAcrossRequestsOrReadUnscopedCache()
+    {
+        Db::getSchemaBuilder()->table($this->dbTable, function ($table) {
+            $table->integer('site_id');
+        });
+        foreach ([1, 2] as $siteId) {
+            Db::table($this->dbTable)->insert([
+                'source' => 'test-theme',
+                'path' => 'pages/home.htm',
+                'content' => 'Site '.$siteId,
+                'updated_at' => '2026-09-01 00:00:00',
+                'deleted_at' => $siteId === 1 ? '2026-09-01 00:00:00' : null,
+                'site_id' => $siteId,
+            ]);
+        }
+
+        $siteId = 1;
+        $this->dbDatasource->bindEvent('halcyon.datasource.db.extendQuery', function ($query) use (&$siteId) {
+            $query->where('site_id', $siteId);
+        });
+        $this->assertTrue($this->dbDatasource->isTemplateTrashed('pages', 'home', 'htm'));
+        $this->assertNull($this->dbDatasource->lastModified('pages', 'home', 'htm'));
+
+        // A second request keeps the application cache, but resets request indexes.
+        $this->clearDbDatasourceCache();
+        $siteId = 2;
+        $this->assertFalse($this->dbDatasource->isTemplateTrashed('pages', 'home', 'htm'));
+        $this->assertSame(Carbon\Carbon::parse('2026-09-01 00:00:00')->timestamp, $this->dbDatasource->lastModified('pages', 'home', 'htm'));
+
+        // An existing unscoped cache entry must also be ignored by scoped readers.
+        $unscoped = new DbDatasource('test-theme', $this->dbTable);
+        $this->assertTrue($unscoped->isTemplateTrashed('pages', 'home', 'htm'));
+        $this->clearDbDatasourceCache();
+        $this->assertFalse($this->dbDatasource->isTemplateTrashed('pages', 'home', 'htm'));
+    }
+
+    public function testOverriddenQueriesDoNotReuseUnscopedIndexes()
+    {
+        $this->dbDatasource->insert('pages', 'home', 'htm', 'Visible');
+        $this->assertNotNull($this->dbDatasource->lastModified('pages', 'home', 'htm'));
+
+        $scoped = new class('test-theme', $this->dbTable) extends DbDatasource {
+            protected function getBaseQuery()
+            {
+                return parent::getBaseQuery()->where('path', 'pages/other.htm');
+            }
+        };
+        $this->assertNull($scoped->lastModified('pages', 'home', 'htm'));
+        $this->clearDbDatasourceCache();
+        $this->assertNull($scoped->lastModified('pages', 'home', 'htm'));
+    }
+
     public function testLastModifiedStoresIndexesInApplicationCache()
     {
         $this->dbDatasource->insert($this->dirName, $this->fileName, $this->extension, '<p>DB content</p>');
