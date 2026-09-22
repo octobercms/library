@@ -6,6 +6,7 @@ use October\Rain\Assetic\Asset\FileAsset;
 use October\Rain\Assetic\Asset\HttpAsset;
 use October\Rain\Assetic\Factory\AssetFactory;
 use October\Rain\Assetic\Util\CssUtils;
+use RuntimeException;
 
 /**
  * CssImportFilter converts imported stylesheets to inline.
@@ -14,6 +15,9 @@ use October\Rain\Assetic\Util\CssUtils;
  */
 class CssImportFilter extends BaseCssFilter implements HashableInterface, DependencyExtractorInterface
 {
+    protected const MAX_IMPORT_DEPTH = 100;
+    protected const MAX_IMPORTS = 10000;
+
     /**
      * @var FilterInterface|null importFilter
      */
@@ -39,11 +43,29 @@ class CssImportFilter extends BaseCssFilter implements HashableInterface, Depend
      */
     public function filterLoad(AssetInterface $asset): void
     {
+        $imports = 0;
+        $asset->setContent($this->expandImports($asset, [], $imports));
+    }
+
+    /**
+     * expandImports follows each import before rewriting its URLs for the parent.
+     */
+    protected function expandImports(AssetInterface $asset, array $parents, int &$imports): string
+    {
+        $identity = $this->getImportIdentity($asset->getSourceRoot().'/'.$asset->getSourcePath());
+        if (isset($parents[$identity])) {
+            throw new RuntimeException('Circular CSS import detected.');
+        }
+        if (count($parents) >= static::MAX_IMPORT_DEPTH) {
+            throw new RuntimeException('CSS import depth limit exceeded.');
+        }
+        $parents[$identity] = true;
+
         $importFilter = $this->importFilter;
         $sourceRoot = $asset->getSourceRoot();
         $sourcePath = $asset->getSourcePath();
 
-        $callback = function ($matches) use ($importFilter, $sourceRoot, $sourcePath) {
+        $callback = function ($matches) use ($importFilter, $sourceRoot, $sourcePath, $parents, &$imports) {
             if (!$matches['url'] || $sourceRoot === null) {
                 return $matches[0];
             }
@@ -88,20 +110,43 @@ class CssImportFilter extends BaseCssFilter implements HashableInterface, Depend
                 $import = new FileAsset($importSource, [$importFilter], $importRoot, $importPath);
             }
 
+            if (++$imports > static::MAX_IMPORTS) {
+                throw new RuntimeException('CSS import count limit exceeded.');
+            }
+
             $import->setTargetPath($sourcePath);
+            $import->load();
+            $import->setContent($this->expandImports($import, $parents, $imports));
 
             return $import->dump();
         };
 
-        $content = $asset->getContent();
-        $lastHash = md5($content);
+        return $this->filterImports($asset->getContent() ?? '', $callback);
+    }
 
-        do {
-            $content = $this->filterImports($content, $callback);
-            $hash = md5($content);
-        } while ($lastHash != $hash && ($lastHash = $hash));
+    /**
+     * getImportIdentity normalizes aliases without changing the import's URL base.
+     */
+    protected function getImportIdentity(string $source): string
+    {
+        if (strpos($source, '://') === false && strpos($source, '//') !== 0) {
+            return realpath($source) ?: $source;
+        }
 
-        $asset->setContent($content);
+        $url = parse_url(strpos($source, '//') === 0 ? 'http:'.$source : $source);
+        $segments = [];
+        foreach (explode('/', $url['path'] ?? '') as $segment) {
+            if ($segment === '..') {
+                array_pop($segments);
+            }
+            elseif ($segment !== '.') {
+                $segments[] = $segment;
+            }
+        }
+
+        return strtolower($url['scheme'] ?? 'http').'://'.strtolower($url['host'] ?? '')
+            .(isset($url['port']) ? ':'.$url['port'] : '').implode('/', $segments)
+            .(isset($url['query']) ? '?'.$url['query'] : '');
     }
 
     /**
@@ -154,14 +199,43 @@ class CssImportFilter extends BaseCssFilter implements HashableInterface, Depend
      */
     public function getAllChildren(AssetFactory $factory, $content, $loadPath = null)
     {
-        $children = (new static)->getChildren($factory, $content, $loadPath);
+        $children = [];
+        $this->collectChildren($factory, $content, $loadPath, [], $children);
 
-        foreach ($children as $child) {
-            $childContent = file_get_contents($child->getSourceRoot().'/'.$child->getSourcePath());
-            $children = array_merge($children, (new static)->getChildren($factory, $childContent, $loadPath.'/'.dirname($child->getSourcePath())));
+        return array_values($children);
+    }
+
+    /**
+     * collectChildren visits dependencies once, retaining their first import order.
+     */
+    protected function collectChildren(AssetFactory $factory, $content, $loadPath, array $parents, array &$children): void
+    {
+        if (count($parents) >= static::MAX_IMPORT_DEPTH) {
+            throw new RuntimeException('CSS import depth limit exceeded.');
         }
 
-        return $children;
+        foreach ($this->getChildren($factory, $content, $loadPath) as $child) {
+            $path = $child->getSourceRoot().'/'.$child->getSourcePath();
+            $identity = $this->getImportIdentity($path);
+            if (isset($parents[$identity])) {
+                throw new RuntimeException('Circular CSS import detected.');
+            }
+            if (isset($children[$identity])) {
+                continue;
+            }
+            if (count($children) >= static::MAX_IMPORTS) {
+                throw new RuntimeException('CSS import count limit exceeded.');
+            }
+
+            $children[$identity] = $child;
+            $this->collectChildren(
+                $factory,
+                file_get_contents($path),
+                dirname($path),
+                $parents + [$identity => true],
+                $children
+            );
+        }
     }
 
     /**
@@ -180,7 +254,7 @@ class CssImportFilter extends BaseCssFilter implements HashableInterface, Depend
                 continue;
             }
 
-            if (file_exists($file = $loadPath.'/'.$reference)) {
+            if (is_file($file = $loadPath.'/'.$reference)) {
                 $coll = $factory->createAsset($file, [], ['root' => $loadPath]);
                 foreach ($coll as $leaf) {
                     $leaf->ensureFilter($this);
