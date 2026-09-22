@@ -41,7 +41,7 @@ use October\Rain\Exception\ApplicationException;
  *       // Disable redirects
  *       $http->noRedirect();
  *
- *       // Check host SSL certificate
+ *       // Explicitly enable certificate verification (enabled by default)
  *       $http->verifySSL();
  *
  *       // Sets the timeout duration
@@ -256,8 +256,8 @@ class Http
         curl_setopt($curl, CURLOPT_URL, $this->url);
         curl_setopt($curl, CURLOPT_HEADER, true);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
 
         if (defined('CURLOPT_FOLLOWLOCATION') && !ini_get('open_basedir')) {
             curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
@@ -500,7 +500,7 @@ class Http
     public function verifySSL(): Http
     {
         $this->setOption(CURLOPT_SSL_VERIFYPEER, true);
-        $this->setOption(CURLOPT_SSL_VERIFYHOST, true);
+        $this->setOption(CURLOPT_SSL_VERIFYHOST, 2);
         return $this;
     }
 
