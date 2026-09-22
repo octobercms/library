@@ -69,7 +69,7 @@ class DbDatasource extends Datasource implements DatasourceInterface
     {
         $path = $this->makeFilePath($dirName, $fileName, $extension);
 
-        if (isset(self::$pathCache[$this->source][$path])) {
+        if ($this->canShareIndexCache() && isset(self::$pathCache[$this->source][$path])) {
             $result = self::$pathCache[$this->source][$path];
         }
         else {
@@ -111,8 +111,11 @@ class DbDatasource extends Datasource implements DatasourceInterface
 
         $results = $this->buildDirectoryQuery($dirName, $extensions)->get();
 
+        $shareCache = $this->canShareIndexCache();
         foreach ($results as $item) {
-            self::$pathCache[$this->source][$item->path] = $item;
+            if ($shareCache) {
+                self::$pathCache[$this->source][$item->path] = $item;
+            }
 
             $resultItem = [];
             $fileName = $this->pathToFileName($dirName, $item->path);
@@ -159,6 +162,8 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     public function insert(string $dirName, string $fileName, string $extension, string $content): bool
     {
+        $this->prepareCacheInvalidation();
+
         $path = $this->makeFilePath($dirName, $fileName, $extension);
 
         if ($this->getQuery()->where('path', $path)->count() > 0) {
@@ -210,6 +215,8 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     public function update(string $dirName, string $fileName, string $extension, string $content, $oldFileName = null, $oldExtension = null): int
     {
+        $this->prepareCacheInvalidation();
+
         $path = $this->makeFilePath($dirName, $fileName, $extension);
 
         // Check if this file has been renamed
@@ -263,6 +270,8 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     public function tombstone(string $dirName, string $fileName, string $extension): bool
     {
+        $this->prepareCacheInvalidation();
+
         $path = $this->makeFilePath($dirName, $fileName, $extension);
 
         if ($this->getQuery()->where('path', $path)->exists()) {
@@ -303,6 +312,8 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     public function delete(string $dirName, string $fileName, string $extension): bool
     {
+        $this->prepareCacheInvalidation();
+
         try {
             $path = $this->makeFilePath($dirName, $fileName, $extension);
             $recordQuery = $this->getQuery()->where('path', $path);
@@ -356,6 +367,15 @@ class DbDatasource extends Datasource implements DatasourceInterface
      * clearCache drops in-memory indexes and the application cache entry for a source
      */
     public static function clearCache(string $source, string $table): void
+    {
+        self::invalidateCacheAfterCommit(Db::connection(), $source, $table);
+        self::forgetCache($source, $table);
+    }
+
+    /**
+     * forgetCache invalidates both request-local data and shared index snapshots.
+     */
+    protected static function forgetCache(string $source, string $table): void
     {
         unset(self::$pathCache[$source]);
         unset(self::$mtimeCache[$source]);
@@ -444,8 +464,9 @@ class DbDatasource extends Datasource implements DatasourceInterface
     }
 
     /**
-     * canShareIndexCache excludes custom query scopes from source-wide indexes.
-     * Query callbacks may select a tenant that is not represented in the cache key.
+     * canShareIndexCache excludes custom scopes and transactions from shared
+     * content, mtime and tombstone indexes. Scopes may select an unkeyed tenant;
+     * transactional reads must not reuse or publish uncommitted snapshots.
      */
     protected function canShareIndexCache(): bool
     {
@@ -460,7 +481,8 @@ class DbDatasource extends Datasource implements DatasourceInterface
             }
         }
 
-        return true;
+        // Transactional reads must see their own writes without publishing them.
+        return Db::connection()->transactionLevel() === 0;
     }
 
     /**
@@ -635,6 +657,44 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     protected function flushCache()
     {
-        self::clearCache($this->source, $this->table);
+        self::forgetCache($this->source, $this->table);
+    }
+
+    /**
+     * prepareCacheInvalidation registers commit invalidation before any write,
+     * so an unsupported standalone transaction fails without mutating a record.
+     */
+    protected function prepareCacheInvalidation(): void
+    {
+        self::invalidateCacheAfterCommit($this->getBaseQuery()->getConnection(), $this->source, $this->table);
+    }
+
+    /**
+     * invalidateCacheAfterCommit rejects snapshots another request may fill from
+     * committed rows while this connection's changes are still uncommitted.
+     */
+    protected static function invalidateCacheAfterCommit($connection, string $source, string $table): void
+    {
+        if ($connection->transactionLevel() === 0) {
+            return;
+        }
+
+        try {
+            $connection->afterCommit(function () use ($source, $table) {
+                self::forgetCache($source, $table);
+            });
+        }
+        catch (\RuntimeException $exception) {
+            if ($exception->getMessage() !== 'Transactions Manager has not been set.') {
+                throw $exception;
+            }
+
+            throw new \RuntimeException(
+                'Transactional DbDatasource writes require a transaction manager. Configure '
+                . 'Illuminate\\Database\\DatabaseTransactionsManager on the connection before beginning the transaction.',
+                0,
+                $exception
+            );
+        }
     }
 }

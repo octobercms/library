@@ -225,6 +225,150 @@ class DbDatasourceTest extends TestCase
         );
     }
 
+    public function testTransactionalReadsDoNotLeakAfterRollback()
+    {
+        $this->dbDatasource->insert('pages', 'home', 'htm', 'Before');
+        $this->dbDatasource->select('pages');
+        $this->dbDatasource->lastModified('pages', 'home', 'htm');
+        $connection = Db::connection();
+        $connection->setTransactionManager(new Illuminate\Database\DatabaseTransactionsManager);
+        try {
+            $connection->beginTransaction();
+            // Direct writes leave warm static/application caches in place.
+            Db::table($this->dbTable)->update(['content' => 'Uncommitted']);
+            $this->assertSame('Uncommitted', $this->dbDatasource->selectOne('pages', 'home', 'htm')['content']);
+            $this->assertSame('Uncommitted', $this->dbDatasource->select('pages')[0]['content']);
+            $this->dbDatasource->delete('pages', 'home', 'htm');
+            $this->assertTrue($this->dbDatasource->isTemplateTrashed('pages', 'home', 'htm'));
+            $this->assertNull($this->dbDatasource->lastModified('pages', 'home', 'htm'));
+            $connection->rollBack();
+            $this->clearDbDatasourceCache();
+            $this->assertFalse($this->dbDatasource->isTemplateTrashed('pages', 'home', 'htm'));
+            $this->assertSame('Before', $this->dbDatasource->selectOne('pages', 'home', 'htm')['content']);
+        }
+        finally {
+            if ($connection->transactionLevel()) {
+                $connection->rollBack(0);
+            }
+            $connection->unsetTransactionManager();
+        }
+    }
+
+    public function testManagerlessTransactionalReadsDoNotPublishContent()
+    {
+        $this->dbDatasource->insert('pages', 'home', 'htm', 'Before');
+        $connection = Db::connection();
+        $connection->unsetTransactionManager();
+        $connection->beginTransaction();
+        try {
+            Db::table($this->dbTable)->update(['content' => 'Uncommitted']);
+            $this->assertSame('Uncommitted', $this->dbDatasource->select('pages')[0]['content']);
+        }
+        finally {
+            $connection->rollBack();
+        }
+        $this->assertSame('Before', $this->dbDatasource->selectOne('pages', 'home', 'htm')['content']);
+    }
+
+    public function testCommitRejectsSnapshotFilledByReaderBeforeCommit()
+    {
+        $this->dbDatasource->insert('pages', 'home', 'htm', 'Before');
+        $this->dbDatasource->lastModified('pages', 'home', 'htm');
+        $key = 'halcyon.db.' . $this->dbTable . '.test-theme';
+        $before = Cache::memo()->get($key);
+        $connection = Db::connection();
+        $connection->setTransactionManager(new Illuminate\Database\DatabaseTransactionsManager);
+        try {
+            $connection->beginTransaction();
+            $this->dbDatasource->delete('pages', 'home', 'htm');
+            // A different request can still see and cache the committed active row.
+            $before['generation'] = Cache::get($key . '.generation');
+            Cache::memo()->forever($key, $before);
+            $connection->commit();
+            $this->clearDbDatasourceCache();
+            $this->assertNotSame($before['generation'], Cache::get($key . '.generation'));
+            $this->assertTrue($this->dbDatasource->isTemplateTrashed('pages', 'home', 'htm'));
+            $this->assertNull($this->dbDatasource->lastModified('pages', 'home', 'htm'));
+        }
+        finally {
+            if ($connection->transactionLevel()) {
+                $connection->rollBack(0);
+            }
+            $connection->unsetTransactionManager();
+        }
+    }
+
+    public function testNestedTransactionInvalidationWaitsForOuterCommit()
+    {
+        $this->dbDatasource->insert('pages', 'home', 'htm', 'Before');
+        $key = 'halcyon.db.' . $this->dbTable . '.test-theme';
+        $connection = Db::connection();
+        $connection->setTransactionManager(new Illuminate\Database\DatabaseTransactionsManager);
+        try {
+            $connection->beginTransaction();
+            $connection->beginTransaction();
+            $this->dbDatasource->update('pages', 'home', 'htm', 'After');
+            $generation = Cache::get($key . '.generation');
+            $connection->commit();
+            $this->assertSame($generation, Cache::get($key . '.generation'));
+            $connection->commit();
+            $this->assertNotSame($generation, Cache::get($key . '.generation'));
+
+            $connection->beginTransaction();
+            $connection->beginTransaction();
+            $this->dbDatasource->delete('pages', 'home', 'htm');
+            $generation = Cache::get($key . '.generation');
+            $connection->rollBack();
+            $connection->commit();
+            $this->assertSame($generation, Cache::get($key . '.generation'));
+            $this->assertFalse($this->dbDatasource->isTemplateTrashed('pages', 'home', 'htm'));
+        }
+        finally {
+            if ($connection->transactionLevel()) {
+                $connection->rollBack(0);
+            }
+            $connection->unsetTransactionManager();
+        }
+    }
+
+    public function testTransactionalWritesWithoutManagerFailBeforeMutation()
+    {
+        $this->dbDatasource->insert('pages', 'home', 'htm', 'Before');
+        $connection = Db::connection();
+        $connection->unsetTransactionManager();
+        $connection->beginTransaction();
+        try {
+            foreach (['insert', 'update', 'delete', 'tombstone'] as $method) {
+                $thrown = null;
+                try {
+                    if ($method === 'insert') {
+                        $this->dbDatasource->$method('pages', 'other', 'htm', 'After');
+                    }
+                    elseif ($method === 'tombstone') {
+                        $this->dbDatasource->$method('pages', 'other', 'htm');
+                    }
+                    elseif ($method === 'update') {
+                        $this->dbDatasource->$method('pages', 'home', 'htm', 'After');
+                    }
+                    else {
+                        $this->dbDatasource->$method('pages', 'home', 'htm');
+                    }
+                }
+                catch (RuntimeException $exception) {
+                    $thrown = $exception;
+                }
+                $this->assertNotNull($thrown, $method);
+                $this->assertStringContainsString('transaction manager', $thrown->getMessage(), $method);
+                $this->assertSame(1, Db::table($this->dbTable)->count(), $method);
+                $this->assertSame('Before', Db::table($this->dbTable)->value('content'), $method);
+                $this->assertNull(Db::table($this->dbTable)->value('deleted_at'), $method);
+            }
+        }
+        finally {
+            $connection->rollBack();
+        }
+    }
+
     public function testLastModifiedStoresIndexesInApplicationCache()
     {
         $this->dbDatasource->insert($this->dirName, $this->fileName, $this->extension, '<p>DB content</p>');
