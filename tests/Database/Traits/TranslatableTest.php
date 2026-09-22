@@ -330,6 +330,35 @@ class TranslatableTest extends TestCase
         $this->assertFalse($model->isTranslateDirty());
     }
 
+    public function testFailedTranslationUpsertCanRetryAfterBaseSave()
+    {
+        $model = $this->makeFrenchModel();
+        $model->load('translations');
+        $model->setTranslation('name', 'en', 'Updated base');
+        $model->name = 'Modification';
+        Db::unprepared("CREATE TRIGGER reject_translation_insert BEFORE INSERT ON translate_attributes BEGIN SELECT RAISE(FAIL, 'Translation write failed'); END");
+        try {
+            $model->save();
+            $this->fail('Expected a translation storage exception');
+        }
+        catch (Illuminate\Database\QueryException $exception) {
+            $this->assertStringContainsString('Translation write failed', $exception->getMessage());
+        }
+        finally {
+            Db::unprepared('DROP TRIGGER reject_translation_insert');
+        }
+        $this->assertSame('Updated base', Db::table('test_translatable')->where('id', $model->id)->value('name'));
+        $this->assertSame('Modification', $model->name);
+        $this->assertTrue($model->isTranslateDirty());
+        $this->assertSame('Produit', TestModelTranslatable::find($model->id)->name);
+
+        $model->save();
+        $this->assertSame('Modification', TestModelTranslatable::find($model->id)->name);
+        $this->assertSame('Modification', $model->getTranslations('name')['fr']);
+        $this->assertSame('Updated base', $model->getTranslation('name', 'en'));
+        $this->assertFalse($model->isTranslateDirty());
+    }
+
     public function testNewActiveLocaleRecordRemainsEditableWithoutChangingBase()
     {
         TestModelTranslatable::$activeLocale = 'fr';
