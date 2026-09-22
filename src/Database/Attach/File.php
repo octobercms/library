@@ -122,7 +122,9 @@ class File extends Model
             ? $fileInput->getPath() . DIRECTORY_SEPARATOR . $fileInput->getFileName()
             : $fileInput->getRealPath();
 
-        $this->putFile($realPath, $this->disk_name);
+        if ($this->putFile($realPath, $this->disk_name) === false) {
+            throw new FileException('Unable to write attachment file to storage.');
+        }
 
         return $this;
     }
@@ -145,7 +147,9 @@ class File extends Model
         $this->content_type = $file->getMimeType();
         $this->disk_name = $this->getDiskName();
 
-        $this->putFile($file->getRealPath(), $this->disk_name);
+        if ($this->putFile($file->getRealPath(), $this->disk_name) === false) {
+            throw new FileException('Unable to write attachment file to storage.');
+        }
 
         return $this;
     }
@@ -163,12 +167,15 @@ class File extends Model
 
         $tempName = str_replace('.', '', uniqid('', true)) . '.tmp';
         $tempPath = temp_path($tempName);
-        FileHelper::put($tempPath, $data);
-
-        $file = $this->fromFile($tempPath, basename($filename));
-        FileHelper::delete($tempPath);
-
-        return $file;
+        try {
+            if (FileHelper::put($tempPath, $data) === false) {
+                throw new FileException('Unable to write temporary attachment file.');
+            }
+            return $this->fromFile($tempPath, basename($filename));
+        }
+        finally {
+            FileHelper::delete($tempPath);
+        }
     }
 
     /**
