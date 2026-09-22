@@ -22,16 +22,16 @@ class FileLoader extends FileLoaderBase
     protected function loadNamespaceOverrides(array $lines, $locale, $group, $namespace)
     {
         return collect($this->paths)
-            ->reduce(function ($output, $path) use ($lines, $locale, $group, $namespace) {
+            ->reduce(function ($output, $path) use ($locale, $group, $namespace) {
                 $namespace = str_replace('.', '/', $namespace);
                 $file = "{$path}/{$namespace}/{$locale}/{$group}.php";
 
                 if ($this->files->exists($file)) {
-                    return array_replace_recursive($lines, $this->files->getRequire($file));
+                    return array_replace_recursive($output, $this->files->getRequire($file));
                 }
 
-                return $lines;
-            }, []);
+                return $output;
+            }, $lines);
     }
 
     /**
