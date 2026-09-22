@@ -170,6 +170,61 @@ class DbDatasourceTest extends TestCase
         $this->assertNull($scoped->lastModified('pages', 'home', 'htm'));
     }
 
+    public function testConcurrentInvalidationRejectsAnOlderSnapshot()
+    {
+        Db::table($this->dbTable)->insert([
+            'source' => 'test-theme',
+            'path' => 'pages/home.htm',
+            'content' => 'Before',
+            'updated_at' => '2020-01-01 00:00:00',
+        ]);
+
+        $connection = Db::connection();
+        $previousDispatcher = $connection->getEventDispatcher();
+        $connection->setEventDispatcher(new Illuminate\Events\Dispatcher);
+        $interleaved = false;
+        $writer = new DbDatasource('test-theme', $this->dbTable);
+        $connection->listen(function ($event) use ($writer, &$interleaved) {
+            if (!$interleaved && str_starts_with($event->sql, 'select "updated_at"')) {
+                $interleaved = true;
+                $writer->update('pages', 'home', 'htm', 'After');
+            }
+        });
+
+        try {
+            $this->dbDatasource->lastModified('pages', 'home', 'htm');
+            $this->assertTrue($interleaved);
+            $this->clearDbDatasourceCache();
+            $expected = Carbon\Carbon::parse(Db::table($this->dbTable)->value('updated_at'))->timestamp;
+            $this->assertSame($expected, $this->dbDatasource->lastModified('pages', 'home', 'htm'));
+        }
+        finally {
+            if ($previousDispatcher) {
+                $connection->setEventDispatcher($previousDispatcher);
+            }
+            else {
+                $connection->unsetEventDispatcher();
+            }
+        }
+    }
+
+    public function testMissingGenerationDoesNotReviveAnOldSnapshot()
+    {
+        $this->dbDatasource->insert('pages', 'home', 'htm', 'Before');
+        $this->dbDatasource->lastModified('pages', 'home', 'htm');
+        $key = 'halcyon.db.' . $this->dbTable . '.test-theme';
+
+        // Cache stores may evict the generation independently of the snapshot.
+        Cache::forget($key . '.generation');
+        Db::table($this->dbTable)->update(['updated_at' => '2020-01-01 00:00:00']);
+        $this->clearDbDatasourceCache();
+
+        $this->assertSame(
+            Carbon\Carbon::parse('2020-01-01 00:00:00')->timestamp,
+            $this->dbDatasource->lastModified('pages', 'home', 'htm')
+        );
+    }
+
     public function testLastModifiedStoresIndexesInApplicationCache()
     {
         $this->dbDatasource->insert($this->dirName, $this->fileName, $this->extension, '<p>DB content</p>');
@@ -208,7 +263,9 @@ class DbDatasourceTest extends TestCase
         $this->assertFalse($this->dbDatasource->isTemplateTrashed($this->dirName, $this->fileName, $this->extension));
 
         $cached = Cache::memo()->get('halcyon.db.' . $this->dbTable . '.test-theme');
-        $this->assertSame(['mtime' => [], 'trashed' => []], $cached);
+        $this->assertSame([], $cached['mtime']);
+        $this->assertSame([], $cached['trashed']);
+        $this->assertIsString($cached['generation']);
 
         $this->clearDbDatasourceCache();
 

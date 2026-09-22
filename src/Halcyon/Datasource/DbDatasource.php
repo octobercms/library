@@ -361,7 +361,9 @@ class DbDatasource extends Datasource implements DatasourceInterface
         unset(self::$mtimeCache[$source]);
         unset(self::$trashedPathCache[$source]);
 
-        Cache::memo()->forget(self::makeIndexCacheKey($source, $table));
+        $key = self::makeIndexCacheKey($source, $table);
+        Cache::forever($key . '.generation', bin2hex(random_bytes(16)));
+        Cache::memo()->forget($key);
     }
 
     /**
@@ -470,10 +472,19 @@ class DbDatasource extends Datasource implements DatasourceInterface
             return;
         }
 
-        $cached = Cache::memo()->get(self::makeIndexCacheKey($this->source, $this->table));
+        $key = self::makeIndexCacheKey($this->source, $this->table);
+        // Read the generation from the backing store, not the request memo cache.
+        $generation = Cache::get($key . '.generation');
+        if (!is_string($generation)) {
+            $generation = bin2hex(random_bytes(16));
+            Cache::forever($key . '.generation', $generation);
+        }
+
+        $cached = Cache::memo()->get($key);
 
         if (
             is_array($cached) &&
+            ($cached['generation'] ?? null) === $generation &&
             isset($cached['mtime']) &&
             is_array($cached['mtime']) &&
             isset($cached['trashed']) &&
@@ -493,7 +504,10 @@ class DbDatasource extends Datasource implements DatasourceInterface
         self::$mtimeCache[$this->source] = $mtime;
         self::$trashedPathCache[$this->source] = $trashed;
 
-        Cache::memo()->forever(self::makeIndexCacheKey($this->source, $this->table), [
+        // A concurrent writer may invalidate while these queries run. Its new
+        // generation makes this snapshot unusable on the next request.
+        Cache::memo()->forever($key, [
+            'generation' => $generation,
             'mtime' => $mtime,
             'trashed' => $trashed,
         ]);
