@@ -246,7 +246,7 @@ class TranslationBatchTest extends TestCase
         $this->assertTrue($model->save());
         $this->assertSame('Base 1', $this->db()->table('translated_entries')->where('id', 1)->value('title'));
         $this->assertSame('Edited French', $this->db()->table('translate_attributes')->where('model_id', 1)->where('locale', 'fr')->where('attribute', 'title')->value('value'));
-        $this->assertSame('Base 1', $model->title);
+        $this->assertSame('Base 1', $model->getTranslatableBaseValue('title'));
         $this->assertSame('Edited French', TranslationBatchTestModel::find(1)->title);
     }
 
