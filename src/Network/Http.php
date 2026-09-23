@@ -8,6 +8,7 @@ use October\Rain\Exception\ApplicationException;
  *
  * @package october\network
  * @author Alexey Bobkov, Samuel Georges
+ * @deprecated use Illuminate\Support\Facades\Http
  *
  * Usage:
  *
