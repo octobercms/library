@@ -421,6 +421,22 @@ class DbDatasourceTest extends TestCase
         $this->assertSame([], Db::connection()->getQueryLog());
     }
 
+    public function testSelectOneMissAnswersFromWarmIndexWithoutQuerying()
+    {
+        $this->dbDatasource->insert($this->dirName, $this->fileName, $this->extension, '<p>DB content</p>');
+        $this->assertNotNull($this->dbDatasource->lastModified($this->dirName, $this->fileName, $this->extension));
+
+        Db::connection()->flushQueryLog();
+        Db::connection()->enableQueryLog();
+
+        $this->assertNull($this->dbDatasource->selectOne($this->dirName, 'missing', $this->extension));
+        $this->assertSame([], Db::connection()->getQueryLog());
+
+        $result = $this->dbDatasource->selectOne($this->dirName, $this->fileName, $this->extension);
+        $this->assertSame('<p>DB content</p>', $result['content']);
+        $this->assertNotEmpty(Db::connection()->getQueryLog());
+    }
+
     public function testLastModifiedDoesNotCacheFailedQueries()
     {
         $datasource = new DbDatasource('test-theme', 'missing_templates');

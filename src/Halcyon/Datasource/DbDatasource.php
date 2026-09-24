@@ -69,15 +69,10 @@ class DbDatasource extends Datasource implements DatasourceInterface
     {
         $path = $this->makeFilePath($dirName, $fileName, $extension);
 
-        if ($this->canShareIndexCache() && isset(self::$pathCache[$this->source][$path])) {
-            $result = self::$pathCache[$this->source][$path];
-        }
-        else {
-            $result = $this->getQuery()->where('path', $path)->first();
-        }
+        $result = $this->findRecordForPath($path);
 
         if (!$result) {
-            return $result;
+            return null;
         }
 
         return [
@@ -86,6 +81,28 @@ class DbDatasource extends Datasource implements DatasourceInterface
             'mtime' => Carbon::parse($result->updated_at)->timestamp,
             'record' => $result
         ];
+    }
+
+    /**
+     * findRecordForPath locates a stored record, using the shared indexes to avoid a database query when possible
+     */
+    protected function findRecordForPath(string $path)
+    {
+        if (!$this->canShareIndexCache()) {
+            return $this->getQuery()->where('path', $path)->first();
+        }
+
+        if (isset(self::$pathCache[$this->source][$path])) {
+            return self::$pathCache[$this->source][$path];
+        }
+
+        $this->fillIndexCaches();
+
+        if (!isset(self::$mtimeCache[$this->source][$path])) {
+            return null;
+        }
+
+        return $this->getQuery()->where('path', $path)->first();
     }
 
     /**

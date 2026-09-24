@@ -62,6 +62,9 @@ class FileDatasource extends Datasource implements DatasourceInterface
     {
         try {
             $path = $this->makeFilePath($dirName, $fileName, $extension);
+            if (!$this->files->isFile($path) || !$this->files->isReadable($path)) {
+                return null;
+            }
 
             return [
                 'fileName' => $fileName . '.' . $extension,

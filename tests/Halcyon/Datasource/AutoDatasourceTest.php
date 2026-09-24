@@ -167,7 +167,6 @@ class AutoDatasourceTest extends TestCase
         $files = new CountingFilesystem;
         $firstPath = $this->themePath . '/first';
         mkdir($firstPath . '/pages/home.htm', 0755, true);
-        touch($firstPath . '/pages/home.htm', 1000000000);
         $templatePath = $this->themePath . '/pages/home.htm';
         touch($templatePath, 1500000000);
         $first = new FileDatasource($firstPath, $files);
@@ -219,6 +218,21 @@ class AutoDatasourceTest extends TestCase
         finally {
             chmod($unreadablePath, 0600);
         }
+    }
+
+    public function testSelectOneSkipsDirectoriesWithoutReadingContent()
+    {
+        $files = new CountingFilesystem;
+        $firstPath = $this->themePath . '/first';
+        mkdir($firstPath . '/pages/home.htm', 0755, true);
+        $first = new FileDatasource($firstPath, $files);
+        $auto = new AutoDatasource([$first, new FileDatasource($this->themePath, $files)]);
+
+        $this->assertNull($first->selectOne('pages', 'home', 'htm'));
+
+        $result = $auto->selectOne('pages', 'home', 'htm');
+        $this->assertStringContainsString('World!', $result['content']);
+        $this->assertCount(1, $files->reads);
     }
 
     public function testHasTemplateDoesNotReadTemplateContent()
