@@ -7,6 +7,18 @@ use October\Rain\Filesystem\Filesystem;
 use October\Rain\Halcyon\Datasource\AutoDatasource;
 use October\Rain\Halcyon\Datasource\FileDatasource;
 
+class CountingFilesystem extends Filesystem
+{
+    public array $reads = [];
+
+    public function get($path, $lock = false)
+    {
+        $this->reads[] = $path;
+
+        return parent::get($path, $lock);
+    }
+}
+
 class AutoDatasourceTest extends TestCase
 {
     use SetsUpHalcyonDb;
@@ -115,5 +127,107 @@ class AutoDatasourceTest extends TestCase
 
         $content = $this->autoDatasource->selectOne($this->dirName, $this->fileName, $this->extension);
         $this->assertStringContainsString('Restored content', $content['content']);
+    }
+
+    public function testSelectOneReadsTemplateContentOnce()
+    {
+        $files = new CountingFilesystem;
+        $auto = new AutoDatasource([new FileDatasource($this->themePath, $files)]);
+
+        $result = $auto->selectOne($this->dirName, $this->fileName, $this->extension);
+
+        $this->assertNotNull($result);
+        $this->assertCount(1, $files->reads);
+    }
+
+    public function testSelectOneSkipsDatasourcesWithoutTheTemplate()
+    {
+        $files = new CountingFilesystem;
+        $auto = new AutoDatasource([$this->dbDatasource, new FileDatasource($this->themePath, $files)]);
+
+        $result = $auto->selectOne($this->dirName, $this->fileName, $this->extension);
+
+        $this->assertNotNull($result);
+        $this->assertCount(1, $files->reads);
+        $this->assertNull($auto->selectOne($this->dirName, 'missing', $this->extension));
+    }
+
+    public function testLastModifiedDoesNotReadTemplateContent()
+    {
+        $files = new CountingFilesystem;
+        $auto = new AutoDatasource([new FileDatasource($this->themePath, $files)]);
+
+        $this->assertIsInt($auto->lastModified($this->dirName, $this->fileName, $this->extension));
+        $this->assertNull($auto->lastModified($this->dirName, 'missing', $this->extension));
+        $this->assertCount(0, $files->reads);
+    }
+
+    public function testLastModifiedSkipsDirectoriesAndTracksTheSelectedFile()
+    {
+        $files = new CountingFilesystem;
+        $firstPath = $this->themePath . '/first';
+        mkdir($firstPath . '/pages/home.htm', 0755, true);
+        touch($firstPath . '/pages/home.htm', 1000000000);
+        $templatePath = $this->themePath . '/pages/home.htm';
+        touch($templatePath, 1500000000);
+        $first = new FileDatasource($firstPath, $files);
+        $auto = new AutoDatasource([$first, new FileDatasource($this->themePath, $files)]);
+
+        $selected = $auto->selectOne('pages', 'home', 'htm');
+        $this->assertSame(1500000000, $selected['mtime']);
+        $files->reads = [];
+
+        $this->assertNull($first->lastModified('pages', 'home', 'htm'));
+        $this->assertSame($selected['mtime'], $auto->lastModified('pages', 'home', 'htm'));
+        touch($templatePath, 1600000000);
+        clearstatcache(true, $templatePath);
+        $this->assertSame(1600000000, $auto->lastModified('pages', 'home', 'htm'));
+        $this->assertCount(0, $files->reads);
+    }
+
+    public function testUnreadableTemplateDoesNotShadowReadableFallback()
+    {
+        $files = new CountingFilesystem;
+        $firstPath = $this->themePath . '/first';
+        mkdir($firstPath . '/pages', 0755, true);
+        $unreadablePath = $firstPath . '/pages/home.htm';
+        file_put_contents($unreadablePath, 'Unreadable template');
+        touch($unreadablePath, 1000000000);
+        chmod($unreadablePath, 0000);
+        $templatePath = $this->themePath . '/pages/home.htm';
+        touch($templatePath, 1500000000);
+        clearstatcache();
+
+        try {
+            if ($files->isReadable($unreadablePath)) {
+                $this->markTestSkipped('The current user can read files without read permissions.');
+            }
+
+            $first = new FileDatasource($firstPath, $files);
+            $auto = new AutoDatasource([$first, new FileDatasource($this->themePath, $files)]);
+            $this->assertSame(1500000000, $auto->selectOne('pages', 'home', 'htm')['mtime']);
+            $files->reads = [];
+
+            $this->assertFalse($first->hasTemplate('pages', 'home', 'htm'));
+            $this->assertNull($first->lastModified('pages', 'home', 'htm'));
+            $this->assertSame(1500000000, $auto->lastModified('pages', 'home', 'htm'));
+            touch($templatePath, 1600000000);
+            clearstatcache(true, $templatePath);
+            $this->assertSame(1600000000, $auto->lastModified('pages', 'home', 'htm'));
+            $this->assertCount(0, $files->reads);
+        }
+        finally {
+            chmod($unreadablePath, 0600);
+        }
+    }
+
+    public function testHasTemplateDoesNotReadTemplateContent()
+    {
+        $files = new CountingFilesystem;
+        $fileDatasource = new FileDatasource($this->themePath, $files);
+
+        $this->assertTrue($fileDatasource->hasTemplate($this->dirName, $this->fileName, $this->extension));
+        $this->assertFalse($fileDatasource->hasTemplate($this->dirName, 'missing', $this->extension));
+        $this->assertCount(0, $files->reads);
     }
 }
