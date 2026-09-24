@@ -71,29 +71,20 @@ trait Translatable
 
         // Demote before the base model is saved
         $this->bindEvent('model.saveInternal', function() {
-            $this->syncTranslatableAttributes();
+            $this->demoteTranslatableValues();
         });
 
-        // Persist only once the base save succeeds and new records have a key.
+        // Persist only once the base save succeeds
         $this->bindEvent('model.saveComplete', function() {
             $this->storeTranslatableBasicData();
         });
-    }
 
-    /**
-     * saveInternal restores active translations after saving, including cancelled
-     * or failed saves, so subsequent edits never target the base-language columns.
-     */
-    protected function saveInternal($options = [])
-    {
-        try {
-            return parent::saveInternal($options);
-        }
-        finally {
+        // Restore active translations after every save attempt
+        $this->bindEvent('model.saveAlways', function() {
             if ($this->exists && empty($this->translatableBaseValues)) {
                 $this->promoteTranslatableValues();
             }
-        }
+        });
     }
 
     //
@@ -252,8 +243,7 @@ trait Translatable
         // Read current (possibly modified) translated values back from $attributes
         foreach ($translatable as $key) {
             if (array_key_exists($key, $this->attributes)) {
-                // An inherited base value is not a new translation. Keep a
-                // persisted override dirty when it is explicitly reset to base.
+                // An inherited base value is not a new translation
                 if (
                     $this->attributes[$key] === $this->getTranslatableBaseValue($key) &&
                     !array_key_exists($key, $this->translatableOriginals[$locale] ?? [])
@@ -476,14 +466,14 @@ trait Translatable
         // Writing to the default locale: write to base values
         if ($locale === $this->getTranslatableDefault()) {
             if (!empty($this->translatableBaseValues)) {
-                // Keep an inherited active value in step with its base without
-                // replacing an explicit translation or an unsaved active edit.
+                // Keep an inherited active value in step with its base
                 if (
                     !array_key_exists($key, $this->translatableAttributes[$this->getTranslatableContext()] ?? []) &&
                     ($this->attributes[$key] ?? null) === ($this->translatableBaseValues[$key] ?? null)
                 ) {
                     $this->attributes[$key] = $value;
                 }
+
                 $this->translatableBaseValues[$key] = $value;
             }
             else {
@@ -691,16 +681,6 @@ trait Translatable
     //
 
     /**
-     * syncTranslatableAttributes restores base values before the base model save.
-     * Translation writes run on model.saveComplete.
-     */
-    protected function syncTranslatableAttributes()
-    {
-        // Demote: restore base values before save
-        $this->demoteTranslatableValues();
-    }
-
-    /**
      * storeTranslatableBasicData stores translations for each known dirty locale
      */
     protected function storeTranslatableBasicData()
@@ -719,7 +699,6 @@ trait Translatable
         }
     }
 
-
     /**
      * storeTranslatableData saves translation data for a single locale using upsert
      */
@@ -736,9 +715,7 @@ trait Translatable
         $rows = [];
         $inherited = [];
         foreach ($dirty as $key => $value) {
-            // For non-default locales, skip attributes whose value matches the
-            // model's local attribute (the default locale value). No row = inherits
-            // from default, so changes to the default automatically propagate.
+            // For non-default locales, skip attributes whose value matches the default locale value
             if (!$isDefaultLocale) {
                 $defaultValue = $this->getTranslatableBaseValue($key);
                 if ($value === $defaultValue) {
