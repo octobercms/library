@@ -5,6 +5,84 @@ use October\Rain\Router\RouteCompiler;
 
 class RouteCompilerTest extends TestCase
 {
+    public function testLargeDynamicBucketsAvoidSequentialFallback()
+    {
+        foreach ([2000, 5000] as $count) {
+            $router = new CountingFallbackRouter;
+            for ($i = 0; $i < $count; $i++) {
+                $router->route('item'.$i, '/catalog/item'.$i.'/:id');
+            }
+            $this->assertTrue($router->match('/catalog/item'.($count - 1).'/42'));
+            $this->assertSame('item'.($count - 1), $router->matchedRoute());
+            $this->assertSame(['id' => '42'], $router->getParameters());
+            $this->assertFalse($router->match('/catalog/missing/42'));
+            $this->assertSame(0, $router->fallbackCount);
+        }
+    }
+
+    public function testLongUnicodePatternsAndOptionalSegmentsAcrossChunks()
+    {
+        $router = new CountingFallbackRouter;
+        $prefix = str_repeat('kategória', 40);
+        for ($i = 0; $i < 200; $i++) {
+            $router->route('item'.$i, '/catalog/'.$prefix.$i.'/:id?42/:slug?');
+        }
+        $this->assertTrue($router->match('/CATALOG/'.$prefix.'199'));
+        $this->assertSame('item199', $router->matchedRoute());
+        $this->assertSame(['id' => '42', 'slug' => false], $router->getParameters());
+        $this->assertSame(0, $router->fallbackCount);
+
+        $restored = new CountingFallbackRouter;
+        $restored->fromArray(unserialize(serialize($router->toArray())));
+        $this->assertTrue($restored->match('/catalog/'.$prefix.'199/7/tašky'));
+        $this->assertSame(['id' => '7', 'slug' => 'tašky'], $restored->getParameters());
+        $this->assertSame(0, $restored->fallbackCount);
+    }
+
+    public function testChunkCandidatesPreservePriorityAndRejection()
+    {
+        $router = new Router;
+        for ($i = 0; $i < 150; $i++) {
+            $router->route('padding'.$i, '/catalog/padding'.$i.'/:id');
+        }
+        $router->route('numeric', '/catalog/target/:id|^[0-9]+$');
+        $router->route('rejected', '/catalog/target/:slug')->condition(fn() => false);
+        $router->route('accepted', '/catalog/target/:slug');
+        $router->route('wildcard', '/catalog/:path*');
+        $router->route('generic', '/:section/:item/:id');
+
+        $this->assertTrue($router->match('/catalog/target/10'));
+        $this->assertSame('numeric', $router->matchedRoute());
+        $this->assertTrue($router->match('/catalog/target/text'));
+        $this->assertSame('accepted', $router->matchedRoute());
+        $this->assertSame(['slug' => 'text'], $router->getParameters());
+        $this->assertTrue($router->match('/catalog/other/text'));
+        $this->assertSame('wildcard', $router->matchedRoute());
+        $this->assertTrue($router->match('/other/item/10'));
+        $this->assertSame('generic', $router->matchedRoute());
+    }
+
+    public function testOldAndMalformedRegexChunksRecompile()
+    {
+        $source = new Router;
+        $source->route('entry', '/catalog/:id');
+        $data = $source->toArray();
+        foreach ([
+            [1, ['catalog' => '#old-format#']],
+            [RouteCompiler::COMPILED_VERSION, ['catalog' => '#old-format#']],
+            [RouteCompiler::COMPILED_VERSION, ['catalog' => [null]]],
+            [RouteCompiler::COMPILED_VERSION, ['catalog' => []]],
+        ] as [$version, $regexes]) {
+            $data['compiled']['version'] = $version;
+            $data['compiled']['dynamicRegexes'] = $regexes;
+            $restored = new Router;
+            $restored->fromArray($data);
+            $this->assertFalse($restored->isCompiled());
+            $this->assertTrue($restored->match('/catalog/42'));
+            $this->assertSame('entry', $restored->matchedRoute());
+        }
+    }
+
     public function testStaticRouteMatching()
     {
         $router = new Router;
@@ -604,5 +682,17 @@ class RouteCompilerTest extends TestCase
                 $this->assertEquals($expectedParams, $compiled->getParameters(), "Parameters differ for URL: {$url}");
             }
         }
+    }
+}
+
+class CountingFallbackRouter extends Router
+{
+    public $fallbackCount = 0;
+
+    protected function matchFromPosition($segments, $url, $position)
+    {
+        $this->fallbackCount++;
+
+        return parent::matchFromPosition($segments, $url, $position);
     }
 }

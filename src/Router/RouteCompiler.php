@@ -27,7 +27,17 @@ class RouteCompiler
     /**
      * @var int COMPILED_VERSION invalidates cached compiled data when the format changes
      */
-    const COMPILED_VERSION = 1;
+    const COMPILED_VERSION = 2;
+
+    /**
+     * @var int MAX_CHUNK_BYTES bounds regex source size below PCRE compiled-code limits
+     */
+    const MAX_CHUNK_BYTES = 8000;
+
+    /**
+     * @var int MAX_CHUNK_ROUTES limits branch overhead independently of source size
+     */
+    const MAX_CHUNK_ROUTES = 100;
 
     /**
      * compile transforms route rules into optimized lookup structures
@@ -99,7 +109,22 @@ class RouteCompiler
             // multibyte (translated) static segments. URLs with invalid
             // UTF-8 make preg_match fail, the router falls back to
             // sequential matching for those.
-            $dynamicRegexes[$bucket] = '#^(?|' . implode('|', $branches) . ')$#iu';
+            $chunks = [];
+            $chunk = [];
+            $bytes = 0;
+            foreach ($branches as $branch) {
+                if ($chunk && (count($chunk) >= static::MAX_CHUNK_ROUTES || $bytes + strlen($branch) + 1 > static::MAX_CHUNK_BYTES)) {
+                    $chunks[] = '#^(?|' . implode('|', $chunk) . ')$#iu';
+                    $chunk = [];
+                    $bytes = 0;
+                }
+                $chunk[] = $branch;
+                $bytes += strlen($branch) + 1;
+            }
+            if ($chunk) {
+                $chunks[] = '#^(?|' . implode('|', $chunk) . ')$#iu';
+            }
+            $dynamicRegexes[$bucket] = $chunks;
         }
 
         return [
