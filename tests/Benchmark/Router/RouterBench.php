@@ -128,6 +128,7 @@ class RouterBench
 
         $router->match('/this/url/matches/nothing/at/all');
     }
+
     /**
      * initLargeBucket prepares a large same-prefix fixture outside the measured match
      */
@@ -157,5 +158,4 @@ class RouterBench
     {
         $this->largeBucket->match('/catalog/missing/42');
     }
-
 }
