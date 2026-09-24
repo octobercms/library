@@ -68,6 +68,7 @@ class ApplicationBuilder extends ApplicationBuilderBase
                 ->removeFromGroup('web', [
                     \Illuminate\Cookie\Middleware\EncryptCookies::class,
                     \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
+                    \Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class,
                 ])
                 ->appendToGroup('web', [
                     \October\Rain\Foundation\Http\Middleware\EncryptCookies::class,

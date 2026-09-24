@@ -58,6 +58,7 @@ class Handler extends ExceptionHandler
     public function report(Throwable $exception)
     {
         if (!$this->hasBootedEvents()) {
+            parent::report($exception);
             return;
         }
 
@@ -77,7 +78,13 @@ class Handler extends ExceptionHandler
             return;
         }
 
-        parent::report($exception);
+        $exception = $this->mapException($exception);
+
+        if ($this->shouldntReport($exception)) {
+            return;
+        }
+
+        $this->reportThrowable($exception);
 
         /**
          * @event exception.report

@@ -29,7 +29,23 @@ class HalcyonDbTestHarness
         }
 
         $app = new Illuminate\Container\Container;
+        $app->instance('app', $app);
         $app->singleton('db', fn () => self::$capsule->getDatabaseManager());
+        $app->instance('config', new Illuminate\Config\Repository([
+            'cache' => [
+                'default' => 'array',
+                'prefix' => 'october_test',
+                'stores' => [
+                    'array' => [
+                        'driver' => 'array',
+                        'serialize' => false,
+                    ],
+                ],
+            ],
+        ]));
+        $app->singleton('cache', fn ($app) => new Illuminate\Cache\CacheManager($app));
+        $app->singleton('cache.store', fn ($app) => $app['cache']->driver());
+        Illuminate\Support\Facades\Facade::clearResolvedInstances();
         Illuminate\Support\Facades\Facade::setFacadeApplication($app);
 
         $schema = self::$capsule->schema();

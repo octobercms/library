@@ -45,7 +45,14 @@ class FileDatasource extends Datasource implements DatasourceInterface
      */
     public function hasTemplate(string $dirName, string $fileName, string $extension): bool
     {
-        return (bool) $this->selectOne($dirName, $fileName, $extension);
+        try {
+            $path = $this->makeFilePath($dirName, $fileName, $extension);
+
+            return $this->files->isFile($path) && $this->files->isReadable($path);
+        }
+        catch (Exception $ex) {
+            return false;
+        }
     }
 
     /**
@@ -55,6 +62,9 @@ class FileDatasource extends Datasource implements DatasourceInterface
     {
         try {
             $path = $this->makeFilePath($dirName, $fileName, $extension);
+            if (!$this->files->isFile($path) || !$this->files->isReadable($path)) {
+                return null;
+            }
 
             return [
                 'fileName' => $fileName . '.' . $extension,
@@ -228,7 +238,9 @@ class FileDatasource extends Datasource implements DatasourceInterface
         try {
             $path = $this->makeFilePath($dirName, $fileName, $extension);
 
-            return $this->files->lastModified($path);
+            return $this->files->isFile($path) && $this->files->isReadable($path)
+                ? $this->files->lastModified($path)
+                : null;
         }
         catch (Exception $ex) {
             return null;

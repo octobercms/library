@@ -121,18 +121,22 @@ class Router
                     continue;
                 }
 
-                $result = @preg_match($this->dynamicRegexes[$bucket], $plainUrl, $matches);
+                foreach ($this->dynamicRegexes[$bucket] as $regex) {
+                    $result = @preg_match($regex, $plainUrl, $matches);
 
-                // Regex engine failure (e.g. backtrack limit), fall back to
-                // sequential matching
-                if ($result === false) {
-                    return $this->matchFromPosition($segments, $url, 0);
-                }
+                    // A single oversized route or another regex engine failure
+                    // still uses the original sequential matching path.
+                    if ($result === false) {
+                        return $this->matchFromPosition($segments, $url, 0);
+                    }
 
-                if ($result === 1) {
-                    $found = $this->extractDynamicCandidate($matches);
-                    if ($found !== null && ($candidate === null || $found['position'] < $candidate['position'])) {
-                        $candidate = $found;
+                    if ($result === 1) {
+                        $found = $this->extractDynamicCandidate($matches);
+                        if ($found !== null && ($candidate === null || $found['position'] < $candidate['position'])) {
+                            $candidate = $found;
+                        }
+                        // Chunks preserve sorted order within each bucket.
+                        break;
                     }
                 }
             }
@@ -601,6 +605,17 @@ class Router
             !is_array($compiled['fallbackRules'] ?? null)
         ) {
             return $this;
+        }
+
+        foreach ($compiled['dynamicRegexes'] as $chunks) {
+            if (!is_array($chunks) || !$chunks) {
+                return $this;
+            }
+            foreach ($chunks as $regex) {
+                if (!is_string($regex)) {
+                    return $this;
+                }
+            }
         }
 
         $this->staticRoutes = $compiled['staticRoutes'];
