@@ -117,4 +117,374 @@ class DbDatasourceTest extends TestCase
             $this->assertStringStartsNotWith('-', $item['fileName']);
         }
     }
+
+    public function testScopedIndexesDoNotLeakAcrossRequestsOrReadUnscopedCache()
+    {
+        Db::getSchemaBuilder()->table($this->dbTable, function ($table) {
+            $table->integer('site_id');
+        });
+        foreach ([1, 2] as $siteId) {
+            Db::table($this->dbTable)->insert([
+                'source' => 'test-theme',
+                'path' => 'pages/home.htm',
+                'content' => 'Site '.$siteId,
+                'updated_at' => '2026-09-01 00:00:00',
+                'deleted_at' => $siteId === 1 ? '2026-09-01 00:00:00' : null,
+                'site_id' => $siteId,
+            ]);
+        }
+
+        $siteId = 1;
+        $this->dbDatasource->bindEvent('halcyon.datasource.db.extendQuery', function ($query) use (&$siteId) {
+            $query->where('site_id', $siteId);
+        });
+        $this->assertTrue($this->dbDatasource->isTemplateTrashed('pages', 'home', 'htm'));
+        $this->assertNull($this->dbDatasource->lastModified('pages', 'home', 'htm'));
+
+        // A second request keeps the application cache, but resets request indexes.
+        $this->clearDbDatasourceCache();
+        $siteId = 2;
+        $this->assertFalse($this->dbDatasource->isTemplateTrashed('pages', 'home', 'htm'));
+        $this->assertSame(Carbon\Carbon::parse('2026-09-01 00:00:00')->timestamp, $this->dbDatasource->lastModified('pages', 'home', 'htm'));
+
+        // An existing unscoped cache entry must also be ignored by scoped readers.
+        $unscoped = new DbDatasource('test-theme', $this->dbTable);
+        $this->assertTrue($unscoped->isTemplateTrashed('pages', 'home', 'htm'));
+        $this->clearDbDatasourceCache();
+        $this->assertFalse($this->dbDatasource->isTemplateTrashed('pages', 'home', 'htm'));
+    }
+
+    public function testOverriddenQueriesDoNotReuseUnscopedIndexes()
+    {
+        $this->dbDatasource->insert('pages', 'home', 'htm', 'Visible');
+        $this->assertNotNull($this->dbDatasource->lastModified('pages', 'home', 'htm'));
+
+        $scoped = new class('test-theme', $this->dbTable) extends DbDatasource {
+            protected function getBaseQuery()
+            {
+                return parent::getBaseQuery()->where('path', 'pages/other.htm');
+            }
+        };
+        $this->assertNull($scoped->lastModified('pages', 'home', 'htm'));
+        $this->clearDbDatasourceCache();
+        $this->assertNull($scoped->lastModified('pages', 'home', 'htm'));
+    }
+
+    public function testConcurrentInvalidationRejectsAnOlderSnapshot()
+    {
+        Db::table($this->dbTable)->insert([
+            'source' => 'test-theme',
+            'path' => 'pages/home.htm',
+            'content' => 'Before',
+            'updated_at' => '2020-01-01 00:00:00',
+        ]);
+
+        $connection = Db::connection();
+        $previousDispatcher = $connection->getEventDispatcher();
+        $connection->setEventDispatcher(new Illuminate\Events\Dispatcher);
+        $interleaved = false;
+        $writer = new DbDatasource('test-theme', $this->dbTable);
+        $connection->listen(function ($event) use ($writer, &$interleaved) {
+            if (!$interleaved && str_starts_with($event->sql, 'select "updated_at"')) {
+                $interleaved = true;
+                $writer->update('pages', 'home', 'htm', 'After');
+            }
+        });
+
+        try {
+            $this->dbDatasource->lastModified('pages', 'home', 'htm');
+            $this->assertTrue($interleaved);
+            $this->clearDbDatasourceCache();
+            $expected = Carbon\Carbon::parse(Db::table($this->dbTable)->value('updated_at'))->timestamp;
+            $this->assertSame($expected, $this->dbDatasource->lastModified('pages', 'home', 'htm'));
+        }
+        finally {
+            if ($previousDispatcher) {
+                $connection->setEventDispatcher($previousDispatcher);
+            }
+            else {
+                $connection->unsetEventDispatcher();
+            }
+        }
+    }
+
+    public function testMissingGenerationDoesNotReviveAnOldSnapshot()
+    {
+        $this->dbDatasource->insert('pages', 'home', 'htm', 'Before');
+        $this->dbDatasource->lastModified('pages', 'home', 'htm');
+        $key = 'halcyon.db.' . $this->dbTable . '.test-theme';
+
+        // Cache stores may evict the generation independently of the snapshot.
+        Cache::forget($key . '.generation');
+        Db::table($this->dbTable)->update(['updated_at' => '2020-01-01 00:00:00']);
+        $this->clearDbDatasourceCache();
+
+        $this->assertSame(
+            Carbon\Carbon::parse('2020-01-01 00:00:00')->timestamp,
+            $this->dbDatasource->lastModified('pages', 'home', 'htm')
+        );
+    }
+
+    public function testTransactionalReadsDoNotLeakAfterRollback()
+    {
+        $this->dbDatasource->insert('pages', 'home', 'htm', 'Before');
+        $this->dbDatasource->select('pages');
+        $this->dbDatasource->lastModified('pages', 'home', 'htm');
+        $connection = Db::connection();
+        $connection->setTransactionManager(new Illuminate\Database\DatabaseTransactionsManager);
+        try {
+            $connection->beginTransaction();
+            // Direct writes leave warm static/application caches in place.
+            Db::table($this->dbTable)->update(['content' => 'Uncommitted']);
+            $this->assertSame('Uncommitted', $this->dbDatasource->selectOne('pages', 'home', 'htm')['content']);
+            $this->assertSame('Uncommitted', $this->dbDatasource->select('pages')[0]['content']);
+            $this->dbDatasource->delete('pages', 'home', 'htm');
+            $this->assertTrue($this->dbDatasource->isTemplateTrashed('pages', 'home', 'htm'));
+            $this->assertNull($this->dbDatasource->lastModified('pages', 'home', 'htm'));
+            $connection->rollBack();
+            $this->clearDbDatasourceCache();
+            $this->assertFalse($this->dbDatasource->isTemplateTrashed('pages', 'home', 'htm'));
+            $this->assertSame('Before', $this->dbDatasource->selectOne('pages', 'home', 'htm')['content']);
+        }
+        finally {
+            if ($connection->transactionLevel()) {
+                $connection->rollBack(0);
+            }
+            $connection->unsetTransactionManager();
+        }
+    }
+
+    public function testManagerlessTransactionalReadsDoNotPublishContent()
+    {
+        $this->dbDatasource->insert('pages', 'home', 'htm', 'Before');
+        $connection = Db::connection();
+        $connection->unsetTransactionManager();
+        $connection->beginTransaction();
+        try {
+            Db::table($this->dbTable)->update(['content' => 'Uncommitted']);
+            $this->assertSame('Uncommitted', $this->dbDatasource->select('pages')[0]['content']);
+        }
+        finally {
+            $connection->rollBack();
+        }
+        $this->assertSame('Before', $this->dbDatasource->selectOne('pages', 'home', 'htm')['content']);
+    }
+
+    public function testCommitRejectsSnapshotFilledByReaderBeforeCommit()
+    {
+        $this->dbDatasource->insert('pages', 'home', 'htm', 'Before');
+        $this->dbDatasource->lastModified('pages', 'home', 'htm');
+        $key = 'halcyon.db.' . $this->dbTable . '.test-theme';
+        $before = Cache::memo()->get($key);
+        $connection = Db::connection();
+        $connection->setTransactionManager(new Illuminate\Database\DatabaseTransactionsManager);
+        try {
+            $connection->beginTransaction();
+            $this->dbDatasource->delete('pages', 'home', 'htm');
+            // A different request can still see and cache the committed active row.
+            $before['generation'] = Cache::get($key . '.generation');
+            Cache::memo()->forever($key, $before);
+            $connection->commit();
+            $this->clearDbDatasourceCache();
+            $this->assertNotSame($before['generation'], Cache::get($key . '.generation'));
+            $this->assertTrue($this->dbDatasource->isTemplateTrashed('pages', 'home', 'htm'));
+            $this->assertNull($this->dbDatasource->lastModified('pages', 'home', 'htm'));
+        }
+        finally {
+            if ($connection->transactionLevel()) {
+                $connection->rollBack(0);
+            }
+            $connection->unsetTransactionManager();
+        }
+    }
+
+    public function testNestedTransactionInvalidationWaitsForOuterCommit()
+    {
+        $this->dbDatasource->insert('pages', 'home', 'htm', 'Before');
+        $key = 'halcyon.db.' . $this->dbTable . '.test-theme';
+        $connection = Db::connection();
+        $connection->setTransactionManager(new Illuminate\Database\DatabaseTransactionsManager);
+        try {
+            $connection->beginTransaction();
+            $connection->beginTransaction();
+            $this->dbDatasource->update('pages', 'home', 'htm', 'After');
+            $generation = Cache::get($key . '.generation');
+            $connection->commit();
+            $this->assertSame($generation, Cache::get($key . '.generation'));
+            $connection->commit();
+            $this->assertNotSame($generation, Cache::get($key . '.generation'));
+
+            $connection->beginTransaction();
+            $connection->beginTransaction();
+            $this->dbDatasource->delete('pages', 'home', 'htm');
+            $generation = Cache::get($key . '.generation');
+            $connection->rollBack();
+            $connection->commit();
+            $this->assertSame($generation, Cache::get($key . '.generation'));
+            $this->assertFalse($this->dbDatasource->isTemplateTrashed('pages', 'home', 'htm'));
+        }
+        finally {
+            if ($connection->transactionLevel()) {
+                $connection->rollBack(0);
+            }
+            $connection->unsetTransactionManager();
+        }
+    }
+
+    public function testTransactionalWritesWithoutManagerFailBeforeMutation()
+    {
+        $this->dbDatasource->insert('pages', 'home', 'htm', 'Before');
+        $connection = Db::connection();
+        $connection->unsetTransactionManager();
+        $connection->beginTransaction();
+        try {
+            foreach (['insert', 'update', 'delete', 'tombstone'] as $method) {
+                $thrown = null;
+                try {
+                    if ($method === 'insert') {
+                        $this->dbDatasource->$method('pages', 'other', 'htm', 'After');
+                    }
+                    elseif ($method === 'tombstone') {
+                        $this->dbDatasource->$method('pages', 'other', 'htm');
+                    }
+                    elseif ($method === 'update') {
+                        $this->dbDatasource->$method('pages', 'home', 'htm', 'After');
+                    }
+                    else {
+                        $this->dbDatasource->$method('pages', 'home', 'htm');
+                    }
+                }
+                catch (RuntimeException $exception) {
+                    $thrown = $exception;
+                }
+                $this->assertNotNull($thrown, $method);
+                $this->assertStringContainsString('transaction manager', $thrown->getMessage(), $method);
+                $this->assertSame(1, Db::table($this->dbTable)->count(), $method);
+                $this->assertSame('Before', Db::table($this->dbTable)->value('content'), $method);
+                $this->assertNull(Db::table($this->dbTable)->value('deleted_at'), $method);
+            }
+        }
+        finally {
+            $connection->rollBack();
+        }
+    }
+
+    public function testLastModifiedStoresIndexesInApplicationCache()
+    {
+        $this->dbDatasource->insert($this->dirName, $this->fileName, $this->extension, '<p>DB content</p>');
+
+        $mtime = $this->dbDatasource->lastModified($this->dirName, $this->fileName, $this->extension);
+
+        $cached = Cache::memo()->get('halcyon.db.' . $this->dbTable . '.test-theme');
+
+        $this->assertNotNull($mtime);
+        $this->assertIsArray($cached);
+        $this->assertArrayHasKey('pages/home.htm', $cached['mtime']);
+        $this->assertSame([], $cached['trashed']);
+    }
+
+    public function testIndexCacheHitFillsStaticIndexesWithoutQuerying()
+    {
+        $this->dbDatasource->insert($this->dirName, $this->fileName, $this->extension, '<p>DB content</p>');
+        $this->dbDatasource->lastModified($this->dirName, $this->fileName, $this->extension);
+
+        $this->clearDbDatasourceCache();
+
+        Db::connection()->flushQueryLog();
+        Db::connection()->enableQueryLog();
+
+        $mtime = $this->dbDatasource->lastModified($this->dirName, $this->fileName, $this->extension);
+        $trashed = $this->dbDatasource->isTemplateTrashed($this->dirName, $this->fileName, $this->extension);
+
+        $this->assertNotNull($mtime);
+        $this->assertFalse($trashed);
+        $this->assertSame([], Db::connection()->getQueryLog());
+    }
+
+    public function testEmptyDatasourceIsCachedAndDoesNotQueryOnNextRequest()
+    {
+        $this->assertNull($this->dbDatasource->lastModified($this->dirName, $this->fileName, $this->extension));
+        $this->assertFalse($this->dbDatasource->isTemplateTrashed($this->dirName, $this->fileName, $this->extension));
+
+        $cached = Cache::memo()->get('halcyon.db.' . $this->dbTable . '.test-theme');
+        $this->assertSame([], $cached['mtime']);
+        $this->assertSame([], $cached['trashed']);
+        $this->assertIsString($cached['generation']);
+
+        $this->clearDbDatasourceCache();
+
+        Db::connection()->flushQueryLog();
+        Db::connection()->enableQueryLog();
+
+        $this->assertNull($this->dbDatasource->lastModified($this->dirName, $this->fileName, $this->extension));
+        $this->assertFalse($this->dbDatasource->isTemplateTrashed($this->dirName, $this->fileName, $this->extension));
+        $this->assertSame([], Db::connection()->getQueryLog());
+    }
+
+    public function testLastModifiedDoesNotCacheFailedQueries()
+    {
+        $datasource = new DbDatasource('test-theme', 'missing_templates');
+
+        $this->assertNull($datasource->lastModified($this->dirName, $this->fileName, $this->extension));
+        $this->assertNull(Cache::memo()->get('halcyon.db.missing_templates.test-theme'));
+    }
+
+    public function testWarmStaticIndexesDoNotReadCacheOrDatabase()
+    {
+        $this->dbDatasource->insert($this->dirName, $this->fileName, $this->extension, '<p>DB content</p>');
+        $this->assertNotNull($this->dbDatasource->lastModified($this->dirName, $this->fileName, $this->extension));
+
+        Cache::memo()->forever('halcyon.db.' . $this->dbTable . '.test-theme', [
+            'mtime' => [],
+            'trashed' => ['pages/home.htm' => true],
+        ]);
+
+        Db::connection()->flushQueryLog();
+        Db::connection()->enableQueryLog();
+
+        $this->assertNotNull($this->dbDatasource->lastModified($this->dirName, $this->fileName, $this->extension));
+        $this->assertFalse($this->dbDatasource->isTemplateTrashed($this->dirName, $this->fileName, $this->extension));
+        $this->assertSame([], Db::connection()->getQueryLog());
+    }
+
+    public function testFlushCacheForgetsApplicationCacheEntry()
+    {
+        $this->dbDatasource->insert($this->dirName, $this->fileName, $this->extension, '<p>DB content</p>');
+        $this->dbDatasource->lastModified($this->dirName, $this->fileName, $this->extension);
+
+        $this->assertNotNull(Cache::memo()->get('halcyon.db.' . $this->dbTable . '.test-theme'));
+
+        $this->dbDatasource->update($this->dirName, $this->fileName, $this->extension, '<p>Updated</p>');
+
+        $this->assertNull(Cache::memo()->get('halcyon.db.' . $this->dbTable . '.test-theme'));
+    }
+
+    public function testClearCacheDropsStaticIndexesAndApplicationCache()
+    {
+        $this->dbDatasource->insert($this->dirName, $this->fileName, $this->extension, '<p>DB content</p>');
+        $this->dbDatasource->lastModified($this->dirName, $this->fileName, $this->extension);
+
+        DbDatasource::clearCache('test-theme', $this->dbTable);
+
+        $this->assertNull(Cache::memo()->get('halcyon.db.' . $this->dbTable . '.test-theme'));
+
+        Db::connection()->flushQueryLog();
+        Db::connection()->enableQueryLog();
+
+        $this->assertNotNull($this->dbDatasource->lastModified($this->dirName, $this->fileName, $this->extension));
+        $this->assertNotEmpty(Db::connection()->getQueryLog());
+    }
+
+    public function testTrashedPathsAreStoredInApplicationCache()
+    {
+        $this->dbDatasource->insert($this->dirName, $this->fileName, $this->extension, '<p>DB content</p>');
+        $this->dbDatasource->delete($this->dirName, $this->fileName, $this->extension);
+
+        $this->assertTrue($this->dbDatasource->isTemplateTrashed($this->dirName, $this->fileName, $this->extension));
+
+        $cached = Cache::memo()->get('halcyon.db.' . $this->dbTable . '.test-theme');
+
+        $this->assertSame(['pages/home.htm' => true], $cached['trashed']);
+        $this->assertSame([], $cached['mtime']);
+    }
 }

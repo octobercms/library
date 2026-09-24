@@ -355,54 +355,71 @@ class Model extends EloquentModel
      */
     protected function saveInternal($options = [])
     {
-        $this->savingOptions = $options;
-        $this->sessionKey = $options['sessionKey'] ?? null;
+        try {
+            $this->savingOptions = $options;
+            $this->sessionKey = $options['sessionKey'] ?? null;
 
-        /**
-         * @event model.saveInternal
-         * Called before the model is saved
-         *
-         * Example usage:
-         *
-         *     $model->bindEvent('model.saveInternal', function ((array) $attributes, (array) $options) use (\October\Rain\Database\Model $model) {
-         *         // Prevent anything from saving ever!
-         *         return false;
-         *     });
-         *
-         */
-        if ($this->fireEvent('model.saveInternal', [$this->attributes, $options], true) === false) {
-            return false;
-        }
+            /**
+             * @event model.saveInternal
+             * Called before the model is saved
+             *
+             * Example usage:
+             *
+             *     $model->bindEvent('model.saveInternal', function ((array) $attributes, (array) $options) use (\October\Rain\Database\Model $model) {
+             *         // Prevent anything from saving ever!
+             *         return false;
+             *     });
+             *
+             */
+            if ($this->fireEvent('model.saveInternal', [$this->attributes, $options], true) === false) {
+                return false;
+            }
 
-        // Apply pre deferred bindings
-        if ($this->sessionKey !== null) {
-            $this->commitDeferredBefore($this->sessionKey);
-        }
+            // Apply pre deferred bindings
+            if ($this->sessionKey !== null) {
+                $this->commitDeferredBefore($this->sessionKey);
+            }
 
-        // Save the record
-        $result = parent::save($options);
+            // Save the record
+            $result = parent::save($options);
 
-        // Halted by event
-        if ($result === false) {
+            // Halted by event
+            if ($result === false) {
+                return $result;
+            }
+
+            // If there is nothing to update, Eloquent will not fire afterSave(),
+            // events should still fire for consistency.
+            if ($result === null) {
+                $this->fireModelEvent('updated', false);
+                $this->fireModelEvent('saved', false);
+            }
+
+            // Apply post deferred bindings
+            if ($this->sessionKey !== null) {
+                $this->commitDeferredAfter($this->sessionKey);
+            }
+
+            // After save deferred binding
+            $this->fireEvent('model.saveComplete');
+
             return $result;
         }
-
-        // If there is nothing to update, Eloquent will not fire afterSave(),
-        // events should still fire for consistency.
-        if ($result === null) {
-            $this->fireModelEvent('updated', false);
-            $this->fireModelEvent('saved', false);
+        finally {
+            /**
+             * @event model.saveAlways
+             * Called after every save attempt, including cancelled and throwing
+             * saves, allowing traits to restore internal state
+             *
+             * Example usage:
+             *
+             *     $model->bindEvent('model.saveAlways', function () use (\October\Rain\Database\Model $model) {
+             *         // Clean up after the save attempt
+             *     });
+             *
+             */
+            $this->fireEvent('model.saveAlways');
         }
-
-        // Apply post deferred bindings
-        if ($this->sessionKey !== null) {
-            $this->commitDeferredAfter($this->sessionKey);
-        }
-
-        // After save deferred binding
-        $this->fireEvent('model.saveComplete');
-
-        return $result;
     }
 
     /**

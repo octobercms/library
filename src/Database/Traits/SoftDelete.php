@@ -95,11 +95,15 @@ trait SoftDelete
      */
     public function forceDelete()
     {
+        $previous = $this->forceDeleting;
         $this->forceDeleting = true;
 
-        $this->delete();
-
-        $this->forceDeleting = false;
+        try {
+            $this->delete();
+        }
+        finally {
+            $this->forceDeleting = $previous;
+        }
     }
 
     /**
