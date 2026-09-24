@@ -1,6 +1,7 @@
 <?php namespace October\Rain\Halcyon\Datasource;
 
 use Db;
+use Cache;
 use October\Rain\Halcyon\Processors\Processor;
 use October\Rain\Halcyon\Exception\CreateFileException;
 use October\Rain\Halcyon\Exception\DeleteFileException;
@@ -68,15 +69,10 @@ class DbDatasource extends Datasource implements DatasourceInterface
     {
         $path = $this->makeFilePath($dirName, $fileName, $extension);
 
-        if (isset(self::$pathCache[$this->source][$path])) {
-            $result = self::$pathCache[$this->source][$path];
-        }
-        else {
-            $result = $this->getQuery()->where('path', $path)->first();
-        }
+        $result = $this->findRecordForPath($path);
 
         if (!$result) {
-            return $result;
+            return null;
         }
 
         return [
@@ -85,6 +81,28 @@ class DbDatasource extends Datasource implements DatasourceInterface
             'mtime' => Carbon::parse($result->updated_at)->timestamp,
             'record' => $result
         ];
+    }
+
+    /**
+     * findRecordForPath locates a stored record, using the shared indexes to avoid a database query when possible
+     */
+    protected function findRecordForPath(string $path)
+    {
+        if (!$this->canShareIndexCache()) {
+            return $this->getQuery()->where('path', $path)->first();
+        }
+
+        if (isset(self::$pathCache[$this->source][$path])) {
+            return self::$pathCache[$this->source][$path];
+        }
+
+        $this->fillIndexCaches();
+
+        if (!isset(self::$mtimeCache[$this->source][$path])) {
+            return null;
+        }
+
+        return $this->getQuery()->where('path', $path)->first();
     }
 
     /**
@@ -110,8 +128,11 @@ class DbDatasource extends Datasource implements DatasourceInterface
 
         $results = $this->buildDirectoryQuery($dirName, $extensions)->get();
 
+        $shareCache = $this->canShareIndexCache();
         foreach ($results as $item) {
-            self::$pathCache[$this->source][$item->path] = $item;
+            if ($shareCache) {
+                self::$pathCache[$this->source][$item->path] = $item;
+            }
 
             $resultItem = [];
             $fileName = $this->pathToFileName($dirName, $item->path);
@@ -158,6 +179,8 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     public function insert(string $dirName, string $fileName, string $extension, string $content): bool
     {
+        $this->prepareCacheInvalidation();
+
         $path = $this->makeFilePath($dirName, $fileName, $extension);
 
         if ($this->getQuery()->where('path', $path)->count() > 0) {
@@ -209,6 +232,8 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     public function update(string $dirName, string $fileName, string $extension, string $content, $oldFileName = null, $oldExtension = null): int
     {
+        $this->prepareCacheInvalidation();
+
         $path = $this->makeFilePath($dirName, $fileName, $extension);
 
         // Check if this file has been renamed
@@ -262,6 +287,8 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     public function tombstone(string $dirName, string $fileName, string $extension): bool
     {
+        $this->prepareCacheInvalidation();
+
         $path = $this->makeFilePath($dirName, $fileName, $extension);
 
         if ($this->getQuery()->where('path', $path)->exists()) {
@@ -302,6 +329,8 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     public function delete(string $dirName, string $fileName, string $extension): bool
     {
+        $this->prepareCacheInvalidation();
+
         try {
             $path = $this->makeFilePath($dirName, $fileName, $extension);
             $recordQuery = $this->getQuery()->where('path', $path);
@@ -328,9 +357,15 @@ class DbDatasource extends Datasource implements DatasourceInterface
     public function lastModified(string $dirName, string $fileName, string $extension): ?int
     {
         try {
-            if (!isset(self::$mtimeCache[$this->source])) {
-                self::$mtimeCache[$this->source] = $this->getQuery()->pluck('updated_at', 'path')->all();
+            if (!$this->canShareIndexCache()) {
+                $result = $this->getQuery()
+                    ->where('path', $this->makeFilePath($dirName, $fileName, $extension))
+                    ->value('updated_at');
+
+                return $result !== null ? Carbon::parse($result)->timestamp : null;
             }
+
+            $this->fillIndexCaches();
 
             $path = $this->makeFilePath($dirName, $fileName, $extension);
             if (!isset(self::$mtimeCache[$this->source][$path])) {
@@ -343,6 +378,29 @@ class DbDatasource extends Datasource implements DatasourceInterface
         catch (Exception $ex) {
             return null;
         }
+    }
+
+    /**
+     * clearCache drops in-memory indexes and the application cache entry for a source
+     */
+    public static function clearCache(string $source, string $table): void
+    {
+        self::invalidateCacheAfterCommit(Db::connection(), $source, $table);
+        self::forgetCache($source, $table);
+    }
+
+    /**
+     * forgetCache invalidates both request-local data and shared index snapshots.
+     */
+    protected static function forgetCache(string $source, string $table): void
+    {
+        unset(self::$pathCache[$source]);
+        unset(self::$mtimeCache[$source]);
+        unset(self::$trashedPathCache[$source]);
+
+        $key = self::makeIndexCacheKey($source, $table);
+        Cache::forever($key . '.generation', bin2hex(random_bytes(16)));
+        Cache::memo()->forget($key);
     }
 
     /**
@@ -403,6 +461,15 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     protected function getTrashedPaths(): array
     {
+        if (!$this->canShareIndexCache()) {
+            return array_fill_keys(
+                $this->getQuery(false)->whereNotNull('deleted_at')->pluck('path')->all(),
+                true
+            );
+        }
+
+        $this->fillIndexCaches();
+
         if (!isset(self::$trashedPathCache[$this->source])) {
             self::$trashedPathCache[$this->source] = array_fill_keys(
                 $this->getQuery(false)->whereNotNull('deleted_at')->pluck('path')->all(),
@@ -411,6 +478,86 @@ class DbDatasource extends Datasource implements DatasourceInterface
         }
 
         return self::$trashedPathCache[$this->source];
+    }
+
+    /**
+     * canShareIndexCache excludes custom scopes and transactions from shared
+     * content, mtime and tombstone indexes. Scopes may select an unkeyed tenant;
+     * transactional reads must not reuse or publish uncommitted snapshots.
+     */
+    protected function canShareIndexCache(): bool
+    {
+        $event = 'halcyon.datasource.db.extendQuery';
+        if (isset($this->emitterEventCollection[$event]) || isset($this->emitterSingleEventCollection[$event])) {
+            return false;
+        }
+
+        foreach (['getQuery', 'getBaseQuery'] as $method) {
+            if ((new \ReflectionMethod($this, $method))->getDeclaringClass()->getName() !== self::class) {
+                return false;
+            }
+        }
+
+        // Transactional reads must see their own writes without publishing them.
+        return Db::connection()->transactionLevel() === 0;
+    }
+
+    /**
+     * fillIndexCaches loads mtime and trashed path indexes from cache or the database
+     */
+    protected function fillIndexCaches(): void
+    {
+        if (isset(self::$mtimeCache[$this->source]) && isset(self::$trashedPathCache[$this->source])) {
+            return;
+        }
+
+        $key = self::makeIndexCacheKey($this->source, $this->table);
+        // Read the generation from the backing store, not the request memo cache.
+        $generation = Cache::get($key . '.generation');
+        if (!is_string($generation)) {
+            $generation = bin2hex(random_bytes(16));
+            Cache::forever($key . '.generation', $generation);
+        }
+
+        $cached = Cache::memo()->get($key);
+
+        if (
+            is_array($cached) &&
+            ($cached['generation'] ?? null) === $generation &&
+            isset($cached['mtime']) &&
+            is_array($cached['mtime']) &&
+            isset($cached['trashed']) &&
+            is_array($cached['trashed'])
+        ) {
+            self::$mtimeCache[$this->source] = $cached['mtime'];
+            self::$trashedPathCache[$this->source] = $cached['trashed'];
+            return;
+        }
+
+        $mtime = self::$mtimeCache[$this->source] ?? $this->getQuery()->pluck('updated_at', 'path')->all();
+        $trashed = self::$trashedPathCache[$this->source] ?? array_fill_keys(
+            $this->getQuery(false)->whereNotNull('deleted_at')->pluck('path')->all(),
+            true
+        );
+
+        self::$mtimeCache[$this->source] = $mtime;
+        self::$trashedPathCache[$this->source] = $trashed;
+
+        // A concurrent writer may invalidate while these queries run. Its new
+        // generation makes this snapshot unusable on the next request.
+        Cache::memo()->forever($key, [
+            'generation' => $generation,
+            'mtime' => $mtime,
+            'trashed' => $trashed,
+        ]);
+    }
+
+    /**
+     * makeIndexCacheKey unique to a datasource table and source
+     */
+    protected static function makeIndexCacheKey(string $source, string $table): string
+    {
+        return 'halcyon.db.' . $table . '.' . $source;
     }
 
     /**
@@ -527,8 +674,44 @@ class DbDatasource extends Datasource implements DatasourceInterface
      */
     protected function flushCache()
     {
-        unset(self::$pathCache[$this->source]);
-        unset(self::$mtimeCache[$this->source]);
-        unset(self::$trashedPathCache[$this->source]);
+        self::forgetCache($this->source, $this->table);
+    }
+
+    /**
+     * prepareCacheInvalidation registers commit invalidation before any write,
+     * so an unsupported standalone transaction fails without mutating a record.
+     */
+    protected function prepareCacheInvalidation(): void
+    {
+        self::invalidateCacheAfterCommit($this->getBaseQuery()->getConnection(), $this->source, $this->table);
+    }
+
+    /**
+     * invalidateCacheAfterCommit rejects snapshots another request may fill from
+     * committed rows while this connection's changes are still uncommitted.
+     */
+    protected static function invalidateCacheAfterCommit($connection, string $source, string $table): void
+    {
+        if ($connection->transactionLevel() === 0) {
+            return;
+        }
+
+        try {
+            $connection->afterCommit(function () use ($source, $table) {
+                self::forgetCache($source, $table);
+            });
+        }
+        catch (\RuntimeException $exception) {
+            if ($exception->getMessage() !== 'Transactions Manager has not been set.') {
+                throw $exception;
+            }
+
+            throw new \RuntimeException(
+                'Transactional DbDatasource writes require a transaction manager. Configure '
+                . 'Illuminate\\Database\\DatabaseTransactionsManager on the connection before beginning the transaction.',
+                0,
+                $exception
+            );
+        }
     }
 }

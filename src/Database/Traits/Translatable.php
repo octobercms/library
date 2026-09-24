@@ -81,9 +81,21 @@ trait Translatable
             $this->promoteTranslatableValues();
         });
 
-        // Demote + persist translations before save
+        // Demote before the base model is saved
         $this->bindEvent('model.saveInternal', function() {
-            $this->syncTranslatableAttributes();
+            $this->demoteTranslatableValues();
+        });
+
+        // Persist only once the base save succeeds
+        $this->bindEvent('model.saveComplete', function() {
+            $this->storeTranslatableBasicData();
+        });
+
+        // Restore active translations after every save attempt
+        $this->bindEvent('model.saveAlways', function() {
+            if ($this->exists && empty($this->translatableBaseValues)) {
+                $this->promoteTranslatableValues();
+            }
         });
     }
 
@@ -243,7 +255,16 @@ trait Translatable
         // Read current (possibly modified) translated values back from $attributes
         foreach ($translatable as $key) {
             if (array_key_exists($key, $this->attributes)) {
-                $this->translatableAttributes[$locale][$key] = $this->attributes[$key];
+                // An inherited base value is not a new translation
+                if (
+                    $this->attributes[$key] === $this->getTranslatableBaseValue($key) &&
+                    !array_key_exists($key, $this->translatableOriginals[$locale] ?? [])
+                ) {
+                    unset($this->translatableAttributes[$locale][$key]);
+                }
+                else {
+                    $this->translatableAttributes[$locale][$key] = $this->attributes[$key];
+                }
             }
         }
 
@@ -457,6 +478,14 @@ trait Translatable
         // Writing to the default locale: write to base values
         if ($locale === $this->getTranslatableDefault()) {
             if (!empty($this->translatableBaseValues)) {
+                // Keep an inherited active value in step with its base
+                if (
+                    !array_key_exists($key, $this->translatableAttributes[$this->getTranslatableContext()] ?? []) &&
+                    ($this->attributes[$key] ?? null) === ($this->translatableBaseValues[$key] ?? null)
+                ) {
+                    $this->attributes[$key] = $value;
+                }
+
                 $this->translatableBaseValues[$key] = $value;
             }
             else {
@@ -503,6 +532,8 @@ trait Translatable
 
         unset($this->translatableAttributes[$locale][$key]);
         unset($this->translatableOriginals[$locale][$key]);
+        $this->restoreForgottenTranslation($key, $locale);
+        $this->unsetRelation('translations');
     }
 
     /**
@@ -523,6 +554,8 @@ trait Translatable
         foreach ($this->translatableOriginals as $locale => &$data) {
             unset($data[$key]);
         }
+        $this->restoreForgottenTranslation($key, $this->getTranslatableContext());
+        $this->unsetRelation('translations');
     }
 
     /**
@@ -538,6 +571,24 @@ trait Translatable
 
         unset($this->translatableAttributes[$locale]);
         unset($this->translatableOriginals[$locale]);
+        foreach ($this->getTranslatableAttributes() as $key) {
+            $this->restoreForgottenTranslation($key, $locale);
+        }
+        $this->unsetRelation('translations');
+    }
+
+    /**
+     * restoreForgottenTranslation discards a deleted active override without
+     * losing edits to other attributes or locales.
+     */
+    protected function restoreForgottenTranslation($key, $locale)
+    {
+        if (
+            $locale === $this->getTranslatableContext() &&
+            array_key_exists($key, $this->translatableBaseValues)
+        ) {
+            $this->attributes[$key] = $this->translatableBaseValues[$key];
+        }
     }
 
     //
@@ -747,27 +798,6 @@ trait Translatable
     }
 
     /**
-     * syncTranslatableAttributes demotes translated values and stores them
-     * in the translation table before the base model save
-     */
-    protected function syncTranslatableAttributes()
-    {
-        // Demote: restore base values before save
-        $this->demoteTranslatableValues();
-
-        // Store translations for each known locale. When the model has no key
-        // yet (new record), defer until after insert assigns the primary key
-        if ($this->getKey()) {
-            $this->storeTranslatableBasicData();
-        }
-        else {
-            $this->bindEventOnce('model.saveComplete', function() {
-                $this->storeTranslatableBasicData();
-            });
-        }
-    }
-
-    /**
      * storeTranslatableBasicData stores translations for each known dirty locale
      */
     protected function storeTranslatableBasicData()
@@ -780,10 +810,11 @@ trait Translatable
 
             $this->fireEvent('model.translate.beforeSave', [$locale]);
             $this->storeTranslatableData($locale);
+            $this->translatableOriginals[$locale] = $this->translatableAttributes[$locale];
+            $this->unsetRelation('translations');
             $this->fireEvent('model.translate.afterSave', [$locale]);
         }
     }
-
 
     /**
      * storeTranslatableData saves translation data for a single locale using upsert
@@ -799,13 +830,13 @@ trait Translatable
         $isDefaultLocale = ($locale === $this->getTranslatableDefault());
 
         $rows = [];
+        $inherited = [];
         foreach ($dirty as $key => $value) {
-            // For non-default locales, skip attributes whose value matches the
-            // model's local attribute (the default locale value). No row = inherits
-            // from default, so changes to the default automatically propagate.
+            // For non-default locales, skip attributes whose value matches the default locale value
             if (!$isDefaultLocale) {
                 $defaultValue = $this->getTranslatableBaseValue($key);
                 if ($value === $defaultValue) {
+                    $inherited[] = $key;
                     continue;
                 }
             }
@@ -820,6 +851,19 @@ trait Translatable
                 'attribute' => $key,
                 'value' => $storeValue,
             ];
+        }
+
+        if ($inherited) {
+            Db::table($this->getTranslateAttributeTable())
+                ->where('model_type', $this->getMorphClass())
+                ->where('model_id', $this->getKey())
+                ->where('locale', $locale)
+                ->whereIn('attribute', $inherited)
+                ->delete();
+
+            foreach ($inherited as $key) {
+                unset($this->translatableAttributes[$locale][$key]);
+            }
         }
 
         if (empty($rows)) {

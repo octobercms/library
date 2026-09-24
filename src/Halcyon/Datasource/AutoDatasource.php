@@ -61,12 +61,13 @@ class AutoDatasource extends Datasource implements DatasourceInterface
             return null;
         }
 
+        // Each datasource answers with the template or null, so the
+        // existence check and the read are a single operation
         foreach ($this->datasources as $source) {
-            if (!$source->hasTemplate($dirName, $fileName, $extension)) {
-                continue;
+            $result = $source->selectOne($dirName, $fileName, $extension);
+            if ($result !== null) {
+                return $result;
             }
-
-            return $source->selectOne($dirName, $fileName, $extension);
         }
 
         return null;
@@ -171,11 +172,10 @@ class AutoDatasource extends Datasource implements DatasourceInterface
         }
 
         foreach ($this->datasources as $source) {
-            if (!$source->hasTemplate($dirName, $fileName, $extension)) {
-                continue;
+            $mtime = $source->lastModified($dirName, $fileName, $extension);
+            if ($mtime !== null) {
+                return $mtime;
             }
-
-            return $source->lastModified($dirName, $fileName, $extension);
         }
 
         return null;

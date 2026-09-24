@@ -150,6 +150,260 @@ class TranslatableTest extends TestCase
         $this->assertEquals('Produkt', $translations['de']);
     }
 
+    public function testRepeatedActiveLocaleSavesPreserveBaseLanguage()
+    {
+        $model = $this->makeFrenchModel();
+        $model->name = 'Première modification';
+        $model->save();
+        $this->assertSame('Première modification', $model->name);
+        $this->assertFalse($model->isTranslateDirty());
+
+        $model->name = 'Deuxième modification';
+        $model->save();
+        $this->assertSame('Product', Db::table('test_translatable')->where('id', $model->id)->value('name'));
+        $this->assertSame('Deuxième modification', TestModelTranslatable::find($model->id)->name);
+    }
+
+    public function testSuccessfulSavesSyncOriginalsAndDoNotRewriteTranslations()
+    {
+        $model = TestModelTranslatable::create(['name' => 'Product']);
+        $model->setTranslation('name', 'fr', 'Produit');
+        $events = [];
+        $model->bindEvent('model.translate.beforeSave', function ($locale) use (&$events) { $events[] = 'before:'.$locale; });
+        $model->bindEvent('model.translate.afterSave', function ($locale) use (&$events) { $events[] = 'after:'.$locale; });
+        $model->save();
+        $this->assertFalse($model->isTranslateDirty(null, 'fr'));
+        $this->assertSame(['before:fr', 'after:fr'], $events);
+
+        Db::connection()->flushQueryLog();
+        Db::connection()->enableQueryLog();
+        $model->save();
+        $writes = array_filter(Db::connection()->getQueryLog(), fn ($query) =>
+            str_contains($query['query'], 'translate_attributes') &&
+            preg_match('/^(insert|update|delete)/i', $query['query'])
+        );
+        $this->assertCount(0, $writes);
+        $this->assertSame(['before:fr', 'after:fr'], $events);
+    }
+
+    public function testCancelledSaveRetainsActiveEditsWithoutPersistingTranslations()
+    {
+        $model = $this->makeFrenchModel();
+        $model->name = 'Modification';
+        $cancel = true;
+        $model->bindEvent('model.saveInternal', function () use (&$cancel) { return $cancel ? false : null; }, -10);
+        $this->assertFalse($model->save());
+        $this->assertSame('Modification', $model->name);
+        $this->assertSame('Produit', TestModelTranslatable::find($model->id)->name);
+        $this->assertTrue($model->isTranslateDirty());
+
+        $cancel = false;
+        $model->save();
+        $this->assertSame('Modification', TestModelTranslatable::find($model->id)->name);
+        $this->assertSame('Product', $model->getTranslation('name', 'en'));
+    }
+
+    public function testThrowingSaveRetainsActiveEditsForRetry()
+    {
+        $model = $this->makeFrenchModel();
+        $model->name = 'Modification';
+        $model->bindEvent('model.beforeSave', function () { throw new RuntimeException('Save failed'); });
+        try {
+            $model->save();
+            $this->fail('Expected a save exception');
+        }
+        catch (RuntimeException $exception) {
+            $this->assertSame('Save failed', $exception->getMessage());
+        }
+        $this->assertSame('Modification', $model->name);
+        $this->assertSame('Produit', TestModelTranslatable::find($model->id)->name);
+        $this->assertTrue($model->isTranslateDirty());
+        $model->unbindEvent('model.beforeSave');
+        $model->save();
+        $this->assertSame('Modification', TestModelTranslatable::find($model->id)->name);
+    }
+
+    public function testNewRecordTranslationsAreSavedAfterKeyAssignmentAndCanRetry()
+    {
+        $model = new TestModelTranslatable(['name' => 'Product']);
+        $model->setTranslation('name', 'fr', 'Produit');
+        $cancel = true;
+        $model->bindEvent('model.saveInternal', function () use (&$cancel) { return $cancel ? false : null; }, -10);
+        $this->assertFalse($model->save());
+        $this->assertNull($model->id);
+        $this->assertSame(0, Db::table('translate_attributes')->count());
+        $this->assertTrue($model->isTranslateDirty(null, 'fr'));
+
+        $cancel = false;
+        $model->save();
+        $this->assertSame('Product', $model->name);
+        $this->assertFalse($model->isTranslateDirty(null, 'fr'));
+        $this->assertSame($model->id, Db::table('translate_attributes')->value('model_id'));
+        $this->assertSame('Produit', TestModelTranslatable::find($model->id)->getTranslation('name', 'fr'));
+    }
+
+    public function testResettingExistingTranslationToBaseRemovesOverride()
+    {
+        foreach (['en', 'fr'] as $locale) {
+            $model = $this->makeFrenchModel();
+            $model->setLocale($locale);
+            $model->setTranslation('name', 'fr', 'Product');
+            $model->save();
+            $this->assertFalse($model->isTranslateDirty(null, 'fr'));
+            $this->assertSame(0, Db::table('translate_attributes')->where('model_id', $model->id)->count());
+            $fresh = TestModelTranslatable::find($model->id);
+            $this->assertSame('Product', $fresh->name);
+            $fresh->setTranslation('name', 'en', 'New base');
+            $fresh->save();
+            $this->assertSame('New base', TestModelTranslatable::find($model->id)->name);
+        }
+    }
+
+    public function testForgettingActiveTranslationsDoesNotResurrectThemOnSave()
+    {
+        foreach (['forgetTranslation', 'forgetTranslations', 'forgetAllTranslations'] as $method) {
+            $model = $this->makeFrenchModel();
+            $model->load('translations');
+            if ($method === 'forgetTranslation') {
+                $model->$method('name', 'fr');
+            }
+            elseif ($method === 'forgetTranslations') {
+                $model->$method('name');
+            }
+            else {
+                $model->$method('fr');
+            }
+            $this->assertSame('Product', $model->name, $method);
+            $this->assertFalse($model->hasTranslations('fr'), $method);
+            $model->description = 'Unrelated edit';
+            $model->save();
+            $this->assertSame(0, Db::table('translate_attributes')->where('model_id', $model->id)->where('attribute', 'name')->count(), $method);
+            $this->assertSame('Product', TestModelTranslatable::find($model->id)->name, $method);
+        }
+    }
+
+    public function testForgettingAnotherLocalePreservesActiveEdits()
+    {
+        $model = $this->makeFrenchModel();
+        $model->setTranslation('name', 'de', 'Produkt');
+        $model->save();
+        $model->name = 'Modification';
+        $model->forgetAllTranslations('de');
+        $this->assertSame('Modification', $model->name);
+        $model->save();
+        $this->assertSame('Modification', TestModelTranslatable::find($model->id)->name);
+        $this->assertFalse($model->hasTranslations('de'));
+    }
+
+    public function testEloquentCancellationDoesNotWriteTranslations()
+    {
+        $model = $this->makeFrenchModel();
+        $model->name = 'Modification';
+        $cancel = true;
+        TestModelTranslatable::saving(function () use (&$cancel) { return $cancel ? false : null; });
+        $this->assertFalse($model->save());
+        $this->assertSame('Modification', $model->name);
+        $this->assertSame('Produit', TestModelTranslatable::find($model->id)->name);
+        $cancel = false;
+        $model->save();
+        $this->assertSame('Modification', TestModelTranslatable::find($model->id)->name);
+    }
+
+    public function testFailedTranslationWriteRemainsDirtyAndCanRetry()
+    {
+        $model = $this->makeFrenchModel();
+        $model->name = 'Modification';
+        $model->bindEvent('model.translate.beforeSave', function () { throw new RuntimeException('Translation failed'); });
+        try {
+            $model->save();
+            $this->fail('Expected a translation exception');
+        }
+        catch (RuntimeException $exception) {
+            $this->assertSame('Translation failed', $exception->getMessage());
+        }
+        $this->assertSame('Modification', $model->name);
+        $this->assertTrue($model->isTranslateDirty());
+        $this->assertSame('Produit', TestModelTranslatable::find($model->id)->name);
+        $model->unbindEvent('model.translate.beforeSave');
+        $model->save();
+        $this->assertSame('Modification', TestModelTranslatable::find($model->id)->name);
+        $this->assertFalse($model->isTranslateDirty());
+    }
+
+    public function testFailedTranslationUpsertCanRetryAfterBaseSave()
+    {
+        $model = $this->makeFrenchModel();
+        $model->load('translations');
+        $model->setTranslation('name', 'en', 'Updated base');
+        $model->name = 'Modification';
+        Db::unprepared("CREATE TRIGGER reject_translation_insert BEFORE INSERT ON translate_attributes BEGIN SELECT RAISE(FAIL, 'Translation write failed'); END");
+        try {
+            $model->save();
+            $this->fail('Expected a translation storage exception');
+        }
+        catch (Illuminate\Database\QueryException $exception) {
+            $this->assertStringContainsString('Translation write failed', $exception->getMessage());
+        }
+        finally {
+            Db::unprepared('DROP TRIGGER reject_translation_insert');
+        }
+        $this->assertSame('Updated base', Db::table('test_translatable')->where('id', $model->id)->value('name'));
+        $this->assertSame('Modification', $model->name);
+        $this->assertTrue($model->isTranslateDirty());
+        $this->assertSame('Produit', TestModelTranslatable::find($model->id)->name);
+
+        $model->save();
+        $this->assertSame('Modification', TestModelTranslatable::find($model->id)->name);
+        $this->assertSame('Modification', $model->getTranslations('name')['fr']);
+        $this->assertSame('Updated base', $model->getTranslation('name', 'en'));
+        $this->assertFalse($model->isTranslateDirty());
+    }
+
+    public function testNewActiveLocaleRecordRemainsEditableWithoutChangingBase()
+    {
+        TestModelTranslatable::$activeLocale = 'fr';
+        $model = new TestModelTranslatable(['name' => 'Product']);
+        $model->save();
+        $this->assertSame('Product', $model->name);
+        $this->assertFalse($model->isTranslateDirty());
+        $model->name = 'Produit';
+        $model->save();
+        $this->assertSame('Product', $model->getTranslation('name', 'en'));
+        $this->assertSame('Produit', TestModelTranslatable::find($model->id)->name);
+    }
+
+    public function testForgettingOneActiveAttributePreservesOtherEdits()
+    {
+        $model = $this->makeFrenchModel();
+        $model->description = 'Description française';
+        $model->setTranslation('name', 'de', 'Produkt');
+        $model->forgetTranslation('name', 'fr');
+        $model->save();
+        $this->assertSame('Product', $model->name);
+        $this->assertSame('Description française', $model->description);
+        $this->assertSame('Produkt', $model->getTranslation('name', 'de'));
+        $this->assertFalse($model->isTranslateDirty(null, 'fr'));
+
+        Db::connection()->flushQueryLog();
+        Db::connection()->enableQueryLog();
+        $model->save();
+        $writes = array_filter(Db::connection()->getQueryLog(), fn ($query) =>
+            str_contains($query['query'], 'translate_attributes') &&
+            preg_match('/^(insert|update|delete)/i', $query['query'])
+        );
+        $this->assertCount(0, $writes);
+    }
+
+    protected function makeFrenchModel()
+    {
+        TestModelTranslatable::$activeLocale = 'en';
+        $model = TestModelTranslatable::create(['name' => 'Product']);
+        $model->setTranslation('name', 'fr', 'Produit');
+        $model->save();
+        TestModelTranslatable::$activeLocale = 'fr';
+        return TestModelTranslatable::find($model->id);
+    }
+
     //
     // Query scopes
     //
