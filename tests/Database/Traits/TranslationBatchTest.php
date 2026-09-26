@@ -278,7 +278,10 @@ class TranslationBatchTest extends TestCase
             $table->increments('id');
             $table->string('title');
         });
-        $other->table('translated_entries')->insert([['id' => 1, 'title' => 'Base 1'], ['id' => 2, 'title' => 'Base 2']]);
+        $other->table('translated_entries')->insert([
+            ['id' => 1, 'title' => 'Base 1'],
+            ['id' => 2, 'title' => 'Base 2'],
+        ]);
 
         $models = TranslationBatchTestModel::on('other')->get();
 
