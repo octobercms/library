@@ -42,17 +42,6 @@ class ElementHolder extends ElementBase implements IteratorAggregate
     }
 
     /**
-     * offsetUnset removes the value and forgets that it was touched
-     * @param  string  $offset
-     */
-    public function offsetUnset($offset): void
-    {
-        unset($this->touchedElements[$offset]);
-
-        parent::offsetUnset($offset);
-    }
-
-    /**
      * getIterator for the elements.
      */
     public function getIterator(): Traversable

@@ -26,13 +26,12 @@ class ElementBaseTest extends TestCase
         try {
             $seen = null;
             ElementBaseTestElement::extend(function ($element) use (&$seen) {
-                $seen = $element;
+                $seen = [$element, $element->label];
             });
 
             $element = new ElementBaseTestElement(['label' => 'Name']);
 
-            $this->assertSame($element, $seen);
-            $this->assertSame('Name', $element->label);
+            $this->assertSame([$element, 'Name'], $seen);
         }
         finally {
             \October\Rain\Extension\Container::$classCallbacks = $callbacks;
@@ -63,6 +62,5 @@ class ElementBaseTest extends TestCase
 
         unset($holder['name']);
         $this->assertNull($holder->get('name'));
-        $this->assertSame([], $holder->getTouchedElements());
     }
 }

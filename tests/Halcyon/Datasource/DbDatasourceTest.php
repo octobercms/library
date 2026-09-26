@@ -118,11 +118,17 @@ class DbDatasourceTest extends TestCase
         }
     }
 
-    public function testPathToFileNameStripsOnlyTheDirectoryPrefix()
+    public function testSelectKeepsTheDirectoryNameInsideFileNames()
     {
-        $this->assertSame('about.htm', self::callProtectedMethod($this->dbDatasource, 'pathToFileName', ['pages', 'pages/about.htm']));
-        $this->assertSame('pages/about.htm', self::callProtectedMethod($this->dbDatasource, 'pathToFileName', ['pages', 'pages/pages/about.htm']));
-        $this->assertSame('blog/pages.htm', self::callProtectedMethod($this->dbDatasource, 'pathToFileName', ['pages', 'pages/blog/pages.htm']));
+        $this->dbDatasource->insert('pages', 'pages/about', 'htm', '<p>Nested</p>');
+        $this->dbDatasource->insert('pages', 'blog/pages', 'htm', '<p>Blog</p>');
+
+        foreach (['pages', 'pages/'] as $dirName) {
+            $fileNames = array_column($this->dbDatasource->select($dirName), 'fileName');
+            sort($fileNames);
+
+            $this->assertSame(['blog/pages.htm', 'pages/about.htm'], $fileNames);
+        }
     }
 
     public function testScopedIndexesDoNotLeakAcrossRequestsOrReadUnscopedCache()

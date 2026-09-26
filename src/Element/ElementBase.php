@@ -24,11 +24,12 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
      */
     public function __construct($config = [])
     {
-        parent::__construct();
-
         $this->initDefaultValues();
 
         $this->useConfig($config);
+
+        // Extensions see the configured element, as they do after unserializing
+        parent::__construct();
     }
 
     /**
