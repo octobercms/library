@@ -10,7 +10,10 @@ class ElementBaseTestElement extends ElementBase
 
 class ElementBaseTestBehavior extends ExtensionBase
 {
-    public $behaviorMarker = 'applied';
+    public function behaviorMarker()
+    {
+        return 'applied';
+    }
 }
 
 class ElementBaseTestElementWithBehavior extends ElementBase
@@ -27,11 +30,14 @@ class ElementBaseTest extends TestCase
             $seen = null;
             ElementBaseTestElement::extend(function ($element) use (&$seen) {
                 $seen = [$element, $element->label];
+                $element->addDynamicMethod('shout', fn () => strtoupper($element->label));
             });
 
             $element = new ElementBaseTestElement(['label' => 'Name']);
 
             $this->assertSame([$element, 'Name'], $seen);
+            $this->assertSame('NAME', $element->shout());
+            $this->assertArrayNotHasKey('shout', $element->config);
         }
         finally {
             \October\Rain\Extension\Container::$classCallbacks = $callbacks;
@@ -42,8 +48,9 @@ class ElementBaseTest extends TestCase
     {
         $element = new ElementBaseTestElementWithBehavior;
 
-        $this->assertTrue($element->isClassExtendedWith(ElementBaseTestBehavior::class));
-        $this->assertSame('applied', $element->asExtension(ElementBaseTestBehavior::class)->behaviorMarker);
+        $this->assertSame('applied', $element->behaviorMarker());
+        $this->assertSame($element, $element->span('full'));
+        $this->assertSame('full', $element->span);
     }
 
     public function testHolderReturnsWrittenValueAfterRead()
