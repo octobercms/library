@@ -175,6 +175,11 @@ class Model extends EloquentModel
 
         $instance->setRawAttributes((array) $attributes, true);
 
+        // Hand over translations preloaded for this hydration batch
+        if (method_exists($this, 'applyTranslatableBatch')) {
+            $this->applyTranslatableBatch($instance);
+        }
+
         $instance->fireModelEvent('fetched', false);
 
         $instance->setConnection($connection ?: $this->connection);
