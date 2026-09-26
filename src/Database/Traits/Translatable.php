@@ -4,6 +4,7 @@ use App;
 use Db;
 use Site;
 use Exception;
+use ReflectionMethod;
 
 /**
  * Translatable trait provides per-row model translation using a single
@@ -47,16 +48,10 @@ trait Translatable
     protected $translatableBaseValues = [];
 
     /**
-     * @var array|null translatableBatch holds translations preloaded for the hydration
-     * batch on this hydration prototype, keyed by model_id then attribute
+     * @var array|null translatableBatch holds the locale and translations preloaded
+     * while this model hydrates a batch of rows, keyed by model key then attribute
      */
     protected $translatableBatch;
-
-    /**
-     * @var array|null translatableHydrationData supplies raw translations only while
-     * this instance runs its fetched lifecycle, without bypassing its loader
-     */
-    protected $translatableHydrationData;
 
     /**
      * initializeTranslatable trait for a model
@@ -693,35 +688,24 @@ trait Translatable
     //
 
     /**
-     * hydrateWithTranslatableBatch loads the active locale translations for all rows
-     * in one query before hydration, so each fetched event can promote translated values
-     * without its own lookup. Rows or locales outside the batch fall back to a lookup.
+     * hydrateWithTranslatableBatch preloads the active locale translations for the rows
+     * in chunked queries, so fetched events can promote translated values without a
+     * query per row. Models with their own loader or table getter load per row.
      * @internal Called by the database builder.
      */
     public function hydrateWithTranslatableBatch(array $items, callable $hydrate)
     {
-        $keyName = $this->getKeyName();
-        $ids = array_column($items, $keyName);
+        $ids = array_column($items, $this->getKeyName());
 
-        if (!$ids || !$this->shouldTranslate()) {
+        if (!$ids || !$this->shouldTranslate() || !$this->usesDefaultTranslatableStorage()) {
             return $hydrate();
         }
 
-        // Custom loaders or table getters may depend on hydrated attributes or
-        // external storage. Only preload this trait's default storage behavior.
-        foreach (['loadTranslatableData', 'getTranslateAttributeTable'] as $method) {
-            $implementation = new \ReflectionMethod($this, $method);
-            $default = new \ReflectionMethod(__TRAIT__, $method);
-            if ($implementation->getFileName() !== __FILE__ || $implementation->getStartLine() !== $default->getStartLine()) {
-                return $hydrate();
-            }
-        }
-
         $locale = $this->getTranslatableContext();
-        $connection = Db::connection();
-        $rows = [];
+        $rows = array_fill_keys($ids, []);
+
         foreach (array_chunk($ids, 500) as $chunk) {
-            $translations = $connection->table($this->getTranslateAttributeTable())
+            $translations = Db::table($this->getTranslateAttributeTable())
                 ->where('model_type', $this->getMorphClass())
                 ->whereIn('model_id', $chunk)
                 ->where('locale', $locale)
@@ -732,13 +716,9 @@ trait Translatable
             }
         }
 
-        $previous = $this->translatableBatch;
         $this->translatableBatch = [
-            'connection' => $connection,
-            'table' => $this->getTranslateAttributeTable(),
-            'morph' => $this->getMorphClass(),
             'locale' => $locale,
-            'ids' => array_fill_keys($ids, true),
+            'morph' => $this->getMorphClass(),
             'rows' => $rows,
         ];
 
@@ -746,55 +726,47 @@ trait Translatable
             return $hydrate();
         }
         finally {
-            $this->translatableBatch = $previous;
+            $this->translatableBatch = null;
         }
     }
 
     /**
-     * newFromBuilderWithTranslatableBatch keeps the snapshot local to one model
-     * while lifecycle callbacks may independently hydrate other models.
-     * @internal Called by the database model during hydration.
+     * applyTranslatableBatch gives a model hydrated from this one the translations
+     * preloaded for its row, as the default loader would have read them.
+     * @internal Called by the database model before the fetched event.
      */
-    public function newFromBuilderWithTranslatableBatch($attributes, $connection)
+    public function applyTranslatableBatch($model)
     {
-        $batch = $this->translatableBatch;
-        if ($batch === null) {
-            return $this->newFromBuilderInstance($attributes, $connection);
+        $rows = $this->translatableBatch['rows'] ?? null;
+        $key = $model->getKey();
+
+        if ($rows === null || $key === null || !array_key_exists($key, $rows)) {
+            return;
         }
 
-        $this->translatableBatch = null;
-        $hydrated = null;
-        try {
-            return $this->newFromBuilderInstance($attributes, $connection, function ($instance) use ($batch, &$hydrated) {
-                $hydrated = $instance;
-                $instance->translatableHydrationData = $batch;
-            });
+        // A morph class that depends on the row is stored under another type
+        if ($model->getMorphClass() !== $this->translatableBatch['morph']) {
+            return;
         }
-        finally {
-            if ($hydrated !== null) {
-                $hydrated->translatableHydrationData = null;
+
+        $locale = $this->translatableBatch['locale'];
+        $model->translatableAttributes[$locale] = $rows[$key];
+        $model->translatableOriginals[$locale] = $rows[$key];
+    }
+
+    /**
+     * usesDefaultTranslatableStorage checks that the model keeps this trait's loader
+     * and table getter, since overrides may read other storage or row attributes.
+     */
+    protected function usesDefaultTranslatableStorage(): bool
+    {
+        foreach (['loadTranslatableData', 'getTranslateAttributeTable'] as $method) {
+            if ((new ReflectionMethod($this, $method))->getFileName() !== __FILE__) {
+                return false;
             }
-            $this->translatableBatch = $batch;
-        }
-    }
-
-    /**
-     * getTranslatableBatchRows returns preloaded translations for this model, or null
-     * when the model is not part of the batch in progress.
-     */
-    protected function getTranslatableBatchRows($locale, array $batch)
-    {
-        if (
-            $batch['connection'] !== Db::connection() ||
-            $batch['locale'] !== $locale ||
-            $batch['morph'] !== $this->getMorphClass() ||
-            $batch['table'] !== $this->getTranslateAttributeTable() ||
-            !isset($batch['ids'][$this->getKey()])
-        ) {
-            return null;
         }
 
-        return $batch['rows'][$this->getKey()] ?? [];
+        return true;
     }
 
     /**
@@ -893,12 +865,7 @@ trait Translatable
             $rows = [];
         }
         else {
-            // Model overrides still run through this loader when rows are preloaded.
-            $rows = $this->translatableHydrationData !== null
-                ? $this->getTranslatableBatchRows($locale, $this->translatableHydrationData)
-                : null;
-
-            $rows ??= Db::table($this->getTranslateAttributeTable())
+            $rows = Db::table($this->getTranslateAttributeTable())
                 ->where('model_type', $this->getMorphClass())
                 ->where('model_id', $this->getKey())
                 ->where('locale', $locale)
