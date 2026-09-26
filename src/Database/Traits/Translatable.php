@@ -695,9 +695,13 @@ trait Translatable
      */
     public function hydrateWithTranslatableBatch(array $items, callable $hydrate)
     {
+        if (!$this->shouldTranslate()) {
+            return $hydrate();
+        }
+
         $ids = array_column($items, $this->getKeyName());
 
-        if (!$ids || !$this->shouldTranslate() || !$this->usesDefaultTranslatableStorage()) {
+        if (!$ids || !$this->usesDefaultTranslatableStorage()) {
             return $hydrate();
         }
 
@@ -737,10 +741,14 @@ trait Translatable
      */
     public function applyTranslatableBatch($model)
     {
-        $rows = $this->translatableBatch['rows'] ?? null;
+        if ($this->translatableBatch === null) {
+            return;
+        }
+
+        $rows = $this->translatableBatch['rows'];
         $key = $model->getKey();
 
-        if ($rows === null || $key === null || !array_key_exists($key, $rows)) {
+        if ($key === null || !array_key_exists($key, $rows)) {
             return;
         }
 
