@@ -8,6 +8,7 @@ use October\Rain\Database\Model;
 
 class TranslationBatchTest extends TestCase
 {
+    protected $capsule;
     protected $db;
     protected $savedFacadeApplication;
     protected $savedResolver;
@@ -36,6 +37,7 @@ class TranslationBatchTest extends TestCase
         Facade::clearResolvedInstances();
         Facade::setFacadeApplication($app);
 
+        $this->capsule = $capsule;
         $this->db = $capsule->getConnection();
         $this->db->getSchemaBuilder()->create('translated_entries', function ($table) {
             $table->increments('id');
@@ -255,6 +257,34 @@ class TranslationBatchTest extends TestCase
         $this->assertSame(['French 1', 'Other French'], $models->pluck('title')->all());
     }
 
+    public function testMorphAliasIsUsedForTheBatch()
+    {
+        $this->seedEntries(2);
+        $this->db->table('translate_attributes')->update(['model_type' => 'entry-alias']);
+
+        $this->db->enableQueryLog();
+        $models = MorphAliasTestModel::get();
+
+        $this->assertSame(['French 1', 'French 2'], $models->pluck('title')->all());
+        $this->assertCount(2, $this->db->getQueryLog());
+    }
+
+    public function testTranslationsAreReadFromTheDefaultConnectionLikeTheLoader()
+    {
+        $this->seedEntries(2);
+        $this->capsule->addConnection(['driver' => 'sqlite', 'database' => ':memory:'], 'other');
+        $other = $this->capsule->getConnection('other');
+        $other->getSchemaBuilder()->create('translated_entries', function ($table) {
+            $table->increments('id');
+            $table->string('title');
+        });
+        $other->table('translated_entries')->insert([['id' => 1, 'title' => 'Base 1'], ['id' => 2, 'title' => 'Base 2']]);
+
+        $models = TranslationBatchTestModel::on('other')->get();
+
+        $this->assertSame(['French 1', 'French 2'], $models->pluck('title')->all());
+    }
+
     protected function seedEntries($count)
     {
         $entries = $translations = [];
@@ -357,5 +387,13 @@ class PerRecordMorphTestModel extends TranslationBatchTestModel
         return str_starts_with((string) $this->getRawOriginal('title'), 'Other')
             ? 'other-entry'
             : TranslationBatchTestModel::class;
+    }
+}
+
+class MorphAliasTestModel extends TranslationBatchTestModel
+{
+    public function getMorphClass()
+    {
+        return 'entry-alias';
     }
 }
