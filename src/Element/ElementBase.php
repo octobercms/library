@@ -27,6 +27,9 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
         $this->initDefaultValues();
 
         $this->useConfig($config);
+
+        // Extensions see the configured element, as they do after unserializing
+        parent::__construct();
     }
 
     /**
@@ -155,6 +158,14 @@ abstract class ElementBase extends Extendable implements Arrayable, ArrayAccess,
      */
     public function __call($method, $parameters)
     {
+        // Methods from behaviors or extend() callbacks run instead of setting config
+        if (
+            isset($this->extensionData['methods'][$method]) ||
+            isset($this->extensionData['dynamicMethods'][$method])
+        ) {
+            return $this->extendableCall($method, $parameters);
+        }
+
         $this->config[$method] = count($parameters) > 0 ? $parameters[0] : true;
 
         return $this;

@@ -118,6 +118,19 @@ class DbDatasourceTest extends TestCase
         }
     }
 
+    public function testSelectKeepsTheDirectoryNameInsideFileNames()
+    {
+        $this->dbDatasource->insert('pages', 'pages/about', 'htm', '<p>Nested</p>');
+        $this->dbDatasource->insert('pages', 'blog/pages', 'htm', '<p>Blog</p>');
+
+        foreach (['pages', 'pages/'] as $dirName) {
+            $fileNames = array_column($this->dbDatasource->select($dirName), 'fileName');
+            sort($fileNames);
+
+            $this->assertSame(['blog/pages.htm', 'pages/about.htm'], $fileNames);
+        }
+    }
+
     public function testScopedIndexesDoNotLeakAcrossRequestsOrReadUnscopedCache()
     {
         Db::getSchemaBuilder()->table($this->dbTable, function ($table) {
