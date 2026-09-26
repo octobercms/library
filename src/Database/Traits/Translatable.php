@@ -4,6 +4,7 @@ use App;
 use Db;
 use Site;
 use Exception;
+use ReflectionMethod;
 
 /**
  * Translatable trait provides per-row model translation using a single
@@ -45,6 +46,12 @@ trait Translatable
      * locale has been promoted into $attributes
      */
     protected $translatableBaseValues = [];
+
+    /**
+     * @var array|null translatableBatch holds the locale and translations preloaded
+     * while this model hydrates a batch of rows, keyed by model key then attribute
+     */
+    protected $translatableBatch;
 
     /**
      * initializeTranslatable trait for a model
@@ -681,6 +688,96 @@ trait Translatable
     //
 
     /**
+     * hydrateWithTranslatableBatch preloads the active locale translations for the rows
+     * in chunked queries, so fetched events can promote translated values without a
+     * query per row. Models with their own loader or table getter load per row.
+     * @internal Called by the database builder.
+     */
+    public function hydrateWithTranslatableBatch(array $items, callable $hydrate)
+    {
+        if (!$this->shouldTranslate()) {
+            return $hydrate();
+        }
+
+        $ids = array_column($items, $this->getKeyName());
+
+        if (!$ids || !$this->usesDefaultTranslatableStorage()) {
+            return $hydrate();
+        }
+
+        $locale = $this->getTranslatableContext();
+        $rows = array_fill_keys($ids, []);
+
+        foreach (array_chunk($ids, 500) as $chunk) {
+            $translations = Db::table($this->getTranslateAttributeTable())
+                ->where('model_type', $this->getMorphClass())
+                ->whereIn('model_id', $chunk)
+                ->where('locale', $locale)
+                ->get(['model_id', 'attribute', 'value']);
+
+            foreach ($translations as $row) {
+                $rows[$row->model_id][$row->attribute] = $row->value;
+            }
+        }
+
+        $this->translatableBatch = [
+            'locale' => $locale,
+            'morph' => $this->getMorphClass(),
+            'rows' => $rows,
+        ];
+
+        try {
+            return $hydrate();
+        }
+        finally {
+            $this->translatableBatch = null;
+        }
+    }
+
+    /**
+     * applyTranslatableBatch gives a model hydrated from this one the translations
+     * preloaded for its row, as the default loader would have read them.
+     * @internal Called by the database model before the fetched event.
+     */
+    public function applyTranslatableBatch($model)
+    {
+        if ($this->translatableBatch === null) {
+            return;
+        }
+
+        $rows = $this->translatableBatch['rows'];
+        $key = $model->getKey();
+
+        if ($key === null || !array_key_exists($key, $rows)) {
+            return;
+        }
+
+        // A morph class that depends on the row is stored under another type
+        if ($model->getMorphClass() !== $this->translatableBatch['morph']) {
+            return;
+        }
+
+        $locale = $this->translatableBatch['locale'];
+        $model->translatableAttributes[$locale] = $rows[$key];
+        $model->translatableOriginals[$locale] = $rows[$key];
+    }
+
+    /**
+     * usesDefaultTranslatableStorage checks that the model keeps this trait's loader
+     * and table getter, since overrides may read other storage or row attributes.
+     */
+    protected function usesDefaultTranslatableStorage(): bool
+    {
+        foreach (['loadTranslatableData', 'getTranslateAttributeTable'] as $method) {
+            if ((new ReflectionMethod($this, $method))->getFileName() !== __FILE__) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * storeTranslatableBasicData stores translations for each known dirty locale
      */
     protected function storeTranslatableBasicData()
@@ -771,6 +868,9 @@ trait Translatable
                 ->where('locale', $locale)
                 ->pluck('value', 'attribute')
                 ->toArray();
+        }
+        elseif ($this->getKey() === null) {
+            $rows = [];
         }
         else {
             $rows = Db::table($this->getTranslateAttributeTable())
