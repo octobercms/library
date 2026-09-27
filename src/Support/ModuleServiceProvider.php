@@ -160,6 +160,14 @@ abstract class ModuleServiceProvider extends ServiceProviderBase implements Octo
     /**
      * @inheritDoc
      */
+    public function registerSpotlight()
+    {
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function registerMailLayouts()
     {
         return [];

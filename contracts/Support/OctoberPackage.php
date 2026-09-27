@@ -143,6 +143,24 @@ interface OctoberPackage
     public function registerListColumnTypes();
 
     /**
+     * registerSpotlight registers any commands and record sources for the backend
+     * spotlight search provided by this package.
+     * The items must be returned in the following format:
+     *
+     *     return [
+     *         'commands' => [
+     *             \Acme\Blog\Spotlight\ClearCache::class => 'clearCache',
+     *         ],
+     *         'sources' => [
+     *             \Acme\Blog\Spotlight\Posts::class => 'blogPosts',
+     *         ],
+     *     ];
+     *
+     * @return array
+     */
+    public function registerSpotlight();
+
+    /**
      * registerMailLayouts registers any mail layouts implemented by this package.
      * The layouts must be returned in the following format:
      *
