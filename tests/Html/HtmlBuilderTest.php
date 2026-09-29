@@ -10,6 +10,32 @@ class HtmlBuilderTest extends TestCase
         $this->assertEquals('hello', $result);
     }
 
+    public function testObfuscateNeverEmitsRawMarkupCharacters()
+    {
+        $builder = new HtmlBuilder;
+
+        for ($i = 0; $i < 50; $i++) {
+            $result = $builder->obfuscate('a"b<c>d\'e&f');
+
+            $this->assertStringNotContainsString('"', $result);
+            $this->assertStringNotContainsString('<', $result);
+            $this->assertStringNotContainsString('>', $result);
+            $this->assertStringNotContainsString("'", $result);
+            $this->assertSame('a"b<c>d\'e&f', html_entity_decode($result, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        }
+    }
+
+    public function testMailtoKeepsHrefAttributeClosed()
+    {
+        $builder = new HtmlBuilder;
+
+        for ($i = 0; $i < 50; $i++) {
+            $result = $builder->mailto('"x"@example.com');
+
+            $this->assertSame(2, substr_count($result, '"'));
+        }
+    }
+
     public function testLimit()
     {
         $result = with(new HtmlBuilder)->limit('<p>The quick brown fox jumped over the lazy dog</p>', 10);

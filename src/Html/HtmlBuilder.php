@@ -393,7 +393,7 @@ class HtmlBuilder
                     break;
 
                 case 3:
-                    $safe .= $letter;
+                    $safe .= $this->entities($letter);
             }
         }
 
