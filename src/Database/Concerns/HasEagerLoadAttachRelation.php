@@ -42,6 +42,12 @@ trait HasEagerLoadAttachRelation
         }
 
         $relation = $this->getRelation($name);
+
+        // Relations stored under another field, such as a translated locale, load on their own
+        if ($relation->getAttachmentField() !== $name) {
+            return null;
+        }
+
         $relatedModel = get_class($relation->getRelated());
 
         // Perform a global look up attachment without the 'field' constraint

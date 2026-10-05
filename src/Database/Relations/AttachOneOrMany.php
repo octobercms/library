@@ -39,6 +39,14 @@ trait AttachOneOrMany
     }
 
     /**
+     * getAttachmentField returns the value stored in the field column for this relation.
+     */
+    public function getAttachmentField(): string
+    {
+        return $this->relationName;
+    }
+
+    /**
      * addConstraints sets the field (relation name) constraint on the query
      * @return void
      */
@@ -49,7 +57,7 @@ trait AttachOneOrMany
 
             $this->query->where($this->foreignKey, '=', $this->getParentKey());
 
-            $this->query->where('field', $this->relationName);
+            $this->query->where('field', $this->getAttachmentField());
 
             $this->query->whereNotNull($this->foreignKey);
         }
@@ -73,7 +81,7 @@ trait AttachOneOrMany
 
         $query = $query->where($this->morphType, $this->morphClass);
 
-        return $query->where('field', $this->relationName);
+        return $query->where('field', $this->getAttachmentField());
     }
 
     /**
@@ -103,7 +111,7 @@ trait AttachOneOrMany
     {
         parent::addEagerConstraints($models);
 
-        $this->query->where('field', $this->relationName);
+        $this->query->where('field', $this->getAttachmentField());
     }
 
     /**
@@ -127,7 +135,7 @@ trait AttachOneOrMany
             $model->setAttribute('is_public', $this->isPublic());
         }
 
-        $model->setAttribute('field', $this->relationName);
+        $model->setAttribute('field', $this->getAttachmentField());
 
         if ($sessionKey === null) {
             $this->ensureAttachOneIsSingular();
@@ -180,7 +188,7 @@ trait AttachOneOrMany
             $attributes = array_merge(['is_public' => $this->isPublic()], $attributes);
         }
 
-        $attributes['field'] = $this->relationName;
+        $attributes['field'] = $this->getAttachmentField();
 
         if ($sessionKey === null) {
             $this->ensureAttachOneIsSingular();
@@ -238,7 +246,7 @@ trait AttachOneOrMany
             $attributes = array_merge(['is_public' => $this->isPublic()], $attributes);
         }
 
-        $attributes['field'] = $this->relationName;
+        $attributes['field'] = $this->getAttachmentField();
 
         if ($sessionKey === null) {
             $this->ensureAttachOneIsSingular();
@@ -288,14 +296,14 @@ trait AttachOneOrMany
             if ($this->parent->exists) {
                 $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
                 $model->setAttribute($this->getMorphType(), $this->morphClass);
-                $model->setAttribute('field', $this->relationName);
+                $model->setAttribute('field', $this->getAttachmentField());
                 $model->save();
             }
             else {
                 $this->parent->bindEventOnce('model.afterSave', function () use ($model) {
                     $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
                     $model->setAttribute($this->getMorphType(), $this->morphClass);
-                    $model->setAttribute('field', $this->relationName);
+                    $model->setAttribute('field', $this->getAttachmentField());
                     $model->save();
                 });
             }
@@ -416,7 +424,7 @@ trait AttachOneOrMany
         return
             ((string) $model->getAttribute($this->getForeignKeyName()) === (string) $this->getParentKey()) &&
             $model->getAttribute($this->getMorphType()) === $this->morphClass &&
-            $model->getAttribute('field') === $this->relationName;
+            $model->getAttribute('field') === $this->getAttachmentField();
     }
 
     /**
