@@ -90,25 +90,6 @@ interface OctoberPackage
     public function registerSettings();
 
     /**
-     * registerReportWidgets registers any report widgets provided by this package.
-     * The widgets must be returned in the following format:
-     *
-     *     return [
-     *         'className1' => [
-     *             'label' => 'My widget 1',
-     *             'context' => ['context-1', 'context-2'],
-     *         ],
-     *         'className2' => [
-     *             'label' => 'My widget 2',
-     *             'context' => 'context-1'
-     *         ]
-     *     ];
-     *
-     * @return array
-     */
-    public function registerReportWidgets();
-
-    /**
      * registerFormWidgets registers any form widgets implemented in this package.
      * The widgets must be returned in the following format:
      *
