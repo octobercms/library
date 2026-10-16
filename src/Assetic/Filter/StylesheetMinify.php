@@ -63,8 +63,9 @@ class StylesheetMinify implements FilterInterface
         // -6.0100em to -6.01em, .0100 to .01, 1.200px to 1.2px
         $css = preg_replace('/((?<!\\\\)\:|\s)(\-?)(\d?\.\d+?)0+([^\d])/S', '$1$2$3$4', $css);
 
-        // Shorten 6-character hex color codes to 3-character where possible
-        $css = preg_replace('/#([a-f0-9])\\1([a-f0-9])\\2([a-f0-9])\\3/i', '#\1\2\3', $css);
+        // Shorten 6-character hex color codes to 3-character where possible, the code
+        // must end there, eg: #ffffff to #fff, but not #ffffff1a (8-character with alpha)
+        $css = preg_replace('/#([a-f0-9])\\1([a-f0-9])\\2([a-f0-9])\\3(?![\w-])/i', '#\1\2\3', $css);
 
         return trim($css);
     }
