@@ -14,7 +14,7 @@ class Blueprint extends BaseBlueprint
      * multisite adds columns used by the Multisite trait
      *
      * @param  string  $column
-     * @param  string|null  $indexName
+     * @param  string|null  $indexName names the composite index, the root index uses it with a `_root` suffix
      * @return void
      */
     public function multisite($column = 'site_id', $indexName = null)
@@ -24,5 +24,7 @@ class Blueprint extends BaseBlueprint
         $this->unsignedBigInteger('site_root_id')->nullable();
 
         $this->index([$column, 'site_root_id'], $indexName);
+
+        $this->index('site_root_id', $indexName ? "{$indexName}_root" : null);
     }
 }
