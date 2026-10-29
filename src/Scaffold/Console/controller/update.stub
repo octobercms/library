@@ -15,39 +15,50 @@
 
         <div class="form-buttons">
             <div data-control="loader-container">
-                <button
-                    type="submit"
-                    data-request="onSave"
-                    data-request-data="{ redirect: 0 }"
-                    data-hotkey="ctrl+s, cmd+s"
-                    data-request-message="<?= __("Saving :name...", ['name' => $formRecordName]) ?>"
-                    class="btn btn-primary">
-                    <?= __("Save") ?>
-                </button>
-                <button
-                    type="button"
-                    data-request="onSave"
-                    data-request-data="{ close: 1 }"
-                    data-browser-redirect-back
-                    data-hotkey="ctrl+enter, cmd+enter"
-                    data-request-message="<?= __("Saving :name...", ['name' => $formRecordName]) ?>"
-                    class="btn btn-default">
-                    <?= __("Save & Close") ?>
-                </button>
-                <button
-                    type="button"
-                    class="oc-icon-delete btn-icon danger pull-right"
-                    data-request="onDelete"
-                    data-request-message="<?= __("Deleting :name...", ['name' => $formRecordName]) ?>"
-                    data-request-confirm="<?= __("Delete this record?") ?>">
-                </button>
+                <?= Ui::ajaxButton(
+                    label: __("Save"),
+                    handler: 'onSave',
+                    primary: true,
+                    hotkey: ['ctrl+s', 'cmd+s'],
+                    dataRequestData: "redirect: false",
+                    dataRequestMessage: __("Saving :name...", ['name' => $formRecordName])
+                ) ?>
+
+                <?= Ui::ajaxButton(
+                    label: __("Save & Close"),
+                    handler: 'onSave',
+                    secondary: true,
+                    hotkey: ['ctrl+enter', 'cmd+enter'],
+                    dataBrowserRedirectBack: true,
+                    dataRequestData: "close: true",
+                    dataRequestMessage: __("Saving :name...", ['name' => $formRecordName])
+                ) ?>
+
+                <?php if ($this->formCheckPermission('modelDelete')): ?>
+                    <?= Ui::iconButton(
+                        label: __("Delete"),
+                        icon: 'ph ph-trash',
+                        handler: 'onDelete',
+                        danger: true,
+                        hotkey: ['shift+option+d'],
+                        class: 'pull-right',
+                        dataBrowserRedirectBack: true,
+                        dataRequestConfirm: __("Delete this record?"),
+                        dataRequestMessage: __("Deleting :name...", ['name' => $formRecordName])
+                    ) ?>
+                <?php endif ?>
+
                 <span class="btn-text">
                     <span class="button-separator"><?= __("or") ?></span>
-                    <a
-                        href="<?= Backend::url('{{namespace_path}}/{{lower_name}}') ?>"
-                        class="btn btn-link p-0">
-                        <?= __("Cancel") ?>
-                    </a>
+                    <?= Ui::ajaxButton(
+                        label: __("Cancel"),
+                        handler: 'onCancel',
+                        hotkey: ['shift+option+c'],
+                        class: 'btn-link p-0',
+                        dataBrowserRedirectBack: true,
+                        dataRequestData: "close: true",
+                        dataRequestMessage: __("Loading...")
+                    ) ?>
                 </span>
             </div>
         </div>
@@ -60,11 +71,12 @@
         <?= e($this->fatalError) ?>
     </p>
     <p>
-        <a
-            href="<?= Backend::url('{{namespace_path}}/{{lower_name}}') ?>"
-            class="btn btn-default">
-            <?= __("Return to List") ?>
-        </a>
+        <?= Ui::button(
+            label: __("Return to List"),
+            href: Backend::url('{{namespace_path}}/{{lower_name}}'),
+            icon: 'ph ph-arrow-left',
+            secondary: true
+        ) ?>
     </p>
 
 <?php endif ?>

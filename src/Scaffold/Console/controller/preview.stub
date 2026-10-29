@@ -13,7 +13,16 @@
 
 <?php else: ?>
 
-    <p class="flash-message static error"><?= e($this->fatalError) ?></p>
-    <p><a href="<?= Backend::url('{{namespace_path}}/{{lower_name}}') ?>" class="btn btn-default"><?= e(trans('backend::lang.form.return_to_list')) ?></a></p>
+    <p class="flash-message static error">
+        <?= e($this->fatalError) ?>
+    </p>
+    <p>
+        <?= Ui::button(
+            label: __("Return to List"),
+            href: Backend::url('{{namespace_path}}/{{lower_name}}'),
+            icon: 'ph ph-arrow-left',
+            secondary: true
+        ) ?>
+    </p>
 
 <?php endif ?>

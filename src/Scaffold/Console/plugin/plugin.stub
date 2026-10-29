@@ -19,7 +19,7 @@ class Plugin extends PluginBase
             'name' => '{{plugin}}',
             'description' => 'No description provided yet...',
             'author' => '{{author}}',
-            'icon' => 'icon-leaf'
+            'icon' => 'ph ph-leaf'
         ];
     }
 
@@ -77,7 +77,7 @@ class Plugin extends PluginBase
             '{{lower_plugin}}' => [
                 'label' => '{{plugin}}',
                 'url' => Backend::url('{{lower_author}}/{{lower_plugin}}/mycontroller'),
-                'icon' => 'icon-leaf',
+                'icon' => 'ph ph-leaf',
                 'permissions' => ['{{lower_namespace_code}}.*'],
                 'order' => 500,
             ],
