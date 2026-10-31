@@ -583,6 +583,9 @@ class User extends Model implements Authenticatable
             else {
                 $matched = false;
 
+                // An explicit deny wins over a wildcard grant that appears earlier in the merged array
+                $isDenied = (int) ($mergedPermissions[$permission] ?? 0) === -1;
+
                 foreach ($mergedPermissions as $mergedPermission => $value) {
                     // This time check if the mergedPermission ends in wildcard "*" symbol.
                     if ((strlen($mergedPermission) > 1) && str_ends_with($mergedPermission, '*')) {
@@ -594,6 +597,7 @@ class User extends Model implements Authenticatable
                         // We will make sure that the merged permission does not
                         // exactly match our permission, but starts with it.
                         if (
+                            !$isDenied &&
                             $checkMergedPermission !== $permission &&
                             str_starts_with($permission, $checkMergedPermission) &&
                             (int) $value === 1
