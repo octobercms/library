@@ -129,7 +129,7 @@ trait AttachOneOrMany
         $model->setAttribute('field', $this->relationName);
 
         if ($sessionKey === null) {
-            $this->ensureAttachOneIsSingular();
+            $this->ensureAttachOneIsSingular($model);
             return parent::save($model);
         }
 
@@ -215,7 +215,7 @@ trait AttachOneOrMany
                 return;
             }
 
-            $this->ensureAttachOneIsSingular();
+            $this->ensureAttachOneIsSingular($model);
 
             // Associate the model
             if ($this->parent->exists) {
@@ -257,7 +257,7 @@ trait AttachOneOrMany
             $this->parent->fireEvent('model.relation.add', [$this->relationName, $model]);
         }
         else {
-            $this->ensureAttachOneIsSingular($sessionKey);
+            $this->ensureAttachOneIsSingular($model, $sessionKey);
             $this->parent->bindDeferred($this->relationName, $model, $sessionKey);
         }
     }
@@ -356,7 +356,7 @@ trait AttachOneOrMany
      * ensureAttachOneIsSingular ensures AttachOne only has one attachment,
      * by deleting siblings for singular relations.
      */
-    protected function ensureAttachOneIsSingular($sessionKey = null)
+    protected function ensureAttachOneIsSingular(?Model $exceptModel = null, $sessionKey = null)
     {
         if (!$this instanceof AttachOne) {
             return;
@@ -364,13 +364,33 @@ trait AttachOneOrMany
 
         if ($sessionKey) {
             foreach ($this->withDeferred($sessionKey)->get() as $record) {
+                if ($exceptModel && $record->is($exceptModel)) {
+                    continue;
+                }
+
                 $this->parent->unbindDeferred($this->relationName, $record, $sessionKey);
             }
             return;
         }
 
         if ($this->parent->exists) {
-            $this->delete();
+            $this->deleteAttachedModels($exceptModel);
+        }
+    }
+
+    /**
+     * deleteAttachedModels deletes each attached file model so the stored file is removed with it.
+     */
+    protected function deleteAttachedModels(?Model $exceptModel = null)
+    {
+        $query = clone $this->getQuery();
+
+        if ($exceptModel && $exceptModel->exists) {
+            $query->whereKeyNot($exceptModel->getKey());
+        }
+
+        foreach ($query->get() as $model) {
+            $model->delete();
         }
     }
 
@@ -412,7 +432,7 @@ trait AttachOneOrMany
         $options = $this->parent->getRelationDefinition($this->relationName);
 
         if (array_get($options, 'delete', false)) {
-            $this->delete();
+            $this->deleteAttachedModels();
         }
         else {
             $this->update([$this->getForeignKeyName() => null]);
