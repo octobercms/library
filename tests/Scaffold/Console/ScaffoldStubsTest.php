@@ -53,6 +53,19 @@ class ScaffoldStubsTest extends TestCase
     }
 
     /**
+     * testPluginComposerStubRequiresPhp confirms the plugin composer.json requires a PHP version and leaves composer/installers to the install
+     */
+    public function testPluginComposerStubRequiresPhp()
+    {
+        $files = $this->renderStubs(new ScaffoldStubsTestCreatePlugin, ['namespace' => 'Acme.Blog']);
+        $composer = json_decode($files['composer.json'], true);
+
+        $this->assertIsArray($composer, 'Rendered composer.json is not valid JSON');
+        $this->assertArrayNotHasKey('composer/installers', $composer['require'] ?? []);
+        $this->assertArrayHasKey('php', $composer['require'] ?? []);
+    }
+
+    /**
      * testControllerStubsUseUiHelpers confirms each controller design renders its buttons with Ui helpers and Phosphor icons
      */
     public function testControllerStubsUseUiHelpers()
