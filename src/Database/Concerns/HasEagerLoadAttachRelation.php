@@ -43,14 +43,21 @@ trait HasEagerLoadAttachRelation
         }
 
         $relation = $this->eagerLoadAttachRelations[$name];
+
+        // Relations stored under another field, such as a translated locale, load on their own
+        if ($relation->getAttachmentField() !== $name) {
+            return null;
+        }
+
         $relatedModel = get_class($relation->getRelated());
 
         // Combine the requested attachments that share this related model in one query,
         // constrained to their field names so unrequested attachments are not hydrated.
         if (!isset($this->eagerLoadAttachResultCache[$relatedModel])) {
-            $fields = array_keys(array_filter($this->eagerLoadAttachRelations, function ($relation) use ($relatedModel) {
-                return get_class($relation->getRelated()) === $relatedModel;
-            }));
+            $fields = array_keys(array_filter($this->eagerLoadAttachRelations, function ($relation, $field) use ($relatedModel) {
+                return get_class($relation->getRelated()) === $relatedModel
+                    && $relation->getAttachmentField() === $field;
+            }, ARRAY_FILTER_USE_BOTH));
 
             $relation->addCommonEagerConstraints($models);
             $relation->whereIn($relation->getRelated()->qualifyColumn('field'), array_values($fields));

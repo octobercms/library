@@ -32,6 +32,15 @@ class HasOneThrough extends HasOneThroughBase
     }
 
     /**
+     * getRelationDefinitionForDefinedConstraints returns the relation definition for the
+     * relationship context.
+     */
+    protected function getRelationDefinitionForDefinedConstraints()
+    {
+        return $this->farParent->getRelationDefinition($this->relationName);
+    }
+
+    /**
      * parentSoftDeletes determines whether close parent of the relation uses Soft Deletes.
      * @return bool
      */

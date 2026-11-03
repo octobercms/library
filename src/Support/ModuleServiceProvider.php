@@ -126,7 +126,19 @@ abstract class ModuleServiceProvider extends ServiceProviderBase implements Octo
     }
 
     /**
-     * @inheritDoc
+     * registerDashboards registers dashboards, report widgets and data sources using the
+     * dashboards, widgets and dataSources keys, where a plain array registers dashboards only.
+     * @return array
+     */
+    public function registerDashboards()
+    {
+        return [];
+    }
+
+    /**
+     * registerReportWidgets registers any report widgets provided by this package.
+     * @deprecated use the widgets key of registerDashboards
+     * @return array
      */
     public function registerReportWidgets()
     {

@@ -78,6 +78,11 @@ trait Sortable
             $keyName = 'site_root_id';
         }
 
+        // A new record has no site_root_id until the Multisite trait sets it to the record's own key
+        if ($keyName === 'site_root_id' && $this->wasRecentlyCreated && !$this->site_root_id) {
+            $keyName = $this->getKeyName();
+        }
+
         $upsert = [];
         foreach ($itemIds as $id) {
             $sortOrder = $sortKeyMap[$id] ?? null;

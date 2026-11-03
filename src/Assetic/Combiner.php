@@ -147,9 +147,9 @@ class Combiner
     {
         if (is_array($extension)) {
             foreach ($extension as $_extension) {
-                $this->registerFilter($_extension, $filter);
+                $this->registerFilter($_extension, $filter, $isProduction);
             }
-            return;
+            return $this;
         }
 
         $extension = strtolower($extension);

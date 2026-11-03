@@ -13,11 +13,15 @@ use Illuminate\Support\Facades\Mail as MailBase;
 class Mail extends MailBase
 {
     /**
-     * fake the instance
+     * fake the instance, the fake keeps the real mail manager when it's faked twice
      */
     public static function fake()
     {
-        static::swap($fake = new FakeMailer);
+        $actualMailManager = static::isFake()
+            ? static::getFacadeRoot()->manager
+            : static::getFacadeRoot();
+
+        static::swap($fake = new FakeMailer($actualMailManager));
 
         return $fake;
     }

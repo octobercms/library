@@ -15,30 +15,35 @@
 
         <div class="form-buttons">
             <div data-control="loader-container">
-                <button
-                    type="submit"
-                    data-request="onSave"
-                    data-request-message="<?= __("Creating :name...", ['name' => $formRecordName]) ?>"
-                    data-hotkey="ctrl+s, cmd+s"
-                    class="btn btn-primary">
-                    <?= __("Create") ?>
-                </button>
-                <button
-                    type="button"
-                    data-request="onSave"
-                    data-request-data="{ close: 1 }"
-                    data-request-message="<?= __("Creating :name...", ['name' => $formRecordName]) ?>"
-                    data-hotkey="ctrl+enter, cmd+enter"
-                    class="btn btn-default">
-                    <?= __("Create & Close") ?>
-                </button>
+                <?= Ui::ajaxButton(
+                    label: __("Create"),
+                    handler: 'onSave',
+                    primary: true,
+                    hotkey: ['ctrl+s', 'cmd+s'],
+                    dataRequestMessage: __("Creating :name...", ['name' => $formRecordName])
+                ) ?>
+
+                <?= Ui::ajaxButton(
+                    label: __("Create & Close"),
+                    handler: 'onSave',
+                    secondary: true,
+                    hotkey: ['ctrl+enter', 'cmd+enter'],
+                    dataBrowserRedirectBack: true,
+                    dataRequestData: "close: true",
+                    dataRequestMessage: __("Creating :name...", ['name' => $formRecordName])
+                ) ?>
+
                 <span class="btn-text">
                     <span class="button-separator"><?= __("or") ?></span>
-                    <a
-                        href="<?= Backend::url('{{namespace_path}}/{{lower_name}}') ?>"
-                        class="btn btn-link p-0">
-                        <?= __("Cancel") ?>
-                    </a>
+                    <?= Ui::ajaxButton(
+                        label: __("Cancel"),
+                        handler: 'onCancel',
+                        hotkey: ['shift+option+c'],
+                        class: 'btn-link p-0',
+                        dataBrowserRedirectBack: true,
+                        dataRequestData: "close: true",
+                        dataRequestMessage: __("Loading...")
+                    ) ?>
                 </span>
             </div>
         </div>
@@ -51,11 +56,12 @@
         <?= e($this->fatalError) ?>
     </p>
     <p>
-        <a
-            href="<?= Backend::url('{{namespace_path}}/{{lower_name}}') ?>"
-            class="btn btn-default">
-            <?= __("Return to List") ?>
-        </a>
+        <?= Ui::button(
+            label: __("Return to List"),
+            href: Backend::url('{{namespace_path}}/{{lower_name}}'),
+            icon: 'ph ph-arrow-left',
+            secondary: true
+        ) ?>
     </p>
 
 <?php endif ?>

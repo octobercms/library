@@ -29,7 +29,7 @@
         "league/csv": "~9.1",
         "laravel/tinker": "~2.0|~3.0",
         "symfony/html-sanitizer": "^6.1|^7.0",
-        "enshrined/svg-sanitize": "^0.22"
+        "enshrined/svg-sanitize": "^1.0"
     },
     "require-dev": {
         "laravel/framework": "^12.0",

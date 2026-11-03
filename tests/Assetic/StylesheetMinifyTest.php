@@ -165,4 +165,40 @@ class StylesheetMinifyTest extends TestCase
 
         $this->assertEquals($output, $mockAsset->getContent());
     }
+
+    public function testHexColorShortening()
+    {
+        $input  = 'body { color: #ffffff; background: #AABBCC; border-color: #123456; }';
+        $output = 'body{color:#fff;background:#ABC;border-color:#123456}';
+
+        $mockAsset = new MockAsset($input);
+        $result = new StylesheetMinify();
+        $result->filterDump($mockAsset);
+
+        $this->assertEquals($output, $mockAsset->getContent());
+    }
+
+    public function testHexColorWithAlphaPreservation()
+    {
+        $input  = 'body { box-shadow: inset 0 1px #ffffff1a; color: #11223344; outline-color: #ffffffff; }';
+        $output = 'body{box-shadow:inset 0 1px #ffffff1a;color:#11223344;outline-color:#ffffffff}';
+
+        $mockAsset = new MockAsset($input);
+        $result = new StylesheetMinify();
+        $result->filterDump($mockAsset);
+
+        $this->assertEquals($output, $mockAsset->getContent());
+    }
+
+    public function testHexLikeIdSelectorPreservation()
+    {
+        $input  = '#aabbcc-section { color: #ffffff; }';
+        $output = '#aabbcc-section{color:#fff}';
+
+        $mockAsset = new MockAsset($input);
+        $result = new StylesheetMinify();
+        $result->filterDump($mockAsset);
+
+        $this->assertEquals($output, $mockAsset->getContent());
+    }
 }

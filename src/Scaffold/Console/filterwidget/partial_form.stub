@@ -2,18 +2,24 @@
     <div class="filter-facet">
         <div class="facet-item is-grow">
             <select name="Filter[value]" class="form-control form-control-sm custom-select">
-                <option value="1" <?= $scope->value === '1' ? 'selected="selected"' : '' ?>>has a discount</option>
-                <option value="0" <?= $scope->value === '0' ? 'selected="selected"' : '' ?>>does not have a discount</option>
+                <option value="1" <?= $scope->value === '1' ? 'selected="selected"' : '' ?>><?= __("has a discount") ?></option>
+                <option value="0" <?= $scope->value === '0' ? 'selected="selected"' : '' ?>><?= __("does not have a discount") ?></option>
             </select>
         </div>
     </div>
     <div class="filter-buttons">
-        <button class="btn btn-sm btn-primary" data-filter-action="apply">
-            <?= __("Apply") ?>
-        </button>
+        <?= Ui::button(
+            label: __("Apply"),
+            primary: true,
+            class: 'btn-sm',
+            dataFilterAction: 'apply'
+        ) ?>
         <div class="flex-grow-1"></div>
-        <button class="btn btn-sm btn-secondary" data-filter-action="clear">
-            <?= __("Clear") ?>
-        </button>
+        <?= Ui::button(
+            label: __("Clear"),
+            secondary: true,
+            class: 'btn-sm',
+            dataFilterAction: 'clear'
+        ) ?>
     </div>
 </div>
