@@ -37,6 +37,12 @@
         "meyfa/phpunit-assert-gd": "^2.0.0|^3.0.0",
         "phpbench/phpbench": "^1.4"
     },
+    "replace": {
+        "octoberrain/contracts": "self.version",
+        "octoberrain/exception": "self.version",
+        "octoberrain/extension": "self.version",
+        "octoberrain/html": "self.version"
+    },
     "autoload": {
         "files": [
             "init/init.php"

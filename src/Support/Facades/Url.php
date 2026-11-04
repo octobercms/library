@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\URL as UrlBase;
  * @method static string assetVersion(string $path)
  *
  * @see \Illuminate\Routing\UrlGenerator
- * @see \October\Rain\Html\UrlMixin
+ * @see \October\Rain\Foundation\Http\UrlMixin
  */
 class Url extends UrlBase
 {

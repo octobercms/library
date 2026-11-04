@@ -18,7 +18,7 @@ use Illuminate\Support\Collection;
  */
 class Mailer extends MailerBase
 {
-    use \October\Rain\Support\Traits\Emitter;
+    use \October\Rain\Extension\Emitter;
 
     /**
      * @var string pretendingOriginal contains the original driver before pretending.

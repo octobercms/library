@@ -13,7 +13,7 @@ use Illuminate\Contracts\Container\Container as ContainerContract;
  */
 class PriorityDispatcher
 {
-    use \October\Rain\Support\Traits\Emitter;
+    use \October\Rain\Extension\Emitter;
     use \Illuminate\Support\Traits\ForwardsCalls;
 
     const FORWARD_CALL_FLAG = '___FORWARD_CALL___';

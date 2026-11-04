@@ -175,3 +175,42 @@ In some cases you may not wish to extend the `ExtensionBase` or `Extendable` cla
 - When using the `ExtensionTrait` the methods from `ExtensionBase` should be applied to the class.
 
 - When using the `ExtendableTrait` the methods from `Extendable` should be applied to the class.
+
+### Event emitter
+
+Adds event related features to any class.
+
+**Attach to a class**
+
+    class MyClass
+    {
+        use October\Rain\Extension\Emitter;
+    }
+
+**Bind to an event**
+
+    $myObject = new MyClass;
+    $myObject->bindEvent('cook.bacon', function(){
+        echo 'Bacon is ready';
+    });
+
+**Trigger an event**
+
+    // Outputs: Bacon is ready
+    $myObject->fireEvent('cook.bacon');
+
+**Bind to an event only once**
+
+    $myObject = new MyClass;
+    $myObject->bindEvent('cook.soup', function(){
+        echo 'Soup is ready. Want more? NO SOUP FOR YOU!';
+    }, true);
+
+**Bind an event to other object method**
+
+    $myObject->bindEvent('cook.eggs', [$anotherObject, 'methodToCookEggs']);
+
+**Unbind an event**
+
+    $myObject->unbindEvent('cook.bacon');
+    $myObject->unbindEvent(['cook.bacon', 'cook.eggs']);

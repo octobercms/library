@@ -1,4 +1,4 @@
-<?php namespace October\Rain\Html;
+<?php namespace October\Rain\Foundation\Http;
 
 use File;
 use Config;
@@ -6,7 +6,7 @@ use Config;
 /**
  * UrlMixin
  *
- * @package october\html
+ * @package october\foundation
  * @author Alexey Bobkov, Samuel Georges
  */
 class UrlMixin

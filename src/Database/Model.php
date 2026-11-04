@@ -23,7 +23,7 @@ class Model extends EloquentModel
     use Concerns\HasAttributes;
     use Concerns\HasReplication;
     use Concerns\HasRelationships;
-    use \October\Rain\Support\Traits\Emitter;
+    use \October\Rain\Extension\Emitter;
     use \October\Rain\Extension\ExtendableTrait;
     use \October\Rain\Database\Traits\DeferredBinding;
 

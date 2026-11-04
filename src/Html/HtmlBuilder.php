@@ -1,6 +1,6 @@
 <?php namespace October\Rain\Html;
 
-use October\Rain\Support\Str;
+use Illuminate\Support\Str;
 use Illuminate\Routing\UrlGenerator;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizer;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;

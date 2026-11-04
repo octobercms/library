@@ -1,6 +1,6 @@
 <?php namespace October\Rain\Exception;
 
-use Validator as ValidatorFacade;
+use Illuminate\Support\Facades\Validator as ValidatorFacade;
 use Illuminate\Validation\ValidationException as ValidationExceptionBase;
 use Illuminate\Validation\Validator;
 use Illuminate\Support\MessageBag;

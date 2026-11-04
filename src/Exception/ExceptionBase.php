@@ -1,6 +1,6 @@
 <?php namespace October\Rain\Exception;
 
-use File;
+use Illuminate\Support\Facades\File;
 use Throwable;
 use Exception;
 
@@ -90,7 +90,13 @@ class ExceptionBase extends Exception
      */
     public function getNiceFile()
     {
-        return File::nicePath($this->getFile());
+        $files = File::getFacadeRoot();
+
+        if (method_exists($files, 'nicePath')) {
+            return $files->nicePath($this->getFile());
+        }
+
+        return str_replace(base_path(), '~', $this->getFile());
     }
 
     /**
@@ -242,7 +248,7 @@ class ExceptionBase extends Exception
                 ? $event['class'].$event['type'].$event['function']
                 : $event['function'];
 
-            $file = isset($event['file']) ? '~'.File::localToPublic($event['file']) : null;
+            $file = isset($event['file']) ? '~'.$this->getPublicPath($event['file']) : null;
             $line = $event['line'] ?? null;
 
             $args = null;
@@ -260,6 +266,20 @@ class ExceptionBase extends Exception
         }
 
         return $result;
+    }
+
+    /**
+     * getPublicPath converts a local file path to one relative to the application base path.
+     */
+    protected function getPublicPath(string $path): string
+    {
+        $files = File::getFacadeRoot();
+
+        if (method_exists($files, 'localToPublic')) {
+            return $files->localToPublic($path);
+        }
+
+        return str_replace('\\', '/', str_replace(base_path(), '', $path));
     }
 
     /**

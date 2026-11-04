@@ -1,0 +1,26 @@
+{
+    "name": "octoberrain/extension",
+    "description": "Extendable classes, behaviors and object events from October Rain",
+    "homepage": "https://octobercms.com",
+    "keywords": ["october", "rain", "extension", "behavior", "events"],
+    "authors": [
+        {
+            "name": "Alexey Bobkov",
+            "email": "aleksey.bobkov@gmail.com"
+        },
+        {
+            "name": "Samuel Georges",
+            "email": "daftspunky@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "October\\Rain\\Extension\\": ""
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
