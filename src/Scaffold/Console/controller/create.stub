@@ -33,7 +33,7 @@
                     dataRequestMessage: __("Creating :name...", ['name' => $formRecordName])
                 ) ?>
 
-                <span class="btn-text">
+                <span class="button-text">
                     <span class="button-separator"><?= __("or") ?></span>
                     <?= Ui::ajaxButton(
                         label: __("Cancel"),
