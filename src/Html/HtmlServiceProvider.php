@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Html;
 
+use Illuminate\Support\Str;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Support\DeferrableProvider;
 
@@ -41,7 +42,7 @@ class HtmlServiceProvider extends ServiceProvider implements DeferrableProvider
     protected function registerFormBuilder()
     {
         $this->app->singleton('form', function ($app) {
-            $form = new FormBuilder($app['html'], $app['url'], $app['session.store']->token(), str_random(40));
+            $form = new FormBuilder($app['html'], $app['url'], $app['session.store']->token(), Str::random(40));
             return $form->setSessionStore($app['session.store']);
         });
     }
