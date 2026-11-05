@@ -24,5 +24,23 @@ class CoreServiceProvider extends ServiceProvider
         $this->app->singleton('files', \October\Rain\Filesystem\Filesystem::class);
 
         $this->app->singleton('core.composer', \October\Rain\Composer\ComposerManager::class);
+
+        if (!$this->app instanceof \October\Rain\Foundation\Application) {
+            $this->registerModelServices();
+        }
+    }
+
+    /**
+     * registerModelServices registers what Rain models need in a Laravel app specifically
+     */
+    protected function registerModelServices()
+    {
+        $this->app->register(\October\Rain\Filesystem\FilesystemServiceProvider::class);
+
+        $this->app->singletonIf('db.dongle', function ($app) {
+            $driver = $app['config']['database.connections.' . $app['db']->getDefaultConnection() . '.driver'];
+
+            return new \October\Rain\Database\Dongle($driver, $app['db']);
+        });
     }
 }
