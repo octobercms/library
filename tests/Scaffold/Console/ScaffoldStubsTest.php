@@ -1,5 +1,6 @@
 <?php
 
+use October\Rain\Scaffold\Console\CreateTheme;
 use October\Rain\Scaffold\Console\CreatePlugin;
 use October\Rain\Scaffold\Console\CreateController;
 use October\Rain\Scaffold\Console\CreateFormWidget;
@@ -58,6 +59,19 @@ class ScaffoldStubsTest extends TestCase
     public function testPluginComposerStubRequiresPhp()
     {
         $files = $this->renderStubs(new ScaffoldStubsTestCreatePlugin, ['namespace' => 'Acme.Blog']);
+        $composer = json_decode($files['composer.json'], true);
+
+        $this->assertIsArray($composer, 'Rendered composer.json is not valid JSON');
+        $this->assertArrayNotHasKey('composer/installers', $composer['require'] ?? []);
+        $this->assertArrayHasKey('php', $composer['require'] ?? []);
+    }
+
+    /**
+     * testThemeComposerStubRequiresPhp confirms the theme composer.json requires a PHP version and leaves composer/installers to the install
+     */
+    public function testThemeComposerStubRequiresPhp()
+    {
+        $files = $this->renderStubs(new ScaffoldStubsTestCreateTheme, ['name' => 'MyTheme']);
         $composer = json_decode($files['composer.json'], true);
 
         $this->assertIsArray($composer, 'Rendered composer.json is not valid JSON');
@@ -217,6 +231,14 @@ trait ScaffoldStubsTestRendering
     {
         return dirname((new ReflectionClass(get_parent_class($this)))->getFileName());
     }
+}
+
+/**
+ * ScaffoldStubsTestCreateTheme renders the create:theme stubs
+ */
+class ScaffoldStubsTestCreateTheme extends CreateTheme
+{
+    use ScaffoldStubsTestRendering;
 }
 
 /**
