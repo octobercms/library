@@ -81,7 +81,7 @@ trait SetupHelper
 
     /**
      * updateGitignore prepares the .gitignore file for a project, the modules are
-     * ignored since composer manages them, and composer.lock is no longer ignored
+     * ignored since composer manages them, and the lock files are no longer ignored
      * so the locked dependency versions are committed with the project
      */
     protected function updateGitignore($gitignore)
@@ -89,8 +89,8 @@ trait SetupHelper
         $contents = $original = file_get_contents($gitignore);
         $eol = str_contains($contents, "\r\n") ? "\r\n" : "\n";
 
-        // Commit the lock file
-        $contents = preg_replace('/^\/?composer\.lock[ \t]*(\r?\n|$)/m', '', $contents);
+        // Commit the lock files
+        $contents = preg_replace('/^\/?(composer\.lock|package-lock\.json)[ \t]*(\r?\n|$)/m', '', $contents);
 
         // Ignore the modules
         if (!preg_match('/^\/modules\r?$/m', $contents)) {

@@ -36,7 +36,6 @@ class SetupHelperTest extends TestCase
         $this->assertEquals(implode("\n", [
             '# Common',
             'composer.phar',
-            'package-lock.json',
             '/modules/system/node_modules',
             '',
             '# Project',
@@ -74,6 +73,9 @@ class SetupHelperTest extends TestCase
 
         $result = $this->updateGitignore("/modules\ncomposer.lock.bak\n");
         $this->assertEquals("/modules\ncomposer.lock.bak\n", $result);
+
+        $result = $this->updateGitignore("/modules\n/package-lock.json\npackage-lock.json.bak\n");
+        $this->assertEquals("/modules\npackage-lock.json.bak\n", $result);
     }
 
     /**
