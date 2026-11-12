@@ -43,11 +43,6 @@ class Handler extends ExceptionHandler
     ];
 
     /**
-     * @var array handlers for registered exceptions.
-     */
-    protected $handlers = [];
-
-    /**
      * report or log an exception.
      *
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
