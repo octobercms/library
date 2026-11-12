@@ -202,7 +202,7 @@ class ProjectSetCommand extends Command
      */
     protected function getComposerUrl(bool $withProtocol = true): string
     {
-        $gateway = Config::get('system.composer_gateway', 'gateway.octobercms.com');
+        $gateway = env('APP_COMPOSER_GATEWAY', Config::get('system.composer_gateway', 'gateway.octobercms.com'));
 
         return $withProtocol ? 'https://'.$gateway : $gateway;
     }
