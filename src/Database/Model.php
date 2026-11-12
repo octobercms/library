@@ -232,6 +232,12 @@ class Model extends EloquentModel
      */
     public function newEloquentBuilder($query)
     {
+        $builderClass = $this->resolveCustomBuilderClass();
+
+        if ($builderClass && is_subclass_of($builderClass, \Illuminate\Database\Eloquent\Builder::class)) {
+            return new $builderClass($query);
+        }
+
         return new Builder($query);
     }
 
@@ -256,7 +262,15 @@ class Model extends EloquentModel
      */
     public function newCollection(array $models = [])
     {
-        return new Collection($models);
+        $collectionClass = $this->resolveCollectionFromAttribute() ?? Collection::class;
+
+        $collection = new $collectionClass($models);
+
+        if (static::isAutomaticallyEagerLoadingRelationships()) {
+            $collection->withRelationshipAutoloading();
+        }
+
+        return $collection;
     }
 
     //
