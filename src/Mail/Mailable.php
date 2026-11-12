@@ -44,6 +44,10 @@ class Mailable extends MailableBase
     {
         $data = $this->viewData;
 
+        if (static::$viewDataCallback) {
+            $data = array_merge($data, call_user_func(static::$viewDataCallback, $this));
+        }
+
         foreach ($data as $param => $value) {
             $data[$param] = $this->getRestoredPropertyValue($value);
         }
