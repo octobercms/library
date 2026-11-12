@@ -92,15 +92,19 @@ trait SimpleTree
     public function getAllChildren()
     {
         $result = [];
-        $children = $this->getChildren();
+        $visited = [$this->getKey() => true];
+        $queue = $this->getChildren()->all();
 
-        foreach ($children as $child) {
+        // Records that point back at a node already listed are skipped, so a parent loop cannot recurse forever
+        while ($child = array_shift($queue)) {
+            if (isset($visited[$child->getKey()])) {
+                continue;
+            }
+
+            $visited[$child->getKey()] = true;
             $result[] = $child;
 
-            $childResult = $child->getAllChildren();
-            foreach ($childResult as $subChild) {
-                $result[] = $subChild;
-            }
+            array_unshift($queue, ...$child->getChildren()->all());
         }
 
         return new Collection($result);
@@ -134,8 +138,14 @@ trait SimpleTree
 
         $parent = $this;
         $result[] = $parent;
+        $visited = [$parent->getKey() => true];
 
         while ($parent = $parent->parent) {
+            if (isset($visited[$parent->getKey()])) {
+                break;
+            }
+
+            $visited[$parent->getKey()] = true;
             $result[] = $parent;
         }
 
