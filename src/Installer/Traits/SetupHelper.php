@@ -80,21 +80,25 @@ trait SetupHelper
     }
 
     /**
-     * addModulesToGitignore
+     * updateGitignore prepares the .gitignore file for a project, the modules are
+     * ignored since composer manages them, and the lock files are no longer ignored
+     * so the locked dependency versions are committed with the project
      */
-    protected function addModulesToGitignore($gitignore)
+    protected function updateGitignore($gitignore)
     {
-        $toIgnore = '/modules';
-        $contents = file_get_contents($gitignore);
+        $contents = $original = file_get_contents($gitignore);
+        $eol = str_contains($contents, "\r\n") ? "\r\n" : "\n";
 
-        if (!preg_match('/^\/modules$/m', $contents)) {
-            file_put_contents(
-                $gitignore,
-                trim($contents, PHP_EOL) .
-                PHP_EOL .
-                $toIgnore .
-                PHP_EOL
-            );
+        // Commit the lock files
+        $contents = preg_replace('/^\/?(composer\.lock|package-lock\.json)[ \t]*(\r?\n|$)/m', '', $contents);
+
+        // Ignore the modules
+        if (!preg_match('/^\/modules\r?$/m', $contents)) {
+            $contents = rtrim($contents, "\r\n") . $eol . '/modules' . $eol;
+        }
+
+        if ($contents !== $original) {
+            file_put_contents($gitignore, $contents);
         }
     }
 
@@ -367,9 +371,9 @@ trait SetupHelper
             $this->refreshEnvVars();
         }
 
-        // Add modules to .gitignore
+        // Prepare .gitignore for the project
         if (file_exists($gitignore) && is_writable($gitignore)) {
-            $this->addModulesToGitignore($gitignore);
+            $this->updateGitignore($gitignore);
         }
 
         return is_writable($path);
