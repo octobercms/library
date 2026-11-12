@@ -35,4 +35,32 @@ class TranslatorTest extends TestCase
         $this->translator->set('lang.test.hello_override', 'Hello Override!');
         $this->assertEquals('Hello Override!', $this->translator->get('lang.test.hello_override'));
     }
+
+    public function testMissingKeyHandlerIsCalled()
+    {
+        $missing = [];
+        $this->translator->handleMissingKeysUsing(function ($key) use (&$missing) {
+            $missing[] = $key;
+        });
+
+        $this->translator->get('lang.test.pagination', ['from' => 1, 'to' => 100, 'total' => 10]);
+        $this->assertSame([], $missing);
+
+        $this->assertEquals('lang.test.not_here', $this->translator->get('lang.test.not_here'));
+        $this->assertSame(['lang.test.not_here'], $missing);
+    }
+
+    public function testDetermineLocalesUsingIsApplied()
+    {
+        $seen = null;
+        $this->translator->determineLocalesUsing(function ($locales) use (&$seen) {
+            $seen = $locales;
+
+            return $locales;
+        });
+
+        $this->translator->get('lang.test.not_here');
+
+        $this->assertContains('en', $seen);
+    }
 }

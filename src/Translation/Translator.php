@@ -55,13 +55,15 @@ class Translator extends TranslatorBase
 
             $locales = $fallback ? $this->localeArray($locale) : [$locale];
 
-            foreach ($locales as $locale) {
+            foreach ($locales as $languageLineLocale) {
                 if (!is_null($line = $this->getLine(
-                    $namespace, $group, $locale, $item, $replace
+                    $namespace, $group, $languageLineLocale, $item, $replace
                 ))) {
                     return $line;
                 }
             }
+
+            $key = $this->handleMissingTranslationKey($key, $replace, $locale, $fallback);
         }
 
         return $this->makeReplacements($line ?: $key, $replace);
@@ -144,6 +146,8 @@ class Translator extends TranslatorBase
      */
     protected function localeArray($locale)
     {
-        return array_filter([$locale ?: $this->locale, $this->fallback, static::CORE_LOCALE]);
+        $locales = array_filter([$locale ?: $this->locale, $this->fallback, static::CORE_LOCALE]);
+
+        return call_user_func($this->determineLocalesUsing ?: fn () => $locales, $locales);
     }
 }
