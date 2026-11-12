@@ -1,7 +1,7 @@
 <?php namespace October\Rain\Exception;
 
-use App;
-use Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Request;
 use Throwable;
 
 /**

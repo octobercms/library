@@ -19,7 +19,7 @@ use Exception;
  */
 class Model extends Extendable implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
 {
-    use \October\Rain\Support\Traits\Emitter;
+    use \October\Rain\Extension\Emitter;
     use \October\Rain\Halcyon\Concerns\HasEvents;
 
     /**

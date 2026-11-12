@@ -10,7 +10,7 @@ use October\Rain\Halcyon\Processors\Processor;
  */
 class Datasource
 {
-    use \October\Rain\Support\Traits\Emitter;
+    use \October\Rain\Extension\Emitter;
 
     /**
      * @var bool forceDeleting indicates if the record is currently being force deleted

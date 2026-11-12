@@ -18,7 +18,7 @@ class EmitterTest extends TestCase
      */
     public function setUp(): void
     {
-        $traitName = 'October\Rain\Support\Traits\Emitter';
+        $traitName = 'October\Rain\Extension\Emitter';
         $this->traitObject = $this->getObjectForTrait($traitName);
     }
 
@@ -125,5 +125,18 @@ class EmitterTest extends TestCase
         // phpcs:enable
 
         $this->assertEquals('the quick brown fox jumped over the lazy dog', $result);
+    }
+
+    public function testSupportTraitName()
+    {
+        $emitter = $this->getObjectForTrait('October\Rain\Support\Traits\Emitter');
+        $result = false;
+
+        $emitter->bindEvent('event.test', function () use (&$result) {
+            $result = true;
+        });
+
+        $emitter->fireEvent('event.test');
+        $this->assertTrue($result);
     }
 }

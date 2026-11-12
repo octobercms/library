@@ -30,7 +30,7 @@ use October\Rain\Parse\Parsedown\ParsedownExtra;
  **/
 class Markdown
 {
-    use \October\Rain\Support\Traits\Emitter;
+    use \October\Rain\Extension\Emitter;
 
     /**
      * @var ParsedownExtra parser is the parsedown instance

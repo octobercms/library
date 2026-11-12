@@ -1,11 +1,12 @@
-<?php namespace October\Rain\Html;
+<?php namespace October\Rain\Foundation\Providers;
 
+use October\Rain\Foundation\Http\UrlMixin;
 use Illuminate\Support\ServiceProvider;
 
 /**
  * UrlServiceProvider
  *
- * @package october\html
+ * @package october\foundation
  * @author Alexey Bobkov, Samuel Georges
  */
 class UrlServiceProvider extends ServiceProvider
@@ -70,23 +71,23 @@ class UrlServiceProvider extends ServiceProvider
         $provider = $this->app['url'];
 
         $provider->macro('makeRelative', function(...$args) use ($provider) {
-            return (new \October\Rain\Html\UrlMixin($provider))->makeRelative(...$args);
+            return (new UrlMixin($provider))->makeRelative(...$args);
         });
 
         $provider->macro('toRelative', function(...$args) use ($provider) {
-            return (new \October\Rain\Html\UrlMixin($provider))->toRelative(...$args);
+            return (new UrlMixin($provider))->toRelative(...$args);
         });
 
         $provider->macro('toSigned', function(...$args) use ($provider) {
-            return (new \October\Rain\Html\UrlMixin($provider))->toSigned(...$args);
+            return (new UrlMixin($provider))->toSigned(...$args);
         });
 
         $provider->macro('assetVersion', function(...$args) use ($provider) {
-            return (new \October\Rain\Html\UrlMixin($provider))->assetVersion(...$args);
+            return (new UrlMixin($provider))->assetVersion(...$args);
         });
 
         $provider->macro('assetRelative', function(...$args) use ($provider) {
-            return (new \October\Rain\Html\UrlMixin($provider))->assetRelative(...$args);
+            return (new UrlMixin($provider))->assetRelative(...$args);
         });
     }
 

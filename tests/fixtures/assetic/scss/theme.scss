@@ -1,0 +1,9 @@
+@import "mixins";
+@import "partials/colors";
+@import "components";
+@import "plain.css";
+
+.theme {
+    color: $brand;
+    @include rounded;
+}

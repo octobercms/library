@@ -23,7 +23,7 @@
         "jaybizzle/crawler-detect": "^1.3",
         "linkorb/jsmin-php": "~1.0",
         "wikimedia/less.php": "~5.2",
-        "scssphp/scssphp": "~1.0",
+        "scssphp/scssphp": "^2.1",
         "symfony/yaml": "^6.4|^7.0",
         "twig/twig": "^3.26",
         "league/csv": "~9.1",
@@ -36,6 +36,12 @@
         "phpunit/phpunit": "^8.0|^9.0|^10.0|^11.0|^12.5.22",
         "meyfa/phpunit-assert-gd": "^2.0.0|^3.0.0",
         "phpbench/phpbench": "^1.4"
+    },
+    "replace": {
+        "octoberrain/contracts": "self.version",
+        "octoberrain/exception": "self.version",
+        "octoberrain/extension": "self.version",
+        "octoberrain/html": "self.version"
     },
     "autoload": {
         "files": [

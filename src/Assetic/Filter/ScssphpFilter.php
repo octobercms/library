@@ -8,6 +8,11 @@ use October\Rain\Assetic\Asset\AssetInterface;
 use October\Rain\Assetic\Factory\AssetFactory;
 use October\Rain\Assetic\Util\SassUtils;
 use ScssPhp\ScssPhp\Compiler;
+use ScssPhp\ScssPhp\OutputStyle;
+use ScssPhp\ScssPhp\ValueConverter;
+use ScssPhp\ScssPhp\Value\Value;
+use ScssPhp\ScssPhp\Value\SassString;
+use ScssPhp\ScssPhp\Exception\SassException;
 
 /**
  * ScssphpFilter loads SCSS files using the PHP implementation of scss, scssphp.
@@ -81,11 +86,18 @@ class ScssphpFilter implements DependencyExtractorInterface
     }
 
     /**
-     * registerFunction
+     * registerFunction adds a custom Sass function, where omitting the argument declaration passes all positional arguments as one array.
      */
-    public function registerFunction($name, $callable)
+    public function registerFunction($name, $callable, ?array $argumentDeclaration = null)
     {
-        $this->customFunctions[$name] = $callable;
+        if ($argumentDeclaration === null) {
+            $argumentDeclaration = ['args...'];
+            $callable = function (array $args) use ($callable) {
+                return $callable($args[0][2]);
+            };
+        }
+
+        $this->customFunctions[$name] = [$callable, $argumentDeclaration];
     }
 
     /**
@@ -103,16 +115,18 @@ class ScssphpFilter implements DependencyExtractorInterface
             $sc->addImportPath($path);
         }
 
-        foreach ($this->customFunctions as $name => $callable) {
-            $sc->registerFunction($name, $callable);
+        foreach ($this->customFunctions as $name => [$callable, $argumentDeclaration]) {
+            $sc->registerFunction($name, $callable, $argumentDeclaration);
         }
 
         if ($this->formatter) {
-            $sc->setOutputStyle($this->formatter);
+            $sc->setOutputStyle($this->formatter instanceof OutputStyle
+                ? $this->formatter
+                : OutputStyle::fromString($this->formatter));
         }
 
         if (!empty($this->variables)) {
-            $sc->addVariables($this->variables);
+            $sc->addVariables(array_map([$this, 'makeSassValue'], $this->variables));
         }
 
         // Generate source map file
@@ -149,18 +163,14 @@ class ScssphpFilter implements DependencyExtractorInterface
      */
     public function getChildren(AssetFactory $factory, $content, $loadPath = null)
     {
-        $sc = new Compiler();
+        $importPaths = $this->importPaths;
         if ($loadPath !== null) {
-            $sc->addImportPath($loadPath);
-        }
-
-        foreach ($this->importPaths as $path) {
-            $sc->addImportPath($path);
+            array_unshift($importPaths, $loadPath);
         }
 
         $children = [];
         foreach (SassUtils::extractImports($content) as $match) {
-            $file = $sc->findImport($match);
+            $file = $this->findImport($match, $importPaths);
             if ($file) {
                 $children[] = $child = $factory->createAsset($file, [], ['root' => $loadPath]);
                 $child->load();
@@ -172,6 +182,86 @@ class ScssphpFilter implements DependencyExtractorInterface
         }
 
         return $children;
+    }
+
+    /**
+     * findImport returns the file an import resolves to, skipping plain CSS and external imports.
+     */
+    protected function findImport(string $url, array $importPaths): ?string
+    {
+        if (preg_match('~\.css$|^https?://|^//~', $url)) {
+            return null;
+        }
+
+        foreach ($importPaths as $dir) {
+            $file = null;
+            if (is_string($dir)) {
+                $file = $this->resolveImportPath($dir.'/'.$url);
+            }
+            elseif (is_callable($dir)) {
+                $file = $dir($url);
+            }
+
+            if (!empty($file)) {
+                return $file;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * resolveImportPath fills in the partial prefix, extension and directory index using the Sass lookup order.
+     */
+    protected function resolveImportPath(string $path): ?string
+    {
+        if (in_array(pathinfo($path, PATHINFO_EXTENSION), ['sass', 'scss', 'css'])) {
+            $candidates = [$path];
+        }
+        else {
+            $candidates = [
+                $path.'.sass',
+                $path.'.scss',
+                $path.'.css',
+                $path.'/index.sass',
+                $path.'/index.scss',
+                $path.'/index.css',
+            ];
+        }
+
+        foreach ($candidates as $candidate) {
+            $partial = dirname($candidate).'/_'.basename($candidate);
+            if (is_file($partial)) {
+                return $partial;
+            }
+
+            if (is_file($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * makeSassValue converts a variable to a Sass value, treating strings that fail to parse as unquoted text.
+     */
+    protected function makeSassValue($value): Value
+    {
+        if (!is_string($value)) {
+            return ValueConverter::fromPhp($value);
+        }
+
+        if (trim($value) === '') {
+            return new SassString($value, false);
+        }
+
+        try {
+            return ValueConverter::parseValue($value);
+        }
+        catch (SassException $ex) {
+            return new SassString($value, false);
+        }
     }
 
     /**

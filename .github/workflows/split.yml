@@ -1,0 +1,44 @@
+name: Split Packages
+
+on:
+  push:
+    branches:
+      - 5.x
+    tags:
+      - 'v5.*'
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - { path: contracts, repo: octoberrain/contracts }
+          - { path: src/Exception, repo: octoberrain/exception }
+          - { path: src/Extension, repo: octoberrain/extension }
+          - { path: src/Html, repo: octoberrain/html }
+    name: ${{ matrix.package.repo }}
+    steps:
+      - name: Checkout changes
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check Rain replaces the package
+        run: |
+          name=$(jq -r .name "${{ matrix.package.path }}/composer.json")
+          jq -e --arg name "$name" '.replace[$name] == "self.version"' composer.json
+
+      - name: Install splitsh-lite
+        run: |
+          curl -sSL https://github.com/splitsh/lite/releases/download/v1.0.1/lite_linux_amd64.tar.gz | tar -xz
+          sudo mv splitsh-lite /usr/local/bin/splitsh-lite
+
+      - name: Split and push
+        env:
+          SPLIT_TOKEN: ${{ secrets.SPLIT_TOKEN }}
+        run: |
+          sha=$(splitsh-lite --prefix="${{ matrix.package.path }}")
+          git push "https://x-access-token:${SPLIT_TOKEN}@github.com/${{ matrix.package.repo }}.git" "${sha}:${GITHUB_REF}"
