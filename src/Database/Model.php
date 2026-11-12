@@ -184,6 +184,8 @@ class Model extends EloquentModel
 
         $instance->setConnection($connection ?: $this->connection);
 
+        $instance->fireModelEvent('retrieved', false);
+
         return $instance;
     }
 
@@ -451,35 +453,37 @@ class Model extends EloquentModel
      */
     public function push(?array $options = [], $sessionKey = null)
     {
-        $always = Arr::get($options, 'always', false);
+        return $this->withoutRecursion(function () use ($options, $sessionKey) {
+            $always = Arr::get($options, 'always', false);
 
-        if (!$this->save(null, $sessionKey) && !$always) {
-            return false;
-        }
-
-        foreach ($this->relations as $name => $models) {
-            if (!$this->isRelationPushable($name)) {
-                continue;
+            if (!$this->save(null, $sessionKey) && !$always) {
+                return false;
             }
 
-            if ($models instanceof CollectionBase) {
-                $models = $models->all();
-            }
-            elseif ($models instanceof EloquentModel) {
-                $models = [$models];
-            }
-            else {
-                $models = (array) $models;
-            }
+            foreach ($this->relations as $name => $models) {
+                if (!$this->isRelationPushable($name)) {
+                    continue;
+                }
 
-            foreach (array_filter($models) as $model) {
-                if (!$model->push(null, $sessionKey)) {
-                    return false;
+                if ($models instanceof CollectionBase) {
+                    $models = $models->all();
+                }
+                elseif ($models instanceof EloquentModel) {
+                    $models = [$models];
+                }
+                else {
+                    $models = (array) $models;
+                }
+
+                foreach (array_filter($models) as $model) {
+                    if (!$model->push(null, $sessionKey)) {
+                        return false;
+                    }
                 }
             }
-        }
 
-        return true;
+            return true;
+        }, true);
     }
 
     /**
