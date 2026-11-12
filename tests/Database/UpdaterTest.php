@@ -22,4 +22,31 @@ class UpdaterTest extends TestCase
 
         $this->assertEquals(TestPlugin\SampleClass::class, $classFullName);
     }
+
+    public function testMigrationRunsOnItsOwnConnection()
+    {
+        $capsule = new Illuminate\Database\Capsule\Manager;
+        $capsule->addConnection(['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '']);
+        $capsule->addConnection(['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => ''], 'other');
+        $capsule->setAsGlobal();
+        $capsule->bootEloquent();
+
+        $resolver = October\Rain\Database\Model::getConnectionResolver();
+
+        $migration = new class extends October\Rain\Database\Updates\Migration {
+            protected $connection = 'other';
+
+            public $ranOn;
+
+            public function up()
+            {
+                $this->ranOn = October\Rain\Database\Model::getConnectionResolver()->getDefaultConnection();
+            }
+        };
+
+        self::callProtectedMethod($this->updater, 'runMethod', [$migration, 'up']);
+
+        $this->assertSame('other', $migration->ranOn);
+        $this->assertSame('default', $resolver->getDefaultConnection());
+    }
 }
