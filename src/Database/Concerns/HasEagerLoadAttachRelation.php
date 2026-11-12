@@ -38,6 +38,10 @@ trait HasEagerLoadAttachRelation
             foreach (array_keys($this->getEagerLoads()) as $field) {
                 if (!str_contains($field, '.') && $this->canCombineEagerLoadAttachRelation($field)) {
                     $this->eagerLoadAttachRelations[$field] = $this->getRelation($field);
+
+                    if (method_exists($this->eagerLoadAttachRelations[$field], 'useAttachmentLocaleOf')) {
+                        $this->eagerLoadAttachRelations[$field]->useAttachmentLocaleOf($models);
+                    }
                 }
             }
         }
