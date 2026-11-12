@@ -402,7 +402,7 @@ trait Validation
 
             $transAttrNames = [];
             foreach ($attrNames as $attribute => $attributeName) {
-                $transAttrNames[$attribute] = Lang::get($attributeName);
+                $transAttrNames[$attribute] = $attributeName !== null ? Lang::get($attributeName) : null;
             }
             $attrNames = $transAttrNames;
 
