@@ -23,23 +23,17 @@ class LogManager extends LogManagerBase
     public const CHANNEL_CONTEXT_KEY = 'log_channel';
 
     /**
-     * channelTagged tracks which channels have already been tagged, so
-     * repeated get() calls do not stack the same context entry.
-     *
-     * @var array<string, bool>
-     */
-    protected array $channelTagged = [];
-
-    /**
      * get resolves a channel and tags it with its name via withContext().
      */
     protected function get($name, ?array $config = null)
     {
+        // A channel is tagged once, when it is resolved, including after it was rebuilt or forgotten
+        $isResolved = isset($this->channels[$name]);
+
         $logger = parent::get($name, $config);
 
-        if (empty($this->channelTagged[$name])) {
+        if (!$isResolved) {
             $logger->withContext([self::CHANNEL_CONTEXT_KEY => $name]);
-            $this->channelTagged[$name] = true;
         }
 
         return $logger;
