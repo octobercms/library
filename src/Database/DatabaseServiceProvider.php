@@ -17,27 +17,6 @@ use Illuminate\Contracts\Database\LostConnectionDetector as LostConnectionDetect
 class DatabaseServiceProvider extends DatabaseServiceProviderBase
 {
     /**
-     * register the service provider
-     */
-    public function register()
-    {
-        Model::clearBootedModels();
-
-        $this->registerConnectionServices();
-        $this->registerFakerGenerator();
-        $this->registerQueueableEntityResolver();
-    }
-
-    /**
-     * boot the application events
-     */
-    public function boot()
-    {
-        Model::setConnectionResolver($this->app['db']);
-        Model::setEventDispatcher($this->app['events']);
-    }
-
-    /**
      * registerConnectionServices for the primary database bindings.
      */
     protected function registerConnectionServices()

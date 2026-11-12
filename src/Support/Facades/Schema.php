@@ -9,12 +9,4 @@ use Illuminate\Support\Facades\Schema as SchemaBase;
  */
 class Schema extends SchemaBase
 {
-    /**
-     * getFacadeAccessor returns the registered name of the component
-     * @return string
-     */
-    protected static function getFacadeAccessor()
-    {
-        return 'db.schema';
-    }
 }
