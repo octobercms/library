@@ -495,6 +495,8 @@ class Model extends EloquentModel
         $this->performDeleteOnRelations();
 
         $this->setKeysForSaveQuery($this->newQueryWithoutScopes())->delete();
+
+        $this->exists = false;
     }
 
     /**
