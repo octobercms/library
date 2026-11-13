@@ -51,7 +51,21 @@ class ModelLaravelCompatTest extends TestCase
         TestCompatEntry::all();
 
         $this->assertSame(['First'], $retrieved);
-        $this->assertContains('retrieved', (new TestCompatEntry)->getObservableEvents());
+    }
+
+    /**
+     * testObserverReceivesRetrieved confirms an observer class is called for the retrieved event
+     */
+    public function testObserverReceivesRetrieved()
+    {
+        TestCompatEntry::create(['name' => 'First']);
+
+        TestCompatObserver::$retrieved = [];
+        TestCompatEntry::observe(TestCompatObserver::class);
+
+        TestCompatEntry::all();
+
+        $this->assertSame(['First'], TestCompatObserver::$retrieved);
     }
 
     /**
@@ -86,6 +100,19 @@ class ModelLaravelCompatTest extends TestCase
 
         $this->assertTrue($parent->push());
         $this->assertSame('Changed', TestCompatEntry::find($child->id)->name);
+    }
+}
+
+/**
+ * TestCompatObserver example class
+ */
+class TestCompatObserver
+{
+    public static $retrieved = [];
+
+    public function retrieved($model)
+    {
+        static::$retrieved[] = $model->name;
     }
 }
 
