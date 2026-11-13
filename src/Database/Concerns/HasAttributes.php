@@ -75,7 +75,11 @@ trait HasAttributes
             return $this->getAttributeValue($key);
         }
 
-        return $this->getRelationValue($key);
+        if ($this->relationLoaded($key) || $this->hasRelation($key)) {
+            return $this->getRelationValue($key);
+        }
+
+        return $this->throwMissingAttributeExceptionIfApplicable($key);
     }
 
     /**
