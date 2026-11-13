@@ -145,9 +145,12 @@ class ScssCompilerTest extends TestCase
             $this->fixturePath
         );
 
-        $paths = array_map(function ($child) {
-            return str_replace('\\', '/', $child->getSourceRoot().'/'.$child->getSourcePath());
-        }, $children);
+        $paths = [];
+        foreach ($children as $child) {
+            foreach ($child as $leaf) {
+                $paths[] = str_replace('\\', '/', $leaf->getSourceRoot().'/'.$leaf->getSourcePath());
+            }
+        }
 
         $expected = array_map(function ($path) {
             return str_replace('\\', '/', $this->fixturePath).'/'.$path;

@@ -109,13 +109,12 @@ class DbDatasourceTest extends TestCase
         // pathToFileName() stripped only the dirName, leaving fragments
         // like "-fr/about.htm" that downstream loaders could not resolve,
         // producing null CmsObjects (see RainLab\Pages\Classes\PageList::getPageTree).
+        $this->dbDatasource->insert('content/static-pages', 'about', 'htm', '<p>About</p>');
         $this->dbDatasource->insert('content/static-pages-fr', 'about', 'htm', '<p>A propos</p>');
 
         $results = $this->dbDatasource->select('content/static-pages');
 
-        foreach ($results as $item) {
-            $this->assertStringStartsNotWith('-', $item['fileName']);
-        }
+        $this->assertSame(['about.htm'], array_column($results, 'fileName'));
     }
 
     public function testSelectKeepsTheDirectoryNameInsideFileNames()
