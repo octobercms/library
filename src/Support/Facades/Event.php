@@ -17,7 +17,11 @@ class Event extends EventBase
      */
     public static function fake($eventsToFake = [])
     {
-        static::swap($fake = new FakeDispatcher(static::getFacadeRoot(), $eventsToFake));
+        $actualDispatcher = static::isFake()
+            ? static::getFacadeRoot()->dispatcher
+            : static::getFacadeRoot();
+
+        static::swap($fake = new FakeDispatcher($actualDispatcher, $eventsToFake));
 
         Model::setEventDispatcher($fake);
         Cache::refreshEventDispatcher();
