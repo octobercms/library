@@ -64,7 +64,7 @@ trait UserFootprints
     }
 
     /**
-     * getCreatedUserIdColumn gets the name of the "updated user id" column.
+     * getUpdatedUserIdColumn gets the name of the "updated user id" column.
      * @return string
      */
     public function getUpdatedUserIdColumn()

@@ -224,7 +224,7 @@ class Handler extends ExceptionHandler
     }
 
     /**
-     * context is the the default context variables for logging.
+     * context is the default context variables for logging.
      *
      * @return array
      */

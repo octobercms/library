@@ -8,9 +8,9 @@ use October\Rain\Composer\ComposerManager;
 use Exception;
 
 /**
- * ProjectSetCommand the project license key.
+ * ProjectSetCommand sets the project license key.
  *
- * @package october\system
+ * @package october\foundation
  * @author Alexey Bobkov, Samuel Georges
  */
 class ProjectSetCommand extends Command

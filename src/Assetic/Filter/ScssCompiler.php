@@ -9,10 +9,10 @@ use October\Rain\Assetic\Filter\DependencyExtractorInterface;
 use October\Rain\Assetic\Filter\FilterInterface;
 
 /**
- * Less.php Compiler Filter
- * Class used to compiled stylesheet less files, not using leafo!
+ * Scss Compiler Filter
+ * Class used to compile stylesheet scss files, not using leafo!
  *
- * @package october/parse
+ * @package october/assetic
  * @author Alexey Bobkov, Samuel Georges
  */
 class ScssCompiler extends ScssphpFilter implements HashableInterface, DependencyExtractorInterface
