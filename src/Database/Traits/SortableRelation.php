@@ -109,7 +109,7 @@ trait SortableRelation
 
         $sortKeyMap = $this->processSortableRelationOrdersInternal($relationName, $itemIds, $referencePool);
         if (count($itemIds) !== count($sortKeyMap)) {
-            throw new Exception('Invalid setSortableRelationOrder call - count of itemIds do not match count of itemOrders');
+            throw new Exception('Invalid setSortableRelationOrder call - count of itemIds does not match count of itemOrders');
         }
 
         $upsert = [];
