@@ -32,7 +32,7 @@ use October\Rain\Support\Facade;
  * @method static string upper(string $value)
  * @method static string title(string $value)
  * @method static string singular(string $value)
- * @method static string slug(string $title, string $seperator = '-', string $language = 'en')
+ * @method static string slug(string $title, string $separator = '-', string $language = 'en')
  * @method static string snake(string $value, string $delimiter = '_')
  * @method static bool startsWith(string $haystack, string|array $needles)
  * @method static string studly(string $value)
