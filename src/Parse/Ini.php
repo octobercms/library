@@ -13,7 +13,7 @@ use Exception;
 class Ini
 {
     /**
-     * parse supplied INI contents in to a PHP array.
+     * parse supplied INI contents into a PHP array.
      * @param string $contents INI contents to parse.
      * @return array
      */
@@ -26,7 +26,7 @@ class Ini
     }
 
     /**
-     * parseFile supplied INI file contents in to a PHP array.
+     * parseFile supplied INI file contents into a PHP array.
      * @param string $fileName File to read contents and parse.
      * @return array
      */
