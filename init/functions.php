@@ -2,7 +2,6 @@
 
 use October\Rain\Support\Arr;
 use October\Rain\Support\Str;
-use October\Rain\Support\Collection;
 
 if (!function_exists('input')) {
     /**
@@ -245,37 +244,6 @@ if (!function_exists('temp_path')) {
     }
 }
 
-if (!function_exists('e')) {
-    /**
-     * e will encode HTML special characters in a string
-     * @param  \Illuminate\Contracts\Support\Htmlable|string  $value
-     * @param  bool  $doubleEncode
-     * @return string
-     */
-    function e($value, $doubleEncode = false)
-    {
-        if ($value instanceof \Illuminate\Contracts\Support\Htmlable) {
-            return $value->toHtml();
-        }
-
-        return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8', $doubleEncode);
-    }
-}
-
-if (!function_exists('trans')) {
-    /**
-     * trans translates the given message
-     * @param  string  $id
-     * @param  array   $parameters
-     * @param  string  $locale
-     * @return string
-     */
-    function trans($id = null, $parameters = [], $locale = null)
-    {
-        return app('translator')->get($id, $parameters, $locale);
-    }
-}
-
 if (!function_exists('array_build')) {
     /**
      * array_build builds a new array using a callback
@@ -286,18 +254,6 @@ if (!function_exists('array_build')) {
     function array_build($array, callable $callback)
     {
         return Arr::build($array, $callback);
-    }
-}
-
-if (!function_exists('collect')) {
-    /**
-     * collect creates a collection from the given value
-     * @param  mixed  $value
-     * @return \October\Rain\Support\Collection
-     */
-    function collect($value = null)
-    {
-        return new Collection($value);
     }
 }
 
