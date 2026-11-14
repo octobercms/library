@@ -606,7 +606,7 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
-     * performJoin will join the pivot table opportunistically instead of mandatorily
+     * performLeftJoin will join the pivot table opportunistically instead of mandatorily
      * to support deferred bindings that exist in another table.
      *
      * This method is based on `performJoin` method logic except it uses a left join.

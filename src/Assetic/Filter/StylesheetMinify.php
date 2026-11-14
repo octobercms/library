@@ -7,7 +7,7 @@ use October\Rain\Assetic\Filter\FilterInterface;
  * StylesheetMinify CSS Filter
  * Class used to compress stylesheet css files.
  *
- * @package october/parse
+ * @package october/assetic
  * @author Alexey Bobkov, Samuel Georges
  */
 class StylesheetMinify implements FilterInterface
