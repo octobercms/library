@@ -427,16 +427,6 @@ class Application extends ApplicationBase
     }
 
     /**
-     * Get the path to the cached "compiled.php" file.
-     *
-     * @return string
-     */
-    public function getCachedCompilePath()
-    {
-        return $this->normalizeCachePath('APP_COMPILED_CACHE', 'framework/compiled.php');
-    }
-
-    /**
      * Get the path to the cached services.json file.
      *
      * @return string
