@@ -12,6 +12,7 @@ class OrdinalPositionTest extends TestCase
 {
     /**
      * testOrdinalPositionPlaceholderIsReplaced confirms the placeholder resolves to the item position
+     * @requires extension intl
      */
     public function testOrdinalPositionPlaceholderIsReplaced()
     {

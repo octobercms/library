@@ -96,7 +96,11 @@ trait FormatsMessages
         $message = $this->replaceInputPlaceholder($message, $attribute);
         $message = $this->replaceIndexPlaceholder($message, $attribute);
         $message = $this->replacePositionPlaceholder($message, $attribute);
-        $message = $this->replaceOrdinalPositionPlaceholder($message, $attribute);
+
+        // Available from Laravel 12.30
+        if (method_exists($this, 'replaceOrdinalPositionPlaceholder')) {
+            $message = $this->replaceOrdinalPositionPlaceholder($message, $attribute);
+        }
 
         if (isset($this->replacers[$lowerRule])) {
             return $this->callReplacer($message, $attribute, $lowerRule, $parameters, $this);

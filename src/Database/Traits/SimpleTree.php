@@ -93,10 +93,10 @@ trait SimpleTree
     {
         $result = [];
         $visited = [$this->getKey() => true];
-        $queue = $this->getChildren()->all();
+        $stack = array_reverse($this->getChildren()->all());
 
         // Records that point back at a node already listed are skipped, so a parent loop cannot recurse forever
-        while ($child = array_shift($queue)) {
+        while ($child = array_pop($stack)) {
             if (isset($visited[$child->getKey()])) {
                 continue;
             }
@@ -104,7 +104,7 @@ trait SimpleTree
             $visited[$child->getKey()] = true;
             $result[] = $child;
 
-            array_unshift($queue, ...$child->getChildren()->all());
+            array_push($stack, ...array_reverse($child->getChildren()->all()));
         }
 
         return new Collection($result);
