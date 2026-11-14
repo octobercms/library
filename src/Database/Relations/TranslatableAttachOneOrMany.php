@@ -44,6 +44,16 @@ trait TranslatableAttachOneOrMany
     }
 
     /**
+     * useAttachmentLocaleOf takes the locale from the models of an eager load, since the relation itself is built from a blank model.
+     */
+    public function useAttachmentLocaleOf(array $models): void
+    {
+        if ($model = reset($models)) {
+            $this->attachmentLocale = $this->resolveAttachmentLocale($model);
+        }
+    }
+
+    /**
      * getAttachmentField returns the relation name with a locale suffix for non-default locales.
      */
     public function getAttachmentField(): string
@@ -126,6 +136,8 @@ trait TranslatableAttachOneOrMany
      */
     public function addEagerConstraints(array $models)
     {
+        $this->useAttachmentLocaleOf($models);
+
         if (!$this->usesFallback()) {
             parent::addEagerConstraints($models);
             return;
@@ -175,6 +187,30 @@ trait TranslatableAttachOneOrMany
                 });
             });
         });
+    }
+
+    /**
+     * add skips the default locale file a locale falls back to, so saving it back does not move it to that locale.
+     */
+    public function add(Model $model, $sessionKey = null)
+    {
+        if ($this->isFallbackFile($model)) {
+            return;
+        }
+
+        parent::add($model, $sessionKey);
+    }
+
+    /**
+     * isFallbackFile checks if a file is stored for this parent under the default locale while a locale is active.
+     */
+    protected function isFallbackFile(Model $model): bool
+    {
+        return $this->attachmentLocale !== null &&
+            $model->exists &&
+            $model->getAttribute('field') === $this->relationName &&
+            $model->getAttribute($this->getMorphType()) === $this->morphClass &&
+            (string) $model->getAttribute($this->getForeignKeyName()) === (string) $this->getParentKey();
     }
 
     /**

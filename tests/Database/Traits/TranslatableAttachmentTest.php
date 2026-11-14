@@ -302,6 +302,43 @@ class TranslatableAttachmentTest extends TestCase
     }
 
     /**
+     * testSetLocaleAppliesToEagerLoad confirms an eager load on a model uses the locale set on it
+     */
+    public function testSetLocaleAppliesToEagerLoad()
+    {
+        $model = $this->makeModel();
+        $model->image()->add($this->makeFile('base.jpg'));
+        $model->gallery()->add($this->makeFile('base-a.jpg'));
+        $french = $this->findInLocale($model, 'fr');
+        $french->image()->add($this->makeFile('french.jpg'));
+        $french->gallery()->add($this->makeFile('french-a.jpg'));
+
+        $fresh = $this->findInLocale($model, 'en');
+        $fresh->setLocale('fr');
+        $fresh->load('image', 'gallery');
+
+        $this->assertSame('french.jpg', $fresh->image->file_name);
+        $this->assertSame(['french-a.jpg'], $fresh->gallery->pluck('file_name')->all());
+    }
+
+    /**
+     * testAssigningFallbackFileKeepsItInDefaultLocale confirms saving the file a locale falls back to does not move it
+     */
+    public function testAssigningFallbackFileKeepsItInDefaultLocale()
+    {
+        $model = $this->makeModel();
+        $model->image()->add($this->makeFile('base.jpg'));
+
+        $french = $this->findInLocale($model, 'fr');
+        $french->image = $french->image;
+        $french->save();
+
+        $this->assertSame('image', File::where('file_name', 'base.jpg')->value('field'));
+        $this->assertSame('base.jpg', $this->findInLocale($model, 'en')->image->file_name);
+        $this->assertSame('base.jpg', $this->findInLocale($model, 'fr')->image->file_name);
+    }
+
+    /**
      * testRemovingLocaleFileFallsBackToDefault confirms removal does not cache an empty value
      */
     public function testRemovingLocaleFileFallsBackToDefault()
