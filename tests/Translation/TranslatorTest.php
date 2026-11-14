@@ -50,6 +50,23 @@ class TranslatorTest extends TestCase
         $this->assertSame(['lang.test.not_here'], $missing);
     }
 
+    public function testMissingKeyHandlerSkipsSystemValidationLookup()
+    {
+        $missing = [];
+        $this->translator->handleMissingKeysUsing(function ($key) use (&$missing) {
+            $missing[] = $key;
+
+            return 'Missing translation';
+        });
+
+        $this->translator->set('validation.custom_rule', 'Custom rule failed');
+        $this->assertSame('Custom rule failed', $this->translator->get('validation.custom_rule'));
+        $this->assertSame([], $missing);
+
+        $this->assertSame('Missing translation', $this->translator->get('validation.not_here'));
+        $this->assertSame(['validation.not_here'], $missing);
+    }
+
     public function testDetermineLocalesUsingIsApplied()
     {
         $seen = null;

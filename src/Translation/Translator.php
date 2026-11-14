@@ -102,7 +102,13 @@ class Translator extends TranslatorBase
             !str_starts_with($key, 'validation.attributes.')
         ) {
             $nativeKey = 'system::'.$key;
+
+            // A miss in the system namespace falls through to the app, so it is not a missing key
+            $handleMissingTranslationKeys = $this->handleMissingTranslationKeys;
+            $this->handleMissingTranslationKeys = false;
             $line = $this->get($nativeKey, $replace, $locale);
+            $this->handleMissingTranslationKeys = $handleMissingTranslationKeys;
+
             if ($line !== $nativeKey) {
                 return $line;
             }
