@@ -105,7 +105,7 @@ class JavascriptImporter implements FilterInterface
 
             $scriptPath = realpath($this->scriptPath . '/' . $script);
             if (!File::isFile($scriptPath)) {
-                $errorMsg = sprintf("File '%s' not found. in %s", $script, $this->scriptFile);
+                $errorMsg = sprintf("File '%s' not found in %s", $script, $this->scriptFile);
                 if ($required) {
                     throw new RuntimeException($errorMsg);
                 }

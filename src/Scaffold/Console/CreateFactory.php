@@ -31,7 +31,7 @@ class CreateFactory extends GeneratorCommandBase
     public function handle()
     {
         if (!str_ends_with($this->argument('name'), 'Factory')) {
-            $this->components->error('Factory classes names must end in "Factory"');
+            $this->components->error('Factory class names must end in "Factory"');
             return;
         }
 
