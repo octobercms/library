@@ -243,7 +243,7 @@ trait SetupHelper
     }
 
     /**
-     * injectJsonToFile merges a JSON array in to an existing JSON file.
+     * injectJsonToFile merges a JSON array into an existing JSON file.
      * Merging is useful for preserving array values.
      */
     protected function injectJsonToFile(string $filename, array $jsonArr, bool $merge = false): void
@@ -264,7 +264,7 @@ trait SetupHelper
     /**
      * mergeRecursive substitutes the native PHP array_merge_recursive to be
      * more config friendly. Scalar values are replaced instead of being
-     * merged in to their own new array.
+     * merged into their own new array.
      */
     protected function mergeRecursive(array $array1, $array2)
     {

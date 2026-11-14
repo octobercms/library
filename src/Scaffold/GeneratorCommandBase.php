@@ -68,7 +68,7 @@ abstract class GeneratorCommandBase extends Command
         $destinationFile = $this->getDestinationPath() . '/' . $outputName;
         $destinationContent = $this->files->get($sourceFile);
 
-        // Parse each variable in to the destination content and path
+        // Parse each variable into the destination content and path
         $destinationContent = Twig::parse($destinationContent, $this->vars);
         $destinationFile = Twig::parse($destinationFile, $this->vars);
 
