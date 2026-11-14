@@ -51,7 +51,7 @@ trait HasAutoloader
 
     /**
      * autoload is a similar function to including vendor/autoload.php.
-     * @param string $vendorPath Absoulte path to the vendor directory.
+     * @param string $vendorPath Absolute path to the vendor directory.
      * @return void
      */
     public function autoload($vendorPath)

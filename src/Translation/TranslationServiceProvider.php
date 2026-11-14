@@ -4,7 +4,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Support\DeferrableProvider;
 
 /**
- * TranslationServiceProvider is a custom translator implemenation based on Laravel
+ * TranslationServiceProvider is a custom translator implementation based on Laravel
   *
  * @package october\translation
  * @author Alexey Bobkov, Samuel Georges
