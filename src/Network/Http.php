@@ -339,8 +339,6 @@ class Http
         /*
          * Close resources
          */
-        curl_close($curl);
-
         if ($this->streamFile) {
             fclose($stream);
         }
