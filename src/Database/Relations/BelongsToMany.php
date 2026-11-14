@@ -451,26 +451,6 @@ class BelongsToMany extends BelongsToManyBase
     }
 
     /**
-     * cursorPaginate using a cursor paginator.
-     *
-     * @param  int|null  $perPage
-     * @param  array  $columns
-     * @param  string  $cursorName
-     * @param  \Illuminate\Pagination\Cursor|string|null  $cursor
-     * @return \Illuminate\Contracts\Pagination\CursorPaginator
-     */
-    public function cursorPaginate($perPage = null, $columns = ['*'], $cursorName = 'cursor', $cursor = null)
-    {
-        $this->query->addSelect($this->shouldSelect($columns));
-
-        $paginator = $this->query->cursorPaginate($perPage, $columns, $cursorName, $cursor);
-
-        $this->hydratePivotRelation($paginator->items());
-
-        return $paginator;
-    }
-
-    /**
      * newPivot creates a new pivot model instance
      *
      * @param  array  $attributes
