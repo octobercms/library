@@ -203,7 +203,7 @@ class SectionParser
     }
 
     /**
-     * splitContentSections splits a block of content in to sections,
+     * splitContentSections splits a block of content into sections,
      * split by the section separator (==).
      * @param string $content
      * @return array
