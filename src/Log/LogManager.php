@@ -38,4 +38,18 @@ class LogManager extends LogManagerBase
 
         return $logger;
     }
+
+    /**
+     * withoutContext removes context from every channel and tags each one with its name again.
+     */
+    public function withoutContext(?array $keys = null)
+    {
+        parent::withoutContext($keys);
+
+        foreach ($this->channels as $name => $channel) {
+            $channel->withContext([self::CHANNEL_CONTEXT_KEY => $name]);
+        }
+
+        return $this;
+    }
 }
