@@ -65,7 +65,7 @@ trait Sortable
 
         $sortKeyMap = $this->processSortableOrdersInternal($itemIds, $referencePool);
         if (count($itemIds) !== count($sortKeyMap)) {
-            throw new Exception('Invalid setSortableOrder call - count of itemIds do not match count of referencePool');
+            throw new Exception('Invalid setSortableOrder call - count of itemIds does not match count of referencePool');
         }
 
         // Multisite
