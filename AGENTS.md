@@ -50,13 +50,18 @@ Assetic, Config, Database, Extension, Filesystem, Halcyon, Html, Router, Support
 
 - Tests extend the plain PHPUnit `TestCase` in `tests/TestCase.php`; no Laravel application boots. Database tests build an Eloquent `Capsule` on in-memory SQLite in `setUp()` (see `tests/Database/SoftDeleteStateTest.php`).
 - `require-dev` allows several PHPUnit majors, so use assertions that exist in all of them, or the shims in `TestCase`.
-- To run the CMS suite against a library change, add a Composer path repository with `"symlink": true` pointing at this checkout to the CMS's `composer.json`, run `composer update october/rain`, and leave that `composer.json` change uncommitted.
+- To run the CMS suite against a library change, link this checkout into the CMS through a Composer path repository and leave that `composer.json` change uncommitted. See [docs/runbooks/test-against-cms.md](docs/runbooks/test-against-cms.md).
 
 ## Code
 
 - PSR-2 with the exceptions in `phpcs.xml`.
 - Every class, method and property has a docblock whose first word is its own name: `normalizeEol converts line breaks to a standard \r\n pattern`, `@var array implement behaviors for this model.`. Method bodies hold code only; the reasoning behind a change goes in the PR description.
 - The CMS and third-party plugins use Rain's public classes and members directly. Keep existing classes and signatures working and mark replaced ones `@deprecated`.
+
+## Docs
+
+- Documentation lives in `docs/`; `docs/AGENTS.md` gives its structure and ADR rules.
+- Plans, specs, evidence, prototypes and scratch work are never committed and go in `playground/`; a finished decision is recorded as a numbered ADR in `docs/decisions/`.
 
 ## Security
 
