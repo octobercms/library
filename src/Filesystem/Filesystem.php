@@ -208,7 +208,7 @@ class Filesystem extends FilesystemBase
 
     /**
      * existsInsensitive determines if a file exists with case insensitivity
-     * supported for the file only. Returne either the sensitive path or false.
+     * supported for the file only. Returns either the sensitive path or false.
      * @param  string $path
      * @return string|bool
      */
