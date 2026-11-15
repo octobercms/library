@@ -60,8 +60,8 @@ Assetic, Config, Database, Extension, Filesystem, Halcyon, Html, Router, Support
 
 ## Docs
 
-- Documentation lives in `docs/`; `docs/AGENTS.md` gives its structure and ADR rules.
-- Plans, specs, evidence, prototypes and scratch work are never committed and go in `playground/`; a finished decision is recorded as a numbered ADR in `docs/decisions/`.
+- Documentation lives in `docs/`; `docs/AGENTS.md` gives its structure and writing rules.
+- Plans, specs, evidence, prototypes and scratch work are never committed and go in `playground/`.
 
 ## Security
 
