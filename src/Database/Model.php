@@ -307,7 +307,7 @@ class Model extends EloquentModel
      */
     public function __isset($key)
     {
-        return !is_null($this->getAttribute($key));
+        return $this->offsetExists($key);
     }
 
     //

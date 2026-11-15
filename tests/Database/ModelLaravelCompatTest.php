@@ -87,6 +87,24 @@ class ModelLaravelCompatTest extends TestCase
     }
 
     /**
+     * testIssetIgnoresMissingAttributePrevention confirms isset() and ?? stay quiet for unknown keys in strict mode, like Laravel
+     */
+    public function testIssetIgnoresMissingAttributePrevention()
+    {
+        $model = TestCompatEntry::find(TestCompatEntry::create(['name' => 'First'])->id);
+
+        Model::preventAccessingMissingAttributes();
+
+        $this->assertFalse(isset($model->missing));
+        $this->assertSame('fallback', $model->missing ?? 'fallback');
+        $this->assertTrue(isset($model->name));
+
+        // The prevention is still on after the check
+        $this->expectException(MissingAttributeException::class);
+        $model->missing;
+    }
+
+    /**
      * testPushStopsOnCircularRelations confirms models that reference each other are pushed once
      */
     public function testPushStopsOnCircularRelations()
