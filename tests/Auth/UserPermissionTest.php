@@ -73,17 +73,69 @@ class UserPermissionTest extends TestCase
     }
 
     /**
+     * testChangedUserPermissionsAreMergedAgain ensures a revoked user permission stops granting access straight away.
+     */
+    public function testChangedUserPermissionsAreMergedAgain()
+    {
+        $user = $this->makeUser([], ['admins.manage' => 1]);
+        $this->assertTrue($user->hasPermission('admins.manage'));
+
+        $user->permissions = ['admins.manage' => -1];
+
+        $this->assertFalse($user->hasPermission('admins.manage'));
+    }
+
+    /**
+     * testChangedRoleIsMergedAgain ensures a new role id drops the loaded role and the permissions merged from it.
+     */
+    public function testChangedRoleIsMergedAgain()
+    {
+        $user = $this->makeUser(['admins.manage' => 1], []);
+        $this->assertTrue($user->hasPermission('admins.manage'));
+
+        $user->role_id = 2;
+        $this->assertFalse($user->relationLoaded('role'));
+
+        // Stands in for the lazy load of the new role
+        $user->setRelation('role', $this->makeRole(2, []));
+
+        $this->assertFalse($user->hasPermission('admins.manage'));
+    }
+
+    /**
+     * testReassignedRoleIsMergedAgain ensures assigning a role instance with the same id, as associate() does, merges its permissions.
+     */
+    public function testReassignedRoleIsMergedAgain()
+    {
+        $user = $this->makeUser(['admins.manage' => 1], []);
+        $this->assertTrue($user->hasPermission('admins.manage'));
+
+        $user->role_id = 1;
+        $user->setRelation('role', $this->makeRole(1, []));
+
+        $this->assertFalse($user->hasPermission('admins.manage'));
+    }
+
+    /**
      * makeUser returns a user with the given role and user permissions, without touching the database.
      */
     protected function makeUser(array $rolePermissions, array $userPermissions): User
     {
-        $role = new Role;
-        $role->setRawAttributes(['permissions' => json_encode($rolePermissions)]);
-
         $user = new User;
-        $user->setRawAttributes(['permissions' => json_encode($userPermissions)]);
-        $user->setRelation('role', $role);
+        $user->setRawAttributes(['role_id' => 1, 'permissions' => json_encode($userPermissions)]);
+        $user->setRelation('role', $this->makeRole(1, $rolePermissions));
 
         return $user;
+    }
+
+    /**
+     * makeRole returns a role with the given id and permissions, without touching the database.
+     */
+    protected function makeRole(int $id, array $permissions): Role
+    {
+        $role = new Role;
+        $role->setRawAttributes(['id' => $id, 'permissions' => json_encode($permissions)]);
+
+        return $role;
     }
 }

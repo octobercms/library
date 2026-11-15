@@ -664,6 +664,24 @@ class User extends Model implements Authenticatable
         }
 
         $this->attributes['permissions'] = !empty($permissions) ? json_encode($permissions) : '';
+
+        $this->mergedPermissions = null;
+    }
+
+    /**
+     * setRoleIdAttribute clears the merged permissions, and the loaded role when it changes
+     * @param mixed $roleId
+     * @return void
+     */
+    public function setRoleIdAttribute($roleId)
+    {
+        if ((string) ($this->attributes['role_id'] ?? '') !== (string) $roleId) {
+            $this->unsetRelation('role');
+        }
+
+        $this->attributes['role_id'] = $roleId;
+
+        $this->mergedPermissions = null;
     }
 
     //
