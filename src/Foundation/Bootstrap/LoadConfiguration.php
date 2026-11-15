@@ -43,6 +43,8 @@ class LoadConfiguration extends LoadConfigurationBase
             return $config->get('app.env', 'production');
         });
 
+        $app->resolveEnvironmentUsing($app->environment(...));
+
         date_default_timezone_set($config->get('app.timezone', 'UTC'));
 
         mb_internal_encoding('UTF-8');
