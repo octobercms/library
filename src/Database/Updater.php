@@ -118,12 +118,37 @@ class Updater
     protected function runMethod($migration, $method)
     {
         try {
-            $migration->{$method}();
+            $this->runOnConnection($migration, function () use ($migration, $method) {
+                $migration->{$method}();
+            });
         }
         catch (Exception $ex) {
             if (!static::$skippingErrors) {
                 throw $ex;
             }
+        }
+    }
+
+    /**
+     * runOnConnection makes the connection named by a migration the default while it runs.
+     */
+    protected function runOnConnection($migration, callable $callback)
+    {
+        $connection = $migration instanceof Updates\Migration ? $migration->getConnection() : null;
+        if (!$connection) {
+            return $callback();
+        }
+
+        $resolver = \October\Rain\Database\Model::getConnectionResolver();
+        $previous = $resolver->getDefaultConnection();
+
+        try {
+            $resolver->setDefaultConnection($connection);
+
+            return $callback();
+        }
+        finally {
+            $resolver->setDefaultConnection($previous);
         }
     }
 
