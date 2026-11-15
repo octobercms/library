@@ -1,12 +1,38 @@
 # AGENTS.md
 
-Rain (`october/rain`) is the core library of October CMS: the database layer (models, relations, model behaviors, migrations), Halcyon file models, the router, Assetic, the extension system, and the base classes the CMS modules build on. The CMS itself lives in octobercms/october-private; on 5.x most backend widgets live in larajax/ui.
+Rain (`october/rain`) is the core library of October CMS. It extends Laravel with October's database layer, file-based models, routing, asset pipeline and extension system, and supplies the base classes the CMS modules build on. The CMS itself lives in octobercms/october-private; on 5.x most backend widgets live in larajax/ui.
 
-## Layout
+## Stack
 
-- `src/` is `October\Rain\*` and `contracts/` is `October\Contracts\*`.
-- `globals/` holds the global facade aliases (`Db`, `Str`, `Yaml`, ...) as a classmap. `init/` holds helper functions and polyfills loaded on every boot.
-- `contracts/`, `src/Exception`, `src/Extension` and `src/Html` are also published as standalone `octoberrain/*` packages by `.github/workflows/split.yml`. Each has its own `composer.json`, so a dependency their code starts using goes there as well as in the root one.
+- PHP 8.2+, built against Laravel 12 (`laravel/framework` is a dev dependency; the CMS supplies it at runtime).
+- Key dependencies: `larajax/larajax` (AJAX framework), Twig 3, Doctrine DBAL, Intervention Image 3, scssphp 2, less.php, Symfony YAML and HTML Sanitizer, League CSV, `composer/composer` (installer and updates).
+- Tooling: PHPUnit (8 through 12 allowed), phpbench.
+
+## Structure
+
+```
+src/            October\Rain\*
+  Database/     Model, Builder, relations, attachments, traits (Sortable, SoftDelete, ...), migrations, schema
+  Halcyon/      file-based models and datasources for theme templates
+  Extension/    Extendable and behaviors, the mechanism plugins use to extend classes
+  Foundation/   Application, bootstrapping, core service providers
+  Support/      Str, Arr, Collection, facades, ModuleServiceProvider
+  Router/       the CMS page router and route compiler
+  Assetic/      LESS, SCSS and JS combining and filters
+  Parse/        Twig, YAML, INI, Markdown and component parsing
+  Auth/         auth manager and base user, role and group models
+  Installer/    october:install, october:build and setup helpers
+  Scaffold/     create:* generator commands
+  Html/ Mail/ Translation/ Validation/ Config/ Filesystem/ Resize/ Events/ Log/ Network/ Flash/ Exception/ Composer/
+contracts/      October\Contracts\*
+globals/        global facade aliases (Db, Str, Yaml, ...) loaded as a classmap
+init/           helper functions and polyfills, loaded on every boot
+tests/          mirrors src/; fixtures in tests/fixtures, benchmarks in tests/Benchmark
+```
+
+Assetic, Config, Database, Extension, Filesystem, Halcyon, Html, Router, Support and Translation each have a `README.md`; read it before changing that package.
+
+`contracts/`, `src/Exception`, `src/Extension` and `src/Html` are also published as standalone `octoberrain/*` packages by `.github/workflows/split.yml`. Each has its own `composer.json`, so a dependency their code starts using goes there as well as in the root one.
 
 ## Branches
 
@@ -22,7 +48,7 @@ Rain (`october/rain`) is the core library of October CMS: the database layer (mo
 
 ## Tests
 
-- Tests extend the plain PHPUnit `TestCase` in `tests/TestCase.php`; no Laravel application boots. Database tests build an Eloquent `Capsule` on in-memory SQLite in `setUp()` (see `tests/Database/SoftDeleteStateTest.php`). Fixtures live in `tests/fixtures`.
+- Tests extend the plain PHPUnit `TestCase` in `tests/TestCase.php`; no Laravel application boots. Database tests build an Eloquent `Capsule` on in-memory SQLite in `setUp()` (see `tests/Database/SoftDeleteStateTest.php`).
 - `require-dev` allows PHPUnit 8 through 12, so use assertions that exist across those versions, or the shims in `TestCase`.
 - To run the CMS suite against a library change, add a Composer path repository with `"symlink": true` pointing at this checkout to the CMS's `composer.json`, run `composer update october/rain`, and leave that `composer.json` change uncommitted.
 
