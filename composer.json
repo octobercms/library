@@ -65,7 +65,7 @@
             "phpunit --stop-on-failure"
         ],
         "bench": [
-            "phpbench run tests\\Benchmark\\ --report=default"
+            "phpbench run tests/Benchmark --report=default"
         ]
     },
     "extra": {
