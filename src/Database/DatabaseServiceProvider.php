@@ -60,6 +60,8 @@ class DatabaseServiceProvider extends DatabaseServiceProviderBase
             return $app['db']->connection();
         });
 
+        $this->app->bind(\Illuminate\Database\Schema\Blueprint::class, Blueprint::class);
+
         $this->app->bind('db.schema', function ($app) {
             $builder = $app['db']->connection()->getSchemaBuilder();
 
