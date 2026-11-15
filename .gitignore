@@ -12,3 +12,7 @@ composer.lock
 .DS_Store
 php_errors.log
 .phpunit.result.cache
+playground/
+CLAUDE.local.md
+.claude/settings.local.json
+.claude/worktrees/
