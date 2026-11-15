@@ -469,7 +469,7 @@ class User extends Model implements Authenticatable
      */
     public function getMergedPermissions()
     {
-        if (!$this->mergedPermissions) {
+        if ($this->mergedPermissions === null) {
             $permissions = [];
 
             if (($role = $this->getRole()) && is_array($role->permissions)) {
