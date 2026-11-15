@@ -646,7 +646,6 @@ class BelongsToMany extends BelongsToManyBase
 
         // The query may be an Eloquent builder or a base query builder (deferred bindings)
         $baseQuery = $query instanceof \Illuminate\Database\Eloquent\Builder ? $query->getQuery() : $query;
-
         $orderDefinitions = $baseQuery->orders;
 
         if (!is_array($orderDefinitions)) {
@@ -669,10 +668,12 @@ class BelongsToMany extends BelongsToManyBase
         $tempOrderColumns = 'october_reserved_sort_order';
         $combinedOrderColumn = "ifnull(deferred_bindings.sort_order, {$sortColumn}) as {$tempOrderColumns}";
         $this->performDeferredLeftJoin($query, $sessionKey);
+
         // Select on the query being built, keeping the related columns when none are set yet
         if (!$baseQuery->columns) {
             $baseQuery->select($this->related->getTable().'.*');
         }
+
         $baseQuery->addSelect(DbDongle::raw($combinedOrderColumn));
 
         // Overwrite the sortable column with the combined one
