@@ -12,7 +12,7 @@ use InvalidArgumentException;
 class MailManager extends MailManagerBase
 {
     /**
-     * resolve the given mailer. Copy of parent method, replacing Mailer class.
+     * resolve the given mailer. Copy of parent method, adding the resolve events.
      * @param  string  $name
      * @return \Illuminate\Mail\Mailer
      * @throws \InvalidArgumentException
@@ -31,16 +31,7 @@ class MailManager extends MailManagerBase
         // Once we have created the mailer instance we will set a container instance
         // on the mailer. This allows us to resolve mailer classes via containers
         // for maximum testability on said classes instead of passing Closures.
-        $mailer = new Mailer(
-            $name,
-            $this->app['view'],
-            $this->createSymfonyTransport($config),
-            $this->app['events']
-        );
-
-        if ($this->app->bound('queue')) {
-            $mailer->setQueue($this->app['queue']);
-        }
+        $mailer = $this->build(['name' => $name, ...$config]);
 
         // Next we will set all of the global addresses on this mailer, which allows
         // for easy unification of all "from" addresses as well as easy debugging
@@ -51,6 +42,27 @@ class MailManager extends MailManagerBase
 
         // Extensibility
         $this->app['events']->dispatch('mailer.resolve', [$this, $name, $mailer]);
+
+        return $mailer;
+    }
+
+    /**
+     * build a new mailer instance. Copy of parent method, replacing Mailer class.
+     * @param  array  $config
+     * @return \Illuminate\Mail\Mailer
+     */
+    public function build($config)
+    {
+        $mailer = new Mailer(
+            $config['name'] ?? 'ondemand',
+            $this->app['view'],
+            $this->createSymfonyTransport($config),
+            $this->app['events']
+        );
+
+        if ($this->app->bound('queue')) {
+            $mailer->setQueue($this->app['queue']);
+        }
 
         return $mailer;
     }
