@@ -12,7 +12,7 @@ use Exception;
 class Definitions
 {
     /**
-     * getDefinitions is an entry point to request a definition set
+     * get is an entry point to request a definition set
      */
     public static function get(string $type): array
     {

@@ -12,7 +12,7 @@ use RuntimeException;
  * =include library/jquery.js;
  * =require library/jquery.js;
  *
- * @package october/parse
+ * @package october/assetic
  * @author Alexey Bobkov, Samuel Georges
  */
 class JavascriptImporter implements FilterInterface
