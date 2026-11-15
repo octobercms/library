@@ -88,9 +88,10 @@ trait HasEvents
     {
         return array_merge(
             [
-                'creating', 'created', 'updating', 'updated',
+                'retrieved', 'creating', 'created', 'updating', 'updated',
                 'deleting', 'deleted', 'saving', 'saved', 'replicating',
-                'trashed', 'restoring', 'restored', 'fetching', 'fetched'
+                'trashed', 'restoring', 'restored', 'forceDeleting', 'forceDeleted',
+                'fetching', 'fetched'
             ],
             $this->observables
         );
