@@ -644,7 +644,10 @@ class BelongsToMany extends BelongsToManyBase
             $this->parent->getRelationSortOrderColumn($this->relationName)
         );
 
-        $orderDefinitions = $query->getQuery()->orders;
+        // The query may be an Eloquent builder or a base query builder (deferred bindings)
+        $baseQuery = $query instanceof \Illuminate\Database\Eloquent\Builder ? $query->getQuery() : $query;
+
+        $orderDefinitions = $baseQuery->orders;
 
         if (!is_array($orderDefinitions)) {
             return;
@@ -666,10 +669,14 @@ class BelongsToMany extends BelongsToManyBase
         $tempOrderColumns = 'october_reserved_sort_order';
         $combinedOrderColumn = "ifnull(deferred_bindings.sort_order, {$sortColumn}) as {$tempOrderColumns}";
         $this->performDeferredLeftJoin($query, $sessionKey);
-        $this->addSelect(DbDongle::raw($combinedOrderColumn));
+        // Select on the query being built, keeping the related columns when none are set yet
+        if (!$baseQuery->columns) {
+            $baseQuery->select($this->related->getTable().'.*');
+        }
+        $baseQuery->addSelect(DbDongle::raw($combinedOrderColumn));
 
         // Overwrite the sortable column with the combined one
-        $query->getQuery()->orders[$sortableIndex]['column'] = $tempOrderColumns;
+        $baseQuery->orders[$sortableIndex]['column'] = $tempOrderColumns;
     }
 
     /**
