@@ -30,6 +30,28 @@ class UserPermissionTest extends TestCase
     }
 
     /**
+     * testEmptyPermissionsAreMergedOnce ensures a user without permissions does not merge them again on every check.
+     */
+    public function testEmptyPermissionsAreMergedOnce()
+    {
+        $user = new class extends User {
+            public $roleLookups = 0;
+
+            public function getRole()
+            {
+                $this->roleLookups++;
+
+                return null;
+            }
+        };
+
+        $user->getMergedPermissions();
+        $user->getMergedPermissions();
+
+        $this->assertSame(1, $user->roleLookups);
+    }
+
+    /**
      * testRoleWildcardGrantsSubPermissions ensures a wildcard grant still covers permissions without a deny.
      */
     public function testRoleWildcardGrantsSubPermissions()
