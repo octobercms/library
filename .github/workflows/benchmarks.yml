@@ -1,0 +1,56 @@
+name: Benchmarks
+
+on:
+  push:
+    branches:
+      - 4.x
+      - develop
+  pull_request:
+
+jobs:
+  phpBench:
+    runs-on: ubuntu-latest
+    name: phpbench
+    steps:
+      - name: Checkout changes
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: |
+            composer config --no-interaction allow-plugins.composer/installers true
+            composer install --no-interaction --no-progress --no-scripts
+
+      - name: Benchmark base branch
+        id: base
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: |
+            git checkout --quiet ${{ github.event.pull_request.base.sha }}
+            vendor/bin/phpbench run tests/Benchmark --tag=base --store --progress=none
+            git checkout --quiet ${{ github.sha }}
+
+      - name: Benchmark changes
+        run: |
+            git checkout --quiet ${{ github.sha }}
+            ref=""
+            if [ "${{ steps.base.outcome }}" = "success" ]; then ref="--ref=base"; fi
+            vendor/bin/phpbench run tests/Benchmark $ref --report=aggregate --progress=none --no-ansi > bench.txt
+
+      - name: Write summary
+        if: always()
+        run: |
+            {
+              echo '### Benchmarks'
+              if [ "${{ steps.base.outcome }}" = "success" ]; then echo 'Compared with the base branch. Timings on shared runners vary by about 10%.'; fi
+              echo '```'
+              cat bench.txt 2>/dev/null
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
