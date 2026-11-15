@@ -41,6 +41,7 @@ class HasOneThroughTest extends TestCase
         $capsule->schema()->create('test_through_users', function ($table) {
             $table->increments('id');
             $table->integer('supplier_id')->nullable();
+            $table->timestamp('deleted_at')->nullable();
         });
 
         $capsule->schema()->create('test_through_histories', function ($table) {
@@ -87,6 +88,20 @@ class HasOneThroughTest extends TestCase
         $this->assertInstanceOf(TestThroughHistory::class, $supplier->historyOrDefault);
         $this->assertFalse($supplier->historyOrDefault->exists);
         $this->assertSame('No history', $supplier->historyOrDefault->title);
+    }
+
+    /**
+     * testTrashedThroughRecordIsExcluded confirms a soft deleted through record hides the related record
+     */
+    public function testTrashedThroughRecordIsExcluded()
+    {
+        $supplier = $this->makeSupplierWithHistory();
+        $this->assertNotNull($supplier->historyThroughTrashable);
+
+        TestThroughTrashableUser::where('supplier_id', $supplier->id)->first()->delete();
+
+        $this->assertNull($supplier->historyThroughTrashable()->first());
+        $this->assertNotNull($supplier->latestActiveHistory()->first());
     }
 
     /**
@@ -139,6 +154,12 @@ class TestThroughSupplier extends \October\Rain\Database\Model
             'throughKey' => 'user_id',
             'default' => ['title' => 'No history'],
         ],
+        'historyThroughTrashable' => [
+            TestThroughHistory::class,
+            'through' => TestThroughTrashableUser::class,
+            'key' => 'supplier_id',
+            'throughKey' => 'user_id',
+        ],
     ];
 }
 
@@ -150,6 +171,18 @@ class TestThroughUser extends \October\Rain\Database\Model
     protected $table = 'test_through_users';
 
     protected $fillable = ['supplier_id'];
+
+    public $timestamps = false;
+}
+
+/**
+ * TestThroughTrashableUser example class
+ */
+class TestThroughTrashableUser extends \October\Rain\Database\Model
+{
+    use \October\Rain\Database\Traits\SoftDelete;
+
+    protected $table = 'test_through_users';
 
     public $timestamps = false;
 }

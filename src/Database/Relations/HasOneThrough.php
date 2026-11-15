@@ -39,16 +39,4 @@ class HasOneThrough extends HasOneThroughBase
     {
         return $this->farParent->getRelationDefinition($this->relationName);
     }
-
-    /**
-     * parentSoftDeletes determines whether close parent of the relation uses Soft Deletes.
-     * @return bool
-     */
-    public function parentSoftDeletes()
-    {
-        $uses = class_uses_recursive(get_class($this->parent));
-
-        return in_array(\October\Rain\Database\Traits\SoftDelete::class, $uses) ||
-            in_array(\Illuminate\Database\Eloquent\SoftDeletes::class, $uses);
-    }
 }

@@ -107,6 +107,14 @@ trait SoftDelete
     }
 
     /**
+     * isSoftDeletable determines if the model is soft deletable.
+     */
+    public static function isSoftDeletable(): bool
+    {
+        return true;
+    }
+
+    /**
      * performDeleteOnModel performs the actual delete query on this model instance.
      */
     protected function performDeleteOnModel()
