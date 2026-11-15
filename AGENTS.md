@@ -4,9 +4,9 @@ Rain (`october/rain`) is the core library of October CMS. It extends Laravel wit
 
 ## Stack
 
-- PHP 8.2+, built against Laravel 12 (`laravel/framework` is a dev dependency; the CMS supplies it at runtime).
-- Key dependencies: `larajax/larajax` (AJAX framework), Twig 3, Doctrine DBAL, Intervention Image 3, scssphp 2, less.php, Symfony YAML and HTML Sanitizer, League CSV, `composer/composer` (installer and updates).
-- Tooling: PHPUnit (8 through 12 allowed), phpbench.
+- PHP and Laravel. `laravel/framework` is a dev dependency here; the CMS supplies it at runtime. Check `composer.json` for all versions.
+- Key dependencies: `larajax/larajax` (AJAX framework), Twig, Doctrine DBAL, Intervention Image, scssphp, less.php, Symfony YAML and HTML Sanitizer, League CSV, `composer/composer` (installer and updates).
+- Tooling: PHPUnit, phpbench.
 
 ## Structure
 
@@ -38,18 +38,18 @@ Assetic, Config, Database, Extension, Filesystem, Halcyon, Html, Router, Support
 
 - `develop` is the 5.x line. `4.x` is the stable line and is merged forward into `develop`.
 - A fix to code that also exists on 4.x targets `4.x`. Compare first: `git diff 4.x develop -- <path>`.
-- The CMS on `4.x` allows `laravel/framework ^12.0`, so a 4.x change may only call framework APIs that exist in Laravel 12.0. A change that needs a later 12.x API targets `develop`.
+- A 4.x change may only call framework APIs that exist at the lower bound of the `laravel/framework` constraint in the CMS's 4.x `composer.json`. A change that needs a newer API targets `develop`.
 
 ## Commands
 
-- `vendor/bin/phpunit ./tests` is the suite CI runs on PHP 8.2 to 8.5. `composer test` stops at the first failure.
+- `vendor/bin/phpunit ./tests` is the suite CI runs (PHP matrix in `.github/workflows/tests.yml`). `composer test` stops at the first failure.
 - `composer bench` runs the phpbench benchmarks in `tests/Benchmark`.
 - `phpcs.xml` holds the PSR-2 ruleset, but phpcs is not a dev dependency here: run a global `phpcs`, or the CMS checkout's `vendor/bin/phpcs`, from this repository's root.
 
 ## Tests
 
 - Tests extend the plain PHPUnit `TestCase` in `tests/TestCase.php`; no Laravel application boots. Database tests build an Eloquent `Capsule` on in-memory SQLite in `setUp()` (see `tests/Database/SoftDeleteStateTest.php`).
-- `require-dev` allows PHPUnit 8 through 12, so use assertions that exist across those versions, or the shims in `TestCase`.
+- `require-dev` allows several PHPUnit majors, so use assertions that exist in all of them, or the shims in `TestCase`.
 - To run the CMS suite against a library change, add a Composer path repository with `"symlink": true` pointing at this checkout to the CMS's `composer.json`, run `composer update october/rain`, and leave that `composer.json` change uncommitted.
 
 ## Code
