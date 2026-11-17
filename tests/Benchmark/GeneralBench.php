@@ -1,5 +1,10 @@
 <?php
 
+use Illuminate\Container\Container;
+use Illuminate\Support\Facades\Facade;
+use October\Rain\Events\Dispatcher;
+use October\Rain\Events\PriorityDispatcher;
+
 /**
  * @BeforeMethods({"init"})
  * @Revs(1000)
@@ -12,7 +17,10 @@ class GeneralBench
      */
     public function init()
     {
-
+        $app = new Container;
+        $app->instance('events', new Dispatcher($app));
+        $app->instance('events.priority', (new PriorityDispatcher($app))->setLaravelDispatcher($app['events']));
+        Facade::setFacadeApplication($app);
     }
 
     /**

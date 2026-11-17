@@ -73,8 +73,8 @@ class RouterBench
             $routes['pad1'.$index] = '/pad1/'.$rule;
             $routes['pad2'.$index] = '/pad2/'.$rule;
             $routes['pad3'.$index] = '/pad3/'.$rule;
-            $routes['pad3'.$index] = '/pad4/'.$rule;
-            $routes['pad3'.$index] = '/pad5/'.$rule;
+            $routes['pad4'.$index] = '/pad4/'.$rule;
+            $routes['pad5'.$index] = '/pad5/'.$rule;
         }
 
         // Final target at end (120 routes)
