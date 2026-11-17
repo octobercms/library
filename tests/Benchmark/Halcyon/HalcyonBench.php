@@ -35,7 +35,8 @@ class HalcyonBench
         Model::setDatasourceResolver(new Resolver(['theme1' => $theme]));
 
         $page = HalcyonTestPage::on('theme1')->remember(60)->find('home');
-        if (!$page || HalcyonTestPage::on('theme1')->remember(60)->find('home')->title !== $page->title) {
+        $cached = HalcyonTestPage::on('theme1')->remember(60)->find('home');
+        if (!$page || !$cached->isLoadedFromCache() || $cached->title !== $page->title) {
             throw new RuntimeException('Halcyon fixture mismatch');
         }
     }
