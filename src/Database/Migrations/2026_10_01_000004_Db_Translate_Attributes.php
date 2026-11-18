@@ -14,10 +14,6 @@ return new class extends Migration
             $table->string('locale', 16);
             $table->string('attribute', 128);
             $table->mediumText('value')->nullable();
-            $table->index(
-                ['model_type', 'model_id', 'locale'],
-                'translate_type_id_locale_index'
-            );
             $table->unique(
                 ['model_type', 'model_id', 'locale', 'attribute'],
                 'translate_unique_index'
