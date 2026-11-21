@@ -7,7 +7,11 @@ on:
       - 3.x
       - 4.x
       - develop
+    paths-ignore:
+      - '**.md'
   pull_request:
+    paths-ignore:
+      - '**.md'
 
 jobs:
   phpUnitTests:
