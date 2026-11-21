@@ -386,7 +386,7 @@ trait HasEvents
     }
 
     /**
-     * beforeRelation is fired on the relation model instance after it is created
+     * afterRelation is fired on the relation model instance after it is created
      */
     protected function afterRelation($name, $model)
     {

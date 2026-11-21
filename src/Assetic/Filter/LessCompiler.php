@@ -10,9 +10,9 @@ use Less_Parser;
 
 /**
  * Less.php Compiler Filter
- * Class used to compiled stylesheet less files, not using leafo!
+ * Class used to compile stylesheet less files, not using leafo!
  *
- * @package october/parse
+ * @package october/assetic
  * @author Alexey Bobkov, Samuel Georges
  */
 class LessCompiler implements FilterInterface, HashableInterface, DependencyExtractorInterface

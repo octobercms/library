@@ -54,7 +54,7 @@ class Processor
     }
 
     /**
-     * Helper to break down template content in to a useful array.
+     * Helper to break down template content into a useful array.
      * @param  int     $mtime
      * @param  string  $content
      * @return array
@@ -79,7 +79,7 @@ class Processor
     }
 
     /**
-     * Process the data in to an insert action.
+     * Process the data into an insert action.
      *
      * @param  \October\Rain\Halcyon\Builder  $query
      * @param  array  $data
@@ -96,7 +96,7 @@ class Processor
     }
 
     /**
-     * Process the data in to an update action.
+     * Process the data into an update action.
      *
      * @param  \October\Rain\Halcyon\Builder  $query
      * @param  array  $data

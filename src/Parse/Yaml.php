@@ -16,7 +16,7 @@ use Exception;
 class Yaml
 {
     /**
-     * parse supplied YAML contents in to a PHP array.
+     * parse supplied YAML contents into a PHP array.
      * @param string $contents YAML contents to parse.
      * @return array The YAML contents as an array.
      */
@@ -28,7 +28,7 @@ class Yaml
     }
 
     /**
-     * parseFile parses YAML file contents in to a PHP array.
+     * parseFile parses YAML file contents into a PHP array.
      * @param string $fileName File to read contents and parse.
      * @return array The YAML contents as an array.
      */
@@ -47,7 +47,7 @@ class Yaml
     }
 
     /**
-     * parseFileCached parses YAML file contents in to a PHP array, with cache.
+     * parseFileCached parses YAML file contents into a PHP array, with cache.
      * @param string $fileName File to read contents and parse.
      * @return array The YAML contents as an array.
      */

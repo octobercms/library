@@ -252,7 +252,7 @@ class AutoDatasource extends Datasource implements DatasourceInterface
     }
 
     /**
-     * deleteModelAtIndex against a specific datasource index
+     * forceDeleteModelAtIndex against a specific datasource index
      */
     public function forceDeleteModelAtIndex(int $index, Model $model): bool
     {

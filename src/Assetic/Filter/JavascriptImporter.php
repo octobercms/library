@@ -12,7 +12,7 @@ use RuntimeException;
  * =include library/jquery.js;
  * =require library/jquery.js;
  *
- * @package october/parse
+ * @package october/assetic
  * @author Alexey Bobkov, Samuel Georges
  */
 class JavascriptImporter implements FilterInterface
@@ -105,7 +105,7 @@ class JavascriptImporter implements FilterInterface
 
             $scriptPath = realpath($this->scriptPath . '/' . $script);
             if (!File::isFile($scriptPath)) {
-                $errorMsg = sprintf("File '%s' not found. in %s", $script, $this->scriptFile);
+                $errorMsg = sprintf("File '%s' not found in %s", $script, $this->scriptFile);
                 if ($required) {
                     throw new RuntimeException($errorMsg);
                 }

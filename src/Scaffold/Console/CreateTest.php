@@ -31,7 +31,7 @@ class CreateTest extends GeneratorCommandBase
     public function handle()
     {
         if (!str_ends_with($this->argument('name'), 'Test')) {
-            $this->components->error('Test classes names must end in "Test"');
+            $this->components->error('Test class names must end in "Test"');
             return;
         }
 

@@ -227,7 +227,7 @@ trait NestedTree
     }
 
     /**
-     * shiftSiblingsForRestore allocates a slot for the the current node between its siblings.
+     * shiftSiblingsForRestore allocates a slot for the current node between its siblings.
      */
     public function shiftSiblingsForRestore()
     {
