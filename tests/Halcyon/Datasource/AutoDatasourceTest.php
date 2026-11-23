@@ -116,4 +116,66 @@ class AutoDatasourceTest extends TestCase
         $content = $this->autoDatasource->selectOne($this->dirName, $this->fileName, $this->extension);
         $this->assertStringContainsString('Restored content', $content['content']);
     }
+
+    public function testRenamingFilesystemOnlyTemplateHidesOldName()
+    {
+        $this->autoDatasource->update($this->dirName, 'welcome', $this->extension, '<p>Renamed</p>', $this->fileName, $this->extension);
+
+        $this->assertTrue($this->autoDatasource->hasTemplate($this->dirName, 'welcome', $this->extension));
+        $this->assertFalse($this->autoDatasource->hasTemplate($this->dirName, $this->fileName, $this->extension));
+        $this->assertNull($this->autoDatasource->selectOne($this->dirName, $this->fileName, $this->extension));
+
+        $templates = $this->autoDatasource->select($this->dirName, ['extensions' => ['htm']]);
+        $this->assertArrayHasKey('welcome.htm', $templates);
+        $this->assertArrayNotHasKey('home.htm', $templates);
+        $this->assertFileExists($this->themePath . '/pages/home.htm');
+    }
+
+    public function testRenamingOverriddenTemplateHidesOldName()
+    {
+        $this->dbDatasource->insert($this->dirName, $this->fileName, $this->extension, '<p>Database override</p>');
+
+        $this->autoDatasource->update($this->dirName, 'welcome', $this->extension, '<p>Renamed</p>', $this->fileName, $this->extension);
+
+        $this->assertTrue($this->autoDatasource->hasTemplate($this->dirName, 'welcome', $this->extension));
+        $this->assertFalse($this->autoDatasource->hasTemplate($this->dirName, $this->fileName, $this->extension));
+
+        $templates = $this->autoDatasource->select($this->dirName, ['extensions' => ['htm']]);
+        $this->assertArrayNotHasKey('home.htm', $templates);
+    }
+
+    public function testRenamingDatabaseOnlyTemplateLeavesNoTombstone()
+    {
+        $this->dbDatasource->insert($this->dirName, 'about', $this->extension, '<p>About</p>');
+
+        $this->autoDatasource->update($this->dirName, 'company', $this->extension, '<p>Company</p>', 'about', $this->extension);
+
+        $this->assertTrue($this->autoDatasource->hasTemplate($this->dirName, 'company', $this->extension));
+        $this->assertFalse($this->autoDatasource->hasTemplate($this->dirName, 'about', $this->extension));
+        $this->assertFalse($this->dbDatasource->isTemplateTrashed($this->dirName, 'about', $this->extension));
+    }
+
+    public function testRenamingBackToHiddenNameRestoresIt()
+    {
+        $this->autoDatasource->update($this->dirName, 'welcome', $this->extension, '<p>Renamed</p>', $this->fileName, $this->extension);
+        $this->autoDatasource->update($this->dirName, $this->fileName, $this->extension, '<p>Renamed back</p>', 'welcome', $this->extension);
+
+        $this->assertTrue($this->autoDatasource->hasTemplate($this->dirName, $this->fileName, $this->extension));
+        $this->assertFalse($this->autoDatasource->hasTemplate($this->dirName, 'welcome', $this->extension));
+        $this->assertFalse($this->dbDatasource->isTemplateTrashed($this->dirName, $this->fileName, $this->extension));
+
+        $content = $this->autoDatasource->selectOne($this->dirName, $this->fileName, $this->extension);
+        $this->assertStringContainsString('Renamed back', $content['content']);
+    }
+
+    public function testUpdatingWithoutRenameKeepsTemplateVisible()
+    {
+        $this->autoDatasource->update($this->dirName, $this->fileName, $this->extension, '<p>Edited</p>');
+
+        $this->assertTrue($this->autoDatasource->hasTemplate($this->dirName, $this->fileName, $this->extension));
+        $this->assertFalse($this->dbDatasource->isTemplateTrashed($this->dirName, $this->fileName, $this->extension));
+
+        $content = $this->autoDatasource->selectOne($this->dirName, $this->fileName, $this->extension);
+        $this->assertStringContainsString('Edited', $content['content']);
+    }
 }

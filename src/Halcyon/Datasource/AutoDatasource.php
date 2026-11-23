@@ -116,6 +116,11 @@ class AutoDatasource extends Datasource implements DatasourceInterface
             $result = $this->primaryDatasource->insert($dirName, $fileName, $extension, $content);
         }
 
+        // A renamed template keeps its old name in the lower layers, so hide it
+        if ($findFileName !== $fileName || $findExt !== $extension) {
+            $this->hideInheritedTemplate($dirName, $findFileName, $findExt);
+        }
+
         return $result;
     }
 
@@ -277,6 +282,26 @@ class AutoDatasource extends Datasource implements DatasourceInterface
         }
 
         return null;
+    }
+
+    /**
+     * hideInheritedTemplate tombstones a template that a lower datasource still provides
+     */
+    protected function hideInheritedTemplate(string $dirName, string $fileName, string $extension): bool
+    {
+        $dbDatasource = $this->getDbDatasource();
+
+        if (!$dbDatasource) {
+            return false;
+        }
+
+        foreach (array_slice($this->datasources, 1) as $datasource) {
+            if ($datasource->hasTemplate($dirName, $fileName, $extension)) {
+                return $dbDatasource->tombstone($dirName, $fileName, $extension);
+            }
+        }
+
+        return false;
     }
 
     /**
