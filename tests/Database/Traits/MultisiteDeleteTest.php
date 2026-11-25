@@ -55,8 +55,14 @@ class MultisiteDeleteTest extends TestCase
         // Re-register model events against the dispatcher so afterDelete fires
         TestModelMultisiteDelete::flushEventListeners();
         TestModelMultisiteSoftDelete::flushEventListeners();
+        TestModelMultisiteSoftDeleteUnlinked::flushEventListeners();
         TestModelMultisiteDelete::$deleted = [];
         TestModelMultisiteSoftDelete::$deleted = [];
+        TestModelMultisiteSoftDelete::$restored = [];
+
+        // The restore events are registered once at boot, so the flush above removes them
+        TestModelMultisiteSoftDelete::bootSoftDelete();
+        TestModelMultisiteSoftDeleteUnlinked::bootSoftDelete();
 
         $capsule->schema()->dropIfExists('test_multisite_delete');
         $capsule->schema()->create('test_multisite_delete', function ($table) {
@@ -137,6 +143,55 @@ class MultisiteDeleteTest extends TestCase
 
         $this->assertEquals(0, $this->countRows());
         $this->assertEquals([[2, 2], [3, 3], [1, 1]], TestModelMultisiteSoftDelete::$deleted);
+    }
+
+    /**
+     * testRestoreRunsEventsInOtherSites confirms the trashed records of the other sites are restored with their events, each in its own site
+     */
+    public function testRestoreRunsEventsInOtherSites()
+    {
+        $root = $this->makeRecords(TestModelMultisiteSoftDelete::class);
+
+        $root->delete();
+        $root->restore();
+
+        $this->assertEquals(3, $this->countRows(false));
+        $this->assertEquals([[2, 2], [3, 3], [1, 1]], TestModelMultisiteSoftDelete::$restored);
+    }
+
+    /**
+     * testRestoreSkipsLiveRecords confirms a record that is not in the trash is not restored again
+     */
+    public function testRestoreSkipsLiveRecords()
+    {
+        $root = $this->makeRecords(TestModelMultisiteSoftDelete::class);
+
+        $root->delete();
+
+        self::$capsule->getConnection()->table('test_multisite_delete')
+            ->where('site_id', 2)
+            ->update(['deleted_at' => null]);
+
+        $root->restore();
+
+        $this->assertEquals(3, $this->countRows(false));
+        $this->assertEquals([[3, 3], [1, 1]], TestModelMultisiteSoftDelete::$restored);
+    }
+
+    /**
+     * testRestoreFollowsDeleteOption confirms the records of the other sites stay in the trash when the delete option is off
+     */
+    public function testRestoreFollowsDeleteOption()
+    {
+        $root = $this->makeRecords(TestModelMultisiteSoftDeleteUnlinked::class);
+
+        self::$capsule->getConnection()->table('test_multisite_delete')
+            ->update(['deleted_at' => '2020-01-01 00:00:00']);
+
+        $root->findForSite(1)->restore();
+
+        $this->assertEquals(1, $this->countRows(false));
+        $this->assertEquals([[1, 1]], TestModelMultisiteSoftDelete::$restored);
     }
 
     /**
@@ -281,6 +336,11 @@ class TestModelMultisiteSoftDelete extends \October\Rain\Database\Model
 
     protected $fillable = ['name', 'site_root_id'];
 
+    /**
+     * @var array restored records, each as the record site and the site in context
+     */
+    public static $restored = [];
+
     protected $propagatable = [];
 
     protected $propagatableSync = true;
@@ -289,4 +349,17 @@ class TestModelMultisiteSoftDelete extends \October\Rain\Database\Model
     {
         static::$deleted[] = [(int) $this->site_id, (int) Site::getSiteIdFromContext()];
     }
+
+    public function afterRestore()
+    {
+        static::$restored[] = [(int) $this->site_id, (int) Site::getSiteIdFromContext()];
+    }
+}
+
+/**
+ * TestModelMultisiteSoftDeleteUnlinked example class
+ */
+class TestModelMultisiteSoftDeleteUnlinked extends TestModelMultisiteSoftDelete
+{
+    protected $propagatableSync = ['sync' => 'group', 'delete' => false];
 }

@@ -29,7 +29,7 @@ trait Multisite
      *
      * - **sync** - logic to sync specific sites, available options: `all`, `group`, `locale`
      * - **structure** - enable the sync of tree/sortable structures, default: `true`
-     * - **delete** - delete all linked records when any record is deleted, default: `true`
+     * - **delete** - delete or restore all linked records when any record is deleted or restored, default: `true`
      *
      *     protected $propagatableSync = false;
      */
@@ -55,6 +55,12 @@ trait Multisite
     protected $multisiteDeletedForSite = false;
 
     /**
+     * @var bool multisiteRestoredForSite is true when the model is restored on behalf of another
+     * site, which stops it from restoring the other sites in return.
+     */
+    protected $multisiteRestoredForSite = false;
+
+    /**
      * initializeMultisite
      */
     public function initializeMultisite()
@@ -73,6 +79,8 @@ trait Multisite
         $this->bindEvent('model.saveComplete', [$this, 'multisiteSaveComplete']);
 
         $this->bindEvent('model.afterDelete', [$this, 'multisiteAfterDelete']);
+
+        $this->bindEvent('model.afterRestore', [$this, 'multisiteAfterRestore']);
 
         if (!$this->multisiteRelationsDefined) {
             $this->defineMultisiteRelations();
@@ -160,6 +168,26 @@ trait Multisite
         foreach ($this->getMultisiteSyncSites() as $siteId) {
             if (!$this->isModelUsingSameSite($siteId)) {
                 $this->deleteForSite($siteId);
+            }
+        }
+    }
+
+    /**
+     * multisiteAfterRestore
+     */
+    public function multisiteAfterRestore()
+    {
+        if ($this->multisiteRestoredForSite) {
+            return;
+        }
+
+        if (!$this->isMultisiteSyncEnabled() || !$this->getMultisiteConfig('delete', true)) {
+            return;
+        }
+
+        foreach ($this->getMultisiteSyncSites() as $siteId) {
+            if (!$this->isModelUsingSameSite($siteId)) {
+                $this->restoreForSite($siteId);
             }
         }
     }
@@ -653,6 +681,29 @@ trait Multisite
             else {
                 $otherModel->delete();
             }
+        });
+    }
+
+    /**
+     * restoreForSite runs the restore command on a trashed model for another site, useful for
+     * bringing back the records for other sites when the parent is restored. The restore runs
+     * in the context of the other site with its model events.
+     */
+    public function restoreForSite($siteId = null)
+    {
+        if (!$this->isClassInstanceOf(\October\Contracts\Database\SoftDeleteInterface::class)) {
+            return;
+        }
+
+        $otherModel = $this->findForSite($siteId);
+        if (!$otherModel || !$otherModel->trashed()) {
+            return;
+        }
+
+        $otherModel->multisiteRestoredForSite = true;
+
+        Site::withContext($siteId, function() use ($otherModel) {
+            $otherModel->restore();
         });
     }
 

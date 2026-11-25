@@ -235,6 +235,10 @@ trait NestedTree
             return;
         }
 
+        if ($this->hasOpenSlotForRestore()) {
+            return;
+        }
+
         $this->getConnection()->transaction(function () {
             $leftCol = $this->getLeftColumnName();
             $rightCol = $this->getRightColumnName();
@@ -254,6 +258,41 @@ trait NestedTree
                 ->increment($rightCol, $diff)
             ;
         });
+    }
+
+    /**
+     * hasOpenSlotForRestore returns true if the slot of the current node was never closed, which
+     * happens when the node is trashed without its delete event. The children still sit inside
+     * the slot and no other node has taken its edges.
+     */
+    protected function hasOpenSlotForRestore(): bool
+    {
+        $leftCol = $this->getLeftColumnName();
+        $rightCol = $this->getRightColumnName();
+        $edges = [$this->getLeft(), $this->getRight()];
+
+        $hasChildren = $this->newNestedTreeQuery()
+            ->where($this->getParentColumnName(), $this->getKey())
+            ->where($leftCol, '>', $this->getLeft())
+            ->where($rightCol, '<', $this->getRight())
+            ->exists()
+        ;
+
+        if (!$hasChildren) {
+            return false;
+        }
+
+        $hasTakenEdges = $this->newNestedTreeQuery()
+            ->where(function ($query) use ($leftCol, $rightCol, $edges) {
+                $query
+                    ->whereIn($leftCol, $edges)
+                    ->orWhereIn($rightCol, $edges)
+                ;
+            })
+            ->exists()
+        ;
+
+        return !$hasTakenEdges;
     }
 
     /**
