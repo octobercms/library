@@ -116,6 +116,19 @@ interface OctoberPackage
     public function registerFilterWidgets();
 
     /**
+     * registerListWidgets registers any list widgets implemented in this package.
+     * The widgets must be returned in the following format:
+     *
+     *     return [
+     *         ['className1' => 'alias'],
+     *         ['className2' => 'anotherAlias']
+     *     ];
+     *
+     * @return array
+     */
+    public function registerListWidgets();
+
+    /**
      * registerListColumnTypes registers custom backend list column types introduced
      * by this package.
      *

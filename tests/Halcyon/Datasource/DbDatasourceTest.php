@@ -45,6 +45,19 @@ class DbDatasourceTest extends TestCase
         $this->assertFalse($this->dbDatasource->isTemplateTrashed($this->dirName, $this->fileName, $this->extension));
     }
 
+    public function testRenamingOntoTrashedPathRemovesTombstone()
+    {
+        $this->dbDatasource->insert('pages', 'about', 'htm', '<p>About</p>');
+        $this->dbDatasource->tombstone('pages', 'company', 'htm');
+
+        $this->dbDatasource->update('pages', 'company', 'htm', '<p>Company</p>', 'about', 'htm');
+
+        $this->assertFalse($this->dbDatasource->isTemplateTrashed('pages', 'company', 'htm'));
+        $this->assertTrue($this->dbDatasource->hasTemplate('pages', 'company', 'htm'));
+        $this->assertFalse($this->dbDatasource->hasTemplate('pages', 'about', 'htm'));
+        $this->assertCount(1, $this->dbDatasource->select('pages'));
+    }
+
     public function testSelectTrashedFileNamesReturnsSoftDeletedTemplates()
     {
         $this->dbDatasource->insert($this->dirName, $this->fileName, $this->extension, '<p>DB content</p>');

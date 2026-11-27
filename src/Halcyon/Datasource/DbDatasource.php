@@ -271,6 +271,11 @@ class DbDatasource extends Datasource implements DatasourceInterface
              */
             $this->fireEvent('halcyon.datasource.db.beforeUpdate', [&$data]);
 
+            // A tombstone left at the new path would keep the renamed template hidden
+            if ($path !== $oldPath) {
+                $this->getQuery(false)->where('path', $path)->whereNotNull('deleted_at')->delete();
+            }
+
             $this->getQuery(false)->where('path', $oldPath)->update($data);
 
             $this->flushCache();

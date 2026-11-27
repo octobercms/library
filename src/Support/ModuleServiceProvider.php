@@ -164,6 +164,14 @@ abstract class ModuleServiceProvider extends ServiceProviderBase implements Octo
     /**
      * @inheritDoc
      */
+    public function registerListWidgets()
+    {
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function registerListColumnTypes()
     {
         return [];
