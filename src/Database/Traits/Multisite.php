@@ -460,7 +460,9 @@ trait Multisite
                 // the foreign key to point to the target parent
                 $newItem = $sourceItem->findOtherSiteModel($siteId);
                 $newItem->{$foreignKeyName} = $parentKey;
-                $newItem->save(['force' => true]);
+
+                // Saves the item and propagates its own relations
+                $sourceItem->propagateToSite($siteId, $newItem);
             }
         }
 

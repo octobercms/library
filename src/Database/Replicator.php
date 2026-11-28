@@ -121,7 +121,11 @@ class Replicator
         $this->associationMap = [];
         foreach (array_filter($models) as $model) {
             if ($relationObject instanceof HasOneOrMany) {
-                $relationObject->add($newModel = $model->replicateWithRelations());
+                $newModel = $this->isDuplicating
+                    ? $model->duplicateWithRelations()
+                    : $model->replicateWithRelations();
+
+                $relationObject->add($newModel);
                 $this->mapAssociation($model, $newModel);
             }
             else {
