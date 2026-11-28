@@ -21,4 +21,24 @@ class SoftDeleteScope extends SoftDeletingScope
             $builder->whereNull($model->getQualifiedDeletedAtColumn());
         }
     }
+
+    /**
+     * extend the query builder with a delete that follows the soft delete toggle.
+     */
+    public function extend(BuilderBase $builder)
+    {
+        parent::extend($builder);
+
+        $builder->onDelete(function (BuilderBase $builder) {
+            $model = $builder->getModel();
+
+            if (!$model->isSoftDeleteEnabled()) {
+                return $builder->toBase()->delete();
+            }
+
+            return $builder->update([
+                $this->getDeletedAtColumn($builder) => $model->freshTimestampString(),
+            ]);
+        });
+    }
 }
