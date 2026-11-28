@@ -234,6 +234,11 @@ trait Multisite
             return true;
         }
 
+        // Site scoped joins keep their own records for each site
+        if (Arr::get($this->$type[$name], 'pivotSiteScope', false)) {
+            return true;
+        }
+
         // The current record counts for one so halt if we find more
         return !($this->newOtherSiteQuery()->count() > 1);
     }

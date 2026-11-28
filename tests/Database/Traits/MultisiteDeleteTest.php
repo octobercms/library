@@ -206,6 +206,17 @@ class MultisiteDeleteTest extends TestCase
     }
 
     /**
+     * testSiteScopedJoinIsNotShared confirms a join to a multisite model is deleted with its record while a join to a shared model waits for the last one
+     */
+    public function testSiteScopedJoinIsNotShared()
+    {
+        $root = $this->makeRecords(TestModelMultisiteDeleteJoins::class);
+
+        $this->assertTrue($root->canDeleteMultisiteRelation('scoped_tags'));
+        $this->assertFalse($root->canDeleteMultisiteRelation('shared_tags'));
+    }
+
+    /**
      * makeRecords creates a record in site 1 with a linked record in sites 2 and 3, returning the first
      */
     protected function makeRecords(string $class): \October\Rain\Database\Model
@@ -317,6 +328,27 @@ class TestModelMultisiteDelete extends \October\Rain\Database\Model
     {
         static::$deleted[] = [(int) $this->site_id, (int) Site::getSiteIdFromContext()];
     }
+}
+
+/**
+ * TestModelMultisiteDeleteJoins example class
+ */
+class TestModelMultisiteDeleteJoins extends TestModelMultisiteDelete
+{
+    protected $propagatable = ['scoped_tags', 'shared_tags'];
+
+    public $belongsToMany = [
+        'scoped_tags' => [TestModelMultisiteDelete::class, 'table' => 'test_multisite_delete_tags'],
+        'shared_tags' => [TestModelMultisiteDeleteTag::class, 'table' => 'test_multisite_delete_tags'],
+    ];
+}
+
+/**
+ * TestModelMultisiteDeleteTag example class
+ */
+class TestModelMultisiteDeleteTag extends \October\Rain\Database\Model
+{
+    protected $table = 'test_multisite_delete';
 }
 
 /**
